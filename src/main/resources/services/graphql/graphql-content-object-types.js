@@ -17,7 +17,7 @@ exports.publishInfoType = graphQlLib.createObjectType({
             }
         },
         first: {
-            type:graphQlLib.GraphQLString,
+            type: graphQlLib.GraphQLString,
             resolve: function (env) {
                 return env.source.first;
             }
@@ -42,15 +42,130 @@ exports.attachmentType = graphQlLib.createObjectType({
             }
         },
         size: {
-            type:graphQlLib.GraphQLInt,
+            type: graphQlLib.GraphQLInt,
             resolve: function (env) {
                 return env.source.size;
             }
         },
         mimeType: {
-            type:graphQlLib.GraphQLString,
+            type: graphQlLib.GraphQLString,
             resolve: function (env) {
                 return env.source.mimeType;
+            }
+        }
+    }
+});
+
+exports.componentType = graphQlLib.createObjectType({
+    name: 'Component',
+    description: 'Component.',
+    fields: {
+        name: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.name;
+            }
+        },
+        path: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.path;
+            }
+        },
+        type: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.type;
+            }
+        },
+        descriptor: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.descriptor;
+            }
+        },
+        config: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return JSON.stringify(env.source.config);
+            }
+        },
+        regions: {
+            type: graphQlLib.list(graphQlLib.reference('PageRegion')),
+            resolve: function (env) {
+                return env.source.regions && Object.keys(env.source.regions).map(function (key) {
+                    return env.source.regions[key];
+                });
+            }
+        },
+        text: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.text;
+            }
+        },
+        fragment: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.fragment;
+            }
+        }
+    }
+});
+
+exports.pageRegionType = graphQlLib.createObjectType({
+    name: 'PageRegion',
+    description: 'Page region.',
+    fields: {
+        name: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.name;
+            }
+        },
+        components: {
+            type: graphQlLib.list(exports.componentType),
+            resolve: function (env) {
+                return env.source.components; //TODO
+            }
+        }
+    }
+});
+
+exports.pageType = graphQlLib.createObjectType({
+    name: 'Page',
+    description: 'Page.',
+    fields: {
+        template: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.template;
+            }
+        },
+        controller: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.controller;
+            }
+        },
+        config: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return JSON.stringify(env.source.config);
+            }
+        },
+        regions: {
+            type: graphQlLib.list(exports.pageRegionType),
+            resolve: function (env) {
+                return env.source.regions && Object.keys(env.source.regions).map(function (key) {
+                    return env.source.regions[key];
+                });
+            }
+        },
+        fragment: {
+            type: exports.componentType,
+            resolve: function (env) {
+                return env.source.fragment;
             }
         }
     }

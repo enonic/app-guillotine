@@ -155,9 +155,9 @@ function addContentTypeFields(createContentTypeTypeParams, contentType) {
         }
     };
     fields.page = {
-        type: graphQlLib.GraphQLString,
+        type: graphqlContentObjectTypesLib.pageType,
         resolve: function (env) {
-            return JSON.stringify(env.source.page); //TODO
+            return env.source.page;
         }
     };
     fields.attachments = {
@@ -171,7 +171,7 @@ function addContentTypeFields(createContentTypeTypeParams, contentType) {
     fields.publish = {
         type: graphqlContentObjectTypesLib.publishInfoType,
         resolve: function (env) {
-            return env.source.publish; //TODO
+            return env.source.publish;
         }
     }
     //TODO Add missing fields
