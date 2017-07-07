@@ -47,13 +47,12 @@ function generateContentTypeObjectType(contentType) {
         description: contentType.displayName,
         fields: {}
     };
-    addGenericContentTypesFields(createContentTypeTypeParams);
-    //addContentTypesDataField(createContentTypeTypeParams, contentType);
+    addContentTypeFields(createContentTypeTypeParams, contentType);
     return graphQlLib.createObjectType(createContentTypeTypeParams);
 }
 
 
-function addGenericContentTypesFields(createContentTypeTypeParams) {
+function addContentTypeFields(createContentTypeTypeParams, contentType) {
     var fields = createContentTypeTypeParams.fields;
     fields._id = {
         type: graphQlLib.nonNull(graphQlLib.GraphQLID),
@@ -127,12 +126,14 @@ function addGenericContentTypesFields(createContentTypeTypeParams) {
             return env.source.valid;
         }
     };
-    fields.data = {
-        type: graphQlLib.GraphQLString,
-        resolve: function (env) {
-            return JSON.stringify(env.source.x); //TODO
-        }
-    };
+    if (contentType.form.length > 0) {
+        fields.data = {
+            type: generateContentTypeDataObjectType(contentType),
+            resolve: function (env) {
+                return env.source.data;
+            }
+        };
+    }
     fields.x = {
         type: graphQlLib.GraphQLString,
         resolve: function (env) {
@@ -160,33 +161,22 @@ function addGenericContentTypesFields(createContentTypeTypeParams) {
     //TODO Add missing fields
 }
 
-//function addContentTypesDataField(createContentTypeTypeParams, contentType) {
-//    if (contentType.form.length > 0) {
-//        createContentTypeTypeParams.fields.data = {
-//            type: generateContentTypeDataObjectType(contentType),
-//            resolve: function (env) {
-//                return env.source.data;
-//            }
-//        };
-//    }
-//}
-//
-//function generateContentTypeDataObjectType(contentType) {
-//    var createContentTypeDataTypeParams = {
-//        name: sanitizeText(contentType.displayName) + '_Data',
-//        description: contentType.displayName + ' data',
-//        fields: {}
-//    };
-//    contentType.form.forEach(function (formItem) {
-//        createContentTypeDataTypeParams.fields[sanitizeText(formItem.name)] = {
-//            type: graphQlLib.GraphQLString, //TODO
-//            resolve: function (env) {
-//                return env.source[formItem.name];
-//            }
-//        }
-//    });
-//    return graphQlLib.createObjectType(createContentTypeDataTypeParams);
-//}
+function generateContentTypeDataObjectType(contentType) {
+    var createContentTypeDataTypeParams = {
+        name: sanitizeText(contentType.displayName) + '_Data',
+        description: contentType.displayName + ' data',
+        fields: {}
+    };
+    contentType.form.forEach(function (formItem) {
+        createContentTypeDataTypeParams.fields[sanitizeText(formItem.name)] = {
+            type: graphQlLib.GraphQLString, //TODO
+            resolve: function (env) {
+                return env.source[formItem.name];
+            }
+        }
+    });
+    return graphQlLib.createObjectType(createContentTypeDataTypeParams);
+}
 
 function sanitizeText(text) {
     return text.replace(/([^0-9A-Za-z])+/g, '_');
