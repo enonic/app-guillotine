@@ -84,12 +84,6 @@ exports.componentType = graphQlLib.createObjectType({
                 return env.source.descriptor;
             }
         },
-        config: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return JSON.stringify(env.source.config);
-            }
-        },
         text: {
             type: graphQlLib.GraphQLString,
             resolve: function (env) {
@@ -100,6 +94,12 @@ exports.componentType = graphQlLib.createObjectType({
             type: graphQlLib.GraphQLString,
             resolve: function (env) {
                 return env.source.fragment;
+            }
+        },
+        config: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return JSON.stringify(env.source.config);
             }
         },
         regions: {
