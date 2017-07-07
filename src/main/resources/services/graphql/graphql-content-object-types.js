@@ -90,14 +90,6 @@ exports.componentType = graphQlLib.createObjectType({
                 return JSON.stringify(env.source.config);
             }
         },
-        regions: {
-            type: graphQlLib.list(graphQlLib.reference('PageRegion')),
-            resolve: function (env) {
-                return env.source.regions && Object.keys(env.source.regions).map(function (key) {
-                    return env.source.regions[key];
-                });
-            }
-        },
         text: {
             type: graphQlLib.GraphQLString,
             resolve: function (env) {
@@ -108,6 +100,14 @@ exports.componentType = graphQlLib.createObjectType({
             type: graphQlLib.GraphQLString,
             resolve: function (env) {
                 return env.source.fragment;
+            }
+        },
+        regions: {
+            type: graphQlLib.list(graphQlLib.reference('PageRegion')),
+            resolve: function (env) {
+                return env.source.regions && Object.keys(env.source.regions).map(function (key) {
+                        return env.source.regions[key];
+                    });
             }
         }
     }
