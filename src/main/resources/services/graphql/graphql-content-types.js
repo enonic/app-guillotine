@@ -1,5 +1,6 @@
 var graphQlLib = require('/lib/graphql');
 var contentLib = require('/lib/xp/content');
+var utilLib = require('./util');
 var graphqlContentObjectTypesLib = require('./graphql-content-object-types');
 
 exports.addContentTypesAsFields = function (createObjectTypeParams) {
@@ -40,7 +41,7 @@ function getContentTypeLocalName(contentType) {
 }
 
 function generateContentTypeObjectType(contentType) {
-    log.info('Content type: ' + JSON.stringify(contentType, null, 2));
+    //log.info('Content type: ' + JSON.stringify(contentType, null, 2));
     var contentTypeDisplayName = generateCamelCase(contentType.displayName, true);
 
     var createContentTypeTypeParams = {
@@ -156,7 +157,7 @@ function addContentTypeFields(createContentTypeTypeParams, contentType) {
     fields.attachments = {
         type: graphQlLib.list(graphqlContentObjectTypesLib.attachmentType),
         resolve: function (env) {
-            return Object.keys(env.source.attachments).map(function(key){
+            return Object.keys(env.source.attachments).map(function (key) {
                 return env.source.attachments[key];
             });
         }
@@ -178,13 +179,33 @@ function generateContentTypeDataObjectType(contentType) {
     };
     contentType.form.forEach(function (formItem) {
         createContentTypeDataTypeParams.fields[generateCamelCase(formItem.name)] = {
-            type: graphQlLib.GraphQLString, //TODO
-            resolve: function (env) {
-                return env.source[formItem.name];
-            }
+            type: generateFormItemObjectType(formItem),
+            resolve: generateFormItemResolveFunction(formItem)
         }
     });
     return graphQlLib.createObjectType(createContentTypeDataTypeParams);
+}
+
+function generateFormItemObjectType(formItem) {
+    if (formItem.occurrences && formItem.occurrences.maximum == 1) {
+        return graphQlLib.GraphQLString;
+    } else {
+        return graphQlLib.list(graphQlLib.GraphQLString)
+    }
+    //TODO
+}
+
+function generateFormItemResolveFunction(formItem) {
+    if (formItem.occurrences && formItem.occurrences.maximum == 1) {
+        return function (env) {
+            return env.source[formItem.name];
+        };
+    } else {
+        return function (env) {
+            return utilLib.forceArray(env.source[formItem.name]);
+        };
+    }
+
 }
 
 function generateCamelCase(text, upper) {
