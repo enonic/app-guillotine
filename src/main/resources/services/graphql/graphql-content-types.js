@@ -114,26 +114,27 @@ function addContentTypeFields(createContentTypeTypeParams, contentType) {
             return env.source.hasChildren;
         }
     };
-    fields.modifiedTime = {
-        type: graphQlLib.GraphQLString,
-        resolve: function (env) {
-            return env.source.modifiedTime;
-        }
-    };
     fields.valid = {
         type: graphQlLib.GraphQLBoolean,
         resolve: function (env) {
             return env.source.valid;
         }
     };
-    if (contentType.form.length > 0) {
-        fields.data = {
-            type: generateContentTypeDataObjectType(contentType),
-            resolve: function (env) {
-                return env.source.data;
-            }
-        };
-    }
+    //if (contentType.form.length > 0) {
+    //    fields.data = {
+    //        type: generateContentTypeDataObjectType(contentType),
+    //        resolve: function (env) {
+    //            return env.source.data;
+    //        }
+    //    };
+    //}
+    
+    fields.data = {
+        type: graphQlLib.GraphQLString,
+        resolve: function (env) {
+            return JSON.stringify(env.source.data); //TODO
+        }
+    };
     fields.x = {
         type: graphQlLib.GraphQLString,
         resolve: function (env) {
@@ -161,22 +162,22 @@ function addContentTypeFields(createContentTypeTypeParams, contentType) {
     //TODO Add missing fields
 }
 
-function generateContentTypeDataObjectType(contentType) {
-    var createContentTypeDataTypeParams = {
-        name: generateCamelCase(contentType.displayName + '_Data', true),
-        description: contentType.displayName + ' data',
-        fields: {}
-    };
-    contentType.form.forEach(function (formItem) {
-        createContentTypeDataTypeParams.fields[generateCamelCase(formItem.name)] = {
-            type: graphQlLib.GraphQLString, //TODO
-            resolve: function (env) {
-                return env.source[formItem.name];
-            }
-        }
-    });
-    return graphQlLib.createObjectType(createContentTypeDataTypeParams);
-}
+//function generateContentTypeDataObjectType(contentType) {
+//    var createContentTypeDataTypeParams = {
+//        name: generateCamelCase(contentType.displayName + '_Data', true),
+//        description: contentType.displayName + ' data',
+//        fields: {}
+//    };
+//    contentType.form.forEach(function (formItem) {
+//        createContentTypeDataTypeParams.fields[generateCamelCase(formItem.name)] = {
+//            type: graphQlLib.GraphQLString, //TODO
+//            resolve: function (env) {
+//                return env.source[formItem.name];
+//            }
+//        }
+//    });
+//    return graphQlLib.createObjectType(createContentTypeDataTypeParams);
+//}
 
 function generateCamelCase(text, upper) {
     var sanitizedText = sanitizeText(text);
