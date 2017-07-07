@@ -35,12 +35,12 @@ exports.addContentTypesAsFields = function (createObjectTypeParams) {
 
 function getContentTypeLocalName(contentType) {
     var localName = contentType.name.substr(contentType.name.indexOf(':') + 1);
-    return generateCamelCase(localName);
+    return generateCamelCase(localName, true);
 }
 
 function generateContentTypeObjectType(contentType) {
     log.info('Content type: ' + JSON.stringify(contentType, null, 2));
-    var contentTypeDisplayName = sanitizeText(contentType.displayName);
+    var contentTypeDisplayName = generateCamelCase(contentType.displayName, true);
 
     var createContentTypeTypeParams = {
         name: contentTypeDisplayName,
@@ -163,12 +163,12 @@ function addContentTypeFields(createContentTypeTypeParams, contentType) {
 
 function generateContentTypeDataObjectType(contentType) {
     var createContentTypeDataTypeParams = {
-        name: sanitizeText(contentType.displayName) + '_Data',
+        name: generateCamelCase(contentType.displayName + '_Data', true),
         description: contentType.displayName + ' data',
         fields: {}
     };
     contentType.form.forEach(function (formItem) {
-        createContentTypeDataTypeParams.fields[sanitizeText(formItem.name)] = {
+        createContentTypeDataTypeParams.fields[generateCamelCase(formItem.name)] = {
             type: graphQlLib.GraphQLString, //TODO
             resolve: function (env) {
                 return env.source[formItem.name];
@@ -178,12 +178,13 @@ function generateContentTypeDataObjectType(contentType) {
     return graphQlLib.createObjectType(createContentTypeDataTypeParams);
 }
 
-function generateCamelCase(text) {
+function generateCamelCase(text, upper) {
     var sanitizedText = sanitizeText(text);
     var camelCasedText = sanitizedText.replace(/_[0-9A-Za-z]/g, function (match, offset, string) {
         return match.charAt(1).toUpperCase();
     });
-    return camelCasedText.charAt(0).toUpperCase() + (camelCasedText.length > 1 ? camelCasedText.substr(1) : '');
+    var firstCharacter = upper ? camelCasedText.charAt(0).toUpperCase() : camelCasedText.charAt(0).toLowerCase();
+    return firstCharacter + (camelCasedText.length > 1 ? camelCasedText.substr(1) : '');
 }
 
 function sanitizeText(text) {
