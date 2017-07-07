@@ -97,6 +97,12 @@ function addContentTypeFields(createContentTypeTypeParams, contentType) {
             return env.source.modifiedTime;
         }
     };
+    fields.owner = {
+        type: graphQlLib.GraphQLString,
+        resolve: function (env) {
+            return env.source.owner;
+        }
+    };
     fields.type = {
         type: graphQlLib.GraphQLString,
         resolve: function (env) {
@@ -113,6 +119,12 @@ function addContentTypeFields(createContentTypeTypeParams, contentType) {
         type: graphQlLib.GraphQLBoolean,
         resolve: function (env) {
             return env.source.hasChildren;
+        }
+    };
+    fields.language = {
+        type: graphQlLib.GraphQLString,
+        resolve: function (env) {
+            return env.source.language;
         }
     };
     fields.valid = {
