@@ -1,18 +1,10 @@
 var graphQlLib = require('/lib/graphql');
+var graphQlContentTypesLib = require('./graphql-content-types');
 
 var createQueryTypeParams = {
     name: 'Query',
     fields: {
-        dummy: {
-            type: graphQlLib.GraphQLString,
-            args: {
-                id: graphQlLib.GraphQLID
-            },
-            resolve: function (env) {
-                return 'dummyText';
-            }
-        }
-    }
+    }    
 };
-
+graphQlContentTypesLib.addContentTypesAsFields(createQueryTypeParams);
 exports.rootQueryType = graphQlLib.createObjectType(createQueryTypeParams);
