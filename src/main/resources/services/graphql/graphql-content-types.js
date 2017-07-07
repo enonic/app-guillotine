@@ -5,7 +5,7 @@ exports.addContentTypesAsFields = function (createObjectTypeParams) {
     contentLib.getTypes().forEach(function (contentType) {
         var contentTypeName = getContentTypeLocalName(contentType);
         var contentTypeObjectType = generateContentTypeObjectType(contentType);
-        createObjectTypeParams.fields['get_' + contentTypeName] = {
+        createObjectTypeParams.fields['get' + contentTypeName] = {
             type: contentTypeObjectType,
             args: {
                 key: graphQlLib.nonNull(graphQlLib.GraphQLID)
@@ -14,7 +14,7 @@ exports.addContentTypesAsFields = function (createObjectTypeParams) {
                 return contentLib.getContent(env.args.key);
             }
         };
-        createObjectTypeParams.fields['getAll_' + contentTypeName] = {
+        createObjectTypeParams.fields['getAll' + contentTypeName] = {
             type: graphQlLib.list(contentTypeObjectType),
             args: {
                 offset: graphQlLib.GraphQLInt,
@@ -35,7 +35,7 @@ exports.addContentTypesAsFields = function (createObjectTypeParams) {
 
 function getContentTypeLocalName(contentType) {
     var localName = contentType.name.substr(contentType.name.indexOf(':') + 1);
-    return sanitizeText(localName);
+    return generateCamelCase(localName);
 }
 
 function generateContentTypeObjectType(contentType) {
@@ -176,6 +176,14 @@ function generateContentTypeDataObjectType(contentType) {
         }
     });
     return graphQlLib.createObjectType(createContentTypeDataTypeParams);
+}
+
+function generateCamelCase(text) {
+    var sanitizedText = sanitizeText(text);
+    var camelCasedText = sanitizedText.replace(/_[0-9A-Za-z]/g, function (match, offset, string) {
+        return match.charAt(1).toUpperCase();
+    });
+    return camelCasedText.charAt(0).toUpperCase() + (camelCasedText.length > 1 ? camelCasedText.substr(1) : '');
 }
 
 function sanitizeText(text) {
