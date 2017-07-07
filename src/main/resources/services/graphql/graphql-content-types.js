@@ -149,9 +149,11 @@ function addContentTypeFields(createContentTypeTypeParams, contentType) {
         }
     };
     fields.attachments = {
-        type: graphQlLib.GraphQLString,
+        type: graphQlLib.list(graphqlContentObjectTypesLib.attachmentType),
         resolve: function (env) {
-            return JSON.stringify(env.source.attachments); //TODO
+            return Object.keys(env.source.attachments).map(function(key){
+                return env.source.attachments[key];
+            });
         }
     };
     fields.publish = {

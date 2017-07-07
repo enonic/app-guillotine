@@ -24,3 +24,34 @@ exports.publishInfoType = graphQlLib.createObjectType({
         }
     }
 });
+
+exports.attachmentType = graphQlLib.createObjectType({
+    name: 'Attachment',
+    description: 'Attachment.',
+    fields: {
+        name: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.name;
+            }
+        },
+        label: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.label;
+            }
+        },
+        size: {
+            type:graphQlLib.GraphQLInt,
+            resolve: function (env) {
+                return env.source.size;
+            }
+        },
+        mimeType: {
+            type:graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.mimeType;
+            }
+        }
+    }
+});
