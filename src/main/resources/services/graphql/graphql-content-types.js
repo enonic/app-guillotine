@@ -1,5 +1,6 @@
 var graphQlLib = require('/lib/graphql');
 var contentLib = require('/lib/xp/content');
+var graphqlContentObjectTypesLib = require('./graphql-content-object-types');
 
 exports.addContentTypesAsFields = function (createObjectTypeParams) {
     contentLib.getTypes().forEach(function (contentType) {
@@ -154,9 +155,9 @@ function addContentTypeFields(createContentTypeTypeParams, contentType) {
         }
     };
     fields.publish = {
-        type: graphQlLib.GraphQLString,
+        type: graphqlContentObjectTypesLib.publishInfoType,
         resolve: function (env) {
-            return JSON.stringify(env.source.publish); //TODO
+            return env.source.publish; //TODO
         }
     }
     //TODO Add missing fields
