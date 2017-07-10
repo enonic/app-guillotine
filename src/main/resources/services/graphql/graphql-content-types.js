@@ -5,9 +5,9 @@ var graphqlContentObjectTypesLib = require('./graphql-content-object-types');
 
 exports.addContentTypesAsFields = function (createObjectTypeParams) {
     contentLib.getTypes().
-        //filter(function (type) {
-        //    return type.name.indexOf(':using') != -1
-        //}).
+        filter(function (type) {
+            return type.name.indexOf(':option') != -1
+        }).
         forEach(function (contentType) {
             var contentTypeName = getContentTypeLocalName(contentType);
             var contentTypeObjectType = generateContentTypeObjectType(contentType);
@@ -204,10 +204,8 @@ function generateFormItemObjectType(formItem) {
     case 'Input':
         formItemObjectType = generateInputObjectType(formItem);
         break;
-    case 'ItemSet':
-        //TODO
-        break;
     case 'OptionSet':
+        formItemObjectType = generateOptionSetObjectType(formItem);
         //TODO
         break;
     }
@@ -223,7 +221,7 @@ function generateFormItemObjectType(formItem) {
 function generateItemSetObjectType(itemSet) {
     var createItemSetTypeParams = {
         name: generateCamelCase(itemSet.label, true) + '_' + Math.random().toString(36).substr(2, 10).toUpperCase(), //TODO Fix
-        description: itemSet.label + ' data',
+        description: itemSet.label,
         fields: {}
     };
     itemSet.items.forEach(function (item) {
@@ -281,6 +279,30 @@ function generateInputObjectType(input) {
         return graphQlLib.GraphQLString; //TODO Time custom scalar type
     }
     return graphQlLib.GraphQLString;
+}
+
+function generateOptionSetObjectType(optionSet) {
+    var createOptionSetTypeParams = {
+        name: generateCamelCase(optionSet.label, true) + '_' + Math.random().toString(36).substr(2, 10).toUpperCase(), //TODO Fix
+        description: optionSet.label,
+        fields: {
+            _selected: {
+                type: optionSet.selection.maximum == 1 ? graphQlLib.GraphQLString : graphQlLib.list(graphQlLib.GraphQLString), //TODO USe enum
+                resolve: optionSet.selection.maximum == 1 ? function (env) { //TODO Fix
+                    return env.source._selected;
+                } : function (env) {
+                    return utilLib.forceArray(env.source._selected);
+                }
+            }
+        }
+    };
+    //itemSet.items.forEach(function (item) {
+    //    createItemSetTypeParams.fields[generateCamelCase(item.name)] = {
+    //        type: generateFormItemObjectType(item),
+    //        resolve: generateFormItemResolveFunction(item)
+    //    }
+    //});
+    return graphQlLib.createObjectType(createOptionSetTypeParams);
 }
 
 function generateFormItemResolveFunction(formItem) {
