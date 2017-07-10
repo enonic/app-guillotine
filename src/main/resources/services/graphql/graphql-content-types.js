@@ -187,12 +187,81 @@ function generateContentTypeDataObjectType(contentType) {
 }
 
 function generateFormItemObjectType(formItem) {
-    if (formItem.occurrences && formItem.occurrences.maximum == 1) {
-        return graphQlLib.GraphQLString;
-    } else {
-        return graphQlLib.list(graphQlLib.GraphQLString)
+    log.info('formItem:' + JSON.stringify(formItem, null, 2));
+
+    var formItemObjectType;
+    switch (formItem.formItemType) {
+    case 'ItemSet':
+        //TODO
+        break;
+    case 'Layout':
+        //TODO
+        break;
+    case 'Input':
+        formItemObjectType = generateInputObjectType(formItem);
+        break;
+    case 'ItemSet':
+        //TODO
+        break;
+    case 'OptionSet':
+        //TODO
+        break;
     }
-    //TODO
+    
+    formItemObjectType = formItemObjectType || graphQlLib.GraphQLString;
+    if (formItem.occurrences && formItem.occurrences.maximum == 1) {
+        return formItemObjectType;
+    } else {
+        return graphQlLib.list(formItemObjectType)
+    }
+}
+
+function generateInputObjectType(input) {
+    switch (input.inputType) {
+    case 'CheckBox':
+        return graphQlLib.GraphQLBoolean;
+    case 'ComboBox':
+        return graphQlLib.GraphQLString;
+    case 'ContentSelector':
+        return graphQlLib.GraphQLID; //TODO ID or String?
+    case 'CustomSelector':
+        return graphQlLib.GraphQLString;
+    case 'ContentTypeFilter':
+        return graphQlLib.GraphQLString;
+    case 'Date':
+        return graphQlLib.GraphQLString; //TODO Date custom scalar type
+    case 'DateTime':
+        return graphQlLib.GraphQLString; //TODO DateTime custom scalar type
+    case 'Double':
+        return graphQlLib.GraphQLFloat;
+    case 'MediaUploader':
+        return graphQlLib.GraphQLID; //TODO ID or String?
+    case 'AttachmentUploader':
+        return graphQlLib.GraphQLID; //TODO ID or String?
+    case 'GeoPoint':
+        return graphqlContentObjectTypesLib.geoPointType;
+    case 'HtmlArea':
+        return graphQlLib.GraphQLString;
+    case 'ImageSelector':
+        return graphQlLib.GraphQLID;
+    case 'ImageUploader':
+        return graphqlContentObjectTypesLib.mediaUploaderType;
+    case 'Long':
+        return graphQlLib.GraphQLInt;
+    case 'RadioButton':
+        return graphQlLib.GraphQLString; //TODO Should be enum based on config
+    case 'SiteConfigurator':
+        return graphqlContentObjectTypesLib.siteConfiguratorType;
+    case 'Tag':
+        return graphQlLib.GraphQLString;
+    case 'TextArea':
+        return graphQlLib.GraphQLString;
+    case 'TextLine':
+        return graphQlLib.GraphQLString;
+    case 'Time':
+        return graphQlLib.GraphQLString; //TODO Time custom scalar type
+    }
+    return graphQlLib.GraphQLString;
 }
 
 function generateFormItemResolveFunction(formItem) {
@@ -201,7 +270,7 @@ function generateFormItemResolveFunction(formItem) {
             return env.source[formItem.name];
         };
     } else {
-        return function (env) {
+        return function (env) {           
             return utilLib.forceArray(env.source[formItem.name]);
         };
     }

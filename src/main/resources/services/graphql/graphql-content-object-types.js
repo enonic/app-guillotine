@@ -1,5 +1,88 @@
 var graphQlLib = require('/lib/graphql');
 
+
+exports.geoPointType = graphQlLib.createObjectType({
+    name: 'GeoPoint',
+    description: 'GeoPoint.',
+    fields: {
+        value: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source;
+            }
+        },
+        latitude: {
+            type: graphQlLib.GraphQLFloat,
+            resolve: function (env) {
+                return env.source.split(',',2)[0]; //TODO Check
+            }
+        },
+        longitude: {
+            type: graphQlLib.GraphQLFloat,
+            resolve: function (env) {
+                return env.source.split(',',2)[1]; //TODO Check
+            }
+        }
+    }
+});
+
+exports.mediaFocalPointType = graphQlLib.createObjectType({
+    name: 'MediaFocalPoint',
+    description: 'Media focal point.',
+    fields: {
+        x: {
+            type: graphQlLib.GraphQLFloat,
+            resolve: function (env) {
+                return env.source.x;
+            }
+        },
+        y: {
+            type: graphQlLib.GraphQLFloat,
+            resolve: function (env) {
+                return env.source.y;
+            }
+        }
+    }
+});
+
+exports.mediaUploaderType = graphQlLib.createObjectType({
+    name: 'MediaUploader',
+    description: 'Media uploader.',
+    fields: {
+        attachment: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.attachment;
+            }
+        },
+        focalPoint: {
+            type: exports.mediaFocalPointType,
+            resolve: function (env) {
+                return env.source.focalPoint;
+            }
+        }
+    }
+});
+
+exports.siteConfiguratorType = graphQlLib.createObjectType({
+    name: 'SiteConfigurator',
+    description: 'Site configurator.',
+    fields: {
+        applicationKey: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.applicationKey;
+            }
+        },
+        config: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return JSON.stringify(env.source.config);
+            }
+        }
+    }
+});
+
 exports.publishInfoType = graphQlLib.createObjectType({
     name: 'PublishInfo',
     description: 'Publish information.',
