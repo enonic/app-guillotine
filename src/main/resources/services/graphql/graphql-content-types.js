@@ -4,35 +4,39 @@ var utilLib = require('./util');
 var graphqlContentObjectTypesLib = require('./graphql-content-object-types');
 
 exports.addContentTypesAsFields = function (createObjectTypeParams) {
-    contentLib.getTypes().forEach(function (contentType) {
-        var contentTypeName = getContentTypeLocalName(contentType);
-        var contentTypeObjectType = generateContentTypeObjectType(contentType);
-        createObjectTypeParams.fields['get' + contentTypeName] = {
-            type: contentTypeObjectType,
-            args: {
-                key: graphQlLib.nonNull(graphQlLib.GraphQLID)
-            },
-            resolve: function (env) {
-                return contentLib.getContent(env.args.key);
-            }
-        };
-        createObjectTypeParams.fields['getAll' + contentTypeName] = {
-            type: graphQlLib.list(contentTypeObjectType),
-            args: {
-                offset: graphQlLib.GraphQLInt,
-                first: graphQlLib.GraphQLInt
-            },
-            resolve: function (env) {
-                var offset = env.args.offset;
-                var first = env.args.first;
-                return contentLib.query({
-                    query: 'type = \'' + contentType.name + '\'',
-                    start: offset,
-                    count: first
-                }).hits;
-            }
-        };
-    });
+    contentLib.getTypes().
+        //filter(function (type) {
+        //    return type.name.indexOf(':using') != -1
+        //}).
+        forEach(function (contentType) {
+            var contentTypeName = getContentTypeLocalName(contentType);
+            var contentTypeObjectType = generateContentTypeObjectType(contentType);
+            createObjectTypeParams.fields['get' + contentTypeName] = {
+                type: contentTypeObjectType,
+                args: {
+                    key: graphQlLib.nonNull(graphQlLib.GraphQLID)
+                },
+                resolve: function (env) {
+                    return contentLib.getContent(env.args.key);
+                }
+            };
+            createObjectTypeParams.fields['getAll' + contentTypeName] = {
+                type: graphQlLib.list(contentTypeObjectType),
+                args: {
+                    offset: graphQlLib.GraphQLInt,
+                    first: graphQlLib.GraphQLInt
+                },
+                resolve: function (env) {
+                    var offset = env.args.offset;
+                    var first = env.args.first;
+                    return contentLib.query({
+                        query: 'type = \'' + contentType.name + '\'',
+                        start: offset,
+                        count: first
+                    }).hits;
+                }
+            };
+        });
 };
 
 function getContentTypeLocalName(contentType) {
@@ -192,7 +196,7 @@ function generateFormItemObjectType(formItem) {
     var formItemObjectType;
     switch (formItem.formItemType) {
     case 'ItemSet':
-        //TODO
+        formItemObjectType = generateItemSetObjectType(formItem);
         break;
     case 'Layout':
         //TODO
@@ -207,13 +211,28 @@ function generateFormItemObjectType(formItem) {
         //TODO
         break;
     }
-    
+
     formItemObjectType = formItemObjectType || graphQlLib.GraphQLString;
     if (formItem.occurrences && formItem.occurrences.maximum == 1) {
         return formItemObjectType;
     } else {
         return graphQlLib.list(formItemObjectType)
     }
+}
+
+function generateItemSetObjectType(itemSet) {
+    var createItemSetTypeParams = {
+        name: generateCamelCase(itemSet.label + '_' + Math.random().toString(36).substr(2, 10).toUpperCase(), true), //TODO Fix
+        description: itemSet.label + ' data',
+        fields: {}
+    };
+    itemSet.items.forEach(function (item) {
+        createItemSetTypeParams.fields[generateCamelCase(item.name)] = {
+            type: generateFormItemObjectType(item),
+            resolve: generateFormItemResolveFunction(item)
+        }
+    });
+    return graphQlLib.createObjectType(createItemSetTypeParams);
 }
 
 function generateInputObjectType(input) {
@@ -270,7 +289,7 @@ function generateFormItemResolveFunction(formItem) {
             return env.source[formItem.name];
         };
     } else {
-        return function (env) {           
+        return function (env) {
             return utilLib.forceArray(env.source[formItem.name]);
         };
     }
