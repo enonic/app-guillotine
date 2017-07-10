@@ -296,12 +296,12 @@ function generateOptionSetObjectType(optionSet) {
             }
         }
     };
-    //itemSet.items.forEach(function (item) {
-    //    createItemSetTypeParams.fields[generateCamelCase(item.name)] = {
-    //        type: generateFormItemObjectType(item),
-    //        resolve: generateFormItemResolveFunction(item)
-    //    }
-    //});
+    optionSet.options.forEach(function (option) {
+        createOptionSetTypeParams.fields[generateCamelCase(option.name)] = {
+            type: generateFormItemObjectType(option),
+            resolve: generateFormItemResolveFunction(option)
+        }
+    });
     return graphQlLib.createObjectType(createOptionSetTypeParams);
 }
 
