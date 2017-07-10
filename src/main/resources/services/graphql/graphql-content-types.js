@@ -222,7 +222,7 @@ function generateFormItemObjectType(formItem) {
 
 function generateItemSetObjectType(itemSet) {
     var createItemSetTypeParams = {
-        name: generateCamelCase(itemSet.label + '_' + Math.random().toString(36).substr(2, 10).toUpperCase(), true), //TODO Fix
+        name: generateCamelCase(itemSet.label, true) + '_' + Math.random().toString(36).substr(2, 10).toUpperCase(), //TODO Fix
         description: itemSet.label + ' data',
         fields: {}
     };
