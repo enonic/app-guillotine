@@ -14,13 +14,13 @@ exports.geoPointType = graphQlLib.createObjectType({
         latitude: {
             type: graphQlLib.GraphQLFloat,
             resolve: function (env) {
-                return env.source.split(',',2)[0]; //TODO Check
+                return env.source.split(',',2)[0];
             }
         },
         longitude: {
             type: graphQlLib.GraphQLFloat,
             resolve: function (env) {
-                return env.source.split(',',2)[1]; //TODO Check
+                return env.source.split(',',2)[1];
             }
         }
     }
