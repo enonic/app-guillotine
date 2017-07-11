@@ -3,24 +3,30 @@ var contentLib = require('/lib/xp/content');
 var utilLib = require('./util');
 var graphqlContentObjectTypesLib = require('./graphql-content-object-types');
 
-exports.addContentTypesAsFields = function (createObjectTypeParams) {
+exports.addContentTypesAsFields = function (parentObjectTypeParams) {
+
+    //For each content type
     contentLib.getTypes().
-        //filter(function (type) {
-        //    return type.name.indexOf(':option') != -1
-        //}).
         forEach(function (contentType) {
-            var contentTypeName = getContentTypeLocalName(contentType);
+            var camelCaseContentTypeName = getCamelCaseContentTypeName(contentType);
+
+            //Generates the object type for this content type
             var contentTypeObjectType = generateContentTypeObjectType(contentType);
-            createObjectTypeParams.fields['get' + contentTypeName] = {
+
+            //Creates a root query field getXXX finding a content by key 
+            parentObjectTypeParams.fields['get' + camelCaseContentTypeName] = {
                 type: contentTypeObjectType,
                 args: {
                     key: graphQlLib.nonNull(graphQlLib.GraphQLID)
                 },
                 resolve: function (env) {
-                    return contentLib.getContent(env.args.key);
+                    var content = contentLib.getContent(env.args.key);
+                    return content && content.type === contentType.name ? content : null;
                 }
             };
-            createObjectTypeParams.fields['get' + contentTypeName + 'List'] = {
+
+            //Creates a root query field getXXXList finding contents
+            parentObjectTypeParams.fields['get' + camelCaseContentTypeName + 'List'] = {
                 type: graphQlLib.list(contentTypeObjectType),
                 args: {
                     offset: graphQlLib.GraphQLInt,
@@ -41,139 +47,129 @@ exports.addContentTypesAsFields = function (createObjectTypeParams) {
         });
 };
 
-function getContentTypeLocalName(contentType) {
+function getCamelCaseContentTypeName(contentType) {
     var localName = contentType.name.substr(contentType.name.indexOf(':') + 1);
     return generateCamelCase(localName, true);
 }
 
 function generateContentTypeObjectType(contentType) {
-    var contentTypeDisplayName = generateCamelCase(contentType.displayName, true);
-
     var createContentTypeTypeParams = {
-        name: contentTypeDisplayName,
+        name: generateCamelCase(contentType.displayName, true),
         description: contentType.displayName,
-        fields: {}
-    };
-    addContentTypeFields(createContentTypeTypeParams, contentType);
-    return graphQlLib.createObjectType(createContentTypeTypeParams);
-}
-
-
-function addContentTypeFields(createContentTypeTypeParams, contentType) {
-    var fields = createContentTypeTypeParams.fields;
-    fields._id = {
-        type: graphQlLib.nonNull(graphQlLib.GraphQLID),
-        resolve: function (env) {
-            return env.source._id;
-        }
-    };
-    fields._name = {
-        type: graphQlLib.nonNull(graphQlLib.GraphQLString),
-        resolve: function (env) {
-            return env.source._name;
-        }
-    };
-    fields._path = {
-        type: graphQlLib.nonNull(graphQlLib.GraphQLString),
-        resolve: function (env) {
-            return env.source._path;
-        }
-    };
-    fields.creator = {
-        type: graphqlContentObjectTypesLib.principalKeyType,
-        resolve: function (env) {
-            return env.source.creator;
-        }
-    };
-    fields.modifier = {
-        type: graphqlContentObjectTypesLib.principalKeyType,
-        resolve: function (env) {
-            return env.source.modifier;
-        }
-    };
-    fields.createdTime = {
-        type: graphQlLib.GraphQLString,
-        resolve: function (env) {
-            return env.source.createdTime;
-        }
-    };
-    fields.modifiedTime = {
-        type: graphQlLib.GraphQLString,
-        resolve: function (env) {
-            return env.source.modifiedTime;
-        }
-    };
-    fields.owner = {
-        type: graphqlContentObjectTypesLib.principalKeyType,
-        resolve: function (env) {
-            return env.source.owner;
-        }
-    };
-    fields.type = {
-        type: graphqlContentObjectTypesLib.contentTypeNameType,
-        resolve: function (env) {
-            return env.source.type;
-        }
-    };
-    fields.displayName = {
-        type: graphQlLib.GraphQLString,
-        resolve: function (env) {
-            return env.source.displayName;
-        }
-    };
-    fields.hasChildren = {
-        type: graphQlLib.GraphQLBoolean,
-        resolve: function (env) {
-            return env.source.hasChildren;
-        }
-    };
-    fields.language = {
-        type: graphQlLib.GraphQLString,
-        resolve: function (env) {
-            return env.source.language;
-        }
-    };
-    fields.valid = {
-        type: graphQlLib.GraphQLBoolean,
-        resolve: function (env) {
-            return env.source.valid;
-        }
-    };
-    if (contentType.form.length > 0) {
-        fields.data = {
-            type: generateContentTypeDataObjectType(contentType),
-            resolve: function (env) {
-                return env.source.data;
+        fields: {
+            _id: {
+                type: graphQlLib.nonNull(graphQlLib.GraphQLID),
+                resolve: function (env) {
+                    return env.source._id;
+                }
+            },
+            _name: {
+                type: graphQlLib.nonNull(graphQlLib.GraphQLString),
+                resolve: function (env) {
+                    return env.source._name;
+                }
+            },
+            _path: {
+                type: graphQlLib.nonNull(graphQlLib.GraphQLString),
+                resolve: function (env) {
+                    return env.source._path;
+                }
+            },
+            creator: {
+                type: graphqlContentObjectTypesLib.principalKeyType,
+                resolve: function (env) {
+                    return env.source.creator;
+                }
+            },
+            modifier: {
+                type: graphqlContentObjectTypesLib.principalKeyType,
+                resolve: function (env) {
+                    return env.source.modifier;
+                }
+            },
+            createdTime: {
+                type: graphQlLib.GraphQLString,
+                resolve: function (env) {
+                    return env.source.createdTime;
+                }
+            },
+            modifiedTime: {
+                type: graphQlLib.GraphQLString,
+                resolve: function (env) {
+                    return env.source.modifiedTime;
+                }
+            },
+            owner: {
+                type: graphqlContentObjectTypesLib.principalKeyType,
+                resolve: function (env) {
+                    return env.source.owner;
+                }
+            },
+            type: {
+                type: graphqlContentObjectTypesLib.contentTypeNameType,
+                resolve: function (env) {
+                    return env.source.type;
+                }
+            },
+            displayName: {
+                type: graphQlLib.GraphQLString,
+                resolve: function (env) {
+                    return env.source.displayName;
+                }
+            },
+            hasChildren: {
+                type: graphQlLib.GraphQLBoolean,
+                resolve: function (env) {
+                    return env.source.hasChildren;
+                }
+            },
+            language: {
+                type: graphQlLib.GraphQLString,
+                resolve: function (env) {
+                    return env.source.language;
+                }
+            },
+            valid: {
+                type: graphQlLib.GraphQLBoolean,
+                resolve: function (env) {
+                    return env.source.valid;
+                }
+            },
+            data: contentType.form.length > 0 ? {
+                type: generateContentTypeDataObjectType(contentType),
+                resolve: function (env) {
+                    return env.source.data;
+                }
+            } : undefined,
+            x: {
+                type: graphQlLib.GraphQLString,
+                resolve: function (env) {
+                    return JSON.stringify(env.source.x); //TODO
+                }
+            },
+            page: {
+                type: graphqlContentObjectTypesLib.pageType,
+                resolve: function (env) {
+                    return env.source.page;
+                }
+            },
+            attachments: {
+                type: graphQlLib.list(graphqlContentObjectTypesLib.attachmentType),
+                resolve: function (env) {
+                    return Object.keys(env.source.attachments).map(function (key) {
+                        return env.source.attachments[key];
+                    });
+                }
+            },
+            publish: {
+                type: graphqlContentObjectTypesLib.publishInfoType,
+                resolve: function (env) {
+                    return env.source.publish;
+                }
             }
-        };
-    }
-    fields.x = {
-        type: graphQlLib.GraphQLString,
-        resolve: function (env) {
-            return JSON.stringify(env.source.x); //TODO
         }
     };
-    fields.page = {
-        type: graphqlContentObjectTypesLib.pageType,
-        resolve: function (env) {
-            return env.source.page;
-        }
-    };
-    fields.attachments = {
-        type: graphQlLib.list(graphqlContentObjectTypesLib.attachmentType),
-        resolve: function (env) {
-            return Object.keys(env.source.attachments).map(function (key) {
-                return env.source.attachments[key];
-            });
-        }
-    };
-    fields.publish = {
-        type: graphqlContentObjectTypesLib.publishInfoType,
-        resolve: function (env) {
-            return env.source.publish;
-        }
-    }
-    //TODO Add missing fields
+    return graphQlLib.createObjectType(createContentTypeTypeParams);
 }
 
 function generateContentTypeDataObjectType(contentType) {
@@ -311,7 +307,7 @@ function generateOptionSetObjectType(optionSet) {
 
 function generateOptionSetEnum(optionSet, optionSetName) {
     var enumValues = {};
-    optionSet.options.forEach(function(option) {
+    optionSet.options.forEach(function (option) {
         enumValues[option.name] = option.name;
     });
     return graphQlLib.createEnumType({
