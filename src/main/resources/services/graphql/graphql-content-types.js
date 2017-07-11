@@ -135,8 +135,8 @@ function generateContentTypeObjectType(contentType) {
                     return env.source.valid;
                 }
             },
-            data: contentType.form.length > 0 ? {
-                type: generateContentTypeDataObjectType(contentType),
+            data: getFormItems(contentType).length > 0 ? {
+                type: generateContentDataObjectType(contentType),
                 resolve: function (env) {
                     return env.source.data;
                 }
@@ -172,20 +172,33 @@ function generateContentTypeObjectType(contentType) {
     return graphQlLib.createObjectType(createContentTypeTypeParams);
 }
 
-function generateContentTypeDataObjectType(contentType) {
+function generateContentDataObjectType(contentType) {
     log.info('contentType:' + JSON.stringify(contentType, null, 2));
     var createContentTypeDataTypeParams = {
         name: generateCamelCase(contentType.displayName, true) + '_Data',
         description: contentType.displayName + ' data',
         fields: {}
     };
-    contentType.form.forEach(function (formItem) {
-        createContentTypeDataTypeParams.fields[generateCamelCase(formItem.name)] = {
+    
+    //For each item of the content type form
+    getFormItems(contentType).forEach(function (formItem) {
+        
+        //Creates a data field corresponding to this form item
+        createContentTypeDataTypeParams.fields[sanitizeText(formItem.name)] = {
             type: generateFormItemObjectType(formItem),
             resolve: generateFormItemResolveFunction(formItem)
         }
     });
     return graphQlLib.createObjectType(createContentTypeDataTypeParams);
+}
+
+function getFormItems(contentType) {
+    return contentType.form.filter(function(formItem) {
+        if ('ItemSet' === formItem.formItemType && formItem.items.length === 0) {
+            return false;
+        }
+        return true;
+    });    
 }
 
 function generateFormItemObjectType(formItem) {
@@ -202,7 +215,6 @@ function generateFormItemObjectType(formItem) {
         break;
     case 'OptionSet':
         formItemObjectType = generateOptionSetObjectType(formItem);
-        //TODO
         break;
     }
 
@@ -216,7 +228,7 @@ function generateFormItemObjectType(formItem) {
 
 function generateItemSetObjectType(itemSet) {
     var createItemSetTypeParams = {
-        name: generateCamelCase(itemSet.label, true) + '_' + Math.random().toString(36).substr(2, 10).toUpperCase(), //TODO Fix
+        name: generateCamelCase(itemSet.label, true) + '_' + generateRandomString(),
         description: itemSet.label,
         fields: {}
     };
@@ -278,7 +290,7 @@ function generateInputObjectType(input) {
 }
 
 function generateOptionSetObjectType(optionSet) {
-    var typeName = generateCamelCase(optionSet.label, true) + '_' + Math.random().toString(36).substr(2, 10).toUpperCase(); //TODO Fix
+    var typeName = generateCamelCase(optionSet.label, true) + '_' + generateRandomString();
     var optionSetEnum = generateOptionSetEnum(optionSet, typeName);
     var createOptionSetTypeParams = {
         name: typeName,
@@ -350,6 +362,10 @@ function generateCamelCase(text, upper) {
 
 function sanitizeText(text) {
     return text.replace(/([^0-9A-Za-z])+/g, '_');
-}  
+}
+
+function generateRandomString() {
+    return Math.random().toString(36).substr(2, 10).toUpperCase() + Math.random().toString(36).substr(2, 6).toUpperCase();
+}
 
 
