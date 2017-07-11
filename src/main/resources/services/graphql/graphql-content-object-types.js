@@ -1,6 +1,45 @@
 var graphQlLib = require('/lib/graphql');
 
 
+exports.principalKeyType = graphQlLib.createObjectType({
+    name: 'PrincipalKey',
+    description: 'Principal key.',
+    fields: {
+        refString: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source;
+            }
+        },
+        type: {
+            type: graphQlLib.createEnumType({
+                name: 'PrincipalType',
+                description: 'Principal type.',
+                values: {
+                    'user': 'user',
+                    'group': 'group',
+                    'role': 'role'
+                }                
+            }),
+            resolve: function (env) {
+                return env.source.split(':',2)[0];
+            }
+        },
+        userStore: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.split(':',3)[1];
+            }
+        },
+        principalId: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.split(':',3)[2];
+            }
+        }
+    }
+});
+
 exports.geoPointType = graphQlLib.createObjectType({
     name: 'GeoPoint',
     description: 'GeoPoint.',

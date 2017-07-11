@@ -5,9 +5,9 @@ var graphqlContentObjectTypesLib = require('./graphql-content-object-types');
 
 exports.addContentTypesAsFields = function (createObjectTypeParams) {
     contentLib.getTypes().
-        filter(function (type) {
-            return type.name.indexOf(':option') != -1
-        }).
+        //filter(function (type) {
+        //    return type.name.indexOf(':option') != -1
+        //}).
         forEach(function (contentType) {
             var contentTypeName = getContentTypeLocalName(contentType);
             var contentTypeObjectType = generateContentTypeObjectType(contentType);
@@ -47,7 +47,6 @@ function getContentTypeLocalName(contentType) {
 }
 
 function generateContentTypeObjectType(contentType) {
-    //log.info('Content type: ' + JSON.stringify(contentType, null, 2));
     var contentTypeDisplayName = generateCamelCase(contentType.displayName, true);
 
     var createContentTypeTypeParams = {
@@ -81,13 +80,13 @@ function addContentTypeFields(createContentTypeTypeParams, contentType) {
         }
     };
     fields.creator = {
-        type: graphQlLib.GraphQLString,
+        type: graphqlContentObjectTypesLib.principalKeyType,
         resolve: function (env) {
             return env.source.creator;
         }
     };
     fields.modifier = {
-        type: graphQlLib.GraphQLString,
+        type: graphqlContentObjectTypesLib.principalKeyType,
         resolve: function (env) {
             return env.source.modifier;
         }
@@ -105,7 +104,7 @@ function addContentTypeFields(createContentTypeTypeParams, contentType) {
         }
     };
     fields.owner = {
-        type: graphQlLib.GraphQLString,
+        type: graphqlContentObjectTypesLib.principalKeyType,
         resolve: function (env) {
             return env.source.owner;
         }
