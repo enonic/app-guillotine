@@ -283,12 +283,14 @@ function generateInputObjectType(input) {
 }
 
 function generateOptionSetObjectType(optionSet) {
+    var typeName = generateCamelCase(optionSet.label, true) + '_' + Math.random().toString(36).substr(2, 10).toUpperCase(); //TODO Fix
+    var optionSetEnum = generateOptionSetEnum(optionSet, typeName);
     var createOptionSetTypeParams = {
-        name: generateCamelCase(optionSet.label, true) + '_' + Math.random().toString(36).substr(2, 10).toUpperCase(), //TODO Fix
+        name: typeName,
         description: optionSet.label,
         fields: {
             _selected: {
-                type: optionSet.selection.maximum == 1 ? graphQlLib.GraphQLString : graphQlLib.list(graphQlLib.GraphQLString), //TODO Use enum
+                type: optionSet.selection.maximum == 1 ? optionSetEnum : graphQlLib.list(optionSetEnum),
                 resolve: optionSet.selection.maximum == 1 ? function (env) { //TODO Fix
                     return env.source._selected;
                 } : function (env) {
@@ -308,13 +310,25 @@ function generateOptionSetObjectType(optionSet) {
     return graphQlLib.createObjectType(createOptionSetTypeParams);
 }
 
+function generateOptionSetEnum(optionSet, optionSetName) {
+    var enumValues = {};
+    optionSet.options.forEach(function(option) {
+        enumValues[option.name] = option.name;
+    });
+    return graphQlLib.createEnumType({
+        name: optionSetName + '_OptionEnum',
+        description: optionSet.label + ' option enum.',
+        values: enumValues
+    });
+}
+
 function generateOptionObjectType(option) {
     if (option.items.length > 0) {
         return generateItemSetObjectType(option);
     } else {
         return graphQlLib.GraphQLString;
     }
-    
+
 }
 
 function generateFormItemResolveFunction(formItem) {
