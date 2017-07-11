@@ -20,7 +20,7 @@ exports.addContentTypesAsFields = function (createObjectTypeParams) {
                     return contentLib.getContent(env.args.key);
                 }
             };
-            createObjectTypeParams.fields['getAll' + contentTypeName] = {
+            createObjectTypeParams.fields['get' + contentTypeName + 'List'] = {
                 type: graphQlLib.list(contentTypeObjectType),
                 args: {
                     offset: graphQlLib.GraphQLInt,
@@ -29,11 +29,13 @@ exports.addContentTypesAsFields = function (createObjectTypeParams) {
                 resolve: function (env) {
                     var offset = env.args.offset;
                     var first = env.args.first;
-                    return contentLib.query({
+                    var contents = contentLib.query({
                         query: 'type = \'' + contentType.name + '\'',
                         start: offset,
                         count: first
                     }).hits;
+                    log.info('contents:' + JSON.stringify(contents, null, 2));
+                    return contents;
                 }
             };
         });
@@ -176,8 +178,9 @@ function addContentTypeFields(createContentTypeTypeParams, contentType) {
 }
 
 function generateContentTypeDataObjectType(contentType) {
+    log.info('contentType:' + JSON.stringify(contentType, null, 2));
     var createContentTypeDataTypeParams = {
-        name: generateCamelCase(contentType.displayName + '_Data', true),
+        name: generateCamelCase(contentType.displayName, true) + '_Data',
         description: contentType.displayName + ' data',
         fields: {}
     };
@@ -191,8 +194,6 @@ function generateContentTypeDataObjectType(contentType) {
 }
 
 function generateFormItemObjectType(formItem) {
-    log.info('formItem:' + JSON.stringify(formItem, null, 2));
-
     var formItemObjectType;
     switch (formItem.formItemType) {
     case 'ItemSet':
@@ -287,7 +288,7 @@ function generateOptionSetObjectType(optionSet) {
         description: optionSet.label,
         fields: {
             _selected: {
-                type: optionSet.selection.maximum == 1 ? graphQlLib.GraphQLString : graphQlLib.list(graphQlLib.GraphQLString), //TODO USe enum
+                type: optionSet.selection.maximum == 1 ? graphQlLib.GraphQLString : graphQlLib.list(graphQlLib.GraphQLString), //TODO Use enum
                 resolve: optionSet.selection.maximum == 1 ? function (env) { //TODO Fix
                     return env.source._selected;
                 } : function (env) {
@@ -298,11 +299,22 @@ function generateOptionSetObjectType(optionSet) {
     };
     optionSet.options.forEach(function (option) {
         createOptionSetTypeParams.fields[generateCamelCase(option.name)] = {
-            type: generateFormItemObjectType(option),
-            resolve: generateFormItemResolveFunction(option)
+            type: generateOptionObjectType(option),
+            resolve: function (env) {
+                return env.source[option.name];
+            }
         }
     });
     return graphQlLib.createObjectType(createOptionSetTypeParams);
+}
+
+function generateOptionObjectType(option) {
+    if (option.items.length > 0) {
+        return generateItemSetObjectType(option);
+    } else {
+        return graphQlLib.GraphQLString;
+    }
+    
 }
 
 function generateFormItemResolveFunction(formItem) {
