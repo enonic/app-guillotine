@@ -7,6 +7,9 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
 
     //For each content type
     contentLib.getTypes().
+        //filter(function (type) {
+        //    return type.name.indexOf(':fieldset') != -1
+        //}).
         forEach(function (contentType) {
             var camelCaseContentTypeName = getCamelCaseContentTypeName(contentType);
 
@@ -135,7 +138,7 @@ function generateContentTypeObjectType(contentType) {
                     return env.source.valid;
                 }
             },
-            data: getFormItems(contentType).length > 0 ? {
+            data: getFormItems(contentType.form).length > 0 ? {
                 type: generateContentDataObjectType(contentType),
                 resolve: function (env) {
                     return env.source.data;
@@ -181,7 +184,7 @@ function generateContentDataObjectType(contentType) {
     };
     
     //For each item of the content type form
-    getFormItems(contentType).forEach(function (formItem) {
+    getFormItems(contentType.form).forEach(function (formItem) {
         
         //Creates a data field corresponding to this form item
         createContentTypeDataTypeParams.fields[sanitizeText(formItem.name)] = {
@@ -192,13 +195,22 @@ function generateContentDataObjectType(contentType) {
     return graphQlLib.createObjectType(createContentTypeDataTypeParams);
 }
 
-function getFormItems(contentType) {
-    return contentType.form.filter(function(formItem) {
+//TODO Add that this filtering/processing is done on sub contents 
+function getFormItems(form) {
+    var formItems = [];
+    form.forEach(function(formItem) {
         if ('ItemSet' === formItem.formItemType && formItem.items.length === 0) {
-            return false;
+            return;
         }
-        return true;
-    });    
+        if ('Layout' === formItem.formItemType) {
+            getFormItems(formItem.items).forEach(function(layoutItem) {
+               formItems.push(layoutItem); 
+            });
+            return;
+        }
+        formItems.push(formItem);
+    }); 
+    return formItems;
 }
 
 function generateFormItemObjectType(formItem) {
@@ -208,7 +220,7 @@ function generateFormItemObjectType(formItem) {
         formItemObjectType = generateItemSetObjectType(formItem);
         break;
     case 'Layout':
-        //TODO
+        //Should already be filtered
         break;
     case 'Input':
         formItemObjectType = generateInputObjectType(formItem);
