@@ -110,7 +110,7 @@ function addContentTypeFields(createContentTypeTypeParams, contentType) {
         }
     };
     fields.type = {
-        type: graphQlLib.GraphQLString,
+        type: graphqlContentObjectTypesLib.contentTypeNameType,
         resolve: function (env) {
             return env.source.type;
         }

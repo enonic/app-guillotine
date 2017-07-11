@@ -5,7 +5,7 @@ exports.principalKeyType = graphQlLib.createObjectType({
     name: 'PrincipalKey',
     description: 'Principal key.',
     fields: {
-        refString: {
+        value: {
             type: graphQlLib.GraphQLString,
             resolve: function (env) {
                 return env.source;
@@ -19,22 +19,47 @@ exports.principalKeyType = graphQlLib.createObjectType({
                     'user': 'user',
                     'group': 'group',
                     'role': 'role'
-                }                
+                }
             }),
             resolve: function (env) {
-                return env.source.split(':',2)[0];
+                return env.source.split(':', 2)[0];
             }
         },
         userStore: {
             type: graphQlLib.GraphQLString,
             resolve: function (env) {
-                return env.source.split(':',3)[1];
+                return env.source.split(':', 3)[1];
             }
         },
         principalId: {
             type: graphQlLib.GraphQLString,
             resolve: function (env) {
-                return env.source.split(':',3)[2];
+                return env.source.split(':', 3)[2];
+            }
+        }
+    }
+});
+
+exports.contentTypeNameType = graphQlLib.createObjectType({
+    name: 'ContentTypeName',
+    description: 'Content type name.',
+    fields: {
+        value: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source;
+            }
+        },
+        applicationKey: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.split(':', 2)[0];
+            }
+        },
+        localName: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.split(':', 2)[1];
             }
         }
     }
@@ -53,13 +78,13 @@ exports.geoPointType = graphQlLib.createObjectType({
         latitude: {
             type: graphQlLib.GraphQLFloat,
             resolve: function (env) {
-                return env.source.split(',',2)[0];
+                return env.source.split(',', 2)[0];
             }
         },
         longitude: {
             type: graphQlLib.GraphQLFloat,
             resolve: function (env) {
-                return env.source.split(',',2)[1];
+                return env.source.split(',', 2)[1];
             }
         }
     }
@@ -280,8 +305,8 @@ exports.pageType = graphQlLib.createObjectType({
             type: graphQlLib.list(exports.pageRegionType),
             resolve: function (env) {
                 return env.source.regions && Object.keys(env.source.regions).map(function (key) {
-                    return env.source.regions[key];
-                });
+                        return env.source.regions[key];
+                    });
             }
         },
         fragment: {
