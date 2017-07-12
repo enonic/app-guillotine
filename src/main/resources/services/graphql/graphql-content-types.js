@@ -195,7 +195,6 @@ function generateContentDataObjectType(contentType) {
     return graphQlLib.createObjectType(createContentTypeDataTypeParams);
 }
 
-//TODO Add that this filtering/processing is done on sub contents 
 function getFormItems(form) {
     var formItems = [];
     form.forEach(function(formItem) {
@@ -244,7 +243,7 @@ function generateItemSetObjectType(itemSet) {
         description: itemSet.label,
         fields: {}
     };
-    itemSet.items.forEach(function (item) {
+    getFormItems(itemSet.items).forEach(function (item) {
         createItemSetTypeParams.fields[generateCamelCase(item.name)] = {
             type: generateFormItemObjectType(item),
             resolve: generateFormItemResolveFunction(item)
@@ -350,7 +349,7 @@ function generateOptionObjectType(option) {
 
 }
 
-function generateFormItemResolveFunction(formItem) {
+function generateFormItemResolveFunction(formItem) {    
     if (formItem.occurrences && formItem.occurrences.maximum == 1) {
         return function (env) {
             return env.source[formItem.name];
