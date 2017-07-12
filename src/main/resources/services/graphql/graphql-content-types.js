@@ -198,7 +198,7 @@ function generateContentDataObjectType(contentType) {
 function getFormItems(form) {
     var formItems = [];
     form.forEach(function(formItem) {
-        if ('ItemSet' === formItem.formItemType && formItem.items.length === 0) {
+        if ('ItemSet' === formItem.formItemType && getFormItems(formItem.items).length === 0) {
             return;
         }
         if ('Layout' === formItem.formItemType) {
