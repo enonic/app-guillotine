@@ -18,7 +18,7 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
             var contentTypeObjectType = generateContentTypeObjectType(contentType);
 
             //Creates a root query field getXXX finding a content by key 
-            parentObjectTypeParams.fields['get' + camelCaseContentTypeName] = {
+            parentObjectTypeParams.fields[camelCaseContentTypeName] = {
                 type: contentTypeObjectType,
                 args: {
                     key: graphQlLib.nonNull(graphQlLib.GraphQLID)
@@ -30,27 +30,7 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
             };
 
             //Creates a root query field getXXXList finding contents and returning them as an array
-            parentObjectTypeParams.fields['get' + camelCaseContentTypeName + 'List'] = {
-                type: graphQlLib.list(contentTypeObjectType),
-                args: {
-                    offset: graphQlLib.GraphQLInt,
-                    first: graphQlLib.GraphQLInt
-                },
-                resolve: function (env) {
-                    var offset = env.args.offset;
-                    var first = env.args.first;
-                    var contents = contentLib.query({
-                        query: 'type = \'' + contentType.name + '\'',
-                        start: offset,
-                        count: first
-                    }).hits;
-                    log.info('contents:' + JSON.stringify(contents, null, 2));
-                    return contents;
-                }
-            };
-
-            //Creates a root query field getXXXConnection finding contents and returning them as a connection
-            parentObjectTypeParams.fields['get' + camelCaseContentTypeName + 'List'] = {
+            parentObjectTypeParams.fields[camelCaseContentTypeName + 'List'] = {
                 type: graphQlLib.list(contentTypeObjectType),
                 args: {
                     offset: graphQlLib.GraphQLInt,
@@ -70,26 +50,25 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
             };
 
             //Creates a root query field getXXXConnection finding contents
-            parentObjectTypeParams.fields['get' + camelCaseContentTypeName + 'Connection'] = {
+            parentObjectTypeParams.fields[camelCaseContentTypeName + 'Connection'] = {
                 type: graphQlConnectionLib.createConnectionType(contentTypeObjectType),
                 args: {
-                    after: graphQlLib.GraphQLInt, //TODO Change for base64
+                    after: graphQlLib.GraphQLString,
                     first: graphQlLib.GraphQLInt,
                     search: graphQlLib.GraphQLString
                 },
                 resolve: function (env) {
-                    var after = env.args.after;
-                    var first = env.args.first;
+                    var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
+                    var count = env.args.first;
                     var queryResult = contentLib.query({
                         query: 'type = \'' + contentType.name + '\'',
-                        start: after ? (after + 1) : 0,
-                        count: first
+                        start: start,
+                        count: count
                     });
                     log.info('queryResult:' + JSON.stringify(queryResult, null, 2));                    
                     return {
                         total: queryResult.total,
-                        start:  after ? (after + 1) : 0,
-                        count: queryResult.count,
+                        start:  start,
                         hits: queryResult.hits
                     };
                 }
@@ -99,7 +78,7 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
 
 function getCamelCaseContentTypeName(contentType) {
     var localName = contentType.name.substr(contentType.name.indexOf(':') + 1);
-    return generateCamelCase(localName, true);
+    return generateCamelCase(localName);
 }
 
 function generateContentTypeObjectType(contentType) {
