@@ -220,6 +220,7 @@ function generateContentDataObjectType(contentType) {
         //Creates a data field corresponding to this form item
         createContentTypeDataTypeParams.fields[sanitizeText(formItem.name)] = {
             type: generateFormItemObjectType(formItem),
+            args: generateFormItemArguments(formItem),
             resolve: generateFormItemResolveFunction(formItem)
         }
     });
@@ -377,6 +378,17 @@ function generateOptionObjectType(option) {
     } else {
         return graphQlLib.GraphQLString;
     }
+}
+
+function generateFormItemArguments(formItem) {
+    if (formItem.occurrences && formItem.occurrences.maximum == 1) {
+        return undefined;
+    } else {
+        return {
+            offset: graphQlLib.GraphQLInt,
+            first: graphQlLib.GraphQLInt
+        };
+    }
 
 }
 
@@ -387,7 +399,11 @@ function generateFormItemResolveFunction(formItem) {
         };
     } else {
         return function (env) {
-            return utilLib.forceArray(env.source[formItem.name]);
+            var contents = utilLib.forceArray(env.source[formItem.name]);
+            if (env.args.offset != null  || env.args.offset != null) {
+                return contents.slice(env.args.offset, env.args.first);
+            }
+            return contents;
         };
     }
 
