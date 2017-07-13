@@ -34,15 +34,17 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
                 type: graphQlLib.list(contentTypeObjectType),
                 args: {
                     offset: graphQlLib.GraphQLInt,
-                    first: graphQlLib.GraphQLInt
+                    first: graphQlLib.GraphQLInt,
+                    query: graphQlLib.GraphQLString,
+                    sort: graphQlLib.GraphQLString
                 },
                 resolve: function (env) {
-                    var offset = env.args.offset;
-                    var first = env.args.first;
                     var contents = contentLib.query({
-                        query: 'type = \'' + contentType.name + '\'',
-                        start: offset,
-                        count: first
+                        start: env.args.offset,
+                        count: env.args.first,
+                        query: env.args.query,
+                        sort: env.args.sort,
+                        contentTypes: [contentType.name]
                     }).hits;
                     log.info('contents:' + JSON.stringify(contents, null, 2));
                     return contents;
@@ -55,15 +57,18 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
                 args: {
                     after: graphQlLib.GraphQLString,
                     first: graphQlLib.GraphQLInt,
-                    search: graphQlLib.GraphQLString
+                    query: graphQlLib.GraphQLString,
+                    sort: graphQlLib.GraphQLString
                 },
                 resolve: function (env) {
                     var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
-                    var count = env.args.first;
                     var queryResult = contentLib.query({
-                        query: 'type = \'' + contentType.name + '\'',
                         start: start,
-                        count: count
+                        count: env.args.first,
+                        query: env.args.query,
+                        sort: env.args.sort,
+                        contentTypes: [contentType.name]
+                        
                     });
                     log.info('queryResult:' + JSON.stringify(queryResult, null, 2));                    
                     return {
