@@ -1,8 +1,10 @@
 var graphQlLib = require('/lib/graphql');
 var graphQlConnectionLib = require('/lib/graphql-connection');
 var contentLib = require('/lib/xp/content');
+var portalLib = require('/lib/xp/portal');
 var utilLib = require('./util');
 var graphqlContentObjectTypesLib = require('./graphql-content-object-types');
+var graphqlContentInputTypesLib = require('./graphql-content-input-types');
 
 exports.addContentTypesAsFields = function (parentObjectTypeParams) {
 
@@ -381,29 +383,36 @@ function generateOptionObjectType(option) {
 }
 
 function generateFormItemArguments(formItem) {
-    if (formItem.occurrences && formItem.occurrences.maximum == 1) {
-        return undefined;
-    } else {
-        return {
-            offset: graphQlLib.GraphQLInt,
-            first: graphQlLib.GraphQLInt
-        };
+    var args = {};
+    if (!formItem.occurrences || formItem.occurrences.maximum != 1) {
+        args.offset = graphQlLib.GraphQLInt;
+        args.first = graphQlLib.GraphQLInt;
     }
-
+    if ('Input' == formItem.formItemType && 'HtmlArea' == formItem.inputType) {
+        args.processHtml = graphqlContentInputTypesLib.processHtmlInputType;
+    }
+    return args;
 }
 
 function generateFormItemResolveFunction(formItem) {    
     if (formItem.occurrences && formItem.occurrences.maximum == 1) {
         return function (env) {
-            return env.source[formItem.name];
+            var value = env.source[formItem.name];
+            if (env.args.processHtml) {
+                value = portalLib.processHtml({value: value, type: env.args.processHtml.type});
+            }
+            return value;
         };
     } else {
         return function (env) {
-            var contents = utilLib.forceArray(env.source[formItem.name]);
+            var values = utilLib.forceArray(env.source[formItem.name]);
             if (env.args.offset != null  || env.args.offset != null) {
-                return contents.slice(env.args.offset, env.args.first);
+                return values.slice(env.args.offset, env.args.first);
             }
-            return contents;
+            if (env.args.processHtml) {
+                values = values.map(function(value){return portalLib.processHtml({value: value});});
+            }
+            return values;
         };
     }
 
