@@ -5,6 +5,7 @@ var portalLib = require('/lib/xp/portal');
 var utilLib = require('./util');
 var graphqlContentObjectTypesLib = require('./graphql-content-object-types');
 var graphqlContentInputTypesLib = require('./graphql-content-input-types');
+var namingLib = require('/lib/headless-cms/naming');
 
 exports.addContentTypesAsFields = function (parentObjectTypeParams) {
 
@@ -14,6 +15,8 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
         //    return type.name.indexOf(':fieldset') != -1
         //}).
         forEach(function (contentType) {
+            
+            //Retrieve the content type  name as lower camel case
             var camelCaseContentTypeName = getCamelCaseContentTypeName(contentType);
 
             //Generates the object type for this content type
@@ -70,12 +73,12 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
                         query: env.args.query,
                         sort: env.args.sort,
                         contentTypes: [contentType.name]
-                        
+
                     });
-                    log.info('queryResult:' + JSON.stringify(queryResult, null, 2));                    
+                    log.info('queryResult:' + JSON.stringify(queryResult, null, 2));
                     return {
                         total: queryResult.total,
-                        start:  start,
+                        start: start,
                         hits: queryResult.hits
                     };
                 }
@@ -85,12 +88,12 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
 
 function getCamelCaseContentTypeName(contentType) {
     var localName = contentType.name.substr(contentType.name.indexOf(':') + 1);
-    return generateCamelCase(localName);
+    return namingLib.generateCamelCase(localName);
 }
 
 function generateContentTypeObjectType(contentType) {
     var createContentTypeTypeParams = {
-        name: generateCamelCase(contentType.displayName, true),
+        name: namingLib.generateCamelCase(contentType.displayName, true),
         description: contentType.displayName,
         fields: {
             _id: {
@@ -211,16 +214,16 @@ function generateContentTypeObjectType(contentType) {
 function generateContentDataObjectType(contentType) {
     log.info('contentType:' + JSON.stringify(contentType, null, 2));
     var createContentTypeDataTypeParams = {
-        name: generateCamelCase(contentType.displayName, true) + '_Data',
+        name: namingLib.generateCamelCase(contentType.displayName, true) + '_Data',
         description: contentType.displayName + ' data',
         fields: {}
     };
-    
+
     //For each item of the content type form
     getFormItems(contentType.form).forEach(function (formItem) {
-        
+
         //Creates a data field corresponding to this form item
-        createContentTypeDataTypeParams.fields[sanitizeText(formItem.name)] = {
+        createContentTypeDataTypeParams.fields[namingLib.sanitizeText(formItem.name)] = {
             type: generateFormItemObjectType(formItem),
             args: generateFormItemArguments(formItem),
             resolve: generateFormItemResolveFunction(formItem)
@@ -231,18 +234,18 @@ function generateContentDataObjectType(contentType) {
 
 function getFormItems(form) {
     var formItems = [];
-    form.forEach(function(formItem) {
+    form.forEach(function (formItem) {
         if ('ItemSet' === formItem.formItemType && getFormItems(formItem.items).length === 0) {
             return;
         }
         if ('Layout' === formItem.formItemType) {
-            getFormItems(formItem.items).forEach(function(layoutItem) {
-               formItems.push(layoutItem); 
+            getFormItems(formItem.items).forEach(function (layoutItem) {
+                formItems.push(layoutItem);
             });
             return;
         }
         formItems.push(formItem);
-    }); 
+    });
     return formItems;
 }
 
@@ -273,12 +276,12 @@ function generateFormItemObjectType(formItem) {
 
 function generateItemSetObjectType(itemSet) {
     var createItemSetTypeParams = {
-        name: generateCamelCase(itemSet.label, true) + '_' + generateRandomString(),
+        name: namingLib.generateCamelCase(itemSet.label, true) + '_' + namingLib.generateRandomString(),
         description: itemSet.label,
         fields: {}
     };
     getFormItems(itemSet.items).forEach(function (item) {
-        createItemSetTypeParams.fields[generateCamelCase(item.name)] = {
+        createItemSetTypeParams.fields[namingLib.generateCamelCase(item.name)] = {
             type: generateFormItemObjectType(item),
             resolve: generateFormItemResolveFunction(item)
         }
@@ -335,7 +338,7 @@ function generateInputObjectType(input) {
 }
 
 function generateOptionSetObjectType(optionSet) {
-    var typeName = generateCamelCase(optionSet.label, true) + '_' + generateRandomString();
+    var typeName = namingLib.generateCamelCase(optionSet.label, true) + '_' + namingLib.generateRandomString();
     var optionSetEnum = generateOptionSetEnum(optionSet, typeName);
     var createOptionSetTypeParams = {
         name: typeName,
@@ -352,7 +355,7 @@ function generateOptionSetObjectType(optionSet) {
         }
     };
     optionSet.options.forEach(function (option) {
-        createOptionSetTypeParams.fields[generateCamelCase(option.name)] = {
+        createOptionSetTypeParams.fields[namingLib.generateCamelCase(option.name)] = {
             type: generateOptionObjectType(option),
             resolve: function (env) {
                 return env.source[option.name];
@@ -394,7 +397,7 @@ function generateFormItemArguments(formItem) {
     return args;
 }
 
-function generateFormItemResolveFunction(formItem) {    
+function generateFormItemResolveFunction(formItem) {
     if (formItem.occurrences && formItem.occurrences.maximum == 1) {
         return function (env) {
             var value = env.source[formItem.name];
@@ -406,33 +409,18 @@ function generateFormItemResolveFunction(formItem) {
     } else {
         return function (env) {
             var values = utilLib.forceArray(env.source[formItem.name]);
-            if (env.args.offset != null  || env.args.offset != null) {
+            if (env.args.offset != null || env.args.offset != null) {
                 return values.slice(env.args.offset, env.args.first);
             }
             if (env.args.processHtml) {
-                values = values.map(function(value){return portalLib.processHtml({value: value});});
+                values = values.map(function (value) {
+                    return portalLib.processHtml({value: value});
+                });
             }
             return values;
         };
     }
 
-}
-
-function generateCamelCase(text, upper) {
-    var sanitizedText = sanitizeText(text);
-    var camelCasedText = sanitizedText.replace(/_[0-9A-Za-z]/g, function (match, offset, string) {
-        return match.charAt(1).toUpperCase();
-    });
-    var firstCharacter = upper ? camelCasedText.charAt(0).toUpperCase() : camelCasedText.charAt(0).toLowerCase();
-    return firstCharacter + (camelCasedText.length > 1 ? camelCasedText.substr(1) : '');
-}
-
-function sanitizeText(text) {
-    return text.replace(/([^0-9A-Za-z])+/g, '_');
-}
-
-function generateRandomString() {
-    return Math.random().toString(36).substr(2, 10).toUpperCase() + Math.random().toString(36).substr(2, 6).toUpperCase();
 }
 
 
