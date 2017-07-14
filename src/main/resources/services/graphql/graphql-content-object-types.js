@@ -1,8 +1,9 @@
 var graphQlLib = require('/lib/graphql');
+var namingLib = require('/lib/headless-cms/naming');
 
 
 exports.principalKeyType = graphQlLib.createObjectType({
-    name: 'PrincipalKey',
+    name: namingLib.uniqueName('PrincipalKey'),
     description: 'Principal key.',
     fields: {
         value: {
@@ -41,7 +42,7 @@ exports.principalKeyType = graphQlLib.createObjectType({
 });
 
 exports.contentTypeNameType = graphQlLib.createObjectType({
-    name: 'ContentTypeName',
+    name: namingLib.uniqueName('ContentTypeName'),
     description: 'Content type name.',
     fields: {
         value: {
@@ -66,7 +67,7 @@ exports.contentTypeNameType = graphQlLib.createObjectType({
 });
 
 exports.geoPointType = graphQlLib.createObjectType({
-    name: 'GeoPoint',
+    name: namingLib.uniqueName('GeoPoint'),
     description: 'GeoPoint.',
     fields: {
         value: {
@@ -91,7 +92,7 @@ exports.geoPointType = graphQlLib.createObjectType({
 });
 
 exports.mediaFocalPointType = graphQlLib.createObjectType({
-    name: 'MediaFocalPoint',
+    name: namingLib.uniqueName('MediaFocalPoint'),
     description: 'Media focal point.',
     fields: {
         x: {
@@ -110,7 +111,7 @@ exports.mediaFocalPointType = graphQlLib.createObjectType({
 });
 
 exports.mediaUploaderType = graphQlLib.createObjectType({
-    name: 'MediaUploader',
+    name: namingLib.uniqueName('MediaUploader'),
     description: 'Media uploader.',
     fields: {
         attachment: {
@@ -129,7 +130,7 @@ exports.mediaUploaderType = graphQlLib.createObjectType({
 });
 
 exports.siteConfiguratorType = graphQlLib.createObjectType({
-    name: 'SiteConfigurator',
+    name: namingLib.uniqueName('SiteConfigurator'),
     description: 'Site configurator.',
     fields: {
         applicationKey: {
@@ -148,7 +149,7 @@ exports.siteConfiguratorType = graphQlLib.createObjectType({
 });
 
 exports.publishInfoType = graphQlLib.createObjectType({
-    name: 'PublishInfo',
+    name: namingLib.uniqueName('PublishInfo'),
     description: 'Publish information.',
     fields: {
         from: {
@@ -173,7 +174,7 @@ exports.publishInfoType = graphQlLib.createObjectType({
 });
 
 exports.attachmentType = graphQlLib.createObjectType({
-    name: 'Attachment',
+    name: namingLib.uniqueName('Attachment'),
     description: 'Attachment.',
     fields: {
         name: {
@@ -204,7 +205,7 @@ exports.attachmentType = graphQlLib.createObjectType({
 });
 
 exports.componentType = graphQlLib.createObjectType({
-    name: 'Component',
+    name: namingLib.uniqueName('Component'),
     description: 'Component.',
     fields: {
         name: {
@@ -261,7 +262,7 @@ exports.componentType = graphQlLib.createObjectType({
 });
 
 exports.pageRegionType = graphQlLib.createObjectType({
-    name: 'PageRegion',
+    name: namingLib.uniqueName('PageRegion'),
     description: 'Page region.',
     fields: {
         name: {
@@ -280,7 +281,7 @@ exports.pageRegionType = graphQlLib.createObjectType({
 });
 
 exports.pageType = graphQlLib.createObjectType({
-    name: 'Page',
+    name: namingLib.uniqueName('Page'),
     description: 'Page.',
     fields: {
         template: {

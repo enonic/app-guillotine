@@ -11,9 +11,9 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
 
     //For each content type
     contentLib.getTypes().
-        //filter(function (type) {
-        //    return type.name.indexOf(':fieldset') != -1
-        //}).
+        filter(function (type) {
+            return type.name.indexOf(':set') != -1
+        }).
         forEach(function (contentType) {
             
             //Retrieve the content type  name as lower camel case
@@ -92,8 +92,9 @@ function getCamelCaseContentTypeName(contentType) {
 }
 
 function generateContentTypeObjectType(contentType) {
+    var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName, true);
     var createContentTypeTypeParams = {
-        name: namingLib.generateCamelCase(contentType.displayName, true),
+        name: namingLib.uniqueName(camelCaseDisplayName),
         description: contentType.displayName,
         fields: {
             _id: {
@@ -213,8 +214,9 @@ function generateContentTypeObjectType(contentType) {
 
 function generateContentDataObjectType(contentType) {
     log.info('contentType:' + JSON.stringify(contentType, null, 2));
+    var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName + '_Data', true); 
     var createContentTypeDataTypeParams = {
-        name: namingLib.generateCamelCase(contentType.displayName, true) + '_Data',
+        name: namingLib.uniqueName(camelCaseDisplayName),
         description: contentType.displayName + ' data',
         fields: {}
     };
@@ -275,8 +277,9 @@ function generateFormItemObjectType(formItem) {
 }
 
 function generateItemSetObjectType(itemSet) {
+    var camelCaseLabel = namingLib.generateCamelCase(itemSet.label, true);
     var createItemSetTypeParams = {
-        name: namingLib.generateCamelCase(itemSet.label, true) + '_' + namingLib.generateRandomString(),
+        name: namingLib.uniqueName(camelCaseLabel),
         description: itemSet.label,
         fields: {}
     };
@@ -338,7 +341,8 @@ function generateInputObjectType(input) {
 }
 
 function generateOptionSetObjectType(optionSet) {
-    var typeName = namingLib.generateCamelCase(optionSet.label, true) + '_' + namingLib.generateRandomString();
+    var camelCaseLabel = namingLib.generateCamelCase(optionSet.label, true);
+    var typeName = namingLib.uniqueName(camelCaseLabel);
     var optionSetEnum = generateOptionSetEnum(optionSet, typeName);
     var createOptionSetTypeParams = {
         name: typeName,
