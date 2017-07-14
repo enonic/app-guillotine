@@ -11,9 +11,9 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
 
     //For each content type
     contentLib.getTypes().
-        filter(function (type) {
-            return type.name.indexOf(':set') != -1
-        }).
+        //filter(function (type) {
+        //    return type.name.indexOf(':set') != -1
+        //}).
         forEach(function (contentType) {
             
             //Retrieve the content type  name as lower camel case
