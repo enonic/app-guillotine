@@ -1,10 +1,24 @@
 var graphQlLib = require('/lib/graphql');
 var graphQlContentTypesLib = require('./graphql-content-types');
 
-var createQueryTypeParams = {
+
+var createTypedApiTypeParams = {
+    name: 'TypedApi',
+    description: 'Typed contents API',
+    fields: {}
+};
+graphQlContentTypesLib.addContentTypesAsFields(createTypedApiTypeParams);
+var typedApiType = graphQlLib.createObjectType(createTypedApiTypeParams);
+
+
+exports.rootQueryType = graphQlLib.createObjectType({
     name: 'Query',
     fields: {
-    }    
-};
-graphQlContentTypesLib.addContentTypesAsFields(createQueryTypeParams);
-exports.rootQueryType = graphQlLib.createObjectType(createQueryTypeParams);
+        typedApi: {
+            type: typedApiType,
+            resolve: function () {
+                return {};
+            }
+        }
+    }
+});
