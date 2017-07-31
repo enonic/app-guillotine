@@ -1,6 +1,120 @@
 var graphQlLib = require('/lib/graphql');
 var namingLib = require('/lib/headless-cms/naming');
 
+exports.generateGenericContentFields = function () {
+    return {
+        _id: {
+            type: graphQlLib.nonNull(graphQlLib.GraphQLID),
+            resolve: function (env) {
+                return env.source._id;
+            }
+        },
+        _name: {
+            type: graphQlLib.nonNull(graphQlLib.GraphQLString),
+            resolve: function (env) {
+                return env.source._name;
+            }
+        },
+        _path: {
+            type: graphQlLib.nonNull(graphQlLib.GraphQLString),
+            resolve: function (env) {
+                return env.source._path;
+            }
+        },
+        creator: {
+            type: exports.principalKeyType,
+            resolve: function (env) {
+                return env.source.creator;
+            }
+        },
+        modifier: {
+            type: exports.principalKeyType,
+            resolve: function (env) {
+                return env.source.modifier;
+            }
+        },
+        createdTime: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.createdTime;
+            }
+        },
+        modifiedTime: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.modifiedTime;
+            }
+        },
+        owner: {
+            type: exports.principalKeyType,
+            resolve: function (env) {
+                return env.source.owner;
+            }
+        },
+        type: {
+            type: exports.contentTypeNameType,
+            resolve: function (env) {
+                return env.source.type;
+            }
+        },
+        displayName: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.displayName;
+            }
+        },
+        hasChildren: {
+            type: graphQlLib.GraphQLBoolean,
+            resolve: function (env) {
+                return env.source.hasChildren;
+            }
+        },
+        language: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.language;
+            }
+        },
+        valid: {
+            type: graphQlLib.GraphQLBoolean,
+            resolve: function (env) {
+                return env.source.valid;
+            }
+        },
+        data: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return JSON.stringify(env.source.data);
+            }
+        },
+        x: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return JSON.stringify(env.source.x); //TODO
+            }
+        },
+        page: {
+            type: exports.pageType,
+            resolve: function (env) {
+                return env.source.page;
+            }
+        },
+        attachments: {
+            type: graphQlLib.list(exports.attachmentType),
+            resolve: function (env) {
+                return Object.keys(env.source.attachments).map(function (key) {
+                    return env.source.attachments[key];
+                });
+            }
+        },
+        publish: {
+            type: exports.publishInfoType,
+            resolve: function (env) {
+                return env.source.publish;
+            }
+        }
+    };
+};
 
 exports.principalKeyType = graphQlLib.createObjectType({
     name: namingLib.uniqueName('PrincipalKey'),
