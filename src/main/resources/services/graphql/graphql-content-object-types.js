@@ -81,12 +81,6 @@ exports.generateGenericContentFields = function () {
                 return env.source.valid;
             }
         },
-        data: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return JSON.stringify(env.source.data);
-            }
-        },
         x: {
             type: graphQlLib.GraphQLString,
             resolve: function (env) {
@@ -431,5 +425,11 @@ exports.pageType = graphQlLib.createObjectType({
             }
         }
     }
+});
+
+exports.contentType = graphQlLib.createInterfaceType({
+    name: namingLib.uniqueName('Content'),
+    description: 'Content.',
+    fields: exports.generateGenericContentFields()
 });
 

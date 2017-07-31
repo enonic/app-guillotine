@@ -96,6 +96,7 @@ function generateContentTypeObjectType(contentType) {
     var createContentTypeTypeParams = {
         name: namingLib.uniqueName(camelCaseDisplayName),
         description: contentType.displayName,
+        interfaces: [graphqlContentObjectTypesLib.contentType],
         fields: graphqlContentObjectTypesLib.generateGenericContentFields()
     };
 
