@@ -12,10 +12,10 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
     //For each content type
     contentLib.getTypes().
         //filter(function (type) {
-        //    return type.name.indexOf(':set') != -1
+        //    return type.name.indexOf(':site') != -1
         //}).
         forEach(function (contentType) {
-            
+
             //Retrieve the content type  name as lower camel case
             var camelCaseContentTypeName = getCamelCaseContentTypeName(contentType);
 
@@ -106,13 +106,15 @@ function generateContentTypeObjectType(contentType) {
             return env.source.data;
         }
     } : undefined;
-    
-    return graphQlLib.createObjectType(createContentTypeTypeParams);
+
+    var contentTypeObjectType = graphQlLib.createObjectType(createContentTypeTypeParams);
+    graphqlContentObjectTypesLib.registerContentTypeObjectType(contentType.name, contentTypeObjectType);
+    return contentTypeObjectType;
 }
 
 function generateContentDataObjectType(contentType) {
     log.info('contentType:' + JSON.stringify(contentType, null, 2));
-    var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName + '_Data', true); 
+    var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName + '_Data', true);
     var createContentTypeDataTypeParams = {
         name: namingLib.uniqueName(camelCaseDisplayName),
         description: contentType.displayName + ' data',

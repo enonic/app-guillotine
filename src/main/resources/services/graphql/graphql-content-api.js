@@ -1,8 +1,32 @@
 var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 var graphQlLib = require('/lib/graphql');
+var graphQlContentObjectTypesLib = require('./graphql-content-object-types');
 
-
+var getChildrenResultType = graphQlLib.createObjectType({
+    name: 'GetChildrenResult',
+    description: 'Get children result.',
+    fields: {
+        total: {
+            type: graphQlLib.GraphQLInt,
+            resolve: function (env) {
+                return env.source.total;
+            }
+        },
+        count: {
+            type: graphQlLib.GraphQLInt,
+            resolve: function (env) {
+                return env.source.count;
+            }
+        },
+        hits: {
+            type: graphQlLib.list(graphQlContentObjectTypesLib.contentType),
+            resolve: function (env) {
+                return env.source.hits;
+            }
+        }
+    }
+});
 var permisionType = graphQlLib.createEnumType({
     name: 'Permission',
     description: 'Permission.',
@@ -64,6 +88,34 @@ exports.contentApiType = graphQlLib.createObjectType({
     name: 'ContentApi',
     description: 'Content API',
     fields: {
+        getChildren: {
+            type: getChildrenResultType,
+            args: {
+                key: graphQlLib.GraphQLID,
+                start: graphQlLib.GraphQLInt,
+                count: graphQlLib.GraphQLInt,
+                sort: graphQlLib.GraphQLString
+            },
+            resolve: function (env) {
+                return contentLib.getChildren({
+                    key: getKey(env),
+                    start: env.args.start,
+                    count: env.args.count,
+                    sort: env.args.sort
+                });
+            }
+        },
+        getPermissions: {
+            type: getPermissionsResultType,
+            args: {
+                key: graphQlLib.GraphQLID
+            },
+            resolve: function (env) {
+                return contentLib.getPermissions({
+                    key: getKey(env)
+                });
+            }
+        },
         getSite: {
             type: graphQlLib.reference('Site'),
             args: {
@@ -87,17 +139,6 @@ exports.contentApiType = graphQlLib.createObjectType({
                     applicationKey: env.args.applicationKey
                 });
                 return config && JSON.stringify(config);
-            }
-        },
-        getPermissions: {
-            type: getPermissionsResultType,
-            args: {
-                key: graphQlLib.GraphQLID
-            },
-            resolve: function (env) {
-                return contentLib.getPermissions({
-                    key: getKey(env)
-                });
             }
         }
     }

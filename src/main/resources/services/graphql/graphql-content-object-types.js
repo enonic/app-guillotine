@@ -427,9 +427,16 @@ exports.pageType = graphQlLib.createObjectType({
     }
 });
 
+var contentTypeObjectTypeMapping = {a: 1};
+exports.registerContentTypeObjectType = function (type, contentTypeObjectType) {
+    contentTypeObjectTypeMapping[type] = contentTypeObjectType;
+}
+
 exports.contentType = graphQlLib.createInterfaceType({
     name: namingLib.uniqueName('Content'),
+    typeResolver: function (content) {
+        return contentTypeObjectTypeMapping[content.type];
+    },
     description: 'Content.',
     fields: exports.generateGenericContentFields()
 });
-
