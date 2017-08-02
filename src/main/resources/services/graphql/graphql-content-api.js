@@ -175,7 +175,47 @@ exports.contentApiType = graphQlLib.createObjectType({
                 });
                 return config && JSON.stringify(config);
             }
-        }
+        },
+        query: {
+            type: graphQlLib.list(graphQlContentObjectTypesLib.contentType),
+            args: {
+                query: graphQlLib.nonNull(graphQlLib.GraphQLString),
+                offset: graphQlLib.GraphQLInt,
+                first: graphQlLib.GraphQLInt,
+                sort: graphQlLib.GraphQLString,
+            },
+            resolve: function (env) {
+                return contentLib.query({
+                    query: env.args.query,
+                    start: env.args.offset,
+                    count: env.args.first,
+                    sort: env.args.sort
+                }).hits;
+            }
+        },
+        queryAsConnection: {
+            type: graphQlContentObjectTypesLib.contentConnectionType,
+            args: {
+                query: graphQlLib.nonNull(graphQlLib.GraphQLString),
+                after: graphQlLib.GraphQLString,
+                first: graphQlLib.GraphQLInt,
+                sort: graphQlLib.GraphQLString
+            },
+            resolve: function (env) {
+                var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
+                var queryResult = contentLib.query({
+                    query: env.args.query,
+                    start: start,
+                    count: env.args.first,
+                    sort: env.args.sort
+                });
+                return {
+                    total: queryResult.total,
+                    start: start,
+                    hits: queryResult.hits
+                };
+            }
+        },
     }
 });
 
