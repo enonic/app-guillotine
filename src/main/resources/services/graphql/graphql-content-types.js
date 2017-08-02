@@ -51,7 +51,6 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
                         sort: env.args.sort,
                         contentTypes: [contentType.name]
                     }).hits;
-                    log.info('contents:' + JSON.stringify(contents, null, 2));
                     return contents;
                 }
             };
@@ -75,7 +74,6 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
                         contentTypes: [contentType.name]
 
                     });
-                    log.info('queryResult:' + JSON.stringify(queryResult, null, 2));
                     return {
                         total: queryResult.total,
                         start: start,
@@ -113,7 +111,6 @@ function generateContentTypeObjectType(contentType) {
 }
 
 function generateContentDataObjectType(contentType) {
-    log.info('contentType:' + JSON.stringify(contentType, null, 2));
     var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName + '_Data', true);
     var createContentTypeDataTypeParams = {
         name: namingLib.uniqueName(camelCaseDisplayName),
