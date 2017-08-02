@@ -1,5 +1,6 @@
 var graphQlLib = require('/lib/graphql');
 var graphQlConnectionLib = require('/lib/graphql-connection');
+var contentLib = require('/lib/xp/content');
 var namingLib = require('/lib/headless-cms/naming');
 
 exports.generateGenericContentFields = function () {
@@ -106,6 +107,12 @@ exports.generateGenericContentFields = function () {
             type: exports.publishInfoType,
             resolve: function (env) {
                 return env.source.publish;
+            }
+        },
+        site: {
+            type: graphQlLib.reference('Site'),
+            resolve: function (env) {
+                return contentLib.getSite({key: env.source._id});
             }
         }
     };
