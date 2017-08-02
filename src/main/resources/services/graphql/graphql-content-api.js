@@ -88,6 +88,17 @@ exports.contentApiType = graphQlLib.createObjectType({
     name: 'Contents',
     description: 'Contents API',
     fields: {
+        get: {
+            type: graphQlContentObjectTypesLib.contentType,
+            args: {
+                key: graphQlLib.GraphQLID
+            },
+            resolve: function (env) {
+                return contentLib.get({
+                    key: getKey(env)
+                });
+            }
+        },
         getChildren: {
             type: getChildrenResultType,
             args: {
