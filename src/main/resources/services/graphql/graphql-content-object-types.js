@@ -112,7 +112,23 @@ exports.generateGenericContentFields = function () {
         site: {
             type: graphQlLib.reference('Site'),
             resolve: function (env) {
-                return contentLib.getSite({key: env.source._id});
+                return  contentLib.getSite({key: env.source._id});
+            }
+        },
+        children: {
+            type: graphQlLib.list(graphQlLib.reference('Content')),
+            args: {
+                offset: graphQlLib.GraphQLInt,
+                first: graphQlLib.GraphQLInt,
+                sort: graphQlLib.GraphQLString
+            },
+            resolve: function (env) {
+                return contentLib.getChildren({
+                    key: env.source._id,
+                    start: env.args.offset,
+                    count: env.args.first,
+                    sort: env.args.sort
+                }).hits;
             }
         }
     };
