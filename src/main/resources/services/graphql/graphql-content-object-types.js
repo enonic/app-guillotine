@@ -1,4 +1,5 @@
 var graphQlLib = require('/lib/graphql');
+var graphQlConnectionLib = require('/lib/graphql-connection');
 var namingLib = require('/lib/headless-cms/naming');
 
 exports.generateGenericContentFields = function () {
@@ -427,11 +428,10 @@ exports.pageType = graphQlLib.createObjectType({
     }
 });
 
-var contentTypeObjectTypeMapping = {a: 1};
+var contentTypeObjectTypeMapping = {};
 exports.registerContentTypeObjectType = function (type, contentTypeObjectType) {
     contentTypeObjectTypeMapping[type] = contentTypeObjectType;
-}
-
+};
 exports.contentType = graphQlLib.createInterfaceType({
     name: namingLib.uniqueName('Content'),
     typeResolver: function (content) {
@@ -440,3 +440,4 @@ exports.contentType = graphQlLib.createInterfaceType({
     description: 'Content.',
     fields: exports.generateGenericContentFields()
 });
+exports.contentConnectionType = graphQlConnectionLib.createConnectionType(exports.contentType);

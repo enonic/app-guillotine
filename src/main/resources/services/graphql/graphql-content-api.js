@@ -1,6 +1,7 @@
 var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 var graphQlLib = require('/lib/graphql');
+var graphQlConnectionLib = require('/lib/graphql-connection');
 var graphQlContentObjectTypesLib = require('./graphql-content-object-types');
 
 var getChildrenResultType = graphQlLib.createObjectType({
@@ -100,20 +101,43 @@ exports.contentApiType = graphQlLib.createObjectType({
             }
         },
         getChildren: {
-            type: getChildrenResultType,
+            type: graphQlLib.list(graphQlContentObjectTypesLib.contentType),
             args: {
                 key: graphQlLib.GraphQLID,
-                start: graphQlLib.GraphQLInt,
-                count: graphQlLib.GraphQLInt,
+                offset: graphQlLib.GraphQLInt,
+                first: graphQlLib.GraphQLInt,
                 sort: graphQlLib.GraphQLString
             },
             resolve: function (env) {
                 return contentLib.getChildren({
                     key: getKey(env),
-                    start: env.args.start,
-                    count: env.args.count,
+                    start: env.args.offset,
+                    count: env.args.first,
+                    sort: env.args.sort
+                }).hits;
+            }
+        },
+        getChildrenAsConnection: {
+            type: graphQlContentObjectTypesLib.contentConnectionType,
+            args: {
+                key: graphQlLib.GraphQLID,
+                after: graphQlLib.GraphQLString,
+                first: graphQlLib.GraphQLInt,
+                sort: graphQlLib.GraphQLString
+            },
+            resolve: function (env) {
+                var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
+                var getChildrenResult = contentLib.getChildren({
+                    key: getKey(env),
+                    start: start,
+                    count: env.args.first,
                     sort: env.args.sort
                 });
+                return {
+                    total: getChildrenResult.total,
+                    start: start,
+                    hits: getChildrenResult.hits
+                };
             }
         },
         getPermissions: {
