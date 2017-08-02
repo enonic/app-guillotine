@@ -85,8 +85,8 @@ var getPermissionsResultType = graphQlLib.createObjectType({
 });
 
 exports.contentApiType = graphQlLib.createObjectType({
-    name: 'ContentApi',
-    description: 'Content API',
+    name: 'Contents',
+    description: 'Contents API',
     fields: {
         getChildren: {
             type: getChildrenResultType,
