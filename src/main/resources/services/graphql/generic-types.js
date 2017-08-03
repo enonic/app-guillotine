@@ -54,7 +54,7 @@ exports.generateGenericContentFields = function () {
             }
         },
         type: {
-            type: exports.contentTypeNameType,
+            type: exports.schemaNameType,
             resolve: function (env) {
                 return env.source.type;
             }
@@ -84,9 +84,17 @@ exports.generateGenericContentFields = function () {
             }
         },
         x: {
-            type: graphQlLib.GraphQLString,
+            type: graphQlLib.list(exports.extraDataType),
             resolve: function (env) {
-                return JSON.stringify(env.source.x); //TODO
+                var extraDatas = [];
+                Object.keys(env.source.x).forEach(function (applicationKey) {
+                    var applicationExtraData = env.source.x[applicationKey];
+                    Object.keys(applicationExtraData).forEach(function (mixinLocalName) {
+                        var mixin = applicationExtraData[mixinLocalName];
+                        extraDatas.push({name: applicationKey + ':' + mixinLocalName, data: mixin});
+                    });
+                });
+                return extraDatas;
             }
         },
         page: {
@@ -232,9 +240,9 @@ exports.accessControlEntryType = graphQlLib.createObjectType({
     }
 });
 
-exports.contentTypeNameType = graphQlLib.createObjectType({
-    name: namingLib.uniqueName('ContentTypeName'),
-    description: 'Content type name.',
+exports.schemaNameType = graphQlLib.createObjectType({
+    name: namingLib.uniqueName('SchemaName'),
+    description: 'Schema name type.',
     fields: {
         value: {
             type: graphQlLib.GraphQLString,
@@ -390,6 +398,25 @@ exports.attachmentType = graphQlLib.createObjectType({
             type: graphQlLib.GraphQLString,
             resolve: function (env) {
                 return env.source.mimeType;
+            }
+        }
+    }
+});
+
+exports.extraDataType = graphQlLib.createObjectType({
+    name: namingLib.uniqueName('ExtraData'),
+    description: 'Extra data.',
+    fields: {
+        name: {
+            type: exports.schemaNameType,
+            resolve: function (env) {
+                return env.source.name;
+            }
+        },
+        data: {
+            type: graphQlLib.GraphQLString,
+            resolve: function (env) {
+                return env.source.data;
             }
         }
     }
