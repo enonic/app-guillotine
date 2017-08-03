@@ -3,8 +3,8 @@ var graphQlConnectionLib = require('/lib/graphql-connection');
 var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 var utilLib = require('./util');
-var graphqlContentObjectTypesLib = require('./graphql-content-object-types');
-var graphqlContentInputTypesLib = require('./graphql-content-input-types');
+var genericTypesLib = require('./generic-types');
+var inputTypesLib = require('./input-types');
 var namingLib = require('/lib/headless-cms/naming');
 
 exports.addContentTypesAsFields = function (parentObjectTypeParams) {
@@ -92,11 +92,12 @@ function getCamelCaseContentTypeName(contentType) {
 
 function generateContentTypeObjectType(contentType) {
     var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName, true);
+    
     var createContentTypeTypeParams = {
         name: namingLib.uniqueName(camelCaseDisplayName),
         description: contentType.displayName + ' - ' + contentType.name,
-        interfaces: [graphqlContentObjectTypesLib.contentType],
-        fields: graphqlContentObjectTypesLib.generateGenericContentFields()
+        interfaces: [genericTypesLib.contentType],
+        fields: genericTypesLib.generateGenericContentFields()
     };
 
     createContentTypeTypeParams.fields.data = getFormItems(contentType.form).length > 0 ? {
@@ -107,7 +108,7 @@ function generateContentTypeObjectType(contentType) {
     } : undefined;
 
     var contentTypeObjectType = graphQlLib.createObjectType(createContentTypeTypeParams);
-    graphqlContentObjectTypesLib.registerContentTypeObjectType(contentType.name, contentTypeObjectType);
+    genericTypesLib.registerContentTypeObjectType(contentType.name, contentTypeObjectType);
     return contentTypeObjectType;
 }
 
@@ -213,19 +214,19 @@ function generateInputObjectType(input) {
     case 'AttachmentUploader':
         return graphQlLib.GraphQLID; //TODO ID or String?
     case 'GeoPoint':
-        return graphqlContentObjectTypesLib.geoPointType;
+        return genericTypesLib.geoPointType;
     case 'HtmlArea':
         return graphQlLib.GraphQLString;
     case 'ImageSelector':
         return graphQlLib.GraphQLID;
     case 'ImageUploader':
-        return graphqlContentObjectTypesLib.mediaUploaderType;
+        return genericTypesLib.mediaUploaderType;
     case 'Long':
         return graphQlLib.GraphQLInt;
     case 'RadioButton':
         return graphQlLib.GraphQLString; //TODO Should be enum based on config
     case 'SiteConfigurator':
-        return graphqlContentObjectTypesLib.siteConfiguratorType;
+        return genericTypesLib.siteConfiguratorType;
     case 'Tag':
         return graphQlLib.GraphQLString;
     case 'TextArea':
@@ -294,7 +295,7 @@ function generateFormItemArguments(formItem) {
         args.first = graphQlLib.GraphQLInt;
     }
     if ('Input' == formItem.formItemType && 'HtmlArea' == formItem.inputType) {
-        args.processHtml = graphqlContentInputTypesLib.processHtmlInputType;
+        args.processHtml = inputTypesLib.processHtmlInputType;
     }
     return args;
 }

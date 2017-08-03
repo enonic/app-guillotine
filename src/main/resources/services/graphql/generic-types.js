@@ -185,6 +185,45 @@ exports.principalKeyType = graphQlLib.createObjectType({
     }
 });
 
+exports.permissionType = graphQlLib.createEnumType({
+    name: 'Permission',
+    description: 'Permission.',
+    values: {
+        'READ': 'READ',
+        'CREATE': 'CREATE',
+        'MODIFY': 'MODIFY',
+        'DELETE': 'DELETE',
+        'PUBLISH': 'PUBLISH',
+        'READ_PERMISSIONS': 'READ_PERMISSIONS',
+        'WRITE_PERMISSIONS': 'WRITE_PERMISSIONS'
+    }
+});
+
+exports.accessControlEntryType = graphQlLib.createObjectType({
+    name: 'AccessControlEntry',
+    description: 'Access control entry.',
+    fields: {
+        principal: {
+            type: graphQlLib.reference('PrincipalKey'),
+            resolve: function (env) {
+                return env.source.principal;
+            }
+        },
+        allow: {
+            type: graphQlLib.list(exports.permissionType),
+            resolve: function (env) {
+                return env.source.allow;
+            }
+        },
+        deny: {
+            type: graphQlLib.list(exports.permissionType),
+            resolve: function (env) {
+                return env.source.deny;
+            }
+        }
+    }
+});
+
 exports.contentTypeNameType = graphQlLib.createObjectType({
     name: namingLib.uniqueName('ContentTypeName'),
     description: 'Content type name.',
@@ -476,3 +515,5 @@ exports.contentType = graphQlLib.createInterfaceType({
     fields: exports.generateGenericContentFields()
 });
 exports.contentConnectionType = graphQlConnectionLib.createConnectionType(exports.contentType);
+
+

@@ -2,7 +2,8 @@ var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 var graphQlLib = require('/lib/graphql');
 var graphQlConnectionLib = require('/lib/graphql-connection');
-var graphQlContentObjectTypesLib = require('./graphql-content-object-types');
+var genericTypesLib = require('./generic-types');
+var typesApiLib = require('./types-api');
 
 var getChildrenResultType = graphQlLib.createObjectType({
     name: 'GetChildrenResult',
@@ -21,51 +22,14 @@ var getChildrenResultType = graphQlLib.createObjectType({
             }
         },
         hits: {
-            type: graphQlLib.list(graphQlContentObjectTypesLib.contentType),
+            type: graphQlLib.list(genericTypesLib.contentType),
             resolve: function (env) {
                 return env.source.hits;
             }
         }
     }
 });
-var permisionType = graphQlLib.createEnumType({
-    name: 'Permission',
-    description: 'Permission.',
-    values: {
-        'READ': 'READ',
-        'CREATE': 'CREATE',
-        'MODIFY': 'MODIFY',
-        'DELETE': 'DELETE',
-        'PUBLISH': 'PUBLISH',
-        'READ_PERMISSIONS': 'READ_PERMISSIONS',
-        'WRITE_PERMISSIONS': 'WRITE_PERMISSIONS'
-    }
-});
 
-var accessControlEntryType = graphQlLib.createObjectType({
-    name: 'AccessControlEntry',
-    description: 'Access control entry.',
-    fields: {
-        principal: {
-            type: graphQlLib.reference('PrincipalKey'),
-            resolve: function (env) {
-                return env.source.principal;
-            }
-        },
-        allow: {
-            type: graphQlLib.list(permisionType),
-            resolve: function (env) {
-                return env.source.allow;
-            }
-        },
-        deny: {
-            type: graphQlLib.list(permisionType),
-            resolve: function (env) {
-                return env.source.deny;
-            }
-        }
-    }
-});
 var getPermissionsResultType = graphQlLib.createObjectType({
     name: 'GetPermissionsResult',
     description: 'Get permissions result.',
@@ -77,7 +41,7 @@ var getPermissionsResultType = graphQlLib.createObjectType({
             }
         },
         permissions: {
-            type: graphQlLib.list(accessControlEntryType),
+            type: graphQlLib.list(genericTypesLib.accessControlEntryType),
             resolve: function (env) {
                 return env.source.permissions;
             }
@@ -86,11 +50,11 @@ var getPermissionsResultType = graphQlLib.createObjectType({
 });
 
 exports.contentApiType = graphQlLib.createObjectType({
-    name: 'Contents',
-    description: 'Contents API',
+    name: 'ContentApi',
+    description: 'Content API',
     fields: {
         get: {
-            type: graphQlContentObjectTypesLib.contentType,
+            type: genericTypesLib.contentType,
             args: {
                 key: graphQlLib.GraphQLID
             },
@@ -101,7 +65,7 @@ exports.contentApiType = graphQlLib.createObjectType({
             }
         },
         getChildren: {
-            type: graphQlLib.list(graphQlContentObjectTypesLib.contentType),
+            type: graphQlLib.list(genericTypesLib.contentType),
             args: {
                 key: graphQlLib.GraphQLID,
                 offset: graphQlLib.GraphQLInt,
@@ -118,7 +82,7 @@ exports.contentApiType = graphQlLib.createObjectType({
             }
         },
         getChildrenAsConnection: {
-            type: graphQlContentObjectTypesLib.contentConnectionType,
+            type: genericTypesLib.contentConnectionType,
             args: {
                 key: graphQlLib.GraphQLID,
                 after: graphQlLib.GraphQLString,
@@ -177,7 +141,7 @@ exports.contentApiType = graphQlLib.createObjectType({
             }
         },
         query: {
-            type: graphQlLib.list(graphQlContentObjectTypesLib.contentType),
+            type: graphQlLib.list(genericTypesLib.contentType),
             args: {
                 query: graphQlLib.nonNull(graphQlLib.GraphQLString),
                 offset: graphQlLib.GraphQLInt,
@@ -194,7 +158,7 @@ exports.contentApiType = graphQlLib.createObjectType({
             }
         },
         queryAsConnection: {
-            type: graphQlContentObjectTypesLib.contentConnectionType,
+            type: genericTypesLib.contentConnectionType,
             args: {
                 query: graphQlLib.nonNull(graphQlLib.GraphQLString),
                 after: graphQlLib.GraphQLString,
@@ -216,6 +180,12 @@ exports.contentApiType = graphQlLib.createObjectType({
                 };
             }
         },
+        types: {
+            type: typesApiLib.typesApiType,
+            resolve: function () {
+               return {};
+            }
+        } 
     }
 });
 
