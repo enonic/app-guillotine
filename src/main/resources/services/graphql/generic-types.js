@@ -434,7 +434,7 @@ exports.componentType = graphQlLib.createObjectType({
             }
         },
         regions: {
-            type: graphQlLib.list(graphQlLib.reference('PageRegion')),
+            type: graphQlLib.list(graphQlLib.reference('Region')),
             resolve: function (env) {
                 return env.source.regions && Object.keys(env.source.regions).map(function (key) {
                         return env.source.regions[key];
@@ -445,7 +445,7 @@ exports.componentType = graphQlLib.createObjectType({
 });
 
 exports.pageRegionType = graphQlLib.createObjectType({
-    name: namingLib.uniqueName('PageRegion'),
+    name: namingLib.uniqueName('Region'),
     description: 'Page region.',
     fields: {
         name: {
