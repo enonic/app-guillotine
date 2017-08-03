@@ -17,7 +17,7 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
         forEach(function (contentType) {
 
             //Retrieve the content type  name as lower camel case
-            var camelCaseContentTypeName = getCamelCaseContentTypeName(contentType);
+            var camelCaseContentTypeName = generateContentTypeGetter(contentType);
 
             //Generates the object type for this content type
             var contentTypeObjectType = generateContentTypeObjectType(contentType);
@@ -84,15 +84,15 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
         });
 };
 
-function getCamelCaseContentTypeName(contentType) {
-    var localName = contentType.name.substr(contentType.name.indexOf(':') + 1);    
-    var camelCaseContentTypeName = namingLib.generateCamelCase(localName);
-    return namingLib.uniqueName(camelCaseContentTypeName);
+function generateContentTypeGetter(contentType) {
+    var localName = contentType.name.substr(contentType.name.indexOf(':') + 1);
+    var camelCaseContentTypeName = namingLib.generateCamelCase(localName, true);
+    return namingLib.uniqueName('get' + camelCaseContentTypeName);
 }
 
 function generateContentTypeObjectType(contentType) {
     var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName, true);
-    
+
     var createContentTypeTypeParams = {
         name: namingLib.uniqueName(camelCaseDisplayName),
         description: contentType.displayName + ' - ' + contentType.name,
