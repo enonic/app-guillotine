@@ -142,6 +142,14 @@ exports.generateGenericContentFields = function () {
                     sort: env.args.sort
                 }).hits;
             }
+        },
+        permissions: {
+            type: graphQlLib.reference('Permissions'),
+            resolve: function (env) {
+                return contentLib.getPermissions({
+                    key: env.source._id
+                });
+            }
         }
     };
 };

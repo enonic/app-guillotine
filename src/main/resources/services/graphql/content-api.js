@@ -31,8 +31,8 @@ var getChildrenResultType = graphQlLib.createObjectType({
 });
 
 var getPermissionsResultType = graphQlLib.createObjectType({
-    name: 'GetPermissionsResult',
-    description: 'Get permissions result.',
+    name: 'Permissions',
+    description: 'Permissions.',
     fields: {
         inheritsPermissions: {
             type: graphQlLib.GraphQLBoolean,
