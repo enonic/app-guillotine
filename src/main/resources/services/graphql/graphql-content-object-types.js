@@ -112,7 +112,19 @@ exports.generateGenericContentFields = function () {
         site: {
             type: graphQlLib.reference('Site'),
             resolve: function (env) {
-                return  contentLib.getSite({key: env.source._id});
+                return contentLib.getSite({key: env.source._id});
+            }
+        },
+        parent: {
+            type: graphQlLib.reference('Content'),
+            resolve: function (env) {
+                if (env.source._path === '/' || env.source._path === '/content') { //TODO Incorrect path
+                    return null;
+                } else {
+                    var lastSlashIndex = env.source._path.lastIndexOf('/');
+                    var parentPath = lastSlashIndex == 0 ? '/' : env.source._path.substr(0, lastSlashIndex);
+                    return contentLib.get({key: parentPath});
+                }
             }
         },
         children: {
