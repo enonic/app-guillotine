@@ -23,9 +23,10 @@ app {
 
 dependencies {
     compile "com.enonic.xp:core-api:${xpVersion}"
+    include "com.enonic.xp:lib-auth:${xpVersion}"
     include "com.enonic.xp:lib-content:${xpVersion}"
     include "com.enonic.xp:lib-portal:${xpVersion}"
-    include "com.enonic.lib:graphql:0.5.1-SNAPSHOT"
+    include "com.enonic.lib:graphql:0.5.1"
 }
 
 repositories {

@@ -3,6 +3,7 @@ var graphQlConnectionLib = require('/lib/graphql-connection');
 var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 var utilLib = require('./util');
+var securityLib = require('./security');
 var genericTypesLib = require('./generic-types');
 var inputTypesLib = require('./input-types');
 var namingLib = require('/lib/headless-cms/naming');
@@ -303,6 +304,9 @@ function generateFormItemArguments(formItem) {
 function generateFormItemResolveFunction(formItem) {
     if (formItem.occurrences && formItem.occurrences.maximum == 1) {
         return function (env) {
+            if (isForbidden(formItem)) {
+                return null;
+            }
             var value = env.source[formItem.name];
             if (env.args.processHtml) {
                 value = portalLib.processHtml({value: value, type: env.args.processHtml.type});
@@ -311,6 +315,10 @@ function generateFormItemResolveFunction(formItem) {
         };
     } else {
         return function (env) {
+            if (isForbidden(formItem)) {
+                return null;
+            }
+            
             var values = utilLib.forceArray(env.source[formItem.name]);
             if (env.args.offset != null || env.args.offset != null) {
                 return values.slice(env.args.offset, env.args.first);
@@ -323,7 +331,13 @@ function generateFormItemResolveFunction(formItem) {
             return values;
         };
     }
+}
 
+function isForbidden(formItem) {
+    if ('Input' == formItem.formItemType && 'SiteConfigurator' == formItem.inputType && !securityLib.isAdmin() &&
+        !securityLib.isCmsAdmin()) {
+        return true;
+    }
 }
 
 
