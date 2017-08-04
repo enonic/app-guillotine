@@ -102,10 +102,7 @@ function generateContentTypeObjectType(contentType) {
     };
 
     createContentTypeTypeParams.fields.data = getFormItems(contentType.form).length > 0 ? {
-        type: generateContentDataObjectType(contentType),
-        resolve: function (env) {
-            return env.source.data;
-        }
+        type: generateContentDataObjectType(contentType)
     } : undefined;
 
     var contentTypeObjectType = graphQlLib.createObjectType(createContentTypeTypeParams);
@@ -250,9 +247,7 @@ function generateOptionSetObjectType(optionSet) {
         fields: {
             _selected: {
                 type: optionSet.selection.maximum == 1 ? optionSetEnum : graphQlLib.list(optionSetEnum),
-                resolve: optionSet.selection.maximum == 1 ? function (env) { //TODO Fix
-                    return env.source._selected;
-                } : function (env) {
+                resolve: optionSet.selection.maximum == 1 ? undefined : function (env) { //TODO Fix
                     return utilLib.forceArray(env.source._selected);
                 }
             }

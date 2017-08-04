@@ -26,7 +26,7 @@ dependencies {
     include "com.enonic.xp:lib-auth:${xpVersion}"
     include "com.enonic.xp:lib-content:${xpVersion}"
     include "com.enonic.xp:lib-portal:${xpVersion}"
-    include "com.enonic.lib:graphql:0.5.1"
+    include "com.enonic.lib:graphql:0.5.2"
 }
 
 repositories {

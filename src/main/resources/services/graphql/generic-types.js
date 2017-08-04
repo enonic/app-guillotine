@@ -6,82 +6,43 @@ var namingLib = require('/lib/headless-cms/naming');
 exports.generateGenericContentFields = function () {
     return {
         _id: {
-            type: graphQlLib.nonNull(graphQlLib.GraphQLID),
-            resolve: function (env) {
-                return env.source._id;
-            }
+            type: graphQlLib.nonNull(graphQlLib.GraphQLID)
         },
         _name: {
-            type: graphQlLib.nonNull(graphQlLib.GraphQLString),
-            resolve: function (env) {
-                return env.source._name;
-            }
+            type: graphQlLib.nonNull(graphQlLib.GraphQLString)
         },
         _path: {
-            type: graphQlLib.nonNull(graphQlLib.GraphQLString),
-            resolve: function (env) {
-                return env.source._path;
-            }
+            type: graphQlLib.nonNull(graphQlLib.GraphQLString)
         },
         creator: {
-            type: exports.principalKeyType,
-            resolve: function (env) {
-                return env.source.creator;
-            }
+            type: exports.principalKeyType
         },
         modifier: {
-            type: exports.principalKeyType,
-            resolve: function (env) {
-                return env.source.modifier;
-            }
+            type: exports.principalKeyType
         },
         createdTime: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.createdTime;
-            }
+            type: graphQlLib.GraphQLString
         },
         modifiedTime: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.modifiedTime;
-            }
+            type: graphQlLib.GraphQLString
         },
         owner: {
-            type: exports.principalKeyType,
-            resolve: function (env) {
-                return env.source.owner;
-            }
+            type: exports.principalKeyType
         },
         type: {
-            type: exports.schemaNameType,
-            resolve: function (env) {
-                return env.source.type;
-            }
+            type: exports.schemaNameType
         },
         displayName: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.displayName;
-            }
+            type: graphQlLib.GraphQLString
         },
         hasChildren: {
-            type: graphQlLib.GraphQLBoolean,
-            resolve: function (env) {
-                return env.source.hasChildren;
-            }
+            type: graphQlLib.GraphQLBoolean
         },
         language: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.language;
-            }
+            type: graphQlLib.GraphQLString
         },
         valid: {
-            type: graphQlLib.GraphQLBoolean,
-            resolve: function (env) {
-                return env.source.valid;
-            }
+            type: graphQlLib.GraphQLBoolean
         },
         x: {
             type: graphQlLib.list(exports.extraDataType),
@@ -98,10 +59,7 @@ exports.generateGenericContentFields = function () {
             }
         },
         page: {
-            type: exports.pageType,
-            resolve: function (env) {
-                return env.source.page;
-            }
+            type: exports.pageType
         },
         attachments: {
             type: graphQlLib.list(exports.attachmentType),
@@ -112,10 +70,7 @@ exports.generateGenericContentFields = function () {
             }
         },
         publish: {
-            type: exports.publishInfoType,
-            resolve: function (env) {
-                return env.source.publish;
-            }
+            type: exports.publishInfoType
         },
         site: {
             type: graphQlLib.reference('Site'),
@@ -220,22 +175,13 @@ exports.accessControlEntryType = graphQlLib.createObjectType({
     description: 'Access control entry.',
     fields: {
         principal: {
-            type: graphQlLib.reference('PrincipalKey'),
-            resolve: function (env) {
-                return env.source.principal;
-            }
+            type: graphQlLib.reference('PrincipalKey')
         },
         allow: {
-            type: graphQlLib.list(exports.permissionType),
-            resolve: function (env) {
-                return env.source.allow;
-            }
+            type: graphQlLib.list(exports.permissionType)
         },
         deny: {
-            type: graphQlLib.list(exports.permissionType),
-            resolve: function (env) {
-                return env.source.deny;
-            }
+            type: graphQlLib.list(exports.permissionType)
         }
     }
 });
@@ -295,16 +241,10 @@ exports.mediaFocalPointType = graphQlLib.createObjectType({
     description: 'Media focal point.',
     fields: {
         x: {
-            type: graphQlLib.GraphQLFloat,
-            resolve: function (env) {
-                return env.source.x;
-            }
+            type: graphQlLib.GraphQLFloat
         },
         y: {
-            type: graphQlLib.GraphQLFloat,
-            resolve: function (env) {
-                return env.source.y;
-            }
+            type: graphQlLib.GraphQLFloat
         }
     }
 });
@@ -314,16 +254,10 @@ exports.mediaUploaderType = graphQlLib.createObjectType({
     description: 'Media uploader.',
     fields: {
         attachment: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.attachment;
-            }
+            type: graphQlLib.GraphQLString
         },
         focalPoint: {
-            type: exports.mediaFocalPointType,
-            resolve: function (env) {
-                return env.source.focalPoint;
-            }
+            type: exports.mediaFocalPointType
         }
     }
 });
@@ -333,10 +267,7 @@ exports.siteConfiguratorType = graphQlLib.createObjectType({
     description: 'Site configurator.',
     fields: {
         applicationKey: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.applicationKey;
-            }
+            type: graphQlLib.GraphQLString
         },
         config: {
             type: graphQlLib.GraphQLString,
@@ -352,22 +283,13 @@ exports.publishInfoType = graphQlLib.createObjectType({
     description: 'Publish information.',
     fields: {
         from: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.from;
-            }
+            type: graphQlLib.GraphQLString
         },
         to: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.to;
-            }
+            type: graphQlLib.GraphQLString
         },
         first: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.first;
-            }
+            type: graphQlLib.GraphQLString
         }
     }
 });
@@ -377,28 +299,16 @@ exports.attachmentType = graphQlLib.createObjectType({
     description: 'Attachment.',
     fields: {
         name: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.name;
-            }
+            type: graphQlLib.GraphQLString
         },
         label: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.label;
-            }
+            type: graphQlLib.GraphQLString
         },
         size: {
-            type: graphQlLib.GraphQLInt,
-            resolve: function (env) {
-                return env.source.size;
-            }
+            type: graphQlLib.GraphQLInt
         },
         mimeType: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.mimeType;
-            }
+            type: graphQlLib.GraphQLString
         }
     }
 });
@@ -408,16 +318,10 @@ exports.extraDataType = graphQlLib.createObjectType({
     description: 'Extra data.',
     fields: {
         name: {
-            type: exports.schemaNameType,
-            resolve: function (env) {
-                return env.source.name;
-            }
+            type: exports.schemaNameType
         },
         data: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.data;
-            }
+            type: graphQlLib.GraphQLString
         }
     }
 });
@@ -427,40 +331,22 @@ exports.componentType = graphQlLib.createObjectType({
     description: 'Component.',
     fields: {
         name: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.name;
-            }
+            type: graphQlLib.GraphQLString
         },
         path: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.path;
-            }
+            type: graphQlLib.GraphQLString
         },
         type: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.type;
-            }
+            type: graphQlLib.GraphQLString
         },
         descriptor: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.descriptor;
-            }
+            type: graphQlLib.GraphQLString
         },
         text: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.text;
-            }
+            type: graphQlLib.GraphQLString
         },
         fragment: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.fragment;
-            }
+            type: graphQlLib.GraphQLString
         },
         config: {
             type: graphQlLib.GraphQLString,
@@ -484,16 +370,10 @@ exports.pageRegionType = graphQlLib.createObjectType({
     description: 'Page region.',
     fields: {
         name: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.name;
-            }
+            type: graphQlLib.GraphQLString
         },
         components: {
-            type: graphQlLib.list(exports.componentType),
-            resolve: function (env) {
-                return env.source.components; //TODO
-            }
+            type: graphQlLib.list(exports.componentType)
         }
     }
 });
@@ -503,16 +383,10 @@ exports.pageType = graphQlLib.createObjectType({
     description: 'Page.',
     fields: {
         template: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.template;
-            }
+            type: graphQlLib.GraphQLString
         },
         controller: {
-            type: graphQlLib.GraphQLString,
-            resolve: function (env) {
-                return env.source.controller;
-            }
+            type: graphQlLib.GraphQLString
         },
         config: {
             type: graphQlLib.GraphQLString,
@@ -529,10 +403,7 @@ exports.pageType = graphQlLib.createObjectType({
             }
         },
         fragment: {
-            type: exports.componentType,
-            resolve: function (env) {
-                return env.source.fragment;
-            }
+            type: exports.componentType
         }
     }
 });

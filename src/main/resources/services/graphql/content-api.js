@@ -10,22 +10,13 @@ var getChildrenResultType = graphQlLib.createObjectType({
     description: 'Get children result.',
     fields: {
         total: {
-            type: graphQlLib.GraphQLInt,
-            resolve: function (env) {
-                return env.source.total;
-            }
+            type: graphQlLib.GraphQLInt
         },
         count: {
-            type: graphQlLib.GraphQLInt,
-            resolve: function (env) {
-                return env.source.count;
-            }
+            type: graphQlLib.GraphQLInt
         },
         hits: {
-            type: graphQlLib.list(genericTypesLib.contentType),
-            resolve: function (env) {
-                return env.source.hits;
-            }
+            type: graphQlLib.list(genericTypesLib.contentType)
         }
     }
 });
@@ -35,16 +26,10 @@ var getPermissionsResultType = graphQlLib.createObjectType({
     description: 'Permissions.',
     fields: {
         inheritsPermissions: {
-            type: graphQlLib.GraphQLBoolean,
-            resolve: function (env) {
-                return env.source.inheritsPermissions;
-            }
+            type: graphQlLib.GraphQLBoolean
         },
         permissions: {
-            type: graphQlLib.list(genericTypesLib.accessControlEntryType),
-            resolve: function (env) {
-                return env.source.permissions;
-            }
+            type: graphQlLib.list(genericTypesLib.accessControlEntryType)
         }
     }
 });
