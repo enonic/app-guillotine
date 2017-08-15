@@ -1,7 +1,8 @@
 var graphQlLib = require('/lib/graphql');
+var namingLib = require('/lib/headless-cms/naming');
 
 exports.urlTypeType = graphQlLib.createEnumType({
-    name: 'UrlTypeType',
+    name: namingLib.uniqueName('UrlTypeType'),
     description: 'URL type type.',
     values: {
         'server': 'server',
@@ -10,7 +11,7 @@ exports.urlTypeType = graphQlLib.createEnumType({
 });
 
 exports.processHtmlInputType = graphQlLib.createInputObjectType({
-    name: 'ProcessHtmlInputType',
+    name: namingLib.uniqueName('ProcessHtmlInputType'),
     description: 'Process HTML input type.',
     fields: {
         'type': {
