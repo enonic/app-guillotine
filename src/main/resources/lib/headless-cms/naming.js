@@ -11,15 +11,19 @@ exports.sanitizeText = function (text) {
     return text.replace(/([^0-9A-Za-z])+/g, '_');
 };
 
+
 var nameSet = {};
 exports.uniqueName = function (name) {
     if (nameSet[name]) {
-        name = name + '_' + exports.generateRandomString();
+        name = name + '_' + generateRandomString();
     }
     nameSet[name] = true;
     return name;
 };
+exports.resetNameSet = function () {
+    nameSet = {};
+};
 
-exports.generateRandomString = function () {
+function generateRandomString() {
     return Math.random().toString(36).substr(2, 10).toUpperCase() + Math.random().toString(36).substr(2, 6).toUpperCase();
 };
