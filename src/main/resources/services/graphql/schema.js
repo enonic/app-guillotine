@@ -1,6 +1,7 @@
 var eventLib = require('/lib/xp/event');
 var graphQlLib = require('/lib/graphql');
 var namingLib = require('/lib/headless-cms/naming');
+var genericTypesLib = require('./generic-types');
 var graphQlRootQueryLib = require('./root-query');
 
 eventLib.listener({
@@ -22,6 +23,7 @@ exports.getSchema = function () {
 };
 
 function createSchema() {
+    genericTypesLib.createGenericTypes();
     return graphQlLib.createSchema({
         query: graphQlRootQueryLib.createRootQueryType()
     })

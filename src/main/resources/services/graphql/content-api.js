@@ -5,35 +5,6 @@ var graphQlConnectionLib = require('/lib/graphql-connection');
 var genericTypesLib = require('./generic-types');
 var typesApiLib = require('./types-api');
 
-var getChildrenResultType = graphQlLib.createObjectType({
-    name: 'GetChildrenResult',
-    description: 'Get children result.',
-    fields: {
-        total: {
-            type: graphQlLib.GraphQLInt
-        },
-        count: {
-            type: graphQlLib.GraphQLInt
-        },
-        hits: {
-            type: graphQlLib.list(genericTypesLib.contentType)
-        }
-    }
-});
-
-var getPermissionsResultType = graphQlLib.createObjectType({
-    name: 'Permissions',
-    description: 'Permissions.',
-    fields: {
-        inheritsPermissions: {
-            type: graphQlLib.GraphQLBoolean
-        },
-        permissions: {
-            type: graphQlLib.list(genericTypesLib.accessControlEntryType)
-        }
-    }
-});
-
 exports.createContentApiType = function () {
     return graphQlLib.createObjectType({
         name: 'ContentApi',
@@ -91,7 +62,7 @@ exports.createContentApiType = function () {
                 }
             },
             getPermissions: {
-                type: getPermissionsResultType,
+                type: createPermissionsType(),
                 args: {
                     key: graphQlLib.GraphQLID
                 },
@@ -174,6 +145,21 @@ exports.createContentApiType = function () {
             }
         }
     });
+};
+
+function createPermissionsType() {
+    return graphQlLib.createObjectType({
+        name: 'Permissions',
+        description: 'Permissions.',
+        fields: {
+            inheritsPermissions: {
+                type: graphQlLib.GraphQLBoolean
+            },
+            permissions: {
+                type: graphQlLib.list(genericTypesLib.accessControlEntryType)
+            }
+        }
+    })
 };
 
 function getKey(env) {
