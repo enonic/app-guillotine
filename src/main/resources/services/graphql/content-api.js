@@ -2,12 +2,13 @@ var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 var graphQlLib = require('/lib/graphql');
 var graphQlConnectionLib = require('/lib/graphql-connection');
+var namingLib = require('/lib/headless-cms/naming');
 var genericTypesLib = require('./generic-types');
 var typesApiLib = require('./types-api');
 
 exports.createContentApiType = function () {
     return graphQlLib.createObjectType({
-        name: 'ContentApi',
+        name: namingLib.uniqueName('ContentApi'),
         description: 'Content API',
         fields: {
             get: {
@@ -149,7 +150,7 @@ exports.createContentApiType = function () {
 
 function createPermissionsType() {
     return graphQlLib.createObjectType({
-        name: 'Permissions',
+        name: namingLib.uniqueName('Permissions'),
         description: 'Permissions.',
         fields: {
             inheritsPermissions: {

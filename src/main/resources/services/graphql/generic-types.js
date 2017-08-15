@@ -130,7 +130,7 @@ exports.createGenericTypes = function() {
             },
             type: {
                 type: graphQlLib.createEnumType({
-                    name: 'PrincipalType',
+                    name: namingLib.uniqueName('PrincipalType'),
                     description: 'Principal type.',
                     values: {
                         'user': 'user',
@@ -158,7 +158,7 @@ exports.createGenericTypes = function() {
     });
 
     exports.permissionType = graphQlLib.createEnumType({
-        name: 'Permission',
+        name: namingLib.uniqueName('Permission'),
         description: 'Permission.',
         values: {
             'READ': 'READ',
@@ -172,7 +172,7 @@ exports.createGenericTypes = function() {
     });
 
     exports.accessControlEntryType = graphQlLib.createObjectType({
-        name: 'AccessControlEntry',
+        name: namingLib.uniqueName('AccessControlEntry'),
         description: 'Access control entry.',
         fields: {
             principal: {
