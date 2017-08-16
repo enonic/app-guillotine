@@ -84,20 +84,6 @@ exports.createContentApiType = function () {
                     });
                 }
             },
-            getSiteConfig: {
-                type: graphQlLib.GraphQLString,
-                args: {
-                    key: graphQlLib.GraphQLID,
-                    applicationKey: graphQlLib.nonNull(graphQlLib.GraphQLID)
-                },
-                resolve: function (env) {
-                    var config = contentLib.getSiteConfig({
-                        key: getKey(env),
-                        applicationKey: env.args.applicationKey
-                    });
-                    return config && JSON.stringify(config);
-                }
-            },
             query: {
                 type: graphQlLib.list(genericTypesLib.contentType),
                 args: {
