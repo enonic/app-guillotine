@@ -39,7 +39,7 @@ exports.createContentApiType = function () {
                     }).hits;
                 }
             },
-            getChildrenAsConnection: {
+            getChildrenConnection: {
                 type: genericTypesLib.contentConnectionType,
                 args: {
                     key: graphQlLib.GraphQLID,
@@ -101,7 +101,7 @@ exports.createContentApiType = function () {
                     }).hits;
                 }
             },
-            queryAsConnection: {
+            queryConnection: {
                 type: genericTypesLib.contentConnectionType,
                 args: {
                     query: graphQlLib.nonNull(graphQlLib.GraphQLString),
