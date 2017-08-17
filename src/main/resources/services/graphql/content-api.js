@@ -5,6 +5,7 @@ var graphQlConnectionLib = require('/lib/graphql-connection');
 var namingLib = require('/lib/headless-cms/naming');
 var genericTypesLib = require('./generic-types');
 var typesApiLib = require('./types-api');
+var securityLib = require('./security');
 
 exports.createContentApiType = function () {
     return graphQlLib.createObjectType({
@@ -106,7 +107,7 @@ exports.createContentApiType = function () {
                 },
                 resolve: function (env) {
                     return contentLib.query({
-                        query: adaptQuery(env.args.query),
+                        query: securityLib.adaptQuery(env.args.query),
                         start: env.args.offset,
                         count: env.args.first,
                         sort: env.args.sort
@@ -124,7 +125,7 @@ exports.createContentApiType = function () {
                 resolve: function (env) {
                     var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
                     var queryResult = contentLib.query({
-                        query: adaptQuery(env.args.query),
+                        query: securityLib.adaptQuery(env.args.query),
                         start: start,
                         count: env.args.first,
                         sort: env.args.sort
@@ -166,18 +167,8 @@ function getContent(env) {
         var content = contentLib.get({
             key: env.args.key
         });
-        return content && filterForbiddenContent(content);
+        return content && securityLib.filterForbiddenContent(content);
     } else {
         return portalLib.getContent();   
     }
-}
-
-function filterForbiddenContent(content) {
-    var sitePath = portalLib.getSite()._path;
-    return content._path === sitePath || content._path.indexOf(sitePath + '/') === 0 ? content : null;
-}
-
-function adaptQuery(query) {
-    var sitePath = portalLib.getSite()._path;
-    return '(_path = "/content' + sitePath + '" OR _path LIKE "/content' + sitePath + '/*") AND (' + query + ')';
 }
