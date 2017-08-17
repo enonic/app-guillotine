@@ -10,11 +10,13 @@ var namingLib = require('/lib/headless-cms/naming');
 
 exports.addContentTypesAsFields = function (parentObjectTypeParams) {
 
+    var allowedContentTypeRegexp = generateAllowedContentTypeRegexp();
+
     //For each content type
     contentLib.getTypes().
-        //filter(function (type) {
-        //    return type.name.indexOf(':site') != -1
-        //}).
+        filter(function (contentType) {
+            return contentType.name.match(allowedContentTypeRegexp);
+        }).
         forEach(function (contentType) {
 
             //Retrieve the content type  name as lower camel case
@@ -85,11 +87,19 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
         });
 };
 
+function generateAllowedContentTypeRegexp() {
+    var siteApplicationKeys = portalLib.getSite().data.siteConfig.map(function (applicationConfigEntry) {
+        return '|' + applicationConfigEntry.applicationKey.replace(/\./g, '\\.');
+    }).join('');
+    return new RegExp('^(?:base|media|portal' + siteApplicationKeys + '):');
+}
+
 function generateContentTypeGetter(contentType) {
     var localName = contentType.name.substr(contentType.name.indexOf(':') + 1);
     var camelCaseContentTypeName = namingLib.generateCamelCase(localName, true);
     return namingLib.uniqueName('get' + camelCaseContentTypeName);
 }
+
 
 function generateContentTypeObjectType(contentType) {
     var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName, true);
@@ -309,7 +319,7 @@ function generateFormItemResolveFunction(formItem) {
             return value;
         };
     } else {
-        return function (env) {            
+        return function (env) {
             var values = utilLib.forceArray(env.source[formItem.name]);
             if (env.args.offset != null || env.args.offset != null) {
                 return values.slice(env.args.offset, env.args.first);
