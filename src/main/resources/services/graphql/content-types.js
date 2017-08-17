@@ -209,7 +209,7 @@ function generateInputObjectType(input) {
     case 'ComboBox':
         return graphQlLib.GraphQLString;
     case 'ContentSelector':
-        return graphQlLib.GraphQLID; //TODO ID or String?
+        return graphQlLib.reference('Content');
     case 'CustomSelector':
         return graphQlLib.GraphQLString;
     case 'ContentTypeFilter':
@@ -221,15 +221,15 @@ function generateInputObjectType(input) {
     case 'Double':
         return graphQlLib.GraphQLFloat;
     case 'MediaUploader':
-        return graphQlLib.GraphQLID; //TODO ID or String?
+        return graphQlLib.reference('Content');
     case 'AttachmentUploader':
-        return graphQlLib.GraphQLID; //TODO ID or String?
+        return graphQlLib.reference('Content');
     case 'GeoPoint':
         return genericTypesLib.geoPointType;
     case 'HtmlArea':
         return graphQlLib.GraphQLString;
     case 'ImageSelector':
-        return graphQlLib.GraphQLID;
+        return graphQlLib.reference('Content');
     case 'ImageUploader':
         return genericTypesLib.mediaUploaderType;
     case 'Long':
@@ -313,8 +313,14 @@ function generateFormItemResolveFunction(formItem) {
     if (formItem.occurrences && formItem.occurrences.maximum == 1) {
         return function (env) {
             var value = env.source[formItem.name];
+
             if (env.args.processHtml) {
                 value = portalLib.processHtml({value: value, type: env.args.processHtml.type});
+            }
+            if ('Input' == formItem.formItemType &&
+                ['ContentSelector', 'MediaUploader', 'AttachmentUploader'].indexOf(formItem.inputType) !== -1) {
+                var content = contentLib.get({key: value});
+                value = securityLib.filterForbiddenContent(content);
             }
             return value;
         };
@@ -327,6 +333,15 @@ function generateFormItemResolveFunction(formItem) {
             if (env.args.processHtml) {
                 values = values.map(function (value) {
                     return portalLib.processHtml({value: value});
+                });
+            }
+            if ('Input' == formItem.formItemType &&
+                ['ContentSelector', 'MediaUploader', 'AttachmentUploader'].indexOf(formItem.inputType) !== -1) {
+                values = values.map(function (value) {
+                    var content = contentLib.get({key: value});
+                    return securityLib.filterForbiddenContent(content);
+                }).filter(function (content) {
+                    return content != null
                 });
             }
             return values;
