@@ -16,11 +16,7 @@ exports.createContentApiType = function () {
                 args: {
                     key: graphQlLib.GraphQLID
                 },
-                resolve: function (env) {
-                    return contentLib.get({
-                        key: getKey(env)
-                    });
-                }
+                resolve: getContent
             },
             getChildren: {
                 type: graphQlLib.list(genericTypesLib.contentType),
@@ -31,15 +27,20 @@ exports.createContentApiType = function () {
                     sort: graphQlLib.GraphQLString
                 },
                 resolve: function (env) {
-                    return contentLib.getChildren({
-                        key: getKey(env),
-                        start: env.args.offset,
-                        count: env.args.first,
-                        sort: env.args.sort
-                    }).hits;
+                    var parent = getContent(env);
+                    if (parent) {
+                        return contentLib.getChildren({
+                            key: parent._id,
+                            start: env.args.offset,
+                            count: env.args.first,
+                            sort: env.args.sort
+                        }).hits;
+                    } else {
+                        return [];
+                    }
                 }
             },
-            getChildrenAsConnection: {
+            getChildrenConnection: {
                 type: genericTypesLib.contentConnectionType,
                 args: {
                     key: graphQlLib.GraphQLID,
@@ -48,18 +49,29 @@ exports.createContentApiType = function () {
                     sort: graphQlLib.GraphQLString
                 },
                 resolve: function (env) {
-                    var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
-                    var getChildrenResult = contentLib.getChildren({
-                        key: getKey(env),
-                        start: start,
-                        count: env.args.first,
-                        sort: env.args.sort
-                    });
-                    return {
-                        total: getChildrenResult.total,
-                        start: start,
-                        hits: getChildrenResult.hits
-                    };
+                    var parent = getContent(env);
+                    if (parent) {
+                        var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
+                        var getChildrenResult = contentLib.getChildren({
+                            key: parent._id,
+                            start: start,
+                            count: env.args.first,
+                            sort: env.args.sort
+                        });
+                        return {
+                            total: getChildrenResult.total,
+                            start: start,
+                            hits: getChildrenResult.hits
+                        };
+                    } else {
+                        var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
+                        return {
+                            total: 0,
+                            start: start,
+                            hits: 0
+                        };
+                    }
+                    
                 }
             },
             getPermissions: {
@@ -68,34 +80,20 @@ exports.createContentApiType = function () {
                     key: graphQlLib.GraphQLID
                 },
                 resolve: function (env) {
-                    return contentLib.getPermissions({
-                        key: getKey(env)
-                    });
+                    var content = getContent(env);
+                    if (content) {
+                        return contentLib.getPermissions({
+                            key: content._id
+                        });
+                    } else {
+                        return null;
+                    }
                 }
             },
             getSite: {
                 type: graphQlLib.reference('Site'),
-                args: {
-                    key: graphQlLib.GraphQLID
-                },
                 resolve: function (env) {
-                    return contentLib.getSite({
-                        key: getKey(env)
-                    });
-                }
-            },
-            getSiteConfig: {
-                type: graphQlLib.GraphQLString,
-                args: {
-                    key: graphQlLib.GraphQLID,
-                    applicationKey: graphQlLib.nonNull(graphQlLib.GraphQLID)
-                },
-                resolve: function (env) {
-                    var config = contentLib.getSiteConfig({
-                        key: getKey(env),
-                        applicationKey: env.args.applicationKey
-                    });
-                    return config && JSON.stringify(config);
+                    return portalLib.getSite();
                 }
             },
             query: {
@@ -108,14 +106,14 @@ exports.createContentApiType = function () {
                 },
                 resolve: function (env) {
                     return contentLib.query({
-                        query: env.args.query,
+                        query: adaptQuery(env.args.query),
                         start: env.args.offset,
                         count: env.args.first,
                         sort: env.args.sort
                     }).hits;
                 }
             },
-            queryAsConnection: {
+            queryConnection: {
                 type: genericTypesLib.contentConnectionType,
                 args: {
                     query: graphQlLib.nonNull(graphQlLib.GraphQLString),
@@ -126,7 +124,7 @@ exports.createContentApiType = function () {
                 resolve: function (env) {
                     var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
                     var queryResult = contentLib.query({
-                        query: env.args.query,
+                        query: adaptQuery(env.args.query),
                         start: start,
                         count: env.args.first,
                         sort: env.args.sort
@@ -163,15 +161,23 @@ function createPermissionsType() {
     })
 };
 
-function getKey(env) {
-    var key = env.args.key;
-    if (!key) {
-        var content = portalLib.getContent();
-        if (content) {
-            key = content._id
-        } else {
-            throw 'Missing field argument key';
-        }
+function getContent(env) {
+    if (env.args.key) {
+        var content = contentLib.get({
+            key: env.args.key
+        });
+        return content && filterForbiddenContent(content);
+    } else {
+        return portalLib.getContent();   
     }
-    return key;
+}
+
+function filterForbiddenContent(content) {
+    var sitePath = portalLib.getSite()._path;
+    return content._path === sitePath || content._path.indexOf(sitePath + '/') === 0 ? content : null;
+}
+
+function adaptQuery(query) {
+    var sitePath = portalLib.getSite()._path;
+    return '(_path = "/content' + sitePath + '" OR _path LIKE "/content' + sitePath + '/*") AND (' + query + ')';
 }

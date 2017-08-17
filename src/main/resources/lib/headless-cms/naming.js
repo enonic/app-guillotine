@@ -1,3 +1,5 @@
+var portalLib = require('/lib/xp/portal');
+
 exports.generateCamelCase = function (text, upper) {
     var sanitizedText = exports.sanitizeText(text);
     var camelCasedText = sanitizedText.replace(/_[0-9A-Za-z]/g, function (match, offset, string) {
@@ -12,8 +14,14 @@ exports.sanitizeText = function (text) {
 };
 
 
-var nameSet = {};
+var nameSetMap = {};
 exports.uniqueName = function (name) {
+    var siteId = portalLib.getSite()._id;
+    var nameSet = nameSetMap[siteId];
+    if (!nameSet) {
+        nameSet = {};
+        nameSetMap[siteId] = nameSet;
+    }
     if (nameSet[name]) {
         name = name + '_' + generateRandomString();
     }
@@ -21,7 +29,7 @@ exports.uniqueName = function (name) {
     return name;
 };
 exports.resetNameSet = function () {
-    nameSet = {};
+    nameSetMap = {};
 };
 
 function generateRandomString() {
