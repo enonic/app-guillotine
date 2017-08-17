@@ -304,7 +304,7 @@ function generateFormItemArguments(formItem) {
         args.first = graphQlLib.GraphQLInt;
     }
     if ('Input' == formItem.formItemType && 'HtmlArea' == formItem.inputType) {
-        args.processHtml = inputTypesLib.processHtmlInputType;
+        args.processHtml = inputTypesLib.createProcessHtmlInputType();
     }
     return args;
 }

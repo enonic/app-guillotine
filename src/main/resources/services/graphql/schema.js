@@ -1,4 +1,5 @@
 var eventLib = require('/lib/xp/event');
+var portalLib = require('/lib/xp/portal');
 var graphQlLib = require('/lib/graphql');
 var namingLib = require('/lib/headless-cms/naming');
 var genericTypesLib = require('./generic-types');
@@ -14,10 +15,13 @@ eventLib.listener({
     }
 });
 
-var schema = null;
+var schemaMap = {};
 exports.getSchema = function () {
+    var siteId = portalLib.getSite()._id;
+    var schema = schemaMap[siteId];
     if (!schema) {
         schema = createSchema();
+        schemaMap[siteId] = schema;
     }
     return schema;
 };
@@ -30,7 +34,7 @@ function createSchema() {
 };
 
 function invalidateSchema() {
-    schema = null;
+    schemaMap = {};
     namingLib.resetNameSet();
 }
 
