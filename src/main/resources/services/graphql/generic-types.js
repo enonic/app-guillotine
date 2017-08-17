@@ -2,6 +2,7 @@ var graphQlLib = require('/lib/graphql');
 var graphQlConnectionLib = require('/lib/graphql-connection');
 var contentLib = require('/lib/xp/content');
 var namingLib = require('/lib/headless-cms/naming');
+var securityLib = require('./security');
 
 exports.generateGenericContentFields = function () {
     return {
@@ -81,12 +82,13 @@ exports.generateGenericContentFields = function () {
         parent: {
             type: graphQlLib.reference('Content'),
             resolve: function (env) {
-                if (env.source._path === '/' || env.source._path === '/content') { //TODO Incorrect path
+                var lastSlashIndex = env.source._path.lastIndexOf('/');
+                if (lastSlashIndex === 0) {
                     return null;
                 } else {
-                    var lastSlashIndex = env.source._path.lastIndexOf('/');
-                    var parentPath = lastSlashIndex == 0 ? '/' : env.source._path.substr(0, lastSlashIndex);
-                    return contentLib.get({key: parentPath});
+                    var parentPath = env.source._path.substr(0, lastSlashIndex);
+                    var parent = contentLib.get({key: parentPath});
+                    return securityLib.filterForbiddenContent(parent);
                 }
             }
         },
@@ -117,7 +119,7 @@ exports.generateGenericContentFields = function () {
     };
 };
 
-exports.createGenericTypes = function() {
+exports.createGenericTypes = function () {
     exports.principalKeyType = graphQlLib.createObjectType({
         name: namingLib.uniqueName('PrincipalKey'),
         description: 'Principal key.',
