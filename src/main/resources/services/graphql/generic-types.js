@@ -3,6 +3,7 @@ var graphQlConnectionLib = require('/lib/graphql-connection');
 var contentLib = require('/lib/xp/content');
 var namingLib = require('/lib/headless-cms/naming');
 var securityLib = require('./security');
+var dictionaryLib = require('./dictionary');
 
 exports.generateGenericContentFields = function () {
     return {
@@ -520,6 +521,7 @@ exports.createGenericTypes = function () {
             }
         }
     });
+    dictionaryLib.add(exports.inputType);
 
     exports.contentTypeType = graphQlLib.createObjectType({
         name: namingLib.uniqueName('ContentType'),
