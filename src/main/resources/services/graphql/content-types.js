@@ -9,14 +9,9 @@ var inputTypesLib = require('./input-types');
 var namingLib = require('/lib/headless-cms/naming');
 
 exports.addContentTypesAsFields = function (parentObjectTypeParams) {
-
-    var allowedContentTypeRegexp = generateAllowedContentTypeRegexp();
-
+    
     //For each content type
-    contentLib.getTypes().
-        filter(function (contentType) {
-            return contentType.name.match(allowedContentTypeRegexp);
-        }).
+    exports.getAllowedContentTypes().
         forEach(function (contentType) {
 
             //Retrieve the content type  name as lower camel case
@@ -86,6 +81,14 @@ exports.addContentTypesAsFields = function (parentObjectTypeParams) {
             };
         });
 };
+
+exports.getAllowedContentTypes = function() {
+    var allowedContentTypeRegexp = generateAllowedContentTypeRegexp();
+    return contentLib.getTypes().
+        filter(function (contentType) {
+            return contentType.name.match(allowedContentTypeRegexp);
+        });
+}
 
 function generateAllowedContentTypeRegexp() {
     var siteApplicationKeys = portalLib.getSite().data.siteConfig.map(function (applicationConfigEntry) {

@@ -411,6 +411,59 @@ exports.createGenericTypes = function () {
         }
     });
 
+    exports.iconType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('Icon'),
+        description: 'Icon.',
+        fields: {
+            mimeType: {
+                type: graphQlLib.GraphQLString
+            },
+            modifiedTime: {
+                type: graphQlLib.GraphQLString
+            }
+        }
+    });
+
+    exports.contentTypeType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('ContentType'),
+        description: 'Content type.',
+        fields: {
+            name: {
+                type: exports.schemaNameType
+            },
+            displayName: {
+                type: graphQlLib.GraphQLString
+            },
+            description: {
+                type: graphQlLib.GraphQLString
+            },
+            superType: {
+                type: exports.schemaNameType
+            },
+            abstract: {
+                type: graphQlLib.GraphQLBoolean
+            },
+            final: {
+                type: graphQlLib.GraphQLBoolean
+            },
+            allowChildContent: {
+                type: graphQlLib.GraphQLBoolean
+            },
+            contentDisplayNameScript: {
+                type: graphQlLib.GraphQLString
+            },
+            icon: {
+                type: exports.iconType
+            },
+            form: {
+                type: graphQlLib.GraphQLString,
+                resolve: function (env) {
+                    return JSON.stringify(env.source.form);
+                }
+            }
+        }
+    });
+
     var contentTypeObjectTypeMapping = {};
     exports.registerContentTypeObjectType = function (type, contentTypeObjectType) {
         contentTypeObjectTypeMapping[type] = contentTypeObjectType;
