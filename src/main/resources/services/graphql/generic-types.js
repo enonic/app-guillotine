@@ -518,6 +518,12 @@ exports.createGenericTypes = function () {
             },
             defaultValue: {
                 type: exports.defaultValueType
+            },
+            config: {
+                type: graphQlLib.GraphQLString, //TODO
+                resolve: function(env) {
+                    return JSON.stringify(env.source.config);
+                }
             }
         }
     });
