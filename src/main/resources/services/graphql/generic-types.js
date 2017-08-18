@@ -440,10 +440,14 @@ exports.createGenericTypes = function () {
         name: namingLib.uniqueName('FormItem'),
         typeResolver: function (contentType) {
             switch (contentType.formItemType) {
-            case 'ItemSet': return exports.inputType;
-            case 'Layout': return exports.layoutType;
-            case 'Input': return exports.inputType;
-            case 'OptionSet': return exports.inputType;
+            case 'ItemSet':
+                return exports.inputType;
+            case 'Layout':
+                return exports.layoutType;
+            case 'Input':
+                return exports.inputType;
+            case 'OptionSet':
+                return exports.optionSetType;
             }
         },
         description: 'Form item.',
@@ -510,6 +514,61 @@ exports.createGenericTypes = function () {
     });
     dictionaryLib.add(exports.layoutType);
 
+    exports.optionSetOptionType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('OptionSetOption'),
+        description: 'Option set option.',
+        fields: {
+            name: {
+                type: graphQlLib.GraphQLString
+            },
+            label: {
+                type: graphQlLib.GraphQLString
+            },
+            helpText: {
+                type: graphQlLib.GraphQLString
+            },
+            default: {
+                type: graphQlLib.GraphQLBoolean
+            },
+            items: {
+                type: graphQlLib.list(exports.formItemType)
+            }
+        }
+    });
+
+    exports.optionSetType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('OptionSet'),
+        description: 'Option set.',
+        interfaces: [exports.formItemType],
+        fields: {
+            formItemType: {
+                type: exports.inputTypeType
+            },
+            name: {
+                type: graphQlLib.GraphQLString
+            },
+            label: {
+                type: graphQlLib.GraphQLString
+            },
+            expanded: {
+                type: graphQlLib.GraphQLBoolean
+            },
+            helpText: {
+                type: graphQlLib.GraphQLString
+            },
+            occurrences: {
+                type: exports.occurrencesType
+            },
+            selection: {
+                type: exports.occurrencesType
+            },
+            options: {
+                type: graphQlLib.list(exports.optionSetOptionType)
+            }
+        }
+    });
+    dictionaryLib.add(exports.optionSetType);
+
     exports.inputType = graphQlLib.createObjectType({
         name: namingLib.uniqueName('Input'),
         description: 'Input.',
@@ -547,7 +606,7 @@ exports.createGenericTypes = function () {
             },
             config: {
                 type: graphQlLib.GraphQLString, //TODO
-                resolve: function(env) {
+                resolve: function (env) {
                     return JSON.stringify(env.source.config);
                 }
             }
