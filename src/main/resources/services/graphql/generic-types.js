@@ -439,7 +439,12 @@ exports.createGenericTypes = function () {
     exports.formItemType = graphQlLib.createInterfaceType({
         name: namingLib.uniqueName('FormItem'),
         typeResolver: function (contentType) {
-            return exports.inputType; //TODO
+            switch (contentType.formItemType) {
+            case 'ItemSet': return exports.inputType;
+            case 'Layout': return exports.layoutType;
+            case 'Input': return exports.inputType;
+            case 'OptionSet': return exports.inputType;
+            }
         },
         description: 'Form item.',
         fields: {
@@ -483,6 +488,27 @@ exports.createGenericTypes = function () {
             }
         }
     });
+
+    exports.layoutType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('Layout'),
+        description: 'Layout.',
+        interfaces: [exports.formItemType],
+        fields: {
+            formItemType: {
+                type: exports.inputTypeType
+            },
+            name: {
+                type: graphQlLib.GraphQLString
+            },
+            label: {
+                type: graphQlLib.GraphQLString
+            },
+            items: {
+                type: graphQlLib.list(exports.formItemType)
+            }
+        }
+    });
+    dictionaryLib.add(exports.layoutType);
 
     exports.inputType = graphQlLib.createObjectType({
         name: namingLib.uniqueName('Input'),
