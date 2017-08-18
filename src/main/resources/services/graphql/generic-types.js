@@ -441,13 +441,13 @@ exports.createGenericTypes = function () {
         typeResolver: function (contentType) {
             switch (contentType.formItemType) {
             case 'ItemSet':
-                return exports.inputType;
+                return exports.formItemSetType;
             case 'Layout':
-                return exports.layoutType;
+                return exports.formLayoutType;
             case 'Input':
-                return exports.inputType;
+                return exports.formInputType;
             case 'OptionSet':
-                return exports.optionSetType;
+                return exports.formOptionSetType;
             }
         },
         description: 'Form item.',
@@ -493,9 +493,39 @@ exports.createGenericTypes = function () {
         }
     });
 
-    exports.layoutType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('Layout'),
-        description: 'Layout.',
+    exports.formItemSetType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('FormItemSet'),
+        description: 'Form item set.',
+        interfaces: [exports.formItemType],
+        fields: {
+            formItemType: {
+                type: exports.inputTypeType
+            },
+            name: {
+                type: graphQlLib.GraphQLString
+            },
+            label: {
+                type: graphQlLib.GraphQLString
+            },
+            customText: {
+                type: graphQlLib.GraphQLString
+            },
+            helpText: {
+                type: graphQlLib.GraphQLString
+            },
+            occurrences: {
+                type: exports.occurrencesType
+            },
+            items: {
+                type: graphQlLib.list(exports.formItemType)
+            }
+        }
+    });
+    dictionaryLib.add(exports.formItemSetType);
+
+    exports.formLayoutType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('FormLayout'),
+        description: 'Form layout.',
         interfaces: [exports.formItemType],
         fields: {
             formItemType: {
@@ -512,11 +542,11 @@ exports.createGenericTypes = function () {
             }
         }
     });
-    dictionaryLib.add(exports.layoutType);
+    dictionaryLib.add(exports.formLayoutType);
 
-    exports.optionSetOptionType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('OptionSetOption'),
-        description: 'Option set option.',
+    exports.formOptionSetOptionType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('FormOptionSetOption'),
+        description: 'Form option set option.',
         fields: {
             name: {
                 type: graphQlLib.GraphQLString
@@ -536,9 +566,9 @@ exports.createGenericTypes = function () {
         }
     });
 
-    exports.optionSetType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('OptionSet'),
-        description: 'Option set.',
+    exports.formOptionSetType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('FormOptionSet'),
+        description: 'Form option set.',
         interfaces: [exports.formItemType],
         fields: {
             formItemType: {
@@ -563,15 +593,15 @@ exports.createGenericTypes = function () {
                 type: exports.occurrencesType
             },
             options: {
-                type: graphQlLib.list(exports.optionSetOptionType)
+                type: graphQlLib.list(exports.formOptionSetOptionType)
             }
         }
     });
-    dictionaryLib.add(exports.optionSetType);
+    dictionaryLib.add(exports.formOptionSetType);
 
-    exports.inputType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('Input'),
-        description: 'Input.',
+    exports.formInputType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('FormInput'),
+        description: 'Form input.',
         interfaces: [exports.formItemType],
         fields: {
             formItemType: {
@@ -612,7 +642,7 @@ exports.createGenericTypes = function () {
             }
         }
     });
-    dictionaryLib.add(exports.inputType);
+    dictionaryLib.add(exports.formInputType);
 
     exports.contentTypeType = graphQlLib.createObjectType({
         name: namingLib.uniqueName('ContentType'),
