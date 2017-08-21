@@ -18,21 +18,23 @@ eventLib.listener({
     }
 });
 
-var contextMap = {
-    types: {}
-};
+var contextMap = createContext();
 exports.getSchema = function () {
     var siteId = portalLib.getSite()._id;
     var context = contextMap[siteId];
     if (!context) {
-        context = {
-            types: {}
-        };
+        context = createContext();
         contextMap[siteId] = context;
         createSchema(context);
     }
     return context.schema;
 };
+
+function createContext() {
+    return {
+        types: {}
+    };
+}
 
 function createSchema(context) {
     genericTypesLib.createGenericTypes(context);
