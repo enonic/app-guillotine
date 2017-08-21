@@ -13,33 +13,34 @@ eventLib.listener({
     localOnly: false,
     callback: function (event) {
         if ('STOPPED' === event.data.eventType || 'STARTED' === event.data.eventType) {
-            invalidateSchemas();
+            invalidateContexts();
         }
     }
 });
 
-var schemaMap = {};
+var contextMap = {};
 exports.getSchema = function () {
     var siteId = portalLib.getSite()._id;
-    var schema = schemaMap[siteId];
-    if (!schema) {
-        schema = createSchema();
-        schemaMap[siteId] = schema;
+    var context = contextMap[siteId];
+    if (!context) {
+        context = {};
+        contextMap[siteId] = context;
+        createSchema(context);
     }
-    return schema;
+    return context.schema;
 };
 
-function createSchema() {
-    genericTypesLib.createGenericTypes();
-    contentTypesLib.createContentTypeTypes();
-    return graphQlLib.createSchema({
+function createSchema(context) {
+    genericTypesLib.createGenericTypes(context);
+    contentTypesLib.createContentTypeTypes(context);
+    context.schema = graphQlLib.createSchema({
         query: graphQlRootQueryLib.createRootQueryType(),
         dictionary: dictionaryLib.get()
-    })
+    });
 };
 
-function invalidateSchemas() {
-    schemaMap = {};
+function invalidateContexts() {
+    contextMap = {};
     namingLib.resetNameSet();
     dictionaryLib.reset();
 }
