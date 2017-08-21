@@ -677,6 +677,60 @@ exports.createGenericTypes = function () {
             },
             form: {
                 type: graphQlLib.list(exports.formItemType)
+            },
+            getContent: {
+                type: graphQlLib.reference('Content'),
+                args: {
+                    key: graphQlLib.nonNull(graphQlLib.GraphQLID)
+                },
+                resolve: function (env) {
+                    var content = contentLib.getContent(env.args.key);
+                    return content && content.type === env.source.name ? content : null;
+                }
+            },
+            getContents: {
+                type: graphQlLib.list(graphQlLib.reference('Content')),
+                args: {
+                    offset: graphQlLib.GraphQLInt,
+                    first: graphQlLib.GraphQLInt,
+                    query: graphQlLib.GraphQLString,
+                    sort: graphQlLib.GraphQLString
+                },
+                resolve: function (env) {
+                    var contents = contentLib.query({
+                        start: env.args.offset,
+                        count: env.args.first,
+                        query: env.args.query,
+                        sort: env.args.sort,
+                        contentTypes: [env.source.name]
+                    }).hits;
+                    return contents;
+                }
+            },
+            getContentConnection: {
+                type: graphQlLib.reference('ContentConnection'),
+                args: {
+                    after: graphQlLib.GraphQLString,
+                    first: graphQlLib.GraphQLInt,
+                    query: graphQlLib.GraphQLString,
+                    sort: graphQlLib.GraphQLString
+                },
+                resolve: function (env) {
+                    var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
+                    var queryResult = contentLib.query({
+                        start: start,
+                        count: env.args.first,
+                        query: env.args.query,
+                        sort: env.args.sort,
+                        contentTypes: [env.source.name]
+
+                    });
+                    return {
+                        total: queryResult.total,
+                        start: start,
+                        hits: queryResult.hits
+                    };
+                }
             }
         }
     });
