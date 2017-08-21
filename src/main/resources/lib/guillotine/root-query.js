@@ -1,13 +1,13 @@
 var graphQlLib = require('/lib/graphql');
-var namingLib = require('/lib/headless-cms/naming');
+
 var contentApiLib = require('./content-api');
 
-exports.createRootQueryType = function () {
+exports.createRootQueryType = function (context) {
     return graphQlLib.createObjectType({
-        name: namingLib.uniqueName('Query'),
+        name: context.uniqueName('Query'),
         fields: {
             content: {
-                type: contentApiLib.createContentApiType(),
+                type: contentApiLib.createContentApiType(context),
                 resolve: function () {
                     return {};
                 }

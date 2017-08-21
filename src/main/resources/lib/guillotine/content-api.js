@@ -2,25 +2,25 @@ var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 var graphQlLib = require('/lib/graphql');
 var graphQlConnectionLib = require('/lib/graphql-connection');
-var namingLib = require('/lib/headless-cms/naming');
-var genericTypesLib = require('./generic-types');
+
 var contentTypesLib = require('./content-types');
+var namingLib = require('./naming');
 var securityLib = require('./security');
 
-exports.createContentApiType = function () {
+exports.createContentApiType = function (context) {
     return graphQlLib.createObjectType({
-        name: namingLib.uniqueName('ContentApi'),
+        name: context.uniqueName('ContentApi'),
         description: 'Content API',
         fields: {
             get: {
-                type: genericTypesLib.contentType,
+                type: context.types.contentType,
                 args: {
                     key: graphQlLib.GraphQLID
                 },
                 resolve: getContent
             },
             getChildren: {
-                type: graphQlLib.list(genericTypesLib.contentType),
+                type: graphQlLib.list(context.types.contentType),
                 args: {
                     key: graphQlLib.GraphQLID,
                     offset: graphQlLib.GraphQLInt,
@@ -42,7 +42,7 @@ exports.createContentApiType = function () {
                 }
             },
             getChildrenConnection: {
-                type: genericTypesLib.contentConnectionType,
+                type: context.types.contentConnectionType,
                 args: {
                     key: graphQlLib.GraphQLID,
                     after: graphQlLib.GraphQLString,
@@ -76,7 +76,7 @@ exports.createContentApiType = function () {
                 }
             },
             getPermissions: {
-                type: createPermissionsType(),
+                type: context.types.permissionsType,
                 args: {
                     key: graphQlLib.GraphQLID
                 },
@@ -98,7 +98,7 @@ exports.createContentApiType = function () {
                 }
             },
             query: {
-                type: graphQlLib.list(genericTypesLib.contentType),
+                type: graphQlLib.list(context.types.contentType),
                 args: {
                     query: graphQlLib.nonNull(graphQlLib.GraphQLString),
                     offset: graphQlLib.GraphQLInt,
@@ -115,7 +115,7 @@ exports.createContentApiType = function () {
                 }
             },
             queryConnection: {
-                type: genericTypesLib.contentConnectionType,
+                type: context.types.contentConnectionType,
                 args: {
                     query: graphQlLib.nonNull(graphQlLib.GraphQLString),
                     after: graphQlLib.GraphQLString,
@@ -138,28 +138,13 @@ exports.createContentApiType = function () {
                 }
             },
             getTypes: {
-                type: graphQlLib.list(genericTypesLib.contentTypeType),
+                type: graphQlLib.list(context.types.contentTypeType),
                 resolve: function () {
                     return contentTypesLib.getAllowedContentTypes();
                 }
             }
         }
     });
-};
-
-function createPermissionsType() {
-    return graphQlLib.createObjectType({
-        name: namingLib.uniqueName('Permissions'),
-        description: 'Permissions.',
-        fields: {
-            inheritsPermissions: {
-                type: graphQlLib.GraphQLBoolean
-            },
-            permissions: {
-                type: graphQlLib.list(genericTypesLib.accessControlEntryType)
-            }
-        }
-    })
 };
 
 function getContent(env) {
