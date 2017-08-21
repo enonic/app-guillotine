@@ -34,8 +34,12 @@ function createContext() {
         types: {},
         dictionary: [],
         nameSet: {},
+        contentTypeMap: {},
         addObjectType: function (objectType) {
             this.dictionary.push(objectType);
+        },
+        putContentType: function (name, objectType) {
+            this.contentTypeMap[name] = objectType;
         },
         uniqueName: function (name) {
             var uniqueName = name;

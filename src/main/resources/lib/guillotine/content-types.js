@@ -50,7 +50,7 @@ function generateContentTypeObjectType(context, contentType) {
     } : undefined;
 
     var contentTypeObjectType = graphQlLib.createObjectType(createContentTypeTypeParams);
-    context.registerContentTypeObjectType(contentType.name, contentTypeObjectType);
+    context.putContentType(contentType.name, contentTypeObjectType);
     return contentTypeObjectType;
 }
 

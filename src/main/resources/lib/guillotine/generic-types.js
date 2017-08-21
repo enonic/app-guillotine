@@ -733,15 +733,11 @@ exports.createGenericTypes = function (context) {
             }
         }
     });
-
-    var contentTypeObjectTypeMapping = {};
-    context.registerContentTypeObjectType = function (type, contentTypeObjectType) {
-        contentTypeObjectTypeMapping[type] = contentTypeObjectType;
-    };
+    
     context.types.contentType = graphQlLib.createInterfaceType({
         name: context.uniqueName('Content'),
         typeResolver: function (content) {
-            return contentTypeObjectTypeMapping[content.type];
+            return context.contentTypeMap[content.type];
         },
         description: 'Content.',
         fields: exports.generateGenericContentFields(context)
