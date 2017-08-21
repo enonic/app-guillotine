@@ -2,7 +2,6 @@ var graphQlLib = require('/lib/graphql');
 var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 
-var dictionaryLib = require('./dictionary');
 var genericTypesLib = require('./generic-types');
 var inputTypesLib = require('./input-types');
 var namingLib = require('./naming');
@@ -17,7 +16,7 @@ exports.createContentTypeTypes = function (context) {
 
             //Generates the object type for this content type
             var contentTypeObjectType = generateContentTypeObjectType(context, contentType);
-            dictionaryLib.add(contentTypeObjectType);
+            context.addObjectType(contentTypeObjectType);
         });
 };
 

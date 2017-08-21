@@ -3,7 +3,6 @@ var portalLib = require('/lib/xp/portal');
 var graphQlLib = require('/lib/graphql');
 
 var contentTypesLib = require('./content-types');
-var dictionaryLib = require('./dictionary');
 var genericTypesLib = require('./generic-types');
 var namingLib = require('./naming');
 var graphQlRootQueryLib = require('./root-query');
@@ -33,7 +32,11 @@ exports.getSchema = function () {
 function createContext() {
     return {
         types: {},
+        dictionary: [],
         nameSet: {},
+        addObjectType: function (objectType) {
+            this.dictionary.push(objectType);
+        },
         uniqueName: function (name) {
             var uniqueName = name;
             if (this.nameSet[name]) {
@@ -50,13 +53,11 @@ function createSchema(context) {
     contentTypesLib.createContentTypeTypes(context);
     context.schema = graphQlLib.createSchema({
         query: graphQlRootQueryLib.createRootQueryType(context),
-        dictionary: dictionaryLib.get()
+        dictionary: context.dictionary
     });
 };
 
 function invalidateContexts() {
     contextMap = {};
-    namingLib.resetNameSet();
-    dictionaryLib.reset();
 }
 
