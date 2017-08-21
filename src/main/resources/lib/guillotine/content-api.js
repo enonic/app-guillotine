@@ -76,7 +76,7 @@ exports.createContentApiType = function (context) {
                 }
             },
             getPermissions: {
-                type: createPermissionsType(context),
+                type: context.types.permissionsType,
                 args: {
                     key: graphQlLib.GraphQLID
                 },
@@ -145,21 +145,6 @@ exports.createContentApiType = function (context) {
             }
         }
     });
-};
-
-function createPermissionsType(context) {
-    return graphQlLib.createObjectType({
-        name: context.uniqueName('Permissions'),
-        description: 'Permissions.',
-        fields: {
-            inheritsPermissions: {
-                type: graphQlLib.GraphQLBoolean
-            },
-            permissions: {
-                type: graphQlLib.list(context.types.accessControlEntryType)
-            }
-        }
-    })
 };
 
 function getContent(env) {

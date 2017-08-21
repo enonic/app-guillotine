@@ -109,7 +109,7 @@ exports.generateGenericContentFields = function (context) {
             }
         },
         permissions: {
-            type: graphQlLib.reference('Permissions'),
+            type: context.types.permissionsType,
             resolve: function (env) {
                 return contentLib.getPermissions({
                     key: env.source._id
@@ -178,13 +178,26 @@ exports.createGenericTypes = function (context) {
         description: 'Access control entry.',
         fields: {
             principal: {
-                type: graphQlLib.reference('PrincipalKey')
+                type: context.types.principalKeyType
             },
             allow: {
                 type: graphQlLib.list(context.types.permissionType)
             },
             deny: {
                 type: graphQlLib.list(context.types.permissionType)
+            }
+        }
+    });
+
+    context.types.permissionsType = graphQlLib.createObjectType({
+        name: context.uniqueName('Permissions'),
+        description: 'Permissions.',
+        fields: {
+            inheritsPermissions: {
+                type: graphQlLib.GraphQLBoolean
+            },
+            permissions: {
+                type: graphQlLib.list(context.types.accessControlEntryType)
             }
         }
     });
@@ -425,7 +438,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.inputTypeType = graphQlLib.createEnumType({
-        name: 'InputType',
+        name: context.uniqueName('InputType'),
         description: 'Input type',
         values: {
             'ItemSet': 'ItemSet',
