@@ -32,7 +32,16 @@ exports.getSchema = function () {
 
 function createContext() {
     return {
-        types: {}
+        types: {},
+        nameSet: {},
+        uniqueName: function (name) {
+            var uniqueName = name;
+            if (this.nameSet[name]) {
+                uniqueName = name + '_' + namingLib.generateRandomString();
+            }
+            this.nameSet[uniqueName] = true;
+            return uniqueName;
+        }
     };
 }
 

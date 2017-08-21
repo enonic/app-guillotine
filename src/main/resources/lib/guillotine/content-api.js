@@ -9,7 +9,7 @@ var securityLib = require('./security');
 
 exports.createContentApiType = function (context) {
     return graphQlLib.createObjectType({
-        name: namingLib.uniqueName('ContentApi'),
+        name: context.uniqueName('ContentApi'),
         description: 'Content API',
         fields: {
             get: {
@@ -149,7 +149,7 @@ exports.createContentApiType = function (context) {
 
 function createPermissionsType(context) {
     return graphQlLib.createObjectType({
-        name: namingLib.uniqueName('Permissions'),
+        name: context.uniqueName('Permissions'),
         description: 'Permissions.',
         fields: {
             inheritsPermissions: {

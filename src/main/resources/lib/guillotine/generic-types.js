@@ -3,7 +3,6 @@ var graphQlConnectionLib = require('/lib/graphql-connection');
 var contentLib = require('/lib/xp/content');
 
 var dictionaryLib = require('./dictionary');
-var namingLib = require('./naming');
 var securityLib = require('./security');
 
 exports.generateGenericContentFields = function (context) {
@@ -123,7 +122,7 @@ exports.generateGenericContentFields = function (context) {
 
 exports.createGenericTypes = function (context) {
     context.types.principalKeyType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('PrincipalKey'),
+        name: context.uniqueName('PrincipalKey'),
         description: 'Principal key.',
         fields: {
             value: {
@@ -134,7 +133,7 @@ exports.createGenericTypes = function (context) {
             },
             type: {
                 type: graphQlLib.createEnumType({
-                    name: namingLib.uniqueName('PrincipalType'),
+                    name: context.uniqueName('PrincipalType'),
                     description: 'Principal type.',
                     values: {
                         'user': 'user',
@@ -162,7 +161,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.permissionType = graphQlLib.createEnumType({
-        name: namingLib.uniqueName('Permission'),
+        name: context.uniqueName('Permission'),
         description: 'Permission.',
         values: {
             'READ': 'READ',
@@ -176,7 +175,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.accessControlEntryType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('AccessControlEntry'),
+        name: context.uniqueName('AccessControlEntry'),
         description: 'Access control entry.',
         fields: {
             principal: {
@@ -192,7 +191,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.schemaNameType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('SchemaName'),
+        name: context.uniqueName('SchemaName'),
         description: 'Schema name type.',
         fields: {
             value: {
@@ -217,7 +216,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.geoPointType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('GeoPoint'),
+        name: context.uniqueName('GeoPoint'),
         description: 'GeoPoint.',
         fields: {
             value: {
@@ -242,7 +241,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.mediaFocalPointType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('MediaFocalPoint'),
+        name: context.uniqueName('MediaFocalPoint'),
         description: 'Media focal point.',
         fields: {
             x: {
@@ -255,7 +254,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.mediaUploaderType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('MediaUploader'),
+        name: context.uniqueName('MediaUploader'),
         description: 'Media uploader.',
         fields: {
             attachment: {
@@ -268,7 +267,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.siteConfiguratorType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('SiteConfigurator'),
+        name: context.uniqueName('SiteConfigurator'),
         description: 'Site configurator.',
         fields: {
             applicationKey: {
@@ -284,7 +283,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.publishInfoType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('PublishInfo'),
+        name: context.uniqueName('PublishInfo'),
         description: 'Publish information.',
         fields: {
             from: {
@@ -300,7 +299,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.attachmentType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('Attachment'),
+        name: context.uniqueName('Attachment'),
         description: 'Attachment.',
         fields: {
             name: {
@@ -319,7 +318,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.extraDataType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('ExtraData'),
+        name: context.uniqueName('ExtraData'),
         description: 'Extra data.',
         fields: {
             name: {
@@ -332,7 +331,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.componentType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('Component'),
+        name: context.uniqueName('Component'),
         description: 'Component.',
         fields: {
             name: {
@@ -371,7 +370,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.pageRegionType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('Region'),
+        name: context.uniqueName('Region'),
         description: 'Page region.',
         fields: {
             name: {
@@ -384,7 +383,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.pageType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('Page'),
+        name: context.uniqueName('Page'),
         description: 'Page.',
         fields: {
             template: {
@@ -414,7 +413,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.iconType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('Icon'),
+        name: context.uniqueName('Icon'),
         description: 'Icon.',
         fields: {
             mimeType: {
@@ -438,7 +437,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.formItemType = graphQlLib.createInterfaceType({
-        name: namingLib.uniqueName('FormItem'),
+        name: context.uniqueName('FormItem'),
         typeResolver: function (contentType) {
             switch (contentType.formItemType) {
             case 'ItemSet':
@@ -466,7 +465,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.occurrencesType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('Occurrences'),
+        name: context.uniqueName('Occurrences'),
         description: 'Occurrences.',
         fields: {
             maximum: {
@@ -479,7 +478,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.defaultValueType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('DefaultValue'),
+        name: context.uniqueName('DefaultValue'),
         description: 'Default value.',
         fields: {
             value: {
@@ -495,7 +494,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.formItemSetType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('FormItemSet'),
+        name: context.uniqueName('FormItemSet'),
         description: 'Form item set.',
         interfaces: [context.types.formItemType],
         fields: {
@@ -525,7 +524,7 @@ exports.createGenericTypes = function (context) {
     dictionaryLib.add(context.types.formItemSetType);
 
     context.types.formLayoutType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('FormLayout'),
+        name: context.uniqueName('FormLayout'),
         description: 'Form layout.',
         interfaces: [context.types.formItemType],
         fields: {
@@ -546,7 +545,7 @@ exports.createGenericTypes = function (context) {
     dictionaryLib.add(context.types.formLayoutType);
 
     context.types.formOptionSetOptionType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('FormOptionSetOption'),
+        name: context.uniqueName('FormOptionSetOption'),
         description: 'Form option set option.',
         fields: {
             name: {
@@ -568,7 +567,7 @@ exports.createGenericTypes = function (context) {
     });
 
     context.types.formOptionSetType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('FormOptionSet'),
+        name: context.uniqueName('FormOptionSet'),
         description: 'Form option set.',
         interfaces: [context.types.formItemType],
         fields: {
@@ -601,7 +600,7 @@ exports.createGenericTypes = function (context) {
     dictionaryLib.add(context.types.formOptionSetType);
 
     context.types.formInputType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('FormInput'),
+        name: context.uniqueName('FormInput'),
         description: 'Form input.',
         interfaces: [context.types.formItemType],
         fields: {
@@ -646,7 +645,7 @@ exports.createGenericTypes = function (context) {
     dictionaryLib.add(context.types.formInputType);
 
     context.types.contentTypeType = graphQlLib.createObjectType({
-        name: namingLib.uniqueName('ContentType'),
+        name: context.uniqueName('ContentType'),
         description: 'Content type.',
         fields: {
             name: {
@@ -741,7 +740,7 @@ exports.createGenericTypes = function (context) {
         contentTypeObjectTypeMapping[type] = contentTypeObjectType;
     };
     context.types.contentType = graphQlLib.createInterfaceType({
-        name: namingLib.uniqueName('Content'),
+        name: context.uniqueName('Content'),
         typeResolver: function (content) {
             return contentTypeObjectTypeMapping[content.type];
         },

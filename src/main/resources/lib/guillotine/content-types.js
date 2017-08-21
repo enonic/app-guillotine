@@ -40,7 +40,7 @@ function generateContentTypeObjectType(context, contentType) {
     var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName, true);
 
     var createContentTypeTypeParams = {
-        name: namingLib.uniqueName(camelCaseDisplayName),
+        name: context.uniqueName(camelCaseDisplayName),
         description: contentType.displayName + ' - ' + contentType.name,
         interfaces: [context.types.contentType],
         fields: genericTypesLib.generateGenericContentFields(context)
@@ -58,7 +58,7 @@ function generateContentTypeObjectType(context, contentType) {
 function generateContentDataObjectType(context, contentType) {
     var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName + '_Data', true);
     var createContentTypeDataTypeParams = {
-        name: namingLib.uniqueName(camelCaseDisplayName),
+        name: context.uniqueName(camelCaseDisplayName),
         description: contentType.displayName + ' data',
         fields: {}
     };
@@ -69,7 +69,7 @@ function generateContentDataObjectType(context, contentType) {
         //Creates a data field corresponding to this form item
         createContentTypeDataTypeParams.fields[namingLib.sanitizeText(formItem.name)] = {
             type: generateFormItemObjectType(context, formItem),
-            args: generateFormItemArguments(formItem),
+            args: generateFormItemArguments(context, formItem),
             resolve: generateFormItemResolveFunction(formItem)
         }
     });
@@ -124,7 +124,7 @@ function generateFormItemObjectType(context, formItem) {
 function generateItemSetObjectType(context, itemSet) {
     var camelCaseLabel = namingLib.generateCamelCase(itemSet.label, true);
     var createItemSetTypeParams = {
-        name: namingLib.uniqueName(camelCaseLabel),
+        name: context.uniqueName(camelCaseLabel),
         description: itemSet.label,
         fields: {}
     };
@@ -185,9 +185,9 @@ function generateInputObjectType(context, input) {
     return graphQlLib.GraphQLString;
 }
 
-function generateOptionSetObjectType(optionSet) {
+function generateOptionSetObjectType(context, optionSet) {
     var camelCaseLabel = namingLib.generateCamelCase(optionSet.label, true);
-    var typeName = namingLib.uniqueName(camelCaseLabel);
+    var typeName = context.uniqueName(camelCaseLabel);
     var optionSetEnum = generateOptionSetEnum(optionSet, typeName);
     var createOptionSetTypeParams = {
         name: typeName,
@@ -232,14 +232,14 @@ function generateOptionObjectType(option) {
     }
 }
 
-function generateFormItemArguments(formItem) {
+function generateFormItemArguments(context, formItem) {
     var args = {};
     if (!formItem.occurrences || formItem.occurrences.maximum != 1) {
         args.offset = graphQlLib.GraphQLInt;
         args.first = graphQlLib.GraphQLInt;
     }
     if ('Input' == formItem.formItemType && 'HtmlArea' == formItem.inputType) {
-        args.processHtml = inputTypesLib.createProcessHtmlInputType();
+        args.processHtml = inputTypesLib.createProcessHtmlInputType(context);
     }
     return args;
 }

@@ -1,22 +1,20 @@
 var graphQlLib = require('/lib/graphql');
 
-var namingLib = require('./naming');
-
-exports.createProcessHtmlInputType = function () {
+exports.createProcessHtmlInputType = function (context) {
     return graphQlLib.createInputObjectType({
-        name: namingLib.uniqueName('ProcessHtmlInputType'),
+        name: context.uniqueName('ProcessHtmlInputType'),
         description: 'Process HTML input type.',
         fields: {
             'type': {
-                type: createUrlTypeType()
+                type: createUrlTypeType(context)
             }
         }
     })
 };
 
-function createUrlTypeType() {
+function createUrlTypeType(context) {
     return graphQlLib.createEnumType({
-        name: namingLib.uniqueName('UrlTypeType'),
+        name: context.uniqueName('UrlTypeType'),
         description: 'URL type type.',
         values: {
             'server': 'server',
