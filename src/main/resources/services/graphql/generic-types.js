@@ -3,6 +3,7 @@ var graphQlConnectionLib = require('/lib/graphql-connection');
 var contentLib = require('/lib/xp/content');
 var namingLib = require('/lib/headless-cms/naming');
 var securityLib = require('./security');
+var dictionaryLib = require('./dictionary');
 
 exports.generateGenericContentFields = function () {
     return {
@@ -407,6 +408,329 @@ exports.createGenericTypes = function () {
             },
             fragment: {
                 type: exports.componentType
+            }
+        }
+    });
+
+    exports.iconType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('Icon'),
+        description: 'Icon.',
+        fields: {
+            mimeType: {
+                type: graphQlLib.GraphQLString
+            },
+            modifiedTime: {
+                type: graphQlLib.GraphQLString
+            }
+        }
+    });
+
+    exports.inputTypeType = graphQlLib.createEnumType({
+        name: 'InputType',
+        description: 'Input type',
+        values: {
+            'ItemSet': 'ItemSet',
+            'Layout': 'Layout',
+            'Input': 'Input',
+            'OptionSet': 'OptionSet'
+        }
+    });
+
+    exports.formItemType = graphQlLib.createInterfaceType({
+        name: namingLib.uniqueName('FormItem'),
+        typeResolver: function (contentType) {
+            switch (contentType.formItemType) {
+            case 'ItemSet':
+                return exports.formItemSetType;
+            case 'Layout':
+                return exports.formLayoutType;
+            case 'Input':
+                return exports.formInputType;
+            case 'OptionSet':
+                return exports.formOptionSetType;
+            }
+        },
+        description: 'Form item.',
+        fields: {
+            formItemType: {
+                type: exports.inputTypeType
+            },
+            name: {
+                type: graphQlLib.GraphQLString
+            },
+            label: {
+                type: graphQlLib.GraphQLString
+            }
+        }
+    });
+
+    exports.occurrencesType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('Occurrences'),
+        description: 'Occurrences.',
+        fields: {
+            maximum: {
+                type: graphQlLib.GraphQLInt
+            },
+            minimum: {
+                type: graphQlLib.GraphQLInt
+            }
+        }
+    });
+
+    exports.defaultValueType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('DefaultValue'),
+        description: 'Default value.',
+        fields: {
+            value: {
+                type: graphQlLib.GraphQLString,
+                resolve: function (env) {
+                    return JSON.stringify(env.source.value);
+                }
+            },
+            type: {
+                type: graphQlLib.GraphQLString
+            }
+        }
+    });
+
+    exports.formItemSetType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('FormItemSet'),
+        description: 'Form item set.',
+        interfaces: [exports.formItemType],
+        fields: {
+            formItemType: {
+                type: exports.inputTypeType
+            },
+            name: {
+                type: graphQlLib.GraphQLString
+            },
+            label: {
+                type: graphQlLib.GraphQLString
+            },
+            customText: {
+                type: graphQlLib.GraphQLString
+            },
+            helpText: {
+                type: graphQlLib.GraphQLString
+            },
+            occurrences: {
+                type: exports.occurrencesType
+            },
+            items: {
+                type: graphQlLib.list(exports.formItemType)
+            }
+        }
+    });
+    dictionaryLib.add(exports.formItemSetType);
+
+    exports.formLayoutType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('FormLayout'),
+        description: 'Form layout.',
+        interfaces: [exports.formItemType],
+        fields: {
+            formItemType: {
+                type: exports.inputTypeType
+            },
+            name: {
+                type: graphQlLib.GraphQLString
+            },
+            label: {
+                type: graphQlLib.GraphQLString
+            },
+            items: {
+                type: graphQlLib.list(exports.formItemType)
+            }
+        }
+    });
+    dictionaryLib.add(exports.formLayoutType);
+
+    exports.formOptionSetOptionType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('FormOptionSetOption'),
+        description: 'Form option set option.',
+        fields: {
+            name: {
+                type: graphQlLib.GraphQLString
+            },
+            label: {
+                type: graphQlLib.GraphQLString
+            },
+            helpText: {
+                type: graphQlLib.GraphQLString
+            },
+            default: {
+                type: graphQlLib.GraphQLBoolean
+            },
+            items: {
+                type: graphQlLib.list(exports.formItemType)
+            }
+        }
+    });
+
+    exports.formOptionSetType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('FormOptionSet'),
+        description: 'Form option set.',
+        interfaces: [exports.formItemType],
+        fields: {
+            formItemType: {
+                type: exports.inputTypeType
+            },
+            name: {
+                type: graphQlLib.GraphQLString
+            },
+            label: {
+                type: graphQlLib.GraphQLString
+            },
+            expanded: {
+                type: graphQlLib.GraphQLBoolean
+            },
+            helpText: {
+                type: graphQlLib.GraphQLString
+            },
+            occurrences: {
+                type: exports.occurrencesType
+            },
+            selection: {
+                type: exports.occurrencesType
+            },
+            options: {
+                type: graphQlLib.list(exports.formOptionSetOptionType)
+            }
+        }
+    });
+    dictionaryLib.add(exports.formOptionSetType);
+
+    exports.formInputType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('FormInput'),
+        description: 'Form input.',
+        interfaces: [exports.formItemType],
+        fields: {
+            formItemType: {
+                type: exports.inputTypeType
+            },
+            name: {
+                type: graphQlLib.GraphQLString
+            },
+            label: {
+                type: graphQlLib.GraphQLString
+            },
+            customText: {
+                type: graphQlLib.GraphQLString
+            },
+            helpText: {
+                type: graphQlLib.GraphQLString
+            },
+            validationRegexp: {
+                type: graphQlLib.GraphQLString
+            },
+            maximize: {
+                type: graphQlLib.GraphQLBoolean
+            },
+            inputType: {
+                type: graphQlLib.GraphQLString
+            },
+            occurrences: {
+                type: exports.occurrencesType
+            },
+            defaultValue: {
+                type: exports.defaultValueType
+            },
+            config: {
+                type: graphQlLib.GraphQLString, //TODO
+                resolve: function (env) {
+                    return JSON.stringify(env.source.config);
+                }
+            }
+        }
+    });
+    dictionaryLib.add(exports.formInputType);
+
+    exports.contentTypeType = graphQlLib.createObjectType({
+        name: namingLib.uniqueName('ContentType'),
+        description: 'Content type.',
+        fields: {
+            name: {
+                type: exports.schemaNameType
+            },
+            displayName: {
+                type: graphQlLib.GraphQLString
+            },
+            description: {
+                type: graphQlLib.GraphQLString
+            },
+            superType: {
+                type: exports.schemaNameType
+            },
+            abstract: {
+                type: graphQlLib.GraphQLBoolean
+            },
+            final: {
+                type: graphQlLib.GraphQLBoolean
+            },
+            allowChildContent: {
+                type: graphQlLib.GraphQLBoolean
+            },
+            contentDisplayNameScript: {
+                type: graphQlLib.GraphQLString
+            },
+            icon: {
+                type: exports.iconType
+            },
+            form: {
+                type: graphQlLib.list(exports.formItemType)
+            },
+            getContent: {
+                type: graphQlLib.reference('Content'),
+                args: {
+                    key: graphQlLib.nonNull(graphQlLib.GraphQLID)
+                },
+                resolve: function (env) {
+                    var content = contentLib.getContent(env.args.key);
+                    return content && content.type === env.source.name ? content : null;
+                }
+            },
+            getContents: {
+                type: graphQlLib.list(graphQlLib.reference('Content')),
+                args: {
+                    offset: graphQlLib.GraphQLInt,
+                    first: graphQlLib.GraphQLInt,
+                    query: graphQlLib.GraphQLString,
+                    sort: graphQlLib.GraphQLString
+                },
+                resolve: function (env) {
+                    var contents = contentLib.query({
+                        start: env.args.offset,
+                        count: env.args.first,
+                        query: env.args.query,
+                        sort: env.args.sort,
+                        contentTypes: [env.source.name]
+                    }).hits;
+                    return contents;
+                }
+            },
+            getContentConnection: {
+                type: graphQlLib.reference('ContentConnection'),
+                args: {
+                    after: graphQlLib.GraphQLString,
+                    first: graphQlLib.GraphQLInt,
+                    query: graphQlLib.GraphQLString,
+                    sort: graphQlLib.GraphQLString
+                },
+                resolve: function (env) {
+                    var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
+                    var queryResult = contentLib.query({
+                        start: start,
+                        count: env.args.first,
+                        query: env.args.query,
+                        sort: env.args.sort,
+                        contentTypes: [env.source.name]
+
+                    });
+                    return {
+                        total: queryResult.total,
+                        start: start,
+                        hits: queryResult.hits
+                    };
+                }
             }
         }
     });
