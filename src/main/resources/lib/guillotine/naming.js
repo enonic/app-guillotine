@@ -13,7 +13,6 @@ exports.sanitizeText = function (text) {
     return text.replace(/([^0-9A-Za-z])+/g, '_');
 };
 
-
 var nameSetMap = {};
 exports.uniqueName = function (name) {
     var siteId = portalLib.getSite()._id;
