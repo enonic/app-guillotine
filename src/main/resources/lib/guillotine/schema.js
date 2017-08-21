@@ -59,7 +59,7 @@ function createSchema(context) {
         query: graphQlRootQueryLib.createRootQueryType(context),
         dictionary: context.dictionary
     });
-};
+}
 
 function invalidateContexts() {
     contextMap = {};
