@@ -1,6 +1,7 @@
 var graphQlLib = require('/lib/graphql');
-var schemaLib = require('./schema');
-var securityLib = require('./security');
+
+var schemaLib = require('/lib/guillotine/schema');
+var securityLib = require('/lib/guillotine/security');
 
 exports.post = function (req) {
     if (!securityLib.isSiteContext()) {

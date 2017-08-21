@@ -1,6 +1,7 @@
 var graphQlLib = require('/lib/graphql');
-var namingLib = require('/lib/headless-cms/naming');
+
 var contentApiLib = require('./content-api');
+var namingLib = require('./naming');
 
 exports.createRootQueryType = function () {
     return graphQlLib.createObjectType({

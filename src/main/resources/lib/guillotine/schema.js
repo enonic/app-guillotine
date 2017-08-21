@@ -1,10 +1,11 @@
 var eventLib = require('/lib/xp/event');
 var portalLib = require('/lib/xp/portal');
 var graphQlLib = require('/lib/graphql');
-var namingLib = require('/lib/headless-cms/naming');
+
+var contentTypesLib = require('./content-types');
 var dictionaryLib = require('./dictionary');
 var genericTypesLib = require('./generic-types');
-var contentTypesLib = require('./content-types');
+var namingLib = require('./naming');
 var graphQlRootQueryLib = require('./root-query');
 
 eventLib.listener({
@@ -12,7 +13,7 @@ eventLib.listener({
     localOnly: false,
     callback: function (event) {
         if ('STOPPED' === event.data.eventType || 'STARTED' === event.data.eventType) {
-            invalidateSchema();
+            invalidateSchemas();
         }
     }
 });
@@ -37,7 +38,7 @@ function createSchema() {
     })
 };
 
-function invalidateSchema() {
+function invalidateSchemas() {
     schemaMap = {};
     namingLib.resetNameSet();
     dictionaryLib.reset();

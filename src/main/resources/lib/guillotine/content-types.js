@@ -1,12 +1,13 @@
 var graphQlLib = require('/lib/graphql');
 var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
-var utilLib = require('./util');
-var securityLib = require('./security');
+
+var dictionaryLib = require('./dictionary');
 var genericTypesLib = require('./generic-types');
 var inputTypesLib = require('./input-types');
-var dictionaryLib = require('./dictionary');
-var namingLib = require('/lib/headless-cms/naming');
+var namingLib = require('./naming');
+var securityLib = require('./security');
+var utilLib = require('./util');
 
 exports.createContentTypeTypes = function () {
 

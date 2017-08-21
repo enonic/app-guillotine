@@ -2,9 +2,10 @@ var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 var graphQlLib = require('/lib/graphql');
 var graphQlConnectionLib = require('/lib/graphql-connection');
-var namingLib = require('/lib/headless-cms/naming');
-var genericTypesLib = require('./generic-types');
+
 var contentTypesLib = require('./content-types');
+var genericTypesLib = require('./generic-types');
+var namingLib = require('./naming');
 var securityLib = require('./security');
 
 exports.createContentApiType = function () {

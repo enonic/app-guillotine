@@ -1,5 +1,6 @@
 var graphQlLib = require('/lib/graphql');
-var namingLib = require('/lib/headless-cms/naming');
+
+var namingLib = require('./naming');
 
 exports.createProcessHtmlInputType = function () {
     return graphQlLib.createInputObjectType({

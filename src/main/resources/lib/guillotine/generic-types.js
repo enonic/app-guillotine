@@ -1,9 +1,10 @@
 var graphQlLib = require('/lib/graphql');
 var graphQlConnectionLib = require('/lib/graphql-connection');
 var contentLib = require('/lib/xp/content');
-var namingLib = require('/lib/headless-cms/naming');
-var securityLib = require('./security');
+
 var dictionaryLib = require('./dictionary');
+var namingLib = require('./naming');
+var securityLib = require('./security');
 
 exports.generateGenericContentFields = function () {
     return {
