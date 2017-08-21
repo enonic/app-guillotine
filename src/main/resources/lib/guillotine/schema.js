@@ -18,12 +18,16 @@ eventLib.listener({
     }
 });
 
-var contextMap = {};
+var contextMap = {
+    types: {}
+};
 exports.getSchema = function () {
     var siteId = portalLib.getSite()._id;
     var context = contextMap[siteId];
     if (!context) {
-        context = {};
+        context = {
+            types: {}
+        };
         contextMap[siteId] = context;
         createSchema(context);
     }
@@ -34,7 +38,7 @@ function createSchema(context) {
     genericTypesLib.createGenericTypes(context);
     contentTypesLib.createContentTypeTypes(context);
     context.schema = graphQlLib.createSchema({
-        query: graphQlRootQueryLib.createRootQueryType(),
+        query: graphQlRootQueryLib.createRootQueryType(context),
         dictionary: dictionaryLib.get()
     });
 };

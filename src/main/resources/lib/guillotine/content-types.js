@@ -9,14 +9,14 @@ var namingLib = require('./naming');
 var securityLib = require('./security');
 var utilLib = require('./util');
 
-exports.createContentTypeTypes = function () {
+exports.createContentTypeTypes = function (context) {
 
     //For each content type
     exports.getAllowedContentTypes().
         forEach(function (contentType) {
 
             //Generates the object type for this content type
-            var contentTypeObjectType = generateContentTypeObjectType(contentType);
+            var contentTypeObjectType = generateContentTypeObjectType(context, contentType);
             dictionaryLib.add(contentTypeObjectType);
         });
 };
@@ -36,26 +36,26 @@ function generateAllowedContentTypeRegexp() {
     return new RegExp('^(?:base|media|portal' + siteApplicationKeys + '):');
 }
 
-function generateContentTypeObjectType(contentType) {
+function generateContentTypeObjectType(context, contentType) {
     var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName, true);
 
     var createContentTypeTypeParams = {
         name: namingLib.uniqueName(camelCaseDisplayName),
         description: contentType.displayName + ' - ' + contentType.name,
-        interfaces: [genericTypesLib.contentType],
-        fields: genericTypesLib.generateGenericContentFields()
+        interfaces: [context.types.contentType],
+        fields: genericTypesLib.generateGenericContentFields(context)
     };
 
     createContentTypeTypeParams.fields.data = getFormItems(contentType.form).length > 0 ? {
-        type: generateContentDataObjectType(contentType)
+        type: generateContentDataObjectType(context, contentType)
     } : undefined;
 
     var contentTypeObjectType = graphQlLib.createObjectType(createContentTypeTypeParams);
-    genericTypesLib.registerContentTypeObjectType(contentType.name, contentTypeObjectType);
+    context.registerContentTypeObjectType(contentType.name, contentTypeObjectType);
     return contentTypeObjectType;
 }
 
-function generateContentDataObjectType(contentType) {
+function generateContentDataObjectType(context, contentType) {
     var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName + '_Data', true);
     var createContentTypeDataTypeParams = {
         name: namingLib.uniqueName(camelCaseDisplayName),
@@ -68,7 +68,7 @@ function generateContentDataObjectType(contentType) {
 
         //Creates a data field corresponding to this form item
         createContentTypeDataTypeParams.fields[namingLib.sanitizeText(formItem.name)] = {
-            type: generateFormItemObjectType(formItem),
+            type: generateFormItemObjectType(context, formItem),
             args: generateFormItemArguments(formItem),
             resolve: generateFormItemResolveFunction(formItem)
         }
@@ -96,20 +96,20 @@ function getFormItems(form) {
     return formItems;
 }
 
-function generateFormItemObjectType(formItem) {
+function generateFormItemObjectType(context, formItem) {
     var formItemObjectType;
     switch (formItem.formItemType) {
     case 'ItemSet':
-        formItemObjectType = generateItemSetObjectType(formItem);
+        formItemObjectType = generateItemSetObjectType(context, formItem);
         break;
     case 'Layout':
         //Should already be filtered
         break;
     case 'Input':
-        formItemObjectType = generateInputObjectType(formItem);
+        formItemObjectType = generateInputObjectType(context, formItem);
         break;
     case 'OptionSet':
-        formItemObjectType = generateOptionSetObjectType(formItem);
+        formItemObjectType = generateOptionSetObjectType(context, formItem);
         break;
     }
 
@@ -121,7 +121,7 @@ function generateFormItemObjectType(formItem) {
     }
 }
 
-function generateItemSetObjectType(itemSet) {
+function generateItemSetObjectType(context, itemSet) {
     var camelCaseLabel = namingLib.generateCamelCase(itemSet.label, true);
     var createItemSetTypeParams = {
         name: namingLib.uniqueName(camelCaseLabel),
@@ -130,21 +130,21 @@ function generateItemSetObjectType(itemSet) {
     };
     getFormItems(itemSet.items).forEach(function (item) {
         createItemSetTypeParams.fields[namingLib.generateCamelCase(item.name)] = {
-            type: generateFormItemObjectType(item),
+            type: generateFormItemObjectType(context, item),
             resolve: generateFormItemResolveFunction(item)
         }
     });
     return graphQlLib.createObjectType(createItemSetTypeParams);
 }
 
-function generateInputObjectType(input) {
+function generateInputObjectType(context, input) {
     switch (input.inputType) {
     case 'CheckBox':
         return graphQlLib.GraphQLBoolean;
     case 'ComboBox':
         return graphQlLib.GraphQLString;
     case 'ContentSelector':
-        return graphQlLib.reference('Content');
+        return context.types.contentType;
     case 'CustomSelector':
         return graphQlLib.GraphQLString;
     case 'ContentTypeFilter':
@@ -156,23 +156,23 @@ function generateInputObjectType(input) {
     case 'Double':
         return graphQlLib.GraphQLFloat;
     case 'MediaUploader':
-        return graphQlLib.reference('Content');
+        return context.types.contentType;
     case 'AttachmentUploader':
-        return graphQlLib.reference('Content');
+        return context.types.contentType;
     case 'GeoPoint':
-        return genericTypesLib.geoPointType;
+        return context.types.geoPointType;
     case 'HtmlArea':
         return graphQlLib.GraphQLString;
     case 'ImageSelector':
-        return graphQlLib.reference('Content');
+        return context.types.contentType;
     case 'ImageUploader':
-        return genericTypesLib.mediaUploaderType;
+        return context.types.mediaUploaderType;
     case 'Long':
         return graphQlLib.GraphQLInt;
     case 'RadioButton':
         return graphQlLib.GraphQLString; //TODO Should be enum based on config
     case 'SiteConfigurator':
-        return genericTypesLib.siteConfiguratorType;
+        return context.types.siteConfiguratorType;
     case 'Tag':
         return graphQlLib.GraphQLString;
     case 'TextArea':
