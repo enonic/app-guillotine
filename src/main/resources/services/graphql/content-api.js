@@ -5,7 +5,6 @@ var graphQlConnectionLib = require('/lib/graphql-connection');
 var namingLib = require('/lib/headless-cms/naming');
 var genericTypesLib = require('./generic-types');
 var contentTypesLib = require('./content-types');
-var typesApiLib = require('./types-api');
 var securityLib = require('./security');
 
 exports.createContentApiType = function () {
@@ -136,12 +135,6 @@ exports.createContentApiType = function () {
                         start: start,
                         hits: queryResult.hits
                     };
-                }
-            },
-            types: {
-                type: typesApiLib.createTypesApiType(),
-                resolve: function () {
-                    return {};
                 }
             },
             getTypes: {

@@ -1,88 +1,26 @@
 var graphQlLib = require('/lib/graphql');
-var graphQlConnectionLib = require('/lib/graphql-connection');
 var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 var utilLib = require('./util');
 var securityLib = require('./security');
 var genericTypesLib = require('./generic-types');
 var inputTypesLib = require('./input-types');
+var dictionaryLib = require('./dictionary');
 var namingLib = require('/lib/headless-cms/naming');
 
-exports.addContentTypesAsFields = function (parentObjectTypeParams) {
-    
+exports.createContentTypeTypes = function () {
+
     //For each content type
     exports.getAllowedContentTypes().
         forEach(function (contentType) {
 
-            //Retrieve the content type  name as lower camel case
-            var camelCaseContentTypeName = generateContentTypeGetter(contentType);
-
             //Generates the object type for this content type
             var contentTypeObjectType = generateContentTypeObjectType(contentType);
-
-            //Creates a root query field getXXX finding a content by key 
-            parentObjectTypeParams.fields[camelCaseContentTypeName] = {
-                type: contentTypeObjectType,
-                args: {
-                    key: graphQlLib.nonNull(graphQlLib.GraphQLID)
-                },
-                resolve: function (env) {
-                    var content = contentLib.getContent(env.args.key);
-                    return content && content.type === contentType.name ? content : null;
-                }
-            };
-
-            //Creates a root query field getXXXList finding contents and returning them as an array
-            parentObjectTypeParams.fields[camelCaseContentTypeName + 'List'] = {
-                type: graphQlLib.list(contentTypeObjectType),
-                args: {
-                    offset: graphQlLib.GraphQLInt,
-                    first: graphQlLib.GraphQLInt,
-                    query: graphQlLib.GraphQLString,
-                    sort: graphQlLib.GraphQLString
-                },
-                resolve: function (env) {
-                    var contents = contentLib.query({
-                        start: env.args.offset,
-                        count: env.args.first,
-                        query: env.args.query,
-                        sort: env.args.sort,
-                        contentTypes: [contentType.name]
-                    }).hits;
-                    return contents;
-                }
-            };
-
-            //Creates a root query field getXXXConnection finding contents
-            parentObjectTypeParams.fields[camelCaseContentTypeName + 'Connection'] = {
-                type: graphQlConnectionLib.createConnectionType(contentTypeObjectType),
-                args: {
-                    after: graphQlLib.GraphQLString,
-                    first: graphQlLib.GraphQLInt,
-                    query: graphQlLib.GraphQLString,
-                    sort: graphQlLib.GraphQLString
-                },
-                resolve: function (env) {
-                    var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
-                    var queryResult = contentLib.query({
-                        start: start,
-                        count: env.args.first,
-                        query: env.args.query,
-                        sort: env.args.sort,
-                        contentTypes: [contentType.name]
-
-                    });
-                    return {
-                        total: queryResult.total,
-                        start: start,
-                        hits: queryResult.hits
-                    };
-                }
-            };
+            dictionaryLib.add(contentTypeObjectType);
         });
 };
 
-exports.getAllowedContentTypes = function() {
+exports.getAllowedContentTypes = function () {
     var allowedContentTypeRegexp = generateAllowedContentTypeRegexp();
     return contentLib.getTypes().
         filter(function (contentType) {
@@ -96,13 +34,6 @@ function generateAllowedContentTypeRegexp() {
     }).join('');
     return new RegExp('^(?:base|media|portal' + siteApplicationKeys + '):');
 }
-
-function generateContentTypeGetter(contentType) {
-    var localName = contentType.name.substr(contentType.name.indexOf(':') + 1);
-    var camelCaseContentTypeName = namingLib.generateCamelCase(localName, true);
-    return namingLib.uniqueName('get' + camelCaseContentTypeName);
-}
-
 
 function generateContentTypeObjectType(contentType) {
     var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName, true);

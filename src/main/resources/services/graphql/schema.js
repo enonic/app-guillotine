@@ -4,6 +4,7 @@ var graphQlLib = require('/lib/graphql');
 var namingLib = require('/lib/headless-cms/naming');
 var dictionaryLib = require('./dictionary');
 var genericTypesLib = require('./generic-types');
+var contentTypesLib = require('./content-types');
 var graphQlRootQueryLib = require('./root-query');
 
 eventLib.listener({
@@ -29,6 +30,7 @@ exports.getSchema = function () {
 
 function createSchema() {
     genericTypesLib.createGenericTypes();
+    contentTypesLib.createContentTypeTypes();
     return graphQlLib.createSchema({
         query: graphQlRootQueryLib.createRootQueryType(),
         dictionary: dictionaryLib.get()
