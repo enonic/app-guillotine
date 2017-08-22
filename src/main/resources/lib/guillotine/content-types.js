@@ -202,7 +202,7 @@ function generateOptionSetObjectType(context, optionSet) {
     };
     optionSet.options.forEach(function (option) {
         createOptionSetTypeParams.fields[namingLib.generateCamelCase(option.name)] = {
-            type: generateOptionObjectType(option),
+            type: generateOptionObjectType(context, option),
             resolve: function (env) {
                 return env.source[option.name];
             }
@@ -223,9 +223,9 @@ function generateOptionSetEnum(optionSet, optionSetName) {
     });
 }
 
-function generateOptionObjectType(option) {
+function generateOptionObjectType(context, option) {
     if (option.items.length > 0) {
-        return generateItemSetObjectType(option);
+        return generateItemSetObjectType(context, option);
     } else {
         return graphQlLib.GraphQLString;
     }
