@@ -137,6 +137,15 @@ exports.createContentApiType = function (context) {
                     };
                 }
             },
+            getType: {
+                type: context.types.contentTypeType,
+                args: {
+                    name: graphQlLib.nonNull(graphQlLib.GraphQLString)
+                },
+                resolve: function (env) {
+                    return contentTypesLib.getAllowedContentType(env.args.name);
+                }
+            },
             getTypes: {
                 type: graphQlLib.list(context.types.contentTypeType),
                 resolve: function () {

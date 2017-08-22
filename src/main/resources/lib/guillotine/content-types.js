@@ -26,6 +26,12 @@ exports.getAllowedContentTypes = function () {
         filter(function (contentType) {
             return contentType.name.match(allowedContentTypeRegexp);
         });
+};
+
+exports.getAllowedContentType = function (name) {
+    var allowedContentTypeRegexp = generateAllowedContentTypeRegexp();
+    var contentType = contentLib.getType(name);
+    return contentType && contentType.name.match(allowedContentTypeRegexp) ? contentType : null;
 }
 
 function generateAllowedContentTypeRegexp() {
