@@ -31,7 +31,7 @@ exports.generateGenericContentFields = function (context) {
             type: context.types.principalKeyType
         },
         type: {
-            type: context.types.schemaNameType
+            type: graphQlLib.GraphQLString
         },
         displayName: {
             type: graphQlLib.GraphQLString
@@ -202,31 +202,6 @@ exports.createGenericTypes = function (context) {
         }
     });
 
-    context.types.schemaNameType = graphQlLib.createObjectType({
-        name: context.uniqueName('SchemaName'),
-        description: 'Schema name type.',
-        fields: {
-            value: {
-                type: graphQlLib.GraphQLString,
-                resolve: function (env) {
-                    return env.source;
-                }
-            },
-            applicationKey: {
-                type: graphQlLib.GraphQLString,
-                resolve: function (env) {
-                    return env.source.split(':', 2)[0];
-                }
-            },
-            localName: {
-                type: graphQlLib.GraphQLString,
-                resolve: function (env) {
-                    return env.source.split(':', 2)[1];
-                }
-            }
-        }
-    });
-
     context.types.geoPointType = graphQlLib.createObjectType({
         name: context.uniqueName('GeoPoint'),
         description: 'GeoPoint.',
@@ -334,7 +309,7 @@ exports.createGenericTypes = function (context) {
         description: 'Extra data.',
         fields: {
             name: {
-                type: context.types.schemaNameType
+                type: graphQlLib.GraphQLString
             },
             data: {
                 type: graphQlLib.GraphQLString
@@ -661,7 +636,7 @@ exports.createGenericTypes = function (context) {
         description: 'Content type.',
         fields: {
             name: {
-                type: context.types.schemaNameType
+                type: graphQlLib.GraphQLString
             },
             displayName: {
                 type: graphQlLib.GraphQLString
@@ -670,7 +645,7 @@ exports.createGenericTypes = function (context) {
                 type: graphQlLib.GraphQLString
             },
             superType: {
-                type: context.types.schemaNameType
+                type: graphQlLib.GraphQLString
             },
             abstract: {
                 type: graphQlLib.GraphQLBoolean
