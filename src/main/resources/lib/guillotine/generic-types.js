@@ -108,6 +108,28 @@ exports.generateGenericContentFields = function (context) {
                 }).hits;
             }
         },
+        childrenConnection: {
+            type: graphQlLib.reference('ContentConnection'),
+            args: {
+                after: graphQlLib.GraphQLString,
+                first: graphQlLib.GraphQLInt,
+                sort: graphQlLib.GraphQLString
+            },
+            resolve: function (env) {
+                var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
+                var getChildrenResult = contentLib.getChildren({
+                    key: env.source._id,
+                    start: start,
+                    count: env.args.first,
+                    sort: env.args.sort
+                });
+                return {
+                    total: getChildrenResult.total,
+                    start: start,
+                    hits: getChildrenResult.hits
+                };
+            }
+        },
         permissions: {
             type: context.types.permissionsType,
             resolve: function (env) {
@@ -412,9 +434,9 @@ exports.createGenericTypes = function (context) {
         }
     });
 
-    context.types.inputTypeType = graphQlLib.createEnumType({
-        name: context.uniqueName('InputType'),
-        description: 'Input type',
+    context.types.formItemTypeType = graphQlLib.createEnumType({
+        name: context.uniqueName('FormItemType'),
+        description: 'Form item type',
         values: {
             'ItemSet': 'ItemSet',
             'Layout': 'Layout',
@@ -440,7 +462,7 @@ exports.createGenericTypes = function (context) {
         description: 'Form item.',
         fields: {
             formItemType: {
-                type: context.types.inputTypeType
+                type: context.types.formItemTypeType
             },
             name: {
                 type: graphQlLib.GraphQLString
@@ -486,7 +508,7 @@ exports.createGenericTypes = function (context) {
         interfaces: [context.types.formItemType],
         fields: {
             formItemType: {
-                type: context.types.inputTypeType
+                type: context.types.formItemTypeType
             },
             name: {
                 type: graphQlLib.GraphQLString
@@ -516,7 +538,7 @@ exports.createGenericTypes = function (context) {
         interfaces: [context.types.formItemType],
         fields: {
             formItemType: {
-                type: context.types.inputTypeType
+                type: context.types.formItemTypeType
             },
             name: {
                 type: graphQlLib.GraphQLString
@@ -559,7 +581,7 @@ exports.createGenericTypes = function (context) {
         interfaces: [context.types.formItemType],
         fields: {
             formItemType: {
-                type: context.types.inputTypeType
+                type: context.types.formItemTypeType
             },
             name: {
                 type: graphQlLib.GraphQLString
@@ -592,7 +614,7 @@ exports.createGenericTypes = function (context) {
         interfaces: [context.types.formItemType],
         fields: {
             formItemType: {
-                type: context.types.inputTypeType
+                type: context.types.formItemTypeType
             },
             name: {
                 type: graphQlLib.GraphQLString
@@ -665,17 +687,7 @@ exports.createGenericTypes = function (context) {
             form: {
                 type: graphQlLib.list(context.types.formItemType)
             },
-            getContent: {
-                type: graphQlLib.reference('Content'),
-                args: {
-                    key: graphQlLib.nonNull(graphQlLib.GraphQLID)
-                },
-                resolve: function (env) {
-                    var content = contentLib.getContent(env.args.key);
-                    return content && content.type === env.source.name ? content : null;
-                }
-            },
-            getContents: {
+            getInstances: {
                 type: graphQlLib.list(graphQlLib.reference('Content')),
                 args: {
                     offset: graphQlLib.GraphQLInt,
@@ -694,7 +706,7 @@ exports.createGenericTypes = function (context) {
                     return contents;
                 }
             },
-            getContentConnection: {
+            getInstanceConnection: {
                 type: graphQlLib.reference('ContentConnection'),
                 args: {
                     after: graphQlLib.GraphQLString,
