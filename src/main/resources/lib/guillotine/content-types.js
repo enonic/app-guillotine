@@ -56,9 +56,9 @@ function generateContentTypeObjectType(context, contentType) {
 
     if (contentType.name.match(mediaContentTypeRegexp)) {
         addMediaFields(context, createContentTypeTypeParams);
-        //if (contentType.name.match(imageContentTypeRegexp)) { //TODO
-        //    addImageFields(context, createContentTypeTypeParams);
-        //}
+        if (contentType.name.match(imageContentTypeRegexp)) {
+            addImageFields(context, createContentTypeTypeParams);
+        }
     }
 
     createContentTypeTypeParams.fields.data = getFormItems(contentType.form).length > 0 ? {
@@ -82,6 +82,33 @@ function addMediaFields(context, createContentTypeTypeParams) {
             return portalLib.attachmentUrl({
                 id: env.source._id,
                 download: env.args.download,
+                type: env.args.type,
+                params: env.args.params && JSON.parse(env.args.params)
+            });
+        }
+    }
+}
+
+function addImageFields(context, createContentTypeTypeParams) {
+    createContentTypeTypeParams.fields.imageUrl = {
+        type: graphQlLib.GraphQLString,
+        args: {
+            scale: graphQlLib.nonNull(graphQlLib.GraphQLString),
+            quality: graphQlLib.GraphQLInt,
+            background: graphQlLib.GraphQLString,
+            format: graphQlLib.GraphQLString,
+            filter: graphQlLib.GraphQLString,
+            type: context.types.urlTypeType,
+            params: graphQlLib.GraphQLString
+        },
+        resolve: function (env) {
+            return portalLib.imageUrl({
+                id: env.source._id,
+                scale: env.args.scale,
+                quality: env.args.quality,
+                background: env.args.background,
+                format: env.args.format,
+                filter: env.args.filter,
                 type: env.args.type,
                 params: env.args.params && JSON.parse(env.args.params)
             });
