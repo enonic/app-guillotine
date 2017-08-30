@@ -3,6 +3,8 @@ var portalLib = require('/lib/xp/portal');
 var graphQlLib = require('/lib/graphql');
 
 var contentTypesLib = require('./content-types');
+var enumTypesLib = require('./enum-types');
+var inputTypesLib = require('./input-types');
 var genericTypesLib = require('./generic-types');
 var namingLib = require('./naming');
 var graphQlRootQueryLib = require('./root-query');
@@ -53,6 +55,8 @@ function createContext() {
 }
 
 function createSchema(context) {
+    enumTypesLib.createEnumTypes(context);
+    inputTypesLib.createInputTypes(context);
     genericTypesLib.createGenericTypes(context);
     contentTypesLib.createContentTypeTypes(context);
     context.schema = graphQlLib.createSchema({

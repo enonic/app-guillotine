@@ -3,11 +3,13 @@ var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 
 var genericTypesLib = require('./generic-types');
-var inputTypesLib = require('./input-types');
 var namingLib = require('./naming');
 var securityLib = require('./security');
 var utilLib = require('./util');
 var validationLib = require('./validation');
+
+var mediaContentTypeRegexp = /^media:/;
+var imageContentTypeRegexp = /^media:image$/;
 
 exports.createContentTypeTypes = function (context) {
 
@@ -52,6 +54,13 @@ function generateContentTypeObjectType(context, contentType) {
         fields: genericTypesLib.generateGenericContentFields(context)
     };
 
+    if (contentType.name.match(mediaContentTypeRegexp)) {
+        addMediaFields(context, createContentTypeTypeParams);
+        if (contentType.name.match(imageContentTypeRegexp)) {
+            addImageFields(context, createContentTypeTypeParams);
+        }
+    }
+
     createContentTypeTypeParams.fields.data = getFormItems(contentType.form).length > 0 ? {
         type: generateContentDataObjectType(context, contentType)
     } : undefined;
@@ -59,6 +68,52 @@ function generateContentTypeObjectType(context, contentType) {
     var contentTypeObjectType = graphQlLib.createObjectType(createContentTypeTypeParams);
     context.putContentType(contentType.name, contentTypeObjectType);
     return contentTypeObjectType;
+}
+
+function addMediaFields(context, createContentTypeTypeParams) {
+    createContentTypeTypeParams.fields.mediaUrl = {
+        type: graphQlLib.GraphQLString,
+        args: {
+            download: graphQlLib.GraphQLBoolean,
+            type: context.types.urlTypeType,
+            params: graphQlLib.GraphQLString
+        },
+        resolve: function (env) {
+            return portalLib.attachmentUrl({
+                id: env.source._id,
+                download: env.args.download,
+                type: env.args.type,
+                params: env.args.params && JSON.parse(env.args.params)
+            });
+        }
+    }
+}
+
+function addImageFields(context, createContentTypeTypeParams) {
+    createContentTypeTypeParams.fields.imageUrl = {
+        type: graphQlLib.GraphQLString,
+        args: {
+            scale: graphQlLib.nonNull(graphQlLib.GraphQLString),
+            quality: graphQlLib.GraphQLInt,
+            background: graphQlLib.GraphQLString,
+            format: graphQlLib.GraphQLString,
+            filter: graphQlLib.GraphQLString,
+            type: context.types.urlTypeType,
+            params: graphQlLib.GraphQLString
+        },
+        resolve: function (env) {
+            return portalLib.imageUrl({
+                id: env.source._id,
+                scale: env.args.scale,
+                quality: env.args.quality,
+                background: env.args.background,
+                format: env.args.format,
+                filter: env.args.filter,
+                type: env.args.type,
+                params: env.args.params && JSON.parse(env.args.params)
+            });
+        }
+    }
 }
 
 function generateContentDataObjectType(context, contentType) {
@@ -245,7 +300,7 @@ function generateFormItemArguments(context, formItem) {
         args.first = graphQlLib.GraphQLInt;
     }
     if ('Input' == formItem.formItemType && 'HtmlArea' == formItem.inputType) {
-        args.processHtml = inputTypesLib.createProcessHtmlInputType(context);
+        args.processHtml = context.types.processHtmlType;
     }
     return args;
 }

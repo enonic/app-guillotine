@@ -1,6 +1,7 @@
 var graphQlLib = require('/lib/graphql');
 var graphQlConnectionLib = require('/lib/graphql-connection');
 var contentLib = require('/lib/xp/content');
+var portalLib = require('/lib/xp/portal');
 
 var securityLib = require('./security');
 var validationLib = require('./validation');
@@ -73,6 +74,20 @@ exports.generateGenericContentFields = function (context) {
         },
         publish: {
             type: context.types.publishInfoType
+        },
+        pageUrl: {
+            type: graphQlLib.GraphQLString,
+            args: {
+                type: context.types.urlTypeType,
+                params: graphQlLib.GraphQLString
+            },
+            resolve: function (env) {
+                return portalLib.pageUrl({
+                    id: env.source._id,
+                    type: env.args.type,
+                    params: env.args.params && JSON.parse(env.args.params)
+                });
+            }
         },
         site: {
             type: graphQlLib.reference('Site'),
@@ -738,7 +753,7 @@ exports.createGenericTypes = function (context) {
             }
         }
     });
-    
+
     context.types.contentType = graphQlLib.createInterfaceType({
         name: context.uniqueName('Content'),
         typeResolver: function (content) {
