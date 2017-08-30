@@ -3,7 +3,6 @@ var contentLib = require('/lib/xp/content');
 var portalLib = require('/lib/xp/portal');
 
 var genericTypesLib = require('./generic-types');
-var inputTypesLib = require('./input-types');
 var namingLib = require('./naming');
 var securityLib = require('./security');
 var utilLib = require('./util');
@@ -245,7 +244,7 @@ function generateFormItemArguments(context, formItem) {
         args.first = graphQlLib.GraphQLInt;
     }
     if ('Input' == formItem.formItemType && 'HtmlArea' == formItem.inputType) {
-        args.processHtml = inputTypesLib.createProcessHtmlInputType(context);
+        args.processHtml = context.types.processHtmlType;
     }
     return args;
 }
