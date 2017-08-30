@@ -74,7 +74,7 @@ exports.createContentApiType = function (context) {
                             hits: 0
                         };
                     }
-                    
+
                 }
             },
             getPermissions: {
@@ -102,10 +102,11 @@ exports.createContentApiType = function (context) {
             query: {
                 type: graphQlLib.list(context.types.contentType),
                 args: {
-                    query: graphQlLib.nonNull(graphQlLib.GraphQLString),
+                    query: graphQlLib.GraphQLString,
                     offset: graphQlLib.GraphQLInt,
                     first: graphQlLib.GraphQLInt,
                     sort: graphQlLib.GraphQLString,
+                    contentTypes: graphQlLib.list(graphQlLib.GraphQLString)
                 },
                 resolve: function (env) {
                     validationLib.validateArguments(env.args);
@@ -113,7 +114,8 @@ exports.createContentApiType = function (context) {
                         query: securityLib.adaptQuery(env.args.query),
                         start: env.args.offset,
                         count: env.args.first,
-                        sort: env.args.sort
+                        sort: env.args.sort,
+                        contentTypes: env.args.contentTypes
                     }).hits;
                 }
             },
@@ -123,7 +125,8 @@ exports.createContentApiType = function (context) {
                     query: graphQlLib.nonNull(graphQlLib.GraphQLString),
                     after: graphQlLib.GraphQLString,
                     first: graphQlLib.GraphQLInt,
-                    sort: graphQlLib.GraphQLString
+                    sort: graphQlLib.GraphQLString,
+                    contentTypes: graphQlLib.list(graphQlLib.GraphQLString)
                 },
                 resolve: function (env) {
                     validationLib.validateArguments(env.args);
@@ -132,7 +135,8 @@ exports.createContentApiType = function (context) {
                         query: securityLib.adaptQuery(env.args.query),
                         start: start,
                         count: env.args.first,
-                        sort: env.args.sort
+                        sort: env.args.sort,
+                        contentTypes: env.args.contentTypes
                     });
                     return {
                         total: queryResult.total,
@@ -167,6 +171,6 @@ function getContent(env) {
         });
         return content && securityLib.filterForbiddenContent(content);
     } else {
-        return portalLib.getContent();   
+        return portalLib.getContent();
     }
 }

@@ -703,7 +703,7 @@ exports.createGenericTypes = function (context) {
                     var contents = contentLib.query({
                         start: env.args.offset,
                         count: env.args.first,
-                        query: env.args.query,
+                        query: securityLib.adaptQuery(env.args.query),
                         sort: env.args.sort,
                         contentTypes: [env.source.name]
                     }).hits;
@@ -724,7 +724,7 @@ exports.createGenericTypes = function (context) {
                     var queryResult = contentLib.query({
                         start: start,
                         count: env.args.first,
-                        query: env.args.query,
+                        query: securityLib.adaptQuery(env.args.query),
                         sort: env.args.sort,
                         contentTypes: [env.source.name]
 

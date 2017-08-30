@@ -21,5 +21,5 @@ exports.filterForbiddenContent = function (content) {
 
 exports.adaptQuery = function (query) {
     var sitePath = portalLib.getSite()._path;
-    return '(_path = "/content' + sitePath + '" OR _path LIKE "/content' + sitePath + '/*") AND (' + query + ')';
+    return '(_path = "/content' + sitePath + '" OR _path LIKE "/content' + sitePath + '/*")' + (query ? ' AND (' + query + ')' : '');
 };
