@@ -7,4 +7,4 @@ Assign Guillotine to your site and have instant access to a GraphQL service to r
 
 | Version | XP Version  | Download |
 |---------|-------------| -------- |
-| 0.1.1   | 6.10.x      | [Download](http://repo.enonic.com/public/com/enonic/app/guillotine/0.1.1/graphiql-0.1.1.jar) |
+| 0.1.2   | 6.10.x      | [Download](http://repo.enonic.com/public/com/enonic/app/guillotine/0.1.2/graphiql-0.1.2.jar) |
