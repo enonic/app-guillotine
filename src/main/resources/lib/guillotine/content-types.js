@@ -8,6 +8,9 @@ var securityLib = require('./security');
 var utilLib = require('./util');
 var validationLib = require('./validation');
 
+var mediaContentTypeRegexp = /^media:/;
+var imageContentTypeRegexp = /^media:image$/;
+
 exports.createContentTypeTypes = function (context) {
 
     //For each content type
@@ -51,6 +54,13 @@ function generateContentTypeObjectType(context, contentType) {
         fields: genericTypesLib.generateGenericContentFields(context)
     };
 
+    if (contentType.name.match(mediaContentTypeRegexp)) {
+        addMediaFields(context, createContentTypeTypeParams);
+        //if (contentType.name.match(imageContentTypeRegexp)) { //TODO
+        //    addImageFields(context, createContentTypeTypeParams);
+        //}
+    }
+
     createContentTypeTypeParams.fields.data = getFormItems(contentType.form).length > 0 ? {
         type: generateContentDataObjectType(context, contentType)
     } : undefined;
@@ -58,6 +68,25 @@ function generateContentTypeObjectType(context, contentType) {
     var contentTypeObjectType = graphQlLib.createObjectType(createContentTypeTypeParams);
     context.putContentType(contentType.name, contentTypeObjectType);
     return contentTypeObjectType;
+}
+
+function addMediaFields(context, createContentTypeTypeParams) {
+    createContentTypeTypeParams.fields.mediaUrl = {
+        type: graphQlLib.GraphQLString,
+        args: {
+            download: graphQlLib.GraphQLBoolean,
+            type: context.types.urlTypeType,
+            params: graphQlLib.GraphQLString
+        },
+        resolve: function (env) {
+            return portalLib.attachmentUrl({
+                id: env.source._id,
+                download: env.args.download,
+                type: env.args.type,
+                params: env.args.params && JSON.parse(env.args.params)
+            });
+        }
+    }
 }
 
 function generateContentDataObjectType(context, contentType) {
