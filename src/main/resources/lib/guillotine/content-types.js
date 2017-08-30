@@ -7,6 +7,7 @@ var inputTypesLib = require('./input-types');
 var namingLib = require('./naming');
 var securityLib = require('./security');
 var utilLib = require('./util');
+var validationLib = require('./validation');
 
 exports.createContentTypeTypes = function (context) {
 
@@ -266,6 +267,7 @@ function generateFormItemResolveFunction(formItem) {
         };
     } else {
         return function (env) {
+            validationLib.validateArguments(env.args);
             var values = utilLib.forceArray(env.source[formItem.name]);
             if (env.args.offset != null || env.args.offset != null) {
                 return values.slice(env.args.offset, env.args.first);

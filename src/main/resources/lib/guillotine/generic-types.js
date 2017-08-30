@@ -3,6 +3,7 @@ var graphQlConnectionLib = require('/lib/graphql-connection');
 var contentLib = require('/lib/xp/content');
 
 var securityLib = require('./security');
+var validationLib = require('./validation');
 
 exports.generateGenericContentFields = function (context) {
     return {
@@ -100,6 +101,7 @@ exports.generateGenericContentFields = function (context) {
                 sort: graphQlLib.GraphQLString
             },
             resolve: function (env) {
+                validationLib.validateArguments(env.args);
                 return contentLib.getChildren({
                     key: env.source._id,
                     start: env.args.offset,
@@ -116,6 +118,7 @@ exports.generateGenericContentFields = function (context) {
                 sort: graphQlLib.GraphQLString
             },
             resolve: function (env) {
+                validationLib.validateArguments(env.args);
                 var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
                 var getChildrenResult = contentLib.getChildren({
                     key: env.source._id,
@@ -696,6 +699,7 @@ exports.createGenericTypes = function (context) {
                     sort: graphQlLib.GraphQLString
                 },
                 resolve: function (env) {
+                    validationLib.validateArguments(env.args);
                     var contents = contentLib.query({
                         start: env.args.offset,
                         count: env.args.first,
@@ -715,6 +719,7 @@ exports.createGenericTypes = function (context) {
                     sort: graphQlLib.GraphQLString
                 },
                 resolve: function (env) {
+                    validationLib.validateArguments(env.args);
                     var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
                     var queryResult = contentLib.query({
                         start: start,

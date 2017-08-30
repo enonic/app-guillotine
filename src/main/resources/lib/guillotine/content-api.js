@@ -4,8 +4,8 @@ var graphQlLib = require('/lib/graphql');
 var graphQlConnectionLib = require('/lib/graphql-connection');
 
 var contentTypesLib = require('./content-types');
-var namingLib = require('./naming');
 var securityLib = require('./security');
+var validationLib = require('./validation');
 
 exports.createContentApiType = function (context) {
     return graphQlLib.createObjectType({
@@ -28,6 +28,7 @@ exports.createContentApiType = function (context) {
                     sort: graphQlLib.GraphQLString
                 },
                 resolve: function (env) {
+                    validationLib.validateArguments(env.args);
                     var parent = getContent(env);
                     if (parent) {
                         return contentLib.getChildren({
@@ -50,6 +51,7 @@ exports.createContentApiType = function (context) {
                     sort: graphQlLib.GraphQLString
                 },
                 resolve: function (env) {
+                    validationLib.validateArguments(env.args);
                     var parent = getContent(env);
                     if (parent) {
                         var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
@@ -106,6 +108,7 @@ exports.createContentApiType = function (context) {
                     sort: graphQlLib.GraphQLString,
                 },
                 resolve: function (env) {
+                    validationLib.validateArguments(env.args);
                     return contentLib.query({
                         query: securityLib.adaptQuery(env.args.query),
                         start: env.args.offset,
@@ -123,6 +126,7 @@ exports.createContentApiType = function (context) {
                     sort: graphQlLib.GraphQLString
                 },
                 resolve: function (env) {
+                    validationLib.validateArguments(env.args);
                     var start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
                     var queryResult = contentLib.query({
                         query: securityLib.adaptQuery(env.args.query),
