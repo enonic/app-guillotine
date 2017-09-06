@@ -6,7 +6,6 @@ var contentTypesLib = require('./content-types');
 var enumTypesLib = require('./enum-types');
 var inputTypesLib = require('./input-types');
 var genericTypesLib = require('./generic-types');
-var namingLib = require('./naming');
 var graphQlRootQueryLib = require('./root-query');
 
 eventLib.listener({

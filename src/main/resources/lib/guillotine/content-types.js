@@ -258,10 +258,9 @@ function generateOptionSetObjectType(context, contentType, optionSet) {
     var name = isBuiltIn(contentType)
         ? namingLib.generateCamelCase(optionSet.label, true)
         : generateContentTypeName(contentType) + '_' + namingLib.generateCamelCase(optionSet.label, true);
-    var typeName = context.uniqueName(name);
-    var optionSetEnum = generateOptionSetEnum(optionSet, typeName);
+    var optionSetEnum = generateOptionSetEnum(context, optionSet, name);
     var createOptionSetTypeParams = {
-        name: typeName,
+        name: context.uniqueName(name),
         description: optionSet.label,
         fields: {
             _selected: {
@@ -283,13 +282,13 @@ function generateOptionSetObjectType(context, contentType, optionSet) {
     return graphQlLib.createObjectType(createOptionSetTypeParams);
 }
 
-function generateOptionSetEnum(optionSet, optionSetName) {
+function generateOptionSetEnum(context, optionSet, optionSetName) {
     var enumValues = {};
     optionSet.options.forEach(function (option) {
         enumValues[option.name] = option.name;
     });
     return graphQlLib.createEnumType({
-        name: optionSetName + '_OptionEnum',
+        name: context.uniqueName(optionSetName + '_OptionEnum'),
         description: optionSet.label + ' option enum.',
         values: enumValues
     });
