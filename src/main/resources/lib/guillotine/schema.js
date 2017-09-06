@@ -6,7 +6,6 @@ var contentTypesLib = require('./content-types');
 var enumTypesLib = require('./enum-types');
 var inputTypesLib = require('./input-types');
 var genericTypesLib = require('./generic-types');
-var namingLib = require('./naming');
 var graphQlRootQueryLib = require('./root-query');
 
 eventLib.listener({
@@ -46,9 +45,11 @@ function createContext() {
         uniqueName: function (name) {
             var uniqueName = name;
             if (this.nameSet[name]) {
-                uniqueName = name + '_' + namingLib.generateRandomString();
+                this.nameSet[uniqueName]++;
+                uniqueName = name + '_' + this.nameSet[uniqueName];
+            } else {
+                this.nameSet[uniqueName] = 1;
             }
-            this.nameSet[uniqueName] = true;
             return uniqueName;
         }
     };
