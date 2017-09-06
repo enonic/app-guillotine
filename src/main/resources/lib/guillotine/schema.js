@@ -46,9 +46,11 @@ function createContext() {
         uniqueName: function (name) {
             var uniqueName = name;
             if (this.nameSet[name]) {
-                uniqueName = name + '_' + namingLib.generateRandomString();
+                this.nameSet[uniqueName]++;
+                uniqueName = name + '_' + this.nameSet[uniqueName];
+            } else {
+                this.nameSet[uniqueName] = 1;
             }
-            this.nameSet[uniqueName] = true;
             return uniqueName;
         }
     };
