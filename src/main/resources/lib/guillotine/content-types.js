@@ -47,13 +47,10 @@ function generateAllowedContentTypeRegexp() {
 }
 
 function generateContentTypeObjectType(context, contentType) {
-    var camelCaseDisplayName = contentType.name.match(builtinContentTypeRegexp)
-        ? namingLib.generateCamelCase(contentType.displayName, true)
-        : namingLib.sanitizeText(contentType.name);
-
+    var name = generateContentTypeName(contentType);
 
     var createContentTypeTypeParams = {
-        name: context.uniqueName(camelCaseDisplayName),
+        name: context.uniqueName(name),
         description: contentType.displayName + ' - ' + contentType.name,
         interfaces: [context.types.contentType],
         fields: genericTypesLib.generateGenericContentFields(context)
@@ -73,6 +70,10 @@ function generateContentTypeObjectType(context, contentType) {
     var contentTypeObjectType = graphQlLib.createObjectType(createContentTypeTypeParams);
     context.putContentType(contentType.name, contentTypeObjectType);
     return contentTypeObjectType;
+}
+
+function isBuiltIn(contentType) {
+    return contentType.name.match(builtinContentTypeRegexp);
 }
 
 function addMediaFields(context, createContentTypeTypeParams) {
@@ -122,9 +123,9 @@ function addImageFields(context, createContentTypeTypeParams) {
 }
 
 function generateContentDataObjectType(context, contentType) {
-    var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName + '_Data', true);
+    var name = generateContentTypeName(contentType) + '_Data';
     var createContentTypeDataTypeParams = {
-        name: context.uniqueName(camelCaseDisplayName),
+        name: context.uniqueName(name),
         description: contentType.displayName + ' data',
         fields: {}
     };
@@ -134,7 +135,7 @@ function generateContentDataObjectType(context, contentType) {
 
         //Creates a data field corresponding to this form item
         createContentTypeDataTypeParams.fields[namingLib.sanitizeText(formItem.name)] = {
-            type: generateFormItemObjectType(context, formItem),
+            type: generateFormItemObjectType(context, contentType, formItem),
             args: generateFormItemArguments(context, formItem),
             resolve: generateFormItemResolveFunction(formItem)
         }
@@ -162,11 +163,11 @@ function getFormItems(form) {
     return formItems;
 }
 
-function generateFormItemObjectType(context, formItem) {
+function generateFormItemObjectType(context, contentType, formItem) {
     var formItemObjectType;
     switch (formItem.formItemType) {
     case 'ItemSet':
-        formItemObjectType = generateItemSetObjectType(context, formItem);
+        formItemObjectType = generateItemSetObjectType(context, contentType, formItem);
         break;
     case 'Layout':
         //Should already be filtered
@@ -175,7 +176,7 @@ function generateFormItemObjectType(context, formItem) {
         formItemObjectType = generateInputObjectType(context, formItem);
         break;
     case 'OptionSet':
-        formItemObjectType = generateOptionSetObjectType(context, formItem);
+        formItemObjectType = generateOptionSetObjectType(context, contentType, formItem);
         break;
     }
 
@@ -187,16 +188,18 @@ function generateFormItemObjectType(context, formItem) {
     }
 }
 
-function generateItemSetObjectType(context, itemSet) {
-    var camelCaseLabel = namingLib.generateCamelCase(itemSet.label, true);
+function generateItemSetObjectType(context, contentType, itemSet) {
+    var name = isBuiltIn(contentType)
+        ? namingLib.generateCamelCase(itemSet.label, true)
+        : generateContentTypeName(contentType) + '_' + namingLib.generateCamelCase(itemSet.label, true);
     var createItemSetTypeParams = {
-        name: context.uniqueName(camelCaseLabel),
+        name: context.uniqueName(name),
         description: itemSet.label,
         fields: {}
     };
     getFormItems(itemSet.items).forEach(function (item) {
         createItemSetTypeParams.fields[namingLib.generateCamelCase(item.name)] = {
-            type: generateFormItemObjectType(context, item),
+            type: generateFormItemObjectType(context, contentType, item),
             resolve: generateFormItemResolveFunction(item)
         }
     });
@@ -251,9 +254,11 @@ function generateInputObjectType(context, input) {
     return graphQlLib.GraphQLString;
 }
 
-function generateOptionSetObjectType(context, optionSet) {
-    var camelCaseLabel = namingLib.generateCamelCase(optionSet.label, true);
-    var typeName = context.uniqueName(camelCaseLabel);
+function generateOptionSetObjectType(context, contentType, optionSet) {
+    var name = isBuiltIn(contentType)
+        ? namingLib.generateCamelCase(optionSet.label, true)
+        : generateContentTypeName(contentType) + '_' + namingLib.generateCamelCase(optionSet.label, true);
+    var typeName = context.uniqueName(name);
     var optionSetEnum = generateOptionSetEnum(optionSet, typeName);
     var createOptionSetTypeParams = {
         name: typeName,
@@ -269,7 +274,7 @@ function generateOptionSetObjectType(context, optionSet) {
     };
     optionSet.options.forEach(function (option) {
         createOptionSetTypeParams.fields[namingLib.generateCamelCase(option.name)] = {
-            type: generateOptionObjectType(context, option),
+            type: generateOptionObjectType(context, contentType, option),
             resolve: function (env) {
                 return env.source[option.name];
             }
@@ -290,9 +295,9 @@ function generateOptionSetEnum(optionSet, optionSetName) {
     });
 }
 
-function generateOptionObjectType(context, option) {
+function generateOptionObjectType(context, contentType, option) {
     if (option.items.length > 0) {
-        return generateItemSetObjectType(context, option);
+        return generateItemSetObjectType(context, contentType, option);
     } else {
         return graphQlLib.GraphQLString;
     }
@@ -348,6 +353,19 @@ function generateFormItemResolveFunction(formItem) {
             }
             return values;
         };
+    }
+}
+
+
+function generateContentTypeName(contentType) {
+    if (isBuiltIn(contentType)) {
+        return namingLib.generateCamelCase(contentType.displayName, true);
+    }
+    else {
+        var splitContentTypeName = contentType.name.split(':');
+        var applicationName = splitContentTypeName[0];
+        var contentTypeLabel = splitContentTypeName[1];
+        return namingLib.generateCamelCase(applicationName, true, true) + '_' + namingLib.generateCamelCase(contentTypeLabel, true);
     }
 }
 
