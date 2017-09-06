@@ -8,6 +8,7 @@ var securityLib = require('./security');
 var utilLib = require('./util');
 var validationLib = require('./validation');
 
+var builtinContentTypeRegexp = /^(?:base|media|portal):/;
 var mediaContentTypeRegexp = /^media:/;
 var imageContentTypeRegexp = /^media:image$/;
 
@@ -16,6 +17,7 @@ exports.createContentTypeTypes = function (context) {
     //For each content type
     exports.getAllowedContentTypes().
         forEach(function (contentType) {
+            log.info(contentType.name);
 
             //Generates the object type for this content type
             var contentTypeObjectType = generateContentTypeObjectType(context, contentType);
@@ -45,7 +47,10 @@ function generateAllowedContentTypeRegexp() {
 }
 
 function generateContentTypeObjectType(context, contentType) {
-    var camelCaseDisplayName = namingLib.generateCamelCase(contentType.displayName, true);
+    var camelCaseDisplayName = contentType.name.match(builtinContentTypeRegexp)
+        ? namingLib.generateCamelCase(contentType.displayName, true)
+        : namingLib.sanitizeText(contentType.name);
+
 
     var createContentTypeTypeParams = {
         name: context.uniqueName(camelCaseDisplayName),
