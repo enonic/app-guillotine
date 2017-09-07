@@ -6,6 +6,8 @@ var portalLib = require('/lib/xp/portal');
 var securityLib = require('./security');
 var validationLib = require('./validation');
 
+var principalKeyRegexp = /^(?:role:([^:]+)|(?:(?:user|group):([^:]+):([^:]+)))$/;
+
 exports.generateGenericContentFields = function (context) {
     return {
         _id: {
@@ -187,13 +189,13 @@ exports.createGenericTypes = function (context) {
             userStore: {
                 type: graphQlLib.GraphQLString,
                 resolve: function (env) {
-                    return env.source.split(':', 3)[1];
+                    return getUserStoreName(env.source);
                 }
             },
             principalId: {
                 type: graphQlLib.GraphQLString,
                 resolve: function (env) {
-                    return env.source.split(':', 3)[2];
+                    return getPrincipalId(env.source);
                 }
             }
         }
@@ -765,6 +767,15 @@ exports.createGenericTypes = function (context) {
     context.types.contentConnectionType = graphQlConnectionLib.createConnectionType(context.types.contentType);
 };
 
+function getUserStoreName(principalKey) {
+    var groups = principalKeyRegexp.exec(principalKey);
+    return groups[2] || null;
+}
+
+function getPrincipalId(principalKey) {
+    var groups = principalKeyRegexp.exec(principalKey);
+    return groups[1] || groups[3];
+}
 
 
 
