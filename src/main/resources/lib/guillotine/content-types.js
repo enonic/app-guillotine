@@ -17,8 +17,7 @@ exports.createContentTypeTypes = function (context) {
     //For each content type
     exports.getAllowedContentTypes().
         forEach(function (contentType) {
-            log.info(contentType.name);
-
+            
             //Generates the object type for this content type
             var contentTypeObjectType = generateContentTypeObjectType(context, contentType);
             context.addObjectType(contentTypeObjectType);
@@ -40,7 +39,8 @@ exports.getAllowedContentType = function (name) {
 }
 
 function generateAllowedContentTypeRegexp() {
-    var siteApplicationKeys = portalLib.getSite().data.siteConfig.map(function (applicationConfigEntry) {
+    var siteConfigs = utilLib.forceArray(portalLib.getSite().data.siteConfig);
+    var siteApplicationKeys = siteConfigs.map(function (applicationConfigEntry) {
         return '|' + applicationConfigEntry.applicationKey.replace(/\./g, '\\.');
     }).join('');
     return new RegExp('^(?:base|media|portal' + siteApplicationKeys + '):');
