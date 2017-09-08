@@ -8,6 +8,8 @@ var inputTypesLib = require('./input-types');
 var genericTypesLib = require('./generic-types');
 var graphQlRootQueryLib = require('./root-query');
 
+var nodeUpdatedIdRegexp = /id=([^,]+), path(?:[^,]+), branch=(draft|master)/g;
+
 eventLib.listener({
     type: 'application',
     localOnly: false,
@@ -18,17 +20,42 @@ eventLib.listener({
     }
 });
 
-var contextMap = createContext();
-exports.getSchema = function () {
-    var siteId = portalLib.getSite()._id;
-    var context = contextMap[siteId];
+eventLib.listener({
+    type: 'node.*',
+    localOnly: false,
+    callback: function (event) {
+        if ('node.delete' === event.type || 'node.pushed' === event.type || 'node.updated' === event.type ||
+            'node.stateUpdated' === event.type) {
+            var nodes = event.data.nodes;
+            if (nodes) {
+                var execResult;
+                while (execResult = nodeUpdatedIdRegexp.exec(nodes)) {
+                    var contextId = execResult[1] + '/' + execResult[2];
+                    delete contextMap[contextId];
+                }
+            }
+        }
+
+    }
+});
+
+var contextMap = {};
+exports.getSchema = function (req) {
+    var schemaId = getSchemaId(req);
+    var context = contextMap[schemaId];
     if (!context) {
         context = createContext();
-        contextMap[siteId] = context;
+        contextMap[schemaId] = context;
         createSchema(context);
     }
     return context.schema;
 };
+
+function getSchemaId(req) {
+    var siteId = portalLib.getSite()._id;
+    var branch = req.branch;
+    return siteId + '/' + branch;
+}
 
 function createContext() {
     return {
