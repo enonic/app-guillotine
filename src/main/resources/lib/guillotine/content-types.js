@@ -8,7 +8,6 @@ var securityLib = require('./security');
 var utilLib = require('./util');
 var validationLib = require('./validation');
 
-var builtinContentTypeRegexp = /^(?:base|media|portal):/;
 var mediaContentTypeRegexp = /^media:/;
 var imageContentTypeRegexp = /^media:image$/;
 
@@ -17,7 +16,7 @@ exports.createContentTypeTypes = function (context) {
     //For each content type
     exports.getAllowedContentTypes().
         forEach(function (contentType) {
-            
+
             //Generates the object type for this content type
             var contentTypeObjectType = generateContentTypeObjectType(context, contentType);
             context.addObjectType(contentTypeObjectType);
@@ -70,10 +69,6 @@ function generateContentTypeObjectType(context, contentType) {
     var contentTypeObjectType = graphQlLib.createObjectType(createContentTypeTypeParams);
     context.putContentType(contentType.name, contentTypeObjectType);
     return contentTypeObjectType;
-}
-
-function isBuiltIn(contentType) {
-    return contentType.name.match(builtinContentTypeRegexp);
 }
 
 function addMediaFields(context, createContentTypeTypeParams) {
@@ -189,9 +184,7 @@ function generateFormItemObjectType(context, contentType, formItem) {
 }
 
 function generateItemSetObjectType(context, contentType, itemSet) {
-    var name = isBuiltIn(contentType)
-        ? namingLib.generateCamelCase(itemSet.label, true)
-        : generateContentTypeName(contentType) + '_' + namingLib.generateCamelCase(itemSet.label, true);
+    var name = generateContentTypeName(contentType) + '_' + namingLib.generateCamelCase(itemSet.label, true);
     var createItemSetTypeParams = {
         name: context.uniqueName(name),
         description: itemSet.label,
@@ -255,9 +248,7 @@ function generateInputObjectType(context, input) {
 }
 
 function generateOptionSetObjectType(context, contentType, optionSet) {
-    var name = isBuiltIn(contentType)
-        ? namingLib.generateCamelCase(optionSet.label, true)
-        : generateContentTypeName(contentType) + '_' + namingLib.generateCamelCase(optionSet.label, true);
+    var name = generateContentTypeName(contentType) + '_' + namingLib.generateCamelCase(optionSet.label, true);
     var optionSetEnum = generateOptionSetEnum(context, optionSet, name);
     var createOptionSetTypeParams = {
         name: context.uniqueName(name),
@@ -357,15 +348,10 @@ function generateFormItemResolveFunction(formItem) {
 
 
 function generateContentTypeName(contentType) {
-    if (isBuiltIn(contentType)) {
-        return namingLib.generateCamelCase(contentType.displayName, true);
-    }
-    else {
-        var splitContentTypeName = contentType.name.split(':');
-        var applicationName = splitContentTypeName[0];
-        var contentTypeLabel = splitContentTypeName[1];
-        return namingLib.generateCamelCase(applicationName, true, true) + '_' + namingLib.generateCamelCase(contentTypeLabel, true);
-    }
+    var splitContentTypeName = contentType.name.split(':');
+    var applicationName = splitContentTypeName[0];
+    var contentTypeLabel = splitContentTypeName[1];
+    return namingLib.sanitizeText(applicationName) + '_' + namingLib.generateCamelCase(contentTypeLabel, true);
 }
 
 

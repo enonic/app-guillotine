@@ -94,7 +94,7 @@ exports.createContentApiType = function (context) {
                 }
             },
             getSite: {
-                type: graphQlLib.reference('Site'),
+                type: graphQlLib.reference('portal_Site'),
                 resolve: function (env) {
                     return portalLib.getSite();
                 }

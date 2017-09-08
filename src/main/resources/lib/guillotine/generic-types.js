@@ -92,7 +92,7 @@ exports.generateGenericContentFields = function (context) {
             }
         },
         site: {
-            type: graphQlLib.reference('Site'),
+            type: graphQlLib.reference('portal_Site'),
             resolve: function (env) {
                 return contentLib.getSite({key: env.source._id});
             }
