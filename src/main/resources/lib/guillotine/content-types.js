@@ -17,8 +17,7 @@ exports.createContentTypeTypes = function (context) {
     //For each content type
     exports.getAllowedContentTypes().
         forEach(function (contentType) {
-            log.info(contentType.name);
-
+            
             //Generates the object type for this content type
             var contentTypeObjectType = generateContentTypeObjectType(context, contentType);
             context.addObjectType(contentTypeObjectType);

@@ -8,7 +8,7 @@ var inputTypesLib = require('./input-types');
 var genericTypesLib = require('./generic-types');
 var graphQlRootQueryLib = require('./root-query');
 
-var nodeUpdatedIdRegexp = /id=([^,]+), path(?:[^,]+), branch=(draft|master)/g;
+var nodeUpdatedIdRegexp = /id=([^,]+), path(?:[^,]+), branch=(draft|master), repo=cms-repo\}/g;
 
 eventLib.listener({
     type: 'application',
