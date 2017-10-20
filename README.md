@@ -7,4 +7,4 @@ Assign Guillotine to your site and have instant access to a GraphQL API to retri
 
 | Version | XP Version  | Download |
 |---------|-------------| -------- |
-| 0.1.4   | 6.10.x      | [Download](http://repo.enonic.com/public/com/enonic/app/guillotine/0.1.4/graphiql-0.1.4.jar) |
+| 0.1.5   | 6.10.x      | [Download](http://repo.enonic.com/public/com/enonic/app/guillotine/0.1.5/graphiql-0.1.5.jar) |
