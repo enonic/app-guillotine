@@ -314,7 +314,7 @@ function generateFormItemResolveFunction(formItem) {
                 value = portalLib.processHtml({value: value, type: env.args.processHtml.type});
             }
             if ('Input' == formItem.formItemType &&
-                ['ContentSelector', 'MediaUploader', 'AttachmentUploader'].indexOf(formItem.inputType) !== -1) {
+                ['ContentSelector', 'MediaUploader', 'AttachmentUploader', 'ImageSelector'].indexOf(formItem.inputType) !== -1) {
                 var content = contentLib.get({key: value});
                 value = securityLib.filterForbiddenContent(content);
             }
@@ -333,7 +333,7 @@ function generateFormItemResolveFunction(formItem) {
                 });
             }
             if ('Input' == formItem.formItemType &&
-                ['ContentSelector', 'MediaUploader', 'AttachmentUploader'].indexOf(formItem.inputType) !== -1) {
+                ['ContentSelector', 'MediaUploader', 'AttachmentUploader', 'ImageSelector'].indexOf(formItem.inputType) !== -1) {
                 values = values.map(function (value) {
                     var content = contentLib.get({key: value});
                     return securityLib.filterForbiddenContent(content);
