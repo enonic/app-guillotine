@@ -9,7 +9,8 @@ Guillotine by default exposes the read-only parts of the Enonic content API, inc
 
 The Guillotine API adds a new service to your site in the following path relative to the site root: /_/service/com.enonic.app.guillotine/graphql 
 
-The fastets way to explore the Guillotine API is by adding Guillotine to an existing site (or a demo site from Enonic Market), then install GraphiQL (from Enonic Market) and point it to the site url + service path above. 
+The fastets way to explore the Guillotine API is by adding Guillotine to an existing site (or a demo site from Enonic Market), then install [GraphiQL](https://market.enonic.com/vendors/enonic/graphiql) and point it to your local site url + service path as defined above. 
+
 
 | Version | XP Version  | Download |
 |---------|-------------| -------- |
