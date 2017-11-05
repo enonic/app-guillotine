@@ -1,5 +1,5 @@
-Guillotine - Make your site headless
-====================================
+Guillotine - Headless GraphQL CMS for Enonic XP
+===============================================
 
 [![License](https://img.shields.io/github/license/enonic/lib-sql.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
