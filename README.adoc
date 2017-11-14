@@ -58,11 +58,10 @@ image::doc/img/graphiql.png[GraphiQL,768,384]
 
 ==== User Interface
 
-The GraphQL service URL from one of your configured site should already be filled in the field 'Service Location'.
-
-* The left part of GraphiQL is used to write your graphQL query
-* The center part of GraphiQL is used to display the result of these queries
-* The right part of GraphiQL is used to display a documentation generated from the GraphQL API.
+* The GraphQL service URL from one of your configured site should already be filled in the field 'Service Location'.
+* The left part is used to write your graphQL query
+* The center part is used to display the result of these queries
+* The right part is used to display a documentation generated from the GraphQL API.
 
 ==== Example 1: Retrieve the display name and type of the current content
 
@@ -81,7 +80,7 @@ The GraphQL service URL from one of your configured site should already be fille
 
 image::doc/img/example1.png[Example 1,768,384]
 
-==== Example 2: Retrieve the display name and type of the current content and its direct children
+==== Example 2: Retrieve the display name of the current content and its direct children
 
 ----
 {
@@ -114,4 +113,12 @@ image::doc/img/example2.png[Example 2,768,384]
 ----
 
 image::doc/img/example3.png[Example 3,768,384]
+
+=== POST Request
+
+The service is expecting to receive a POST request with inside its body:
+- A mandatory 'query' String
+- An optional 'variables' Object
+
+image::doc/img/service.png[Request]
 
