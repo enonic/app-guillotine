@@ -21,11 +21,25 @@ then install [GraphiQL](https://market.enonic.com/vendors/enonic/graphiql) and p
 |Version | XP Version | Download
 
 |0.1.5
-|>= 6.10.x
+|>= 6.10.0
 |http://repo.enonic.com/public/com/enonic/app/guillotine/0.1.5/graphiql-0.1.5.jar[Download]
 |===
 
 == Installation & Configuration
 
-=== link:doc/installation.adoc[Installation]
+=== Installation
+
+* Open the admin tool 'Applications'
+* Search for the 'guillotine' application
+* Click install
+
+image::doc/img/installation.png[Installation,768,384]
+
+=== Configuration
+
+* Open the admin tool 'Content Studio'
+* Edit your site
+* Add the application 'Guillotine'
+
+image::doc/img/configuration.png[Installation,768,576]
 
