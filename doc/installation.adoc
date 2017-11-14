@@ -1,4 +1,5 @@
 = Installation & Configuration
+:toc: left
 
 == Installation
 

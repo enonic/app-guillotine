@@ -19,9 +19,9 @@ image::img/graphiql.png[GraphiQL,768,384]
 === User Interface
 
 * The GraphQL service URL from one of your configured site should already be filled in the field 'Service Location'.
-* The left part is used to write your graphQL query
-* The center part is used to display the result of these queries
-* The right part is used to display a documentation generated from the GraphQL API.
+* The left panel is used to edit your graphQL query
+* The center panel is used to display the result of the execution queries
+* The right panel is used to display a documentation generated from the GraphQL API.
 
 === Example 1: Retrieve the display name and type of the current content
 
