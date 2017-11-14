@@ -1,5 +1,6 @@
 = GraphQL API Documentation
 :toc: macro
+:toclevels: 2
 
 This documentation describes all static GraphQL types
 
@@ -29,22 +30,39 @@ toc::[]
 == Types
 === Query 
 
-.Fields
+==== Fields
 |===
-|Name | Type | Remark
+|Name(Arguments):Type | Description
 
-|content
-|ContentAPI
+|content:ContentAPI
+|Type gathering all content retrieval requests
 |===
 
 === ContentAPI 
+
 Type gathering all content retrieval requests. 
 
-* Remarks
-** Most requests expect a key as argument. 
-If the key is not specified, then the matched content will be the one corresponding to the current execution context
+==== Remarks
 
-* Fields
+* Most requests expect a key as argument. If the key is not specified, then the matched content will be the one corresponding to the current execution context
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|get(key: ID): Content
+|Fetches a content
+
+|getChildren(
+ key: ID,
+ offset: Int,
+ first: Int,
+ sort: String
+ ): [Content]
+|Fetches the children of a content
+|===
+
 ** get(key: ID): Content
 +
 Fetches a content
