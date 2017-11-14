@@ -1,19 +1,43 @@
 = GraphQL API Documentation
-:toc: left
+:toc: macro
 
 This documentation describes all static GraphQL types
 
-.Common arguments
-* key: Designs a content path or content ID
-* offset: Start index. Default: 0
-* first: Number of content to fetch. Default: 10
-* sort: Sorting expression. Default: "_score DESC"
+toc::[]
 
-== Query 
-* Fields
-** content: ContentAPI
+== Common arguments
 
-== ContentAPI 
+|===
+|Name | Remark | Default value
+
+|key
+|Designs a content path or content ID
+
+|offset
+|Designs a content path or content ID
+|0
+
+|first
+|Number of content to fetch
+|10
+
+|sort
+|Sorting expression
+|"_score DESC"
+|===
+
+== Types
+=== Query 
+
+.Fields
+|===
+|Name | Type | Remark
+
+|content
+|ContentAPI
+|===
+
+=== ContentAPI 
 Type gathering all content retrieval requests. 
 
 * Remarks
@@ -131,4 +155,8 @@ sort: String
 ** media_Image
 ** base_Unstructured
 ** portal_Fragment
+
+== ContentConnection, ContentEdge 
+
+A connection is used to 
 

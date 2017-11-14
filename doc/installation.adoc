@@ -1,5 +1,7 @@
 = Installation & Configuration
-:toc: left
+:toc: macro
+
+toc::[]
 
 == Installation
 
