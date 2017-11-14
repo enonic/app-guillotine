@@ -1,5 +1,4 @@
 = Guillotine - GraphQL Headless CMS for Enonic XP
-:toc: left
 
 == Introduction
 
@@ -21,104 +20,9 @@ child items and access media directly.
 |http://repo.enonic.com/public/com/enonic/app/guillotine/0.1.5/graphiql-0.1.5.jar[Download]
 |===
 
-== Installation & Configuration
+== link:doc/installation.adoc[Installation & Configuration]
 
-=== Installation
+== link:doc/usage.adoc[Usage]
 
-* Open the admin tool 'Applications'
-* Search for the 'guillotine' application
-* Click install
-
-image::doc/img/installation.png[Installation,768,384]
-
-=== Configuration
-
-* Open the admin tool 'Content Studio'
-* Edit your site
-* Add the application 'Guillotine'
-
-image::doc/img/configuration.png[Installation,768,576]
-
-== Usage
-
-INFO: Once configured, a new service 'graphql' is present under your site path: '/mysite/mypage/_/service/com.enonic.app.guillotine/graphql'.
-
-=== GraphiQL
-
-The easiest way to explore a GraphQL API is to use GraphiQL
-
-==== Installation 
-
-* Open the admin tool 'Applications'
-* Search for the 'graphiql' application
-* Click install
-* Open the admin tool 'GraphiQL'
-
-image::doc/img/graphiql.png[GraphiQL,768,384]
-
-==== User Interface
-
-* The GraphQL service URL from one of your configured site should already be filled in the field 'Service Location'.
-* The left part is used to write your graphQL query
-* The center part is used to display the result of these queries
-* The right part is used to display a documentation generated from the GraphQL API.
-
-==== Example 1: Retrieve the display name and type of the current content
-
-* Send a query to retrieve the display name and type of the current content
-
-----
-{
-  content {
-    get {
-      displayName
-      type
-    }
-  }
-}
-----
-
-image::doc/img/example1.png[Example 1,768,384]
-
-==== Example 2: Retrieve the display name of the current content and its direct children
-
-----
-{
-  content {
-    get {
-      displayName
-      children {
-        displayName
-      }
-    }
-  }
-}
-----
-
-image::doc/img/example2.png[Example 2,768,384]
-
-==== Example 3: Retrieve the image contents and generate a URL to these images cropped to 800x200 px
-
-----
-{
-  content {
-    query(contentTypes:"media:image") {
-      displayName
-      ... on media_Image {
-        imageUrl(scale:"block(800,200)",type:absolute)
-      }
-    }
-  }
-}
-----
-
-image::doc/img/example3.png[Example 3,768,384]
-
-=== POST Request
-
-The service is expecting to receive a POST request with inside its body:
-- A mandatory 'query' String
-- An optional 'variables' Object
-
-image::doc/img/service.png[Request]
+== link:doc/api.adoc[GraphQL API Documentation]
 

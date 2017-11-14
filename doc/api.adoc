@@ -1,0 +1,54 @@
+= GraphQL API Documentation
+:toc: left
+
+This documentation describes all static GraphQl types
+
+.Common arguments
+* key: Designs a content path or content ID
+* offset: Start index. Default: 0
+* first: Number of content to fetch. Default: 10
+* sort: Sorting expression. Default: "_score DESC"
+
+== Query 
+* Fields
+** content: ContentAPI
+
+== ContentAPI 
+Contains all requests to retrieve contents. 
+
+Most requests expect a key as argument. 
+If the key is not specified, then the matched content will be the one corresponding to the current execution context
+
+* Fields
+** get(key: ID): Content
+** getChildren(
+key: ID
+offset: Int
+first: Int
+sort: String
+): [Content]
+** getChildrenConnection(
+key: ID
+after: String
+first: Int
+sort: String
+): ContentConnection
+** getPermissions(key: ID): Permissions
+** getSite: portal_Site
+** query(
+query: String
+offset: Int
+first: Int
+sort: String
+contentTypes: [String]
+): [Content]
+** queryConnection(
+query: String!
+after: String
+first: Int
+sort: String
+contentTypes: [String]
+): ContentConnection
+** getType(name: String!): ContentType
+** getTypes: [ContentType]
+

@@ -1,3 +1,19 @@
+= Installation & Configuration
 
+== Installation
+
+* Open the admin tool 'Applications'
+* Search for the 'guillotine' application
+* Click install
+
+image::img/installation.png[Installation,768,384]
+
+== Configuration
+
+* Open the admin tool 'Content Studio'
+* Edit your site
+* Add the application 'Guillotine'
+
+image::img/configuration.png[Installation,768,576]
 
  
