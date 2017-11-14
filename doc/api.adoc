@@ -102,7 +102,7 @@ Type gathering all content retrieval requests.
 |Retrieves the list of all content types available for the current site
 |===
 
-== Content
+=== Content
 Abstract type of all contents.
  
 * Fields
@@ -162,7 +162,7 @@ sort: String
 ** base_Unstructured
 ** portal_Fragment
 
-== ContentConnection, ContentEdge 
+=== ContentConnection, ContentEdge 
 
 A connection is used to 
 
