@@ -61,58 +61,45 @@ Type gathering all content retrieval requests.
  sort: String
  ): [Content]
 |Fetches the children of a content
+
+|getChildrenConnection(
+ key: ID,
+ after: String,
+ first: Int,
+ sort: String
+ )
+| Fetches the children of a content and return the result as a connection
+
+|getPermissions(key: ID): Permissions
+|Fetches the permissions on a content
+
+|getSite: portal_Site
+|Fetches the parent site of the content corresponding to the current execution context
+
+|query(
+ query: String,
+ offset: Int,
+ first: Int,
+ sort: String,
+ contentTypes: [String]
+ ): [Content]
+|Queries contents
+
+|queryConnection(
+ query: String!,
+ after: String,
+ first: Int,
+ sort: String,
+ contentTypes: [String]
+ ): ContentConnection
+|Queries contents and returns the result as a connection
+
+|getType(name: String!): ContentType
+|Retrieves the properties and icon of the specified content type
+
+|getTypes: [ContentType]
+|Retrieves the list of all content types available for the current site
 |===
-
-** get(key: ID): Content
-+
-Fetches a content
-** getChildren(
-key: ID,
-offset: Int,
-first: Int,
-sort: String
-): [Content]
-+
-Fetches the children of a content
-** getChildrenConnection(
-key: ID,
-after: String,
-first: Int,
-sort: String
-): ContentConnection
-+
-Fetches the children of a content and return the result as a connection
-** getPermissions(key: ID): Permissions
-+
-Fetches the permissions on a content
-** getSite: portal_Site
-+
-Fetches the parent site of the content corresponding to the current execution context
-** query(
-query: String,
-offset: Int,
-first: Int,
-sort: String,
-contentTypes: [String]
-): [Content]
-+
-Queries contents
-** queryConnection(
-query: String!,
-after: String,
-first: Int,
-sort: String,
-contentTypes: [String]
-): ContentConnection
-+
-Queries contents and returns the result as a connection
-** getType(name: String!): ContentType
-+
-Retrieves the properties and icon of the specified content type
-** getTypes: [ContentType]
-+
-Retrieves the list of all content types available for the current site
-
 
 == Content
 Abstract type of all contents.
