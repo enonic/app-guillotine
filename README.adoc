@@ -11,11 +11,6 @@ Guillotine dynamically analyzes all available content types in the site and auto
 This gives you direct, typed and documented access to all content within the site. Including the ability to follow references, 
 child items and access media directly.
 
-The Guillotine API adds a new service to your site in the following path relative to the site root: /_/service/com.enonic.app.guillotine/graphql 
-
-The fastest way to explore the Guillotine API is by adding Guillotine to an existing site (or a demo site from Enonic Market), 
-then install [GraphiQL](https://market.enonic.com/vendors/enonic/graphiql) and point it to your local site url + service path as defined above. 
-
 == Compatibility
 
 |===
@@ -46,7 +41,7 @@ image::doc/img/configuration.png[Installation,768,576]
 
 == Usage
 
-Once configured, a new service 'graphql' is present under your site path: '/mypage/_/service/com.enonic.app.guillotine/graphql'.
+INFO: Once configured, a new service 'graphql' is present under your site path: '/mysite/mypage/_/service/com.enonic.app.guillotine/graphql'.
 
 === GraphiQL
 
@@ -61,7 +56,7 @@ The easiest way to explore a GraphQL API is to use GraphiQL
 
 image::doc/img/graphiql.png[GraphiQL,768,384]
 
-==== TBD
+==== User Interface
 
 The GraphQL service URL from one of your configured site should already be filled in the field 'Service Location'.
 
@@ -69,7 +64,7 @@ The GraphQL service URL from one of your configured site should already be fille
 * The center part of GraphiQL is used to display the result of these queries
 * The right part of GraphiQL is used to display a documentation generated from the GraphQL API.
 
-==== Example 1: Display current content display name
+==== Example 1: Retrieve the display name and type of the current content
 
 * Send a query to retrieve the display name and type of the current content
 
@@ -85,4 +80,38 @@ The GraphQL service URL from one of your configured site should already be fille
 ----
 
 image::doc/img/example1.png[Example 1,768,384]
+
+==== Example 2: Retrieve the display name and type of the current content and its direct children
+
+----
+{
+  content {
+    get {
+      displayName
+      children {
+        displayName
+      }
+    }
+  }
+}
+----
+
+image::doc/img/example2.png[Example 2,768,384]
+
+==== Example 3: Retrieve the image contents and generate a URL to these images cropped to 800x200 px
+
+----
+{
+  content {
+    query(contentTypes:"media:image") {
+      displayName
+      ... on media_Image {
+        imageUrl(scale:"block(800,200)",type:absolute)
+      }
+    }
+  }
+}
+----
+
+image::doc/img/example3.png[Example 3,768,384]
 
