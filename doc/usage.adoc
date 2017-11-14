@@ -7,7 +7,7 @@ toc::[]
 
 == GraphiQL
 
-The easiest way to explore a GraphQL API is to use GraphiQL
+The easiest way to manually explore a GraphQL API and test queries is to use GraphiQL
 
 === Installation 
 
@@ -76,7 +76,7 @@ image::img/example2.png[Example 2,768,384]
 
 image::img/example3.png[Example 3,768,384]
 
-== POST Request
+== Application
 
 To use the Guillotine API, your application will send all its request to the GraphQL service: "/mysite/mypage/_/service/com.enonic.app.guillotine/graphql"
 
