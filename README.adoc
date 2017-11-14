@@ -1,4 +1,5 @@
 = Guillotine - GraphQL Headless CMS for Enonic XP
+:toc
 
 == Introduction
 
