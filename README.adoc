@@ -43,3 +43,45 @@ image::doc/img/installation.png[Installation,768,384]
 
 image::doc/img/configuration.png[Installation,768,576]
 
+== Usage
+
+Once configured, a new service 'graphql' is present under your site path: '/mypage/_/service/com.enonic.app.guillotine/graphql'.
+
+=== GraphiQL
+
+The easiest way to explore a GraphQL API is to use GraphiQL
+
+==== Installation 
+
+* Open the admin tool 'Applications'
+* Search for the 'graphiql' application
+* Click install
+* Open the admin tool 'GraphiQL'
+
+image::doc/img/graphiql.png[GraphiQL,768,384]
+
+==== TBD
+
+The GraphQL service URL from one of your configured site should already be filled in the field 'Service Location'.
+
+* The left part of GraphiQL is used to write your graphQL query
+* The center part of GraphiQL is used to display the result of these queries
+* The right part of GraphiQL is used to display a documentation generated from the GraphQL API.
+
+==== Example 1: Display current content display name
+
+* Send a query to retrieve the display name and type of the current content
+
+----
+{
+  content {
+    get {
+      displayName
+      type
+    }
+  }
+}
+----
+
+image::doc/img/example1.png[Example 1,768,384]
+
