@@ -1,7 +1,9 @@
 = Usage
-:toc: left
+:toc: macro
 
 Once configured, a new service 'graphql' is present under your site path: "/mysite/mypage/_/service/com.enonic.app.guillotine/graphql".
+
+toc::[]
 
 == GraphiQL
 
