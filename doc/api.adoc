@@ -25,18 +25,18 @@ If the key is not specified, then the matched content will be the one correspond
 Fetches a content
 
 ** getChildren(
-key: ID
-offset: Int
-first: Int
+key: ID,
+offset: Int,
+first: Int,
 sort: String
 ): [Content]
 +
 Fetches the children of a content
 
 ** getChildrenConnection(
-key: ID
-after: String
-first: Int
+key: ID,
+after: String,
+first: Int,
 sort: String
 ): ContentConnection
 +
@@ -51,20 +51,20 @@ Fetches the permissions on a content
 Fetches the parent site of the content corresponding to the current execution context
 
 ** query(
-query: String
-offset: Int
-first: Int
-sort: String
+query: String,
+offset: Int,
+first: Int,
+sort: String,
 contentTypes: [String]
 ): [Content]
 +
 Queries contents
 
 ** queryConnection(
-query: String!
-after: String
-first: Int
-sort: String
+query: String!,
+after: String,
+first: Int,
+sort: String,
 contentTypes: [String]
 ): ContentConnection
 +
