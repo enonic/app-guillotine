@@ -14,16 +14,16 @@ This documentation describes all static GraphQL types
 ** content: ContentAPI
 
 == ContentAPI 
-Contains all requests to retrieve contents. 
+Type gathering all content retrieval requests. 
 
-Most requests expect a key as argument. 
+* Remarks
+** Most requests expect a key as argument. 
 If the key is not specified, then the matched content will be the one corresponding to the current execution context
 
 * Fields
 ** get(key: ID): Content
 +
 Fetches a content
-
 ** getChildren(
 key: ID,
 offset: Int,
@@ -32,7 +32,6 @@ sort: String
 ): [Content]
 +
 Fetches the children of a content
-
 ** getChildrenConnection(
 key: ID,
 after: String,
@@ -41,15 +40,12 @@ sort: String
 ): ContentConnection
 +
 Fetches the children of a content and return the result as a connection
-
 ** getPermissions(key: ID): Permissions
 +
 Fetches the permissions on a content
-
 ** getSite: portal_Site
 +
 Fetches the parent site of the content corresponding to the current execution context
-
 ** query(
 query: String,
 offset: Int,
@@ -59,7 +55,6 @@ contentTypes: [String]
 ): [Content]
 +
 Queries contents
-
 ** queryConnection(
 query: String!,
 after: String,
@@ -69,12 +64,71 @@ contentTypes: [String]
 ): ContentConnection
 +
 Queries contents and returns the result as a connection
-
 ** getType(name: String!): ContentType
 +
 Retrieves the properties and icon of the specified content type
-
 ** getTypes: [ContentType]
 +
 Retrieves the list of all content types available for the current site
+
+
+== Content
+Abstract type of all contents.
+ 
+* Fields
+** _id: ID!
+** _name: String!
+** _path: String!
+** creator: PrincipalKey
+** modifier: PrincipalKey
+** createdTime: String
+** modifiedTime: String
+** owner: PrincipalKey
+** type: String
+** displayName: String
+** hasChildren: Boolean
+** language: String
+** valid: Boolean
+** x: [ExtraData]
+** page: Page
+** attachments: [Attachment]
+** publish: PublishInfo
+** pageUrl(type: UrlTypeTypeparams: String): String
+** site: portal_Site
+** parent: Content
+children(
+offset: Int
+first: Int
+sort: String
+): [Content]
+** childrenConnection(
+after: String
+first: Int
+sort: String
+): ContentConnection
+** permissions: Permissions
+
+* Known implementations
+** portal_Site
+** base_Folder
+** media_Code
+** media_Executable
+** media_Text
+** media_Vector
+** media_Spreadsheet
+** media_Data
+** base_Structured
+** base_Shortcut
+** base_Media
+** media_Document
+** media_Video
+** media_Presentation
+** media_Archive
+** media_Audio
+** portal_PageTemplate
+** media_Unknown
+** portal_TemplateFolder
+** media_Image
+** base_Unstructured
+** portal_Fragment
 
