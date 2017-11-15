@@ -135,7 +135,7 @@ sort: String
 after: String
 first: Int
 sort: String
-): ContentConnection
+): <<ContentConnection>>
 ** permissions: Permissions
 
 * Known implementations
