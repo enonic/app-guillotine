@@ -162,7 +162,9 @@ sort: String
 ** base_Unstructured
 ** portal_Fragment
 
-=== ContentConnection, ContentEdge 
+=== ContentConnection
 
 A connection is used to 
+
+=== ContentEdge
 
