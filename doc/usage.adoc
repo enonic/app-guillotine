@@ -1,7 +1,7 @@
 = Usage
 :toc: macro
 
-Once a site is configured, a service 'graphql' is present under the site path: "/mysite/mypage/_/service/com.enonic.app.guillotine/graphql".
+Once a site is configured, a service "graphql" is present under the site path: "/mysite/mypage/_/service/com.enonic.app.guillotine/graphql".
 
 toc::[]
 

@@ -52,7 +52,7 @@ Type gathering all content retrieval requests.
 |===
 |Name(Arguments):Type | Description
 
-|get(key: ID): Content
+|get(key: ID): <<Content>>
 |Fetches a content
 
 |getChildren(
