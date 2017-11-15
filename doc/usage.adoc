@@ -55,8 +55,8 @@ To use the Guillotine API, your application will send all its request to the Gra
 
 The service is expecting to receive a POST request with inside its body:
 
-* A mandatory 'query' String
-* An optional 'variables' Object
+* A mandatory "query" String
+* An optional "variables" Object
 
 image::img/service.png[Request]
 

@@ -104,67 +104,114 @@ Type gathering all content retrieval requests.
 
 === Content
 Abstract type of all contents.
- 
-* Fields
-** _id: ID!
-** _name: String!
-** _path: String!
-** creator: PrincipalKey
-** modifier: PrincipalKey
-** createdTime: String
-** modifiedTime: String
-** owner: PrincipalKey
-** type: String
-** displayName: String
-** hasChildren: Boolean
-** language: String
-** valid: Boolean
-** x: [ExtraData]
-** page: Page
-** attachments: [Attachment]
-** publish: PublishInfo
-** pageUrl(type: UrlTypeTypeparams: String): String
-** site: portal_Site
-** parent: Content
-children(
+
+==== Fields
+|===
+|Name(Arguments):Type
+
+|_id: ID!
+
+|_name: String!
+
+|_path: String!
+
+|creator: PrincipalKey
+
+|modifier: PrincipalKey
+
+|createdTime: String
+
+|modifiedTime: String
+
+|owner: PrincipalKey
+
+|type: String
+
+|displayName: String
+
+|hasChildren: Boolean
+
+|language: String
+
+|valid: Boolean
+
+|x: [ExtraData]
+
+|page: Page
+
+|attachments: [Attachment]
+
+|publish: PublishInfo
+
+|pageUrl(type: UrlTypeTypeparams: String): String
+
+|site: portal_Site
+
+|parent: Content
+
+|children(
 offset: Int
 first: Int
 sort: String
-): [Content]
-** childrenConnection(
+): [<<Content>>]
+
+|childrenConnection(
 after: String
 first: Int
 sort: String
 ): <<ContentConnection>>
-** permissions: Permissions
 
-* Known implementations
-** portal_Site
-** base_Folder
-** media_Code
-** media_Executable
-** media_Text
-** media_Vector
-** media_Spreadsheet
-** media_Data
-** base_Structured
-** base_Shortcut
-** base_Media
-** media_Document
-** media_Video
-** media_Presentation
-** media_Archive
-** media_Audio
-** portal_PageTemplate
-** media_Unknown
-** portal_TemplateFolder
-** media_Image
-** base_Unstructured
-** portal_Fragment
+|permissions: Permissions
+
+==== Direct Known Subtypes
+
+Direct Known Subtypes: 
+portal_Site
+, base_Folder
+, media_Code
+, media_Executable
+, media_Text
+, media_Vector
+, media_Spreadsheet
+, media_Data
+, base_Structured
+, base_Shortcut
+, base_Media
+, media_Document
+, media_Video
+, media_Presentation
+, media_Archive
+, media_Audio
+, portal_PageTemplate
+, media_Unknown
+, portal_TemplateFolder
+, media_Image
+, base_Unstructured
+, portal_Fragment
 
 === ContentConnection
 
-A connection is used to 
+To ease the pagination of relationship to a content, the type ContentConnection has been created to represent this connection.
+It allows you to 
+* Paginate through the list.
+* Ask for information about the connection itself, like totalCount or pageInfo.
+* Ask for information about the edge itself, like cursor.
 
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|totalCount: Int!
+|
+
+|edges: [<<ContentEdge>>]
+|
+
+|pageInfo: PageInfo
+|
+
+|===
 === ContentEdge
+
 
