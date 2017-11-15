@@ -60,7 +60,7 @@ Type gathering all content retrieval requests.
  offset: Int,
  first: Int,
  sort: String
- ): [Content]
+ ): [<<Content>>]
 |Fetches the children of a content
 
 |getChildrenConnection(
@@ -83,7 +83,7 @@ Type gathering all content retrieval requests.
  first: Int,
  sort: String,
  contentTypes: [String]
- ): [Content]
+ ): [<<Content>>]
 |Queries contents
 
 |queryConnection(
@@ -92,7 +92,7 @@ Type gathering all content retrieval requests.
  first: Int,
  sort: String,
  contentTypes: [String]
- ): ContentConnection
+ ): <<ContentConnection>>
 |Queries contents and returns the result as a connection
 
 |getType(name: String!): ContentType
