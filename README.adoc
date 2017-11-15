@@ -1,0 +1,28 @@
+= Guillotine - GraphQL Headless CMS for Enonic XP
+
+== Introduction
+
+Once assigned to your site, the guillotine application will generate a dynamic GraphQL API that enables web-based access to all 
+your editorial content.
+
+Guillotine exposes the read-only part of the Enonic Content API, including access to the Enonic query language. 
+Guillotine dynamically analyzes all available content types in the site and automatically generates a GraphQL API specific to your site. 
+This gives you direct, typed and documented access to all content within the site. Including the ability to follow references, 
+child items and access media directly.
+
+== Compatibility
+
+|===
+|Version | XP Version | Download
+
+|0.1.5
+|>= 6.10.0
+|http://repo.enonic.com/public/com/enonic/app/guillotine/0.1.5/graphiql-0.1.5.jar[Download]
+|===
+
+== link:doc/installation.adoc[Installation & Configuration]
+
+== link:doc/usage.adoc[Usage]
+
+== link:doc/api.adoc[GraphQL API Documentation]
+
