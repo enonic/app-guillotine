@@ -25,9 +25,13 @@ image::img/graphiql.png[GraphiQL,768,384]
 * The center panel is used to display the result of the execution queries
 * The right panel is used to display a documentation generated from the GraphQL API.
 
-=== Example 1: Retrieve the display name and type of the current content
+=== Usage example
 
-* Send a query to retrieve the display name and type of the current content
+* Write the query below inside the left panel
++
+This query can be read as "Retrieve the display name and type of the current content"
+* Click on the query execution button
+* The service response is displayed in the center panel
 
 ----
 {
@@ -42,7 +46,22 @@ image::img/graphiql.png[GraphiQL,768,384]
 
 image::img/example1.png[Example 1,768,384]
 
-=== Example 2: Retrieve the display name of the current content and its direct children
+== Application
+
+To use the Guillotine API, your application will send all its request to the GraphQL service: 
+"/mysite/mypage/_/service/com.enonic.app.guillotine/graphql"
+
+The service is expecting to receive a POST request with inside its body:
+* A mandatory 'query' String
+* An optional 'variables' Object
+
+image::img/service.png[Request]
+
+== Examples
+
+=== Recursivity
+
+Query example: Retrieve the display name of the current content and its direct children
 
 ----
 {
@@ -59,7 +78,9 @@ image::img/example1.png[Example 1,768,384]
 
 image::img/example2.png[Example 2,768,384]
 
-=== Example 3: Retrieve the image contents and generate a URL to these images cropped to 800x200 px
+=== Query & Image
+
+Query example: Retrieve the image contents and generate a URL to these images cropped to 800x200 px
 
 ----
 {
@@ -75,13 +96,3 @@ image::img/example2.png[Example 2,768,384]
 ----
 
 image::img/example3.png[Example 3,768,384]
-
-== Application
-
-To use the Guillotine API, your application will send all its request to the GraphQL service: "/mysite/mypage/_/service/com.enonic.app.guillotine/graphql"
-
-The service is expecting to receive a POST request with inside its body:
-- A mandatory 'query' String
-- An optional 'variables' Object
-
-image::img/service.png[Request]

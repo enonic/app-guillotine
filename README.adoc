@@ -2,7 +2,7 @@
 
 == Introduction
 
-Once assigned to your site, the guillotine application will generate dynamically a powerful GraphQL API that enables web-based access to all 
+Once assigned to your site, the guillotine application will generate a dynamic GraphQL API that enables web-based access to all 
 your editorial content.
 
 Guillotine exposes the read-only part of the Enonic Content API, including access to the Enonic query language. 
