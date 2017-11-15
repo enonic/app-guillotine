@@ -54,6 +54,7 @@ To use the Guillotine API, your application will send all its request to the Gra
 "/mysite/mypage/_/service/com.enonic.app.guillotine/graphql"
 
 The service is expecting to receive a POST request with inside its body:
+
 * A mandatory 'query' String
 * An optional 'variables' Object
 
