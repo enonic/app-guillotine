@@ -166,7 +166,7 @@ Abstract type of all contents.
 |site: portal_Site
 |
 
-|parent: Content
+|parent: <<Content>>
 |
 
 |children(
@@ -216,7 +216,8 @@ portal_Site
 === ContentConnection
 
 To ease the pagination of relationship to a content, the type ContentConnection has been created to represent this connection.
-It allows you to 
+It allows you to :
+
 * Paginate through the list.
 * Ask for information about the connection itself, like totalCount or pageInfo.
 * Ask for information about the edge itself, like cursor.
@@ -232,10 +233,112 @@ It allows you to
 |edges: [<<ContentEdge>>]
 |
 
-|pageInfo: PageInfo
+|pageInfo: <<PageInfo>>
 |
 
 |===
+
 === ContentEdge
 
+==== Fields
 
+|===
+|Name(Arguments):Type | Description
+
+|node: <<Content>>!
+|
+
+|cursor: String!
+|
+
+|===
+
+=== PageInfo
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|startCursor: String!
+|
+
+|endCursor: String!
+|
+
+|hasNext: Boolean!
+|
+
+|===
+
+=== Permissions
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|inheritsPermissions: Boolean
+|
+
+|permissions: [<<AccessControlEntry>>]
+|
+
+|===
+
+=== AccessControlEntry
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|principal: <<PrincipalKey>>
+|
+
+|allow: [<<Permission>>]
+|
+
+|deny: [<<Permission>>]
+|
+
+|===
+
+=== PrincipalKey
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|value: String
+|
+
+|type: <<PrincipalType>>
+|
+
+|userStore: String
+|
+
+|principalId: String
+|
+
+|===
+
+=== PrincipalType
+
+Enum values: user
+, group
+, role
+
+=== Permission
+
+==== Fields
+
+Enum values: READ
+, CREATE
+, MODIFY
+, DELETE
+, PUBLISH
+, READ_PERMISSIONS
+, WRITE_PERMISSIONS
