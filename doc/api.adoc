@@ -28,7 +28,7 @@ toc::[]
 |"_score DESC"
 |===
 
-== Types
+== Object Types
 === Query 
 
 ==== Fields
@@ -325,6 +325,8 @@ It allows you to :
 
 |===
 
+== Enum Types
+
 === PrincipalType
 
 Enum values: user
@@ -332,8 +334,6 @@ Enum values: user
 , role
 
 === Permission
-
-==== Fields
 
 Enum values: READ
 , CREATE
