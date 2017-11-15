@@ -46,7 +46,7 @@ This query can be read as: Retrieve the display name and type of the current con
 }
 ----
 
-image::img/example1.png[Example 1,768,384]
+image::img/graphiql-example.png[Example,768,384]
 
 == Application
 
@@ -60,11 +60,22 @@ The service is expecting to receive a POST request with inside its body:
 
 image::img/service.png[Request]
 
-== Examples
 
-=== Recursivity
+== Relations
 
-Query example: Retrieve the display name of the current content and its direct children
+Multiple relations are generated to allow to navigate between contents.
+By default each content has the following relations:
+
+* parent: Link to the parent content 
+* children: Link to the child contents
+* site: Link to the nearest site
+
+On top of that, every ContentSelector, MediaUploader, AttachmentUploader or ImageSelector defined in your content type definitions will 
+be converted to a link to the linked content.
+
+=== Example: Children
+
+Query example: Retrieve the display name of the current content and the display name of its direct children
 
 ----
 {
@@ -79,11 +90,37 @@ Query example: Retrieve the display name of the current content and its direct c
 }
 ----
 
-image::img/example2.png[Example 2,768,384]
+image::img/children.png[Example,768,384]
 
-=== Query & Image
+=== Example: ContentSelector
 
-Query example: Retrieve the image contents and generate a URL to these images cropped to 800x200 px
+Query example: Retrieve the blog posts. For each post, return its display name and the display name of the related author
+
+----
+{
+  content{
+    query(contentTypes:"com.enonic.app.superhero:post") {
+      displayName
+      ... on com_enonic_app_superhero_Post {
+        data {          
+          author {
+            displayName
+          }
+        }
+      }
+    }
+  }
+}
+----
+
+image::img/content-selector.png[Example,768,384]
+
+== Image
+
+Enonic XP allows to edit images at runtime. Every image content contains a field "imageUrl" generates a URL pointing to a processed image.
+
+=== Example: Scaled Image URL
+Query example: Retrieve the image contents and generate an absolute URL to these images cropped to 800x200px
 
 ----
 {
@@ -99,3 +136,31 @@ Query example: Retrieve the image contents and generate a URL to these images cr
 ----
 
 image::img/example3.png[Example 3,768,384]
+
+== HTML
+
+HTML fields are generated with a parameter "processHtml" allowing to replace abstract internal links by generated URLs. 
+
+=== Example: Process HTML
+
+Query example: Retrieve the blog posts. For each post, return its author display name, tags and processed content.
+
+----
+{
+  content{
+    query(contentTypes:"com.enonic.app.superhero:post") {
+      ... on com_enonic_app_superhero_Post {
+        data {
+          author {
+            displayName
+          }
+          tags
+          post(processHtml:{type:absolute})
+        }
+      }
+    }
+  }
+}
+----
+
+image::img/process.png[Example 3,768,384]
