@@ -1,8 +1,8 @@
-= GraphQL API Documentation
+= Guillotine API Documentation
 :toc: macro
 :toclevels: 2
 
-This documentation describes all static GraphQL types
+This documentation lists and describes all static GraphQL types
 
 toc::[]
 
@@ -41,7 +41,7 @@ toc::[]
 
 === ContentAPI 
 
-Type gathering all content retrieval requests. 
+Gathers all content retrieval requests. 
 
 ==== Remarks
 
@@ -103,6 +103,7 @@ Type gathering all content retrieval requests.
 |===
 
 === Content
+
 Abstract type of all contents.
 
 ==== Fields
@@ -110,81 +111,81 @@ Abstract type of all contents.
 |Name(Arguments):Type | Description
 
 |_id: ID!
-|
+|Content ID
 
 |_name: String!
-|
+|Content name
 
 |_path: String!
-|
+|Content path
 
 |creator: <<PrincipalKey>>
-|
+|Content creator
 
 |modifier: <<PrincipalKey>>
-|
+|Last content modifier
 
 |createdTime: String
-|
+|Content creation time
 
 |modifiedTime: String
-|
+|Last content modification time
 
 |owner: <<PrincipalKey>>
-|
+|Content owner
 
 |type: String
-|
+|Content type
 
 |displayName: String
-|
+|Content display name
 
 |hasChildren: Boolean
-|
+|true if the content has children content
 
 |language: String
-|
+|Content language
 
 |valid: Boolean
-|
+|true if the content is valid
 
 |x: [<<ExtraData>>]
-|
+|Content extra data
 
 |page: <<Page>>
-|
+|Page specific information
 
 |attachments: [<<Attachment>>]
-|
+|Content attachments
 
 |publish: <<PublishInfo>>
-|
+|Publication information
 
 |pageUrl(type: <<UrlTypeType>>, params: String): String
-|
+|Util field to generate a URL pointing to the content
 
 |site: portal_Site
-|
+|Link to the nearest site
 
 |parent: <<Content>>
-|
+|Link to the content parent
 
 |children(
 offset: Int, 
 first: Int, 
 sort: String
 ): [<<Content>>]
-|
+|Link to the direct child contents
 
 |childrenConnection(
 after: String, 
 first: Int, 
 sort: String
 ): <<ContentConnection>>
-|
+|Connection to the direct child contents
 
 |permissions: <<Permissions>>
-|
+|Content permissions
 |===
 
 ==== Direct Known Subtypes
@@ -218,7 +219,7 @@ portal_Site
 To ease the pagination of relationship to a content, the type ContentConnection has been created to represent this connection.
 It allows you to :
 
-* Paginate through the list.
+* Paginate through the list of contents.
 * Ask for information about the connection itself, like totalCount or pageInfo.
 * Ask for information about the edge itself, like cursor.
 
@@ -228,13 +229,13 @@ It allows you to :
 |Name(Arguments):Type | Description
 
 |totalCount: Int!
-|
+|Total number of related content
 
 |edges: [<<ContentEdge>>]
-|
+|Edge to the related content
 
 |pageInfo: <<PageInfo>>
-|
+|Paging information
 
 |===
 
@@ -246,10 +247,10 @@ It allows you to :
 |Name(Arguments):Type | Description
 
 |node: <<Content>>!
-|
+|Related content
 
 |cursor: String!
-|
+|Edge cursor
 
 |===
 
@@ -261,13 +262,13 @@ It allows you to :
 |Name(Arguments):Type | Description
 
 |startCursor: String!
-|
+|Start cursor of the pagination
 
 |endCursor: String!
-|
+|End cursor of the pagination
 
 |hasNext: Boolean!
-|
+|Has more related contents at end cursor
 
 |===
 
@@ -279,10 +280,10 @@ It allows you to :
 |Name(Arguments):Type | Description
 
 |inheritsPermissions: Boolean
-|
+|Inherit permissions from parent content
 
 |permissions: [<<AccessControlEntry>>]
-|
+|Permissions
 
 |===
 
@@ -294,13 +295,13 @@ It allows you to :
 |Name(Arguments):Type | Description
 
 |principal: <<PrincipalKey>>
-|
+|Principal key
 
 |allow: [<<Permission>>]
-|
+|Allowed permissions
 
 |deny: [<<Permission>>]
-|
+|Denied permissions
 
 |===
 
@@ -312,20 +313,22 @@ It allows you to :
 |Name(Arguments):Type | Description
 
 |value: String
-|
+|Principal key value
 
 |type: <<PrincipalType>>
-|
+|Principal type
 
 |userStore: String
-|
+|User store name
 
 |principalId: String
-|
+|Principal ID inside this user store
 
 |===
 
 === ContentType
+
+Representation of a content type definition
 
 ==== Fields
 
@@ -333,25 +336,25 @@ It allows you to :
 |Name(Arguments):Type | Description
 
 |name: String
-|
+|Content type name
 
 |displayName: String
-|
+|Content type display name
 
 |description: String
-|
+|Content type description
 
 |superType: String
-|
+|Parent content type
 
 |abstract: Boolean
-|
+|true if the content type is abstract
 
 |final: Boolean
-|
+|true if the content type cannot be used as super type
 
 |allowChildContent: Boolean
-|
+|true if content can be added under a content of this type
 
 |contentDisplayNameScript: String
 |
@@ -360,7 +363,7 @@ It allows you to :
 |
 
 |form: [<<FormItem>>]
-|
+|Content type fields schema
 
 |getInstances(
 offset: Int
@@ -368,7 +371,7 @@ offset: Int
 , query: String
 , sort: String
 ): [<<Content>>]
-|
+|Util field returning the contents of this type
 
 |getInstanceConnection(
 after: String
@@ -376,7 +379,7 @@ after: String
 , query: String
 , sort: String
 ): <<ContentConnection>>
-|
+|Util field returning the contents of this type as a connection
 
 |===
 
@@ -388,13 +391,13 @@ after: String
 |Name(Arguments):Type | Description
 
 |formItemType: <<FormItemType>>
-|
+|Form item type
 
 |name: String
-|
+|Form item name
 
 |label: String
-|
+|Form item label
 
 |===
 
@@ -413,14 +416,16 @@ Direct Known Subtypes: FormInput
 |Name(Arguments):Type | Description
 
 |name: String
-|
+|Mixin name
 
 |data: String
-|
+|Mixin value
 
 |===
 
 === Page
+
+Page specific properties
 
 ==== Fields
 
@@ -428,19 +433,19 @@ Direct Known Subtypes: FormInput
 |Name(Arguments):Type | Description
 
 |template: String
-|
+|Page template
 
 |controller: String
-|
+|Page controller
 
 |config: String
-|
+|Page configuration
 
 |regions: [<<Region>>]
-|
+|Page regions
 
 |fragment: <<Component>>
-|
+|Fragment
 
 |===
 
@@ -452,10 +457,10 @@ Direct Known Subtypes: FormInput
 |Name(Arguments):Type | Description
 
 |name: String
-|
+|Region name
 
 |components: [<<Component>>]
-|
+|Region components
 
 |===
 
@@ -467,28 +472,28 @@ Direct Known Subtypes: FormInput
 |Name(Arguments):Type | Description
 
 |name: String
-|
+|Component name
 
 |path: String
-|
+|Component path
 
 |type: String
-|
+|Component type
 
 |descriptor: String
-|
+|Component descriptor
 
 |text: String
-|
+|Component text
 
 |fragment: String
-|
+|Fragment
 
 |config: String
-|
+|Component configuration
 
 |regions: [<<Region>>]
-|
+|Component regions
 
 |===
 
@@ -500,16 +505,16 @@ Direct Known Subtypes: FormInput
 |Name(Arguments):Type | Description
 
 |name: String
-|
+|Attachment name
 
 |label: String
-|
+|Attachment label
 
 |size: Int
-|
+|Attachment size
 
 |mimeType: String
-|
+|Attachment mime type
 
 |===
 
@@ -521,13 +526,13 @@ Direct Known Subtypes: FormInput
 |Name(Arguments):Type | Description
 
 |from: String
-|
+|Scheduled publication start time
 
 |to: String
-|
+|Scheduled publication end time
 
 |first: String
-|
+|First publication time
 
 |===
 
@@ -539,10 +544,10 @@ Direct Known Subtypes: FormInput
 |Name(Arguments):Type | Description
 
 |mimeType: String
-|
+|Icon mime type
 
 |modifiedTime: String
-|
+|Icon last modification time
 
 |===
 
