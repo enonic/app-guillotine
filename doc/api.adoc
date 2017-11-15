@@ -423,7 +423,7 @@ Enum values: READ
 , READ_PERMISSIONS
 , WRITE_PERMISSIONS
 
-=== Permission
+=== FormItemType
 
 Enum values: ItemSet
 , Layout
