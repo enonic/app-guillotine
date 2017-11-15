@@ -405,8 +405,6 @@ Direct Known Subtypes: FormInput
 , FormLayout
 , FormItemSet
 
-|===
-
 == Enum Types
 
 === PrincipalType
