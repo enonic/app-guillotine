@@ -35,7 +35,7 @@ toc::[]
 |===
 |Name(Arguments):Type | Description
 
-|content:ContentAPI
+|content: <<ContentAPI>>
 |Type gathering all content retrieval requests
 |===
 
@@ -68,10 +68,10 @@ Type gathering all content retrieval requests.
  after: String,
  first: Int,
  sort: String
- )
+ ): <<ContentConnection>>
 | Fetches the children of a content and return the result as a connection
 
-|getPermissions(key: ID): Permissions
+|getPermissions(key: ID): <<Permissions>>
 |Fetches the permissions on a content
 
 |getSite: portal_Site
@@ -95,10 +95,10 @@ Type gathering all content retrieval requests.
  ): <<ContentConnection>>
 |Queries contents and returns the result as a connection
 
-|getType(name: String!): ContentType
+|getType(name: String!): <<ContentType>>
 |Retrieves the properties and icon of the specified content type
 
-|getTypes: [ContentType]
+|getTypes: [<<ContentType>>]
 |Retrieves the list of all content types available for the current site
 |===
 
@@ -118,10 +118,10 @@ Abstract type of all contents.
 |_path: String!
 |
 
-|creator: PrincipalKey
+|creator: <<PrincipalKey>>
 |
 
-|modifier: PrincipalKey
+|modifier: <<PrincipalKey>>
 |
 
 |createdTime: String
@@ -130,7 +130,7 @@ Abstract type of all contents.
 |modifiedTime: String
 |
 
-|owner: PrincipalKey
+|owner: <<PrincipalKey>>
 |
 
 |type: String
@@ -148,16 +148,16 @@ Abstract type of all contents.
 |valid: Boolean
 |
 
-|x: [ExtraData]
+|x: [<<ExtraData>>]
 |
 
-|page: Page
+|page: <<Page>>
 |
 
-|attachments: [Attachment]
+|attachments: [<<Attachment>>]
 |
 
-|publish: PublishInfo
+|publish: <<PublishInfo>>
 |
 
 |pageUrl(type: UrlTypeTypeparams: String): String
@@ -183,7 +183,7 @@ sort: String
 ): <<ContentConnection>>
 |
 
-|permissions: Permissions
+|permissions: <<Permissions>>
 |
 |===
 
@@ -359,7 +359,7 @@ It allows you to :
 |icon: Icon
 |
 
-|form: [FormItem]
+|form: [<<FormItem>>]
 |
 
 |getInstances(
@@ -404,6 +404,132 @@ Direct Known Subtypes: FormInput
 , FormOptionSet
 , FormLayout
 , FormItemSet
+
+=== ExtraData
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|name: String
+|
+
+|data: String
+|
+
+|===
+
+=== Page
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|template: String
+|
+
+|controller: String
+|
+
+|config: String
+|
+
+|regions: [<<Region>>]
+|
+
+|fragment: <<Component>>
+|
+
+|===
+
+=== Region
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|name: String
+|
+
+|components: [<<Component>>]
+|
+
+|===
+
+=== Component
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|name: String
+|
+
+|path: String
+|
+
+|type: String
+|
+
+|descriptor: String
+|
+
+|text: String
+|
+
+|fragment: String
+|
+
+|config: String
+|
+
+|regions: [<<Region>>]
+|
+
+|===
+
+=== Attachment
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|name: String
+|
+
+|label: String
+|
+
+|size: Int
+|
+
+|mimeType: String
+|
+
+|===
+
+=== PublishInfo
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|from: String
+|
+
+|to: String
+|
+
+|first: String
+|
+
+|===
 
 == Enum Types
 
