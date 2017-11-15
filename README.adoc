@@ -23,7 +23,7 @@ child items and access media directly.
 == GraphQL
 
 GraphQL is query language developed by Facebook. 
-This technology choice allows Guillotine to provide a single and exhaustive API 
+This technology allows Guillotine to provide a single and exhaustive API 
 while allowing you to retrieve all the content information you need in one request without any superfluous information
 
 http://graphql.org/learn/[Learn more about GraphQL...]
