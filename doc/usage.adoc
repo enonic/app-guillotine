@@ -1,7 +1,7 @@
 = Usage
 :toc: macro
 
-Once configured, a new service 'graphql' is present under your site path: "/mysite/mypage/_/service/com.enonic.app.guillotine/graphql".
+Once a site is configured, a service 'graphql' is present under the site path: "/mysite/mypage/_/service/com.enonic.app.guillotine/graphql".
 
 toc::[]
 
@@ -20,17 +20,19 @@ image::img/graphiql.png[GraphiQL,768,384]
 
 === User Interface
 
-* The GraphQL service URL from one of your configured site should already be filled in the field 'Service Location'.
-* The left panel is used to edit your graphQL query
-* The center panel is used to display the result of the execution queries
+* The field 'Service Location' specifies the location of the GraphQL service. 
++
+By default it is prefilled with one of your configured sites and for the branch draft.
+* The left panel allows you to edit your graphQL query
+* The center panel displays the result of the query execution
 * The right panel is used to display a documentation generated from the GraphQL API.
 
 === Usage example
 
-* Write the query below inside the left panel
+* Write the query below inside the left panel.
 +
-This query can be read as "Retrieve the display name and type of the current content"
-* Click on the query execution button
+This query can be read as: Retrieve the display name and type of the current content.
+* Click on the query execution button above
 * The service response is displayed in the center panel
 
 ----
