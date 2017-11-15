@@ -11,10 +11,10 @@ The easiest way to manually explore a GraphQL API and test queries is to use Gra
 
 === Installation 
 
-* Open the admin tool 'Applications'
-* Search for the 'graphiql' application
-* Click install
-* Open the admin tool 'GraphiQL'
+* Open the admin tool "Applications"
+* Search for the "graphiql" application
+* Click on "install"
+* Open the admin tool "GraphiQL"
 
 image::img/graphiql.png[GraphiQL,768,384]
 
