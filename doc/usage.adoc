@@ -117,7 +117,7 @@ image::img/content-selector.png[Example,768,384]
 
 == Image
 
-Enonic XP allows to edit images at runtime. Guillotine uses this functionnality by generating, on every image, a field "imageUrl" generating a URL pointing to a processed image.
+Enonic XP can edit images at runtime. Guillotine uses this functionality by generating, on every image, a field "imageUrl" generating a URL pointing to the processed image.
 
 === Example: Scaled Image URL
 
