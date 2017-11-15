@@ -325,6 +325,86 @@ It allows you to :
 
 |===
 
+=== ContentType
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|name: String
+|
+
+|displayName: String
+|
+
+|description: String
+|
+
+|superType: String
+|
+
+|abstract: Boolean
+|
+
+|final: Boolean
+|
+
+|allowChildContent: Boolean
+|
+
+|contentDisplayNameScript: String
+|
+
+|icon: Icon
+|
+
+|form: [FormItem]
+|
+
+|getInstances(
+offset: Int
+, first: Int
+, query: String
+, sort: String
+): [<<Content>>]
+|
+
+|getInstanceConnection(
+after: String
+, first: Int
+, query: String
+, sort: String
+): <<ContentConnection>>
+|
+
+|===
+
+=== FormItem
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|formItemType: <<FormItemType>>
+|
+
+|name: String
+|
+
+|label: String
+|
+
+==== Direct Known Subtypes
+
+Direct Known Subtypes: FormInput
+, FormOptionSet
+, FormLayout
+, FormItemSet
+
+|===
+
 == Enum Types
 
 === PrincipalType
@@ -342,3 +422,10 @@ Enum values: READ
 , PUBLISH
 , READ_PERMISSIONS
 , WRITE_PERMISSIONS
+
+=== Permission
+
+Enum values: ItemSet
+, Layout
+, Input
+, OptionSet
