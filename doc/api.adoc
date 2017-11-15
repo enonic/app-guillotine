@@ -160,7 +160,7 @@ Abstract type of all contents.
 |publish: <<PublishInfo>>
 |
 
-|pageUrl(type: UrlTypeTypeparams: String): String
+|pageUrl(type: <<UrlTypeType>>, params: String): String
 |
 
 |site: portal_Site
@@ -170,15 +170,15 @@ Abstract type of all contents.
 |
 
 |children(
-offset: Int
-first: Int
+offset: Int, 
+first: Int, 
 sort: String
 ): [<<Content>>]
 |
 
 |childrenConnection(
-after: String
-first: Int
+after: String, 
+first: Int, 
 sort: String
 ): <<ContentConnection>>
 |
@@ -570,3 +570,8 @@ Enum values: ItemSet
 , Layout
 , Input
 , OptionSet
+
+=== UrlTypeType
+
+Enum values: server
+, absolute
