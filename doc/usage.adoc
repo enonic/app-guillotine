@@ -22,7 +22,7 @@ image::img/graphiql.png[GraphiQL,768,384]
 
 * The field 'Service Location' specifies the location of the GraphQL service. 
 +
-By default it is prefilled with one of your configured sites and for the branch draft.
+By default, it is prefilled with one of your configured sites and for the branch draft.
 * The left panel allows you to edit your graphQL query
 * The center panel displays the result of the query execution
 * The right panel is used to display a documentation generated from the GraphQL API.
@@ -64,14 +64,14 @@ image::img/service.png[Request]
 == Relations
 
 Multiple relations are generated to allow to navigate between contents.
-By default each content has the following relations:
+By default, each content has the following relations:
 
 * parent: Link to the parent content 
 * children: Link to the child contents
-* site: Link to the nearest site
+* site: Link to the nearest site content
 
 On top of that, every ContentSelector, MediaUploader, AttachmentUploader or ImageSelector defined in your content type definitions will 
-be converted to a link to the linked content.
+be converted to a link to the related content(s).
 
 === Example: Children
 
@@ -94,7 +94,7 @@ image::img/children.png[Example,768,384]
 
 === Example: ContentSelector
 
-Query example: Retrieve the blog posts. For each post, return its display name and the display name of the related author
+Query example: Retrieve the Superhero blog posts. For each post, return its display name and the display name of the related author
 
 ----
 {
@@ -117,10 +117,11 @@ image::img/content-selector.png[Example,768,384]
 
 == Image
 
-Enonic XP allows to edit images at runtime. Every image content contains a field "imageUrl" generates a URL pointing to a processed image.
+Enonic XP allows to edit images at runtime. Guillotine uses this functionnality by generating, on every image, a field "imageUrl" generating a URL pointing to a processed image.
 
 === Example: Scaled Image URL
-Query example: Retrieve the image contents and generate an absolute URL to these images cropped to 800x200px
+
+Query example: Retrieve the image contents and generate absolute URLs to these images cropped to 800x200px
 
 ----
 {
