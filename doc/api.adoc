@@ -107,61 +107,85 @@ Abstract type of all contents.
 
 ==== Fields
 |===
-|Name(Arguments):Type
+|Name(Arguments):Type | Description
 
 |_id: ID!
+|
 
 |_name: String!
+|
 
 |_path: String!
+|
 
 |creator: PrincipalKey
+|
 
 |modifier: PrincipalKey
+|
 
 |createdTime: String
+|
 
 |modifiedTime: String
+|
 
 |owner: PrincipalKey
+|
 
 |type: String
+|
 
 |displayName: String
+|
 
 |hasChildren: Boolean
+|
 
 |language: String
+|
 
 |valid: Boolean
+|
 
 |x: [ExtraData]
+|
 
 |page: Page
+|
 
 |attachments: [Attachment]
+|
 
 |publish: PublishInfo
+|
 
 |pageUrl(type: UrlTypeTypeparams: String): String
+|
 
 |site: portal_Site
+|
 
 |parent: Content
+|
 
 |children(
 offset: Int
 first: Int
 sort: String
 ): [<<Content>>]
+|
 
 |childrenConnection(
 after: String
 first: Int
 sort: String
 ): <<ContentConnection>>
+|
 
 |permissions: Permissions
+|
+|===
 
 ==== Direct Known Subtypes
 
