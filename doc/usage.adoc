@@ -143,7 +143,7 @@ HTML fields are generated with a parameter "processHtml" allowing to replace abs
 
 === Example: Process HTML
 
-Query example: Retrieve the blog posts. For each post, return its author display name, tags and processed content.
+Query example: Retrieve the Superhero blog posts. For each post, return its author display name, tags and processed content.
 
 ----
 {
