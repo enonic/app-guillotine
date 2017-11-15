@@ -531,6 +531,21 @@ Direct Known Subtypes: FormInput
 
 |===
 
+=== Icon
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|mimeType: String
+|
+
+|modifiedTime: String
+|
+
+|===
+
 == Enum Types
 
 === PrincipalType
