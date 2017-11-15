@@ -1,13 +1,14 @@
 = Usage
 :toc: macro
 
-Once a site is configured, a service "graphql" is present under the site path: "/mysite/mypage/_/service/com.enonic.app.guillotine/graphql".
+Once a site is configured with the Guillotine application, a service "graphql" is present under the site path. 
+Example: "http://localhost:8080/mysite/mypage/_/service/com.enonic.app.guillotine/graphql".
 
 toc::[]
 
 == GraphiQL
 
-The easiest way to manually explore a GraphQL API and test queries is to use GraphiQL
+The easiest way to manually explore a GraphQL API and test GraphQL queries is to use GraphiQL
 
 === Installation 
 
@@ -22,7 +23,7 @@ image::img/graphiql.png[GraphiQL,768,384]
 
 * The field 'Service Location' specifies the location of the GraphQL service. 
 +
-By default, it is prefilled with one of your configured sites and for the branch draft.
+By default, it is prefilled with one of your configured sites for the branch "draft".
 * The left panel allows you to edit your graphQL query
 * The center panel displays the result of the query execution
 * The right panel is used to display a documentation generated from the GraphQL API.
@@ -50,8 +51,8 @@ image::img/graphiql-example.png[Example,768,384]
 
 == Application
 
-To use the Guillotine API, your application will send all its request to the GraphQL service: 
-"/mysite/mypage/_/service/com.enonic.app.guillotine/graphql"
+To use the Guillotine API, your application will send all its request to the GraphQL service.
+Example: "http://localhost:8080/mysite/mypage/_/service/com.enonic.app.guillotine/graphql".
 
 The service is expecting to receive a POST request with inside its body:
 
