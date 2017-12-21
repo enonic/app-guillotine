@@ -21,11 +21,11 @@ toc::[]
 
 |0.1.5
 |>= 6.10.0
-|http://repo.enonic.com/public/com/enonic/app/guillotine/0.1.5/graphiql-0.1.5.jar[Download]
+|http://repo.enonic.com/public/com/enonic/app/guillotine/0.1.5/guillotine-0.1.5.jar[Download]
 
 |0.2.0
 |>= 6.13.0
-|http://repo.enonic.com/public/com/enonic/app/guillotine/0.2.0/graphiql-0.2.0.jar[Download]
+|http://repo.enonic.com/public/com/enonic/app/guillotine/0.2.0/guillotine-0.2.0.jar[Download]
 |===
 
 == GraphQL
