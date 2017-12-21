@@ -8,8 +8,6 @@ var inputTypesLib = require('./input-types');
 var genericTypesLib = require('./generic-types');
 var graphQlRootQueryLib = require('./root-query');
 
-var nodeUpdatedIdRegexp = /id=([^,]+), path(?:[^,]+), branch=(draft|master), repo=cms-repo\}/g;
-
 eventLib.listener({
     type: 'application',
     localOnly: false,
@@ -28,11 +26,10 @@ eventLib.listener({
             'node.stateUpdated' === event.type) {
             var nodes = event.data.nodes;
             if (nodes) {
-                var execResult;
-                while (execResult = nodeUpdatedIdRegexp.exec(nodes)) {
-                    var contextId = execResult[1] + '/' + execResult[2];
+                nodes.forEach(function(node) {
+                    var contextId = node.id + '/' + node.branch;
                     delete contextMap[contextId];
-                }
+                });
             }
         }
 
