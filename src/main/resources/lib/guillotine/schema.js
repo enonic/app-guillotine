@@ -4,10 +4,6 @@ var graphQlLib = require('/lib/graphql');
 
 var guillotineLib = require('./guillotine');
 
-var contentTypesLib = require('./content-types');
-var enumTypesLib = require('./enum-types');
-var inputTypesLib = require('./input-types');
-var genericTypesLib = require('./generic-types');
 var graphQlRootQueryLib = require('./root-query');
 
 eventLib.listener({
@@ -38,16 +34,18 @@ eventLib.listener({
     }
 });
 
-var contextMap = {};
+var schemaMap = {};
 exports.getSchema = function (req) {
     var schemaId = getSchemaId(req);
-    var context = contextMap[schemaId];
-    if (!context) {
-        context = guillotineLib.createContext();
-        contextMap[schemaId] = context;
-        createSchema(context);
-    }
-    return context.schema;
+    var schema;
+    Java.type('com.enonic.app.guillotine.Synchronizer').sync(__.toScriptValue(function() {
+        schema = schemaMap[schemaId];
+        if (!schema) {
+            schema = createSchema();
+            schemaMap[schemaId] = schema;
+        }     
+    }));    
+    return schema;
 };
 
 function getSchemaId(req) {
@@ -56,12 +54,9 @@ function getSchemaId(req) {
     return siteId + '/' + branch;
 }
 
-function createSchema(context) {
-    enumTypesLib.createEnumTypes(context);
-    inputTypesLib.createInputTypes(context);
-    genericTypesLib.createGenericTypes(context);
-    contentTypesLib.createContentTypeTypes(context);
-    context.schema = graphQlLib.createSchema({
+function createSchema() {
+    var context = guillotineLib.createContext();
+    return graphQlLib.createSchema({
         query: graphQlRootQueryLib.createRootQueryType(context),
         dictionary: context.dictionary
     });
