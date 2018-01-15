@@ -11,7 +11,7 @@ eventLib.listener({
     localOnly: false,
     callback: function (event) {
         if ('STOPPED' === event.data.eventType || 'STARTED' === event.data.eventType) {
-            invalidateContexts();
+            invalidate();
         }
     }
 });
@@ -25,8 +25,7 @@ eventLib.listener({
             var nodes = event.data.nodes;
             if (nodes) {
                 nodes.forEach(function (node) {
-                    var contextId = node.id + '/' + node.branch;
-                    delete contextMap[contextId];
+                    invalidate(node.id + '/' + node.branch);
                 });
             }
         }
@@ -62,7 +61,11 @@ function createSchema() {
     });
 }
 
-function invalidateContexts() {
-    contextMap = {};
+function invalidate(schemaId) {
+    if (schemaId) {
+        delete schemaMap[schemaId];
+    } else {
+        schemaMap = {};    
+    }    
 }
 
