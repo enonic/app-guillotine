@@ -55,6 +55,7 @@ function getSchemaId(req) {
 
 function createSchema() {
     var context = guillotineLib.createContext();
+    context.options.applicationFilter = null;
     return graphQlLib.createSchema({
         query: graphQlRootQueryLib.createRootQueryType(context),
         dictionary: context.dictionary
