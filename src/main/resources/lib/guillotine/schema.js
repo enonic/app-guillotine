@@ -1,10 +1,7 @@
 var eventLib = require('/lib/xp/event');
 var portalLib = require('/lib/xp/portal');
-var graphQlLib = require('/lib/graphql');
 
 var guillotineLib = require('./guillotine');
-
-var graphQlRootQueryLib = require('./root-query');
 
 eventLib.listener({
     type: 'application',
@@ -37,13 +34,13 @@ var schemaMap = {};
 exports.getSchema = function (req) {
     var schemaId = getSchemaId(req);
     var schema;
-    Java.type('com.enonic.app.guillotine.Synchronizer').sync(__.toScriptValue(function() {
+    Java.type('com.enonic.app.guillotine.Synchronizer').sync(__.toScriptValue(function () {
         schema = schemaMap[schemaId];
         if (!schema) {
             schema = createSchema();
             schemaMap[schemaId] = schema;
-        }     
-    }));    
+        }
+    }));
     return schema;
 };
 
@@ -54,11 +51,8 @@ function getSchemaId(req) {
 }
 
 function createSchema() {
-    var context = guillotineLib.createContext();
-    context.options.applicationFilter = null;
-    return graphQlLib.createSchema({
-        query: graphQlRootQueryLib.createRootQueryType(context),
-        dictionary: context.dictionary
+    return guillotineLib.createSchema({
+        applicationFilter: portalLib.getSiteConfig().applicationFilter || null
     });
 }
 
@@ -66,7 +60,7 @@ function invalidate(schemaId) {
     if (schemaId) {
         delete schemaMap[schemaId];
     } else {
-        schemaMap = {};    
-    }    
+        schemaMap = {};
+    }
 }
 
