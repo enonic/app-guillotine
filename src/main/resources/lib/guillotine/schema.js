@@ -1,7 +1,7 @@
 var eventLib = require('/lib/xp/event');
 var portalLib = require('/lib/xp/portal');
 
-var guillotineLib = require('./guillotine');
+var guillotineLib = require('/lib/guillotine');
 
 eventLib.listener({
     type: 'application',

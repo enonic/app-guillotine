@@ -18,7 +18,7 @@ dependencies {
     include "com.enonic.xp:lib-content:${xpVersion}"
     include "com.enonic.xp:lib-portal:${xpVersion}"
     include "com.enonic.xp:lib-event:${xpVersion}"
-    include "com.enonic.lib:lib-guillotine:0.1.0-SNAPSHOT"
+    include "com.enonic.lib:lib-guillotine:0.2.1"
 }
 
 repositories {
