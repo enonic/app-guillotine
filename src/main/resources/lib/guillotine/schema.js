@@ -51,8 +51,11 @@ function getSchemaId(req) {
 }
 
 function createSchema() {
+    var applicationKeys = portalLib.getSite().data.siteConfig.map(function (applicationConfigEntry) {
+        return applicationConfigEntry.applicationKey;
+    });
     return guillotineLib.createSchema({
-        applicationFilter: portalLib.getSiteConfig().applicationFilter || null
+        applications: applicationKeys
     });
 }
 
