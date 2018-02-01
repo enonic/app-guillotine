@@ -1,19 +1,14 @@
 var eventLib = require('/lib/xp/event');
 var portalLib = require('/lib/xp/portal');
-var graphQlLib = require('/lib/graphql');
 
-var contentTypesLib = require('./content-types');
-var enumTypesLib = require('./enum-types');
-var inputTypesLib = require('./input-types');
-var genericTypesLib = require('./generic-types');
-var graphQlRootQueryLib = require('./root-query');
+var guillotineLib = require('/lib/guillotine');
 
 eventLib.listener({
     type: 'application',
     localOnly: false,
     callback: function (event) {
         if ('STOPPED' === event.data.eventType || 'STARTED' === event.data.eventType) {
-            invalidateContexts();
+            invalidate();
         }
     }
 });
@@ -26,9 +21,8 @@ eventLib.listener({
             'node.stateUpdated' === event.type) {
             var nodes = event.data.nodes;
             if (nodes) {
-                nodes.forEach(function(node) {
-                    var contextId = node.id + '/' + node.branch;
-                    delete contextMap[contextId];
+                nodes.forEach(function (node) {
+                    invalidate(node.id + '/' + node.branch);
                 });
             }
         }
@@ -36,16 +30,18 @@ eventLib.listener({
     }
 });
 
-var contextMap = {};
+var schemaMap = {};
 exports.getSchema = function (req) {
     var schemaId = getSchemaId(req);
-    var context = contextMap[schemaId];
-    if (!context) {
-        context = createContext();
-        contextMap[schemaId] = context;
-        createSchema(context);
-    }
-    return context.schema;
+    var schema;
+    Java.type('com.enonic.app.guillotine.Synchronizer').sync(__.toScriptValue(function () {
+        schema = schemaMap[schemaId];
+        if (!schema) {
+            schema = createSchema();
+            schemaMap[schemaId] = schema;
+        }
+    }));
+    return schema;
 };
 
 function getSchemaId(req) {
@@ -54,43 +50,20 @@ function getSchemaId(req) {
     return siteId + '/' + branch;
 }
 
-function createContext() {
-    return {
-        types: {},
-        dictionary: [],
-        nameSet: {},
-        contentTypeMap: {},
-        addObjectType: function (objectType) {
-            this.dictionary.push(objectType);
-        },
-        putContentType: function (name, objectType) {
-            this.contentTypeMap[name] = objectType;
-        },
-        uniqueName: function (name) {
-            var uniqueName = name;
-            if (this.nameSet[name]) {
-                this.nameSet[uniqueName]++;
-                uniqueName = name + '_' + this.nameSet[uniqueName];
-            } else {
-                this.nameSet[uniqueName] = 1;
-            }
-            return uniqueName;
-        }
-    };
-}
-
-function createSchema(context) {
-    enumTypesLib.createEnumTypes(context);
-    inputTypesLib.createInputTypes(context);
-    genericTypesLib.createGenericTypes(context);
-    contentTypesLib.createContentTypeTypes(context);
-    context.schema = graphQlLib.createSchema({
-        query: graphQlRootQueryLib.createRootQueryType(context),
-        dictionary: context.dictionary
+function createSchema() {
+    var applicationKeys = portalLib.getSite().data.siteConfig.map(function (applicationConfigEntry) {
+        return applicationConfigEntry.applicationKey;
+    });
+    return guillotineLib.createSchema({
+        applications: applicationKeys
     });
 }
 
-function invalidateContexts() {
-    contextMap = {};
+function invalidate(schemaId) {
+    if (schemaId) {
+        delete schemaMap[schemaId];
+    } else {
+        schemaMap = {};
+    }
 }
 
