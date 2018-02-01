@@ -95,7 +95,8 @@ The service is expecting to receive a POST request with inside its body:
 ----
 var portalLib = require('/lib/xp/portal');
 var graphqlServiceUrl = portalLib.serviceUrl({
-    service: 'graphql'
+    service: 'graphql',
+    application: 'com.enonic.app.guillotine'
 });
 ----
 
