@@ -10,7 +10,7 @@ child items and access media directly.
 
 [NOTE]
 ==== 
-This application is built on the Guillotine library. For details on API or integrating Guillotine into your own app, check out  
+This application is built on the Guillotine library. For details on the API or integrating Guillotine into your own app, check out  
 https://developer.enonic.com/docs/apis/guillotine-headless-cms-library[the Guillotine library documentation...]
 ====
 
@@ -90,8 +90,7 @@ The service is expecting to receive a POST request with inside its body:
 * A mandatory "query" String
 * An optional "variables" Object
 
-=== Example: Generate a service URL from a controller
-
+.Example: Generate a service URL from a controller
 [source,javascript]
 ----
 var portalLib = require('/lib/xp/portal');
@@ -100,7 +99,7 @@ var graphqlServiceUrl = portalLib.serviceUrl({
 });
 ----
 
-=== Example: Fetch data from a javascript client
+.Example: Fetch data from a javascript client
 [source,javascript]
 ----
 const query = `query($path:ID!){
