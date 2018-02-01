@@ -9,14 +9,19 @@ This gives you direct, typed and documented access to all content within the sit
 child items and access media directly.
 
 
-[NOTE] 
-.GraphQL
+[NOTE]
 ==== 
 GraphQL is a query language developed by Facebook. 
 This technology allows Guillotine to provide a single and exhaustive API 
 while allowing you to retrieve all the content information you need in one request without any superfluous information
 
 http://graphql.org/learn[Learn more about GraphQL...]
+====
+
+[NOTE]
+==== 
+This application is built on the Guillotine library. For details on API or integrating Guillotine into your own app, check out  
+https://developer.enonic.com/docs/apis/guillotine-headless-cms-library[the Guillotine library documentation...]
 ====
 
 == Installation
@@ -91,7 +96,3 @@ fetch('{{graphqlServiceUrl}}', {
     .then(response => response.json())
     .then(console.log);
 ----
-
-== Guillotine GraphQL API
-
-link:api.html[Learn more about the GraphQL API...]
