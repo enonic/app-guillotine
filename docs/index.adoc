@@ -11,7 +11,7 @@ child items and access media directly.
 [NOTE]
 ==== 
 This application is built on the Guillotine library. For details on the API or integrating Guillotine into your own app, check out  
-https://developer.enonic.com/docs/apis/guillotine-headless-cms-library[the Guillotine library documentation...]
+https://github.com/enonic/lib-guillotine/blob/master/docs/index.adoc[the Guillotine library documentation...]
 ====
 
 == Installation
