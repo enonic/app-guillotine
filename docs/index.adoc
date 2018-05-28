@@ -129,7 +129,9 @@ By default, 'Service Location' is prefilled with the URL of the service 'graphql
 To determine the URL of your service:
 
 * If you are using the Guillotine application, the URL will be: [site-url]/_/service/com.enonic.app.guillotine/graphql
+** Example: `+http://localhost:8080/portal/draft/superhero/_/service/com.enonic.app.guillotine/graphql+`
 * If you are using the Guillotine library, the URL will be: [site-url]/_/service/[application]/[service-name]
+** Example: `+http://localhost:8080/portal/draft/superhero/_/service/com.enonic.app.superhero/graphql+`
 
 ====
 
