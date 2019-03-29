@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-  <config>
+  <form>
     <input type="TextLine" name="applicationFilter">
       <label>Application filter</label>
       <occurrences minimum="0" maximum="0"/>
     </input>
-  </config>
+  </form>
 </site>
