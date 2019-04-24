@@ -17,18 +17,21 @@ child items and access media directly.
 |Download
 
 |0.1.5
-|>= 6.10.0
+|6.10.0+
 |http://repo.enonic.com/public/com/enonic/app/guillotine/0.1.5/guillotine-0.1.5.jar[Download]
 
 |0.2.0
-|>= 6.13.0
+|6.13.0+
 |http://repo.enonic.com/public/com/enonic/app/guillotine/0.2.0/guillotine-0.2.0.jar[Download]
 
 |1.0.0
-|>= 6.13.0
+|6.13.0+
 |http://repo.enonic.com/public/com/enonic/app/guillotine/1.0.0/guillotine-1.0.0.jar[Download]
-|===
 
+|2.0.0
+|7.0.0+
+|http://repo.enonic.com/public/com/enonic/app/guillotine/2.0.0/guillotine-2.0.0.jar[Download]
+|===
 == Build
 
 To build this project, execute the following:
