@@ -32,6 +32,15 @@ child items and access media directly.
 |7.0.0+
 |http://repo.enonic.com/public/com/enonic/app/guillotine/2.0.0/guillotine-2.0.0.jar[Download]
 |===
+
+== Breaking changes
+
+=== Breaking changes in 2.0
+
+- Type "PrincipalKey": Field "userStore" renamed to "idProvider"
+- Type "Component": Field "controller" renamed to "descriptor"
+- Type "Component": Field "name" removed
+
 == Build
 
 To build this project, execute the following:
