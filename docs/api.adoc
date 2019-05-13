@@ -314,8 +314,8 @@ It allows you to :
 |type: <<PrincipalType>>
 |Principal type
 
-|userStore: String
-|User store name
+|idProvider: String
+|ID Provider name
 
 |principalId: String
 |Principal ID inside this user store
@@ -431,7 +431,7 @@ Page specific properties
 |template: String
 |Page template
 
-|controller: String
+|descriptor: String
 |Page controller
 
 |config: String
@@ -466,9 +466,6 @@ Page specific properties
 
 |===
 |Name(Arguments):Type | Description
-
-|name: String
-|Component name
 
 |path: String
 |Component path

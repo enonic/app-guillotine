@@ -38,7 +38,7 @@ child items and access media directly.
 === Breaking changes in 2.0
 
 - Type "PrincipalKey": Field "userStore" renamed to "idProvider"
-- Type "Component": Field "controller" renamed to "descriptor"
+- Type "Page": Field "controller" renamed to "descriptor"
 - Type "Component": Field "name" removed
 
 == Build
