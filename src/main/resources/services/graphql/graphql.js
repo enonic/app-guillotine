@@ -3,6 +3,8 @@ var graphQlLib = require('/lib/graphql');
 var schemaLib = require('/lib/guillotine/schema');
 var securityLib = require('/lib/guillotine/security');
 
+var graphqlPlaygroundLib = require('/lib/graphql-playground');
+
 exports.post = function (req) {
     if (!securityLib.isSiteContext()) {
         return createNotFoundError();
@@ -15,6 +17,14 @@ exports.post = function (req) {
     return {
         contentType: 'application/json',
         body: result
+    };
+};
+
+exports.get = function (req) {
+    var body = graphqlPlaygroundLib.render();
+    return {
+        contentType: 'text/html; charset=utf-8',
+        body: body
     };
 };
 
