@@ -16,6 +16,10 @@ child items and access media directly.
 |Min.XP Version
 |Download
 
+|4.0.0
+|7.0.0
+|http://repo.enonic.com/public/com/enonic/app/guillotine/4.0.0/guillotine-4.0.0.jar[Download]
+
 |3.0.0
 |7.0.0
 |http://repo.enonic.com/public/com/enonic/app/guillotine/3.0.0/guillotine-3.0.0.jar[Download]
@@ -38,6 +42,15 @@ child items and access media directly.
 |===
 
 == Breaking changes
+
+=== Breaking changes in 4.0
+
+- Type "Content": Field "page": Removed (Use fields "pageAsJson" or "components" instead)
+- Types "Flat*Component*": Renamed to "*Component*".
+- Type "FlatDescriptorBasedComponentData": Split into 2 types: "LayoutComponentData" and "PartComponentData"
+- Fields "config": Renamed to "configAsJson"
+- Type "Content": Field "components": By default, the components of the page template are used instead if there is one.
+- Type "Content": Field "components": By default, the fragments are inlined
 
 === Breaking changes in 3.0
 
