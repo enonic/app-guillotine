@@ -148,8 +148,14 @@ Interface of all contents.
 |x: [<<ExtraData>>]
 |Content extra data
 
-|page: <<Page>>
+|pageAsJson: String
 |Page specific information
+
+|pageTemplate: <<Content>>
+|Related page template content
+
+|components: [<<Component>>]
+|Flattened list of page components
 
 |attachments: [<<Attachment>>]
 |Content attachments
@@ -419,47 +425,6 @@ Direct Known Subtypes: FormInput
 
 |===
 
-=== Page
-
-Page specific properties
-
-==== Fields
-
-|===
-|Name(Arguments):Type | Description
-
-|template: String
-|Page template
-
-|descriptor: String
-|Page controller
-
-|config: String
-|Page configuration
-
-|regions: [<<Region>>]
-|Page regions
-
-|fragment: <<Component>>
-|Fragment
-
-|===
-
-=== Region
-
-==== Fields
-
-|===
-|Name(Arguments):Type | Description
-
-|name: String
-|Region name
-
-|components: [<<Component>>]
-|Region components
-
-|===
-
 === Component
 
 ==== Fields
@@ -470,23 +435,122 @@ Page specific properties
 |path: String
 |Component path
 
-|type: String
+|type: <<ComponentType>>
 |Component type
 
+|page: <<PageComponentData>>
+|Data for page components
+
+|layout: <<LayoutComponentData>>
+|Data for layout components
+
+|image: <<ImageComponentData>>
+|Data for image components
+
+|part: <<PartComponentData>>
+|Data for part components
+
+|text: <<TextComponentData>>
+|Data for text components
+
+|fragment: <<FragmentComponentData>>
+|Data for fragment components
+
+|===
+
+=== PageComponentData
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
 |descriptor: String
-|Component descriptor
+|Controller descriptor
 
-|text: String
-|Component text
+|customized: Boolean
+|True if the page is customized
 
-|fragment: String
-|Fragment
+|configAsJson: String
+|Component config
 
-|config: String
-|Component configuration
+|template: <<Content>>
+|Related template content
 
-|regions: [<<Region>>]
-|Component regions
+|===
+
+=== LayoutComponentData
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|descriptor: String!
+|Controller descriptor
+
+|configAsJson: String
+|Component config
+
+|===
+
+=== ImageComponentData
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|id: ID!
+|Image key
+
+|caption: String
+|Image caption
+
+|image: media_Image
+|Related image content
+
+|===
+
+=== PartComponentData
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|descriptor: String!
+|Controller descriptor
+
+|configAsJson: String
+|Component config
+
+|===
+
+=== TextComponentData
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|value: String!
+|Text value
+
+|===
+
+=== FragmentComponentData
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|id: ID!
+|Fragment key
+
+|fragment: Content
+|Related fragment content
 
 |===
 
@@ -573,3 +637,12 @@ Enum values: ItemSet
 
 Enum values: server
 , absolute
+
+=== ComponentType
+
+Enum values: page
+, layout
+, image
+, part
+, text
+, fragment

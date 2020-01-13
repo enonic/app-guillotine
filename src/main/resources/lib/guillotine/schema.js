@@ -1,5 +1,6 @@
 var eventLib = require('/lib/xp/event');
 var portalLib = require('/lib/xp/portal');
+var utilLib = require('/lib/guillotine/util');
 
 var guillotineLib = require('/lib/guillotine');
 
@@ -51,11 +52,15 @@ function getSchemaId(req) {
 }
 
 function createSchema() {
-    var applicationKeys = portalLib.getSite().data.siteConfig.map(function (applicationConfigEntry) {
-        return applicationConfigEntry.applicationKey;
-    });
+    const siteConfigs = utilLib.forceArray(portalLib.getSite().data.siteConfig);
+    const applicationKeys = siteConfigs.map((siteConfigEntry) => siteConfigEntry.applicationKey);
+
+    const siteConfig = portalLib.getSiteConfig();
+    const allowPaths = utilLib.forceArray(siteConfig && siteConfig.allowPaths);
+    
     return guillotineLib.createSchema({
-        applications: applicationKeys
+        applications: applicationKeys,
+        allowPaths: allowPaths
     });
 }
 

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
   <form>
-    <input type="TextLine" name="applicationFilter">
-      <label>Application filter</label>
+    <input type="TextLine" name="allowPaths">
+      <label>Allowed paths</label>
+      <help-text>Allowed content paths in addition to this site</help-text>
       <occurrences minimum="0" maximum="0"/>
     </input>
   </form>
