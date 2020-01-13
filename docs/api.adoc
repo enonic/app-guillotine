@@ -465,7 +465,7 @@ Direct Known Subtypes: FormInput
 |===
 |Name(Arguments):Type | Description
 
-|descriptor: String!
+|descriptor: String
 |Controller descriptor
 
 |customized: Boolean
@@ -473,6 +473,9 @@ Direct Known Subtypes: FormInput
 
 |configAsJson: String
 |Component config
+
+|template: <<Content>>
+|Related template content
 
 |===
 
