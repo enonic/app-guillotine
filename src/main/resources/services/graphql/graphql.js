@@ -70,7 +70,7 @@ exports.webSocketEvent = function (event) {
         }
         break;
     case 'error':
-        log.warn('Session [' + event.session.id + '] error: ' + event.error);
+        log.warning('Session [' + event.session.id + '] error: ' + event.error);
         break;
     }
 };
