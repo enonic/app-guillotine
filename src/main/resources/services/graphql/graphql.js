@@ -1,5 +1,6 @@
 var graphQlLib = require('/lib/graphql');
 var graphQlRxLib = require('/lib/graphql-rx');
+var authLib = require('/lib/xp/auth');
 var portalLib = require('/lib/xp/portal');
 var webSocketLib = require('/lib/xp/websocket');
 
@@ -26,6 +27,12 @@ exports.post = function (req) {
 
 exports.get = function (req) {
     if (req.webSocket) {
+        if (!isAuthenticated()) {
+            return createUnauthorizedError();
+        }
+        if (!canAccessAdminLogin()) {
+            return createForbiddenError();
+        }
         return {
             webSocket: {
                 data: {
@@ -74,6 +81,14 @@ exports.webSocketEvent = function (event) {
         break;
     }
 };
+
+function isAuthenticated() {
+    return authLib.hasRole('system.authenticated')
+}
+
+function canAccessAdminLogin() {
+    return authLib.hasRole('system.admin') || authLib.hasRole('system.admin.login')
+}
 
 function cancelSubscription(sessionId) {
     Java.synchronized(() => {
@@ -124,6 +139,20 @@ function createNotFoundError() {
                 {
                     "errorType": "404",
                     "message": "Not found"
+                }
+            ]
+        }
+    }
+}
+
+function createUnauthorizedError() {
+    return {
+        status: 401,
+        body: {
+            "errors": [
+                {
+                    "errorType": "401",
+                    "message": "Unauthorized"
                 }
             ]
         }
