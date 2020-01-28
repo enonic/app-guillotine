@@ -1,4 +1,6 @@
 var eventLib = require('/lib/xp/event');
+var contentLib = require('/lib/xp/content');
+var contextLib = require('/lib/xp/context');
 var portalLib = require('/lib/xp/portal');
 var utilLib = require('/lib/guillotine/util');
 
@@ -32,36 +34,56 @@ eventLib.listener({
 });
 
 var schemaMap = {};
-exports.getSchema = function (req) {
-    var schemaId = getSchemaId(req);
-    var schema;
+exports.getSchema = function (params) {
+    const schemaId = getSchemaId(params);
+    let schema = null;
     Java.type('com.enonic.app.guillotine.Synchronizer').sync(__.toScriptValue(function () {
         schema = schemaMap[schemaId];
         if (!schema) {
-            schema = createSchema();
+            schema = createSchema(params);
             schemaMap[schemaId] = schema;
         }
     }));
     return schema;
 };
 
-function getSchemaId(req) {
-    var siteId = portalLib.getSite()._id;
-    var branch = req.branch;
+function getSchemaId(params) {
+    var siteId = params.req ? portalLib.getSite()._id : params.siteId;
+    var branch = params.req ? params.req.branch : params.branch;
     return siteId + '/' + branch;
 }
 
-function createSchema() {
-    const siteConfigs = utilLib.forceArray(portalLib.getSite().data.siteConfig);
+function createSchema(params) {
+    const siteConfigs = utilLib.forceArray(getSite(params).data.siteConfig);
     const applicationKeys = siteConfigs.map((siteConfigEntry) => siteConfigEntry.applicationKey);
 
-    const siteConfig = portalLib.getSiteConfig();
+    const siteConfig = getSiteConfig(params);
     const allowPaths = utilLib.forceArray(siteConfig && siteConfig.allowPaths);
-    
+
     return guillotineLib.createSchema({
         applications: applicationKeys,
         allowPaths: allowPaths
     });
+}
+
+function getSite(params) {
+    if (params.req) {
+        return portalLib.getSite();
+    }
+
+    return contextLib.run({
+        branch: params.branch
+    }, () => contentLib.get({key: params.siteId}));
+}
+
+function getSiteConfig(params) {
+    if (params.req) {
+        return portalLib.getSiteConfig();
+    }
+
+    return contextLib.run({
+        branch: params.branch
+    }, () => contentLib.getSiteConfig({key: params.siteId}));
 }
 
 function invalidate(schemaId) {

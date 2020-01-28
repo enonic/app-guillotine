@@ -16,6 +16,10 @@ child items and access media directly.
 |Min.XP Version
 |Download
 
+|4.1.0
+|7.0.0
+|http://repo.enonic.com/public/com/enonic/app/guillotine/4.0.0/guillotine-4.1.0.jar[Download]
+
 |4.0.0
 |7.0.0
 |http://repo.enonic.com/public/com/enonic/app/guillotine/4.0.0/guillotine-4.0.0.jar[Download]
