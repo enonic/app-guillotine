@@ -20,7 +20,7 @@ exports.post = function (req) {
     var result = graphQlLib.execute(schemaLib.getSchema({req: req}), body.query, body.variables);
     return {
         contentType: 'application/json',
-        body: result
+        body: JSON.stringify(result)
     };
 };
 
