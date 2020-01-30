@@ -77,7 +77,7 @@ exports.post = function (req) { // <3>
  var result = graphQlLib.execute(schema, body.query, body.variables); // <5>
  return {
      contentType: 'application/json',
-     body: result
+     body: JSON.stringify(result)
  };
 };
 ----
