@@ -5,7 +5,7 @@ var portalLib = require('/lib/xp/portal');
 var webSocketLib = require('/lib/xp/websocket');
 
 var schemaLib = require('/lib/guillotine/schema');
-var securityLib = require('/lib/guillotine/security');
+var securityLib = require('/lib/guillotine/util/security');
 
 var graphqlPlaygroundLib = require('/lib/graphql-playground');
 
