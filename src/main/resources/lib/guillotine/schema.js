@@ -2,7 +2,7 @@ var eventLib = require('/lib/xp/event');
 var contentLib = require('/lib/xp/content');
 var contextLib = require('/lib/xp/context');
 var portalLib = require('/lib/xp/portal');
-var utilLib = require('/lib/guillotine/util');
+var utilLib = require('/lib/guillotine/util/util');
 
 var guillotineLib = require('/lib/guillotine');
 
