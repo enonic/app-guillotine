@@ -1,6 +1,9 @@
 const guillotineLib = require('/lib/guillotine');
 const securityLib = require('/lib/guillotine/util/security');
 const graphqlPlaygroundLib = require('/lib/graphql-playground');
+const contentLib = require('/lib/xp/content');
+const contextLib = require('/lib/xp/context');
+const portalLib = require('/lib/xp/portal');
 
 function createNotFoundError() {
     return {
@@ -37,10 +40,23 @@ exports.post = function (req) {
         return createForbiddenError();
     }
 
+    let siteConfig = contextLib.run({
+        branch: req.branch
+    }, () => contentLib.getSiteConfig({
+        key: portalLib.getSite()._id,
+        applicationKey: 'com.enonic.app.guillotine'
+    }));
+
     let input = JSON.parse(req.body);
+
     let params = {
         query: input.query,
-        variables: input.variables
+        variables: input.variables,
+        schemaOptions: {
+            applications: siteConfig.applications,
+            allowPaths: siteConfig.allowPaths,
+            subscriptionEventTypes: siteConfig.subscriptionEventTypes
+        }
     };
 
     return {
@@ -48,7 +64,6 @@ exports.post = function (req) {
         body: guillotineLib.execute(params)
     };
 };
-
 
 exports.get = function (req) {
     if (req.webSocket) {

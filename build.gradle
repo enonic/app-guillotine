@@ -18,9 +18,10 @@ dependencies {
     compileOnly "com.enonic.xp:script-api:${xpVersion}"
     include "com.enonic.xp:lib-auth:${xpVersion}"
     include "com.enonic.xp:lib-content:${xpVersion}"
+    include "com.enonic.xp:lib-context:${xpVersion}"
     include "com.enonic.xp:lib-portal:${xpVersion}"
     include "com.enonic.xp:lib-websocket:${xpVersion}"
-    include "com.enonic.lib:lib-guillotine:5.1.0-SNAPSHOT"
+    include "com.enonic.lib:lib-guillotine:5.1.0"
     include "com.enonic.lib:lib-graphql-playground:0.0.1"
 }
 
