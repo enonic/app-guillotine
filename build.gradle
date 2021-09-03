@@ -21,7 +21,7 @@ dependencies {
     include "com.enonic.xp:lib-context:${xpVersion}"
     include "com.enonic.xp:lib-portal:${xpVersion}"
     include "com.enonic.xp:lib-websocket:${xpVersion}"
-    include "com.enonic.lib:lib-guillotine:5.2.0"
+    include "com.enonic.lib:lib-guillotine:5.2.1"
     include "com.enonic.lib:lib-graphql-playground:0.0.1"
 }
 
