@@ -1,0 +1,31 @@
+body {
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+#graphiql-container {
+    height: 100vh;
+}
+
+.app-toolbar {
+    background-color: #ececec;
+    padding: 15px 5px;
+}
+
+.app-toolbar form {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+}
+
+.app-toolbar__tool {
+    margin: 10px;
+}
+
+.app-toolbar__tool-label {
+    font-size: 17px;
+    font-family: arial, sans-serif;
+}
