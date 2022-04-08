@@ -2,6 +2,9 @@
   <display-name>Guillotine</display-name>
   <description>Generate a dynamic GraphQL API</description>
   <interfaces>
-    <interface>contentstudio.sidebar</interface>
+    <interface>contentstudio.menuitem</interface>
   </interfaces>
+  <config>
+    <property name="context" value="project"/>
+  </config>
 </widget>
