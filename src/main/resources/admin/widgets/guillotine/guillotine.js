@@ -1,5 +1,4 @@
-const portalLib = require('/lib/xp/portal');
-const mustacheLib = require('/lib/mustache');
+const mustache = require('/lib/mustache');
 
 exports.get = function (req) {
     const view = resolve('guillotine.html');
@@ -13,8 +12,11 @@ exports.get = function (req) {
         assetsUrl: assetsUrl,
         wsUrl: wsUrl.endsWith('/') ? wsUrl.substring(0, wsUrl.length - 1) : wsUrl
     };
+
     return {
-        body: mustacheLib.render(view, params),
-        contentType: 'text/html'
+        contentType: 'text/html',
+        body: mustache.render(view, params),
     };
-};
+}
+
+exports.get = handleGet;
