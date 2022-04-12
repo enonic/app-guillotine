@@ -1,8 +1,0 @@
-package com.enonic.app.guillotine;
-
-public @interface PortalConfig
-{
-    String media_public_cacheControl() default "public, max-age=31536000, immutable";
-
-    String media_private_cacheControl() default "private, max-age=31536000, immutable";
-}

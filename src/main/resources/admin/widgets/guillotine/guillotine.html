@@ -1,3 +1,27 @@
-<widget id="widget-guillotine" style="display: flex;justify-content: center;">
-    Welcome to Guillotine application!
+<widget id="widget-guillotine">
+    <link rel="stylesheet" href="{{assetsUrl}}/css/index.css"/>
+    <link rel="stylesheet" href="{{assetsUrl}}/graphiql/graphiql.css"/>
+
+    <script src="{{assetsUrl}}/js/react.min.js"></script>
+    <script src="{{assetsUrl}}/js/react-dom.min.js"></script>
+    <script src="{{assetsUrl}}/graphiql/graphiql.min.js"></script>
+    <script src="{{assetsUrl}}/js/es6-promise.auto.min.js"></script>
+    <script src="{{assetsUrl}}/js/fetch.min.js"></script>
+
+    <div class="app-guillotine-container">
+        <div class="app-toolbar">
+            <form>
+                <div class="app-toolbar__tool">
+                    <label class="app-toolbar__tool-label" for="branch">Branch:</label>
+                    <select name="branch" id="branch">
+                        <option value="draft">draft</option>
+                        <option value="master">master</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <div id="graphiql-container"></div>
+        <script src="{{assetsUrl}}/js/index.js"></script>
+    </div>
 </widget>
