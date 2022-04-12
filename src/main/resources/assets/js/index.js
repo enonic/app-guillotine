@@ -1,9 +1,9 @@
 function graphQLFetcher(graphQLParams) {
-    const projectVal = document.getElementById('project').value;
+    const projectVal = window.libAdmin.store.get('projectContext').currentProject.name;
     const branchVal = document.getElementById('branch').value;
 
     return fetch(
-        `/webapp/com.enonic.app.guillotine/${projectVal}/${branchVal}`,
+        `/admin/site/preview/${projectVal}/${branchVal}`,
         {
             method: 'post',
             headers: {
@@ -20,10 +20,21 @@ function graphQLFetcher(graphQLParams) {
     });
 }
 
-ReactDOM.render(
-    React.createElement(GraphiQL, {
-        fetcher: graphQLFetcher,
-        defaultVariableEditorOpen: true,
-    }),
-    document.getElementById('graphiql-container'),
-);
+waitFor('GraphiQL', function () {
+    ReactDOM.render(
+        React.createElement(GraphiQL, {
+            fetcher: graphQLFetcher,
+            defaultVariableEditorOpen: true,
+        }),
+        document.getElementById('graphiql-container'),
+    );
+});
+
+function waitFor(variable, callback) {
+    let interval = setInterval(function () {
+        if (window[variable]) {
+            clearInterval(interval);
+            callback();
+        }
+    }, 100);
+}

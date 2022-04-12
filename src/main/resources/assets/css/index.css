@@ -6,7 +6,12 @@ body {
 }
 
 #graphiql-container {
-    height: 100vh;
+    height: calc(100vh - 115px);;
+}
+
+.app-guillotine-container {
+    margin: 0 0 0 44px;
+    padding: 0;
 }
 
 .app-toolbar {
