@@ -1,5 +1,5 @@
 <widget xmlns="urn:enonic:xp:model:1.0">
-  <display-name>Guillotine</display-name>
+  <display-name>GraphQL API</display-name>
   <description>Generate a dynamic GraphQL API</description>
   <interfaces>
     <interface>contentstudio.menuitem</interface>
