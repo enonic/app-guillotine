@@ -6,6 +6,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.portal.PortalRequest;
+import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.controller.ControllerScript;
 import com.enonic.xp.portal.controller.ControllerScriptFactory;
 import com.enonic.xp.resource.ResourceKey;
@@ -15,12 +16,17 @@ import com.enonic.xp.web.WebResponse;
 import com.enonic.xp.web.handler.BaseWebHandler;
 import com.enonic.xp.web.handler.WebHandler;
 import com.enonic.xp.web.handler.WebHandlerChain;
+import com.enonic.xp.web.websocket.WebSocketConfig;
+import com.enonic.xp.web.websocket.WebSocketContext;
+import com.enonic.xp.web.websocket.WebSocketEndpoint;
 
 @Component(immediate = true, service = WebHandler.class)
 public class GuillotineApiWebHandler
     extends BaseWebHandler
 {
     private static final ApplicationKey APPLICATION_KEY = ApplicationKey.from( "com.enonic.app.guillotine" );
+
+    private static final String WS_SUB_PROTOCOL = "graphql-transport-ws";
 
     private final ControllerScriptFactory controllerScriptFactory;
 
@@ -35,13 +41,37 @@ public class GuillotineApiWebHandler
     protected boolean canHandle( final WebRequest webRequest )
     {
         final String rawPath = webRequest.getRawPath();
-        return webRequest.getMethod() == HttpMethod.POST && !rawPath.contains( "/_/" ) &&
+        return ( webRequest.getMethod() == HttpMethod.POST || ( webRequest.getMethod() == HttpMethod.GET && webRequest.isWebSocket() &&
+            WS_SUB_PROTOCOL.equals( webRequest.getHeaders().get( "Sec-WebSocket-Protocol" ) ) ) ) && !rawPath.contains( "/_/" ) &&
             ( rawPath.startsWith( "/admin/site" ) || rawPath.startsWith( "/site" ) );
     }
 
     @Override
     protected WebResponse doHandle( final WebRequest webRequest, final WebResponse webResponse, final WebHandlerChain webHandlerChain )
         throws Exception
+    {
+        final PortalRequest portalRequest = castToPortalRequest( webRequest );
+        portalRequest.setContextPath( portalRequest.getBaseUri() );
+        portalRequest.setApplicationKey( APPLICATION_KEY );
+
+        final ResourceKey scriptDir = ResourceKey.from( APPLICATION_KEY, "graphql" );
+        final ControllerScript controllerScript = controllerScriptFactory.fromDir( scriptDir );
+
+        final PortalResponse portalResponse = controllerScript.execute( portalRequest );
+
+        final WebSocketConfig webSocketConfig = portalResponse.getWebSocket();
+        final WebSocketContext webSocketContext = portalRequest.getWebSocketContext();
+
+        if ( webSocketContext != null && webSocketConfig != null )
+        {
+            WebSocketEndpoint webSocketEndpoint = new WebSocketEndpointImpl( webSocketConfig, () -> controllerScript );
+            webSocketContext.apply( webSocketEndpoint );
+        }
+
+        return portalResponse;
+    }
+
+    protected PortalRequest castToPortalRequest( final WebRequest webRequest )
     {
         PortalRequest portalRequest;
         if ( webRequest instanceof PortalRequest )
@@ -52,12 +82,6 @@ public class GuillotineApiWebHandler
         {
             portalRequest = new PortalRequest( webRequest );
         }
-
-        portalRequest.setContextPath( portalRequest.getBaseUri() );
-        portalRequest.setApplicationKey( APPLICATION_KEY );
-
-        ResourceKey scriptDir = ResourceKey.from( APPLICATION_KEY, "graphql" );
-        ControllerScript controllerScript = controllerScriptFactory.fromDir( scriptDir );
-        return controllerScript.execute( portalRequest );
+        return portalRequest;
     }
 }
