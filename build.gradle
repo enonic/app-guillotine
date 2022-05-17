@@ -2,8 +2,13 @@ plugins {
     id 'com.enonic.defaults' version '2.0.1'
     id 'com.enonic.xp.app' version '3.1.0'
     id 'com.enonic.xp.doc' version '2.0.0'
+    id 'com.github.node-gradle.node' version '3.2.1'
     id 'maven-publish'
 }
+
+apply from: "$rootDir/gradle/env.gradle"
+apply from: "$rootDir/gradle/node.gradle"
+apply from: "$rootDir/gradle/lib-admin.gradle"
 
 app {
     name = project.appName
@@ -13,9 +18,18 @@ app {
     systemVersion = "${xpVersion}"
 }
 
+configurations {
+    devResources {
+        attributes {
+            attribute( LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named( LibraryElements, 'dev-resources' ) )
+        }
+    }
+}
+
 dependencies {
-    compileOnly "com.enonic.xp:core-api:${xpVersion}"
-    compileOnly "com.enonic.xp:script-api:${xpVersion}"
+    implementation "com.enonic.xp:core-api:${xpVersion}"
+    implementation "com.enonic.xp:script-api:${xpVersion}"
+
     include "com.enonic.xp:lib-auth:${xpVersion}"
     include "com.enonic.xp:lib-content:${xpVersion}"
     include "com.enonic.xp:lib-context:${xpVersion}"
@@ -24,10 +38,60 @@ dependencies {
     include "com.enonic.xp:lib-event:${xpVersion}"
     include "com.enonic.lib:lib-mustache:2.0.0"
     include "com.enonic.lib:lib-guillotine:5.5.1-SNAPSHOT"
+
+    devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
     xp.enonicRepo( 'dev' )
+}
+
+task copyDevResources {
+    doLast {
+        copy {
+            from configurations.devResources.files.collect { zipTree( it ) }
+            include 'dev/**'
+            into '.xp'
+        }
+    }
+}
+
+npmInstall.dependsOn copyDevResources
+
+node {
+    version = '16.0.0'
+    download = true
+}
+
+task lint( type: NpmTask, group: "verification", dependsOn: npmInstall ) {
+    args = ['run', 'lint:quiet']
+    inputs.files fileTree( dir: 'src', include: '**/*.ts' )
+}
+
+check.dependsOn( lint )
+
+task webpack( type: NpmTask, dependsOn: npmInstall ) {
+    environment = ['NODE_ENV': nodeEnvironment()]
+    description = 'Build UI resources (ts, css, etc).'
+    args = ['run', 'build']
+    inputs.dir ".xp/dev"
+    inputs.dir "./src/main"
+    inputs.file 'webpack.config.js'
+    outputs.dir "$buildDir/resources/main"
+}
+
+jar {
+    exclude 'assets/**/*.ts'
+    exclude 'assets/**/*.less'
+
+    if ( isProd() )
+    {
+        exclude 'assets/**/*.map'
+    }
+
+    outputs.dir "$buildDir/resources/main"
+
+    dependsOn webpack
 }
