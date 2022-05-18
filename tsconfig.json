@@ -3,9 +3,6 @@
         "module": "commonjs",
         "target": "es5",
         "sourceMap": true,
-        "types": [
-            "ckeditor"
-        ],
         "lib": [
             "es2015",
             "es2015.promise",
@@ -14,8 +11,6 @@
     },
 
     "include": [
-        "./src/**/*",
-        "../../../lib-admin-ui/src/main/resources/assets/admin/common/js/**/*.ts",
-        ".xp/dev/lib-admin-ui/**/*.ts"
+        "src/**/*"
     ]
 }
