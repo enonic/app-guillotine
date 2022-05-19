@@ -4,6 +4,7 @@ plugins {
     id 'com.enonic.xp.doc' version '2.0.0'
     id 'com.github.node-gradle.node' version '3.2.1'
     id 'maven-publish'
+    id 'jacoco'
 }
 
 apply from: "$rootDir/gradle/env.gradle"
@@ -17,7 +18,6 @@ app {
     systemVersion = "${xpVersion}"
 }
 
-
 dependencies {
     implementation "com.enonic.xp:core-api:${xpVersion}"
     implementation "com.enonic.xp:script-api:${xpVersion}"
@@ -30,12 +30,30 @@ dependencies {
     include "com.enonic.xp:lib-event:${xpVersion}"
     include "com.enonic.lib:lib-mustache:2.0.0"
     include "com.enonic.lib:lib-guillotine:5.5.1-SNAPSHOT"
+
+    testImplementation 'org.mockito:mockito-core:3.11.1'
+    testImplementation 'org.mockito:mockito-junit-jupiter:3.11.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
+    testImplementation "com.enonic.xp:testing:${xpVersion}"
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
     xp.enonicRepo( 'dev' )
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+check.dependsOn jacocoTestReport
+
+test {
+    useJUnitPlatform()
 }
 
 node {
