@@ -26,7 +26,8 @@ function initEventListeners() {
 
 function toggleGraphiQLEditor() {
     if (activeSocket != null) {
-        activeSocket.close(1000);
+        const executeBtn = document.querySelector('.app-guillotine-container .execute-button');
+        (<HTMLElement>executeBtn).click();
     }
 
     root.unmount();
@@ -41,7 +42,6 @@ function renderGraphiQLUI() {
     const wsClient = createClient(
         {
             url: clientEndpoint,
-            retryAttempts: 0,
             lazy: true,
             on: {
                 opened: (socket) => {
