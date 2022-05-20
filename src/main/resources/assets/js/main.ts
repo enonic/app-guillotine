@@ -34,7 +34,9 @@ function toggleGraphiQLEditor() {
 }
 
 function renderGraphiQLUI() {
-    const clientEndpoint = `ws://${window.location.host}${getHandlerUrl()}`;
+    const container = document.getElementById('graphiql-container');
+
+    const clientEndpoint = `${container.dataset.configWsUrl}${getHandlerUrl()}`;
 
     const wsClient = createClient(
         {
@@ -58,7 +60,6 @@ function renderGraphiQLUI() {
         defaultVariableEditorOpen: false
     });
 
-    const container = document.getElementById('graphiql-container');
     root = createRoot(container);
     root.render(element);
 }
