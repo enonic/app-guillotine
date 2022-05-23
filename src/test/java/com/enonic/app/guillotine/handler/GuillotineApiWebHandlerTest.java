@@ -24,25 +24,25 @@ public class GuillotineApiWebHandlerTest
         when( webRequest.getMethod() ).thenReturn( HttpMethod.POST );
         when( webRequest.isWebSocket() ).thenReturn( false );
 
-        when( webRequest.getRawPath() ).thenReturn( "/admin/site/preview/hmdb/draft/" );
+        when( webRequest.getPath() ).thenReturn( "/admin/site/preview/hmdb/draft/" );
         assertFalse( instance.canHandle( webRequest ) );
 
-        when( webRequest.getRawPath() ).thenReturn( "/admin/site/preview/hmdb/draft" );
+        when( webRequest.getPath() ).thenReturn( "/admin/site/preview/hmdb/draft" );
         assertTrue( instance.canHandle( webRequest ) );
 
-        when( webRequest.getRawPath() ).thenReturn( "/site/hmdb/draft" );
+        when( webRequest.getPath() ).thenReturn( "/site/hmdb/draft" );
         assertTrue( instance.canHandle( webRequest ) );
 
-        when( webRequest.getRawPath() ).thenReturn( "/site/hmdb/draft/" );
+        when( webRequest.getPath() ).thenReturn( "/site/hmdb/draft/" );
         assertFalse( instance.canHandle( webRequest ) );
 
-        when( webRequest.getRawPath() ).thenReturn( "/site/hmdb/draft/hmdb/_graphql" );
+        when( webRequest.getPath() ).thenReturn( "/site/hmdb/draft/hmdb/_graphql" );
         assertFalse( instance.canHandle( webRequest ) );
 
-        when( webRequest.getRawPath() ).thenReturn( "/site/sample-blog/draft" );
+        when( webRequest.getPath() ).thenReturn( "/site/sample-blog/draft" );
         assertTrue( instance.canHandle( webRequest ) );
 
-        when( webRequest.getRawPath() ).thenReturn( "/something" );
+        when( webRequest.getPath() ).thenReturn( "/something" );
         assertFalse( instance.canHandle( webRequest ) );
     }
 }
