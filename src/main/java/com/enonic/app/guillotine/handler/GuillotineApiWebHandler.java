@@ -43,8 +43,8 @@ public class GuillotineApiWebHandler
     @Override
     protected boolean canHandle( final WebRequest webRequest )
     {
-        final String rawPath = webRequest.getRawPath();
-        final Matcher matcher = URL_PATTERN.matcher( rawPath );
+        final String path = webRequest.getPath();
+        final Matcher matcher = URL_PATTERN.matcher( path );
         return ( webRequest.getMethod() == HttpMethod.POST || ( webRequest.getMethod() == HttpMethod.GET && webRequest.isWebSocket() ) ) &&
             matcher.matches();
     }
