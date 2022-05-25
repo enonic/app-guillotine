@@ -4,6 +4,10 @@
   <interfaces>
     <interface>contentstudio.menuitem</interface>
   </interfaces>
+  <allow>
+    <principal>role:system.admin</principal>
+    <principal>role:cms.admin</principal>
+  </allow>
   <config>
     <property name="context" value="project"/>
   </config>
