@@ -37,8 +37,7 @@ function getSchema() {
                     'HeadlessCms': function (context, params) {
                         delete params.fields.getSite;
                     }
-                },
-                mode: 'project'
+                }
             });
         }));
     }
