@@ -27,7 +27,8 @@ import com.enonic.xp.web.websocket.WebSocketEndpoint;
 public class GuillotineApiWebHandler
     extends BaseWebHandler
 {
-    private static final Pattern URL_PATTERN = Pattern.compile( "^/(admin/site/preview|site)/([^/]+)/([^/]+)$" );
+    private static final Pattern URL_PATTERN =
+        Pattern.compile( "^/(admin/site/preview|site)/(([a-z0-9\\-:])([a-z0-9_\\-.:])*)/(([a-z0-9\\-:])([a-z0-9_\\-.:])*)([/]*)$" );
 
     private static final ApplicationKey APPLICATION_KEY = ApplicationKey.from( "com.enonic.app.guillotine" );
 
@@ -43,7 +44,7 @@ public class GuillotineApiWebHandler
     @Override
     protected boolean canHandle( final WebRequest webRequest )
     {
-        final String path = webRequest.getPath();
+        final String path = webRequest.getRawPath();
         final Matcher matcher = URL_PATTERN.matcher( path );
         return ( webRequest.getMethod() == HttpMethod.POST || ( webRequest.getMethod() == HttpMethod.GET && webRequest.isWebSocket() ) ) &&
             matcher.matches();
