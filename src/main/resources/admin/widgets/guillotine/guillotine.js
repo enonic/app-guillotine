@@ -1,4 +1,5 @@
 const mustache = require('/lib/mustache');
+const portalLib = require('/lib/xp/portal');
 
 exports.get = function (req) {
     const view = resolve('guillotine.html');
@@ -19,4 +20,3 @@ exports.get = function (req) {
     };
 }
 
-exports.get = handleGet;
