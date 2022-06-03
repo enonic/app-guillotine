@@ -4,15 +4,16 @@
 
     <div class="app-guillotine-container">
         <div class="app-toolbar">
-            <form>
-                <div class="app-toolbar__tool">
-                    <label class="app-toolbar__tool-label" for="branch">Branch:</label>
-                    <select name="branch" id="branch">
-                        <option value="draft">draft</option>
-                        <option value="master">master</option>
-                    </select>
-                </div>
-            </form>
+            <div class="app-toolbar__tool">
+                <label class="app-toolbar__tool-label" for="branch">Branch:</label>
+                <select name="branch" id="branch">
+                    <option value="draft">draft</option>
+                    <option value="master">master</option>
+                </select>
+            </div>
+            <div class="app-toolbar__tool">
+                <a href="#" class="refresh-btn">Refresh</a>
+            </div>
         </div>
 
         <div id="graphiql-container" data-config-ws-url="{{wsUrl}}"></div>

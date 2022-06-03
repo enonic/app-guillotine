@@ -19,6 +19,12 @@ function initEventListeners() {
     elementById.removeEventListener('change', toggleGraphiQLEditor);
     elementById.addEventListener('change', toggleGraphiQLEditor);
 
+    let refreshBtn = document.querySelector('.refresh-btn');
+    refreshBtn.addEventListener('click', function (event) {
+        event.preventDefault();
+        toggleGraphiQLEditor();
+    });
+
     window['libAdmin'].store.get('projectContext').onProjectChanged(function () {
         toggleGraphiQLEditor();
     });
@@ -30,7 +36,9 @@ function toggleGraphiQLEditor() {
         (<HTMLElement>executeBtn).click();
     }
 
-    root.unmount();
+    if (root !== null) {
+        root.unmount();
+    }
     renderGraphiQLUI();
 }
 
