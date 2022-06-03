@@ -17,6 +17,7 @@ body {
 .app-toolbar {
     background-color: #ececec;
     padding: 15px 5px;
+    display: flex;
 }
 
 .app-toolbar form {
@@ -33,4 +34,11 @@ body {
 .app-toolbar__tool-label {
     font-size: 17px;
     font-family: arial, sans-serif;
+}
+
+.refresh-btn {
+    text-decoration: none;
+    color: #dea729;
+    font-size: 15px;
+    font-weight: 600;
 }

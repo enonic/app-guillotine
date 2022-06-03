@@ -24,6 +24,11 @@ eventLib.listener({
             Java.type('com.enonic.app.guillotine.Synchronizer').sync(__.toScriptValue(function () {
                 schema = null;
             }));
+
+            eventLib.send({
+                type: 'com.enonic.app.guillotine-schemaChanged',
+                distributed: true
+            });
         }
     }
 });
@@ -32,12 +37,7 @@ function getSchema() {
     if (!schema) {
         Java.type('com.enonic.app.guillotine.Synchronizer').sync(__.toScriptValue(function () {
             schema = guillotineLib.createSchema({
-                applications: appLib.getInstalledApplications().applications,
-                creationCallbacks: {
-                    'HeadlessCms': function (context, params) {
-                        delete params.fields.getSite;
-                    }
-                }
+                applications: appLib.getInstalledApplications().applications
             });
         }));
     }
