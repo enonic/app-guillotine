@@ -6,25 +6,17 @@ import {createClient} from 'graphql-ws';
 
 let root = null;
 let activeSocket = null;
+let branch = 'draft';
 
 function getHandlerUrl() {
-    const projectVal: string = window['libAdmin'].store.get('projectContext').currentProject.name;
-    const branchVal: string = (document.getElementById('branch') as HTMLInputElement).value;
+    return `/admin/site/preview/${getProjectValue()}/${branch}`;
+}
 
-    return `/admin/site/preview/${projectVal}/${branchVal}`;
+function getProjectValue(): string {
+    return window['libAdmin'].store.get('projectContext').currentProject.name;
 }
 
 function initEventListeners() {
-    let elementById = document.getElementById('branch');
-    elementById.removeEventListener('change', toggleGraphiQLEditor);
-    elementById.addEventListener('change', toggleGraphiQLEditor);
-
-    let refreshBtn = document.querySelector('.refresh-btn');
-    refreshBtn.addEventListener('click', function (event) {
-        event.preventDefault();
-        toggleGraphiQLEditor();
-    });
-
     window['libAdmin'].store.get('projectContext').onProjectChanged(function () {
         toggleGraphiQLEditor();
     });
@@ -43,13 +35,32 @@ function toggleGraphiQLEditor() {
 }
 
 function renderGraphiQLUI() {
-    const container = document.getElementById('graphiql-container');
+    root = createRoot(getRootContainer());
+    root.render(createMainElement());
+}
 
-    const clientEndpoint = `${container.dataset.configWsUrl}${getHandlerUrl()}`;
+function createMainElement() {
+    return React.createElement(GraphiQL, {
+        fetcher: createFetcher(),
+        defaultVariableEditorOpen: false,
+        children: [createLogoReplacement()],
+        toolbar: {
+            additionalContent: createRefreshButton()
+        }
+    });
+}
 
-    const wsClient = createClient(
+function createFetcher() {
+    return createGraphiQLFetcher({
+        url: getHandlerUrl(),
+        wsClient: createWsClient(),
+    });
+}
+
+function createWsClient() {
+    return createClient(
         {
-            url: clientEndpoint,
+            url: getClientEndpoint,
             lazy: true,
             on: {
                 opened: (socket) => {
@@ -57,19 +68,59 @@ function renderGraphiQLUI() {
                 }
             }
         });
+}
 
-    const fetcher = createGraphiQLFetcher({
-        url: getHandlerUrl(),
-        wsClient: wsClient
+function getClientEndpoint() {
+    return `${getRootContainer().dataset.configWsUrl}${getHandlerUrl()}`;
+}
+
+function getRootContainer() {
+    return document.getElementById('graphiql-container');
+}
+
+function createBranchMenu() {
+    const draftMenuItem = React.createElement(GraphiQL.MenuItem, {
+        key: 'draft',
+        label: 'draft',
+        onSelect: () => {
+            branch = 'draft';
+            toggleGraphiQLEditor();
+        }
     });
 
-    const element = React.createElement(GraphiQL, {
-        fetcher: fetcher,
-        defaultVariableEditorOpen: false
+    const masterMenuItem = React.createElement(GraphiQL.MenuItem, {
+        key: 'master',
+        label: 'master',
+        onSelect: () => {
+            branch = 'master';
+            toggleGraphiQLEditor();
+        }
     });
 
-    root = createRoot(container);
-    root.render(element);
+    const branchMenu = React.createElement(GraphiQL.Menu, {
+        key: 'branch',
+        label: `Branch (${branch})`,
+        children: [draftMenuItem, masterMenuItem]
+    });
+
+    return branchMenu;
+}
+
+function createLogoReplacement() {
+     return React.createElement(GraphiQL.Logo, {
+        key: 'logo',
+        children: [createBranchMenu()]
+    });
+}
+
+function createRefreshButton() {
+    return React.createElement(GraphiQL.Button, {
+        key: 'refreshButton',
+        title: 'Refresh',
+        onClick: () => {
+            toggleGraphiQLEditor();
+        }
+    });
 }
 
 initEventListeners();
