@@ -6,39 +6,36 @@ body {
 }
 
 #graphiql-container {
-    height: calc(100vh - 115px);
+    height: calc(100vh - 44px);
 }
 
 .app-guillotine-container {
-    margin: 0 0 0 44px;
-    padding: 0;
+    transition: margin-left 0.5s ease;
 }
 
-.app-toolbar {
-    background-color: #ececec;
-    padding: 15px 5px;
-    display: flex;
+.graphiql-container .topBar {
+    background: #ececec;
 }
 
-.app-toolbar form {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: stretch;
+.graphiql-container .topBar .toolbar {
+    background: #ececec;
 }
 
-.app-toolbar__tool {
-    margin: 10px;
+.graphiql-container .topBar .toolbar button:last-child {
+    box-shadow: none;
+    background: #ececec;
+    outline: none;
 }
 
-.app-toolbar__tool-label {
-    font-size: 17px;
-    font-family: arial, sans-serif;
+.graphiql-container .topBar .toolbar button:last-child:after {
+    background-image: url("../img/refresh.svg");
+    background-repeat: no-repeat;
+    display: block;
+    content: " ";
+    width: 24px;
+    height: 24px;
 }
 
-.refresh-btn {
-    text-decoration: none;
-    color: #dea729;
-    font-size: 15px;
-    font-weight: 600;
+.main-app-wrapper.sidebar-expanded .app-guillotine-container {
+    margin-left: 44px;
 }
