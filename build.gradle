@@ -80,6 +80,8 @@ task webpack( type: NpmTask, dependsOn: npmInstall ) {
 jar {
     exclude 'assets/**/*.ts'
     exclude 'assets/**/*.less'
+    exclude 'assets/styles/graphiql.min.css'
+    exclude 'assets/**/styles/*.js'
 
     if ( isProd() )
     {
