@@ -28,7 +28,7 @@ dependencies {
     include "com.enonic.xp:lib-portal:${xpVersion}"
     include "com.enonic.xp:lib-websocket:${xpVersion}"
     include "com.enonic.xp:lib-event:${xpVersion}"
-    include "com.enonic.lib:lib-mustache:2.0.0"
+    include "com.enonic.lib:lib-mustache:2.1.0"
     include "com.enonic.lib:lib-guillotine:5.6.0-B1"
 
     testImplementation 'org.mockito:mockito-core:4.6.1'
