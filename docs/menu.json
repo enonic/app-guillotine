@@ -1,0 +1,50 @@
+{
+  "menuItems": [
+    {
+      "title": "Query playground",
+      "document": "playground"
+    },
+    {
+      "title": "Endpoints",
+      "document": "endpoints"
+    },
+    {
+      "title": "Using cURL",
+      "document": "curl"
+    },
+    {
+      "title": "Rich text",
+      "document": "rich-text"
+    },
+    {
+      "title": "GraphQL API",
+      "document": "api"
+    },
+    {
+      "title": "Embedding",
+      "document": "embed",
+      "menuItems": [
+        {
+          "title": "Extending",
+          "document": "embed/extending"
+        },
+        {
+          "title": "Integrating",
+          "document": "embed/integrating"
+        },
+        {
+          "title": "Javascript invocation",
+          "document": "embed/javascript"
+        },
+        {
+          "title": "Advanced",
+          "document": "embed/advanced"
+        }      
+      ]
+    },
+    {
+      "title": "Release Notes",
+      "document": "release"
+    }
+  ]
+}
