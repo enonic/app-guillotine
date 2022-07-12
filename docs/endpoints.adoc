@@ -16,7 +16,7 @@ As an example, when running the Enonic SDK on your local machine, you may access
 
 The endpoints handle both `POST` and `GET` methods, but the `GET` method are only applicable for `Subscriptions` via WebSockets.
 
-NOTE: In order to support the `Query playground` admin interface, Guillotine also exposes the same API in the following location: admin/site/preview/{project}/{branch}`.
+NOTE: In order to support the `Query playground` admin interface, Guillotine also exposes the same API in the following location: `admin/site/preview/{project}/{branch}`.
 
 == Exposing API via Vhosts
 
@@ -89,7 +89,7 @@ curl -X GET -i -N -H "Connection: Upgrade" \
                   -H "Sec-WebSocket-Key: c29tZWtleQ==" \
                   -H "Sec-WebSocket-Version: 13" \
                   --http1.1 \
-                 http://guillotineapi.com:8080/
+                 http://localhost:8080/site/hmdb/draft
 ----
 
 .Handshake response
