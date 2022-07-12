@@ -7,20 +7,19 @@ TIP: *Quickstart!* For a quick intro to basic use of Guillotine, check out https
 == Introduction
 Guillotine is available on https://market.enonic.com/vendors/enonic/guillotine-headless-cms[Enonic Market].
 
-The application essentially provides a strongly typed GraphQL read-only version of XP's https://developer.enonic.com/docs/xp/stable/api/lib-content[JavaScript Content API].
+The application provides a strongly typed GraphQL read-only version of XP's https://developer.enonic.com/docs/xp/stable/api/lib-content[JavaScript Content API], as well as an extension to Content Studio that allows privileged users to run test the API.
 
-== Query playground
+== Usage
 
 Developers, and super users may instantly test the API via a Content Studio extension called `Query playground`, which is included in the Guillotine application.
 
-Learn more about GraphQL and <<playground#,Query Playground>>
+Learn more about GraphQL and <<usage#,how to use the API>>
 
-== Rich text processing
+== Endpoints
 
-This section specifically dives into processing of rich-text, including image handling and macro components.
+Guillotine automatically provisions endpoints for public access to the API. 
 
-Learn more about <<rich-text#,Rich text handling>>
-
+Learn more about <<endpoints#,accessing the endpoints>>
 
 == GraphQL API
 
@@ -28,9 +27,12 @@ Guillotine provides a set of standard fields like `get` and `query`. Additionall
 
 Learn more about the standard types of the <<api#,API>>
 
+== Rich text processing
 
-== Embedding and advanced topics
+Details related to <<rich-text#,Rich text handling>> in Guillotine.
 
-Guillotine is also available in a library version, which may be embedded it into your app. There you may take control over where the API is exposed, specify role-based access, and even customise the API itself.
+== Embedding
 
-<<embed#, Read more about integrating and modifying the Guillotine API>>
+Guillotine is also available in a library version, which for advanced use-cases may be embedded into your app. It lets you take control over the endpoints, detailed access control, as well as ability to extend and customise the API itself.
+
+<<embed#, Read more about integrating and customizing the Guillotine API>>

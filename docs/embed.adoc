@@ -1,6 +1,6 @@
 = Embedding
 
-Guillotine is also available as a standalone library which may be embedded into your Enonic application. This gives you extensive control over the API.
+The Guillotine core is also available as a standalone library which may be embedded into your custom Enonic application. This gives you extensive control over the API.
 
 Follow the instructions below to embed Guillotine in your application:
 
@@ -18,7 +18,9 @@ dependencies {
 
 == Creating an endpoint
  
-When using the Guillotine library, you control where and how your API is exposed relative to your site. For instance:
+When using the Guillotine library, you control where and how your API is exposed. Most commonly, the API is mounted in site context, which also means you will have to include a site schema (site.xml) in your app, and add it to your site:
+
+The following approaches are common:
 
 Service:: i.e. https://mysite.com/_/service/<app-name>/<service-name>
 Mapping:: i.e. https://mysite.com/<mapping>
@@ -55,14 +57,10 @@ exports.post = function (req) { // <3>
 <4> Parses the JSON body to retrieve the GraphQL query and variables
 <5> Executes the query and variables against the schema created
 
-You now have a GraphQL endpoint!
+You now have a custom GraphQL endpoint!
 
-=== As a mapping
 
-Coming soon
+== As a mapping
 
-=== As a filter
-
-Coming soon
-
+TODO
 

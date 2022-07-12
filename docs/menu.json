@@ -1,20 +1,17 @@
 {
   "menuItems": [
     {
-      "title": "Query playground",
-      "document": "playground"
-    },
+      "title": "Usage",
+      "document": "usage",
+      "menuItems": [
+        {
+          "title": "Rich text",
+          "document": "usage/rich-text"
+        }]
+      },
     {
       "title": "Endpoints",
       "document": "endpoints"
-    },
-    {
-      "title": "Using cURL",
-      "document": "curl"
-    },
-    {
-      "title": "Rich text",
-      "document": "rich-text"
     },
     {
       "title": "GraphQL API",
@@ -33,12 +30,8 @@
           "document": "embed/integrating"
         },
         {
-          "title": "Javascript invocation",
-          "document": "embed/javascript"
-        },
-        {
-          "title": "Advanced",
-          "document": "embed/advanced"
+          "title": "Options",
+          "document": "embed/options"
         }      
       ]
     },

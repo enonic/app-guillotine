@@ -1,6 +1,0 @@
-+ 1. Global api
-+ 2. system.admin and cms.admin
-+ 3. describe UI interface
-+ 4. describe endpoint GraphQL API
-5. describe usage Subscription
-6. macros

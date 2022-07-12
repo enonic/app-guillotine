@@ -117,7 +117,7 @@ Guillotine processes macros which have a descriptor and built-in macros called `
 
 For instance, we have an input form item called `description` of `HtmlArea` type which contains the `embed` macro as shown below:
 
-image:images/embed-macro.png[Embed Macro]
+image:../images/embed-macro.png[Embed Macro]
 
 The query below will fetch data for the `description` field:
 
@@ -156,7 +156,7 @@ query {
 
 Results of the query:
 
-image:images/embed-response-example.png[Response for embed macro]
+image:../images/embed-response-example.png[Response for embed macro]
 
 It is common to define a  https://developer.enonic.com/docs/xp/stable/cms/macros#descriptor[schema for your macro]. This is located in the `/site/macros/` directory. For instance, for a macro with name `testmacro` the schema will be placed by the following path `/site/macros/testmacro/testmacro.xml`
 
@@ -173,7 +173,7 @@ It is common to define a  https://developer.enonic.com/docs/xp/stable/cms/macros
 </macro>
 ----
 
-image:images/custom-macro.png[Custom Macro]
+image:../images/custom-macro.png[Custom Macro]
 
 Executing the query below will give your the value of the `defaulttext` input, as defined in the above schema.
 

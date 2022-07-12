@@ -1,8 +1,8 @@
 :imagesdir: ..
 
-= Low level API
+= Library API
 
-This section describes the various functions available for mounting and configuring the Guillotine library into your Enonic application.
+This section describes the JavaScript API available for setting up and embedding the Guillotine library into your Enonic application.
 
 == Functions
 
