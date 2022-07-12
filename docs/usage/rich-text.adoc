@@ -1,18 +1,65 @@
 = Rich text processing
 
-image:images/v-500.svg[Since version,opts=inline] The default Guillotine HTML editor type provides processing of macros and image source URLs in the `processedHtml` field of the <<api#richtext, RichText>> GraphQL object type.
-But you might want to have custom processing of macros and images, for that you can use `macrosAsJson`, `macros` and `images` fields of the <<api#richtext, RichText>>.
+image:../images/v-500.svg[Since version,opts=inline] The default Guillotine HTML editor type provides processing of macros and image source URLs in the `processedHtml` field of the <<../api#richtext, RichText>> GraphQL object type.
+But you might want to have custom processing of macros and images, for that you can use `macrosAsJson`, `macros` and `images` fields of the <<../api#richtext, RichText>>.
 
 == Usage
 
 === Links
 
-TODO
+Starting from image:../images/v-550.svg[Since version,opts=inline] Guillotine by default provides links processing in the `processedHtml` field of the <<../api#richtext,RichText>> GraphQL object type. All internal links to `media` or `content` will be replaced by `server` or `absolute` link and for each `a` tag will be added the `data-link-ref`.
+Using that reference you will be able to find a link details in the `links` field and to do a custom link processing if needed.
 
+For instance, the processed value of a link looks like as below:
+
+[source,html]
+----
+<p>
+    <a title="Tooltip"
+        href="/admin/site/preview/hmdb/draft/hmdb/persons/lea-seydoux"
+        data-link-ref="e72f48b6-a972-4133-a300-a3ab5d132800">Link 1</a>
+</p>
+----
+
+The GraphQL query below will process links inside the field:
+
+[source,graphql]
+----
+query {
+  guillotine {
+    get(key: "contentID") {
+      ... on com_app_example_ContentType {
+        data {
+          htmlAreaField {
+            links {
+              ref          // <1>
+              uri          // <2>
+              media {      // <3>
+                content {
+                 _id
+                }
+                intent     // <4>
+              }
+              content {    // <5>
+                _id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+----
+<1> Reference to link in the processedHtml field
+<2> Link URI
+<3> Related media content. This field has `null` value for non-media content
+<4> Link intent. Available values `download` and `inline`
+<5> Related content. This field has `null` value for media content
 
 === Images
 
-Starting from image:images/v-500.svg[Since version,opts=inline] Guillotine by default provides image processing in the `processedHtml` field of the <<api#richtext,RichText>> GraphQL object type. All internal links to resources will be replaced by `server` or `absolute` link and for each `img` tag will be added the `data-image-ref`.
+Starting from image:../images/v-500.svg[Since version,opts=inline] Guillotine by default provides image processing in the `processedHtml` field of the <<api#richtext,RichText>> GraphQL object type. All internal links to resources will be replaced by `server` or `absolute` link and for each `img` tag will be added the `data-image-ref`.
 Using that reference you will be able to find a image details in the `images` field and to do a custom image processing if needed.
 
 For instance, the processed value of an image looks like as below:
@@ -72,10 +119,10 @@ fragment imageFragment on Content {
 }
 ----
 <1> Reference to image in the processedHtml field
-<2> Image as <<api#content, Content>> type
-<3> Image style as <<api#imagestyle, ImageStyle>> type
+<2> Image as <<../api#content, Content>> type
+<3> Image style as <<../api#imagestyle, ImageStyle>> type
 
-Using the `processHtml` argument which has <<api#processhtmlinput, ProcessHtmlInput>> type for a form item of type `HtmlArea` or for
+Using the `processHtml` argument which has <<../api#processhtmlinput, ProcessHtmlInput>> type for a form item of type `HtmlArea` or for
 `TextComponent` field you can specify `imageWidths` to generate relevant links for specific widths of an image.
 In this case `srcset` attribute will be added to `img` tags.
 

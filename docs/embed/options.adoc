@@ -1,5 +1,3 @@
-:imagesdir: ..
-
 = Library API
 
 This section describes the JavaScript API available for setting up and embedding the Guillotine library into your Enonic application.
@@ -94,7 +92,7 @@ const context = guillotineLib.createContext();
 
 === execute
 
-image:images/v-500.svg[Since version,opts=inline] The `execute(params)` function allows to execute a GraphQL query.
+image:../images/v-500.svg[Since version,opts=inline] The `execute(params)` function allows to execute a GraphQL query.
 
 List of properties for `params` object:
 
@@ -230,7 +228,7 @@ exports.post = function (req) {
 
 === initWebSockets
 
-image:images/v-500.svg[Since version,opts=inline] The `initWebSockets(schema)` function is used to use default handling of `Subscription` via WebSocket. Only `node.*` events are listened to by default for current site, branch and repository. To customize which events must be listened use `subscriptionEventTypes` option during schema creation. This function is not supported in site-less mode, the
+image:../images/v-500.svg[Since version,opts=inline] The `initWebSockets(schema)` function is used to use default handling of `Subscription` via WebSocket. Only `node.*` events are listened to by default for current site, branch and repository. To customize which events must be listened use `subscriptionEventTypes` option during schema creation. This function is not supported in site-less mode, the
 developer is responsible for implementing this functionality if needed.
 
 .Schema options
@@ -255,7 +253,7 @@ exports.webSocketEvent = guillotineLib.initWebSockets(SCHEMA);
 
 === createWebSocketData
 
-image:images/v-500.svg[Since version,opts=inline] Creates WebSocket data object from request with `branch`, `repositoryId` and `site` properties. In site-less mode which is supported from version `5.6.0`, this function is not supported.
+image:../images/v-500.svg[Since version,opts=inline] Creates WebSocket data object from request with `branch`, `repositoryId` and `site` properties. In site-less mode which is supported from version `5.6.0`, this function is not supported.
 The developer is responsible for implementing this functionality if needed.
 
 [source,javascript]
