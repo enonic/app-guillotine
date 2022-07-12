@@ -4,6 +4,25 @@ import {GraphiQL} from 'graphiql';
 import {createGraphiQLFetcher} from '@graphiql/toolkit';
 import {createClient} from 'graphql-ws';
 
+const DEFAULT_QUERY = `# Welcome to Query Playground
+#
+# Query Playground is an in-browser tool for writing, validating, and
+# testing GraphQL queries.
+#
+# An example GraphQL query might look like:
+#
+#     {
+#       guillotine {
+#         getChildren(key: "/") {
+#           displayName
+#         }
+#       }
+#     }
+#
+#
+
+`;
+
 let root = null;
 let activeSocket = null;
 let branch = 'draft';
@@ -46,7 +65,8 @@ function createMainElement() {
         children: [createLogoReplacement()],
         toolbar: {
             additionalContent: createRefreshButton()
-        }
+        },
+        defaultQuery: DEFAULT_QUERY,
     });
 }
 
