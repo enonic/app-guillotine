@@ -6,20 +6,20 @@ This section describes the JavaScript API available for setting up and embedding
 
 === createSchema
 
-The `createSchema(options)` function creates the GraphQL schema with custom options.
+The `createSchema(options)` function creates a GraphQL schema with custom options.
 
 .Schema options
 |===
 |Name | Description
 
 |applications: String or Array.<String>
-|List of application keys for which GraphQL objects will be generated from content types. By default current application. Property is optional.
+|List of application keys for which GraphQL objects will be generated from content types (default: current application). The property is optional.
 
 |allowPaths:String or Array.<String>
-|Allowed content paths in addition to this site in the default mode. In the site-less mode will be used only provided `allowPaths`. Property is optional.
+|Allowed content paths in addition to this site in the default mode. In the site-less mode only provided `allowPaths` will be used. The property is optional.
 
 |subscriptionEventTypes:String or Array.<String>
-|Specifies event type patterns to be listened by GraphQL Subscription. Property is optional. By default will be listened `node.*` events.
+|Specifies event type patterns to be listened by GraphQL Subscription. The property is optional. By default will only listen to `node.*` events.
 |===
 
 .Example of creation schema
@@ -57,9 +57,9 @@ function createRootQueryType(context) {
 ----
 
 === createContext
-The `createContext(options)` function creates the context necessary to create Guillotine types.
+The `createContext(options)` function creates a context necessary to create Guillotine types.
 
-Context options contains the same list options which are used for <<createSchema,schema options>> and can be extended by custom options.
+Context options contain the same list of options that are used for <<createSchema,schema options>> and can be customized.
 
 An instance of `context` object exposes the following functions:
 
@@ -67,16 +67,16 @@ An instance of `context` object exposes the following functions:
 |Name | Description
 
 |addDictionaryType(obj: GraphQLObject): void
-|Adds GraphQL object to dictionary. Each content type which implements any interface must be added to dictionary to define its implementations.
+|Adds GraphQL object to a dictionary. Each content type which implements any interface must be added to a dictionary to define its implementations.
 
 |putContentTypeType(name: string, obj: GraphQLObject): void
-|Collects GraphQL object in map to quick access to it.
+|Stores GraphQL object in a map for quick access.
 
 |uniqueName:String or Array.<String>
-|Generates unique name for object type, if type with provided name already exists then to the end of the name will be added `_<count>`, where `count` is number of type with provided name.
+|Generates a unique name for object type. If a type with the provided name already exists, will append `_<count>` to the name, where `count` is a number of types with provided name.
 
 |getOption(name: string): Object
-|Returns option by name.
+|Returns an option by name.
 
 |putOption(name: string, value: object): void
 |Adds a new option to context.
@@ -94,7 +94,7 @@ const context = guillotineLib.createContext();
 
 image:../images/v-500.svg[Since version,opts=inline] The `execute(params)` function allows to execute a GraphQL query.
 
-List of properties for `params` object:
+List of properties for the `params` object:
 
 |===
 |Name | Description | Default value
@@ -128,24 +128,25 @@ List of properties for `params` object:
 |
 |===
 
-List of properties for `schemaOptions` object:
+List of properties for the `schemaOptions` object:
 
 |===
 |Name | Description
 
 |applications: String or Array.<String>
-|Allowed application keys in addition to this site. Property is optional.
+|Allowed application keys in addition to this site. The property is optional.
 
 |allowPaths:String or Array.<String>
-|Allowed content paths in addition to this site. Property is optional.
+|Allowed content paths in addition to this site. The property is optional.
 
 |subscriptionEventTypes:String or Array.<String>
-|Specifies event type patterns to be listened by GraphQL Subscription. Property is optional.
+|Specifies event type patterns to be listened by GraphQL Subscription. The property is optional.
 |===
 
-If the `schema` parameter is not provided to the function, then a schema will be created for each branch (`draft` or `master`) of the site which will be automatically updated when the any application is added/removed/re-deployed to the site.
-The developer is responsible for implementation of the update of the schemas created outside of this function.
-This function can not be used in site-less mode which is supported from version `5.6.0`, use `graphqlLib.execute` instead.
+If the `schema` parameter is not provided to the function, then a schema will be created for each branch (`draft` or `master`) of the site which will be automatically updated when any application is added/removed/re-deployed to the site.
+Developer is responsible for implementation of update of the schemas created outside of this function.
+
+IMPORTANT! This function can not be used in site-less mode (version `6.0.0` and above), use `graphqlLib.execute` instead.
 
 
 .Basic usage
@@ -228,18 +229,19 @@ exports.post = function (req) {
 
 === initWebSockets
 
-image:../images/v-500.svg[Since version,opts=inline] The `initWebSockets(schema)` function is used to use default handling of `Subscription` via WebSocket. Only `node.*` events are listened to by default for current site, branch and repository. To customize which events must be listened use `subscriptionEventTypes` option during schema creation. This function is not supported in site-less mode, the
-developer is responsible for implementing this functionality if needed.
+image:../images/v-500.svg[Since version,opts=inline] The `initWebSockets(schema)` function is used for default handling of `Subscription` via WebSocket. Only `node.*` events are listened to by default for current site, branch and repository. To customize which events must be listened use `subscriptionEventTypes` option during schema creation. 
+
+IMPORTANT! In site-less mode (version `6.0.0` and above), this function is not supported. Developer is responsible for implementation of this functionality, if needed.
 
 .Schema options
 |===
 |Name | Description
 
 |schema: GraphQLSchema
-|GraphQL schema. This parameter must be provided if `schema` was created not using `execute` function. Property is optional.
+|GraphQL schema. This parameter must be provided if `schema` was created without using the `execute` function. The property is optional.
 |===
 
-To start handle a WebSocket event XP provides the handler named https://developer.enonic.com/docs/xp/stable/framework/websocket[webSocketEvent], which will be called for every WebSocket event from client.
+To start handling a WebSocket event, XP provides the handler called https://developer.enonic.com/docs/xp/stable/framework/websocket[webSocketEvent], which will be called for every WebSocket event from a client.
 
 .Example of usage
 [source,javascript]
@@ -253,8 +255,9 @@ exports.webSocketEvent = guillotineLib.initWebSockets(SCHEMA);
 
 === createWebSocketData
 
-image:../images/v-500.svg[Since version,opts=inline] Creates WebSocket data object from request with `branch`, `repositoryId` and `site` properties. In site-less mode which is supported from version `5.6.0`, this function is not supported.
-The developer is responsible for implementing this functionality if needed.
+image:../images/v-500.svg[Since version,opts=inline] Creates WebSocket data object from request with `branch`, `repositoryId` and `site` properties.
+
+IMPORTANT! In site-less mode (version `6.0.0` and above), this function is not supported. Developer is responsible for implementation of this functionality, if needed.
 
 [source,javascript]
 ----
