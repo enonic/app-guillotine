@@ -1,16 +1,16 @@
 = Rich text processing
 
-image:../images/v-500.svg[Since version,opts=inline] The default Guillotine HTML editor type provides processing of macros and image source URLs in the `processedHtml` field of the <<../api#richtext, RichText>> GraphQL object type.
+image:../images/v-500.svg[Since version,opts=inline] The default Guillotine HTML editor type provides processing of macros and image URLs in the `processedHtml` field of the <<../api#richtext, RichText>> GraphQL object type.
 But you might want to have custom processing of macros and images, for that you can use `macrosAsJson`, `macros` and `images` fields of the <<../api#richtext, RichText>>.
 
 == Usage
 
 === Links
 
-Starting from image:../images/v-550.svg[Since version,opts=inline] Guillotine by default provides links processing in the `processedHtml` field of the <<../api#richtext,RichText>> GraphQL object type. All internal links to `media` or `content` will be replaced by `server` or `absolute` link and for each `a` tag will be added the `data-link-ref`.
-Using that reference you will be able to find a link details in the `links` field and to do a custom link processing if needed.
+Starting from image:../images/v-550.svg[Since version,opts=inline] Guillotine by default provides links processing in the `processedHtml` field of the <<../api#richtext,RichText>> GraphQL object type. All internal links to `media` or `content` will be replaced by an absolute (`server`) link and for each `a` tag a `data-link-ref` attribute with referenced content Id will be added.
+Using that reference you will be able to find link details in the `links` field and to do custom link processing if needed.
 
-For instance, the processed value of a link looks like as below:
+For instance, the processed value of a link looks like below:
 
 [source,html]
 ----
@@ -59,10 +59,10 @@ query {
 
 === Images
 
-Starting from image:../images/v-500.svg[Since version,opts=inline] Guillotine by default provides image processing in the `processedHtml` field of the <<api#richtext,RichText>> GraphQL object type. All internal links to resources will be replaced by `server` or `absolute` link and for each `img` tag will be added the `data-image-ref`.
-Using that reference you will be able to find a image details in the `images` field and to do a custom image processing if needed.
+Starting from image:../images/v-500.svg[Since version,opts=inline] Guillotine by default provides image processing in the `processedHtml` field of the <<api#richtext,RichText>> GraphQL object type. All internal links to resources will be replaced by an absolute (`server`) link and for each `img` tag a `data-image-ref` attribute with referenced content Id will be added.
+Using that reference you will be able to find image details in the `images` field and to do custom image processing if needed.
 
-For instance, the processed value of an image looks like as below:
+For instance, the processed value of an image looks like below:
 
 [source,html]
 ----
@@ -118,7 +118,7 @@ fragment imageFragment on Content {
   }
 }
 ----
-<1> Reference to image in the processedHtml field
+<1> Reference to an image in the processedHtml field
 <2> Image as <<../api#content, Content>> type
 <3> Image style as <<../api#imagestyle, ImageStyle>> type
 
@@ -205,7 +205,7 @@ Results of the query:
 
 image:../images/embed-response-example.png[Response for embed macro]
 
-It is common to define a  https://developer.enonic.com/docs/xp/stable/cms/macros#descriptor[schema for your macro]. This is located in the `/site/macros/` directory. For instance, for a macro with name `testmacro` the schema will be placed by the following path `/site/macros/testmacro/testmacro.xml`
+It is common to define a https://developer.enonic.com/docs/xp/stable/cms/macros#descriptor[schema for your macro]. This is located in the `/site/macros/` directory. For instance, for a macro with name `testmacro` the schema must be placed at `/site/macros/testmacro/testmacro.xml`
 
 [source,xml]
 ----
@@ -222,7 +222,7 @@ It is common to define a  https://developer.enonic.com/docs/xp/stable/cms/macros
 
 image:../images/custom-macro.png[Custom Macro]
 
-Executing the query below will give your the value of the `defaulttext` input, as defined in the above schema.
+Executing the query below will give your value of the `defaultText` input, as defined in the above schema.
 
 [source,graphql]
 ----
