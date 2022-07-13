@@ -9,7 +9,7 @@ const DEFAULT_QUERY = `# Welcome to Query Playground
 # Query Playground is an in-browser tool for writing, validating, and
 # testing GraphQL queries.
 #
-# An example GraphQL query might look like:
+# An example GraphQL query might look like this:
 #
 #     {
 #       guillotine {
