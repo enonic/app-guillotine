@@ -14,15 +14,15 @@ As an example, when running the Enonic SDK on your local machine, you may access
 * `http://localhost:8080/site/blog/draft` - Drafts API 
 * `http://localhost:8080/site/blog/master` - Live API 
 
-The endpoints handle both `POST` and `GET` methods, but the `GET` method are only applicable for `Subscriptions` via WebSockets.
+The endpoints handle both `POST` and `GET` methods, but `GET` method is only applicable for `Subscriptions` via WebSockets.
 
 NOTE: In order to support the `Query playground` admin interface, Guillotine also exposes the same API in the following location: `admin/site/preview/{project}/{branch}`.
 
 == Exposing API via Vhosts
 
-By default, the API's are not be publicly available. You can use Vhosts to expose your APIs when needed:
+By default, the APIs are not publicly available. You can use Vhosts to expose your APIs when needed:
 
-As an example, `myapi.com` may be configured to point to the internal path `/site/myproject/master` - this way end-users will only see myapi.com
+As an example, `myapi.com` can be configured to point to the internal path `/site/myproject/master` - this way end-users will only see myapi.com.
 
 .Sample Vhost mapping
 [source,properties]
@@ -114,7 +114,7 @@ To send a message to the WS server in the terminal let's use https://www.npmjs.c
 npm install -g wscat
 ----
 
-Then type in the terminal the following command:
+Then run the following command in the terminal:
 
 [source,curl]
 ----
