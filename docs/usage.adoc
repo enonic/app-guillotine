@@ -1,6 +1,6 @@
 = Usage
 
-This section describes how access and use the API via the Content Studio extension
+This section describes how to access and use the API via Content Studio extension.
 
 == About GraphQL
 
@@ -11,13 +11,13 @@ http://graphql.org/learn[Learn more about GraphQL...]
 
 == Query playground
 
-After installing Guillotine, Content studio automatically gets a new menu item called `Query playgroud`. This is currently only accessible for users with `system.admin` or `cms.admin` roles.
+After installing Guillotine, a new menu item called `Query playgroud` will be automatically injected into the Content Studio menu. This is currently only accessible for users with `system.admin` or `cms.admin` roles.
 
 Using the `Query playground` you may run queries against the contextual project content. You may choose to query either the draft items (draft branch), or the published items (master branch).
 
 * The left panel allows you to edit your GraphQL query
 * The center panel displays the result of the query execution
-* The right panel is used to display a documentation generated from the GraphQL API.
+* The right panel is used to display documentation generated from the GraphQL API.
 * The toolbar is extended by the dropdown for choosing the branch and the refresh button, which allows to re-generate a schema
 * Each query is executed in a specific context, which is determined by the repository and the branch
 
@@ -120,7 +120,7 @@ Schemas with ContentSelector, MediaSelector or ImageSelector will generate refer
 
 === Images
 
-Enonic XP can dynamically render images at runtime. Guillotine uses this functionality by providing the field "imageUrl", which will generating a URL for the desired image size and crop.
+Enonic XP can dynamically render images at runtime. Guillotine uses this functionality by calling the "imageUrl" function which will generate a URL for the desired image size and crop.
 
 .*Example: Scaled Image URL* - Retrieve the image contents and generate absolute URLs to these images cropped to 800x200px
 ----
@@ -138,7 +138,7 @@ Enonic XP can dynamically render images at runtime. Guillotine uses this functio
 
 === Rich text
 
-Rich text fields provide configuration parameters that give you control of the output from links, images and much more.
+Rich text fields provide configuration parameters that give you control over output from links, images and much more.
 
 .*Example: Process HTML* - Retrieve the blog posts. For each post, return its author display name, tags and processed content.
 ----
