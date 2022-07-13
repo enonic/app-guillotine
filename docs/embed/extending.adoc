@@ -2,7 +2,7 @@
 
 The default Guillotine provides fields based on the available schemas.
 
-Some times, you might want to add/modify/delete fields (new retrieval methods, search in a separate database, virtual fields, etc...).
+Sometimes you might want to add/modify/delete fields (new retrieval methods, search in a separate database, virtual fields, etc...).
 
 The Guillotine schema is entirely configurable. When creating a schema, you can define a listener for a GraphQL type.
 This listener will be called before the type is created and given the possibility to modify the type creation parameters.
