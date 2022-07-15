@@ -1,5 +1,34 @@
 = Release Notes
 
+== Version 6
+Breaking change::
+* Guillotine app can no longer be added to a site to generate a contextual API.
+* Embed the guillotine library in your existing application to replicate this functionality.
+
+Project level API:: 
+* Guillotine is no longer limited to be deployed in the context of a site
+* The Guillotine API is now automatically provisioned to project branch root i.e. /site/<branch>/<myproject>
+* The GraphQL types are now generated from all available schemas in the Enonic instance, making it a global schema
+
+== Version 5.5
+
+- Support link processing for rich text fields
+
+== Version 5.4
+
+- Support extension of content interface
+
+== Version 5.3.1
+
+- Correct GraphQL dependency version
+
+== Version 5.3
+
+- Add `queryContext` to arguments for `execute` function
+- Support easy trimming of `_path`
+- Add `imageSizes` field to `processHtml`
+- Bug fix: processHtml is not supported on TextComponent
+
 == Version 5.2
 
 This release introduces improvements to the aggregations
@@ -21,7 +50,7 @@ This release introduces improvements to the subscriptions API, new functions to 
 
 === Schema creation and query execution
 
-- New function `guillotine Lib.execute(params)` to execute a GraphQL query. Also this function allows to create and generate a schema if the site or related apps were changed. More details <<advanced#, here>>.
+- New function `guillotineLib.execute(params)` to execute a GraphQL query. Also this function allows to create and generate a schema if the site or related apps were changed. More details <<advanced#, here>>.
 
 === Improvements
 
@@ -50,7 +79,7 @@ Content produced by the HtmlArea input type is now pre-processed to give front-e
 
 The most imporant capabilities are:
 
-Macros:: The `processedHtml` field now returns macro placeholder elements with references the macro configuration data with can be retrived via another field. This simplifies custom processing of macros in your client.
+Macros:: The `processedHtml` field now returns macro placeholder elements with references the macro configuration data with can be retrieved via another field. This simplifies custom processing of macros in your client.
 
 Images::
 A default img element is still in the markup, but now additionally includes a reference to data object of the image. This enables developers to customise the end result and presentation of images.

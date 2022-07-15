@@ -1,20 +1,39 @@
 {
   "menuItems": [
     {
-      "title": "Deployment",
-      "document": "deployment"
-    },
-    {
       "title": "Usage",
-      "document": "usage"
+      "document": "usage",
+      "menuItems": [
+        {
+          "title": "Rich text",
+          "document": "usage/rich-text"
+        }]
+      },
+    {
+      "title": "Endpoints",
+      "document": "endpoints"
     },
     {
-      "title": "Advanced topics",
-      "document": "advanced"
-    },
-    {
-      "title": "API",
+      "title": "GraphQL API",
       "document": "api"
+    },
+    {
+      "title": "Embedding",
+      "document": "embed",
+      "menuItems": [
+        {
+          "title": "Extending",
+          "document": "embed/extending"
+        },
+        {
+          "title": "Integrating",
+          "document": "embed/integrating"
+        },
+        {
+          "title": "Options",
+          "document": "embed/options"
+        }      
+      ]
     },
     {
       "title": "Release Notes",

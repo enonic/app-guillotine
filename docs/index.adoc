@@ -1,53 +1,38 @@
-= Headless CMS for Enonic XP - Project Guillotine
+= Guillotine project
 
-Get instant access to XP's Content API and query language over GraphQL
+Guillotine turns Enonic XP into a headless CMS by adding a GraphQL content API to the platform.
+
+TIP: *Quickstart!* For a quick intro to basic use of Guillotine, check out https://developer.enonic.com/docs/headless-cms-intro[Headless CMS intro].
 
 == Introduction
-Project Guillotine adds a headless CMS GraphQL API to your site.
+Guillotine is available on https://market.enonic.com/vendors/enonic/guillotine-headless-cms[Enonic Market].
 
-Guillotine builds on the following components:
-
-* https://developer.enonic.com/docs/xp[Enonic XP] - The core platform
-** Content API - CMS core embedded in Enonic XP
-** Site engine - Delivery engine for Guillotine
-* https://developer.enonic.com/docs/content-studio[Content Studio] - CMS Authoring interface
-
-TIP: *Quickstart!* Check out the https://developer.enonic.com/guides/headless-cms-intro[Headless CMS intro] for the fastest way to start building headless Enonic sites with project Guillotine.
-
-
-== Why headless XP?
-
-In addition to being a highly capable headless CMS, Enonic XP provides the following benefits:
-
-* Bulk and cherry-pick publishing
-* Mature and rich content modelling capabilities
-* Developer appraised SDK that runs on a standalone computer
-* Tree structures and document level access control
-* Fully programmable and customisable preview
-* Supports visual landing page authoring with typed components
-* Dynamically generated and strongly typed API
-* Real-time event streaming over websockets (GraphQL Subscriptions)
-* API and access to it can be customized
-* Developers are in full control of API versioning
-* Hybrid - capable of acting as a traditional CMS as well
-* Supports on premises deployment
-* 100% Open Source
-
-== Deployment
-
-With a running instance of Enonic XP installed, you will need to deploy the API on the platform. There are essentially two ways of deploying: by embedding Guillotine witin your app, or by installing the Guillotine application.
-
-<<deployment#,Details on deployment>>
+The application provides a strongly typed GraphQL read-only version of XP's https://developer.enonic.com/docs/xp/stable/api/lib-content[JavaScript Content API], as well as an extension to Content Studio that allows privileged users to run test the API.
 
 == Usage
 
-Once deployed, you get access to a range of capabilities, from running queries and following references to activating subscriptions.
+Developers, and super users may instantly test the API via a Content Studio extension called `Query playground`, which is included in the Guillotine application.
 
-Learn more about the <<api#,API>>, and <<usage#,how to use it>>.
+Learn more about GraphQL and <<usage#,how to use the API>>
 
+== Endpoints
 
-== Advanced topics
+Guillotine automatically provisions endpoints for public access to the API. 
 
-By embedding Guillotine, you may take control over where it is deployed, who can access it and even customise the API. 
+Learn more about <<endpoints#,accessing the endpoints>>
 
-<<advanced#, Read more about extending and modifying the GraphQL API>>
+== GraphQL API
+
+Guillotine provides a set of standard fields like `get` and `query`. Additionally, it dynamically generates GraphQL Types based on the schemas (content types, components etc) registered in your Enonic instance.
+
+Learn more about the standard types of the <<api#,API>>
+
+== Rich text processing
+
+Details related to <<rich-text#,Rich text handling>> in Guillotine.
+
+== Embedding
+
+Guillotine is also available in a library version, which for advanced use-cases may be embedded into your app. It lets you take control over the endpoints, detailed access control, as well as ability to extend and customise the API itself.
+
+<<embed#, Read more about integrating and customizing the Guillotine API>>
