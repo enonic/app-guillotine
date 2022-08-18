@@ -4,6 +4,10 @@
 Breaking change::
 * Guillotine app can no longer be added to a site to generate a contextual API.
 * Embed the guillotine library in your existing application to replicate this functionality.
+* `ExtraData` type became a dynamic type with fields that are generated based on form descriptors of the x-data and grouped by application key.
+* Naming for `ItemSet` and `OptionSet` types were changed, from:
+- `<applicationKey>_<contentTypeName>_<itemSetLabel>` to `<applicationKey>_<contentTypeName>_<itemSetName>`
+- `<applicationKey>_<contentTypeName>_<optionSetLabel>` to `<applicationKey>_<contentTypeName>_<optionSetName>`
 
 Project level API:: 
 * Guillotine is no longer limited to be deployed in the context of a site
@@ -99,7 +103,7 @@ A new default WS event handler `guillotineLib.initWebSockets(SCHEMA)` has also b
 
 Type renaming:: Component types like Part, Page and Layout was changed:
 from `<ComponentType>ComponentDataDescriptorConfig` to `<ComponentType>_<applicationKey>_<descriptorName>`, and
-from `ComponentType>ComponentDataApplicationConfig` to `<ComponentType>_<applicationKey>_ComponentDataApplicationConfig`.
+from `<ComponentType>ComponentDataApplicationConfig` to `<ComponentType>_<applicationKey>_ComponentDataApplicationConfig`.
 
 Attachment type:: is now returned instead of String for `AttachmentUploader` input types.
 
