@@ -58,8 +58,8 @@ public class GuillotineApiWebHandler
         portalRequest.setContextPath( portalRequest.getBaseUri() );
         portalRequest.setApplicationKey( APPLICATION_KEY );
 
-        final ResourceKey scriptDir = ResourceKey.from( APPLICATION_KEY, "graphql" );
-        final ControllerScript controllerScript = controllerScriptFactory.fromDir( scriptDir );
+        final ResourceKey script = ResourceKey.from( APPLICATION_KEY, "graphql/graphql.js" );
+        final ControllerScript controllerScript = controllerScriptFactory.fromScript( script );
 
         final PortalResponse portalResponse = controllerScript.execute( portalRequest );
 
