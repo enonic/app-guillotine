@@ -62,12 +62,14 @@ exports.get = function (req) {
 }
 
 exports.post = function (req) {
-    let input = JSON.parse(req.body);
+    const input = JSON.parse(req.body);
 
     return {
         contentType: 'application/json',
         headers: CORS_HEADERS,
-        body: JSON.stringify(graphQlLib.execute(getSchema(), input.query, input.variables))
+        body: JSON.stringify(graphQlLib.execute(getSchema(), input.query, input.variables, {
+            __siteKey: req.headers['X-Guillotine-SiteKey']
+        }))
     };
 }
 
