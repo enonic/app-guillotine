@@ -1,20 +1,19 @@
 {
   "menuItems": [
     {
-      "title": "Usage",
-      "document": "usage",
-      "menuItems": [
-        {
-          "title": "Rich text",
-          "document": "usage/rich-text"
-        }]
-      },
-    {
       "title": "Endpoints",
       "document": "endpoints"
     },
     {
-      "title": "GraphQL API",
+      "title": "Usage",
+      "document": "usage"
+    },
+    {
+      "title": "Clients",
+      "document": "clients"
+    },
+    {
+      "title": "GraphQL Schema",
       "document": "api"
     },
     {

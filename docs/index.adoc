@@ -1,38 +1,42 @@
 = Guillotine project
 
-Guillotine turns Enonic XP into a headless CMS by adding a GraphQL content API to the platform.
+Guillotine turns Enonic XP into a headless CMS by adding a GraphQL content API on top of every content project
 
-TIP: *Quickstart!* For a quick intro to basic use of Guillotine, check out https://developer.enonic.com/docs/headless-cms-intro[Headless CMS intro].
+TIP: *Quickstart!* For hands on usage of Enonic XP, check out https://developer.enonic.com/docs/developer-101[the Developer 101 tutorial].
 
 == Introduction
-Guillotine is available on https://market.enonic.com/vendors/enonic/guillotine-headless-cms[Enonic Market].
+Guillotine is available as an application on https://market.enonic.com/vendors/enonic/guillotine-headless-cms[Enonic Market].
 
-The application provides a strongly typed GraphQL read-only version of XP's https://developer.enonic.com/docs/xp/stable/api/lib-content[JavaScript Content API], as well as an extension to Content Studio that allows privileged users to run test the API.
-
-== Usage
-
-Developers, and super users may instantly test the API via a Content Studio extension called `Query playground`, which is included in the Guillotine application.
-
-Learn more about GraphQL and <<usage#,how to use the API>>
+The Guillotine API is essentially a strongly typed GraphQL read-only version of XP's internal https://developer.enonic.com/docs/xp/stable/api/lib-content[JS Content API]. In addition to the API, Guillotine adds a new panel to Content Studio, allowing privileged users to query the API in context of their content.
 
 == Endpoints
 
-Guillotine automatically provisions endpoints for public access to the API. 
+Guillotine automatically provisions endpoints to access the API. 
 
-Learn more about <<endpoints#,accessing the endpoints>>
+Learn how to <<endpoints#,access the API>>
+
+== Usage
+
+A basic introduction to using the API, with hands on example queries.
+
+Learn more about <<usage#,how to use the API>>.
+
+
+== Clients
+
+How to invoke the API from Content Studio, via cURL, or from JavaScript.
+
+Learn more about GraphQL and how to <<clients#,invoke the API from different clients>>.
+
 
 == GraphQL API
 
-Guillotine provides a set of standard fields like `get` and `query`. Additionally, it dynamically generates GraphQL Types based on the schemas (content types, components etc) registered in your Enonic instance.
+Guillotine provides a set of standard fields, but also dynamically generates GraphQL Types based on the installed schemas.
 
-Learn more about the standard types of the <<api#,API>>
-
-== Rich text processing
-
-Details related to <<rich-text#,Rich text handling>> in Guillotine.
+Learn more about the <<api#,standard schema types>>.
 
 == Embedding
 
-Guillotine is also available in a library version, which for advanced use-cases may be embedded into your app. It lets you take control over the endpoints, detailed access control, as well as ability to extend and customise the API itself.
+Guillotine is also available as a library version, which for advanced use-cases may be embedded into your app. It lets you take control over the endpoints, detailed access control, as well as ability to extend and customise the API itself.
 
-<<embed#, Read more about integrating and customizing the Guillotine API>>
+<<embed#, Read more about integrating and customizing the Guillotine API>>.

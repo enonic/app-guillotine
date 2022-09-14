@@ -7,7 +7,7 @@ Follow the instructions below to embed Guillotine in your application:
 
 == Add library
 
-Add the following dependency to your project (where `<version>` is the actual version you want to use, see available versions on https://market.enonic.com/vendors/enonic/guillotine-headless-lib[Enonic Market]):
+Add the following dependency to your project (where `<version>` is the actual version you want to use, see available versions on https://market.enonic.com/vendors/enonic/guillotine-headless-lib[Enonic Market]
 
 .build.gradle
 [source,gradle]

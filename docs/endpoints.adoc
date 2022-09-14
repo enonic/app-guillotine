@@ -1,4 +1,4 @@
-= Endpoints and invocation
+= Endpoints
 
 This section describes the available API endpoints and how to access and expose them.
 
@@ -9,22 +9,20 @@ The Guillotine application exposes two endpoints per content project:
 * `/site/<project-name>/draft` - draft items
 * `/site/<project-name>/master` - published items
 
-As an example, when running the Enonic SDK on your local machine, you may access the items of the `blog` project with the following URLs:
+As an example, when running the Enonic SDK on your local machine, you may access the items of a project called `blog`, using the following URLs:
 
 * `http://localhost:8080/site/blog/draft` - Drafts API 
 * `http://localhost:8080/site/blog/master` - Live API 
 
 The endpoints handle both `POST` and `GET` methods, but `GET` method is only applicable for `Subscriptions` via WebSockets.
 
-NOTE: In order to support the `Query playground` admin interface, Guillotine also exposes the same API in the following location: `admin/site/preview/{project}/{branch}`.
+== Custom domain
 
-== Exposing API via Vhosts
+When setting up Enonic XP in production, the APIs will normally not be publicly accessible. Using Vhosts, you may explose the APIs and even providing custom domain names:
 
-By default, the APIs are not publicly available. You can use Vhosts to expose your APIs when needed:
+Examples for a project called `myproject`.
 
-As an example, `myapi.com` can be configured to point to the internal path `/site/myproject/master` - this way end-users will only see myapi.com.
-
-.Sample Vhost mapping
+.Example - mapping Live API to myapi.com
 [source,properties]
 ----
 mapping.my-api.host = myapi.com
@@ -32,139 +30,12 @@ mapping.my-api.source = /
 mapping.my-api.target = /site/myproject/master
 ----
 
+.Example - mapping Drafts API to example.com/api
+[source,properties]
+----
+mapping.my-api.host = example.com
+mapping.my-api.source = /api
+mapping.my-api.target = /site/myproject/draft
+----
+
 For more details about vhosts, check out the https://developer.enonic.com/docs/xp/stable/deployment/vhosts[XP documentation]
-
-
-== Invoke with cURL
-
-NOTE: cURL must be installed on your device for the examples below to work
-
-NOTE: The examples below assume you have installed the https://market.enonic.com/vendors/enonic/headless-movie-db[Headless Movie Database] demo app running on your local machine.
-
-== Query example
-
-.Create the file req.json
-[source,json]
-----
-{
-  "query": "query getPlaylist {\n guillotine {\n query(query: \"type='com.enonic.app.hmdb:playlist'\") {\n ... on com_enonic_app_hmdb_Playlist {\n  _id\n }\n }\n }\n}",
-  "variables": null,
-  "operationName": "getPlaylist"
-}
-----
-
-.POST request using cURL
-[source,curl]
-----
-curl -X POST -H "Content-Type: application/json" -d @req.json http://localhost:8080/site/hmdb/draft | json_pp
-----
-
-.Response
-[source,json]
-----
-{
-   "data" : {
-      "guillotine" : {
-         "query" : [
-            {
-               "_id" : "531e40c9-6e5b-4259-b9e0-0d3144b2382a"
-            }
-         ]
-      }
-   }
-}
-----
-
-== Subscription example
-
-.Handshake request
-
-[source,curl]
-----
-curl -X GET -i -N -H "Connection: Upgrade" \
-                  -H "Upgrade: websocket" \
-                  -H "Host: guillotineapi.com:8080" \
-                  -H "Origin: http://guillotineapi.com:8080" \
-                  -H "Sec-WebSocket-Protocol: graphql-transport-ws" \
-                  -H "Sec-WebSocket-Key: c29tZWtleQ==" \
-                  -H "Sec-WebSocket-Version: 13" \
-                  --http1.1 \
-                 http://localhost:8080/site/hmdb/draft
-----
-
-.Handshake response
-
-[source,curl]
-----
-HTTP/1.1 101 Switching Protocols
-Date: Fri, 24 Jun 2022 15:09:08 GMT
-X-Frame-Options: DENY
-X-XSS-Protection: 1; mode=block
-X-Content-Type-Options: nosniff
-Sec-WebSocket-Protocol: graphql-transport-ws
-Connection: Upgrade
-Sec-WebSocket-Accept: eXT5yQBZ/TOhFBUi6nLY8cfzs1s=
-Upgrade: WebSocket
-----
-
-To send a message to the WS server in the terminal let's use https://www.npmjs.com/package/wscat[wscat], if WebSocket Cat is not installed, please use the following command:
-
-[source]
-----
-npm install -g wscat
-----
-
-Then run the following command in the terminal:
-
-[source,curl]
-----
-> wscat -c ws://localhost:8080/site/hmdb/draft
-Connected (press CTRL+C to quit)
-> {"id":"myid","type":"subscribe","payload":{"query":"subscription {\n  event {\n    type\n    dataAsJson\n  }\n}","variables":null}}
-< {"type":"next","id":"myid","payload":{"data":{"event":{"type":"node.updated","dataAsJson":{"nodes":{"0":{"id":"b028f04b-b020-4ef1-92eb-d4e657359dae","path":"/content/hmdb/dir","branch":"draft","repo":"com.enonic.cms.hmdb"}}}}}}}
-< {"type":"next","id":"myid","payload":{"data":{"event":{"type":"node.renamed","dataAsJson":{"nodes":{"0":{"id":"b028f04b-b020-4ef1-92eb-d4e657359dae","path":"/content/hmdb/dir-renamed","branch":"draft","repo":"com.enonic.cms.hmdb","newPath":"/content/hmdb/dir-renamed"}}}}}}}
-----
-
-== Invoke with JavaScript
-
-This section describes how to access the Guillotine API directly from a JavaScript client.
-
-== Example: Fetch content by path
-
-To use your GraphQL service, your client will send all its requests to the same service. The endpoint is expecting to receive a POST request with the following body:
-
-* A mandatory "query" String
-* An optional "variables" Object
-* An optional "operationName" String
-
-
-.Example: Fetch data from a javascript client
-[source,javascript]
-----
-const query = `query($path:ID!){
-    guillotine {
-        get(key:$path) {
-            displayName
-            type
-        }
-    }
-}`;
-
-const variables = {
-    'path': '/mysite/mycontentpath'
-};
-
-fetch('{{graphqlServiceUrl}}', {
-    method: 'POST',
-    body: JSON.stringify({
-        query: query,
-        variables: variables
-    }),
-    credentials: 'same-origin'
-})
-    .then(response => response.json())
-    .then(console.log);
-----
-
-
-
