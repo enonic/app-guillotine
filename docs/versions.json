@@ -4,6 +4,10 @@
       "label": "stable",
       "checkout": "master",
       "latest": true
+    },
+    {
+      "label": "next",
+      "checkout": "19cd7194c5d05a5644bd680e67d2fe2c4e8664cf"
     }
   ]
 }
