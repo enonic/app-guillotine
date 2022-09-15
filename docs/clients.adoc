@@ -107,8 +107,8 @@ curl -X POST -H "Content-Type: application/json" -d @req.json http://localhost:8
 ----
 curl -X GET -i -N -H "Connection: Upgrade" \
                   -H "Upgrade: websocket" \
-                  -H "Host: guillotineapi.com:8080" \
-                  -H "Origin: http://guillotineapi.com:8080" \
+                  -H "Host: localhost:8080" \
+                  -H "Origin: http://localhost:8080" \
                   -H "Sec-WebSocket-Protocol: graphql-transport-ws" \
                   -H "Sec-WebSocket-Key: c29tZWtleQ==" \
                   -H "Sec-WebSocket-Version: 13" \
