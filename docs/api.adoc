@@ -1,6 +1,6 @@
 = API
 
-This section describes the availble GraphQL types. 
+This section describes the available GraphQL types. 
 
 TIP: A more intuitive way to discover the API is by using the <<clients#_query_playground,Query Playground>>
 
