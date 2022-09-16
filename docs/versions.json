@@ -6,8 +6,8 @@
       "latest": true
     },
     {
-      "label": "next",
-      "checkout": "6b791bef8cabc88b1d2a8c47390fbf9e1d44ef06"
+      "label": "5.x",
+      "checkout": "72e225cb1cb55dbeb9b3d385ee0ba5c1efd4943d"
     }
   ]
 }
