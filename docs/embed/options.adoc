@@ -92,7 +92,7 @@ const context = guillotineLib.createContext();
 
 === execute
 
-image:../images/v-500.svg[Since version,opts=inline] The `execute(params)` function allows to execute a GraphQL query.
+The `execute(params)` function allows to execute a GraphQL query.
 
 List of properties for the `params` object:
 
@@ -229,7 +229,7 @@ exports.post = function (req) {
 
 === initWebSockets
 
-image:../images/v-500.svg[Since version,opts=inline] The `initWebSockets(schema)` function is used for default handling of `Subscription` via WebSocket. Only `node.*` events are listened to by default for current site, branch and repository. To customize which events must be listened use `subscriptionEventTypes` option during schema creation. 
+The `initWebSockets(schema)` function is used for default handling of `Subscription` via WebSocket. Only `node.*` events are listened to by default for current site, branch and repository. To customize which events must be listened use `subscriptionEventTypes` option during schema creation.
 
 IMPORTANT! In site-less mode (version `6.0.0` and above), this function is not supported. Developer is responsible for implementation of this functionality, if needed.
 
@@ -255,7 +255,7 @@ exports.webSocketEvent = guillotineLib.initWebSockets(SCHEMA);
 
 === createWebSocketData
 
-image:../images/v-500.svg[Since version,opts=inline] Creates WebSocket data object from request with `branch`, `repositoryId` and `site` properties.
+Creates WebSocket data object from request with `branch`, `repositoryId` and `site` properties.
 
 IMPORTANT! In site-less mode (version `6.0.0` and above), this function is not supported. Developer is responsible for implementation of this functionality, if needed.
 

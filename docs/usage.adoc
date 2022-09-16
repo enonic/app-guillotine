@@ -149,7 +149,7 @@ query {
 
 === Images
 
-Starting from image:../images/v-500.svg[Since version,opts=inline] Guillotine by default provides image processing in the `processedHtml` field of the RichText GraphQL type. All internal links to resources will be replaced by an absolute (`server`) link and for each `img` tag a `data-image-ref` attribute with referenced content Id will be added.
+Guillotine by default provides image processing in the `processedHtml` field of the RichText GraphQL type. All internal links to resources will be replaced by an absolute (`server`) link and for each `img` tag a `data-image-ref` attribute with referenced content Id will be added.
 Using that reference you will be able to find image details in the `images` field and to do custom image processing if needed.
 
 For instance, the processed value of an image looks like below:
