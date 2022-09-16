@@ -1,6 +1,8 @@
 = API
 
-This documentation lists and describes all static GraphQL types
+This section describes the available GraphQL types. 
+
+TIP: A more intuitive way to discover the API is by using the <<clients#_query_playground,Query Playground>>
 
 == Common arguments
 
@@ -103,7 +105,10 @@ Gathers all content retrieval requests.
 
 === Content
 
-Interface of all contents.
+The `Content` interface is implemented by both built-in and custom defined content types. All content types are dynamically generated based on the installed schemas.
+
+All types implementing `Content` share the same fields, with the exception of the `data` field, which offers a specific implementation per type.
+
 
 ==== Fields
 |===
@@ -116,7 +121,7 @@ Interface of all contents.
 |Content name
 
 |_path(type: <<ContentPathType>>): String!
-|Content path. The `type` argument is supported starting from version image:images/v-530.svg[Since version,opts=inline].
+|Content path. The `type` argument is supported starting from version. In the site-less mode, the result will be returned in the raw value, in other words, `env.source._path`.
 
 |creator: <<PrincipalKey>>
 |Content creator
@@ -151,14 +156,14 @@ Interface of all contents.
 |dataAsJson: JSON
 |Content data
 
-|[.line-through]#x: [<<ExtraData>>]#
-|Content extra data. *This field is deprecated and will be removed starting from version 6.0.0.*
+|x: [<<ExtraData>>]
+|Content extra data.
 
 |xAsJson: JSON
-|Content extra data
+|Content extra data as JSON
 
 |pageAsJson: JSON
-|Page specific information
+|Page specific information.
 
 |pageTemplate: <<Content>>
 |Related page template content
@@ -252,7 +257,6 @@ It allows you to :
 
 === QueryContentConnection
 
-image:images/v-500.svg[Since version,opts=inline]
 
 ==== Fields
 
@@ -308,7 +312,7 @@ image:images/v-500.svg[Since version,opts=inline]
 
 === RichText
 
-image:images/v-500.svg[Since version,opts=inline] Represents result of HtmlArea processing.
+Represents result of HtmlArea processing.
 
 |===
 |Name (Arguments): Type | Description
@@ -335,7 +339,7 @@ image:images/v-500.svg[Since version,opts=inline] Represents result of HtmlArea 
 
 === Macro
 
-image:images/v-500.svg[Since version,opts=inline] Dynamic type which contains macro details. By default contains two fields: `disable` and `embed`, other fields will be added dynamically based on macro descriptors for provided `applicationKeys` during schema creation.
+Dynamic type which contains macro details. By default contains two fields: `disable` and `embed`, other fields will be added dynamically based on macro descriptors for provided `applicationKeys` during schema creation.
 Given `applicationKeys` are expected to have the same order as in the site configs. It means that first macro descriptor that was matched will be used to process it.
 
 |===
@@ -399,7 +403,7 @@ Dynamic type, that contains fields based on macro names which are belong to apps
 
 === Image
 
-image:images/v-500.svg[Since version,opts=inline] Represents details for image found and processed in the <<RichText>> type.
+Represents details for image found and processed in the <<RichText>> type.
 
 |===
 |Name (Arguments): Type | Description
@@ -417,8 +421,6 @@ image:images/v-500.svg[Since version,opts=inline] Represents details for image f
 
 === ImageStyle
 
-image:images/v-500.svg[Since version,opts=inline]
-
 |===
 |Name (Arguments): Type | Description
 
@@ -435,8 +437,6 @@ image:images/v-500.svg[Since version,opts=inline]
 
 === Media
 
-image:images/v-550.svg[Since version,opts=inline]
-
 |===
 |Name (Arguments): Type | Description
 
@@ -450,7 +450,6 @@ image:images/v-550.svg[Since version,opts=inline]
 
 === Link
 
-image:images/v-550.svg[Since version,opts=inline]
 
 |===
 |Name (Arguments): Type | Description
@@ -612,11 +611,155 @@ Direct Known Subtypes: FormInput
 |===
 |Name(Arguments):Type | Description
 
-|name: String
-|Mixin name
+|media: <<XData_media_ApplicationConfig>>
+|X-Data for `media` application
 
-|data: String
-|Mixin value
+|base: <<XData_base_ApplicationConfig>>
+|X-Data for `base` application
+
+|<applicationKey>: XData_<applicationKey>_ApplicationConfig
+|X-Data for `<applicationKey>` application
+
+|===
+
+=== XData_media_ApplicationConfig
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|imageInfo: <<XData_media_imageInfo_DataConfig>>
+|Related X-Data config
+
+|cameraInfo: <<XData_media_cameraInfo_DataConfig>>
+|Related X-Data config
+
+|===
+
+=== XData_media_imageInfo_DataConfig
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|pixelSize: Int
+|Pixel size
+
+|imageHeight: Int
+|Image height
+
+|imageWidth: Int
+|Image width
+
+|contentType: String
+|Content type
+
+|description: String
+|Description
+
+|byteSize: Int
+|Byte size
+
+|colorSpace(offset: Int, first: Int): [String]
+|Color space
+
+|===
+
+=== XData_media_cameraInfo_DataConfig
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|date: LocalDateTime
+|Date
+
+|make: String
+|Make
+
+|model: String
+|Model
+
+|lens: String
+|Lens
+
+|iso: String
+|ISO
+
+|focalLength: String
+|Focal length
+
+|focalLength35: String
+|Focal length 35
+
+|exposureBias: String
+|Exposure bias
+
+|aperture(offset: Int, first: Int): [String]
+|Aperture
+
+|shutterTime: String
+|Shutter time
+
+|flash: String
+|Flash
+
+|autoFlashCompensation: String
+|Auto flash compensation
+
+|whiteBalance: String
+|White balance
+
+|exposureProgram: String
+|Exposure program
+
+|shootingMode: String
+|Shooting mode
+
+|meteringMode: String
+|Metering mode
+
+|exposureMode: String
+|Exposure mode
+
+|focusDistance: String
+|Focus distance
+
+|orientation: String
+|Orientation
+
+|===
+
+==== XData_base_ApplicationConfig
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|gpsInfo: <<XData_base_gpsInfo_DataConfig>>
+|GPS information
+
+|===
+
+=== XData_base_gpsInfo_DataConfig
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|geoPoint: GeoPoint
+|GeoPoint
+
+|direction: String
+|Direction
+
+|altitude: String
+|Altitude
 
 |===
 
@@ -768,7 +911,7 @@ Direct Known Subtypes: FormInput
 |mimeType: String
 |Attachment mime type
 
-|image:images/v-500.svg[Since version,opts=inline]  attachmentUrl: String
+|attachmentUrl: String
 |Attachment URL
 
 |===
@@ -819,7 +962,7 @@ Direct Known Subtypes: FormInput
 |imageWidths: [Int]
 |Generates image URLs for given widths which will be used in the `srcset` attribute of `img` tag.
 
-|image:images/v-530.svg[Since version,opts=inline] imageSizes: String
+|imageSizes: String
 |Specifies image width for a specific browser resolution in the following format: `(media-condition) width`. Multiple sizes are comma-separated.
 
 |===
@@ -828,7 +971,7 @@ Direct Known Subtypes: FormInput
 
 === AggregationInput
 
-image:images/v-500.svg[Since version,opts=inline] Aggregations enable extracting statistical data from search results. Only one of the aggregation fields at a time can be specified.
+Aggregations enable extracting statistical data from search results. Only one of the aggregation fields at a time can be specified.
 
 ==== Fields
 
@@ -888,7 +1031,7 @@ image:images/v-500.svg[Since version,opts=inline] Aggregations enable extracting
 |Bucket size, ordered by the given orderType and orderDirection. Defaults to 10.
 
 |minDocCount: Int
-|image:images/v-5.2.0.svg[Since version,opts=inline] Only include bucket in result if number of hits more or equal minDocCount.
+|Only include bucket in result if number of hits more or equal minDocCount.
 
 |===
 
@@ -906,8 +1049,6 @@ image:images/v-500.svg[Since version,opts=inline] Aggregations enable extracting
 
 === MinAggregationInput
 
-image:images/v-5.2.0.svg[Since version,opts=inline]
-
 ==== Fields
 
 |===
@@ -921,7 +1062,6 @@ image:images/v-5.2.0.svg[Since version,opts=inline]
 
 === MaxAggregationInput
 
-image:images/v-5.2.0.svg[Since version,opts=inline]
 
 ==== Fields
 
@@ -935,7 +1075,6 @@ image:images/v-5.2.0.svg[Since version,opts=inline]
 
 === ValueCountAggregationInput
 
-image:images/v-5.2.0.svg[Since version,opts=inline]
 
 ==== Fields
 
@@ -1036,7 +1175,6 @@ image:images/v-5.2.0.svg[Since version,opts=inline]
 
 |===
 
-
 === GeoDistanceAggregationInput
 
 ==== Fields
@@ -1074,8 +1212,6 @@ image:images/v-5.2.0.svg[Since version,opts=inline]
 |===
 
 == Filter Input Types
-
-image:images/v-500.svg[Since version,opts=inline]
 
 === FilterInput
 

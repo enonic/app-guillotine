@@ -16,6 +16,10 @@ child items and access media directly.
 |Min.XP Version
 |Download
 
+|6.0.0
+|7.9.0
+|http://repo.enonic.com/public/com/enonic/app/guillotine/6.0.0/guillotine-6.0.0.jar[Download]
+
 |5.4.0
 |7.7.0
 |http://repo.enonic.com/public/com/enonic/app/guillotine/5.4.0/guillotine-5.4.0.jar[Download]
@@ -82,6 +86,41 @@ child items and access media directly.
 |===
 
 == Breaking changes
+
+=== Breaking changes in 6.0
+
+* Guillotine app can no longer be added to a site to generate a contextual API.
+* Embed the guillotine library in your existing application to replicate this functionality.
+* `ExtraData` type became a dynamic type with fields that are generated based on form descriptors of the x-data and grouped by application key.
+* Naming for `ItemSet` and `OptionSet` types were changed, from:
+- `<applicationKey>_<contentTypeName>_<itemSetLabel>` to `<applicationKey>_<contentTypeName>_<itemSetName>`
+- `<applicationKey>_<contentTypeName>_<optionSetLabel>` to `<applicationKey>_<contentTypeName>_<optionSetName>`
+
+=== Breaking changes in 5.0
+
+Type renaming:: Component types like Part, Page and Layout was changed:
+from `<ComponentType>ComponentDataDescriptorConfig` to `<ComponentType>_<applicationKey>_<descriptorName>`, and
+from `<ComponentType>ComponentDataApplicationConfig` to `<ComponentType>_<applicationKey>_ComponentDataApplicationConfig`.
+
+Attachment type:: is now returned instead of String for `AttachmentUploader` input types.
+
+asJson::  `dataAsJson` and `pageAsJson`, as well as component `config` fields now return `JSON` instead of `String`.
+
+Subscription:: field `newEvent` has been renamed to `event`. The `type` and  `localOnly` arguments have been removed. Events are now also filtered, so only site/project related events are returned.
+
+UrlTypeType:: has been renamed to `UrlType`
+
+queryConnection:: field now returns type `QueryContentConnection` instead of an array of type `ContentConnection`
+
+Field name generation:: to comply with GraphQL from the types `OptionSet` and `ItemSet` no longer use camel-case. This is consistent with other field name generation in Guillotine.
+
+TextComponent and HtmlArea:: based fields now returns type `RichText` instead of `String` and supports the `processHtml` argument of type `ProcessHtmlInput`.
+
+Date:: input type now return `Date` scalar instead of `String`
+
+Time:: input type now return `LocalTime` scalar instead of `String`
+
+DateTime:: input type now return `DateTime` scalar instead of `String` if there is A config with `timezone`, otherwise "LocalDateTime" scalar
 
 === Breaking changes in 4.0
 

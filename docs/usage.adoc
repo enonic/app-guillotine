@@ -1,238 +1,12 @@
-= Using the GraphQL API
+= Query examples
 
-This section describes how access and use the GraphQL API
+This section provides a set of example queries.
 
-== Introduction
+== Queries
 
-GraphQL is a query language developed by Facebook.
-Compared to RESTful APIs, GraphQL is strongly typed and self-documented. It also enable client developers to request exactly the information required in as few requests as possible.
+The API lets you perform advanced queries thanks to Enonic XP's NoSQL storage. This includes ranked search, filters, stemming, aggregations and highlighting to mention a few things.
 
-http://graphql.org/learn[Learn more about GraphQL...]
-
-== Sites
-
-A site in Enonic XP represents main container of content, while being a content item itself.
-
-In addition to being a content container, a site may also have applications assigned to it. An application defines content types and potentially other capabilities (macros, filters, extra-data etc.) that will be added to the site along with the app.
-
-== Context
-
-All XP sites have a specific endpoint that can be accessed through an internal URL pattern. This pattern combined, provides what we call the context.
-
-For instance, a typical internal site URL may look like this:
-
-http://localhost:8080/site/default/draft/path-to/mysite
-
-It consists of the following elements:
-
-<scheme>://<host>:<port>/<engine>/<project>/<branch>/<sitepath>
-
-Every part of this URL composes the context. In our case, we are specifically interested in the project, branch and sitepath.
-
-Project:: Determines the underlying CMS repo being accessed
-Branch:: Determines branch: Allowed values are 'draft' or 'master' (where master represents the published data set)
-Sitepath:: Must match the path to the specific site to access
-
-Using different project, branch and site path enable us to access different sites, in different modes. For instance accessing the `draft` content (i.e. for a preview application), or for accessing the "live" content of the `master` branch.
-
-== Vhosts
-
-Since any XP instance may contain multiple sites, vhosts provide a way of exposing your APIs through a "nice" URL.
-
-As an example, `mysite.com` may be configured to point to the internal path `/site/default/master/path-to/mysite` - this way end-users will only see mysite.com, but internally the entire context is still available and in use.
-
-Also, `draft.mysite.com` may point to `/site/default/draft/path-to/mysite` - and be secured or exposed only to internal preview applications.
-
-For more details about vhosts, check out the https://developer.enonic.com/docs/xp/stable/deployment/vhosts[XP documentation]
-
-
-== GraphQL Playground
-
-The Guillotine app ships with an embedded GraphQL browser called GraphQL Playground. This enables you to instantly access and communicate with the API. When setting up Guillotine as a library, you can choose to embed GraphQL playground or not.
-
-NOTE: We recommend embedding a GraphQL browser with the API, as this greatly simplifies developers access to and use of the API.
-
-=== Interface
-
-* The field 'Service Location' specifies the location of the GraphQL service.
-* The left panel allows you to edit your graphQL query
-* The center panel displays the result of the query execution
-* The right panel is used to display a documentation generated from the GraphQL API.
-
-=== Sample query
-
-* Write the query below inside the left panel.
-+
-This query can be read as: Retrieve the display name and type of the current content.
-* Click on the query execution button above
-* The service response is displayed in the center panel
-
-.getSite
-[source,graphQL]
-----
-{
-  guillotine {
-    getSite {
-      displayName
-      type
-    }
-  }
-}
-----
-
-
-=== Sample subscription
-
-Guillotine also enables you to use GraphQL subscription in order to listen to events from the server.
-
-The subscriptions are implemented using Websockets, providing instant and high performance streaming of events over HTTP.
-
-[source,graphQL]
-.Listen to server events for the specific site
-----
-subscription {
-  event {
-    type
-    dataAsJson
-  }
-}
-----
-
-Starting from image:images/v-500.svg[Since verision,opts=inline] Guillotine listens to node events only for a specific repository and branch of the site.
-
-.Provide `branch`, `repositoryId` and `siteId` in the `data` object for WebSocket request:
-
-[source,javascript]
-----
-const portalLib = require('/lib/xp/portal');
-
-webSocket: {
-    data: {
-        branch: req.branch,
-        repositoryId: req.repositoryId,
-        siteId: portalLib.getSite()._id
-    },
-    subProtocols: ['graphql-ws']
-}
-----
-
-or use the `guillotineLib.createWebSocketData(req)` method which is available starting from image:images/v-5.1.0.svg[Since verision,opts=inline].
-
-[source,javascript]
-----
-webSocket: {
-    data: guillotineLib.createWebSocketData(req),
-    subProtocols: ['graphql-ws']
-}
-----
-
-Only `node.*` events are listened to by default. In order to configure which events should be listened to by an application or a site the `subscriptionEventTypes` option must be specified on schema creation, in this case default config will be overwritten.
-
-[source,javascript]
-----
-var guillotineLib = require('/lib/guillotine');
-
-var SCHEMA = guillotineLib.createSchema({
-    subscriptionEventTypes: ['myapp.eventName', 'node.*']
-});
-----
-
-To start handle a Websocket event XP provides the handler named `webSocketEvent`, which will be called for every Websocket event from client. More details about Websocket in XP https://developer.enonic.com/docs/xp/stable/framework/websocket[here].
-
-Starting from image:images/v-500.svg[Since verision,opts=inline] Guillotine provides the `initWebSockets` function with default events handling.
-
-[source,javascript]
-----
-exports.webSocketEvent = guillotineLib.initWebSockets(SCHEMA);
-----
-
-You might want to have custom subscriptions handling.
-If default events filtering is not suitable for you, then you have to create own `Subscription` type during a schema creation and implement a custom `webSocketEvent` handler how it was done before.
-
-== Accessing GraphQL with Javascript
-
-To use your GraphQL service, your client will send all its requests to the same service. The service is expecting to receive a POST request with inside its body:
-
-* A mandatory "query" String
-* An optional "variables" Object
-
-.Example: Generate the service URL from a controller
-[source,javascript]
-----
-var portalLib = require('/lib/xp/portal');
-var graphqlServiceUrl = portalLib.serviceUrl({
-    service: 'graphql',
-    application: 'com.enonic.app.guillotine' // <1>
-});
-----
-<1> Remove this line if you are using the guillotine library
-
-.Example: Fetch data from a javascript client
-[source,javascript]
-----
-const query = `query($path:ID!){
-    guillotine {
-        get(key:$path) {
-            displayName
-            type
-        }
-    }
-}`;
-
-const variables = {
-    'path': '/mysite/mycontentpath'
-};
-
-fetch('{{graphqlServiceUrl}}', {
-    method: 'POST',
-    body: JSON.stringify({
-        query: query,
-        variables: variables
-    }),
-    credentials: 'same-origin'
-})
-    .then(response => response.json())
-    .then(console.log);
-----
-
-== Using the API
-
-At the root of the default Guillotine schema is a type `Query` with a field `guillotine` of type `HeadlessCms`.
-The `HeadlessCms` type gathers fields allowing to retrieve contents or related data.
-
-=== Content
-
-The type `Content` is an interface with multiple implementations generated from built-in content types but also from content types defined by your application.
-All types implementing `Content` share the same fields at the exception of the field `data` defined for each implementation type.
-
-=== Relations
-
-Multiple relations are generated to allow to navigate between contents.
-By default, each content has the following relations:
-
-* parent: Link to the parent content
-* children: Link to the child contents
-* site: Link to the nearest site content
-
-Moreover, every ContentSelector, MediaSelector or ImageSelector defined in your content type form will
-be converted to a link to the related content(s).
-
-.Query example: Retrieve the display name of the current content and the display name of its direct children
-----
-{
-  guillotine {
-    get {
-      displayName
-      children {
-        displayName
-      }
-    }
-  }
-}
-----
-
-
-.Query example: Retrieve the blog posts. For each post, return its display name and the display name of the related author
+.Query example: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author
 ----
 {
   guillotine {
@@ -250,12 +24,34 @@ be converted to a link to the related content(s).
 }
 ----
 
-=== Image
+== Follow references
 
-Enonic XP can edit images at runtime.
-Guillotine uses this functionality by generating, on every image, a field "imageUrl" generating a URL pointing to the processed image.
+References between content items are available via regular GraphQL fields, allowing you to traverse and extract details from referenced content.
 
+By default, each items has the following common reference fields:
 
+* parent: the parent content item
+* children: the child item(s) if any
+
+Schemas with ContentSelector, MediaSelector or ImageSelector will generate references to the target item(s).
+
+.Query example: Retrieve the display name of a specific content and the display name of its direct children
+----
+{
+  guillotine {
+    get(key: "/path/to/item") {
+      displayName
+      children {
+        displayName
+      }
+    }
+  }
+}
+----
+
+== Accessing images
+
+Enonic XP can serve custom scaled images at runtime. Guillotine uses this functionality by using the "imageUrl" field which will generate a URL for the desired image size and crop.
 
 .*Example: Scaled Image URL* - Retrieve the image contents and generate absolute URLs to these images cropped to 800x200px
 ----
@@ -271,11 +67,11 @@ Guillotine uses this functionality by generating, on every image, a field "image
 }
 ----
 
-=== HTML
+== Rich text
 
-HTML fields are generated with a parameter "processHtml" allowing to replace abstract internal links by generated URLs.
+Rich text fields provide configuration parameters that give you control over output from links, images and much more.
 
-.*Example: Process HTML* - Retrieve the Superhero blog posts. For each post, return its author display name, tags and processed content.
+.*Example: Process HTML* - Retrieve the blog posts. For each post, return its author display name, tags and processed content.
 ----
 {
   guillotine {
@@ -287,7 +83,6 @@ HTML fields are generated with a parameter "processHtml" allowing to replace abs
           }
           tags
           post(processHtml:{type:absolute}) {
-             raw
              processedHtml
           }
         }
@@ -297,4 +92,352 @@ HTML fields are generated with a parameter "processHtml" allowing to replace abs
 }
 ----
 
-More details about <<htmleditor-processing#,HTML processing>>.
+Rich text fields will typically include links, images and macros in the `processedHtml` field of the <<../api#richtext, RichText>> type. Below are further details how how to handle this:
+
+=== Links
+
+By default, all internal links to `media` or `content` will be replaced by an absolute (`server`) link relative to the context of your endpoint. 
+
+For each `a` tag a `data-link-ref` attribute with referenced content Id will be added. Additional content related to the `links` field is available for custom processing by your client.
+
+For instance, the processed value of a link looks like below:
+
+[source,html]
+----
+<p>
+    <a title="Tooltip"
+        href="/admin/site/preview/hmdb/draft/hmdb/persons/lea-seydoux"
+        data-link-ref="e72f48b6-a972-4133-a300-a3ab5d132800">Link 1</a>
+</p>
+----
+
+The GraphQL query below will process links inside the field:
+
+[source,graphql]
+----
+query {
+  guillotine {
+    get(key: "contentID") {
+      ... on com_app_example_ContentType {
+        data {
+          htmlAreaField {
+            links {
+              ref          // <1>
+              uri          // <2>
+              media {      // <3>
+                content {
+                 _id
+                }
+                intent     // <4>
+              }
+              content {    // <5>
+                _id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+----
+<1> Reference to link in the processedHtml field
+<2> Link URI
+<3> Related media content. This field has `null` value for non-media content
+<4> Link intent. Available values `download` and `inline`
+<5> Related content. This field has `null` value for media content
+
+=== Images
+
+Starting from image:../images/v-500.svg[Since version,opts=inline] Guillotine by default provides image processing in the `processedHtml` field of the RichText GraphQL type. All internal links to resources will be replaced by an absolute (`server`) link and for each `img` tag a `data-image-ref` attribute with referenced content Id will be added.
+Using that reference you will be able to find image details in the `images` field and to do custom image processing if needed.
+
+For instance, the processed value of an image looks like below:
+
+[source,html]
+----
+<figure class="editor-align-justify">
+    <img alt="Alt text"
+         src="/site/repo/branch/appName/_/image/contentID/width-768/imageName.jpg"
+         data-image-ref="4f2439ff-ecef-4470-a4b4-d8929bce6ee2" />
+    <figcaption>Caption text</figcaption>
+</figure>
+----
+
+
+The query below will process images inside the field:
+
+[source,graphql]
+----
+query {
+  guillotine {
+    get(key: "contentID") {
+      ... on com_app_example_ContentType {
+        data {
+          richTextField {
+            images {
+              ref                           // <1>
+              image {                       // <2>
+                ... imageFragment
+              }
+              style {                       // <3>
+                name
+                aspectRatio
+                filter
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment imageFragment on Content {
+  _id
+  type
+  ... on media_Image {
+    data {
+      caption
+    }
+  }
+  ... on media_Vector {
+    data {
+      caption
+    }
+  }
+}
+----
+<1> Reference to an image in the processedHtml field
+<2> Image as <<../api#content, Content>> type
+<3> Image style as <<../api#imagestyle, ImageStyle>> type
+
+Using the `processHtml` argument which has <<../api#processhtmlinput, ProcessHtmlInput>> type for a form item of type `HtmlArea` or for
+`TextComponent` field you can specify `imageWidths` to generate relevant links for specific widths of an image.
+In this case `srcset` attribute will be added to `img` tags.
+
+For instance, when using the following fragment of query:
+
+[source,graphql]
+----
+htmlAreaField(processHtml: { imageWidths: [600, 992] }){
+    processedHtml
+    images {
+      ref
+    }
+}
+----
+
+The result will look as follows:
+
+[source,html]
+----
+<figure class="editor-align-justify">
+    <img alt="Alt text"
+         src="/site/repo/branch/appName/_/image/contentID/width-768/imageName.jpg"
+         data-image-ref="4f2439ff-ecef-4470-a4b4-d8929bce6ee2"
+         srcset="/site/repo/branch/appName/_/image/contentID/width-600/imageName.jpg 600w,
+                 /site/repo/branch/appName/_/image/contentID/width-992/imageName.jpg 992w"/>
+    <figcaption>Caption text</figcaption>
+</figure>
+----
+
+
+=== Macros
+
+Each macro will be translated to an `editor-macro` tag with `data-macro-ref` and `data-macro-name` attributes in the `processedHtml` field value. Using these references you will be able to find details of a specific macro in the `macrosAsJson` or `macros` fields and perform custom macro processing if needed.
+
+[NOTE]
+====
+Guillotine processes macros which have a descriptor and built-in macros called `disable` and `embed`, otherwise processing will be skipped. https://developer.enonic.com/docs/xp/stable/cms/macros[More details about macros].
+====
+
+For instance, we have an input form item called `description` of `HtmlArea` type which contains the `embed` macro as shown below:
+
+image:images/embed-macro.png[Embed Macro]
+
+The query below will fetch data for the `description` field:
+
+[source,graphql]
+----
+query {
+  guillotine {
+    get(key: "contentID") {
+      ... on com_app_example_ContentType {
+        data {
+          description {
+            raw            // (1)
+            processedHtml  // (2)
+            macrosAsJson   // (3)
+            macros {       // (4)
+              ref
+              name
+              descriptor
+              config {
+                embed {
+                  body
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+----
+<1> Non-processed value of the `description` field
+<2> Processed value of the `description` field
+<3> Array of processed macros in JSON format. The order of macros will be the same as in the `raw` and `processedHtml` fields.
+<4> <<api#macro, Macro>> allows to specify necessary fields. That field is an alternative for `macroAsJson` field
+
+Results of the query:
+
+image:images/embed-response-example.png[Response for embed macro]
+
+It is common to define a https://developer.enonic.com/docs/xp/stable/cms/macros#descriptor[schema for your macro]. This is located in the `/site/macros/` directory. For instance, for a macro with name `testmacro` the schema must be placed at `/site/macros/testmacro/testmacro.xml`
+
+[source,xml]
+----
+<macro>
+  <display-name>Current user</display-name>
+  <description>Shows currently logged user</description>
+  <form>
+    <input name="defaulttext" type="TextLine">
+      <label>Text to show if no user logged in</label>
+    </input>
+  </form>
+</macro>
+----
+
+image:images/custom-macro.png[Custom Macro]
+
+Executing the query below will give your value of the `defaultText` input, as defined in the above schema.
+
+[source,graphql]
+----
+query {
+  guillotine {
+    get(key: "contentID") {
+      ... on com_app_example_ContentType {
+        data {
+          description {
+            macros {
+              ref
+              name
+              descriptor
+              config {
+                testmacro {
+                  defaultText
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+----
+
+== xData
+
+Enonic XP supports dynamically extending content with fields from other schemas/applications - so-called eXtra Data.
+
+In the query below, we access the SoMe (SocialMedia) fields that have been used to extend the Person content type.
+
+
+.Example: Access xData fields
+[source,graphql]
+----
+{ 
+  guillotine {
+    query(contentTypes:"com.example.myproject:person") {
+      displayName
+      x {
+      	com_example_myproject {
+          SoMe {
+          	imdb
+          }
+        }
+      }
+    }
+  }
+}
+----
+
+NOTE: Notice that xData fields are grouped by application name, this ensures there will never be a conflict between field names, even when schemas come from different applications.
+
+
+== Site context
+
+When building websites, you will create root content item of type site. It is practical not having to know the exact location of the site within the project structure. 
+
+By passing a special HTTP header along the query, you get access to some useful features:
+
+=== Set header
+
+You need to specify the following HTTP header in your client:
+
+  X-Guillotine-SiteKey: IdOrPathToYourSite
+
+Using Query playground, add the following to the HTTP headers config - remember to replace with a proper site ID:
+
+  {
+    "X-Guillotine-SiteKey": "IdOrPathToYourSite"
+  }
+
+NOTE: SiteKey is either the ID of the site content item, or the path to the site within your project.
+
+
+=== getSite
+
+With the site context set, you may run queries to access the site content using getSite field
+
+.Example: Acessing the displayName of the site
+----
+{
+  guillotine {
+    getSite{
+        displayName
+    }
+  }
+}
+----
+
+=== Path placeholder
+
+Use the `${site}` placeholder when querying for path's within the site.
+
+.Example: Acessing content within specific path of a site
+----
+{ 
+  guillotine {
+    getChildren(key: "${site}/persons"){
+      displayName
+      ... on com_example_myproject_Person {
+        data {
+          dateofbirth
+        }
+      }
+    }
+  }
+}
+----
+
+=== Site relative paths
+
+Finally, you may retrieve site relative paths - which may be useful when generating site relative URLs for instance.
+
+
+.Example: Retrive site relative item paths
+----
+{ 
+  guillotine {
+    getChildren(key: "${site}/persons"){
+      displayName
+      _path(type: siteRelative)
+    }
+  }
+}
+----
