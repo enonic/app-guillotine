@@ -2,22 +2,22 @@
 
 == Version 6
 
-WARNING: This release includes <<_breaking_changes, breaking changes>> 
+WARNING: This release includes <<breaking_changes, breaking changes>>
 
 === Release features
 
 Project level API:: The Guillotine app now mounts to the root of all projects - automatically provisioning an API to all project branches root i.e. `/site/<myproject>/<branch>`.
 
-Dynamic site context:: With the API now being project-relative, setting the site context in a header enable you to <<usage#_site_context, perform site relative queries>>.
+Dynamic site context:: With the API now being project-relative, setting the site context in a header enable you to <<usage#site_context, perform site relative queries>>.
 
 Global schema:: The GraphQL type schema is generated from all available schemas (across all installed apps) in the Enonic instance.
 
-Content Studio API browser:: Guillotine also features an embedded GraphQL API browser called <<clients#_query_playground, Query playground>>. Query Playground is available directly in Content Studio, in context of your projects.
+Content Studio API browser:: Guillotine also features an embedded GraphQL API browser called <<clients#query_playground, Query playground>>. Query Playground is available directly in Content Studio, in context of your projects.
 
-Typed x-data schemas:: Like for all other schemas, x-data are now also fully typed - grouped by application key. See <<usage#_xdata, examples of xData usage>>
+Typed x-data schemas:: Like for all other schemas, x-data are now also fully typed - grouped by application key. See <<usage#xdata, examples of xData usage>>
 
 === Breaking changes
 
-Site deployment removed:: You may no longer add this application to a site, and get a contextual API. Use the <<usage#_site_context, site context header>>, or <<embed#, embed Guillotine>> in your application to replicate this functionality.
+Site deployment removed:: You may no longer add this application to a site, and get a contextual API. Use the <<usage#site_context, site context header>>, or <<embed#, embed Guillotine>> in your application to replicate this functionality.
 
 ItemSet and OptionSet type name fix:: Previously, their types were erroneously generated from their schema label, rather than name. Clients using these types through introspection will break if label and name are different in the schemas.
