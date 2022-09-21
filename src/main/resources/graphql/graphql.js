@@ -44,6 +44,21 @@ function getSchema() {
     return schema;
 }
 
+function createQueryContext(headers) {
+    let siteKey = null;
+    Object.keys(headers).every(header => {
+        if ('x-guillotine-sitekey' === header.toLowerCase()) {
+            siteKey = headers[header];
+            return false;
+        }
+        return true;
+    });
+
+    return {
+        __siteKey: siteKey,
+    }
+}
+
 exports.get = function (req) {
     if (!req.webSocket) {
         return {
@@ -67,9 +82,7 @@ exports.post = function (req) {
     return {
         contentType: 'application/json',
         headers: CORS_HEADERS,
-        body: JSON.stringify(graphQlLib.execute(getSchema(), input.query, input.variables, {
-            __siteKey: req.headers['X-Guillotine-SiteKey']
-        }))
+        body: JSON.stringify(graphQlLib.execute(getSchema(), input.query, input.variables, createQueryContext(req.headers)))
     };
 }
 
