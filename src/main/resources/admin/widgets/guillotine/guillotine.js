@@ -4,14 +4,19 @@ const portalLib = require('/lib/xp/portal');
 exports.get = function (req) {
     const view = resolve('guillotine.html');
     const assetsUrl = portalLib.assetUrl({path: ""});
+    const baseUrl = '/admin/site/preview';
     const wsUrl = portalLib.url({
-        path: '/',
-        type: 'websocket'
+        path: baseUrl,
+        type: 'websocket',
+    });
+    const handlerUrl = portalLib.url({
+        path: baseUrl,
     });
 
     const params = {
         assetsUrl: assetsUrl,
-        wsUrl: wsUrl.endsWith('/') ? wsUrl.substring(0, wsUrl.length - 1) : wsUrl
+        wsUrl: wsUrl,
+        handlerUrl: handlerUrl,
     };
 
     return {

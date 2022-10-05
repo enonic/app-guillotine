@@ -28,7 +28,7 @@ let activeSocket = null;
 let branch = 'draft';
 
 function getHandlerUrl() {
-    return `/admin/site/preview/${getProjectValue()}/${branch}`;
+    return `${getRootContainer().dataset.configHandlerUrl}/${getProjectValue()}/${branch}`;
 }
 
 function getProjectValue(): string {
@@ -91,7 +91,7 @@ function createWsClient() {
 }
 
 function getClientEndpoint() {
-    return `${getRootContainer().dataset.configWsUrl}${getHandlerUrl()}`;
+    return `${getRootContainer().dataset.configWsUrl}/${getProjectValue()}/${branch}`;
 }
 
 function getRootContainer() {
@@ -127,7 +127,7 @@ function createBranchMenu() {
 }
 
 function createLogoReplacement() {
-     return React.createElement(GraphiQL.Logo, {
+    return React.createElement(GraphiQL.Logo, {
         key: 'logo',
         children: [createBranchMenu()]
     });
