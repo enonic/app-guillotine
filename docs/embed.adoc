@@ -1,42 +1,40 @@
 = Embedding
+:TOC:
 
-The Guillotine core is also available as a standalone library which may be embedded into your custom Enonic application.
-This gives you extensive control over the API.
+Guillotine is also available as a standalone library which may be embedded into your custom Enonic application. This gives you extensive control over the API.
 
-Follow the instructions below to embed Guillotine in your application:
+NOTE: To create a new app with the Guillotine library boot-strapped: `enonic project create -r starter-guillotine`
+
+Follow the instructions below to embed Guillotine into your existing application.
+
 
 == Add library
 
-Add the following dependency to your project (where `<version>` is the actual version you want to use, see available versions on https://market.enonic.com/vendors/enonic/guillotine-headless-lib[Enonic Market]
+Update the dependencies of your project:
 
-.build.gradle
+./build.gradle
 [source,gradle]
 ----
 dependencies {
-  include 'com.enonic.lib:lib-guillotine:<version>'
+    implementation "com.enonic.xp:portal-api:${xpVersion}"
+    include "com.enonic.lib:lib-guillotine:<version>"
 }
 ----
+
+NOTE: Replace `<version>` with the actual version you want to use, see available versions on https://market.enonic.com/vendors/enonic/guillotine-headless-lib[Enonic Market]
+
 
 == Creating an endpoint
 
 When using the Guillotine library, you control where and how your API is exposed.
-Most commonly, the API is mounted in site context, which also means you will have to include a site schema (site.xml) in your app, and add it to your site:
+Most commonly, the API is mounted in the context of a site, which means you will have to add a site.xml file in your app, and then add the application to the specific site:
 
-The following approaches are common:
 
-Service:: i.e. https://mysite.com/_/service/<app-name>/<service-name>
-Mapping:: i.e. https://mysite.com/<mapping>
-Filter:: i.e. https://mysite.com (GraphQL uses POST method, so it may even be combined with GET on the same URL pattern)
+=== Controller
 
-The various approaches are described below:
+Starting off, you will need a minimal JavaScript controller file that will handle the requests. Below is a minimal example:
 
-=== As a service
-
-By using XP's web service approach, your endpoint will automatically by exposed on a safe path within your site.
-
-* Create an Enonic XP service file `/services/graphql/graphql.js` with the following content:
-
-./services/graphql/graphql.js
+.Sample JS controller
 [source,javascript]
 ----
 var guillotineLib = require('/lib/guillotine'); // <1>
@@ -59,45 +57,242 @@ exports.post = function (req) { // <3>
 <4> Parses the JSON body to retrieve the GraphQL query and variables
 <5> Executes the query and variables against the schema created
 
-You now have a custom GraphQL endpoint!
+=== Mounting
 
-== As a mapping
+The controller alone is not enough to give you an end-point. The following approaches are available.
 
-By using XP's mapping approach, you must configure a mapping for your GraphQL controller in `site.xml`.
+The various approaches are described below:
 
-* Create a controller file `/resources/controllers/graphql.js` with the following content:
+==== Service
 
-./resources/controllers/graphql.js
-[source,javascript]
-----
-var guillotineLib = require('/lib/guillotine'); // <1>
-var graphQlLib = require('/lib/graphql'); // <1>
+Service endpoints are automatically mounted in a unique URL-pattern, contextual of your site.
 
-var schema = guillotineLib.createSchema(); // <2>
+Example:: i.e. https://<vhost>/_/service/<app-name>/<service-name>
 
-exports.post = function (req) { // <3>
- var body = JSON.parse(req.body); // <4>
- var result = JSON.stringify(graphQlLib.execute(schema, body.query, body.variables)); // <5>
- return {
-     contentType: 'application/json',
-     body: JSON.stringify(result)
- };
-};
-----
-<1> The GraphQL library is already a dependency in Guillotine and does not need explicitly need to be added to your Gradle file.
-<2> Creates the GraphQL schema the first time the controller is called.
-<3> Handles POST requests.
-<4> Parses the JSON body to retrieve the GraphQL query and variables.
-<5> Executes the query and variables against the schema created.
+Simply place the controller file above in your app using the following pattern:
+`/src/main/resources/services/<service-name>/<service-name>.js`
+
+That's it
+
+==== Mapping
+As opposed to services, mappings are explicitly declared. 
+
+Example:: i.e. https://<vhost>/<my-mapping>
+
+This time, however, you may place the controller anywhere within your app resources structure, i.e. `/src/main/resources/controllers/guillotine.js`. Then declare the mapping in your site.xml schema. For instance like this
 
 ./resources/site/site.xml
 [source,xml]
 ----
 <mappings>
   <mapping controller="/controllers/graphql.js" order="50">
-    <pattern>/_graphql</pattern>
+    <pattern>/myapi</pattern>
   </mapping>
 </mappings>
 ----
 
-You now have a custom GraphQL endpoint like this `<siteUrl>/_graphql`, for instance `http://localhost:8080/site/hmdb/draft/hmdb/_graphql`!
+Using the example above, the API will be available directly in context of your site like this: `<url-to-site>/myapi`.
+
+==== Filters
+
+Filters are similar to mappings, but may also work in combination with other controller on the same path. I.e. a filter handling `POST` requests may for instance be mapped to the site root, even if your site serves content using `GET` requests on the same endpoint.
+
+Example filter mapping
+
+./resources/site/site.xml
+[source,xml]
+----
+<mappings>
+  <mapping filter="/controllers/graphql.js" order="50">
+    <pattern>/</pattern>
+  </mapping>
+</mappings>
+----
+
+== Subscriptions and websockets
+
+The Guillotine API also support GraphQL subscriptions. This is implemented via websockets.
+To enable this functionality, your controller must be extended.
+
+Make sure you have a dependency for websockets in your application:
+
+.build.gradle with websocket dependency
+[source,gradle]
+----
+dependencies {
+    implementation "com.enonic.xp:portal-api:${xpVersion}"
+    include "com.enonic.xp:lib-websocket:${xpVersion}"
+    include "com.enonic.lib:lib-guillotine:<version>"
+}
+----
+
+
+
+.Controller with Websockets
+[source,xml]
+----
+const guillotineLib = require('/lib/guillotine');
+
+exports.get = function (req) {
+    if (req.webSocket) {
+        return {
+            webSocket: {
+                data: guillotineLib.createWebSocketData(req),
+                subProtocols: ['graphql-ws']
+            }
+        };
+    }
+};
+
+exports.post = function (req) {
+    let input = JSON.parse(req.body);
+
+    let params = {
+        query: input.query,
+        variables: input.variables
+    };
+
+    return {
+        contentType: 'application/json',
+        body: guillotineLib.execute(params)
+    };
+};
+
+exports.webSocketEvent = guillotineLib.initWebSockets();
+----
+
+== CORS headers
+
+To enable flexible access to the API from browser clients, you may also need to set specific https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS[CORS headers].
+
+The example below includes both support for websockets and CORS headers:
+
+.Controller with CORS headers
+[source,xml]
+----
+const guillotineLib = require('/lib/guillotine');
+
+//──────────────────────────────────────────────────────────────────────────────
+// Constants
+//──────────────────────────────────────────────────────────────────────────────
+const CORS_HEADERS = {
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Origin': '*'
+};
+
+//──────────────────────────────────────────────────────────────────────────────
+// Methods
+//──────────────────────────────────────────────────────────────────────────────
+exports.options = function () {
+    return {
+        contentType: 'text/plain;charset=utf-8',
+        headers: CORS_HEADERS
+    };
+};
+
+exports.get = function (req) {
+    if (req.webSocket) {
+        return {
+            webSocket: {
+                data: guillotineLib.createWebSocketData(req),
+                subProtocols: ['graphql-ws']
+            }
+        };
+    }
+};
+
+exports.post = function (req) {
+    let input = JSON.parse(req.body);
+
+    let params = {
+        query: input.query,
+        variables: input.variables
+    };
+
+    return {
+        contentType: 'application/json',
+        headers: CORS_HEADERS,
+        body: guillotineLib.execute(params)
+    };
+};
+
+exports.webSocketEvent = guillotineLib.initWebSockets();
+----
+
+== API browser
+
+Finally - to simplify use of your API, you may also embed a GraphQL API browser on the very same endpoint. As oppsed to the GraphQL API, which uses the `POST` method, the API browser will be handling the `GET` requests.
+
+Make sure you have a dependency to GraphQL playground
+
+.build.gradle with all dependencies
+[source,gradle]
+----
+dependencies {
+    implementation "com.enonic.xp:portal-api:${xpVersion}"
+    include "com.enonic.xp:lib-websocket:${xpVersion}"
+    include "com.enonic.lib:lib-guillotine:<version>"
+    include "com.enonic.lib:lib-graphql-playground:<version>"
+}
+----
+
+.JS controller with all features
+[source,JavaScript]
+----
+const guillotineLib = require('/lib/guillotine');
+const graphqlPlaygroundLib = require('/lib/graphql-playground');
+
+//──────────────────────────────────────────────────────────────────────────────
+// Constants
+//──────────────────────────────────────────────────────────────────────────────
+const CORS_HEADERS = {
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Origin': '*'
+};
+
+//──────────────────────────────────────────────────────────────────────────────
+// Methods
+//──────────────────────────────────────────────────────────────────────────────
+exports.options = function () {
+    return {
+        contentType: 'text/plain;charset=utf-8',
+        headers: CORS_HEADERS
+    };
+};
+
+exports.get = function (req) {
+    if (req.webSocket) {
+        return {
+            webSocket: {
+                data: guillotineLib.createWebSocketData(req),
+                subProtocols: ['graphql-ws']
+            }
+        };
+    }
+
+    let body = graphqlPlaygroundLib.render();
+    return {
+        contentType: 'text/html; charset=utf-8',
+        body: body
+    };
+};
+
+exports.post = function (req) {
+    let input = JSON.parse(req.body);
+
+    let params = {
+        query: input.query,
+        variables: input.variables
+    };
+
+    return {
+        contentType: 'application/json',
+        headers: CORS_HEADERS,
+        body: guillotineLib.execute(params)
+    };
+};
+
+exports.webSocketEvent = guillotineLib.initWebSockets();
+----
