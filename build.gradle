@@ -30,7 +30,7 @@ dependencies {
     include "com.enonic.xp:lib-websocket:${xpVersion}"
     include "com.enonic.xp:lib-event:${xpVersion}"
     include "com.enonic.lib:lib-mustache:2.1.0"
-    include "com.enonic.lib:lib-guillotine:6.0.4"
+    include "com.enonic.lib:lib-guillotine:6.0.5"
 
     testImplementation 'org.mockito:mockito-core:4.8.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:4.8.0'
