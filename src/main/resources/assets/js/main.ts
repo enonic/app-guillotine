@@ -2,6 +2,7 @@ import * as React from 'react';
 import {createRoot} from 'react-dom/client';
 import {GraphiQL} from 'graphiql';
 import {createGraphiQLFetcher} from '@graphiql/toolkit';
+import {Menu} from '@graphiql/react';
 import {createClient} from 'graphql-ws';
 
 const DEFAULT_QUERY = `# Welcome to Query Playground
@@ -64,7 +65,8 @@ function createMainElement() {
         defaultVariableEditorOpen: false,
         children: [createLogoReplacement()],
         toolbar: {
-            additionalContent: createRefreshButton()
+            // additionalContent: createRefreshButton()
+            // additionalContent: createBranchMenu()
         },
         defaultQuery: DEFAULT_QUERY,
     });
@@ -99,28 +101,29 @@ function getRootContainer() {
 }
 
 function createBranchMenu() {
-    const draftMenuItem = React.createElement(GraphiQL.MenuItem, {
-        key: 'draft',
-        label: 'draft',
-        onSelect: () => {
-            branch = 'draft';
-            toggleGraphiQLEditor();
-        }
-    });
+    // const draftMenuItem = React.createElement(MenuItem, {
+    //     key: 'draft',
+    //     label: 'draft',
+    //     onSelect: () => {
+    //         branch = 'draft';
+    //         toggleGraphiQLEditor();
+    //     }
+    // });
+    //
+    // const masterMenuItem = React.createElement(GraphiQL.MenuItem, {
+    //     key: 'master',
+    //     label: 'master',
+    //     onSelect: () => {
+    //         branch = 'master';
+    //         toggleGraphiQLEditor();
+    //     }
+    // });
 
-    const masterMenuItem = React.createElement(GraphiQL.MenuItem, {
-        key: 'master',
-        label: 'master',
-        onSelect: () => {
-            branch = 'master';
-            toggleGraphiQLEditor();
-        }
-    });
-
-    const branchMenu = React.createElement(GraphiQL.Menu, {
+    const branchMenu = React.createElement(Menu, {
         key: 'branch',
         label: `Branch (${branch})`,
-        children: [draftMenuItem, masterMenuItem]
+        children: []
+        // children: [draftMenuItem, masterMenuItem]
     });
 
     return branchMenu;
@@ -133,15 +136,15 @@ function createLogoReplacement() {
     });
 }
 
-function createRefreshButton() {
-    return React.createElement(GraphiQL.Button, {
-        key: 'refreshButton',
-        title: 'Refresh',
-        onClick: () => {
-            toggleGraphiQLEditor();
-        }
-    });
-}
+// function createRefreshButton() {
+//     return React.createElement(GraphiQL.Button, {
+//         key: 'refreshButton',
+//         title: 'Refresh',
+//         onClick: () => {
+//             toggleGraphiQLEditor();
+//         }
+//     });
+// }
 
 initEventListeners();
 renderGraphiQLUI();
