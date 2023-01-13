@@ -83,7 +83,7 @@ Gathers all content retrieval requests.
  contentTypes: [String],
  filters: [<<FilterInput>>]
  ): [<<Content>>]
-|Queries contents
+|Queries contents. *Deprecated* from version 6.1.0.
 
 |queryConnection(
  query: String!,
@@ -94,6 +94,24 @@ Gathers all content retrieval requests.
  aggregations: [<<AggregationInput>>],
  filters: [<<FilterInput>>]
  ): <<QueryContentConnection>>
+|Queries contents and returns the result as a connection.  *Deprecated* from version 6.1.0.
+
+|queryDsl(
+query: <<QueryDSLInput>>,
+offset: Int,
+first: Int,
+sort: <<SortDslInput>>
+): [<<Content>>]
+|Queries contents
+
+|queryDslConnection(
+query: <<QueryDSLInput>>!,
+after: String,
+first: Int,
+sort: <<SortDslInput>>,
+aggregations: [<<AggregationInput>>],
+highlight: <<HighlightInputType>>
+): <<QueryDSLContentConnection>>
 |Queries contents and returns the result as a connection
 
 |getType(name: String!): <<ContentType>>
@@ -274,6 +292,30 @@ It allows you to :
 
 |aggregationAsJson: JSON
 |Result of aggregations
+
+|===
+
+=== QueryDSLContentConnection
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|totalCount: Int!
+|Total number of related content
+
+|edges: [<<ContentEdge>>]
+|Edge to the related content
+
+|pageInfo: <<PageInfo>>
+|Paging information
+
+|aggregationAsJson: JSON
+|Result of aggregations
+
+|highlightAsJson: JSON
+|Result of highlight
 
 |===
 
@@ -1319,6 +1361,463 @@ Only one value field can be specified.
 
 |===
 
+== Query DSL Input Types
+
+=== QueryDSLInput
+
+Query DSL input type. Only one field must be provided. More details about Query DSL you can find https://developer.enonic.com/docs/xp/next/storage/dsl[here].
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|boolean: <<BooleanDSLExpressionInput>>
+|Boolean DSL expression
+
+|ngram: <<NgramDSLExpressionInput>>
+|Ngram DSL expression
+
+|stemmed: <<StemmedDSLExpressionInput>>
+|Stemmed DSL expression
+
+|fulltext: <<FulltextDSLExpressionInput>>
+|Fulltext DSL expression
+
+|matchAll: <<MatchAllDSLExpressionInput>>
+|MatchAll DSL expression
+
+|pathMatch: <<PathMatchDSLExpressionInput>>
+|PathMatch DSL expression
+
+|range: <<RangeDSLExpressionInput>>
+|Range DSL expression
+
+|term: <<TermDSLExpressionInput>>
+|Term DSL expression
+
+|like: <<LikeDSLExpressionInput>>
+|Like DSL expression
+
+|in: <<InDSLExpressionInput>>
+|In DSL expression
+
+|exists: <<ExistsDSLExpressionInput>>
+|Exists DSL expression
+
+|===
+
+=== BooleanDSLExpressionInput
+
+Boolean DSL expression input type.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|should: [<<QueryDSLInput>>]
+|The query should appear in the matching document.
+
+|must: [<<QueryDSLInput>>]
+|The query must appear in matching documents and will contribute to the score.
+
+|mustNot: [<<QueryDSLInput>>]
+|The query must not appear in the matching documents
+
+|filter: [<<QueryDSLInput>>]
+|The query must appear in matching documents.
+
+|boost: Float
+|Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.
+
+|===
+
+=== NgramDSLExpressionInput
+
+Ngram DSL expression input type.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|fields: [String]!
+|List of fields (propertyPaths) to include in the search.
+
+|query: String!
+|A query string to match field value(s). Support the set of operators.
+
+|operator: [<<DslOperatorType>>]
+|DSL operator. By default, `OR` (any of the words in the query matches).
+
+|===
+
+=== StemmedDSLExpressionInput
+
+Stemmed DSL expression input type.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|fields: [String]!
+|List of fields (propertyPaths) to include in the search.
+
+|query: String!
+|A query string to match field value(s). Supports the set of https://developer.enonic.com/docs/xp/next/storage/dsl#search_string_operators[operators].
+
+|language: String!
+|Content language that was used for stemming. List of https://developer.enonic.com/docs/xp/next/storage/indexing#languages[supported languages].
+
+|operator: <<DslOperatorType>>
+|DSL operator. By default, `OR` (any of the words in the query matches).
+
+|boost: Float
+|Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.
+
+|===
+
+=== FulltextDSLExpressionInput
+
+Fulltext DSL expression input type.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|fields: [String]!
+|List of fields (propertyPaths) to include in the search.
+
+|query: String!
+|A query string to match field value(s). Supports the set of https://developer.enonic.com/docs/xp/next/storage/dsl#search_string_operators[operators].
+
+|operator: <<DslOperatorType>>
+|DSL operator. By default, `OR` (any of the words in the query matches).
+
+|===
+
+=== MatchAllDSLExpressionInput
+
+MatchAll DSL expression input type.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|boost: Float
+|Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.
+
+|===
+
+=== PathMatchDSLExpressionInput
+
+PathMatch DSL expression input type.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|field: String!
+|Property name to search.
+
+|path: String!
+|Path value.
+
+|minimumMatch: Int
+|Number of minimum matching elements.
+
+|boost: Float
+|Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.
+
+|===
+
+=== DSLExpressionValueInput
+
+Possible value. Only one field must be provided.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|string: String
+|String value.
+
+|double: Float
+|String value
+
+|long: Int
+|Integer value.
+
+|boolean: Boolean
+|A value representing true or false.
+
+|localDate: Date
+|A date representation. Will be indexed with UTC timezone offset. For instance, `2015-03-16`.
+
+|localDateTime: LocalDateTime
+|A date-time representation without timezone. Will be indexed with UTC timezone offset. For instance, `2015-03-16T10:00:02`.
+
+|localTime: LocalTime
+|A time representation without date or timezone(nor subsecond). For instance, `10:00:03`.
+
+|instant: DateTime
+|A single point on the time-line (may include subsecond up to 9 digits). For instance, `2015-03-16T10:00:02Z`.
+
+|===
+
+=== RangeDSLExpressionInput
+
+Range DSL expression input type.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|field: String!
+|Property name to search.
+
+|lt: <<DSLExpressionValueInput>>
+|Less than.
+
+|lte: <<DSLExpressionValueInput>>
+|Less than or equals.
+
+|gt: <<DSLExpressionValueInput>>
+|Greater than.
+
+|gte: <<DSLExpressionValueInput>>
+|Greater than or equals.
+
+|boost: Float
+|Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.
+
+|===
+
+=== TermDSLExpressionInput
+
+Term DSL expression input type.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|field: String!
+|Property name to search.
+
+|value: <<DSLExpressionValueInput>>!
+|Exact property value.
+
+|boost: Float
+|Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.
+
+|===
+
+=== LikeDSLExpressionInput
+
+Like DSL expression input type. Returns nodes that contain the field matching a wildcard pattern. A wildcard operator ( * ) is a placeholder that matches one or more characters.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|field: String!
+|Property name to search.
+
+|value: <<DSLExpressionValueInput>>!
+|Search string.
+
+|boost: Float
+|Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.
+
+|===
+
+=== InDSLExpressionInput
+
+In DSL expression input type. Fetch nodes if a provided field contains any of listed values. Only one `values` field must be provided.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|field: String!
+|Property name to search.
+
+|boost: Float
+|Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.
+
+|stringValues: [String]
+|String values.
+
+|doubleValues: [Float]
+|Float values.
+
+|longValues: [Int]
+|Integer values.
+
+|booleanValues: [Boolean]
+|Boolean values.
+
+|localDateValues: [Date]
+|Date values. Element of array is a date representation. Will be indexed with UTC timezone offset. For instance, `2015-03-16`.
+
+|localDateTimeValues: [LocalDateTime]
+|LocalDateTime values. Element of array is a date-time representation without timezone. Will be indexed with UTC timezone offset. For instance, `2015-03-16T10:00:02`.
+
+|localTimeValues: [LocalTime]
+|LocalTime values. Element of array is a time representation without date or timezone(nor subsecond). For instance, `10:00:03`.
+
+|instantValues: [DateTime]
+|DateTime values. Element of array is a single point on the time-line (may include subsecond up to 9 digits). For instance, `2015-03-16T10:00:02Z`.
+
+|===
+
+=== ExistsDSLExpressionInput
+
+Exists DSL expression input type. Returns nodes that contain a value for a field.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|field: String!
+|Name of a field to check for existence.
+
+|boost: Float
+|Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.
+
+|===
+
+=== GeoPointSortDslInput
+
+GeoPoint sort DSL expression input type.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|lat: Float!
+|Latitude.
+
+|lon: Float!
+|Longitude.
+
+|===
+
+=== SortDslInput
+
+Sort DSL expression input type.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|field: String!
+|Name of a field to sort by.
+
+|direction: <<DslSortDirectionType>>
+| `ASC` or `DESC`
+
+|location: <<GeoPointSortDslInput>>
+|A geoPoint from which the distance factor should be calculated
+
+|unit: <<DslGeoPointDistanceType>>
+|The string representation of distance unit to use. Defaults to "m" or "meters".
+
+|===
+
+== Highlight Input types
+
+=== HighlightPropertiesInputType
+
+Highlight properties input type.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|propertyName: String!
+|Property name.
+
+|fragmenter: <<HighlightFragmenterType>>
+|Specifies how text should be broken up in highlight snippets: `simple` or `span` (default).
+
+|fragmentSize: Int
+|The size of the highlighted fragment in characters. Defaults to 100.
+
+|noMatchSize: Int
+|The amount of characters you want to return from the beginning of the property if there are no matching fragments to highlight. Defaults to 0 (nothing is returned).
+
+|numberOfFragments: Int
+|The maximum number of fragments to return. If `numberOfFragments` is 0, no fragments will be returned and `fragmentSize` will be ignored. Defaults to 5.
+
+|order: <<HighlightOrderType>>
+|Sorts highlighted fragments by score when set to `score`. Defaults to `none` - will be displayed in the same order in which fragments appear in the property.
+
+|preTag: String
+|Use in conjunction with `postTag` to define the HTML tags to wrap the highlighted text. `<em>` by default.
+
+|postTag: String
+|Use in conjunction with `preTag` to define the HTML tags to wrap the highlighted text. `</em>` by default.
+
+|requireFieldMatch: Boolean
+|Set to `false` if you want to highlight result in every listed property, regardless it was used in the query or not. Default is `true`.
+
+|===
+
+=== HighlightInputType
+
+Highlight input type.
+
+==== Fields
+
+|===
+|Field name: Type | Description
+
+|encoder: <<HighlightEncoderType>>
+|Indicates if the snippet should be HTML encoded: `default` (no encoding) or `html`.
+
+|tagsSchema: <<HighlightTagsSchemaType>>
+|Set to `styled` to use the built-in tag schema.
+
+|fragmenter: <<HighlightFragmenterType>>
+|Specifies how text should be broken up in highlight snippets: `simple` or `span` (default).
+
+|fragmentSize: Int
+|The size of the highlighted fragment in characters. Defaults to 100.
+
+|noMatchSize: Int
+|The amount of characters you want to return from the beginning of the property if there are no matching fragments to highlight. Defaults to 0 (nothing is returned).
+
+|numberOfFragments: Int
+|The maximum number of fragments to return. If `numberOfFragments` is 0, no fragments will be returned and `fragmentSize` will be ignored. Defaults to 5.
+
+|order: <<HighlightOrderType>>
+|Sorts highlighted fragments by score when set to `score`. Defaults to `none` - will be displayed in the same order in which fragments appear in the property.
+
+|preTag: String
+|Use in conjunction with `postTag` to define the HTML tags to wrap the highlighted text. `<em>` by default.
+
+|postTag: String
+|Use in conjunction with `preTag` to define the HTML tags to wrap the highlighted text. `</em>` by default.
+
+|requireFieldMatch: Boolean
+|Set to `false` if you want to highlight result in every listed property, regardless it was used in the query or not. Default is `true`.
+
+|===
 
 == Enum Types
 
@@ -1367,3 +1866,46 @@ Enum values: siteRelative
 
 Enum values: download
 , inline
+
+=== DslOperatorType
+
+DSL Operator type.
+
+Enum values: OR, AND
+
+=== DslSortDirectionType
+
+DSL sort direction type.
+
+Enum values: ASC, DESC
+
+=== DslGeoPointDistanceType
+
+DSL GeoPoint Distance type.
+
+Enum values: m, meters, in, inch, yd, yards, ft, feet, km, kilometers, NM, nmi, nauticalmiles, mm, millimeters, cm, centimeters, mi, miles
+
+=== HighlightEncoderType
+
+Indicates if the snippet should be HTML encoded: default (no encoding) or html.
+
+Enum values: default, html
+
+=== HighlightTagsSchemaType
+
+Set to styled to use the built-in tag schema.
+
+Enum values: styled
+
+=== HighlightFragmenterType
+
+Specifies how text should be broken up in highlight snippets: simple or span (default).
+
+Enum values: simple, span
+
+=== HighlightOrderType
+
+Sorts highlighted fragments by score when set to score.
+Defaults to none - will be displayed in the same order in which fragments appear in the property.
+
+Enum values: score, none
