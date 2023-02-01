@@ -1101,13 +1101,15 @@ Aggregations enable extracting statistical data from search results. Only one of
 
 |===
 
-
 === NumberRangeInput
 
 ==== Fields
 
 |===
 |Name(Arguments):Type | Description
+
+|key: String
+|A unique string key which will be associated with a bucket.
 
 |from: Float
 |From-value is included in bucket.
@@ -1143,6 +1145,9 @@ Aggregations enable extracting statistical data from search results. Only one of
 
 |===
 |Name(Arguments):Type | Description
+
+|key: String
+|A unique string key which will be associated with a bucket.
 
 |from: String
 |From-value is included in bucket.
@@ -1188,10 +1193,10 @@ Aggregations enable extracting statistical data from search results. Only one of
 |unit: String
 |The measurement unit to use for the ranges. Allowed values are either full name or the abbreviation of the following: km (kilometers), m (meters), cm (centimeters), mm (millimeters), mi (miles), yd (yards), ft (feet) or nmi (nauticalmiles).
 
-|origin: <<GeoPointInput>>
+|origin: <<GeoPointInput>>!
 |The GeoPoint from which the distance is measured.
 
-|ranges: [ <<NumberRangeInput>> ]
+|ranges: [ <<NumberRangeInput>> ]!
 |The range-buckets to create.
 
 |===
