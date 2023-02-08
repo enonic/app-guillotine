@@ -72,7 +72,11 @@ function createMainElement() {
 
 function createFetcher() {
     return createGraphiQLFetcher({
-        url: getHandlerUrl(),
+        url: getRootContainer().dataset.configHandlerUrl,
+        headers: {
+            'X-Guillotine-Project': getProjectValue(),
+            'X-Guillotine-Branch': branch,
+        },
         wsClient: createWsClient(),
     });
 }
