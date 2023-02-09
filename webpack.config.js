@@ -10,6 +10,7 @@ module.exports = {
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
         'js/main': './js/main.ts',
+        'js/headless': './js/headless.ts',
         'styles/main': './styles/main.less',
     },
     output: {
