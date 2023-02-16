@@ -184,3 +184,7 @@ function sendWSMsg(sessionId, operationId, payload) {
         payload: payload
     }));
 }
+
+exports.getGraphQLSchema = function () {
+    return getSchema();
+}
