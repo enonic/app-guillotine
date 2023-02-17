@@ -4,6 +4,7 @@ const portalLib = require('/lib/xp/portal');
 const graphQlConnectionLib = require('/lib/graphql-connection');
 
 const graphQlLib = require('/lib/guillotine/graphql');
+const multiRepoLib = require('/lib/guillotine/multiRepo');
 const contentTypesLib = require('/lib/guillotine/dynamic/content-types');
 const securityLib = require('/lib/guillotine/util/security');
 const validationLib = require('/lib/guillotine/util/validation');
@@ -248,6 +249,56 @@ function createContentApiType(context) {
                     };
                 }
             },
+            multiRepoQuery: {
+                type: graphQlLib.Json,
+                args: {
+                    query: graphQlLib.nonNull(context.types.queryDslInputType),
+                    after: graphQlLib.GraphQLString,
+                    first: graphQlLib.GraphQLInt,
+                    aggregations: graphQlLib.list(context.types.aggregationInputType),
+                    highlight: context.types.highlightInputType,
+                    sort: graphQlLib.list(context.types.sortDslInputType),
+                },
+                resolve: function (env) {
+                    validationLib.validateDslQuery(env);
+
+                    const start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
+
+                    const queryParams = {
+                        start: start,
+                        count: env.args.first,
+                    };
+                    if (env.args.query) {
+                        queryParams.query = securityLib.adaptDslQuery(factoryUtil.createDslQuery(env.args.query), context);
+                    }
+                    if (env.args.sort) {
+                        queryParams.sort = factoryUtil.createDslSort(env.args.sort);
+                    }
+                    if (env.args.aggregations) {
+                        const aggregations = {};
+                        env.args.aggregations.forEach(aggregation => {
+                            factoryUtil.createAggregation(aggregations, aggregation);
+                        });
+                        queryParams.aggregations = aggregations;
+                    }
+                    if (env.args.highlight) {
+                        queryParams.highlight = factoryUtil.createHighlight(env.args.highlight);
+                    }
+
+                    queryParams.searchTargets = [{
+                        project: "hmdb",
+                        branch: "draft",
+                    }, {
+                        project: "hmdb",
+                        branch: "master",
+                    }, {
+                        project: "features",
+                        branch: "draft",
+                    }];
+
+                    return multiRepoLib.query(queryParams);
+                }
+            },
             getType: {
                 type: context.types.contentTypeType,
                 args: {
@@ -263,6 +314,8 @@ function createContentApiType(context) {
                     return contentTypesLib.getAllowedContentTypes(context);
                 }
             }
+
+
         }
     });
 }
