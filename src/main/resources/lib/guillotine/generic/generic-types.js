@@ -529,6 +529,105 @@ function createGenericTypes(context) {
             },
         }
     });
+
+    context.types.multiRepoQueryContentEdgeType = graphQlLib.createObjectType(context, {
+        name: 'MultiRepoQueryContentEdge',
+        fields: {
+            node: {
+                type: graphQlLib.nonNull(context.types.contentType),
+                resolve: function (env) {
+                    return contextLib.run({
+                        repository: env.source.node.repoId,
+                        branch: env.source.node.branch,
+                        principals: ["role:system.admin"]
+                    }, function () {
+                        return contentLib.get({
+                            key: env.source.node.id,
+                        });
+                    });
+                }
+            },
+            cursor: {
+                type: graphQlLib.nonNull(graphQlLib.GraphQLString),
+                resolve: function (env) {
+                    return graphQlConnectionLib.encodeCursor(env.source.cursor);
+                }
+            },
+            project: {
+                type: graphQlLib.nonNull(graphQlLib.GraphQLString),
+                resolve: function (env) {
+                    return env.source.project;
+                }
+            },
+            branch: {
+                type: graphQlLib.nonNull(graphQlLib.GraphQLString),
+                resolve: function (env) {
+                    return env.source.branch;
+                }
+            },
+            explanationAsJson: {
+                type: graphQlLib.Json,
+                resolve: function (env) {
+                    return env.source.explanation;
+                }
+            },
+            highlightAsJson: {
+                type: graphQlLib.Json,
+                resolve: function (env) {
+                    return env.source.highlight;
+                }
+            },
+        }
+    });
+
+    context.types.multiRepoQueryContentConnectionType = graphQlLib.createObjectType(context, {
+        name: context.uniqueName('MultiRepoQueryDSLContentConnection'),
+        description: 'MultiRepoQueryDSLContentConnection',
+        fields: {
+            totalCount: {
+                type: graphQlLib.nonNull(graphQlLib.GraphQLInt),
+                resolve: function (env) {
+                    return env.source.total;
+                }
+            },
+            edges: {
+                type: graphQlLib.list(context.types.multiRepoQueryContentEdgeType),
+                resolve: function (env) {
+                    let hits = env.source.hits;
+                    let edges = [];
+                    for (let i = 0; i < hits.length; i++) {
+                        edges.push({
+                            node: hits[i],
+                            cursor: env.source.start + i,
+                            project: hits[i].repoId.replace('com.enonic.cms.', ''),
+                            branch: hits[i].branch,
+                            score: hits[i].score,
+                            explanation: hits[i].explanation,
+                            highlight: hits[i].highlight,
+                        });
+                    }
+                    return edges;
+                }
+            },
+            pageInfo: {
+                type: graphQlLib.reference('PageInfo'),
+                resolve: function (env) {
+                    let count = env.source.hits.length;
+                    return {
+                        startCursor: env.source.start,
+                        endCursor: env.source.start + (count === 0 ? 0 : (count - 1)),
+                        hasNext: (env.source.start + count) < env.source.total,
+                    }
+                }
+            },
+            aggregationsAsJson: {
+                type: graphQlLib.Json,
+                resolve: function (env) {
+                    return env.source.aggregations;
+                }
+            },
+        }
+    });
 }
 
 function transformNodeIfAttachmentsExist(source) {

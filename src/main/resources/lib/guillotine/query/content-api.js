@@ -250,9 +250,11 @@ function createContentApiType(context) {
                 }
             },
             multiRepoQuery: {
-                type: graphQlLib.Json,
+                type: context.types.multiRepoQueryContentConnectionType,
                 args: {
                     query: graphQlLib.nonNull(context.types.queryDslInputType),
+                    searchTargets: graphQlLib.nonNull(graphQlLib.list(context.types.searchTargetInputType)),
+                    explain: graphQlLib.GraphQLBoolean,
                     after: graphQlLib.GraphQLString,
                     first: graphQlLib.GraphQLInt,
                     aggregations: graphQlLib.list(context.types.aggregationInputType),
@@ -267,10 +269,11 @@ function createContentApiType(context) {
                     const queryParams = {
                         start: start,
                         count: env.args.first,
+                        query: securityLib.adaptDslQuery(factoryUtil.createDslQuery(env.args.query), context),
+                        searchTargets: env.args.searchTargets,
+                        explain: env.args.explain,
                     };
-                    if (env.args.query) {
-                        queryParams.query = securityLib.adaptDslQuery(factoryUtil.createDslQuery(env.args.query), context);
-                    }
+
                     if (env.args.sort) {
                         queryParams.sort = factoryUtil.createDslSort(env.args.sort);
                     }
@@ -285,18 +288,15 @@ function createContentApiType(context) {
                         queryParams.highlight = factoryUtil.createHighlight(env.args.highlight);
                     }
 
-                    queryParams.searchTargets = [{
-                        project: "hmdb",
-                        branch: "draft",
-                    }, {
-                        project: "hmdb",
-                        branch: "master",
-                    }, {
-                        project: "features",
-                        branch: "draft",
-                    }];
-
-                    return multiRepoLib.query(queryParams);
+                    const queryResult = multiRepoLib.query(queryParams);
+                    const hits = queryResult.hits;
+                    hits.forEach(node => transformNodeIfExistsAttachments(node));
+                    return {
+                        total: queryResult.total,
+                        start: start,
+                        hits: hits,
+                        aggregationsAsJson: queryResult.aggregations,
+                    };
                 }
             },
             getType: {

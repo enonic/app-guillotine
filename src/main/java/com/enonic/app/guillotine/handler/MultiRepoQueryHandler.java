@@ -10,6 +10,7 @@ import com.enonic.app.guillotine.handler.params.QueryAggregationParams;
 import com.enonic.app.guillotine.handler.params.QueryHighlightParams;
 import com.enonic.app.guillotine.mapper.MultiRepoQueryResultMapper;
 import com.enonic.xp.branch.Branch;
+import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.lib.common.JsonToPropertyTreeTranslator;
 import com.enonic.xp.node.FindNodesByMultiRepoQueryResult;
@@ -30,8 +31,6 @@ import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.script.ScriptValue;
 import com.enonic.xp.script.bean.BeanContext;
 import com.enonic.xp.script.bean.ScriptBean;
-import com.enonic.xp.security.PrincipalKey;
-import com.enonic.xp.security.PrincipalKeys;
 import com.enonic.xp.util.JsonHelper;
 
 public class MultiRepoQueryHandler
@@ -79,10 +78,12 @@ public class MultiRepoQueryHandler
             searchTargets.getArray().forEach( searchTarget -> {
                 PropertyTree propertyTree = JsonToPropertyTreeTranslator.translate( JsonHelper.from( searchTarget.getMap() ) );
 
-                searchTargetBuilder.add( SearchTarget.create().repositoryId(
-                    RepositoryId.from( "com.enonic.cms." + propertyTree.getString( "project" ) ) ).branch(
-                    Branch.from( propertyTree.getString( "branch" ) ) ).principalKeys(
-                    PrincipalKeys.from( PrincipalKey.from( "role:system.admin" ) ) ).build() );
+                searchTargetBuilder.add( SearchTarget.create().
+                    repositoryId(RepositoryId.from( "com.enonic.cms." + propertyTree.getString( "project" ) ) ).
+                    branch(Branch.from( propertyTree.getString( "branch" ) ) ).
+                    principalKeys(ContextAccessor.current().getAuthInfo().getPrincipals() ).
+                    build()
+                );
             } );
         }
 
@@ -136,8 +137,10 @@ public class MultiRepoQueryHandler
                 expr -> DslOrderExpr.from( JsonToPropertyTreeTranslator.translate( JsonHelper.from( expr.getMap() ) ) ) ).collect(
                 Collectors.toList() );
         }
-
-        throw new IllegalArgumentException( "sort must be a String, JSON object or array of JSON objects" );
+        else
+        {
+            throw new IllegalArgumentException( "sort must be a String, JSON object or array of JSON objects" );
+        }
     }
 
     public void setStart( final Integer start )
@@ -160,14 +163,14 @@ public class MultiRepoQueryHandler
         this.sort = sort;
     }
 
-    public void setAggregations( final Map<String, Object> aggregations )
+    public void setAggregations( final ScriptValue aggregations )
     {
-        this.aggregations = aggregations;
+        this.aggregations = aggregations != null ? aggregations.getMap() : null;
     }
 
-    public void setHighlight( final Map<String, Object> highlight )
+    public void setHighlight( final ScriptValue highlight )
     {
-        this.highlight = highlight;
+        this.highlight = highlight != null ? highlight.getMap() : null;
     }
 
     public void setExplain( final boolean explain )

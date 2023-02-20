@@ -639,6 +639,19 @@ function createInputTypes(context) {
     context.types.highlightPropertiesInputType = createHighlightPropertiesInputType(context, highlightCommonFields);
 
     context.types.highlightInputType = createHighlightInputType(context, highlightCommonFields);
+
+    context.types.searchTargetInputType = context.schemaGenerator.createInputObjectType({
+        name: context.uniqueName('SearchTargetInput'),
+        description: 'Creates a connection to a repository with a given branch and authentication info.',
+        fields: {
+            project: {
+                type: graphQlLib.nonNull(graphQlLib.GraphQLString),
+            },
+            branch: {
+                type: graphQlLib.nonNull(graphQlLib.GraphQLString),
+            },
+        }
+    });
 }
 
 function createHighlightCommonFields(context) {
