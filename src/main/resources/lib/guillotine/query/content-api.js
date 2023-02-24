@@ -2,7 +2,6 @@ const contentLib = require('/lib/xp/content');
 const contextLib = require('/lib/xp/context');
 const portalLib = require('/lib/xp/portal');
 const graphQlConnectionLib = require('/lib/graphql-connection');
-
 const graphQlLib = require('/lib/guillotine/graphql');
 const multiRepoLib = require('/lib/guillotine/multiRepo');
 const contentTypesLib = require('/lib/guillotine/dynamic/content-types');
@@ -12,6 +11,13 @@ const wildcardLib = require('/lib/guillotine/util/wildcard');
 const factoryUtil = require('/lib/guillotine/util/factory');
 const getSiteLib = require('/lib/guillotine/util/site-helper');
 const nodeTransformer = require('/lib/guillotine/util/node-transformer');
+
+function executeInQueryContext(env, callback) {
+    return contextLib.run({
+        repository: env.source.repository,
+        branch: env.source.branch,
+    }, callback);
+}
 
 function createContentApiType(context) {
     return graphQlLib.createObjectType(context, {
@@ -24,7 +30,7 @@ function createContentApiType(context) {
                     key: graphQlLib.GraphQLID
                 },
                 resolve: (env) => {
-                    const node = getContent(env, context, false);
+                    const node = executeInQueryContext(env, () => getContent(env, context, false));
                     transformNodeIfExistsAttachments(node);
                     return node;
                 }
@@ -39,21 +45,22 @@ function createContentApiType(context) {
                 },
                 resolve: function (env) {
                     validationLib.validateArguments(env.args);
-                    const parent = getContent(env, context, true);
-                    if (parent) {
-                        let hits = contentLib.getChildren({
-                            key: parent._id,
-                            start: env.args.offset,
-                            count: env.args.first,
-                            sort: env.args.sort
-                        }).hits;
+                    return executeInQueryContext(env, () => {
+                        const parent = getContent(env, context, true);
 
-                        hits.forEach(node => transformNodeIfExistsAttachments(node));
-
-                        return hits;
-                    } else {
-                        return [];
-                    }
+                        if (parent) {
+                            const hits = contentLib.getChildren({
+                                key: parent._id,
+                                start: env.args.offset,
+                                count: env.args.first,
+                                sort: env.args.sort
+                            }).hits;
+                            hits.forEach(node => transformNodeIfExistsAttachments(node));
+                            return hits;
+                        } else {
+                            return [];
+                        }
+                    });
                 }
             },
             getChildrenConnection: {
@@ -66,33 +73,34 @@ function createContentApiType(context) {
                 },
                 resolve: function (env) {
                     validationLib.validateArguments(env.args);
-                    const parent = getContent(env, context, true);
-                    if (parent) {
-                        let start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
-                        let getChildrenResult = contentLib.getChildren({
-                            key: parent._id,
-                            start: start,
-                            count: env.args.first,
-                            sort: env.args.sort
-                        });
+                    return executeInQueryContext(env, () => {
+                        const parent = getContent(env, context, true);
+                        if (parent) {
+                            let start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
+                            let getChildrenResult = contentLib.getChildren({
+                                key: parent._id,
+                                start: start,
+                                count: env.args.first,
+                                sort: env.args.sort
+                            });
 
-                        let hits = getChildrenResult.hits;
-                        hits.forEach(node => transformNodeIfExistsAttachments(node));
+                            let hits = getChildrenResult.hits;
+                            hits.forEach(node => transformNodeIfExistsAttachments(node));
 
-                        return {
-                            total: getChildrenResult.total,
-                            start: start,
-                            hits: hits
-                        };
-                    } else {
-                        let start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
-                        return {
-                            total: 0,
-                            start: start,
-                            hits: 0
-                        };
-                    }
-
+                            return {
+                                total: getChildrenResult.total,
+                                start: start,
+                                hits: hits
+                            };
+                        } else {
+                            let start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
+                            return {
+                                total: 0,
+                                start: start,
+                                hits: 0
+                            };
+                        }
+                    });
                 }
             },
             getPermissions: {
@@ -101,111 +109,19 @@ function createContentApiType(context) {
                     key: graphQlLib.GraphQLID
                 },
                 resolve: function (env) {
-                    const content = getContent(env, context, false);
-                    if (content) {
-                        return contentLib.getPermissions({
-                            key: content._id
-                        });
-                    } else {
-                        return null;
-                    }
-                }
-            },
-            getSite: {
-                type: graphQlLib.reference('portal_Site'),
-                resolve: function (env) {
-                    if (context.isGlobalMode()) {
-                        if (env.context && env.context['__siteKey']) {
-                            return contentLib.getSite({
-                                key: env.context['__siteKey']
+                    return executeInQueryContext(env, () => {
+                        const content = getContent(env, context, false);
+                        if (content) {
+                            return contentLib.getPermissions({
+                                key: content._id
                             });
+                        } else {
+                            return null;
                         }
-                        return null;
-                    }
-                    return portalLib.getSite();
+                    });
                 }
             },
             query: {
-                type: graphQlLib.list(context.types.contentType),
-                args: {
-                    query: graphQlLib.GraphQLString,
-                    offset: graphQlLib.GraphQLInt,
-                    first: graphQlLib.GraphQLInt,
-                    sort: graphQlLib.GraphQLString,
-                    contentTypes: graphQlLib.list(graphQlLib.GraphQLString),
-                    filters: graphQlLib.list(context.types.filterInputType)
-                },
-                resolve: function (env) {
-                    validationLib.validateArguments(env.args);
-                    let queryParams = {
-                        query: securityLib.adaptQuery(env.args.query, context),
-                        start: env.args.offset,
-                        count: env.args.first,
-                        sort: env.args.sort,
-                        contentTypes: env.args.contentTypes
-                    };
-
-                    if (env.args.filters) {
-                        queryParams.filters = factoryUtil.createFilters(env.args.filters);
-                    }
-
-                    let result = contentLib.query(queryParams);
-
-                    let hits = result.hits;
-                    hits.forEach(node => transformNodeIfExistsAttachments(node));
-
-                    return hits;
-                }
-            },
-            queryConnection: {
-                type: context.types.queryContentConnectionType,
-                args: {
-                    query: graphQlLib.nonNull(graphQlLib.GraphQLString),
-                    after: graphQlLib.GraphQLString,
-                    first: graphQlLib.GraphQLInt,
-                    sort: graphQlLib.GraphQLString,
-                    contentTypes: graphQlLib.list(graphQlLib.GraphQLString),
-                    aggregations: graphQlLib.list(context.types.aggregationInputType),
-                    filters: graphQlLib.list(context.types.filterInputType)
-                },
-                resolve: function (env) {
-                    validationLib.validateArgumentsForQueryField(env);
-
-                    let start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
-
-                    let queryParams = {
-                        query: securityLib.adaptQuery(env.args.query, context),
-                        start: start,
-                        count: env.args.first,
-                        sort: env.args.sort,
-                        contentTypes: env.args.contentTypes
-                    };
-
-                    if (env.args.aggregations) {
-                        let aggregations = {};
-                        env.args.aggregations.forEach(aggregation => {
-                            factoryUtil.createAggregation(aggregations, aggregation);
-                        });
-                        queryParams.aggregations = aggregations;
-                    }
-                    if (env.args.filters) {
-                        queryParams.filters = factoryUtil.createFilters(env.args.filters);
-                    }
-
-                    let queryResult = contentLib.query(queryParams);
-
-                    let hits = queryResult.hits;
-                    hits.forEach(node => transformNodeIfExistsAttachments(node));
-
-                    return {
-                        total: queryResult.total,
-                        start: start,
-                        hits: hits,
-                        aggregationsAsJson: queryResult.aggregations
-                    };
-                }
-            },
-            queryDsl: {
                 type: graphQlLib.list(context.types.contentType),
                 args: {
                     query: context.types.queryDslInputType,
@@ -215,13 +131,13 @@ function createContentApiType(context) {
                 },
                 resolve: function (env) {
                     validationLib.validateDslQuery(env);
-                    const result = contentLib.query(createQueryDslParams(env, env.args.offset, context));
-                    const hits = result.hits;
+                    const hits = executeInQueryContext(env,
+                        () => contentLib.query(createQueryDslParams(env, env.args.offset, context)).hits);
                     hits.forEach(node => transformNodeIfExistsAttachments(node));
                     return hits;
                 }
             },
-            queryDslConnection: {
+            queryConnection: {
                 type: context.types.queryDslContentConnectionType,
                 args: {
                     query: graphQlLib.nonNull(context.types.queryDslInputType),
@@ -236,7 +152,7 @@ function createContentApiType(context) {
 
                     const start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
 
-                    const queryResult = contentLib.query(createQueryDslParams(env, start, context));
+                    const queryResult = executeInQueryContext(env, () => contentLib.query(createQueryDslParams(env, start, context)));
 
                     const hits = queryResult.hits;
                     hits.forEach(node => transformNodeIfExistsAttachments(node));
@@ -310,12 +226,10 @@ function createContentApiType(context) {
             },
             getTypes: {
                 type: graphQlLib.list(context.types.contentTypeType),
-                resolve: function () {
+                resolve: function (env) {
                     return contentTypesLib.getAllowedContentTypes(context);
                 }
             }
-
-
         }
     });
 }

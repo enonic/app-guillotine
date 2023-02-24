@@ -7,8 +7,14 @@ function createRootQueryType(context) {
         fields: {
             guillotine: {
                 type: contentApiLib.createContentApiType(context),
-                resolve: function () {
-                    return {};
+                args: {
+                    searchTarget: context.types.searchTargetInputType,
+                },
+                resolve: function (env) {
+                    return {
+                        repository: `com.enonic.cms.${env.args.searchTarget ? env.args.searchTarget.project : 'default'}`,
+                        branch: env.args.searchTarget ? env.args.searchTarget.branch : 'draft',
+                    };
                 }
             }
         }
