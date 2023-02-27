@@ -1,10 +1,13 @@
 package com.enonic.app.guillotine.handler;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.portal.html.HtmlElement;
 import com.enonic.xp.portal.url.HtmlElementPostProcessor;
 
@@ -24,17 +27,63 @@ class CustomHtmlPostProcessor
     @Override
     public void process( final HtmlElement element, final Map<String, String> properties )
     {
+        String project = ContextAccessor.current().getRepositoryId().toString().replace( "com.enonic.cms.", "" );
+        String branch = ContextAccessor.current().getBranch().toString();
+
         if ( "a".equals( element.getTagName() ) )
         {
             final String linkEditorRef = UUID.randomUUID().toString();
             element.setAttribute( "data-link-ref", linkEditorRef );
+            wrapContentHref( element, project, branch );
             links.add( buildLinkProjection( linkEditorRef, properties ) );
         }
         if ( "img".equals( element.getTagName() ) )
         {
             final String imgEditorRef = UUID.randomUUID().toString();
             element.setAttribute( "data-image-ref", imgEditorRef );
+            wrapImageSrc( element, project, branch );
             images.add( buildImageProjection( imgEditorRef, properties ) );
+        }
+    }
+
+    private void wrapContentHref( final HtmlElement element, final String project, final String branch )
+    {
+        String href = element.getAttribute( "href" );
+        if ( href.startsWith( "http" ) )
+        {
+            int position = href.indexOf( "/", href.indexOf( "://" ) + 3 );
+            element.setAttribute( "href", href.substring( 0, position ) + "/site/" + project + "/" + branch + "/" +
+                href.substring( position + 1 ) );
+        }
+        else
+        {
+            element.setAttribute( "href", "/site/" + project + "/" + branch + href );
+        }
+    }
+
+    private void wrapImageSrc( final HtmlElement element, final String project, final String branch )
+    {
+        String src = element.getAttribute( "src" );
+        element.setAttribute( "src", processImageSrc( src, project, branch ) );
+
+        String srcset = element.getAttribute( "srcset" );
+        if ( srcset != null )
+        {
+            element.setAttribute( "srcset", Arrays.stream( srcset.split( ",", -1 ) ).map( String::trim ).map(
+                value -> processImageSrc( value, project, branch ) ).collect( Collectors.joining( "," ) ) );
+        }
+    }
+
+    private String processImageSrc( String value, String project, String branch )
+    {
+        int position = value.indexOf( "/_/" );
+        if ( position == 0 )
+        {
+            return "/site/" + project + "/" + branch + value;
+        }
+        else
+        {
+            return value.substring( 0, position ) + "/site/" + project + "/" + branch + value.substring( position );
         }
     }
 

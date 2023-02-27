@@ -11,13 +11,7 @@ const wildcardLib = require('/lib/guillotine/util/wildcard');
 const factoryUtil = require('/lib/guillotine/util/factory');
 const getSiteLib = require('/lib/guillotine/util/site-helper');
 const nodeTransformer = require('/lib/guillotine/util/node-transformer');
-
-function executeInQueryContext(env, callback) {
-    return contextLib.run({
-        repository: env.source.repository,
-        branch: env.source.branch,
-    }, callback);
-}
+const contextUtilLib = require('/lib/guillotine/util/context-util');
 
 function createContentApiType(context) {
     return graphQlLib.createObjectType(context, {
@@ -30,8 +24,8 @@ function createContentApiType(context) {
                     key: graphQlLib.GraphQLID
                 },
                 resolve: (env) => {
-                    const node = executeInQueryContext(env, () => getContent(env, context, false));
-                    transformNodeIfExistsAttachments(node);
+                    const node = contextUtilLib.executeInQueryContext(env.source, () => getContent(env, context, false));
+                    addSystemPropertiesToNode(node, env.source);
                     return node;
                 }
             },
@@ -45,7 +39,7 @@ function createContentApiType(context) {
                 },
                 resolve: function (env) {
                     validationLib.validateArguments(env.args);
-                    return executeInQueryContext(env, () => {
+                    return contextUtilLib.executeInQueryContext(env.source, () => {
                         const parent = getContent(env, context, true);
 
                         if (parent) {
@@ -55,7 +49,7 @@ function createContentApiType(context) {
                                 count: env.args.first,
                                 sort: env.args.sort
                             }).hits;
-                            hits.forEach(node => transformNodeIfExistsAttachments(node));
+                            hits.forEach(node => addSystemPropertiesToNode(node, env.source));
                             return hits;
                         } else {
                             return [];
@@ -73,7 +67,7 @@ function createContentApiType(context) {
                 },
                 resolve: function (env) {
                     validationLib.validateArguments(env.args);
-                    return executeInQueryContext(env, () => {
+                    return contextUtilLib.executeInQueryContext(env.source, () => {
                         const parent = getContent(env, context, true);
                         if (parent) {
                             let start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
@@ -85,7 +79,7 @@ function createContentApiType(context) {
                             });
 
                             let hits = getChildrenResult.hits;
-                            hits.forEach(node => transformNodeIfExistsAttachments(node));
+                            hits.forEach(node => addSystemPropertiesToNode(node, env.source));
 
                             return {
                                 total: getChildrenResult.total,
@@ -109,7 +103,7 @@ function createContentApiType(context) {
                     key: graphQlLib.GraphQLID
                 },
                 resolve: function (env) {
-                    return executeInQueryContext(env, () => {
+                    return contextUtilLib.executeInQueryContext(env.source, () => {
                         const content = getContent(env, context, false);
                         if (content) {
                             return contentLib.getPermissions({
@@ -131,9 +125,9 @@ function createContentApiType(context) {
                 },
                 resolve: function (env) {
                     validationLib.validateDslQuery(env);
-                    const hits = executeInQueryContext(env,
+                    const hits = contextUtilLib.executeInQueryContext(env.source,
                         () => contentLib.query(createQueryDslParams(env, env.args.offset, context)).hits);
-                    hits.forEach(node => transformNodeIfExistsAttachments(node));
+                    hits.forEach(node => addSystemPropertiesToNode(node, env.source));
                     return hits;
                 }
             },
@@ -152,10 +146,11 @@ function createContentApiType(context) {
 
                     const start = env.args.after ? parseInt(graphQlConnectionLib.decodeCursor(env.args.after)) + 1 : 0;
 
-                    const queryResult = executeInQueryContext(env, () => contentLib.query(createQueryDslParams(env, start, context)));
+                    const queryResult = contextUtilLib.executeInQueryContext(env.source,
+                        () => contentLib.query(createQueryDslParams(env, start, context)));
 
                     const hits = queryResult.hits;
-                    hits.forEach(node => transformNodeIfExistsAttachments(node));
+                    hits.forEach(node => addSystemPropertiesToNode(node, env.source));
                     return {
                         total: queryResult.total,
                         start: start,
@@ -206,7 +201,7 @@ function createContentApiType(context) {
 
                     const queryResult = multiRepoLib.query(queryParams);
                     const hits = queryResult.hits;
-                    hits.forEach(node => transformNodeIfExistsAttachments(node));
+                    hits.forEach(node => addSystemPropertiesToNode(node, env.source));
                     return {
                         total: queryResult.total,
                         start: start,
@@ -265,11 +260,17 @@ function getContent(env, context, returnRootContent) {
     }
 }
 
-function transformNodeIfExistsAttachments(node) {
-    if (node && node.hasOwnProperty('attachments') && Object.keys(node.attachments).length > 0) {
+function addSystemPropertiesToNode(node, searchTarget) {
+    if (node) {
+        node['__nodeId'] = node._id;
+        node['__searchTarget'] = searchTarget;
         if (node.data) {
-            node.data['__nodeId'] = node._id;
-            nodeTransformer.addRecursiveNodeId(node.data, node._id);
+            nodeTransformer.addRecursiveNodeId(node.data, node._id, searchTarget);
+        }
+        if (node.attachments) {
+            Object.keys(node.attachments).forEach(attachment => {
+                nodeTransformer.addRecursiveNodeId(node.attachments[attachment], node._id, searchTarget)
+            });
         }
     }
 }

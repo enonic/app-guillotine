@@ -1,29 +1,34 @@
-function addRecursiveNodeId(holder, nodeId) {
+function addRecursiveNodeId(holder, nodeId, searchTarget) {
     if (typeof holder === 'object') {
+        holder['__nodeId'] = nodeId;
+        holder['__searchTarget'] = searchTarget;
+
         Object.keys(holder).forEach(prop => {
             const holderElement = holder[prop];
-            if (typeof holderElement === 'object') {
+            if (prop !== '__searchTarget' && typeof holderElement === 'object') {
                 if (Array.isArray(holderElement)) {
-                    holderElement.forEach(p => addRecursiveNodeId(p, nodeId));
+                    holderElement.forEach(p => addRecursiveNodeId(p, nodeId, searchTarget));
                 } else {
                     holderElement['__nodeId'] = nodeId;
-                    addRecursiveNodeId(holderElement, nodeId);
+                    holderElement['__searchTarget'] = searchTarget;
+                    addRecursiveNodeId(holderElement, nodeId, searchTarget);
                 }
             }
         });
     }
 }
 
-function removeNodeIdPropIfNeeded(obj) {
+function removeSystemPropertiesFrom(obj) {
     if (typeof obj === 'object') {
         delete obj['__nodeId'];
+        delete obj['__searchTarget'];
         Object.keys(obj).forEach(prop => {
             const holderProp = obj[prop];
             if (typeof holderProp === 'object') {
                 if (Array.isArray(holderProp)) {
-                    holderProp.forEach(p => removeNodeIdPropIfNeeded(p));
+                    holderProp.forEach(p => removeSystemPropertiesFrom(p));
                 } else {
-                    removeNodeIdPropIfNeeded(holderProp);
+                    removeSystemPropertiesFrom(holderProp);
                 }
             }
         });
@@ -31,4 +36,5 @@ function removeNodeIdPropIfNeeded(obj) {
 }
 
 exports.addRecursiveNodeId = addRecursiveNodeId;
-exports.removeNodeIdPropIfNeeded = removeNodeIdPropIfNeeded;
+exports.removeNodeIdPropIfNeeded = removeSystemPropertiesFrom;
+exports.removeSystemPropertiesFrom = removeSystemPropertiesFrom;

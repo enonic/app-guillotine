@@ -286,7 +286,7 @@ function generateTypes(context) {
                         params['imageWidths'] = env.args.processHtml.imageWidths
                         params['imageSizes'] = env.args.processHtml.imageSizes;
                     }
-                    return macroLib.processHtml(params);
+                    return macroLib.processHtml(params, env.source['__searchTarget']);
                 }
             }
         }

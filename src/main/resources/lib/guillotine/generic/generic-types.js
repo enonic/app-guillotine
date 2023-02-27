@@ -181,7 +181,6 @@ function generateGenericContentFields(context) {
             type: graphQlLib.list(context.types.attachmentType),
             resolve: function (env) {
                 return Object.keys(env.source.attachments).map(function (key) {
-                    env.source.attachments[key]['__nodeId'] = env.source._id;
                     return env.source.attachments[key];
                 });
             }
