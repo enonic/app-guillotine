@@ -15,6 +15,7 @@ import com.enonic.app.guillotine.macro.MacroEditorSerializer;
 import com.enonic.app.guillotine.mapper.HtmlEditorResultMapper;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationKeys;
+import com.enonic.xp.content.ContentService;
 import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.macro.MacroDescriptorService;
 import com.enonic.xp.macro.MacroService;
@@ -37,16 +38,19 @@ public class ProcessHtmlHandler
 
     private Supplier<MacroDescriptorService> macroDescriptorServiceSupplier;
 
-    private PortalRequest request;
+    private Supplier<ContentService> contentServiceSupplier;
+
+    private Supplier<PortalRequest> requestSupplier;
 
     @Override
     public void initialize( final BeanContext context )
     {
-        this.request = context.getBinding( PortalRequest.class ).get();
+        this.requestSupplier = context.getBinding( PortalRequest.class );
 
         this.portalUrlServiceSupplier = context.getService( PortalUrlService.class );
         this.macroServiceSupplier = context.getService( MacroService.class );
         this.macroDescriptorServiceSupplier = context.getService( MacroDescriptorService.class );
+        this.contentServiceSupplier = context.getService( ContentService.class );
     }
 
     public Object processHtml( ScriptValue params )
@@ -60,11 +64,11 @@ public class ProcessHtmlHandler
         List<MacroDecorator> processedMacros = new ArrayList<>();
 
         final Map<String, MacroDescriptor> registeredMacros =
-            request.getSite() != null ? getRegisteredMacrosInSystemForSite() : getRegisteredMacrosInSystem();
+            requestSupplier.get().getSite() != null ? getRegisteredMacrosInSystemForSite() : getRegisteredMacrosInSystem();
 
         htmlParams.processMacros( false );
         htmlParams.customHtmlProcessor( processor -> {
-            processor.processDefault( new CustomHtmlPostProcessor( links, images ) );
+            processor.processDefault( new CustomHtmlPostProcessor( links, images, contentServiceSupplier.get(), requestSupplier.get(), htmlParams.getImageWidths() ) );
 
             final HtmlDocument htmlDocument = processor.getDocument();
             htmlDocument.select( "figcaption:empty" ).forEach( HtmlElement::remove );
@@ -100,7 +104,7 @@ public class ProcessHtmlHandler
 
     private ProcessHtmlParams createProcessHtmlParams( final ScriptValue params )
     {
-        final ProcessHtmlParams htmlParams = new ProcessHtmlParams().portalRequest( this.request );
+        final ProcessHtmlParams htmlParams = new ProcessHtmlParams().portalRequest( this.requestSupplier.get() );
         if ( params.getMap().containsKey( "value" ) )
         {
             htmlParams.value( params.getMap().get( "value" ).toString() );
@@ -125,7 +129,7 @@ public class ProcessHtmlHandler
         final List<ApplicationKey> applicationKeys = new ArrayList<>();
         applicationKeys.add( ApplicationKey.SYSTEM );
         applicationKeys.addAll(
-            request.getSite().getSiteConfigs().stream().map( SiteConfig::getApplicationKey ).collect( Collectors.toList() ) );
+            requestSupplier.get().getSite().getSiteConfigs().stream().map( SiteConfig::getApplicationKey ).collect( Collectors.toList() ) );
 
         final Map<String, MacroDescriptor> result = new LinkedHashMap<>();
 

@@ -7,7 +7,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.enonic.app.guillotine.url.ImageUrlBuilder;
+import com.enonic.app.guillotine.url.ImageUrlParams;
+import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.html.HtmlElement;
 import com.enonic.xp.portal.url.HtmlElementPostProcessor;
 
@@ -18,10 +22,20 @@ class CustomHtmlPostProcessor
 
     private final List<Map<String, Object>> images;
 
-    CustomHtmlPostProcessor( final List<Map<String, Object>> links, final List<Map<String, Object>> images )
+    private final ContentService contentService;
+
+    private final PortalRequest portalRequest;
+
+    private final List<Integer> imagesWidths;
+
+    CustomHtmlPostProcessor( final List<Map<String, Object>> links, final List<Map<String, Object>> images,
+                             final ContentService contentService, final PortalRequest portalRequest, final List<Integer> imagesWidths )
     {
         this.links = links;
         this.images = images;
+        this.contentService = contentService;
+        this.portalRequest = portalRequest;
+        this.imagesWidths = imagesWidths;
     }
 
     @Override
@@ -40,8 +54,20 @@ class CustomHtmlPostProcessor
         if ( "img".equals( element.getTagName() ) )
         {
             final String imgEditorRef = UUID.randomUUID().toString();
+            final String contentId = properties.get( "contentId" );
+            final String urlType = properties.get( "type" );
+
             element.setAttribute( "data-image-ref", imgEditorRef );
-            wrapImageSrc( element, project, branch );
+            element.setAttribute( "src", buildImageUrl( contentId, urlType, 768 ) );
+
+            if ( imagesWidths != null && !imagesWidths.isEmpty() )
+            {
+                String srcset =
+                    imagesWidths.stream().map( width -> buildImageUrl( contentId, urlType, width ) + " " + width + "w" ).collect(
+                        Collectors.joining( "," ) );
+                element.setAttribute( "srcset", srcset );
+            }
+
             images.add( buildImageProjection( imgEditorRef, properties ) );
         }
     }
@@ -58,32 +84,6 @@ class CustomHtmlPostProcessor
         else
         {
             element.setAttribute( "href", "/site/" + project + "/" + branch + href );
-        }
-    }
-
-    private void wrapImageSrc( final HtmlElement element, final String project, final String branch )
-    {
-        String src = element.getAttribute( "src" );
-        element.setAttribute( "src", processImageSrc( src, project, branch ) );
-
-        String srcset = element.getAttribute( "srcset" );
-        if ( srcset != null )
-        {
-            element.setAttribute( "srcset", Arrays.stream( srcset.split( ",", -1 ) ).map( String::trim ).map(
-                value -> processImageSrc( value, project, branch ) ).collect( Collectors.joining( "," ) ) );
-        }
-    }
-
-    private String processImageSrc( String value, String project, String branch )
-    {
-        int position = value.indexOf( "/_/" );
-        if ( position == 0 )
-        {
-            return "/site/" + project + "/" + branch + value;
-        }
-        else
-        {
-            return value.substring( 0, position ) + "/site/" + project + "/" + branch + value.substring( position );
         }
     }
 
@@ -146,5 +146,17 @@ class CustomHtmlPostProcessor
     public List<Map<String, Object>> getImages()
     {
         return images;
+    }
+
+    private String buildImageUrl( String id, String urlType, Integer width )
+    {
+        final ImageUrlParams params = new ImageUrlParams();
+
+        params.setId( id );
+        params.setType( urlType );
+        params.setScale( "width-" + width );
+        params.setPortalRequest( portalRequest );
+
+        return new ImageUrlBuilder( params, contentService ).buildUrl();
     }
 }
