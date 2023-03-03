@@ -3,8 +3,6 @@ package com.enonic.app.guillotine.url;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import javax.servlet.http.HttpServletRequestWrapper;
-
 import com.google.common.hash.Hashing;
 
 import com.enonic.xp.content.Content;
@@ -13,11 +11,8 @@ import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Media;
 import com.enonic.xp.context.ContextAccessor;
-import com.enonic.xp.portal.url.UrlTypeConstants;
 import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.WebException;
-import com.enonic.xp.web.servlet.ServletRequestUrlHelper;
-import com.enonic.xp.web.servlet.UriRewritingResult;
 
 public class ImageUrlBuilder
     extends UrlBuilderBase
@@ -53,29 +48,7 @@ public class ImageUrlBuilder
         appendPart( url, scale );
         appendPart( url, name );
 
-        final UriRewritingResult rewritingResult = ServletRequestUrlHelper.rewriteUri( params.getPortalRequest().getRawRequest(), url.toString() );
-
-        String uri = rewritingResult.getRewrittenUri();
-
-        if ( UrlTypeConstants.ABSOLUTE.equals( this.params.getType() ) )
-        {
-            return ServletRequestUrlHelper.getServerUrl( params.getPortalRequest().getRawRequest() ) + uri;
-        }
-        else if ( UrlTypeConstants.WEBSOCKET.equals( this.params.getType() ) )
-        {
-            return ServletRequestUrlHelper.getServerUrl( new HttpServletRequestWrapper( params.getPortalRequest().getRawRequest() )
-            {
-                @Override
-                public String getScheme()
-                {
-                    return isSecure() ? "wss" : "ws";
-                }
-            } ) + uri;
-        }
-        else
-        {
-            return uri;
-        }
+        return rewriteUrl( url.toString(), params.getType(), params.getPortalRequest().getRawRequest() );
     }
 
     private Media resolveMedia()

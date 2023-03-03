@@ -4,5 +4,5 @@ public interface UrlService
 {
     String imageUrl( ImageUrlParams params );
 
-    String assetUrl( AssetUrlParams params );
+    String attachmentUrl( AttachmentUrlParams params );
 }

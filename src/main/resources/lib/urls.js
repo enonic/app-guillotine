@@ -17,5 +17,9 @@ exports.imageUrl = function (params) {
     return __.toNativeObject(bean.imageUrl(__.toScriptValue(params)));
 };
 
-// http://localhost:8080/api/_/image/hmdb/draft/b0c9f9f1-1928-4a6a-9bfb-666559552a26:b090a1822f68634e5b9d11390aede8b43cf15088/block-310-175/20220910_121821.jpg
-// http://api.myapp.com:8080/_/image/hmdb/draft/b0c9f9f1-1928-4a6a-9bfb-666559552a26:b090a1822f68634e5b9d11390aede8b43cf15088/block-310-175/20220910_121821.jpg
+exports.attachmentUrl = function (params) {
+    checkRequired(params, 'id');
+
+    return __.toNativeObject(bean.attachmentUrl(__.toScriptValue(params)));
+};
+

@@ -10,7 +10,6 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
-import com.enonic.xp.resource.ResourceService;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.auth.AuthenticationInfo;
 
@@ -19,17 +18,13 @@ public class UrlServiceImpl
     implements UrlService
 {
 
-    private final ResourceService resourceService;
-
     private final ContentService contentService;
 
     @Activate
-    public UrlServiceImpl( final @Reference ResourceService resourceService, final @Reference ContentService contentService )
+    public UrlServiceImpl( final @Reference ContentService contentService )
     {
-        this.resourceService = resourceService;
         this.contentService = contentService;
     }
-
 
     @Override
     public String imageUrl( final ImageUrlParams params )
@@ -38,9 +33,9 @@ public class UrlServiceImpl
     }
 
     @Override
-    public String assetUrl( final AssetUrlParams urlParams )
+    public String attachmentUrl( final AttachmentUrlParams params )
     {
-        return runWithAdminRole( () -> new AssetUrlBuilder( urlParams, resourceService ).buildUrl() );
+        return runWithAdminRole( () -> new AttachmentUrlBuilder( params, contentService ).buildUrl() );
     }
 
     private <T> T runWithAdminRole( final Callable<T> callable )

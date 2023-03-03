@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import com.enonic.app.guillotine.url.AssetUrlParams;
+import com.enonic.app.guillotine.url.AttachmentUrlParams;
 import com.enonic.app.guillotine.url.ImageUrlParams;
 import com.enonic.app.guillotine.url.UrlService;
 import com.enonic.xp.portal.PortalRequest;
@@ -28,24 +28,10 @@ public class UrlHandler
         this.urlServiceSupplier = context.getService( UrlService.class );
     }
 
-    public String assetUrl( String path, String type )
-    {
-        final AssetUrlParams params = new AssetUrlParams();
-        params.setPortalRequest( portalRequestSupplier.get() );
-        params.setPath( path );
-        params.setType( type );
-        return urlServiceSupplier.get().assetUrl( params );
-    }
 
     public String imageUrl( final ScriptValue scriptValue )
     {
-        Map<String, Object> paramsAsMap;
-        if ( scriptValue == null )
-        {
-            paramsAsMap = new HashMap<>();
-        } else {
-            paramsAsMap = scriptValue.getMap();
-        }
+        final Map<String, Object> paramsAsMap = getParametersAsMap( scriptValue );
 
         final ImageUrlParams params = new ImageUrlParams();
 
@@ -55,5 +41,25 @@ public class UrlHandler
         params.setPortalRequest( portalRequestSupplier.get() );
 
         return urlServiceSupplier.get().imageUrl( params );
+    }
+
+    public String attachmentUrl( final ScriptValue scriptValue )
+    {
+        final Map<String, Object> paramsAsMap = getParametersAsMap( scriptValue );
+
+        final AttachmentUrlParams params = new AttachmentUrlParams();
+
+        params.setId( paramsAsMap.get( "id" ).toString() );
+        params.setName( Objects.toString( params.getName(), null ) );
+        params.setDownload( "true".equals( Objects.toString( paramsAsMap.get( "download" ), "false" ) ) );
+        params.setType( Objects.toString( paramsAsMap.get( "type" ), UrlTypeConstants.SERVER_RELATIVE ) );
+        params.setPortalRequest( portalRequestSupplier.get() );
+
+        return urlServiceSupplier.get().attachmentUrl( params );
+    }
+
+    private Map<String, Object> getParametersAsMap( ScriptValue scriptValue )
+    {
+        return scriptValue != null ? scriptValue.getMap() : new HashMap<>();
     }
 }
