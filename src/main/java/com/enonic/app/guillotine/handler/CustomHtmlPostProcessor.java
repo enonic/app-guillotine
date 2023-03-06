@@ -1,16 +1,18 @@
 package com.enonic.app.guillotine.handler;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.enonic.app.guillotine.url.AttachmentUrlBuilder;
+import com.enonic.app.guillotine.url.AttachmentUrlParams;
 import com.enonic.app.guillotine.url.ImageUrlBuilder;
 import com.enonic.app.guillotine.url.ImageUrlParams;
+import com.enonic.app.guillotine.url.PageUrlBuilder;
+import com.enonic.app.guillotine.url.PageUrlParams;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.html.HtmlElement;
 import com.enonic.xp.portal.url.HtmlElementPostProcessor;
@@ -41,21 +43,23 @@ class CustomHtmlPostProcessor
     @Override
     public void process( final HtmlElement element, final Map<String, String> properties )
     {
-        String project = ContextAccessor.current().getRepositoryId().toString().replace( "com.enonic.cms.", "" );
-        String branch = ContextAccessor.current().getBranch().toString();
+        final String contentId = properties.get( "contentId" );
+        final String urlType = properties.get( "type" );
 
         if ( "a".equals( element.getTagName() ) )
         {
             final String linkEditorRef = UUID.randomUUID().toString();
             element.setAttribute( "data-link-ref", linkEditorRef );
-            wrapContentHref( element, project, branch );
+
+            element.setAttribute( "href", properties.get( "uri" ).startsWith( "media://" )
+                ? buildAttachmentUrl( contentId, urlType, properties.get( "mode" ) )
+                : buildPageUrl( contentId, urlType ) );
+
             links.add( buildLinkProjection( linkEditorRef, properties ) );
         }
         if ( "img".equals( element.getTagName() ) )
         {
             final String imgEditorRef = UUID.randomUUID().toString();
-            final String contentId = properties.get( "contentId" );
-            final String urlType = properties.get( "type" );
 
             element.setAttribute( "data-image-ref", imgEditorRef );
             element.setAttribute( "src", buildImageUrl( contentId, urlType, 768 ) );
@@ -69,21 +73,6 @@ class CustomHtmlPostProcessor
             }
 
             images.add( buildImageProjection( imgEditorRef, properties ) );
-        }
-    }
-
-    private void wrapContentHref( final HtmlElement element, final String project, final String branch )
-    {
-        String href = element.getAttribute( "href" );
-        if ( href.startsWith( "http" ) )
-        {
-            int position = href.indexOf( "/", href.indexOf( "://" ) + 3 );
-            element.setAttribute( "href", href.substring( 0, position ) + "/site/" + project + "/" + branch + "/" +
-                href.substring( position + 1 ) );
-        }
-        else
-        {
-            element.setAttribute( "href", "/site/" + project + "/" + branch + href );
         }
     }
 
@@ -158,5 +147,28 @@ class CustomHtmlPostProcessor
         params.setPortalRequest( portalRequest );
 
         return new ImageUrlBuilder( params, contentService ).buildUrl();
+    }
+
+    private String buildAttachmentUrl( String id, String urlType, String mode )
+    {
+        final AttachmentUrlParams params = new AttachmentUrlParams();
+
+        params.setId( id );
+        params.setType( urlType );
+        params.setDownload( "download".equals( mode ) );
+        params.setPortalRequest( portalRequest );
+
+        return new AttachmentUrlBuilder( params, contentService ).buildUrl();
+    }
+
+    private String buildPageUrl( String id, String urlType )
+    {
+        final PageUrlParams params = new PageUrlParams();
+
+        params.setId( id );
+        params.setType( urlType );
+        params.setPortalRequest( portalRequest );
+
+        return new PageUrlBuilder( params, contentService ).buildUrl();
     }
 }

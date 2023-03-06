@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 import com.enonic.app.guillotine.url.AttachmentUrlParams;
 import com.enonic.app.guillotine.url.ImageUrlParams;
+import com.enonic.app.guillotine.url.PageUrlParams;
 import com.enonic.app.guillotine.url.UrlService;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.url.UrlTypeConstants;
@@ -56,6 +57,19 @@ public class UrlHandler
         params.setPortalRequest( portalRequestSupplier.get() );
 
         return urlServiceSupplier.get().attachmentUrl( params );
+    }
+
+    public String pageUrl( final ScriptValue scriptValue )
+    {
+        final Map<String, Object> paramsAsMap = getParametersAsMap( scriptValue );
+
+        final PageUrlParams params = new PageUrlParams();
+
+        params.setId( paramsAsMap.get( "id" ).toString() );
+        params.setType( Objects.toString( paramsAsMap.get( "type" ), UrlTypeConstants.SERVER_RELATIVE ) );
+        params.setPortalRequest( portalRequestSupplier.get() );
+
+        return urlServiceSupplier.get().pageUrl( params );
     }
 
     private Map<String, Object> getParametersAsMap( ScriptValue scriptValue )

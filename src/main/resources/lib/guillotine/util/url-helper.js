@@ -1,4 +1,3 @@
-const portalLib = require('/lib/xp/portal');
 const contextUtilLib = require('/lib/guillotine/util/context-util');
 const urlLib = require('/lib/urls');
 
@@ -42,7 +41,7 @@ exports.resolveImageUrl = function (env) {
 
 exports.resolvePageUrl = function (env) {
     return contextUtilLib.executeInQueryContext(env.source['__searchTarget'], () => {
-        return portalLib.pageUrl({
+        return urlLib.pageUrl({
             id: env.source._id,
             type: env.args.type,
             params: env.args.params && JSON.parse(env.args.params)

@@ -6,9 +6,11 @@ function checkRequired(obj, name) {
     }
 }
 
-exports.assetUrl = function (path, type) {
-    return __.toNativeObject(bean.assetUrl(path, type));
-};
+exports.pageUrl = function (params) {
+    checkRequired(params, 'id');
+
+    return __.toNativeObject(bean.pageUrl(__.toScriptValue(params)));
+}
 
 exports.imageUrl = function (params) {
     checkRequired(params, 'id');

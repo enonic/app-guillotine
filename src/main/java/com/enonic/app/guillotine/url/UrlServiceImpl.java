@@ -38,6 +38,12 @@ public class UrlServiceImpl
         return runWithAdminRole( () -> new AttachmentUrlBuilder( params, contentService ).buildUrl() );
     }
 
+    @Override
+    public String pageUrl( final PageUrlParams params )
+    {
+        return runWithAdminRole( () -> new PageUrlBuilder( params, contentService ).buildUrl() );
+    }
+
     private <T> T runWithAdminRole( final Callable<T> callable )
     {
         final Context context = ContextAccessor.current();
