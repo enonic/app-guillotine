@@ -1,0 +1,35 @@
+@import "main";
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+.app-guillotine-container, #graphiql-container-wrapper {
+  height: 100%;
+}
+
+.graphiql-container .docExplorerResizer {
+  position: relative;
+}
+
+#graphiql-container-wrapper {
+  .toolbar {
+    button {
+      &:last-child {
+        box-shadow: none;
+        background: linear-gradient(#f7f7f7,#e2e2e2);
+        outline: none;
+
+        &:after {
+          background-image: url("../img/refresh.svg");
+          background-repeat: no-repeat;
+          display: block;
+          content: " ";
+          width: 24px;
+          height: 24px;
+        }
+      }
+    }
+  }
+}
