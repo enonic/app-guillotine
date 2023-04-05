@@ -32,6 +32,8 @@ dependencies {
     include "com.enonic.xp:lib-repo:${xpVersion}"
     include "com.enonic.lib:lib-mustache:2.1.0"
     include "com.enonic.lib:lib-guillotine:6.1.0"
+    include "com.enonic.lib:lib-static:1.0.2"
+    include "com.enonic.lib:lib-router:3.0.0"
 
     testImplementation 'org.mockito:mockito-core:5.2.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
@@ -80,7 +82,7 @@ task webpack( type: NpmTask, dependsOn: npmInstall ) {
 }
 
 jar {
-    exclude 'assets/**/*.ts'
+    exclude 'assets/**/*.tsx'
     exclude 'assets/**/*.less'
     exclude 'assets/styles/graphiql.min.css'
     exclude 'assets/**/styles/*.js'
