@@ -9,8 +9,8 @@ const isProd = process.env.NODE_ENV === 'production';
 module.exports = {
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
-        'js/main': './js/main.ts',
-        'js/query-playground': './js/query-playground.ts',
+        'js/main': './js/main.tsx',
+        'js/query-playground': './js/query-playground.tsx',
         'styles/main': './styles/main.less',
         'styles/query-playground': './styles/query-playground.less',
     },
@@ -18,7 +18,7 @@ module.exports = {
         path: path.join(__dirname, '/build/resources/main/assets')
     },
     resolve: {
-        extensions: ['.ts', '.js', '.less', '.css']
+        extensions: ['.ts', '.js', '.tsx', '.less', '.css']
     },
     module: {
         rules: [
