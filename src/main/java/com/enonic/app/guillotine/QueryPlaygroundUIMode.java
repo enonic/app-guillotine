@@ -1,18 +1,13 @@
 package com.enonic.app.guillotine;
 
+import java.util.Objects;
+
 public enum QueryPlaygroundUIMode
 {
     ON, OFF, AUTO;
 
     public static QueryPlaygroundUIMode from( final String value )
     {
-        try
-        {
-            return QueryPlaygroundUIMode.valueOf( value.toUpperCase() );
-        }
-        catch ( IllegalArgumentException e )
-        {
-            return AUTO;
-        }
+        return QueryPlaygroundUIMode.valueOf( Objects.requireNonNullElse( value, "auto" ).toUpperCase() );
     }
 }
