@@ -17,7 +17,6 @@ import com.enonic.xp.portal.controller.ControllerScript;
 import com.enonic.xp.portal.controller.ControllerScriptFactory;
 import com.enonic.xp.repository.RepositoryUtils;
 import com.enonic.xp.resource.ResourceKey;
-import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.web.HttpMethod;
 import com.enonic.xp.web.WebRequest;
 import com.enonic.xp.web.WebResponse;
@@ -54,7 +53,7 @@ public class QueryPlaygroundWebHandler
     @Modified
     public void activate( final GuillotineConfig config )
     {
-        this.queryPlaygroundUIMode = QueryPlaygroundUIMode.from( config.query_playground_ui_mode() );
+        this.queryPlaygroundUIMode = QueryPlaygroundUIMode.from( config.queryplayground_ui_mode() );
     }
 
     @Override
@@ -62,10 +61,10 @@ public class QueryPlaygroundWebHandler
     {
         String path = webRequest.getRawPath();
         boolean isSDK = applicationService.get( WELCOME_APP_KEY ) != null;
-        boolean shouldBeHandled = isSDK
+        boolean uiCanBeRendered = isSDK
             ? ( queryPlaygroundUIMode == QueryPlaygroundUIMode.ON || queryPlaygroundUIMode == QueryPlaygroundUIMode.AUTO )
             : queryPlaygroundUIMode == QueryPlaygroundUIMode.ON;
-        return webRequest.getMethod() == HttpMethod.GET && !webRequest.isWebSocket() && hasAdminRight( webRequest ) && shouldBeHandled &&
+        return webRequest.getMethod() == HttpMethod.GET && !webRequest.isWebSocket() && uiCanBeRendered &&
             URL_PATTERN.matcher( path ).matches();
     }
 
@@ -85,12 +84,6 @@ public class QueryPlaygroundWebHandler
         final ControllerScript controllerScript = controllerScriptFactory.fromScript( script );
 
         return controllerScript.execute( portalRequest );
-    }
-
-    private static boolean hasAdminRight( final WebRequest webRequest )
-    {
-        return webRequest.getRawRequest().isUserInRole( RoleKeys.CONTENT_MANAGER_ADMIN_ID ) ||
-            webRequest.getRawRequest().isUserInRole( RoleKeys.ADMIN_ID );
     }
 
     protected PortalRequest castToPortalRequest( final WebRequest webRequest )
