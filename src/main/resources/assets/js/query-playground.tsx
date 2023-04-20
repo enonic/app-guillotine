@@ -12,17 +12,13 @@ const DEFAULT_QUERY = `# Welcome to Query Playground
 # testing GraphQL queries.
 #
 # An example GraphQL query might look like this:
-#
-#     {
-#       guillotine {
-#         getChildren(key: "/") {
-#           displayName
-#         }
-#       }
-#     }
-#
-#
-
+query {
+  guillotine {
+    getChildren(key: "/") {
+      displayName
+    }
+  }
+}
 `;
 
 let currentBranch = 'master';
