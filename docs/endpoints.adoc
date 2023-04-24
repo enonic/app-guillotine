@@ -39,3 +39,17 @@ mapping.my-api.target = /site/myproject/draft
 ----
 
 For more details about vhosts, check out the https://developer.enonic.com/docs/xp/stable/deployment/vhosts[XP documentation]
+
+Starting from version 6.2.0, the Guillotine exposes a new GET `/site/<project-name>` endpoint to provide a query playground with GraphiQL UI.
+
+.To enable the endpoint:
+[source,properties]
+----
+queryplayground.ui.mode=on
+----
+.To disable the endpoint:
+[source,properties]
+----
+queryplayground.ui.mode=off
+----
+The default value is determined by the XP distribution type: on server-based distributions the endpoint is off, while on SDK-based distributions it is on.

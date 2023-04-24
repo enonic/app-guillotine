@@ -19,6 +19,15 @@ Query Playground lets you run queries in context of your content. You may choose
 
 image::images/graphiql-ide.png[Query playground interface]
 
+Starting from the version 6.2.0 Guillotine was updated to use GraphiQL 2 with a new enhanced UI.
+
+* The left panel is used to display documentation generated from the GraphQL API
+* The center panel allows you to edit your GraphQL query
+* The right panel displays the result of the query execution
+* Branch selector (Draft/Master) can be found in the top right corner
+* Each query is executed in a specific context, which is determined by the project and the branch
+
+image::images/graphiql2-ide.png[Query playground interface]
 
 === Query example
 
