@@ -1,5 +1,12 @@
 = Release Notes
 
+== Guillotine 6 Update 2
+
+=== Release features
+
+- Upgrade GraphiQL to version 2.x.
+- Make Query Playground available on GET `/site/<repo>` endpoint.
+
 == Guillotine 6 Update 1
 
 === Release features
