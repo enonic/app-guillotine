@@ -11,16 +11,6 @@ The Guillotine app extends Content Studio with a new panel called Query Playgrou
 
 Query Playground lets you run queries in context of your content. You may choose to query either the draft items (draft branch), or the published items (master branch).
 
-* The left panel allows you to edit your GraphQL query
-* The center panel displays the result of the query execution
-* The right panel is used to display documentation generated from the GraphQL API.
-* The toolbar is extended by the dropdown for choosing the branch and the refresh button, which allows to re-generate a schema
-* Each query is executed in a specific context, which is determined by the repository and the branch
-
-image::images/graphiql-ide.png[Query playground interface]
-
-Starting from the version 6.2.0 Guillotine was updated to use GraphiQL 2 with a new enhanced UI.
-
 * The left panel is used to display documentation generated from the GraphQL API
 * The center panel allows you to edit your GraphQL query
 * The right panel displays the result of the query execution
