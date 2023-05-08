@@ -23,10 +23,10 @@ exports.post = function (req) {
 };
 
 function createSchema() {
-    var context = guillotineLib.createContext(); <1>
+    var context = guillotineLib.createContext(); // <1>
     return context.schemaGenerator.createSchema({
         query: createRootQueryType(context),
-        dictionary: context.dictionary <2>
+        dictionary: context.dictionary // <2>
     });
 }
 
@@ -35,7 +35,7 @@ function createRootQueryType(context) {
         name: 'Query',
         fields: {
             guillotine: {
-                type: guillotineLib.createHeadlessCmsType(context), <3>
+                type: guillotineLib.createHeadlessCmsType(context), // <3>
                 resolve: function () {
                     return {};
                 }
