@@ -25,19 +25,19 @@ var graphQlLib = require('/lib/graphql');
 
 var schema = guillotineLib.createSchema({
     creationCallbacks: {         
-        'com_enonic_app_myapp_Author_Data': function(context, params){ <1>
-            params.fields.fullName = {  <2>
+        'com_enonic_app_myapp_Author_Data': function(context, params){ // <1>
+            params.fields.fullName = {  // <2>
                  type: graphQlLib.GraphQLString,
                  resolve: function (env) {
                      return env.source.firstName + ' ' + env.source.lastName;
                  }
              };
-            params.fields.email.resolve = function (env) { <3>
+            params.fields.email.resolve = function (env) { // <3>
                 return authLib.hasRole('system.admin') ? env.source.email : null
             };            
-            delete params.fields.birthDate;  <4>
+            delete params.fields.birthDate;  // <4>
         },  
-        'com_enonic_app_myapp_Author': function(context, params){ <1>
+        'com_enonic_app_myapp_Author': function(context, params){ // <1>
             params.fields.posts = { <5>
                 type: graphQlLib.list(graphQlLib.reference('com_enonic_app_myapp_Post')),
                 resolve: function (env) {
