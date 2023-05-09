@@ -18,7 +18,7 @@ The endpoints handle both `POST` and `GET` methods, but `GET` method is only app
 
 == Custom domain
 
-When setting up Enonic XP in production, the APIs will normally not be publicly accessible. Using Vhosts, you may explose the APIs and even providing custom domain names:
+When setting up Enonic XP in production, the APIs will normally not be publicly accessible. Using Vhosts, you may expose the APIs and even providing custom domain names:
 
 Examples for a project called `myproject`.
 
