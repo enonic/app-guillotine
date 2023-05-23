@@ -54,7 +54,7 @@ public class QueryPlaygroundWebHandler
     @Modified
     public void activate( final GuillotineConfig config )
     {
-        this.queryPlaygroundUIMode = QueryPlaygroundUIMode.from( config.query_playground_ui_mode() );
+        this.queryPlaygroundUIMode = QueryPlaygroundUIMode.from( config.queryplayground_ui_mode() );
     }
 
     @Override
