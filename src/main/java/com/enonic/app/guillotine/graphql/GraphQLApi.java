@@ -1,9 +1,8 @@
 package com.enonic.app.guillotine.graphql;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -16,6 +15,7 @@ import com.enonic.app.guillotine.graphql.factory.QueryFactory;
 import com.enonic.app.guillotine.graphql.factory.TypeFactory;
 import com.enonic.app.guillotine.mapper.ExecutionResultMapper;
 import com.enonic.xp.app.ApplicationService;
+import com.enonic.xp.script.ScriptValue;
 import com.enonic.xp.script.bean.BeanContext;
 import com.enonic.xp.script.bean.ScriptBean;
 
@@ -48,14 +48,19 @@ public class GraphQLApi
         return graphQLSchema.build();
     }
 
-    public Object execute( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables, Map<String, Object> queryContext )
+    public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables, ScriptValue queryContext )
     {
         GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
 
-        ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables(
-            Objects.requireNonNullElse( variables, Collections.emptyMap() ) ).root( queryContext ).build();
+        ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).root(
+            extractValue( queryContext ) ).build();
 
         return new ExecutionResultMapper( graphQL.execute( executionInput ) );
+    }
+
+    private Map<String, Object> extractValue( ScriptValue scriptValue )
+    {
+        return scriptValue == null ? new HashMap<>() : scriptValue.getMap();
     }
 
     private List<String> getApplicationNames()
