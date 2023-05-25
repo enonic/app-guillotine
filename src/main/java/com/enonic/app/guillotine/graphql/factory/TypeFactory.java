@@ -1,6 +1,7 @@
-package com.enonic.app.guillotine.graphql;
+package com.enonic.app.guillotine.graphql.factory;
 
 import com.enonic.app.guillotine.ServiceFacade;
+import com.enonic.app.guillotine.graphql.GuillotineContext;
 
 public class TypeFactory
 {

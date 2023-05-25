@@ -8,8 +8,8 @@ import java.util.Objects;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
-import com.enonic.app.guillotine.helper.ArrayHelper;
-import com.enonic.app.guillotine.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.app.guillotine.mapper.NodeMapper;
 import com.enonic.xp.node.Node;

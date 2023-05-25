@@ -1,4 +1,4 @@
-package com.enonic.app.guillotine.graphql;
+package com.enonic.app.guillotine.graphql.factory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +12,13 @@ import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLTypeReference;
 
+import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.fetchers.FormInputDefaultValueDataFetcher;
-import com.enonic.app.guillotine.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
 
-import static com.enonic.app.guillotine.graphql.GraphQLHelper.newInterface;
-import static com.enonic.app.guillotine.graphql.GraphQLHelper.newObject;
-import static com.enonic.app.guillotine.graphql.GraphQLHelper.outputField;
+import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newInterface;
+import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newObject;
+import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField;
 
 public class FormTypesFactory
 {

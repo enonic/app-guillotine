@@ -6,7 +6,7 @@ import java.util.Objects;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.helper.SecurityHelper;
+import com.enonic.app.guillotine.graphql.helper.SecurityHelper;
 
 public class GetContentFieldDataFetcher
     implements DataFetcher<Object>

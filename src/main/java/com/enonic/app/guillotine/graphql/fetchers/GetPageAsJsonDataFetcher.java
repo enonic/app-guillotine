@@ -8,8 +8,8 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
-import com.enonic.app.guillotine.helper.ArrayHelper;
-import com.enonic.app.guillotine.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
 
 public class GetPageAsJsonDataFetcher
     extends BasePageDataFetcher

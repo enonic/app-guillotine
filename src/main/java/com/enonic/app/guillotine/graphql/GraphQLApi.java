@@ -12,6 +12,8 @@ import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 
 import com.enonic.app.guillotine.ServiceFacade;
+import com.enonic.app.guillotine.graphql.factory.QueryFactory;
+import com.enonic.app.guillotine.graphql.factory.TypeFactory;
 import com.enonic.app.guillotine.mapper.ExecutionResultMapper;
 import com.enonic.xp.app.ApplicationService;
 import com.enonic.xp.script.bean.BeanContext;

@@ -1,4 +1,4 @@
-package com.enonic.app.guillotine.graphql;
+package com.enonic.app.guillotine.graphql.factory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,11 +12,12 @@ import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLTypeReference;
 
-import com.enonic.app.guillotine.helper.CastHelper;
-import com.enonic.app.guillotine.helper.ConnectionHelper;
+import com.enonic.app.guillotine.graphql.GuillotineContext;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.ConnectionHelper;
 
-import static com.enonic.app.guillotine.graphql.GraphQLHelper.newObject;
-import static com.enonic.app.guillotine.graphql.GraphQLHelper.outputField;
+import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newObject;
+import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField;
 
 public class ConnectionTypeFactory
 {

@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-import com.enonic.app.guillotine.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.xp.query.highlight.HighlightPropertySettings;
 import com.enonic.xp.query.highlight.HighlightQuery;
 import com.enonic.xp.query.highlight.HighlightQueryProperty;

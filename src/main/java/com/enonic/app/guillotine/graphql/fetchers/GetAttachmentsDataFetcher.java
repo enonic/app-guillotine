@@ -5,7 +5,7 @@ import java.util.Map;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
 
 public class GetAttachmentsDataFetcher
     implements DataFetcher<Object>

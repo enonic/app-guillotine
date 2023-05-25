@@ -1,4 +1,4 @@
-package com.enonic.app.guillotine.helper;
+package com.enonic.app.guillotine.graphql.helper;
 
 import java.text.Normalizer;
 import java.util.Map;

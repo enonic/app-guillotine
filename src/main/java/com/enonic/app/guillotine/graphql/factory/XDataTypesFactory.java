@@ -1,4 +1,4 @@
-package com.enonic.app.guillotine.graphql;
+package com.enonic.app.guillotine.graphql.factory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,14 +11,17 @@ import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLOutputType;
 
 import com.enonic.app.guillotine.ServiceFacade;
-import com.enonic.app.guillotine.helper.NamingHelper;
-import com.enonic.app.guillotine.helper.StringNormalizer;
+import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
+import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
+import com.enonic.app.guillotine.graphql.GuillotineContext;
+import com.enonic.app.guillotine.graphql.helper.NamingHelper;
+import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.form.FormItems;
 import com.enonic.xp.schema.xdata.XDatas;
 
-import static com.enonic.app.guillotine.graphql.GraphQLHelper.newObject;
-import static com.enonic.app.guillotine.graphql.GraphQLHelper.outputField;
+import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newObject;
+import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField;
 
 public class XDataTypesFactory
 {
