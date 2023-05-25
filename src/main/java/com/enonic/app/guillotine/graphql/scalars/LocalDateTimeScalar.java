@@ -1,4 +1,4 @@
-package com.enonic.app.guillotine.graphql;
+package com.enonic.app.guillotine.graphql.scalars;
 
 import java.time.DateTimeException;
 import java.time.LocalDateTime;

@@ -9,7 +9,7 @@ import java.util.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 
-import com.enonic.app.guillotine.graphql.FormItemTypesHelper;
+import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.xp.form.Occurrences;
 import com.enonic.xp.macro.MacroDescriptor;
 

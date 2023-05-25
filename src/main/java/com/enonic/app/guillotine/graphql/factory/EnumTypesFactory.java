@@ -1,10 +1,12 @@
-package com.enonic.app.guillotine.graphql;
+package com.enonic.app.guillotine.graphql.factory;
 
 import java.util.List;
 
 import graphql.schema.GraphQLEnumType;
 
-import static com.enonic.app.guillotine.graphql.GraphQLHelper.newEnum;
+import com.enonic.app.guillotine.graphql.GuillotineContext;
+
+import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newEnum;
 
 public class EnumTypesFactory
 {

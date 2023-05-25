@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.enonic.app.guillotine.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.app.guillotine.mapper.JsonToFilterMapper;
 import com.enonic.app.guillotine.mapper.JsonToPropertyTreeTranslator;

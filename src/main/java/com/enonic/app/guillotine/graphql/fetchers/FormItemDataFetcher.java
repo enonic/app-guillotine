@@ -1,4 +1,4 @@
-package com.enonic.app.guillotine.graphql;
+package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.List;
 import java.util.Map;
@@ -9,10 +9,11 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
+import com.enonic.app.guillotine.graphql.ArgumentsValidator;
+import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
-import com.enonic.app.guillotine.graphql.fetchers.RichTextDataFetcher;
-import com.enonic.app.guillotine.helper.ArrayHelper;
-import com.enonic.app.guillotine.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.xp.form.FormItem;
 import com.enonic.xp.form.FormItemType;
 import com.enonic.xp.form.Input;

@@ -1,4 +1,4 @@
-package com.enonic.app.guillotine.graphql;
+package com.enonic.app.guillotine.graphql.factory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,10 +8,11 @@ import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
 
+import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.xp.security.PrincipalKey;
 
-import static com.enonic.app.guillotine.graphql.GraphQLHelper.newObject;
-import static com.enonic.app.guillotine.graphql.GraphQLHelper.outputField;
+import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newObject;
+import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField;
 
 public class AclTypesFactory
 {

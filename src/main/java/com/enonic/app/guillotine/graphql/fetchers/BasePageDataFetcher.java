@@ -7,7 +7,7 @@ import graphql.schema.DataFetcher;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
-import com.enonic.app.guillotine.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.mapper.ContentMapper;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.xp.content.ContentId;

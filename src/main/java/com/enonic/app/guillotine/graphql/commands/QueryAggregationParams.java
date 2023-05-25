@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import com.enonic.app.guillotine.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.xp.query.aggregation.AggregationQuery;
 import com.enonic.xp.query.aggregation.BucketAggregationQuery;
 import com.enonic.xp.query.aggregation.DateHistogramAggregationQuery;

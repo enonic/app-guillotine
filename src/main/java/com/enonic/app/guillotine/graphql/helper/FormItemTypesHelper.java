@@ -1,4 +1,4 @@
-package com.enonic.app.guillotine.graphql;
+package com.enonic.app.guillotine.graphql.helper;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -6,7 +6,7 @@ import java.util.Map;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
-import com.enonic.app.guillotine.helper.ConnectionHelper;
+import com.enonic.app.guillotine.graphql.helper.ConnectionHelper;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.commands.FindContentsCommand;
 import com.enonic.xp.content.ContentService;

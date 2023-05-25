@@ -12,7 +12,7 @@ import graphql.schema.DataFetchingEnvironment;
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
 import com.enonic.app.guillotine.graphql.ContentSerializer;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
-import com.enonic.app.guillotine.helper.ConnectionHelper;
+import com.enonic.app.guillotine.graphql.helper.ConnectionHelper;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentService;

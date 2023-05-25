@@ -7,7 +7,7 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ContentSerializer;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
-import com.enonic.app.guillotine.helper.SecurityHelper;
+import com.enonic.app.guillotine.graphql.helper.SecurityHelper;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
