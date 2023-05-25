@@ -68,6 +68,6 @@ exports.post = function (req) {
         contentType: 'application/json',
         headers: CORS_HEADERS,
         body: JSON.stringify(__.toNativeObject(graphQLApi.execute(getSchema(), input.query, __.toScriptValue(input.variables),
-            createQueryContext(req.headers))))
+            __.toScriptValue(createQueryContext(req.headers)))))
     };
 }
