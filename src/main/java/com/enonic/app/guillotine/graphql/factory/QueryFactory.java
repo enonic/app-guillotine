@@ -43,11 +43,8 @@ public class QueryFactory
 
     public GraphQLObjectType create()
     {
-        final GraphQLObjectType.Builder queryObjectType = GraphQLObjectType.newObject().name( "Query" ).description( "Query description" );
-
-        queryObjectType.field( outputField( "guillotine", createHeadlessCms() ) );
-
-        final GraphQLObjectType queryObject = queryObjectType.build();
+        GraphQLObjectType queryObject =
+            newObject( context.uniqueName( "Query" ), "Query description", List.of( outputField( "guillotine", createHeadlessCms() ) ) );
 
         context.registerType( queryObject.getName(), queryObject );
 

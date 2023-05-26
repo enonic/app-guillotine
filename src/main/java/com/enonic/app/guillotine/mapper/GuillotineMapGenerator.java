@@ -31,7 +31,7 @@ public class GuillotineMapGenerator
     @Override
     protected Object newFunction( final Function<?, ?> function )
     {
-        throw new UnsupportedOperationException();
+        return function;
     }
 
     @Override

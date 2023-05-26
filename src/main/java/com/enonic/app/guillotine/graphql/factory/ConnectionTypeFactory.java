@@ -21,11 +21,11 @@ import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField
 
 public class ConnectionTypeFactory
 {
-    private final GuillotineContext guillotineContext;
+    private final GuillotineContext context;
 
-    public ConnectionTypeFactory( final GuillotineContext guillotineContext )
+    public ConnectionTypeFactory( final GuillotineContext context )
     {
-        this.guillotineContext = guillotineContext;
+        this.context = context;
     }
 
     public void create()
@@ -39,10 +39,10 @@ public class ConnectionTypeFactory
         fields.add( outputField( "node", new GraphQLNonNull( new GraphQLTypeReference( typeName ) ) ) );
         fields.add( outputField( "cursor", new GraphQLNonNull( Scalars.GraphQLString ) ) );
 
-        GraphQLObjectType objectType = newObject( typeName + "Edge", typeName + "Edge.", fields );
-        guillotineContext.registerType( objectType.getName(), objectType );
+        GraphQLObjectType objectType = newObject( context.uniqueName( typeName + "Edge" ), typeName + "Edge.", fields );
+        context.registerType( objectType.getName(), objectType );
 
-        guillotineContext.registerDataFetcher( objectType.getName(), "cursor", environment -> {
+        context.registerDataFetcher( objectType.getName(), "cursor", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
             return ConnectionHelper.encodeCursor( sourceAsMap.get( "cursor" ).toString() );
         } );
@@ -61,21 +61,20 @@ public class ConnectionTypeFactory
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
         fields.add( outputField( "totalCount", new GraphQLNonNull( Scalars.GraphQLInt ) ) );
         fields.add( outputField( "edges", new GraphQLList( edgeType ) ) );
-        fields.add( outputField( "pageInfo", guillotineContext.getOutputType( "PageInfo" ) ) );
+        fields.add( outputField( "pageInfo", context.getOutputType( "PageInfo" ) ) );
         if ( additionalFields != null )
         {
             fields.addAll( additionalFields );
         }
 
-        GraphQLObjectType objectType =
-            newObject( guillotineContext.uniqueName( typeName + "Connection" ), typeName + "Connection.", fields );
-        guillotineContext.registerType( objectType.getName(), objectType );
+        GraphQLObjectType objectType = newObject( context.uniqueName( typeName + "Connection" ), typeName + "Connection.", fields );
+        context.registerType( objectType.getName(), objectType );
 
-        guillotineContext.registerDataFetcher( typeName + "Connection", "totalCount", environment -> {
+        context.registerDataFetcher( objectType.getName(), "totalCount", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
             return sourceAsMap.get( "total" );
         } );
-        guillotineContext.registerDataFetcher( typeName + "Connection", "edges", environment -> {
+        context.registerDataFetcher( objectType.getName(), "edges", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
 
             List<Map<String, Object>> hits = CastHelper.cast( sourceAsMap.get( "hits" ) );
@@ -94,7 +93,7 @@ public class ConnectionTypeFactory
 
             return edges;
         } );
-        guillotineContext.registerDataFetcher( typeName + "Connection", "pageInfo", environment -> {
+        context.registerDataFetcher( objectType.getName(), "pageInfo", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
 
             int count = ( (List<?>) sourceAsMap.get( "hits" ) ).size();
@@ -120,18 +119,18 @@ public class ConnectionTypeFactory
         fields.add( outputField( "endCursor", new GraphQLNonNull( Scalars.GraphQLString ) ) );
         fields.add( outputField( "hasNext", new GraphQLNonNull( Scalars.GraphQLBoolean ) ) );
 
-        GraphQLObjectType objectType = newObject( guillotineContext.uniqueName( "PageInfo" ), "PageInfo", fields );
-        guillotineContext.registerType( objectType.getName(), objectType );
+        GraphQLObjectType objectType = newObject( context.uniqueName( "PageInfo" ), "PageInfo", fields );
+        context.registerType( objectType.getName(), objectType );
 
-        guillotineContext.registerDataFetcher( objectType.getName(), "startCursor", environment -> {
+        context.registerDataFetcher( objectType.getName(), "startCursor", environment -> {
             Map<String, Object> source = environment.getSource();
             return ConnectionHelper.encodeCursor( source.get( "startCursor" ).toString() );
         } );
-        guillotineContext.registerDataFetcher( objectType.getName(), "endCursor", environment -> {
+        context.registerDataFetcher( objectType.getName(), "endCursor", environment -> {
             Map<String, Object> source = environment.getSource();
             return ConnectionHelper.encodeCursor( source.get( "endCursor" ).toString() );
         } );
-        guillotineContext.registerDataFetcher( objectType.getName(), "hasNext", environment -> {
+        context.registerDataFetcher( objectType.getName(), "hasNext", environment -> {
             Map<String, Object> source = environment.getSource();
             return source.get( "hasNext" );
         } );

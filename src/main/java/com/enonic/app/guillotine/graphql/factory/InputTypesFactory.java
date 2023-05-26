@@ -11,8 +11,8 @@ import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLTypeReference;
 
-import com.enonic.app.guillotine.graphql.scalars.CustomScalars;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
+import com.enonic.app.guillotine.graphql.scalars.CustomScalars;
 
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.inputField;
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newInputObject;
