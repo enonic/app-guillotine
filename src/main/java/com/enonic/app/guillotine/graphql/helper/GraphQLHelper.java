@@ -12,7 +12,8 @@ import graphql.schema.GraphQLInputType;
 import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLOutputType;
-import graphql.schema.GraphQLTypeUtil;
+import graphql.schema.GraphQLType;
+import graphql.schema.GraphQLTypeReference;
 import graphql.schema.GraphQLUnionType;
 
 public class GraphQLHelper
@@ -28,14 +29,23 @@ public class GraphQLHelper
         return GraphQLObjectType.newObject().name( name ).description( description ).fields( fields ).build();
     }
 
-    public static GraphQLObjectType newObject( String name, String description, List<GraphQLInterfaceType> interfaces,
+    public static GraphQLObjectType newObject( String name, String description, List<GraphQLType> interfaces,
                                                List<GraphQLFieldDefinition> fields )
     {
         GraphQLObjectType.Builder builder = GraphQLObjectType.newObject().name( name ).description( description ).fields( fields );
 
         if ( interfaces != null && !interfaces.isEmpty() )
         {
-            builder.withInterfaces( interfaces.toArray( new GraphQLInterfaceType[0] ) );
+            interfaces.forEach( interfaceDef -> {
+                if ( interfaceDef instanceof GraphQLInterfaceType )
+                {
+                    builder.withInterface( (GraphQLInterfaceType) interfaceDef );
+                }
+                if ( interfaceDef instanceof GraphQLTypeReference )
+                {
+                    builder.withInterface( (GraphQLTypeReference) interfaceDef );
+                }
+            } );
         }
 
         return builder.build();
@@ -55,7 +65,11 @@ public class GraphQLHelper
     {
         GraphQLFieldDefinition.Builder builder = GraphQLFieldDefinition.newFieldDefinition().name( name );
 
-        if ( type instanceof GraphQLObjectType.Builder )
+        if ( type instanceof GraphQLTypeReference )
+        {
+            builder.type( (GraphQLTypeReference) type );
+        }
+        else if ( type instanceof GraphQLObjectType.Builder )
         {
             builder.type( (GraphQLObjectType.Builder) type );
         }
@@ -112,5 +126,25 @@ public class GraphQLHelper
     public static GraphQLInputObjectField inputField( String name, GraphQLInputType type )
     {
         return GraphQLInputObjectField.newInputObjectField().name( name ).type( type ).build();
+    }
+
+    public static GraphQLUnionType newUnion( String name, String description, List<GraphQLType> possibleTypes )
+    {
+        GraphQLUnionType.Builder unionType = GraphQLUnionType.newUnionType().name( name ).description( description );
+
+        if ( possibleTypes != null )
+        {
+            possibleTypes.forEach( possibleType -> {
+                if ( possibleType instanceof GraphQLObjectType )
+                {
+                    unionType.possibleType( (GraphQLObjectType) possibleType );
+                }
+                else if ( possibleType instanceof GraphQLTypeReference )
+                {
+                    unionType.possibleType( (GraphQLTypeReference) possibleType );
+                }
+            } );
+        }
+        return unionType.build();
     }
 }

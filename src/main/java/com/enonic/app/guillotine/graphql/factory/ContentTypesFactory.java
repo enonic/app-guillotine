@@ -18,7 +18,6 @@ import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLTypeReference;
 
 import com.enonic.app.guillotine.ServiceFacade;
-import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.fetchers.ContentTypeDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentUrlByIdDataFetcher;
@@ -38,6 +37,7 @@ import com.enonic.app.guillotine.graphql.fetchers.GetImageUrlDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetPageAsJsonDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetPageTemplateDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetPageUrlDataFetcher;
+import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.app.guillotine.graphql.helper.NamingHelper;
 import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
 import com.enonic.xp.form.FormItem;
@@ -112,12 +112,13 @@ public class ContentTypesFactory
 
     private GraphQLInterfaceType createContentInterface()
     {
-        GraphQLInterfaceType result = newInterface( "Content", "Content.", getGenericContentFields( "Content" ) );
+        GraphQLInterfaceType result = newInterface( context.uniqueName( "Content" ), "Content.", getGenericContentFields( "Content" ) );
 
         context.registerTypeResolver( result.getName(), env -> {
             Map<String, Object> sourceAsMap = env.getObject();
-            GraphQLObjectType contentType = context.getContentType( sourceAsMap.get( "type" ).toString() );
-            return contentType != null ? contentType : context.getContentType( "UntypedContent" );
+            String contentTypeName = context.getContentType( sourceAsMap.get( "type" ).toString() );
+            GraphQLObjectType contentType = env.getSchema().getObjectType( contentTypeName );
+            return contentType != null ? contentType : env.getSchema().getObjectType( "UntypedContent" );
         } );
 
         return result;

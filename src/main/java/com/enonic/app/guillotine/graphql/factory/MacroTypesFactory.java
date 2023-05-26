@@ -9,8 +9,8 @@ import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLOutputType;
 
 import com.enonic.app.guillotine.ServiceFacade;
-import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
+import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
 
 import static com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper.getFilteredFormItems;
@@ -68,15 +68,17 @@ public class MacroTypesFactory
             } );
 
             GraphQLObjectType macroDataConfigType = newObject( context.uniqueName( macroDataConfigTypeName ),
-                                                               "Macro descriptor data config for application ['" +
-                                                                   macroDescriptor.getKey().getApplicationKey() + "'] and descriptor ['" +
-                                                                   descriptorName + "']", macroDataConfigFields );
+                                                                                "Macro descriptor data config for application ['" +
+                                                                                    macroDescriptor.getKey().getApplicationKey() +
+                                                                                    "'] and descriptor ['" + descriptorName + "']",
+                                                                                macroDataConfigFields );
 
             context.registerType( macroDataConfigType.getName(), macroDataConfigType );
             macroConfigTypeFields.add( outputField( descriptorName, macroDataConfigType ) );
         } );
 
-        GraphQLObjectType macroConfigType = newObject( context.uniqueName( "MacroConfig" ), "Macro config type.", macroConfigTypeFields );
+        GraphQLObjectType macroConfigType =
+            newObject( context.uniqueName( "MacroConfig" ), "Macro config type.", macroConfigTypeFields );
         context.registerType( macroConfigType.getName(), macroConfigType );
     }
 

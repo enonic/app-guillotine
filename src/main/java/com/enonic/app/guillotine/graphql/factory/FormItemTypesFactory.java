@@ -18,13 +18,13 @@ import graphql.schema.GraphQLType;
 import graphql.schema.GraphQLTypeReference;
 
 import com.enonic.app.guillotine.ServiceFacade;
-import com.enonic.app.guillotine.graphql.scalars.CustomScalars;
-import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
-import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
+import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
+import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.app.guillotine.graphql.helper.NamingHelper;
 import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
+import com.enonic.app.guillotine.graphql.scalars.CustomScalars;
 import com.enonic.xp.form.FormItem;
 import com.enonic.xp.form.FormItemSet;
 import com.enonic.xp.form.FormOptionSet;
@@ -41,13 +41,13 @@ import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField
 
 public class FormItemTypesFactory
 {
-    private final GuillotineContext guillotineContext;
+    private final GuillotineContext context;
 
     private final ServiceFacade serviceFacade;
 
-    public FormItemTypesFactory( final GuillotineContext guillotineContext, final ServiceFacade serviceFacade )
+    public FormItemTypesFactory( final GuillotineContext context, final ServiceFacade serviceFacade )
     {
-        this.guillotineContext = guillotineContext;
+        this.context = context;
         this.serviceFacade = serviceFacade;
     }
 
@@ -90,12 +90,12 @@ public class FormItemTypesFactory
 
                 GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
 
-                guillotineContext.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
+                context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
 
                 return field;
             } ).collect( Collectors.toList() );
 
-        return newObject( guillotineContext.uniqueName( typeName ), description, fields );
+        return newObject( context.uniqueName( typeName ), description, fields );
     }
 
     private GraphQLObjectType generateOptionSetObjectType( String parentTypeName, FormOptionSet formOptionSet )
@@ -111,7 +111,7 @@ public class FormItemTypesFactory
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
         fields.add( selectedField );
 
-        guillotineContext.registerDataFetcher( typeName, selectedField.getName(), environment -> {
+        context.registerDataFetcher( typeName, selectedField.getName(), environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
             return formOptionSet.getMultiselection().getMaximum() == 1
                 ? sourceAsMap.get( "_selected" )
@@ -124,17 +124,17 @@ public class FormItemTypesFactory
 
             fields.add( outputField( optionName, (GraphQLOutputType) type ) );
 
-            guillotineContext.registerDataFetcher( typeName, optionName, new FormItemDataFetcher( option, serviceFacade ) );
+            context.registerDataFetcher( typeName, optionName, new FormItemDataFetcher( option, serviceFacade ) );
         } );
 
-        return newObject( guillotineContext.uniqueName( typeName ), description, fields );
+        return newObject( context.uniqueName( typeName ), description, fields );
     }
 
     private GraphQLType getTypeForFormInputType( Input formItem )
     {
         if ( InputTypeName.ATTACHMENT_UPLOADER.equals( formItem.getInputType() ) )
         {
-            return guillotineContext.getOutputType( "Attachment" );
+            return context.getOutputType( "Attachment" );
         }
         if ( InputTypeName.CHECK_BOX.equals( formItem.getInputType() ) )
         {
@@ -146,7 +146,7 @@ public class FormItemTypesFactory
         }
         if ( InputTypeName.TIME.equals( formItem.getInputType() ) )
         {
-            return ExtendedScalars.LocalTime;
+            return CustomScalars.LocalTime;
         }
         if ( InputTypeName.DATE_TIME.equals( formItem.getInputType() ) )
         {
@@ -164,11 +164,11 @@ public class FormItemTypesFactory
         }
         if ( InputTypeName.GEO_POINT.equals( formItem.getInputType() ) )
         {
-            return guillotineContext.getOutputType( "GeoPoint" );
+            return context.getOutputType( "GeoPoint" );
         }
         if ( InputTypeName.HTML_AREA.equals( formItem.getInputType() ) )
         {
-            return guillotineContext.getOutputType( "RichText" );
+            return context.getOutputType( "RichText" );
         }
         if ( InputTypeName.CONTENT_SELECTOR.equals( formItem.getInputType() ) ||
             InputTypeName.IMAGE_SELECTOR.equals( formItem.getInputType() ) ||
@@ -179,7 +179,7 @@ public class FormItemTypesFactory
         }
         if ( InputTypeName.IMAGE_UPLOADER.equals( formItem.getInputType() ) )
         {
-            return guillotineContext.getOutputType( "MediaUploader" );
+            return context.getOutputType( "MediaUploader" );
         }
         if ( InputTypeName.RADIO_BUTTON.equals( formItem.getInputType() ) )
         {
@@ -187,7 +187,7 @@ public class FormItemTypesFactory
         }
         if ( InputTypeName.SITE_CONFIGURATOR.equals( formItem.getInputType() ) )
         {
-            return guillotineContext.getOutputType( "SiteConfigurator" );
+            return context.getOutputType( "SiteConfigurator" );
         }
 
         return Scalars.GraphQLString;
@@ -201,7 +201,7 @@ public class FormItemTypesFactory
 
         if ( formItem instanceof Input && ( (Input) formItem ).getInputType().equals( InputTypeName.HTML_AREA ) )
         {
-            result.add( newArgument( "processHtml", guillotineContext.getInputType( "ProcessHtmlInput" ) ) );
+            result.add( newArgument( "processHtml", context.getInputType( "ProcessHtmlInput" ) ) );
         }
 
         return result;
@@ -241,12 +241,12 @@ public class FormItemTypesFactory
 
             GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
 
-            guillotineContext.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
+            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
 
             return field;
         } ).collect( Collectors.toList() );
 
-        return newObject( guillotineContext.uniqueName( typeName ), description, fields );
+        return newObject( context.uniqueName( typeName ), description, fields );
     }
 
     private GraphQLType generateOptionObjectType( String parentTypeName, FormOptionSetOption option )
