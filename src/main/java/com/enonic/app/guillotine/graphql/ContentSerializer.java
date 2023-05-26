@@ -7,6 +7,7 @@ import com.enonic.app.guillotine.mapper.ContentMapper;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.app.guillotine.mapper.SiteMapper;
 import com.enonic.xp.content.Content;
+import com.enonic.xp.script.ScriptValue;
 import com.enonic.xp.site.Site;
 
 public final class ContentSerializer
@@ -41,5 +42,29 @@ public final class ContentSerializer
         }
 
         return result;
+    }
+
+    public static Object serialize( ScriptValue scriptValue )
+    {
+        if ( scriptValue == null )
+        {
+            return null;
+        }
+        else if ( scriptValue.isArray() )
+        {
+            return scriptValue.getList();
+        }
+        else if ( scriptValue.isObject() )
+        {
+            return scriptValue.getMap();
+        }
+        else if ( scriptValue.isValue() )
+        {
+            return scriptValue.getValue();
+        }
+        else
+        {
+            return null;
+        }
     }
 }

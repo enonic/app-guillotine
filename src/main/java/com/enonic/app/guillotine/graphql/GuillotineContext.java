@@ -1,6 +1,7 @@
 package com.enonic.app.guillotine.graphql;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -22,35 +23,27 @@ import com.enonic.xp.portal.PortalRequestAccessor;
 
 public class GuillotineContext
 {
-    private final GraphQLCodeRegistry.Builder codeRegisterBuilder = GraphQLCodeRegistry.newCodeRegistry();
+    private final GraphQLCodeRegistry.Builder codeRegisterBuilder;
 
     private final ConcurrentMap<String, GraphQLType> types = new ConcurrentHashMap<>();
 
-    private final ConcurrentMap<String, GraphQLObjectType> contentTypes = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, String> contentTypesDictionary = new ConcurrentHashMap<>();
 
     private final CopyOnWriteArraySet<GraphQLType> dictionary = new CopyOnWriteArraySet<>();
-
-    private final CopyOnWriteArrayList<String> applications = new CopyOnWriteArrayList<>();
-
-    private final CopyOnWriteArrayList<String> allowPaths = new CopyOnWriteArrayList<>();
 
     private final ConcurrentMap<String, Object> options = new ConcurrentHashMap<>();
 
     private final ConcurrentMap<String, Integer> nameCountMap = new ConcurrentHashMap<>();
 
-    public GuillotineContext( final CreateSchemaParams params )
+    private final CopyOnWriteArrayList<String> applications;
+
+    private final CopyOnWriteArrayList<String> allowPaths;
+
+    private GuillotineContext( final Builder builder )
     {
-        if ( params != null )
-        {
-            if ( params.getApplications() != null )
-            {
-                this.applications.addAll( params.getApplications() );
-            }
-            if ( params.getAllowPaths() != null )
-            {
-                this.allowPaths.addAll( params.getAllowPaths() );
-            }
-        }
+        this.codeRegisterBuilder = builder.codeRegisterBuilder;
+        this.applications = builder.applications;
+        this.allowPaths = builder.allowPaths;
     }
 
     public boolean isGlobalMode()
@@ -91,10 +84,10 @@ public class GuillotineContext
         dictionary.add( objectType );
     }
 
-    public void registerContentType( String contentTypeName, GraphQLObjectType objectType )
+    public void registerContentType( String rawContentType, GraphQLObjectType objectType )
     {
         types.put( objectType.getName(), objectType );
-        contentTypes.put( contentTypeName, objectType );
+        contentTypesDictionary.put( rawContentType, objectType.getName() );
         addDictionaryType( objectType );
     }
 
@@ -118,9 +111,9 @@ public class GuillotineContext
         return (GraphQLObjectType) types.get( name );
     }
 
-    public GraphQLObjectType getContentType( String name )
+    public String getContentType( String name )
     {
-        return contentTypes.get( name );
+        return contentTypesDictionary.get( name );
     }
 
     public void registerDataFetcher( String typeName, String fieldName, DataFetcher<?> dataFetcher )
@@ -133,11 +126,6 @@ public class GuillotineContext
         codeRegisterBuilder.typeResolver( typeName, typeResolver );
     }
 
-    public GraphQLCodeRegistry getCodeRegistry()
-    {
-        return codeRegisterBuilder.build();
-    }
-
     public String uniqueName( String name )
     {
         if ( name == null || "".equals( name ) )
@@ -148,6 +136,48 @@ public class GuillotineContext
         nameCountMap.compute( name, ( k, v ) -> v == null ? 1 : v + 1 );
 
         return nameCountMap.get( name ) == 1 ? name : name + "_" + nameCountMap.get( name );
+    }
+
+    public static Builder create( final GraphQLCodeRegistry.Builder codeRegisterBuilder )
+    {
+        return new Builder( codeRegisterBuilder );
+    }
+
+    public static final class Builder
+    {
+        private final GraphQLCodeRegistry.Builder codeRegisterBuilder;
+
+        private final CopyOnWriteArrayList<String> applications = new CopyOnWriteArrayList<>();
+
+        private final CopyOnWriteArrayList<String> allowPaths = new CopyOnWriteArrayList<>();
+
+        public Builder( final GraphQLCodeRegistry.Builder codeRegisterBuilder )
+        {
+            this.codeRegisterBuilder = Objects.requireNonNull( codeRegisterBuilder );
+        }
+
+        public Builder addApplications( final List<String> applications )
+        {
+            if ( applications != null )
+            {
+                this.applications.addAll( applications );
+            }
+            return this;
+        }
+
+        public Builder addAllowPaths( final List<String> allowPaths )
+        {
+            if ( allowPaths != null )
+            {
+                this.allowPaths.addAll( allowPaths );
+            }
+            return this;
+        }
+
+        public GuillotineContext build()
+        {
+            return new GuillotineContext( this );
+        }
     }
 
 }
