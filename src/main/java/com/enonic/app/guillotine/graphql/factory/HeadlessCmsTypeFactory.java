@@ -29,31 +29,19 @@ import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newArgument
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newObject;
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField;
 
-public class QueryFactory
+public class HeadlessCmsTypeFactory
 {
     private final GuillotineContext context;
 
     private final ServiceFacade serviceFacade;
 
-    public QueryFactory( final GuillotineContext context, final ServiceFacade serviceFacade )
+    public HeadlessCmsTypeFactory( final GuillotineContext context, final ServiceFacade serviceFacade )
     {
         this.context = context;
         this.serviceFacade = serviceFacade;
     }
 
     public GraphQLObjectType create()
-    {
-        GraphQLObjectType queryObject =
-            newObject( context.uniqueName( "Query" ), "Query description", List.of( outputField( "guillotine", createHeadlessCms() ) ) );
-
-        context.registerType( queryObject.getName(), queryObject );
-
-        context.registerDataFetcher( queryObject.getName(), "guillotine", environment -> new Object() );
-
-        return queryObject;
-    }
-
-    private GraphQLObjectType createHeadlessCms()
     {
         List<GraphQLFieldDefinition> fields = createHeadlessCMSFields();
 
