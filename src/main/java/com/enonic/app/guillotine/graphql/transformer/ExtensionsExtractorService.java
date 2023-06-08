@@ -93,22 +93,22 @@ public class ExtensionsExtractorService
     private static void extractCreationCallbacks( final SchemaExtensions.Builder schemaExtensionsBuilder,
                                                   final ScriptValue creationCallbacks )
     {
-        if ( creationCallbacks != null && creationCallbacks.isObject() )
+        if ( creationCallbacks != null )
         {
+            GraphQLExtensionValidator.validateCreationCallbacks( creationCallbacks );
             creationCallbacks.getKeys().forEach( typeName -> {
                 ScriptValue creationCallbackFn = creationCallbacks.getMember( typeName );
-                if ( creationCallbackFn != null && creationCallbackFn.isFunction() )
-                {
-                    schemaExtensionsBuilder.addCreationCallback( typeName, creationCallbackFn );
-                }
+                schemaExtensionsBuilder.addCreationCallback( typeName, creationCallbackFn );
             } );
         }
     }
 
     private static void extractTypeResolvers( final SchemaExtensions.Builder schemaExtensionsBuilder, final ScriptValue typeResolvers )
     {
-        if ( typeResolvers != null && typeResolvers.isObject() )
+        if ( typeResolvers != null )
         {
+            GraphQLExtensionValidator.validateTypeResolvers( typeResolvers );
+
             typeResolvers.getKeys().forEach( typeName -> {
                 ScriptValue typeResolverDef = typeResolvers.getMember( typeName );
                 schemaExtensionsBuilder.addTypeResolver( typeName, typeResolverDef );
@@ -118,11 +118,13 @@ public class ExtensionsExtractorService
 
     private static void extractResolvers( final SchemaExtensions.Builder schemaExtensionsBuilder, final ScriptValue resolvers )
     {
-        if ( resolvers != null && resolvers.isObject() )
+        if ( resolvers != null )
         {
+            GraphQLExtensionValidator.validateResolvers( resolvers );
+
             resolvers.getKeys().forEach( typeName -> {
                 ScriptValue typeResolverDef = resolvers.getMember( typeName );
-                if ( typeResolverDef != null && typeResolverDef.isObject() )
+                if ( typeResolverDef != null )
                 {
                     typeResolverDef.getKeys().forEach( fieldName -> {
                         ScriptValue resolverDef = typeResolverDef.getMember( fieldName );
@@ -135,40 +137,45 @@ public class ExtensionsExtractorService
 
     private static void extractInterfaces( final SchemaExtensions.Builder schemaExtensionsBuilder, final ScriptValue interfaces )
     {
-        if ( interfaces != null && interfaces.isObject() )
+        if ( interfaces != null )
         {
+            GraphQLExtensionValidator.validateInterfaceTypes( interfaces );
             interfaces.getKeys().forEach( typeName -> schemaExtensionsBuilder.addInterface( typeName, interfaces.getMember( typeName ) ) );
         }
     }
 
     private static void extractUnions( final SchemaExtensions.Builder schemaExtensionsBuilder, final ScriptValue unions )
     {
-        if ( unions != null && unions.isObject() )
+        if ( unions != null )
         {
+            GraphQLExtensionValidator.validateUnionTypes( unions );
             unions.getKeys().forEach( typeName -> schemaExtensionsBuilder.addUnion( typeName, unions.getMember( typeName ) ) );
         }
     }
 
     private static void extractEnums( final SchemaExtensions.Builder schemaExtensionsBuilder, final ScriptValue enums )
     {
-        if ( enums != null && enums.isObject() )
+        if ( enums != null )
         {
+            GraphQLExtensionValidator.validateEnumTypes( enums );
             enums.getKeys().forEach( typeName -> schemaExtensionsBuilder.addEnum( typeName, enums.getMember( typeName ) ) );
         }
     }
 
     private static void extractInputTypes( final SchemaExtensions.Builder schemaExtensionsBuilder, final ScriptValue inputTypes )
     {
-        if ( inputTypes != null && inputTypes.isObject() )
+        if ( inputTypes != null )
         {
+            GraphQLExtensionValidator.validateInputTypeDefs( inputTypes );
             inputTypes.getKeys().forEach( typeName -> schemaExtensionsBuilder.addInputType( typeName, inputTypes.getMember( typeName ) ) );
         }
     }
 
     private static void extractTypes( final SchemaExtensions.Builder schemaExtensionsBuilder, final ScriptValue types )
     {
-        if ( types != null && types.isObject() )
+        if ( types != null )
         {
+            GraphQLExtensionValidator.validateTypeDefs( types );
             types.getKeys().forEach( typeName -> schemaExtensionsBuilder.addType( typeName, types.getMember( typeName ) ) );
         }
     }
