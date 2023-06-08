@@ -17,58 +17,59 @@ import graphql.schema.GraphQLTypeVisitorStub;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
-import com.enonic.app.guillotine.graphql.BaseCreationCallbackParams;
 import com.enonic.app.guillotine.graphql.OutputObjectCreationCallbackParams;
-import com.enonic.xp.script.ScriptValue;
 
 public class ExtensionGraphQLTypeVisitor
     extends GraphQLTypeVisitorStub
 {
+    private final Map<String, List<OutputObjectCreationCallbackParams>> creationCallbacks;
 
-    private final Map<String, ScriptValue> creationCallbacksDefs;
-
-    public ExtensionGraphQLTypeVisitor( final SchemaExtensions schemaExtensions )
+    public ExtensionGraphQLTypeVisitor( final Map<String, List<OutputObjectCreationCallbackParams>> creationCallbacksDefs )
     {
-        this.creationCallbacksDefs = schemaExtensions.getCreationCallbacks();
+        this.creationCallbacks = creationCallbacksDefs;
     }
 
     @Override
     public TraversalControl visitGraphQLInterfaceType( final GraphQLInterfaceType node,
                                                        final TraverserContext<GraphQLSchemaElement> context )
     {
-        if ( creationCallbacksDefs != null && creationCallbacksDefs.get( node.getName() ) != null )
+        if ( creationCallbacks != null && creationCallbacks.get( node.getName() ) != null )
         {
-            ScriptValue creationCallbackFn = creationCallbacksDefs.get( node.getName() );
+            GraphQLInterfaceType transformedNode = node;
 
-            BaseCreationCallbackParams creationCallbackParams = new BaseCreationCallbackParams();
-            creationCallbackFn.call( creationCallbackParams );
+            for ( OutputObjectCreationCallbackParams creationCallbackParams : creationCallbacks.get( transformedNode.getName() ) )
+            {
+                String newDescription =
+                    Objects.requireNonNullElse( creationCallbackParams.getDescription(), transformedNode.getDescription() );
 
-            String newDescription = Objects.requireNonNullElse( creationCallbackParams.getDescription(), node.getDescription() );
-            List<GraphQLFieldDefinition> newFields = GraphQLFieldsMerger.merge( node.getFieldDefinitions(), creationCallbackParams );
+                List<GraphQLFieldDefinition> newFields =
+                    GraphQLFieldsMerger.merge( transformedNode.getFieldDefinitions(), creationCallbackParams );
 
-            GraphQLInterfaceType transformedNode = node.transform( builder -> builder.description( newDescription ).fields( newFields ) );
+                transformedNode = transformedNode.transform( builder -> builder.description( newDescription ).fields( newFields ) );
+            }
 
             return changeNode( context, transformedNode );
-
         }
+
         return super.visitGraphQLInterfaceType( node, context );
     }
 
     @Override
     public TraversalControl visitGraphQLObjectType( final GraphQLObjectType node, final TraverserContext<GraphQLSchemaElement> context )
     {
-        if ( creationCallbacksDefs != null )
+        if ( creationCallbacks != null )
         {
             GraphQLObjectType transformedNode = node;
 
             boolean transformedCount = false;
 
-            if ( creationCallbacksDefs.get( transformedNode.getName() ) != null )
+            if ( creationCallbacks.get( transformedNode.getName() ) != null )
             {
-                ScriptValue creationCallback = creationCallbacksDefs.get( transformedNode.getName() );
-                transformedNode = executeCreationCallback( transformedNode, creationCallback );
-
-                transformedCount = true;
+                for ( OutputObjectCreationCallbackParams creationCallbackParams : creationCallbacks.get( transformedNode.getName() ) )
+                {
+                    transformedNode = transformGraphQLObjectType( transformedNode, transformedNode, creationCallbackParams );
+                    transformedCount = true;
+                }
             }
 
             Set<String> interfaceNames =
@@ -76,18 +77,17 @@ public class ExtensionGraphQLTypeVisitor
 
             for ( String interfaceName : interfaceNames )
             {
-                ScriptValue creationCallback = creationCallbacksDefs.get( interfaceName );
+                List<OutputObjectCreationCallbackParams> creationCallback = creationCallbacks.get( interfaceName );
                 if ( creationCallback != null )
                 {
-                    BaseCreationCallbackParams creationCallbackParams = new BaseCreationCallbackParams();
-                    creationCallback.call( creationCallbackParams );
+                    for ( OutputObjectCreationCallbackParams creationCallbackParams : creationCallback )
+                    {
+                        List<GraphQLFieldDefinition> newFields =
+                            GraphQLFieldsMerger.merge( transformedNode.getFieldDefinitions(), creationCallbackParams );
 
-                    List<GraphQLFieldDefinition> newFields =
-                        GraphQLFieldsMerger.merge( transformedNode.getFieldDefinitions(), creationCallbackParams );
-
-                    transformedNode = transformedNode.transform( builder -> builder.replaceFields( newFields ) );
-
-                    transformedCount = true;
+                        transformedNode = transformedNode.transform( builder -> builder.replaceFields( newFields ) );
+                        transformedCount = true;
+                    }
                 }
             }
 
@@ -96,44 +96,36 @@ public class ExtensionGraphQLTypeVisitor
                 return changeNode( context, transformedNode );
             }
         }
+
         return super.visitGraphQLObjectType( node, context );
     }
 
-    private GraphQLObjectType executeCreationCallback( final GraphQLObjectType node, ScriptValue creationCallback )
+    private static GraphQLObjectType transformGraphQLObjectType( final GraphQLObjectType node, GraphQLObjectType transformedNode,
+                                                                 final OutputObjectCreationCallbackParams creationCallbackParams )
     {
-        if ( !creationCallback.isFunction() )
-        {
-            throw new IllegalArgumentException( String.format( "Creation callback must be a function for type '%s'", node.getName() ) );
-        }
+        String newDescription = Objects.requireNonNullElse( creationCallbackParams.getDescription(), transformedNode.getDescription() );
 
-        OutputObjectCreationCallbackParams creationCallbackParams = new OutputObjectCreationCallbackParams();
-        creationCallback.call( creationCallbackParams );
-
-        return node.transform( builder -> transformGraphQLObjectType( builder, node, creationCallbackParams ) );
-    }
-
-    private void transformGraphQLObjectType( final GraphQLObjectType.Builder builder, final GraphQLObjectType node,
-                                             final OutputObjectCreationCallbackParams creationCallbackParams )
-    {
-        String newDescription = Objects.requireNonNullElse( creationCallbackParams.getDescription(), node.getDescription() );
         List<? extends GraphQLType> newInterfaces = Objects.requireNonNullElse( creationCallbackParams.getInterfaces(),
                                                                                 Objects.requireNonNullElse( node.getInterfaces(),
                                                                                                             List.of() ) );
-        List<GraphQLFieldDefinition> newFields = GraphQLFieldsMerger.merge( node.getFieldDefinitions(), creationCallbackParams );
 
-        builder.description( newDescription );
-        builder.replaceFields( newFields );
+        List<GraphQLFieldDefinition> newFields = GraphQLFieldsMerger.merge( transformedNode.getFieldDefinitions(), creationCallbackParams );
 
-        newInterfaces.forEach( newInterface -> {
-            if ( newInterface instanceof GraphQLInterfaceType )
-            {
-                builder.withInterface( (GraphQLInterfaceType) newInterface );
-            }
-            if ( newInterface instanceof GraphQLTypeReference )
-            {
-                builder.withInterface( (GraphQLTypeReference) newInterface );
-            }
+        transformedNode = transformedNode.transform( builder -> {
+            builder.description( newDescription );
+            builder.replaceFields( newFields );
+
+            newInterfaces.forEach( newInterface -> {
+                if ( newInterface instanceof GraphQLInterfaceType )
+                {
+                    builder.withInterface( (GraphQLInterfaceType) newInterface );
+                }
+                if ( newInterface instanceof GraphQLTypeReference )
+                {
+                    builder.withInterface( (GraphQLTypeReference) newInterface );
+                }
+            } );
         } );
+        return transformedNode;
     }
-
 }

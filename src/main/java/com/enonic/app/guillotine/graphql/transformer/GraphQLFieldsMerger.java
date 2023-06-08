@@ -11,14 +11,14 @@ import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLType;
 
-import com.enonic.app.guillotine.graphql.BaseCreationCallbackParams;
+import com.enonic.app.guillotine.graphql.OutputObjectCreationCallbackParams;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.GraphQLHelper;
 
 public class GraphQLFieldsMerger
 {
     public static List<GraphQLFieldDefinition> merge( List<GraphQLFieldDefinition> originalFields,
-                                                      BaseCreationCallbackParams creationCallbackParams )
+                                                      OutputObjectCreationCallbackParams creationCallbackParams )
     {
         Map<String, GraphQLFieldDefinition> fieldsAsMap =
             originalFields.stream().collect( Collectors.toMap( GraphQLFieldDefinition::getName, Function.identity() ) );
