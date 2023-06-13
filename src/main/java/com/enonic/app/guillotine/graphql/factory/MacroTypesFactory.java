@@ -7,6 +7,7 @@ import graphql.Scalars;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLOutputType;
+import graphql.schema.GraphQLTypeReference;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
@@ -68,18 +69,20 @@ public class MacroTypesFactory
             } );
 
             GraphQLObjectType macroDataConfigType = newObject( context.uniqueName( macroDataConfigTypeName ),
-                                                                                "Macro descriptor data config for application ['" +
-                                                                                    macroDescriptor.getKey().getApplicationKey() +
-                                                                                    "'] and descriptor ['" + descriptorName + "']",
-                                                                                macroDataConfigFields );
+                                                               "Macro descriptor data config for application ['" +
+                                                                   macroDescriptor.getKey().getApplicationKey() + "'] and descriptor ['" +
+                                                                   descriptorName + "']", macroDataConfigFields );
 
             context.registerType( macroDataConfigType.getName(), macroDataConfigType );
             macroConfigTypeFields.add( outputField( descriptorName, macroDataConfigType ) );
         } );
 
-        GraphQLObjectType macroConfigType =
-            newObject( context.uniqueName( "MacroConfig" ), "Macro config type.", macroConfigTypeFields );
-        context.registerType( macroConfigType.getName(), macroConfigType );
+        if ( !macroConfigTypeFields.isEmpty() )
+        {
+            GraphQLObjectType macroConfigType =
+                newObject( context.uniqueName( "MacroConfig" ), "Macro config type.", macroConfigTypeFields );
+            context.registerType( macroConfigType.getName(), macroConfigType );
+        }
     }
 
     private void createMacroType()
@@ -89,7 +92,10 @@ public class MacroTypesFactory
         macroTypeFields.add( outputField( "ref", Scalars.GraphQLString ) );
         macroTypeFields.add( outputField( "name", Scalars.GraphQLString ) );
         macroTypeFields.add( outputField( "descriptor", Scalars.GraphQLString ) );
-        macroTypeFields.add( outputField( "config", context.getOutputType( "MacroConfig" ) ) );
+        if ( context.getOutputType( "MacroConfig" ) != null )
+        {
+            macroTypeFields.add( outputField( "config", GraphQLTypeReference.typeRef( "MacroConfig" ) ) );
+        }
 
         GraphQLObjectType macroType = newObject( context.uniqueName( "Macro" ), "Macro type.", macroTypeFields );
 

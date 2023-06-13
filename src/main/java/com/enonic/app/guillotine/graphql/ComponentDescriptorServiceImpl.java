@@ -63,7 +63,7 @@ public class ComponentDescriptorServiceImpl
                 return layoutDescriptorService.getByApplication( ApplicationKey.from( applicationKey ) ).stream().map(
                     pageDescriptor -> (ComponentDescriptor) pageDescriptor ).collect( Collectors.toList() );
             default:
-                throw new IllegalArgumentException( "Unknown component type" );
+                throw new IllegalArgumentException( String.format( "Unknown component type: %s", componentType ) );
         }
     }
 

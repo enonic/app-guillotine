@@ -5,7 +5,6 @@ import java.util.List;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLFieldDefinition;
-import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLObjectType;
@@ -86,7 +85,7 @@ public class HeadlessCmsTypeFactory
 
     private List<GraphQLFieldDefinition> createHeadlessCMSFields()
     {
-        GraphQLInterfaceType contentInterface = context.getInterfaceType( "Content" );
+        GraphQLTypeReference contentInterface = GraphQLTypeReference.typeRef( "Content" );
 
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
@@ -96,44 +95,47 @@ public class HeadlessCmsTypeFactory
                                  List.of( newArgument( "key", Scalars.GraphQLID ), newArgument( "offset", Scalars.GraphQLInt ),
                                           newArgument( "first", Scalars.GraphQLInt ), newArgument( "sort", Scalars.GraphQLString ) ) ) );
 
-        fields.add( outputField( "getChildrenConnection", context.getOutputType( "ContentConnection" ),
+        fields.add( outputField( "getChildrenConnection", GraphQLTypeReference.typeRef( "ContentConnection" ),
                                  List.of( newArgument( "key", Scalars.GraphQLID ), newArgument( "after", Scalars.GraphQLString ),
                                           newArgument( "first", Scalars.GraphQLInt ), newArgument( "sort", Scalars.GraphQLString ) ) ) );
 
-        fields.add( outputField( "getPermissions", context.getOutputType( "Permissions" ), newArgument( "key", Scalars.GraphQLID ) ) );
+        fields.add(
+            outputField( "getPermissions", GraphQLTypeReference.typeRef( "Permissions" ), newArgument( "key", Scalars.GraphQLID ) ) );
 
-        fields.add( outputField( "getSite", new GraphQLTypeReference( "portal_Site" ) ) );
+        fields.add( outputField( "getSite", GraphQLTypeReference.typeRef( "portal_Site" ) ) );
 
         fields.add( outputField( "query", new GraphQLList( contentInterface ),
                                  List.of( newArgument( "query", Scalars.GraphQLString ), newArgument( "offset", Scalars.GraphQLInt ),
                                           newArgument( "first", Scalars.GraphQLInt ), newArgument( "sort", Scalars.GraphQLString ),
                                           newArgument( "contentTypes", new GraphQLList( Scalars.GraphQLString ) ),
-                                          newArgument( "filters", new GraphQLList( context.getInputType( "FilterInput" ) ) ) ) ) );
+                                          newArgument( "filters", new GraphQLList( GraphQLTypeReference.typeRef( "FilterInput" ) ) ) ) ) );
 
-        fields.add( outputField( "queryConnection", context.getOutputType( "QueryContentConnection" ),
+        fields.add( outputField( "queryConnection", GraphQLTypeReference.typeRef( "QueryContentConnection" ),
                                  List.of( newArgument( "query", new GraphQLNonNull( Scalars.GraphQLString ) ),
                                           newArgument( "after", Scalars.GraphQLString ), newArgument( "first", Scalars.GraphQLInt ),
                                           newArgument( "sort", Scalars.GraphQLString ),
                                           newArgument( "contentTypes", new GraphQLList( Scalars.GraphQLString ) ),
-                                          newArgument( "aggregations", new GraphQLList( context.getInputType( "AggregationInput" ) ) ),
-                                          newArgument( "filters", new GraphQLList( context.getInputType( "FilterInput" ) ) ) ) ) );
+                                          newArgument( "aggregations",
+                                                       new GraphQLList( GraphQLTypeReference.typeRef( "AggregationInput" ) ) ),
+                                          newArgument( "filters", new GraphQLList( GraphQLTypeReference.typeRef( "FilterInput" ) ) ) ) ) );
 
         fields.add( outputField( "queryDsl", new GraphQLList( contentInterface ),
-                                 List.of( newArgument( "query", context.getInputType( "QueryDSLInput" ) ),
+                                 List.of( newArgument( "query", GraphQLTypeReference.typeRef( "QueryDSLInput" ) ),
                                           newArgument( "offset", Scalars.GraphQLInt ), newArgument( "first", Scalars.GraphQLInt ),
-                                          newArgument( "sort", new GraphQLList( context.getInputType( "SortDslInput" ) ) ) ) ) );
+                                          newArgument( "sort", new GraphQLList( GraphQLTypeReference.typeRef( "SortDslInput" ) ) ) ) ) );
 
-        fields.add( outputField( "queryDslConnection", context.getOutputType( "QueryDSLContentConnection" ),
-                                 List.of( newArgument( "query", new GraphQLNonNull( context.getInputType( "QueryDSLInput" ) ) ),
+        fields.add( outputField( "queryDslConnection", GraphQLTypeReference.typeRef( "QueryDSLContentConnection" ),
+                                 List.of( newArgument( "query", new GraphQLNonNull( GraphQLTypeReference.typeRef( "QueryDSLInput" ) ) ),
                                           newArgument( "after", Scalars.GraphQLString ), newArgument( "first", Scalars.GraphQLInt ),
-                                          newArgument( "aggregations", new GraphQLList( context.getInputType( "AggregationInput" ) ) ),
-                                          newArgument( "highlight", context.getInputType( "HighlightInputType" ) ),
-                                          newArgument( "sort", new GraphQLList( context.getInputType( "SortDslInput" ) ) ) ) ) );
+                                          newArgument( "aggregations",
+                                                       new GraphQLList( GraphQLTypeReference.typeRef( "AggregationInput" ) ) ),
+                                          newArgument( "highlight", GraphQLTypeReference.typeRef( "HighlightInputType" ) ),
+                                          newArgument( "sort", new GraphQLList( GraphQLTypeReference.typeRef( "SortDslInput" ) ) ) ) ) );
 
-        fields.add( outputField( "getType", context.getOutputType( "ContentType" ),
+        fields.add( outputField( "getType", GraphQLTypeReference.typeRef( "ContentType" ),
                                  newArgument( "name", new GraphQLNonNull( Scalars.GraphQLString ) ) ) );
 
-        fields.add( outputField( "getTypes", new GraphQLList( context.getOutputType( "ContentType" ) ) ) );
+        fields.add( outputField( "getTypes", new GraphQLList( GraphQLTypeReference.typeRef( "ContentType" ) ) ) );
 
         return fields;
     }

@@ -15,6 +15,7 @@ import graphql.schema.GraphQLTypeReference;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.GetFieldAsJsonDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.app.guillotine.graphql.helper.NamingHelper;
 import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
@@ -70,10 +71,8 @@ public class ComponentTypesFactory
         GraphQLObjectType objectType = newObject( context.uniqueName( "PartComponentData" ), "Part component data.", fields );
         context.registerType( objectType.getName(), objectType );
 
-        context.registerDataFetcher( objectType.getName(), "configAsJson", environment -> {
-            Map<String, Object> sourceAsMap = environment.getSource();
-            return sourceAsMap.get( "config" );
-        } );
+        context.registerDataFetcher( objectType.getName(), "configAsJson", new GetFieldAsJsonDataFetcher( "config" ) );
+
     }
 
     private void createPageComponentData()
@@ -81,7 +80,7 @@ public class ComponentTypesFactory
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
         fields.add( outputField( "descriptor", Scalars.GraphQLString ) );
         fields.add( outputField( "customized", Scalars.GraphQLBoolean ) );
-        fields.add( outputField( "template", new GraphQLTypeReference( "Content" ) ) );
+        fields.add( outputField( "template", GraphQLTypeReference.typeRef( "Content" ) ) );
         fields.add( outputField( "configAsJson", ExtendedScalars.Json ) );
 
         GraphQLObjectType configType = context.getOutputType( "PageComponentDataConfig" );
@@ -93,10 +92,7 @@ public class ComponentTypesFactory
         GraphQLObjectType objectType = newObject( context.uniqueName( "PageComponentData" ), "Page component data.", fields );
         context.registerType( objectType.getName(), objectType );
 
-        context.registerDataFetcher( objectType.getName(), "configAsJson", environment -> {
-            Map<String, Object> sourceAsMap = environment.getSource();
-            return sourceAsMap.get( "config" );
-        } );
+        context.registerDataFetcher( objectType.getName(), "configAsJson", new GetFieldAsJsonDataFetcher( "config" ) );
     }
 
     private void createLayoutComponentData()
@@ -114,10 +110,7 @@ public class ComponentTypesFactory
         GraphQLObjectType objectType = newObject( context.uniqueName( "LayoutComponentData" ), "Layout component data.", fields );
         context.registerType( objectType.getName(), objectType );
 
-        context.registerDataFetcher( objectType.getName(), "configAsJson", environment -> {
-            Map<String, Object> sourceAsMap = environment.getSource();
-            return sourceAsMap.get( "config" );
-        } );
+        context.registerDataFetcher( objectType.getName(), "configAsJson", new GetFieldAsJsonDataFetcher( "config" ) );
     }
 
     private void createImageComponentData()
@@ -126,7 +119,7 @@ public class ComponentTypesFactory
 
         fields.add( outputField( "id", new GraphQLNonNull( Scalars.GraphQLID ) ) );
         fields.add( outputField( "caption", Scalars.GraphQLString ) );
-        fields.add( outputField( "image", new GraphQLTypeReference( "media_Image" ) ) );
+        fields.add( outputField( "image", GraphQLTypeReference.typeRef( "media_Image" ) ) );
 
         GraphQLObjectType objectType = newObject( context.uniqueName( "ImageComponentData" ), "Image component data.", fields );
         context.registerType( objectType.getName(), objectType );
@@ -136,7 +129,7 @@ public class ComponentTypesFactory
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
-        fields.add( outputField( "value", new GraphQLNonNull( context.getOutputType( "RichText" ) ) ) );
+        fields.add( outputField( "value", new GraphQLNonNull( GraphQLTypeReference.typeRef( "RichText" ) ) ) );
 
         GraphQLObjectType objectType = newObject( context.uniqueName( "TextComponentData" ), "Text component data.", fields );
         context.registerType( objectType.getName(), objectType );
@@ -147,7 +140,7 @@ public class ComponentTypesFactory
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
         fields.add( outputField( "id", new GraphQLNonNull( Scalars.GraphQLID ) ) );
-        fields.add( outputField( "fragment", new GraphQLTypeReference( "Content" ) ) );
+        fields.add( outputField( "fragment", GraphQLTypeReference.typeRef( "Content" ) ) );
 
         GraphQLObjectType objectType = newObject( context.uniqueName( "FragmentComponentData" ), "Fragment component data.", fields );
         context.registerType( objectType.getName(), objectType );
@@ -156,14 +149,14 @@ public class ComponentTypesFactory
     private void createComponentType()
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
-        fields.add( outputField( "type", new GraphQLNonNull( context.getEnumType( "ComponentType" ) ) ) );
+        fields.add( outputField( "type", new GraphQLNonNull( GraphQLTypeReference.typeRef( "ComponentType" ) ) ) );
         fields.add( outputField( "path", new GraphQLNonNull( Scalars.GraphQLString ) ) );
-        fields.add( outputField( "part", context.getOutputType( "PartComponentData" ) ) );
-        fields.add( outputField( "page", context.getOutputType( "PageComponentData" ) ) );
-        fields.add( outputField( "layout", context.getOutputType( "LayoutComponentData" ) ) );
-        fields.add( outputField( "image", context.getOutputType( "ImageComponentData" ) ) );
-        fields.add( outputField( "text", context.getOutputType( "TextComponentData" ) ) );
-        fields.add( outputField( "fragment", context.getOutputType( "FragmentComponentData" ) ) );
+        fields.add( outputField( "part", GraphQLTypeReference.typeRef( "PartComponentData" ) ) );
+        fields.add( outputField( "page", GraphQLTypeReference.typeRef( "PageComponentData" ) ) );
+        fields.add( outputField( "layout", GraphQLTypeReference.typeRef( "LayoutComponentData" ) ) );
+        fields.add( outputField( "image", GraphQLTypeReference.typeRef( "ImageComponentData" ) ) );
+        fields.add( outputField( "text", GraphQLTypeReference.typeRef( "TextComponentData" ) ) );
+        fields.add( outputField( "fragment", GraphQLTypeReference.typeRef( "FragmentComponentData" ) ) );
 
         GraphQLObjectType objectType = newObject( context.uniqueName( "Component" ), "Component.", fields );
         context.registerType( objectType.getName(), objectType );
@@ -223,10 +216,8 @@ public class ComponentTypesFactory
                     outputField( StringNormalizer.create( applicationKey ), componentApplicationConfigType );
                 componentFields.add( componentTypeField );
 
-                context.registerDataFetcher( componentDataConfigTypeName, componentTypeField.getName(), environment -> {
-                    Map<String, Object> sourceAsMap = environment.getSource();
-                    return sourceAsMap.get( NamingHelper.applicationConfigKey( applicationKey ) );
-                } );
+                context.registerDataFetcher( componentDataConfigTypeName, componentTypeField.getName(),
+                                             new GetFieldAsJsonDataFetcher( NamingHelper.applicationConfigKey( applicationKey ) ) );
             }
         } );
 

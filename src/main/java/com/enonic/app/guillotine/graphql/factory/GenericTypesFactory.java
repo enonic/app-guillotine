@@ -15,6 +15,7 @@ import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentUrlByNameDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.GetFieldAsJsonDataFetcher;
 
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newArgument;
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newObject;
@@ -89,7 +90,7 @@ public class GenericTypesFactory
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
         fields.add( outputField( "attachment", Scalars.GraphQLString ) );
-        fields.add( outputField( "focalPoint", context.getOutputType( "MediaFocalPoint" ) ) );
+        fields.add( outputField( "focalPoint", GraphQLTypeReference.typeRef( "MediaFocalPoint" ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "MediaUploader" ), "Media uploader.", fields );
         context.registerType( outputObject.getName(), outputObject );
@@ -105,10 +106,7 @@ public class GenericTypesFactory
         GraphQLObjectType outputObject = newObject( context.uniqueName( "SiteConfigurator" ), "Site configurator.", fields );
         context.registerType( outputObject.getName(), outputObject );
 
-        context.registerDataFetcher( outputObject.getName(), "configAsJson", env -> {
-            Map<String, Object> sourceAsMap = env.getSource();
-            return sourceAsMap.get( "config" );
-        } );
+        context.registerDataFetcher( outputObject.getName(), "configAsJson", new GetFieldAsJsonDataFetcher( "config" ) );
     }
 
     private void createPublishInfoType()
@@ -132,7 +130,8 @@ public class GenericTypesFactory
         fields.add( outputField( "size", Scalars.GraphQLInt ) );
         fields.add( outputField( "mimeType", Scalars.GraphQLString ) );
         fields.add( outputField( "attachmentUrl", Scalars.GraphQLString, List.of( newArgument( "download", Scalars.GraphQLBoolean ),
-                                                                                  newArgument( "type", context.getEnumType( "UrlType" ) ),
+                                                                                  newArgument( "type",
+                                                                                               GraphQLTypeReference.typeRef( "UrlType" ) ),
                                                                                   newArgument( "params", Scalars.GraphQLString ) ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "Attachment" ), "Attachment.", fields );
@@ -165,17 +164,14 @@ public class GenericTypesFactory
         fields.add( outputField( "final", Scalars.GraphQLBoolean ) );
         fields.add( outputField( "allowChildContent", Scalars.GraphQLBoolean ) );
         fields.add( outputField( "contentDisplayNameScript", Scalars.GraphQLString ) );
-        fields.add( outputField( "icon", context.getOutputType( "Icon" ) ) );
-        fields.add( outputField( "form", new GraphQLList( new GraphQLTypeReference( "FormItem" ) ) ) );
+        fields.add( outputField( "icon", GraphQLTypeReference.typeRef( "Icon" ) ) );
+        fields.add( outputField( "form", new GraphQLList( GraphQLTypeReference.typeRef( "FormItem" ) ) ) );
         fields.add( outputField( "formAsJson", ExtendedScalars.Json ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "ContentType" ), "Content type.", fields );
         context.registerType( outputObject.getName(), outputObject );
 
-        context.registerDataFetcher( outputObject.getName(), "formAsJson", environment -> {
-            Map<String, Object> sourceAsMap = environment.getSource();
-            return sourceAsMap.get( "form" );
-        } );
+        context.registerDataFetcher( outputObject.getName(), "formAsJson", new GetFieldAsJsonDataFetcher( "form" ) );
     }
 
     private void createImageStyleType()
@@ -194,9 +190,9 @@ public class GenericTypesFactory
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
-        fields.add( outputField( "image", new GraphQLTypeReference( "Content" ) ) );
+        fields.add( outputField( "image", GraphQLTypeReference.typeRef( "Content" ) ) );
         fields.add( outputField( "ref", Scalars.GraphQLString ) );
-        fields.add( outputField( "style", context.getOutputType( "ImageStyle" ) ) );
+        fields.add( outputField( "style", GraphQLTypeReference.typeRef( "ImageStyle" ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "Image" ), "Image type.", fields );
         context.registerType( outputObject.getName(), outputObject );
@@ -206,18 +202,15 @@ public class GenericTypesFactory
             return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "imageId" ).toString() );
         } );
 
-        context.registerDataFetcher( outputObject.getName(), "ref", environment -> {
-            Map<String, Object> sourceAsMap = environment.getSource();
-            return sourceAsMap.get( "imageRef" );
-        } );
+        context.registerDataFetcher( outputObject.getName(), "ref", new GetFieldAsJsonDataFetcher( "imageRef" ) );
     }
 
     private void createMediaType()
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
-        fields.add( outputField( "content", new GraphQLTypeReference( "Content" ) ) );
-        fields.add( outputField( "intent", context.getEnumType( "MediaIntentType" ) ) );
+        fields.add( outputField( "content", GraphQLTypeReference.typeRef( "Content" ) ) );
+        fields.add( outputField( "intent", GraphQLTypeReference.typeRef( "MediaIntentType" ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "Media" ), "Media type.", fields );
         context.registerType( outputObject.getName(), outputObject );
@@ -238,16 +231,13 @@ public class GenericTypesFactory
 
         fields.add( outputField( "ref", Scalars.GraphQLString ) );
         fields.add( outputField( "uri", Scalars.GraphQLString ) );
-        fields.add( outputField( "media", context.getOutputType( "Media" ) ) );
-        fields.add( outputField( "content", new GraphQLTypeReference( "Content" ) ) );
+        fields.add( outputField( "media", GraphQLTypeReference.typeRef( "Media" ) ) );
+        fields.add( outputField( "content", GraphQLTypeReference.typeRef( "Content" ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "Link" ), "Link type.", fields );
         context.registerType( outputObject.getName(), outputObject );
 
-        context.registerDataFetcher( outputObject.getName(), "ref", environment -> {
-            Map<String, Object> sourceAsMap = environment.getSource();
-            return sourceAsMap.get( "linkRef" );
-        } );
+        context.registerDataFetcher( outputObject.getName(), "ref", new GetFieldAsJsonDataFetcher( "linkRef" ) );
 
         context.registerDataFetcher( outputObject.getName(), "content", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
@@ -266,16 +256,13 @@ public class GenericTypesFactory
         fields.add( outputField( "raw", Scalars.GraphQLString ) );
         fields.add( outputField( "processedHtml", Scalars.GraphQLString ) );
         fields.add( outputField( "macrosAsJson", ExtendedScalars.Json ) );
-        fields.add( outputField( "macros", new GraphQLList( context.getOutputType( "Macro" ) ) ) );
-        fields.add( outputField( "images", new GraphQLList( context.getOutputType( "Image" ) ) ) );
-        fields.add( outputField( "links", new GraphQLList( context.getOutputType( "Link" ) ) ) );
+        fields.add( outputField( "macros", new GraphQLList( GraphQLTypeReference.typeRef( "Macro" ) ) ) );
+        fields.add( outputField( "images", new GraphQLList( GraphQLTypeReference.typeRef( "Image" ) ) ) );
+        fields.add( outputField( "links", new GraphQLList( GraphQLTypeReference.typeRef( "Link" ) ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "RichText" ), "RichText type.", fields );
         context.registerType( outputObject.getName(), outputObject );
 
-        context.registerDataFetcher( outputObject.getName(), "macros", environment -> {
-            Map<String, Object> sourceAsMap = environment.getSource();
-            return sourceAsMap.get( "macrosAsJson" );
-        } );
+        context.registerDataFetcher( outputObject.getName(), "macros", new GetFieldAsJsonDataFetcher( "macrosAsJson" ) );
     }
 }
