@@ -2,7 +2,6 @@ package com.enonic.app.guillotine.graphql.factory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -40,6 +39,7 @@ import com.enonic.app.guillotine.graphql.fetchers.GetPageUrlDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.app.guillotine.graphql.helper.NamingHelper;
 import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
+import com.enonic.app.guillotine.graphql.typeresolvers.ContentTypeResolver;
 import com.enonic.xp.form.FormItem;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
@@ -114,12 +114,7 @@ public class ContentTypesFactory
     {
         GraphQLInterfaceType result = newInterface( context.uniqueName( "Content" ), "Content.", getGenericContentFields( "Content" ) );
 
-        context.registerTypeResolver( result.getName(), env -> {
-            Map<String, Object> sourceAsMap = env.getObject();
-            String contentTypeName = context.getContentType( sourceAsMap.get( "type" ).toString() );
-            GraphQLObjectType contentType = env.getSchema().getObjectType( contentTypeName );
-            return contentType != null ? contentType : env.getSchema().getObjectType( "UntypedContent" );
-        } );
+        context.registerTypeResolver( result.getName(), new ContentTypeResolver( context ) );
 
         return result;
     }
@@ -178,7 +173,7 @@ public class ContentTypesFactory
         List<GraphQLArgument> arguments = new ArrayList<>();
 
         arguments.add( newArgument( "download", Scalars.GraphQLBoolean ) );
-        arguments.add( newArgument( "type", context.getEnumType( "UrlType" ) ) );
+        arguments.add( newArgument( "type", GraphQLTypeReference.typeRef( "UrlType" ) ) );
         arguments.add( newArgument( "params", Scalars.GraphQLString ) );
 
         return outputField( "mediaUrl", Scalars.GraphQLString, arguments );
@@ -190,7 +185,7 @@ public class ContentTypesFactory
 
         arguments.add( newArgument( "scale", new GraphQLNonNull( Scalars.GraphQLString ) ) );
         arguments.add( newArgument( "quality", Scalars.GraphQLInt ) );
-        arguments.add( newArgument( "type", context.getEnumType( "UrlType" ) ) );
+        arguments.add( newArgument( "type", GraphQLTypeReference.typeRef( "UrlType" ) ) );
         arguments.add( newArgument( "background", Scalars.GraphQLString ) );
         arguments.add( newArgument( "format", Scalars.GraphQLString ) );
         arguments.add( newArgument( "filter", Scalars.GraphQLString ) );
@@ -236,42 +231,44 @@ public class ContentTypesFactory
         result.add( outputField( "_id", new GraphQLNonNull( Scalars.GraphQLID ) ) );
         result.add( outputField( "_name", new GraphQLNonNull( Scalars.GraphQLString ) ) );
         result.add( outputField( "_path", new GraphQLNonNull( Scalars.GraphQLString ),
-                                 List.of( newArgument( "type", context.getEnumType( "ContentPathType" ) ) ) ) );
-        result.add( outputField( "_references", new GraphQLList( new GraphQLTypeReference( "Content" ) ) ) );
-        result.add( outputField( "creator", context.getOutputType( "PrincipalKey" ) ) );
-        result.add( outputField( "modifier", context.getOutputType( "PrincipalKey" ) ) );
+                                 List.of( newArgument( "type", GraphQLTypeReference.typeRef( "ContentPathType" ) ) ) ) );
+        result.add( outputField( "_references", new GraphQLList( GraphQLTypeReference.typeRef( "Content" ) ) ) );
+        result.add( outputField( "_score", Scalars.GraphQLFloat ) );
+        result.add( outputField( "creator", GraphQLTypeReference.typeRef( "PrincipalKey" ) ) );
+        result.add( outputField( "modifier", GraphQLTypeReference.typeRef( "PrincipalKey" ) ) );
         result.add( outputField( "createdTime", ExtendedScalars.DateTime ) );
         result.add( outputField( "modifiedTime", ExtendedScalars.DateTime ) );
-        result.add( outputField( "owner", context.getOutputType( "PrincipalKey" ) ) );
+        result.add( outputField( "owner", GraphQLTypeReference.typeRef( "PrincipalKey" ) ) );
         result.add( outputField( "type", Scalars.GraphQLString ) );
-        result.add( outputField( "contentType", context.getOutputType( "ContentType" ) ) );
+        result.add( outputField( "contentType", GraphQLTypeReference.typeRef( "ContentType" ) ) );
         result.add( outputField( "displayName", Scalars.GraphQLString ) );
         result.add( outputField( "hasChildren", Scalars.GraphQLBoolean ) );
         result.add( outputField( "language", Scalars.GraphQLString ) );
         result.add( outputField( "valid", Scalars.GraphQLBoolean ) );
         result.add( outputField( "dataAsJson", ExtendedScalars.Json ) );
-        result.add( outputField( "x", context.getOutputType( "ExtraData" ) ) );
+        result.add( outputField( "x", GraphQLTypeReference.typeRef( "ExtraData" ) ) );
         result.add( outputField( "xAsJson", ExtendedScalars.Json ) );
         result.add( outputField( "pageAsJson", ExtendedScalars.Json, List.of( newArgument( "resolveTemplate", Scalars.GraphQLBoolean ),
                                                                               newArgument( "resolveFragment",
                                                                                            Scalars.GraphQLBoolean ) ) ) );
-        result.add( outputField( "pageTemplate", new GraphQLTypeReference( "Content" ) ) );
-        result.add( outputField( "components", new GraphQLList( context.getOutputType( "Component" ) ),
+        result.add( outputField( "pageTemplate", GraphQLTypeReference.typeRef( "Content" ) ) );
+        result.add( outputField( "components", new GraphQLList( GraphQLTypeReference.typeRef( "Component" ) ),
                                  List.of( newArgument( "resolveTemplate", Scalars.GraphQLBoolean ),
                                           newArgument( "resolveFragment", Scalars.GraphQLBoolean ) ) ) );
-        result.add( outputField( "attachments", new GraphQLList( context.getOutputType( "Attachment" ) ) ) );
-        result.add( outputField( "publish", context.getOutputType( "PublishInfo" ) ) );
-        result.add( outputField( "pageUrl", Scalars.GraphQLString, List.of( newArgument( "type", context.getEnumType( "UrlType" ) ),
-                                                                            newArgument( "params", Scalars.GraphQLString ) ) ) );
-        result.add( outputField( "site", new GraphQLTypeReference( "portal_Site" ) ) );
-        result.add( outputField( "parent", new GraphQLTypeReference( "Content" ) ) );
-        result.add( outputField( "children", new GraphQLList( new GraphQLTypeReference( "Content" ) ),
+        result.add( outputField( "attachments", new GraphQLList( GraphQLTypeReference.typeRef( "Attachment" ) ) ) );
+        result.add( outputField( "publish", GraphQLTypeReference.typeRef( "PublishInfo" ) ) );
+        result.add( outputField( "pageUrl", Scalars.GraphQLString,
+                                 List.of( newArgument( "type", GraphQLTypeReference.typeRef( "UrlType" ) ),
+                                          newArgument( "params", Scalars.GraphQLString ) ) ) );
+        result.add( outputField( "site", GraphQLTypeReference.typeRef( "portal_Site" ) ) );
+        result.add( outputField( "parent", GraphQLTypeReference.typeRef( "Content" ) ) );
+        result.add( outputField( "children", new GraphQLList( GraphQLTypeReference.typeRef( "Content" ) ),
                                  List.of( newArgument( "offset", Scalars.GraphQLInt ), newArgument( "first", Scalars.GraphQLInt ),
                                           newArgument( "sort", Scalars.GraphQLString ) ) ) );
-        result.add( outputField( "childrenConnection", new GraphQLTypeReference( "ContentConnection" ),
+        result.add( outputField( "childrenConnection", GraphQLTypeReference.typeRef( "ContentConnection" ),
                                  List.of( newArgument( "after", Scalars.GraphQLString ), newArgument( "first", Scalars.GraphQLInt ),
                                           newArgument( "sort", Scalars.GraphQLString ) ) ) );
-        result.add( outputField( "permissions", context.getOutputType( "Permissions" ) ) );
+        result.add( outputField( "permissions", GraphQLTypeReference.typeRef( "Permissions" ) ) );
 
         context.registerDataFetcher( contentType, "_path", new GetContentPathDataFetcher( context, serviceFacade.getContentService() ) );
 

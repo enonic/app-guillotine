@@ -33,17 +33,17 @@ public class ArgumentsValidator
 
         if ( arguments.get( "aggregations" ) != null )
         {
-            List<Map<String, Object>> aggregations = CastHelper.cast( arguments, "aggregations" );
+            List<Map<String, Object>> aggregations = CastHelper.cast( arguments.get( "aggregations" ) );
             aggregations.forEach( ArgumentsValidator::validateAggregation );
         }
 
         if ( arguments.get( "highlight" ) != null )
         {
-            Map<String, Object> highlight = CastHelper.cast( arguments, "highlight" );
+            Map<String, Object> highlight = CastHelper.cast( arguments.get( "highlight" ) );
 
             if ( highlight.get( "properties" ) != null )
             {
-                List<Map<String, Object>> properties = CastHelper.cast( highlight, "properties" );
+                List<Map<String, Object>> properties = CastHelper.cast( highlight.get( "properties" ) );
 
                 if ( properties == null || properties.isEmpty() )
                 {
@@ -77,7 +77,7 @@ public class ArgumentsValidator
 
         if ( aggregation.get( "subAggregations" ) != null )
         {
-            List<Map<String, Object>> subAggregations = CastHelper.cast( aggregation, "subAggregations" );
+            List<Map<String, Object>> subAggregations = CastHelper.cast( aggregation.get( "subAggregations" ) );
             subAggregations.forEach( ArgumentsValidator::validateAggregation );
         }
     }
@@ -88,7 +88,7 @@ public class ArgumentsValidator
 
         if ( arguments.get( "query" ) != null )
         {
-            Map<String, Object> query = CastHelper.cast( arguments, "query" );
+            Map<String, Object> query = CastHelper.cast( arguments.get( "query" ) );
             validateOnlyOneFieldMustBeNotNull( query, "DSLQuery" );
             validateGraphQlDSLFields( query );
         }
@@ -114,13 +114,13 @@ public class ArgumentsValidator
     {
         if ( dslQueryObject.get( "boolean" ) != null )
         {
-            Map<String, Object> booleanField = CastHelper.cast( dslQueryObject, "boolean" );
+            Map<String, Object> booleanField = CastHelper.cast( dslQueryObject.get( "boolean" ) );
             validateOnlyOneFieldMustBeNotNull( booleanField, "Boolean" );
 
             booleanField.keySet().stream().filter( fieldName -> !"boost".equals( fieldName ) ).forEach( fieldName -> {
                 if ( booleanField.get( fieldName ) != null )
                 {
-                    List<Map<String, Object>> queries = CastHelper.cast( booleanField, fieldName );
+                    List<Map<String, Object>> queries = CastHelper.cast( booleanField.get( fieldName ) );
                     queries.forEach( ArgumentsValidator::validateGraphQlDSLFields );
                 }
             } );
@@ -141,7 +141,7 @@ public class ArgumentsValidator
     {
         if ( dslQueryObject.get( "range" ) != null )
         {
-            Map<String, Object> rangeField = CastHelper.cast( dslQueryObject, "range" );
+            Map<String, Object> rangeField = CastHelper.cast( dslQueryObject.get( "range" ) );
 
             if ( rangeField.get( "lt" ) != null && rangeField.get( "lte" ) != null && rangeField.get( "gt" ) != null &&
                 rangeField.get( "gte" ) != null )
@@ -157,10 +157,10 @@ public class ArgumentsValidator
                 throw new IllegalArgumentException( "gt and gte cannot be used together." );
             }
 
-            Map<String, Object> gt = CastHelper.cast( rangeField, "gt" );
-            Map<String, Object> gte = CastHelper.cast( rangeField, "gte" );
-            Map<String, Object> lt = CastHelper.cast( rangeField, "lt" );
-            Map<String, Object> lte = CastHelper.cast( rangeField, "lte" );
+            Map<String, Object> gt = CastHelper.cast( rangeField.get( "gt" ) );
+            Map<String, Object> gte = CastHelper.cast( rangeField.get( "gte" ) );
+            Map<String, Object> lt = CastHelper.cast( rangeField.get( "lt" ) );
+            Map<String, Object> lte = CastHelper.cast( rangeField.get( "lte" ) );
 
             validateOnlyOneFieldMustBeNotNull( gt, "Range.gt" );
             validateOnlyOneFieldMustBeNotNull( gte, "Range.gte" );
@@ -184,7 +184,7 @@ public class ArgumentsValidator
     {
         if ( dslQueryObject.get( "in" ) != null )
         {
-            Map<String, Object> inDslExpr = CastHelper.cast( dslQueryObject, "in" );
+            Map<String, Object> inDslExpr = CastHelper.cast( dslQueryObject.get( "in" ) );
 
             List<String> fields = inDslExpr.keySet().stream().filter(
                 graphQlField -> !"field".equals( graphQlField ) && !"boost".equals( graphQlField ) ).collect( Collectors.toList() );
