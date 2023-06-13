@@ -58,11 +58,6 @@ public class GuillotineContext
         return globalModeOn;
     }
 
-    public Set<GraphQLType> getDictionary()
-    {
-        return dictionary;
-    }
-
     public List<String> getApplications()
     {
         return applications;
@@ -78,16 +73,10 @@ public class GuillotineContext
         types.put( name, type );
     }
 
-    public void addDictionaryType( GraphQLType objectType )
-    {
-        dictionary.add( objectType );
-    }
-
     public void registerContentType( String rawContentType, GraphQLObjectType objectType )
     {
         types.put( objectType.getName(), objectType );
         contentTypesDictionary.put( rawContentType, objectType.getName() );
-        addDictionaryType( objectType );
     }
 
     public List<GraphQLType> getAllTypes()

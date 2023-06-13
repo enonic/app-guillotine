@@ -51,12 +51,12 @@ public class GraphQLHelper
         return builder.build();
     }
 
-    public static GraphQLFieldDefinition outputField( String name, GraphQLOutputType type )
+    public static GraphQLFieldDefinition outputField( String name, Object type )
     {
-        return GraphQLFieldDefinition.newFieldDefinition().name( name ).type( type ).build();
+        return outputField( name, type, (List<GraphQLArgument>) null );
     }
 
-    public static GraphQLFieldDefinition outputField( String name, GraphQLOutputType type, GraphQLArgument argument )
+    public static GraphQLFieldDefinition outputField( String name, Object type, GraphQLArgument argument )
     {
         return outputField( name, type, List.of( argument ) );
     }

@@ -75,7 +75,7 @@ public class InputTypesFactory
     {
         List<GraphQLInputObjectField> fields = new ArrayList<>();
 
-        fields.add( inputField( "type", context.getEnumType( "UrlType" ) ) );
+        fields.add( inputField( "type", GraphQLTypeReference.typeRef( "UrlType" ) ) );
         fields.add( inputField( "imageWidths", new GraphQLList( Scalars.GraphQLInt ) ) );
         fields.add( inputField( "imageSizes", Scalars.GraphQLString ) );
 
@@ -148,7 +148,7 @@ public class InputTypesFactory
         List<GraphQLInputObjectField> fields = new ArrayList<>();
 
         fields.add( inputField( "field", new GraphQLNonNull( Scalars.GraphQLString ) ) );
-        fields.add( inputField( "ranges", new GraphQLList( context.getInputType( "NumberRangeInput" ) ) ) );
+        fields.add( inputField( "ranges", new GraphQLList( GraphQLTypeReference.typeRef( "NumberRangeInput" ) ) ) );
 
         GraphQLInputObjectType inputObject =
             newInputObject( context.uniqueName( "RangeAggregationInput" ), "Range aggregation input type", fields );
@@ -161,7 +161,7 @@ public class InputTypesFactory
 
         fields.add( inputField( "field", new GraphQLNonNull( Scalars.GraphQLString ) ) );
         fields.add( inputField( "format", Scalars.GraphQLString ) );
-        fields.add( inputField( "ranges", new GraphQLList( context.getInputType( "DateRangeInput" ) ) ) );
+        fields.add( inputField( "ranges", new GraphQLList( GraphQLTypeReference.typeRef( "DateRangeInput" ) ) ) );
 
         GraphQLInputObjectType inputObject =
             newInputObject( context.uniqueName( "DateRangeAggregationInput" ), "DateRange aggregation input type", fields );
@@ -188,8 +188,8 @@ public class InputTypesFactory
 
         fields.add( inputField( "field", new GraphQLNonNull( Scalars.GraphQLString ) ) );
         fields.add( inputField( "unit", Scalars.GraphQLString ) );
-        fields.add( inputField( "origin", new GraphQLNonNull( context.getInputType( "GeoPointInput" ) ) ) );
-        fields.add( inputField( "ranges", new GraphQLNonNull( new GraphQLList( context.getInputType( "NumberRangeInput" ) ) ) ) );
+        fields.add( inputField( "origin", new GraphQLNonNull( GraphQLTypeReference.typeRef( "GeoPointInput" ) ) ) );
+        fields.add( inputField( "ranges", new GraphQLNonNull( new GraphQLList( GraphQLTypeReference.typeRef( "NumberRangeInput" ) ) ) ) );
 
         GraphQLInputObjectType inputObject =
             newInputObject( context.uniqueName( "GeoDistanceAggregationInput" ), "GeoDistance aggregation input type", fields );
@@ -233,17 +233,17 @@ public class InputTypesFactory
     {
         List<GraphQLInputObjectField> fields = new ArrayList<>();
 
-        fields.add( inputField( "subAggregations", new GraphQLList( new GraphQLTypeReference( "AggregationInput" ) ) ) );
+        fields.add( inputField( "subAggregations", new GraphQLList( GraphQLTypeReference.typeRef( "AggregationInput" ) ) ) );
         fields.add( inputField( "name", new GraphQLNonNull( Scalars.GraphQLString ) ) );
-        fields.add( inputField( "terms", context.getInputType( "TermsAggregationInput" ) ) );
-        fields.add( inputField( "stats", context.getInputType( "StatsAggregationInput" ) ) );
-        fields.add( inputField( "range", context.getInputType( "RangeAggregationInput" ) ) );
-        fields.add( inputField( "dateRange", context.getInputType( "DateRangeAggregationInput" ) ) );
-        fields.add( inputField( "dateHistogram", context.getInputType( "DateHistogramAggregationInput" ) ) );
-        fields.add( inputField( "geoDistance", context.getInputType( "GeoDistanceAggregationInput" ) ) );
-        fields.add( inputField( "min", context.getInputType( "MinAggregationInput" ) ) );
-        fields.add( inputField( "max", context.getInputType( "MaxAggregationInput" ) ) );
-        fields.add( inputField( "count", context.getInputType( "ValueCountAggregationInput" ) ) );
+        fields.add( inputField( "terms", GraphQLTypeReference.typeRef( "TermsAggregationInput" ) ) );
+        fields.add( inputField( "stats", GraphQLTypeReference.typeRef( "StatsAggregationInput" ) ) );
+        fields.add( inputField( "range", GraphQLTypeReference.typeRef( "RangeAggregationInput" ) ) );
+        fields.add( inputField( "dateRange", GraphQLTypeReference.typeRef( "DateRangeAggregationInput" ) ) );
+        fields.add( inputField( "dateHistogram", GraphQLTypeReference.typeRef( "DateHistogramAggregationInput" ) ) );
+        fields.add( inputField( "geoDistance", GraphQLTypeReference.typeRef( "GeoDistanceAggregationInput" ) ) );
+        fields.add( inputField( "min", GraphQLTypeReference.typeRef( "MinAggregationInput" ) ) );
+        fields.add( inputField( "max", GraphQLTypeReference.typeRef( "MaxAggregationInput" ) ) );
+        fields.add( inputField( "count", GraphQLTypeReference.typeRef( "ValueCountAggregationInput" ) ) );
 
         GraphQLInputObjectType inputObject = newInputObject( context.uniqueName( "AggregationInput" ), "Aggregation input type", fields );
         context.registerType( inputObject.getName(), inputObject );
@@ -299,9 +299,9 @@ public class InputTypesFactory
     {
         List<GraphQLInputObjectField> fields = new ArrayList<>();
 
-        fields.add( inputField( "must", new GraphQLList( new GraphQLTypeReference( "FilterInput" ) ) ) );
-        fields.add( inputField( "mustNot", new GraphQLList( new GraphQLTypeReference( "FilterInput" ) ) ) );
-        fields.add( inputField( "should", new GraphQLList( new GraphQLTypeReference( "FilterInput" ) ) ) );
+        fields.add( inputField( "must", new GraphQLList( GraphQLTypeReference.typeRef( "FilterInput" ) ) ) );
+        fields.add( inputField( "mustNot", new GraphQLList( GraphQLTypeReference.typeRef( "FilterInput" ) ) ) );
+        fields.add( inputField( "should", new GraphQLList( GraphQLTypeReference.typeRef( "FilterInput" ) ) ) );
 
         GraphQLInputObjectType inputObject =
             newInputObject( context.uniqueName( "BooleanFilterInput" ), "BooleanFilter input type", fields );
@@ -312,11 +312,11 @@ public class InputTypesFactory
     {
         List<GraphQLInputObjectField> fields = new ArrayList<>();
 
-        fields.add( inputField( "boolean", context.getInputType( "BooleanFilterInput" ) ) );
-        fields.add( inputField( "exists", context.getInputType( "ExistsFilterInput" ) ) );
-        fields.add( inputField( "notExists", context.getInputType( "NotExistsFilterInput" ) ) );
-        fields.add( inputField( "hasValue", context.getInputType( "HasValueFilterInput" ) ) );
-        fields.add( inputField( "ids", context.getInputType( "IdsFilterInput" ) ) );
+        fields.add( inputField( "boolean", GraphQLTypeReference.typeRef( "BooleanFilterInput" ) ) );
+        fields.add( inputField( "exists", GraphQLTypeReference.typeRef( "ExistsFilterInput" ) ) );
+        fields.add( inputField( "notExists", GraphQLTypeReference.typeRef( "NotExistsFilterInput" ) ) );
+        fields.add( inputField( "hasValue", GraphQLTypeReference.typeRef( "HasValueFilterInput" ) ) );
+        fields.add( inputField( "ids", GraphQLTypeReference.typeRef( "IdsFilterInput" ) ) );
 
         GraphQLInputObjectType inputObject = newInputObject( context.uniqueName( "FilterInput" ), "Filter input type", fields );
         context.registerType( inputObject.getName(), inputObject );
@@ -346,7 +346,7 @@ public class InputTypesFactory
 
         fields.add( inputField( "field", new GraphQLNonNull( Scalars.GraphQLString ) ) );
         fields.add( inputField( "boost", Scalars.GraphQLFloat ) );
-        fields.add( inputField( "value", new GraphQLNonNull( context.getInputType( "DSLExpressionValueInput" ) ) ) );
+        fields.add( inputField( "value", new GraphQLNonNull( GraphQLTypeReference.typeRef( "DSLExpressionValueInput" ) ) ) );
 
         GraphQLInputObjectType inputObject =
             newInputObject( context.uniqueName( "TermDSLExpressionInput" ), "TermDSLExpressionInput type", fields );
@@ -359,7 +359,7 @@ public class InputTypesFactory
 
         fields.add( inputField( "field", new GraphQLNonNull( Scalars.GraphQLString ) ) );
         fields.add( inputField( "boost", Scalars.GraphQLFloat ) );
-        fields.add( inputField( "value", new GraphQLNonNull( context.getInputType( "DSLExpressionValueInput" ) ) ) );
+        fields.add( inputField( "value", new GraphQLNonNull( GraphQLTypeReference.typeRef( "DSLExpressionValueInput" ) ) ) );
 
         GraphQLInputObjectType inputObject =
             newInputObject( context.uniqueName( "LikeDSLExpressionInput" ), "LikeDSLExpressionInput type", fields );
@@ -405,7 +405,7 @@ public class InputTypesFactory
         fields.add( inputField( "fields", new GraphQLNonNull( new GraphQLList( Scalars.GraphQLString ) ) ) );
         fields.add( inputField( "query", new GraphQLNonNull( Scalars.GraphQLString ) ) );
         fields.add( inputField( "language", new GraphQLNonNull( Scalars.GraphQLString ) ) );
-        fields.add( inputField( "operator", context.getEnumType( "DslOperatorType" ) ) );
+        fields.add( inputField( "operator", GraphQLTypeReference.typeRef( "DslOperatorType" ) ) );
         fields.add( inputField( "boost", Scalars.GraphQLFloat ) );
 
         GraphQLInputObjectType inputObject =
@@ -419,7 +419,7 @@ public class InputTypesFactory
 
         fields.add( inputField( "fields", new GraphQLNonNull( new GraphQLList( Scalars.GraphQLString ) ) ) );
         fields.add( inputField( "query", new GraphQLNonNull( Scalars.GraphQLString ) ) );
-        fields.add( inputField( "operator", context.getEnumType( "DslOperatorType" ) ) );
+        fields.add( inputField( "operator", GraphQLTypeReference.typeRef( "DslOperatorType" ) ) );
 
         GraphQLInputObjectType inputObject =
             newInputObject( context.uniqueName( "FulltextDSLExpressionInput" ), "FulltextDSLExpressionInput type", fields );
@@ -432,7 +432,7 @@ public class InputTypesFactory
 
         fields.add( inputField( "fields", new GraphQLNonNull( new GraphQLList( Scalars.GraphQLString ) ) ) );
         fields.add( inputField( "query", new GraphQLNonNull( Scalars.GraphQLString ) ) );
-        fields.add( inputField( "operator", context.getEnumType( "DslOperatorType" ) ) );
+        fields.add( inputField( "operator", GraphQLTypeReference.typeRef( "DslOperatorType" ) ) );
 
         GraphQLInputObjectType inputObject =
             newInputObject( context.uniqueName( "NgramDSLExpressionInput" ), "NgramDSLExpressionInput type", fields );
@@ -469,10 +469,10 @@ public class InputTypesFactory
         List<GraphQLInputObjectField> fields = new ArrayList<>();
 
         fields.add( inputField( "field", new GraphQLNonNull( Scalars.GraphQLString ) ) );
-        fields.add( inputField( "lt", context.getInputType( "DSLExpressionValueInput" ) ) );
-        fields.add( inputField( "lte", context.getInputType( "DSLExpressionValueInput" ) ) );
-        fields.add( inputField( "gt", context.getInputType( "DSLExpressionValueInput" ) ) );
-        fields.add( inputField( "gte", context.getInputType( "DSLExpressionValueInput" ) ) );
+        fields.add( inputField( "lt", GraphQLTypeReference.typeRef( "DSLExpressionValueInput" ) ) );
+        fields.add( inputField( "lte", GraphQLTypeReference.typeRef( "DSLExpressionValueInput" ) ) );
+        fields.add( inputField( "gt", GraphQLTypeReference.typeRef( "DSLExpressionValueInput" ) ) );
+        fields.add( inputField( "gte", GraphQLTypeReference.typeRef( "DSLExpressionValueInput" ) ) );
         fields.add( inputField( "boost", Scalars.GraphQLFloat ) );
 
         GraphQLInputObjectType inputObject =
@@ -484,10 +484,10 @@ public class InputTypesFactory
     {
         List<GraphQLInputObjectField> fields = new ArrayList<>();
 
-        fields.add( inputField( "should", new GraphQLList( new GraphQLTypeReference( "QueryDSLInput" ) ) ) );
-        fields.add( inputField( "must", new GraphQLList( new GraphQLTypeReference( "QueryDSLInput" ) ) ) );
-        fields.add( inputField( "mustNot", new GraphQLList( new GraphQLTypeReference( "QueryDSLInput" ) ) ) );
-        fields.add( inputField( "filter", new GraphQLList( new GraphQLTypeReference( "QueryDSLInput" ) ) ) );
+        fields.add( inputField( "should", new GraphQLList( GraphQLTypeReference.typeRef( "QueryDSLInput" ) ) ) );
+        fields.add( inputField( "must", new GraphQLList( GraphQLTypeReference.typeRef( "QueryDSLInput" ) ) ) );
+        fields.add( inputField( "mustNot", new GraphQLList( GraphQLTypeReference.typeRef( "QueryDSLInput" ) ) ) );
+        fields.add( inputField( "filter", new GraphQLList( GraphQLTypeReference.typeRef( "QueryDSLInput" ) ) ) );
         fields.add( inputField( "boost", Scalars.GraphQLFloat ) );
 
         GraphQLInputObjectType inputObject =
@@ -499,17 +499,17 @@ public class InputTypesFactory
     {
         List<GraphQLInputObjectField> fields = new ArrayList<>();
 
-        fields.add( inputField( "boolean", context.getInputType( "BooleanDSLExpressionInput" ) ) );
-        fields.add( inputField( "ngram", context.getInputType( "NgramDSLExpressionInput" ) ) );
-        fields.add( inputField( "stemmed", context.getInputType( "StemmedDSLExpressionInput" ) ) );
-        fields.add( inputField( "fulltext", context.getInputType( "FulltextDSLExpressionInput" ) ) );
-        fields.add( inputField( "matchAll", context.getInputType( "MatchAllDSLExpressionInput" ) ) );
-        fields.add( inputField( "pathMatch", context.getInputType( "PathMatchDSLExpressionInput" ) ) );
-        fields.add( inputField( "range", context.getInputType( "RangeDSLExpressionInput" ) ) );
-        fields.add( inputField( "term", context.getInputType( "TermDSLExpressionInput" ) ) );
-        fields.add( inputField( "like", context.getInputType( "LikeDSLExpressionInput" ) ) );
-        fields.add( inputField( "in", context.getInputType( "InDSLExpressionInput" ) ) );
-        fields.add( inputField( "exists", context.getInputType( "ExistsDSLExpressionInput" ) ) );
+        fields.add( inputField( "boolean", GraphQLTypeReference.typeRef( "BooleanDSLExpressionInput" ) ) );
+        fields.add( inputField( "ngram", GraphQLTypeReference.typeRef( "NgramDSLExpressionInput" ) ) );
+        fields.add( inputField( "stemmed", GraphQLTypeReference.typeRef( "StemmedDSLExpressionInput" ) ) );
+        fields.add( inputField( "fulltext", GraphQLTypeReference.typeRef( "FulltextDSLExpressionInput" ) ) );
+        fields.add( inputField( "matchAll", GraphQLTypeReference.typeRef( "MatchAllDSLExpressionInput" ) ) );
+        fields.add( inputField( "pathMatch", GraphQLTypeReference.typeRef( "PathMatchDSLExpressionInput" ) ) );
+        fields.add( inputField( "range", GraphQLTypeReference.typeRef( "RangeDSLExpressionInput" ) ) );
+        fields.add( inputField( "term", GraphQLTypeReference.typeRef( "TermDSLExpressionInput" ) ) );
+        fields.add( inputField( "like", GraphQLTypeReference.typeRef( "LikeDSLExpressionInput" ) ) );
+        fields.add( inputField( "in", GraphQLTypeReference.typeRef( "InDSLExpressionInput" ) ) );
+        fields.add( inputField( "exists", GraphQLTypeReference.typeRef( "ExistsDSLExpressionInput" ) ) );
 
         GraphQLInputObjectType inputObject = newInputObject( context.uniqueName( "QueryDSLInput" ), "QueryDSLInput type", fields );
         context.registerType( inputObject.getName(), inputObject );
@@ -532,9 +532,9 @@ public class InputTypesFactory
         List<GraphQLInputObjectField> fields = new ArrayList<>();
 
         fields.add( inputField( "field", new GraphQLNonNull( Scalars.GraphQLString ) ) );
-        fields.add( inputField( "direction", context.getEnumType( "DslSortDirectionType" ) ) );
-        fields.add( inputField( "location", context.getInputType( "GeoPointSortDslInput" ) ) );
-        fields.add( inputField( "unit", context.getEnumType( "DslGeoPointDistanceType" ) ) );
+        fields.add( inputField( "direction", GraphQLTypeReference.typeRef( "DslSortDirectionType" ) ) );
+        fields.add( inputField( "location", GraphQLTypeReference.typeRef( "GeoPointSortDslInput" ) ) );
+        fields.add( inputField( "unit", GraphQLTypeReference.typeRef( "DslGeoPointDistanceType" ) ) );
 
         GraphQLInputObjectType inputObject = newInputObject( context.uniqueName( "SortDslInput" ), "Sort Dsl input type", fields );
         context.registerType( inputObject.getName(), inputObject );
@@ -556,10 +556,10 @@ public class InputTypesFactory
     {
         List<GraphQLInputObjectField> fields = new ArrayList<>();
 
-        fields.add(
-            inputField( "properties", new GraphQLNonNull( new GraphQLList( context.getInputType( "HighlightPropertiesInputType" ) ) ) ) );
-        fields.add( inputField( "encoder", context.getEnumType( "HighlightEncoderType" ) ) );
-        fields.add( inputField( "tagsSchema", context.getEnumType( "HighlightTagsSchemaType" ) ) );
+        fields.add( inputField( "properties",
+                                new GraphQLNonNull( new GraphQLList( GraphQLTypeReference.typeRef( "HighlightPropertiesInputType" ) ) ) ) );
+        fields.add( inputField( "encoder", GraphQLTypeReference.typeRef( "HighlightEncoderType" ) ) );
+        fields.add( inputField( "tagsSchema", GraphQLTypeReference.typeRef( "HighlightTagsSchemaType" ) ) );
         fields.addAll( createHighlightCommonFields() );
 
         GraphQLInputObjectType inputObject =
@@ -571,11 +571,11 @@ public class InputTypesFactory
     {
         List<GraphQLInputObjectField> fields = new ArrayList<>();
 
-        fields.add( inputField( "fragmenter", context.getEnumType( "HighlightFragmenterType" ) ) );
+        fields.add( inputField( "fragmenter", GraphQLTypeReference.typeRef( "HighlightFragmenterType" ) ) );
         fields.add( inputField( "fragmentSize", Scalars.GraphQLInt ) );
         fields.add( inputField( "noMatchSize", Scalars.GraphQLInt ) );
         fields.add( inputField( "numberOfFragments", Scalars.GraphQLInt ) );
-        fields.add( inputField( "order", context.getEnumType( "HighlightOrderType" ) ) );
+        fields.add( inputField( "order", GraphQLTypeReference.typeRef( "HighlightOrderType" ) ) );
         fields.add( inputField( "preTag", Scalars.GraphQLString ) );
         fields.add( inputField( "postTag", Scalars.GraphQLString ) );
         fields.add( inputField( "requireFieldMatch", Scalars.GraphQLBoolean ) );

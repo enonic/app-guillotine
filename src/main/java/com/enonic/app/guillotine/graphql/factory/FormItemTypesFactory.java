@@ -77,7 +77,7 @@ public class FormItemTypesFactory
         return occurrences.getMaximum() == 1 ? formItemObject : new GraphQLList( formItemObject );
     }
 
-    private GraphQLOutputType generateItemSetObjectType( String parentTypeName, FormItemSet formItemSet )
+    private GraphQLType generateItemSetObjectType( String parentTypeName, FormItemSet formItemSet )
     {
         String typeName = parentTypeName + "_" + NamingHelper.camelCase( StringNormalizer.create( formItemSet.getName() ) );
         String description = formItemSet.getLabel();
@@ -95,7 +95,9 @@ public class FormItemTypesFactory
                 return field;
             } ).collect( Collectors.toList() );
 
-        return newObject( context.uniqueName( typeName ), description, fields );
+        GraphQLObjectType objectType = newObject( context.uniqueName( typeName ), description, fields );
+        context.registerType( objectType.getName(), objectType );
+        return objectType;
     }
 
     private GraphQLObjectType generateOptionSetObjectType( String parentTypeName, FormOptionSet formOptionSet )
@@ -122,19 +124,21 @@ public class FormItemTypesFactory
             String optionName = StringNormalizer.create( option.getName() );
             GraphQLType type = generateOptionObjectType( parentTypeName, option );
 
-            fields.add( outputField( optionName, (GraphQLOutputType) type ) );
+            fields.add( outputField( optionName, type ) );
 
             context.registerDataFetcher( typeName, optionName, new FormItemDataFetcher( option, serviceFacade ) );
         } );
 
-        return newObject( context.uniqueName( typeName ), description, fields );
+        GraphQLObjectType objectType = newObject( context.uniqueName( typeName ), description, fields );
+        context.registerType( objectType.getName(), objectType );
+        return objectType;
     }
 
     private GraphQLType getTypeForFormInputType( Input formItem )
     {
         if ( InputTypeName.ATTACHMENT_UPLOADER.equals( formItem.getInputType() ) )
         {
-            return context.getOutputType( "Attachment" );
+            return GraphQLTypeReference.typeRef( "Attachment" );
         }
         if ( InputTypeName.CHECK_BOX.equals( formItem.getInputType() ) )
         {
@@ -164,22 +168,22 @@ public class FormItemTypesFactory
         }
         if ( InputTypeName.GEO_POINT.equals( formItem.getInputType() ) )
         {
-            return context.getOutputType( "GeoPoint" );
+            return GraphQLTypeReference.typeRef( "GeoPoint" );
         }
         if ( InputTypeName.HTML_AREA.equals( formItem.getInputType() ) )
         {
-            return context.getOutputType( "RichText" );
+            return GraphQLTypeReference.typeRef( "RichText" );
         }
         if ( InputTypeName.CONTENT_SELECTOR.equals( formItem.getInputType() ) ||
             InputTypeName.IMAGE_SELECTOR.equals( formItem.getInputType() ) ||
             InputTypeName.MEDIA_UPLOADER.equals( formItem.getInputType() ) ||
             InputTypeName.MEDIA_SELECTOR.equals( formItem.getInputType() ) )
         {
-            return new GraphQLTypeReference( "Content" );
+            return GraphQLTypeReference.typeRef( "Content" );
         }
         if ( InputTypeName.IMAGE_UPLOADER.equals( formItem.getInputType() ) )
         {
-            return context.getOutputType( "MediaUploader" );
+            return GraphQLTypeReference.typeRef( "MediaUploader" );
         }
         if ( InputTypeName.RADIO_BUTTON.equals( formItem.getInputType() ) )
         {
@@ -187,7 +191,7 @@ public class FormItemTypesFactory
         }
         if ( InputTypeName.SITE_CONFIGURATOR.equals( formItem.getInputType() ) )
         {
-            return context.getOutputType( "SiteConfigurator" );
+            return GraphQLTypeReference.typeRef( "SiteConfigurator" );
         }
 
         return Scalars.GraphQLString;
@@ -201,7 +205,7 @@ public class FormItemTypesFactory
 
         if ( formItem instanceof Input && ( (Input) formItem ).getInputType().equals( InputTypeName.HTML_AREA ) )
         {
-            result.add( newArgument( "processHtml", context.getInputType( "ProcessHtmlInput" ) ) );
+            result.add( newArgument( "processHtml", GraphQLTypeReference.typeRef( "ProcessHtmlInput" ) ) );
         }
 
         return result;
@@ -225,7 +229,9 @@ public class FormItemTypesFactory
 
         formOptionSet.forEach( option -> enumValues.put( StringNormalizer.create( option.getName() ), option.getName() ) );
 
-        return newEnum( enumName, description, enumValues );
+        GraphQLEnumType enumType = newEnum( enumName, description, enumValues );
+        context.registerType( enumType.getName(), enumType );
+        return enumType;
     }
 
     private GraphQLObjectType generateOptionSetObjectType( String parentTypeName, FormOptionSetOption formOptionSet )
@@ -246,7 +252,9 @@ public class FormItemTypesFactory
             return field;
         } ).collect( Collectors.toList() );
 
-        return newObject( context.uniqueName( typeName ), description, fields );
+        GraphQLObjectType objectType = newObject( context.uniqueName( typeName ), description, fields );
+        context.registerType( objectType.getName(), objectType );
+        return objectType;
     }
 
     private GraphQLType generateOptionObjectType( String parentTypeName, FormOptionSetOption option )

@@ -13,6 +13,7 @@ import graphql.schema.GraphQLOutputType;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.GetFieldAsJsonDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.app.guillotine.graphql.helper.NamingHelper;
 import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
@@ -76,10 +77,8 @@ public class XDataTypesFactory
                         GraphQLFieldDefinition xDataApplicationField = outputField( descriptorName, xDataConfigType );
                         xDataApplicationTypeFields.add( xDataApplicationField );
 
-                        context.registerDataFetcher( xDataApplicationConfigTypeName, xDataApplicationField.getName(), environment -> {
-                            Map<String, Object> sourceAsMap = environment.getSource();
-                            return sourceAsMap.get( xData.getName().getLocalName() );
-                        } );
+                        context.registerDataFetcher( xDataApplicationConfigTypeName, xDataApplicationField.getName(),
+                                                     new GetFieldAsJsonDataFetcher( xData.getName().getLocalName() ) );
                     }
                 } );
 
@@ -93,10 +92,8 @@ public class XDataTypesFactory
                     GraphQLFieldDefinition xDataTypeField = outputField( StringNormalizer.create( applicationKey ), applicationConfigType );
                     xDataTypeFields.add( xDataTypeField );
 
-                    context.registerDataFetcher( extraDataTypeName, xDataTypeField.getName(), environment -> {
-                        Map<String, Object> sourceAsMap = environment.getSource();
-                        return sourceAsMap.get( NamingHelper.applicationConfigKey( applicationKey ) );
-                    } );
+                    context.registerDataFetcher( extraDataTypeName, xDataTypeField.getName(),
+                                                 new GetFieldAsJsonDataFetcher( NamingHelper.applicationConfigKey( applicationKey ) ) );
                 }
             }
         } );

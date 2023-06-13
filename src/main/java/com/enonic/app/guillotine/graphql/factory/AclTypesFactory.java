@@ -7,6 +7,7 @@ import graphql.Scalars;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
+import graphql.schema.GraphQLTypeReference;
 
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.xp.security.PrincipalKey;
@@ -35,7 +36,7 @@ public class AclTypesFactory
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
         fields.add( outputField( "value", Scalars.GraphQLString ) );
-        fields.add( outputField( "type", context.getEnumType( "PrincipalType" ) ) );
+        fields.add( outputField( "type", GraphQLTypeReference.typeRef( "PrincipalType" ) ) );
         fields.add( outputField( "idProvider", Scalars.GraphQLString ) );
         fields.add( outputField( "principalId", Scalars.GraphQLString ) );
 
@@ -64,9 +65,9 @@ public class AclTypesFactory
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
-        fields.add( outputField( "principal", context.getOutputType( "PrincipalKey" ) ) );
-        fields.add( outputField( "allow", new GraphQLList( context.getEnumType( "Permission" ) ) ) );
-        fields.add( outputField( "deny", new GraphQLList( context.getEnumType( "Permission" ) ) ) );
+        fields.add( outputField( "principal", GraphQLTypeReference.typeRef( "PrincipalKey" ) ) );
+        fields.add( outputField( "allow", new GraphQLList( GraphQLTypeReference.typeRef( "Permission" ) ) ) );
+        fields.add( outputField( "deny", new GraphQLList( GraphQLTypeReference.typeRef( "Permission" ) ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "AccessControlEntry" ), "Access control entry.", fields );
         context.registerType( outputObject.getName(), outputObject );
@@ -77,7 +78,7 @@ public class AclTypesFactory
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
         fields.add( outputField( "inheritsPermissions", Scalars.GraphQLBoolean ) );
-        fields.add( outputField( "permissions", new GraphQLList( context.getOutputType( "AccessControlEntry" ) ) ) );
+        fields.add( outputField( "permissions", new GraphQLList( GraphQLTypeReference.typeRef( "AccessControlEntry" ) ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "Permissions" ), "Permissions.", fields );
         context.registerType( outputObject.getName(), outputObject );
