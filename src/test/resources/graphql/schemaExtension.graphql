@@ -1,0 +1,25 @@
+query {
+    testInterface {
+        name
+        ...on CustomInterfaceImpl {
+            extraField
+        }
+    }
+    testUnion {
+        __typename
+        ... on GoogleBooks {
+            title
+        }
+        ...on GoogleBooksAuthor {
+            name
+        }
+    }
+    googleBooks {
+        title
+        description
+        author(filter: { name: "Name", startsWith: "Jon", }) {
+            name(startsWith: "Author")
+        }
+    }
+    customField
+}

@@ -1,0 +1,20 @@
+query {
+    guillotine {
+        getType(name: "portal:site") {
+            name
+            displayName
+            description
+            superType
+            abstract
+            final
+            allowChildContent
+            contentDisplayNameScript
+            form {
+                formItemType
+                name
+                label
+            }
+            formAsJson
+        }
+    }
+}

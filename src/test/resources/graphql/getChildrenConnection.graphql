@@ -1,0 +1,18 @@
+query {
+    guillotine {
+        getChildrenConnection(key: "/hmdb", after: "MQ==", first: 15){
+            totalCount
+            edges {
+                node {
+                    _id
+                }
+                cursor
+            }
+            pageInfo {
+                startCursor
+                endCursor
+                hasNext
+            }
+        }
+    }
+}

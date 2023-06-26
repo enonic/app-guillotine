@@ -39,7 +39,7 @@ public class TypeFactoryTest
         Mockito.when( componentDescriptorService.getMacroDescriptors( Mockito.anyList() ) ).thenReturn( MacroDescriptors.empty() );
 
         Mockito.when( componentDescriptorService.getExtraData( Mockito.anyString() ) ).thenReturn(
-            XDatas.from( TestFixtures.createGpsInfo() ) );
+            XDatas.from( TestFixtures.GPS_METADATA ) );
 
         Mockito.when( contentTypeService.getAll() ).thenReturn( createContentTypes() );
 

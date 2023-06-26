@@ -10,10 +10,11 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
-import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
+import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.xp.form.FormItem;
 import com.enonic.xp.form.FormItemType;
 import com.enonic.xp.form.Input;
@@ -27,19 +28,9 @@ public class FormItemDataFetcher
 
     private final ServiceFacade serviceFacade;
 
-    private Map<String, Object> contentAsMap;
-
     public FormItemDataFetcher( final FormItem formItem, final ServiceFacade serviceFacade )
 
     {
-        this.formItem = formItem;
-        this.serviceFacade = serviceFacade;
-    }
-
-    public FormItemDataFetcher( final Map<String, Object> contentAsMap, final FormItem formItem, final ServiceFacade serviceFacade )
-
-    {
-        this.contentAsMap = contentAsMap;
         this.formItem = formItem;
         this.serviceFacade = serviceFacade;
     }
@@ -49,12 +40,10 @@ public class FormItemDataFetcher
         throws Exception
     {
         Map<String, Object> sourceAsMap = environment.getSource();
-        if ( contentAsMap != null )
-        {
-            sourceAsMap = CastHelper.cast( sourceAsMap.get( "__data" ) );
-        }
 
         Occurrences occurrences = FormItemTypesHelper.getOccurrences( formItem );
+
+        String contentId = Objects.toString( sourceAsMap.get( Constants.CONTENT_ID_FIELD ), null );
 
         if ( occurrences.getMaximum() == 1 )
         {
@@ -65,17 +54,17 @@ public class FormItemDataFetcher
                 InputTypeName inputType = ( (Input) formItem ).getInputType();
                 if ( inputType.equals( InputTypeName.HTML_AREA ) )
                 {
-                    return new RichTextDataFetcher( (String) value, null, serviceFacade ).get( environment ); // TODO contentId
+                    return new RichTextDataFetcher( (String) value, contentId, serviceFacade ).execute( environment );
                 }
-                if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) && contentAsMap != null )
+                if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) )
                 {
-                    Map<String, Object> attachmentsAsMap = CastHelper.cast( contentAsMap.get( "attachments" ) );
+                    Map<String, Object> attachmentsAsMap = getAttachmentsAsMap( contentId );
                     return attachmentsAsMap.get( (String) value );
                 }
                 if ( inputType.equals( InputTypeName.CONTENT_SELECTOR ) || inputType.equals( InputTypeName.MEDIA_SELECTOR ) ||
                     inputType.equals( InputTypeName.IMAGE_SELECTOR ) || inputType.equals( InputTypeName.MEDIA_UPLOADER ) )
                 {
-                    return new GetContentCommand( serviceFacade.getContentService() ).execute( (String) value );
+                    return getContentAsMap( (String) value );
                 }
             }
             return value;
@@ -100,28 +89,34 @@ public class FormItemDataFetcher
                 if ( inputType.equals( InputTypeName.HTML_AREA ) )
                 {
                     return values.stream().map(
-                        value -> new RichTextDataFetcher( (String) value, null, serviceFacade ).execute( environment ) ).collect(
-                        // TODO contentId
+                        value -> new RichTextDataFetcher( (String) value, contentId, serviceFacade ).execute( environment ) ).collect(
                         Collectors.toList() );
                 }
-                if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) && contentAsMap != null )
+                if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) )
                 {
-                    return values.stream().map( value -> {
-                        Map<String, Object> attachmentsAsMap = CastHelper.cast( contentAsMap.get( "attachments" ) );
-                        return attachmentsAsMap.get( (String) value );
-                    } );
+                    Map<String, Object> attachmentsAsMap = getAttachmentsAsMap( contentId );
+                    return values.stream().map( value -> attachmentsAsMap.get( (String) value ) ).collect( Collectors.toList() );
                 }
                 if ( inputType.equals( InputTypeName.CONTENT_SELECTOR ) || inputType.equals( InputTypeName.MEDIA_SELECTOR ) ||
                     inputType.equals( InputTypeName.IMAGE_SELECTOR ) || inputType.equals( InputTypeName.MEDIA_UPLOADER ) )
                 {
-                    return values.stream().map(
-                        value -> new GetContentCommand( serviceFacade.getContentService() ).execute( (String) value ) ).collect(
-                        Collectors.toList() );
+                    return values.stream().map( value -> getContentAsMap( (String) value ) ).collect( Collectors.toList() );
                 }
             }
             return values;
         }
 
+    }
+
+    private Map<String, Object> getContentAsMap( final String contentId )
+    {
+        return new GetContentCommand( serviceFacade.getContentService() ).execute( contentId );
+    }
+
+    private Map<String, Object> getAttachmentsAsMap( final String contentId )
+    {
+        Map<String, Object> contentAsMap = getContentAsMap( contentId );
+        return contentAsMap != null ? CastHelper.cast( contentAsMap.get( "attachments" ) ) : Map.of();
     }
 
 }

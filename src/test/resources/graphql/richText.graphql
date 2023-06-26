@@ -1,0 +1,56 @@
+query {
+    guillotine {
+        get(key: "contentId") {
+            _id
+            ...on myapplication_News {
+                data {
+                    text(processHtml: {
+                        type: absolute
+                        imageWidths: [960, 1024]
+                    }) {
+                        raw
+                        processedHtml
+                        macrosAsJson
+                        macros {
+                            ref
+                            name
+                            descriptor
+                            config {
+                                disable {
+                                    body
+                                }
+                                embed {
+                                    body
+                                }
+                            }
+                        }
+                        links {
+                            ref
+                            uri
+                            media {
+                                content {
+                                    _id
+                                }
+                                intent
+                            }
+                            content {
+                                _id
+                            }
+                        }
+                        images {
+                            image {
+                                _id
+                            }
+                            ref
+                            style {
+                                name
+                                aspectRatio
+                                filter
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

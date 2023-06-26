@@ -3,7 +3,6 @@ package com.enonic.app.guillotine.graphql.factory;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import graphql.schema.GraphQLFieldDefinition;
@@ -119,7 +118,7 @@ public class XDataTypesFactory
             GraphQLFieldDefinition field =
                 outputField( fieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
-            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) ); // TODO contentAsMap
+            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
 
             xDataConfigFields.add( field );
         } );

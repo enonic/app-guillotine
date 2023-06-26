@@ -18,7 +18,7 @@ public class PageInfoDataFetcher
 
         int count = ( (List<?>) sourceAsMap.get( "hits" ) ).size();
         int start = (int) sourceAsMap.get( "start" );
-        long total = (long) sourceAsMap.get( "total" );
+        int total = (int) sourceAsMap.get( "total" );
 
         Map<String, Object> result = new HashMap<>();
 

@@ -1,0 +1,8 @@
+query {
+    guillotine {
+        getChildren(key: "/hmdb", offset: 0, first: 10, sort: "modifiedTime ASC"){
+            _id
+            displayName
+        }
+    }
+}
