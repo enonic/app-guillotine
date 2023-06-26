@@ -7,6 +7,7 @@ import java.util.Set;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
+import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentInheritType;
@@ -23,45 +24,45 @@ import com.enonic.xp.sortvalues.SortValuesProperty;
 public final class ContentMapper
     implements MapSerializable
 {
-    private final Content value;
+    private final Content content;
 
     private final SortValuesProperty sort;
 
     private final Float score;
 
-    public ContentMapper( final Content value )
+    public ContentMapper( final Content content )
     {
-        this( value, null, null );
+        this( content, null, null );
     }
 
-    public ContentMapper( final Content value, final SortValuesProperty sort, final Float score )
+    public ContentMapper( final Content content, final SortValuesProperty sort, final Float score )
     {
-        this.value = value;
+        this.content = content;
         this.sort = sort;
         this.score = score;
     }
 
-    private void serialize( final MapGenerator gen, final Content value )
+    private void serialize( final MapGenerator gen, final Content content )
     {
-        gen.value( "_id", value.getId() );
-        gen.value( "_name", value.getName() );
-        gen.value( "_path", value.getPath() );
+        gen.value( "_id", content.getId() );
+        gen.value( "_name", content.getName() );
+        gen.value( "_path", content.getPath() );
         gen.value( "_score", this.score );
-        gen.value( "creator", value.getCreator() );
-        gen.value( "modifier", value.getModifier() );
-        gen.value( "createdTime", value.getCreatedTime() );
-        gen.value( "modifiedTime", value.getModifiedTime() );
-        gen.value( "owner", value.getOwner() );
-        gen.value( "type", value.getType() );
-        gen.value( "displayName", value.getDisplayName() );
-        gen.value( "hasChildren", value.hasChildren() );
-        gen.value( "language", value.getLanguage() );
-        gen.value( "valid", value.isValid() );
-        gen.value( "originProject", value.getOriginProject() );
-        gen.value( "variantOf", value.getVariantOf() );
-        if ( value.getChildOrder() != null )
+        gen.value( "creator", content.getCreator() );
+        gen.value( "modifier", content.getModifier() );
+        gen.value( "createdTime", content.getCreatedTime() );
+        gen.value( "modifiedTime", content.getModifiedTime() );
+        gen.value( "owner", content.getOwner() );
+        gen.value( "type", content.getType() );
+        gen.value( "displayName", content.getDisplayName() );
+        gen.value( "hasChildren", content.hasChildren() );
+        gen.value( "language", content.getLanguage() );
+        gen.value( "valid", content.isValid() );
+        gen.value( "originProject", content.getOriginProject() );
+        gen.value( "variantOf", content.getVariantOf() );
+        if ( content.getChildOrder() != null )
         {
-            gen.value( "childOrder", value.getChildOrder().toString() );
+            gen.value( "childOrder", content.getChildOrder().toString() );
         }
         if ( sort != null && sort.getValues() != null )
         {
@@ -73,20 +74,21 @@ public final class ContentMapper
             gen.end();
         }
 
-        serializeData( gen, value.getData() );
-        serializeExtraData( gen, value.getAllExtraData() );
-        serializePage( gen, value.getPage() );
-        serializeAttachments( gen, value );
-        serializePublishInfo( gen, value.getPublishInfo() );
-        serializeWorkflowInfo( gen, value.getWorkflowInfo() );
-        serializeInherit( gen, value.getInherit() );
-        serializePermissions( gen, value );
+        serializeData( gen, content.getData() );
+        serializeExtraData( gen, content.getAllExtraData() );
+        serializePage( gen, content.getPage() );
+        serializeAttachments( gen, content );
+        serializePublishInfo( gen, content.getPublishInfo() );
+        serializeWorkflowInfo( gen, content.getWorkflowInfo() );
+        serializeInherit( gen, content.getInherit() );
+        serializePermissions( gen, content );
     }
 
     private void serializeData( final MapGenerator gen, final PropertyTree value )
     {
         gen.map( "data" );
-        new PropertyTreeMapper( value ).serialize( gen );
+        gen.value( Constants.CONTENT_ID_FIELD, content.getId() );
+        new PropertyTreeMapper( value, content.getId().toString() ).serialize( gen );
         gen.end();
     }
 
@@ -139,7 +141,7 @@ public final class ContentMapper
             for ( final ExtraData extraData : extraDatas )
             {
                 gen.map( extraData.getName().getLocalName() );
-                new PropertyTreeMapper( extraData.getData() ).serialize( gen );
+                new PropertyTreeMapper( extraData.getData(), content.getId().toString() ).serialize( gen );
                 gen.end();
             }
             gen.end();
@@ -151,7 +153,7 @@ public final class ContentMapper
     {
         if ( value != null )
         {
-            new PageMapper( value ).serialize( gen );
+            new PageMapper( value, content.getId() ).serialize( gen );
         }
         else
         {
@@ -187,7 +189,7 @@ public final class ContentMapper
     @Override
     public void serialize( final MapGenerator gen )
     {
-        serialize( gen, this.value );
+        serialize( gen, this.content );
     }
 }
 

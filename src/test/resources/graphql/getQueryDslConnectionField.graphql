@@ -1,0 +1,133 @@
+query {
+    guillotine {
+        queryDslConnection(
+            query: {
+                matchAll: {}
+            },
+            aggregations: [
+                {
+                    name: "agg1",
+                    terms: {
+                        field: "displayName",
+                        minDocCount: 1,
+                        size: 1,
+                        order: "_count desc"
+                    }
+                },
+                {
+                    name: "agg2",
+                    stats: {
+                        field: "displayName"
+                    }
+                },
+                {
+                    name: "agg3",
+                    min: {
+                        field: "modifiedTime"
+                    }
+                },
+                {
+                    name: "agg4",
+                    max: {
+                        field: "modifiedTime"
+                    }
+                },
+                {
+                    name: "agg5",
+                    count: {
+                        field: "modifiedTime"
+                    }
+                },
+                {
+                    name: "agg6",
+                    range: {
+                        field: "unknownField",
+                        ranges: {
+                            key: "key1",
+                            from: 15,
+                            to: 20
+                        }
+                    }
+                },
+                {
+                    name: "agg7",
+                    dateRange: {
+                        field: "modifiedTime",
+                        ranges: {
+                            key: "key1",
+                            from: "2018-07-01T06:50:45.284Z",
+                            to: "2018-07-03T06:50:45.284Z"
+                        }
+                    }
+                },
+                {
+                    name: "agg8",
+                    dateHistogram: {
+                        field: "modifiedTime",
+                        interval: "1y",
+                        minDocCount: 2
+                    }
+                },
+                {
+                    name: "agg9",
+                    geoDistance: {
+                        field: "data.cityLocation",
+                        unit: "km",
+                        origin: {
+                            lat: "90.0",
+                            lon: "0.0"
+                        }
+                        ranges: [
+                            {
+                                key: "0-1199",
+                                from: 0,
+                                to: 1200
+                            },
+                            {
+                                key: "1200-2000",
+                                from: 1200,
+                                to: 2000
+                            }
+                        ]
+                    }
+                }
+            ],
+            highlight: {
+                properties: {
+                    propertyName: "displayName"
+                    fragmenter: span,
+                    fragmentSize: 10,
+                    noMatchSize: 10,
+                    numberOfFragments: 10,
+                    order: score,
+                    preTag: "<span>"
+                    postTag: "</span>"
+                    requireFieldMatch: true
+                }
+                encoder: html
+                tagsSchema: styled
+            },
+            sort: {
+                field: "modifiedTime",
+                direction: ASC
+            }) {
+            totalCount
+            edges {
+                node {
+                    _id
+                    _name
+                    _path
+                    displayName
+                }
+                cursor
+            }
+            pageInfo {
+                startCursor
+                endCursor
+                hasNext
+            }
+            aggregationsAsJson
+            highlightAsJson
+        }
+    }
+}

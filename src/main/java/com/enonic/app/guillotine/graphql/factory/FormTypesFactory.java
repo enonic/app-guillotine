@@ -13,6 +13,7 @@ import graphql.schema.GraphQLTypeReference;
 
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.fetchers.FormInputDefaultValueDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.GetAsJsonWithoutContentIdDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetFieldAsJsonDataFetcher;
 import com.enonic.app.guillotine.graphql.typeresolvers.FormItemTypeResolver;
 
@@ -158,7 +159,7 @@ public class FormTypesFactory
             newObject( context.uniqueName( "FormInput" ), "Form input.", List.of( GraphQLTypeReference.typeRef( "FormItem" ) ), fields );
         context.registerType( objectType.getName(), objectType );
 
-        context.registerDataFetcher( objectType.getName(), "configAsJson", new GetFieldAsJsonDataFetcher( "config" ) );
+        context.registerDataFetcher( objectType.getName(), "configAsJson", new GetAsJsonWithoutContentIdDataFetcher( "config" ) );
         context.registerDataFetcher( objectType.getName(), "defaultValue", new GetFieldAsJsonDataFetcher( "default" ) );
     }
 

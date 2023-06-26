@@ -19,6 +19,8 @@ import graphql.schema.GraphQLTypeReference;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.fetchers.ContentTypeDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.GetAsJsonWithoutContentIdDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentUrlByIdDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentsDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetComponentsDataFetcher;
@@ -30,8 +32,6 @@ import com.enonic.app.guillotine.graphql.fetchers.GetContentParentDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentPathDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentReferencesDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentSiteDataFetcher;
-import com.enonic.app.guillotine.graphql.fetchers.GetDataFormItemDataFetcher;
-import com.enonic.app.guillotine.graphql.fetchers.GetFieldAsJsonDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetImageUrlDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetPageAsJsonDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetPageTemplateDataFetcher;
@@ -207,7 +207,7 @@ public class ContentTypesFactory
             GraphQLFieldDefinition field =
                 outputField( fieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
-            context.registerDataFetcher( typeName, fieldName, new GetDataFormItemDataFetcher( formItem, serviceFacade ) );
+            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
 
             return field;
         } ).collect( Collectors.toList() );
@@ -287,9 +287,9 @@ public class ContentTypesFactory
 
         context.registerDataFetcher( contentType, "owner", new GetContentFieldDataFetcher( "owner" ) );
 
-        context.registerDataFetcher( contentType, "dataAsJson", new GetFieldAsJsonDataFetcher( "data" ) );
+        context.registerDataFetcher( contentType, "dataAsJson", new GetAsJsonWithoutContentIdDataFetcher( "data" ) );
 
-        context.registerDataFetcher( contentType, "xAsJson", new GetFieldAsJsonDataFetcher( "x" ) );
+        context.registerDataFetcher( contentType, "xAsJson", new GetAsJsonWithoutContentIdDataFetcher( "x" ) );
 
         context.registerDataFetcher( contentType, "pageAsJson", new GetPageAsJsonDataFetcher( serviceFacade ) );
 

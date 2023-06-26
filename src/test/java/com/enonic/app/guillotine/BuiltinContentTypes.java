@@ -149,7 +149,7 @@ public final class BuiltinContentTypes
         createSystemType( ContentTypeName.videoMedia() ).superType( ContentTypeName.media() ).setFinal( true ).setAbstract(
             false ).allowChildContent( false ).form( MEDIA_DEFAULT_FORM ).build();
 
-    private static final ContentType MEDIA_IMAGE =
+    public static final ContentType MEDIA_IMAGE =
         createSystemType( ContentTypeName.imageMedia() ).superType( ContentTypeName.media() ).setFinal( true ).setAbstract(
             false ).allowChildContent( false ).form( MEDIA_IMAGE_FORM ).xData(
             XDataNames.from( MediaInfo.IMAGE_INFO_METADATA_NAME, MediaInfo.CAMERA_INFO_METADATA_NAME,
@@ -217,7 +217,7 @@ public final class BuiltinContentTypes
         return map.values();
     }
 
-    public ContentType getContentType( final ContentTypeName contentTypeName )
+    public static ContentType getContentType( final ContentTypeName contentTypeName )
     {
         return map.get( contentTypeName );
     }

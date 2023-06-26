@@ -48,7 +48,7 @@ exports.extensions = function (graphQL) {
                     name: {
                         type: graphQL.GraphQLString,
                         args: {
-                            first: graphQL.GraphQLString,
+                            startsWith: graphQL.GraphQLString,
                         }
                     }
                 }
@@ -91,9 +91,6 @@ exports.extensions = function (graphQL) {
                 params.addFields({
                     customField: {
                         type: graphQL.nonNull(graphQL.list(graphQL.GraphQLString)),
-                        args: {
-                            start: graphQL.GraphQLString
-                        },
                     },
                     googleBooks: {
                         type: graphQL.list(graphQL.reference('GoogleBooks')),
@@ -110,20 +107,20 @@ exports.extensions = function (graphQL) {
         resolvers: {
             Query: {
                 customField: function (env) {
-                    return ["Static value " + env.args.start];
+                    return ["Value 1", "Value 2"];
                 },
                 googleBooks: function (env) {
                     return [{
-                        title: "Java One",
+                        title: "Title 1",
                         description: "Description 1",
                         author: {
-                            name: "Name 1 "
+                            name: "Author 1"
                         }
                     }, {
-                        title: "Java Script",
+                        title: "Title 2",
                         description: "Description 2",
                         author: {
-                            name: "Name 2 "
+                            name: "Author 2"
                         }
                     }]
                 },
@@ -141,7 +138,7 @@ exports.extensions = function (graphQL) {
             },
             GoogleBooksAuthor: {
                 name: function (env) {
-                    return env.source.name + ' ' + (env.args.first || '')
+                    return env.source.name;
                 }
             },
             CustomInterface: {

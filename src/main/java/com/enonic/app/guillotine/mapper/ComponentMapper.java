@@ -1,5 +1,6 @@
 package com.enonic.app.guillotine.mapper;
 
+import com.enonic.xp.content.ContentId;
 import com.enonic.xp.region.Component;
 import com.enonic.xp.region.DescriptorBasedComponent;
 import com.enonic.xp.region.FragmentComponent;
@@ -31,9 +32,12 @@ public final class ComponentMapper
 
     private final Component value;
 
-    public ComponentMapper( final Component value )
+    private final ContentId contentId;
+
+    public ComponentMapper( final Component value, final ContentId contentId )
     {
         this.value = value;
+        this.contentId = contentId;
     }
 
     @Override
@@ -77,7 +81,7 @@ public final class ComponentMapper
         if ( comp.getConfig() != null )
         {
             gen.map( CONFIG );
-            new PropertyTreeMapper( comp.getConfig() ).serialize( gen );
+            new PropertyTreeMapper( comp.getConfig(), contentId.toString() ).serialize( gen );
             gen.end();
         }
     }
@@ -88,7 +92,7 @@ public final class ComponentMapper
 
         for ( final Region region : comp.getRegions() )
         {
-            new RegionMapper( region ).serialize( gen );
+            new RegionMapper( region, contentId ).serialize( gen );
         }
 
         gen.end();

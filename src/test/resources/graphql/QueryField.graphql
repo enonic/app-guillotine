@@ -1,0 +1,39 @@
+query {
+    guillotine {
+        query(query: "", offset: 0, first: 10, contentTypes: ["com.enonic.app.hmdb:article"],
+            filters: [
+                {
+                    notExists: {
+                        field: "unknownField3"
+                    },
+                    boolean: {
+                        must: {
+                            exists: {
+                                field: "displayName"
+                            }
+                        },
+                        mustNot: {
+                            exists: {
+                                field: "unknownField"
+                            }
+                        },
+                        should: {
+                            notExists: {
+                                field: "unknownField2",
+                            },
+                            hasValue: {
+                                field: "displayName",
+                                stringValues: ["Test Article"]
+                            }
+                            ids: {
+                                values: ["e50eb377-0436-46f2-978e-cabd85a9bc83", "883f80b3-5a4e-497d-8945-f9b5d297197c"]
+                            }
+                        }
+                    }
+                }
+            ]) {
+            _id
+            displayName
+        }
+    }
+}

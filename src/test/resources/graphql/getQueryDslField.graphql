@@ -1,0 +1,88 @@
+query {
+    guillotine {
+        queryDsl(query: {
+            boolean: {
+                should: [
+                    {
+                        fulltext: {
+                            fields: ["displayName"],
+                            query: "queryString",
+                            operator: OR,
+                        }
+                    },
+                    {
+                        matchAll: {}
+                    },
+                    {
+                        term: {
+                            field: "displayName",
+                            value: {
+                                string: "queryString"
+                            }
+                        }
+                    },
+                    {
+                        like: {
+                            field: "displayName",
+                            value: {
+                                string: "*queryString*"
+                            }
+                        }
+                    },
+                    {
+                        in: {
+                            field: "displayName",
+                            stringValues: ["queryString"]
+                        }
+                    },
+                    {
+                        exists: {
+                            field: "displayName"
+                        }
+                    },
+                    {
+                        ngram: {
+                            fields: ["displayName", "_name"],
+                            query: "queryString"
+                        }
+                    },
+                    {
+                        stemmed: {
+                            fields: ["displayName"],
+                            query: "queryString",
+                            operator: OR,
+                            language: "en"
+                        }
+                    }
+                ],
+                must: [
+                    {
+                        range: {
+                            field: "modifiedTime",
+                            lt: {
+                                instant: "2018-07-03T06:50:45.284Z"
+                            },
+                            gt: {
+                                instant: "2018-07-02T06:50:45.284Z"
+                            }
+                        }
+                    },
+                    {
+                        pathMatch: {
+                            field: "_path",
+                            path: "/content/mysite"
+                        }
+                    }
+                ]
+            }
+        }, offset: 0, first: 100, sort: {
+            field: "modifiedTime",
+            direction: ASC
+        }) {
+            _id
+            _name
+            _path
+            displayName
+        }
+    }
+}

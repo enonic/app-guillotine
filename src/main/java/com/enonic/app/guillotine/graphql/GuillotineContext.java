@@ -1,11 +1,9 @@
 package com.enonic.app.guillotine.graphql;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.FieldCoordinates;
@@ -24,8 +22,6 @@ public class GuillotineContext
     private final ConcurrentMap<String, GraphQLType> types = new ConcurrentHashMap<>();
 
     private final ConcurrentMap<String, String> contentTypesDictionary = new ConcurrentHashMap<>();
-
-    private final CopyOnWriteArraySet<GraphQLType> dictionary = new CopyOnWriteArraySet<>();
 
     private final ConcurrentMap<String, Object> options = new ConcurrentHashMap<>();
 
