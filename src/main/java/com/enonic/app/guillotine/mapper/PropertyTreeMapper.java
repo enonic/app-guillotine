@@ -3,6 +3,7 @@ package com.enonic.app.guillotine.mapper;
 import java.util.List;
 import java.util.Map;
 
+import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.script.serializer.MapGenerator;
 import com.enonic.xp.script.serializer.MapSerializable;
@@ -14,16 +15,20 @@ public final class PropertyTreeMapper
 
     private final boolean useRawValue;
 
-    public PropertyTreeMapper( final PropertyTree value )
+    private final String contentId;
+
+    public PropertyTreeMapper( final PropertyTree value, final String contentId )
     {
         this.value = value;
+        this.contentId = contentId;
         this.useRawValue = false;
     }
 
-    public PropertyTreeMapper( final boolean useRawValue, final PropertyTree value )
+    public PropertyTreeMapper( final boolean useRawValue, final PropertyTree value, final String contentId )
     {
         this.useRawValue = useRawValue;
         this.value = value;
+        this.contentId = contentId;
     }
 
     @Override
@@ -95,6 +100,10 @@ public final class PropertyTreeMapper
     private void serializeMap( final MapGenerator gen, final String key, final Map<?, ?> map )
     {
         gen.map( key );
+        if ( contentId != null )
+        {
+            gen.value( Constants.CONTENT_ID_FIELD, contentId );
+        }
         serializeMap( gen, map );
         gen.end();
     }

@@ -15,13 +15,17 @@ import graphql.schema.GraphQLTypeReference;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.GetAsJsonWithoutContentIdDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetFieldAsJsonDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.RichTextDataFetcher;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.app.guillotine.graphql.helper.NamingHelper;
 import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
 import com.enonic.xp.form.FormItems;
 import com.enonic.xp.region.ComponentDescriptor;
 
+import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newArgument;
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newObject;
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField;
 
@@ -71,7 +75,7 @@ public class ComponentTypesFactory
         GraphQLObjectType objectType = newObject( context.uniqueName( "PartComponentData" ), "Part component data.", fields );
         context.registerType( objectType.getName(), objectType );
 
-        context.registerDataFetcher( objectType.getName(), "configAsJson", new GetFieldAsJsonDataFetcher( "config" ) );
+        context.registerDataFetcher( objectType.getName(), "configAsJson", new GetAsJsonWithoutContentIdDataFetcher( "config" ) );
 
     }
 
@@ -92,7 +96,7 @@ public class ComponentTypesFactory
         GraphQLObjectType objectType = newObject( context.uniqueName( "PageComponentData" ), "Page component data.", fields );
         context.registerType( objectType.getName(), objectType );
 
-        context.registerDataFetcher( objectType.getName(), "configAsJson", new GetFieldAsJsonDataFetcher( "config" ) );
+        context.registerDataFetcher( objectType.getName(), "configAsJson", new GetAsJsonWithoutContentIdDataFetcher( "config" ) );
     }
 
     private void createLayoutComponentData()
@@ -110,7 +114,7 @@ public class ComponentTypesFactory
         GraphQLObjectType objectType = newObject( context.uniqueName( "LayoutComponentData" ), "Layout component data.", fields );
         context.registerType( objectType.getName(), objectType );
 
-        context.registerDataFetcher( objectType.getName(), "configAsJson", new GetFieldAsJsonDataFetcher( "config" ) );
+        context.registerDataFetcher( objectType.getName(), "configAsJson", new GetAsJsonWithoutContentIdDataFetcher( "config" ) );
     }
 
     private void createImageComponentData()
@@ -129,9 +133,16 @@ public class ComponentTypesFactory
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
-        fields.add( outputField( "value", new GraphQLNonNull( GraphQLTypeReference.typeRef( "RichText" ) ) ) );
+        fields.add( outputField( "value", new GraphQLNonNull( GraphQLTypeReference.typeRef( "RichText" ) ),
+                                 newArgument( "processHtml", GraphQLTypeReference.typeRef( "ProcessHtmlInput" ) ) ) );
 
         GraphQLObjectType objectType = newObject( context.uniqueName( "TextComponentData" ), "Text component data.", fields );
+
+        context.registerDataFetcher( objectType.getName(), "value", environment -> {
+            Map<String, Object> sourceAsMap = environment.getSource();
+            return new RichTextDataFetcher( CastHelper.cast( sourceAsMap.get( "value" ) ),
+                                            CastHelper.cast( sourceAsMap.get( "__contentId" ) ), serviceFacade ).get( environment );
+        } );
         context.registerType( objectType.getName(), objectType );
     }
 
@@ -242,7 +253,7 @@ public class ComponentTypesFactory
             GraphQLFieldDefinition field =
                 outputField( fieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
-            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) ); // TODO contentAsMap
+            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
 
             resultFields.add( field );
         } );

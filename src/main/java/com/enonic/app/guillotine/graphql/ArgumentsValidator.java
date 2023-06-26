@@ -115,8 +115,6 @@ public class ArgumentsValidator
         if ( dslQueryObject.get( "boolean" ) != null )
         {
             Map<String, Object> booleanField = CastHelper.cast( dslQueryObject.get( "boolean" ) );
-            validateOnlyOneFieldMustBeNotNull( booleanField, "Boolean" );
-
             booleanField.keySet().stream().filter( fieldName -> !"boost".equals( fieldName ) ).forEach( fieldName -> {
                 if ( booleanField.get( fieldName ) != null )
                 {
@@ -168,15 +166,23 @@ public class ArgumentsValidator
             validateOnlyOneFieldMustBeNotNull( lte, "Range.lte" );
 
             Set<String> fields = new HashSet<>();
-            fields.addAll( gt.keySet() );
-            fields.addAll( gte.keySet() );
-            fields.addAll( lt.keySet() );
-            fields.addAll( lte.keySet() );
+            collectNameOfNonNullField( fields, gt );
+            collectNameOfNonNullField( fields, gte );
+            collectNameOfNonNullField( fields, lt );
+            collectNameOfNonNullField( fields, lte );
 
             if ( fields.size() > 1 )
             {
                 throw new IllegalArgumentException( "Range. All values must be of the same type" );
             }
+        }
+    }
+
+    private static void collectNameOfNonNullField( Set<String> holder, Map<String, Object> values )
+    {
+        if ( values != null )
+        {
+            holder.addAll( values.keySet() );
         }
     }
 

@@ -1,0 +1,14 @@
+query {
+    guillotine {
+        getPermissions(key: "contentId") {
+            inheritsPermissions
+            permissions {
+                principal {
+                    value
+                }
+                allow
+                deny
+            }
+        }
+    }
+}

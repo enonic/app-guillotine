@@ -6,6 +6,7 @@ import java.util.Objects;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
+import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.url.AttachmentUrlParams;
@@ -29,10 +30,10 @@ public class GetAttachmentUrlByNameDataFetcher
 
         Map<String, Object> attachmentAsMap = environment.getSource();
 
-        AttachmentUrlParams params = new AttachmentUrlParams().id( attachmentAsMap.get( "__contentId" ).toString() ).name(
+        AttachmentUrlParams params = new AttachmentUrlParams().id( attachmentAsMap.get( Constants.CONTENT_ID_FIELD ).toString() ).name(
             attachmentAsMap.get( "name" ).toString() ).download( Objects.toString( environment.getArgument( "download" ), "false" ) ).type(
-            environment.getArgument( "type" ) ).portalRequest( portalRequest ); // TODO include params
-
+            environment.getArgument( "type" ) ).portalRequest( portalRequest );
+//        params.getParams().put( "params", environment.getArgument( "params" ) ); // TODO include params
         return portalUrlService.attachmentUrl( params );
     }
 }

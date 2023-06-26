@@ -1,6 +1,7 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -11,12 +12,12 @@ import java.util.stream.Collectors;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
-import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
-import com.enonic.app.guillotine.graphql.helper.SecurityHelper;
 import com.enonic.app.guillotine.graphql.commands.FindContentsParams;
+import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.SecurityHelper;
 
 public abstract class QueryBaseDataFetcher
     implements DataFetcher<Object>
@@ -255,7 +256,7 @@ public abstract class QueryBaseDataFetcher
         {
             Map<String, Object> dslExpression = new HashMap<>();
             dslExpression.put( "field", expression.get( "field" ) );
-            dslExpression.put( "value", extractPropertyValues( CastHelper.cast( expression.get( "value" ) ) ) );
+            dslExpression.put( "values", extractPropertyValues( expression ) );
 
             if ( expression.get( "localTimeValues" ) != null )
             {
@@ -264,7 +265,7 @@ public abstract class QueryBaseDataFetcher
             if ( expression.get( "localDateValues" ) != null || expression.get( "localDateTimeValues" ) != null ||
                 expression.get( "instantValues" ) != null )
             {
-                dslExpression.put( "type", "'dateTime'" );
+                dslExpression.put( "type", "dateTime" );
             }
             if ( expression.get( "boost" ) != null )
             {
@@ -302,12 +303,13 @@ public abstract class QueryBaseDataFetcher
                 dslExpression.put( "boost", expression.get( "boost" ) );
             }
 
-            List.of( expression.get( "lt" ), expression.get( "lte" ), expression.get( "gt" ), expression.get( "gte" ) ).forEach( item -> {
-                if ( item != null )
-                {
-                    setTypeBaseOnValue( CastHelper.cast( item ), dslExpression );
-                }
-            } );
+            Arrays.asList( expression.get( "lt" ), expression.get( "lte" ), expression.get( "gt" ), expression.get( "gte" ) ).forEach(
+                item -> {
+                    if ( item != null )
+                    {
+                        setTypeBaseOnValue( CastHelper.cast( item ), dslExpression );
+                    }
+                } );
 
             holder.put( "range", dslExpression );
         }
@@ -321,7 +323,7 @@ public abstract class QueryBaseDataFetcher
         }
         if ( source.get( "localDate" ) != null || source.get( "localDateTime" ) != null || source.get( "instant" ) != null )
         {
-            target.put( "type", "'dateTime'" );
+            target.put( "type", "dateTime" );
         }
     }
 
@@ -367,7 +369,7 @@ public abstract class QueryBaseDataFetcher
         if ( expression != null )
         {
             Map<String, Object> dslExpression = new HashMap<>();
-            dslExpression.put( "field", expression.get( "field" ) );
+            dslExpression.put( "fields", expression.get( "fields" ) );
             dslExpression.put( "query", expression.get( "query" ) );
 
             if ( expression.get( "operator" ) != null )
@@ -412,39 +414,30 @@ public abstract class QueryBaseDataFetcher
             Map<String, Object> dslExpression = new HashMap<>();
             if ( expression.get( "should" ) != null )
             {
-                List<Map<String, Object>> should = new ArrayList<>();
-                ArrayHelper.forceArray( expression.get( "should" ) ).forEach(
-                    booleanExpression -> should.add( createDslQuery( CastHelper.cast( booleanExpression ) ) ) );
-                dslExpression.put( "should", should );
+                dslExpression.put( "should", populateBooleanExpression( expression.get( "should" ) ) );
             }
-            else if ( expression.get( "must" ) != null )
+            if ( expression.get( "must" ) != null )
             {
-                List<Map<String, Object>> must = new ArrayList<>();
-                ArrayHelper.forceArray( expression.get( "must" ) ).forEach(
-                    booleanExpression -> must.add( createDslQuery( CastHelper.cast( booleanExpression ) ) ) );
-                dslExpression.put( "must", must );
+                dslExpression.put( "must", populateBooleanExpression( expression.get( "must" ) ) );
             }
-            else if ( expression.get( "mustNot" ) != null )
+            if ( expression.get( "mustNot" ) != null )
             {
-                List<Map<String, Object>> mustNot = new ArrayList<>();
-                ArrayHelper.forceArray( expression.get( "mustNot" ) ).forEach(
-                    booleanExpression -> mustNot.add( createDslQuery( CastHelper.cast( booleanExpression ) ) ) );
-                dslExpression.put( "mustNot", mustNot );
+                dslExpression.put( "mustNot", populateBooleanExpression( expression.get( "mustNot" ) ) );
             }
-            else if ( expression.get( "filter" ) != null )
+            if ( expression.get( "filter" ) != null )
             {
-                List<Map<String, Object>> filter = new ArrayList<>();
-                ArrayHelper.forceArray( expression.get( "filter" ) ).forEach(
-                    booleanExpression -> filter.add( createDslQuery( CastHelper.cast( booleanExpression ) ) ) );
-                dslExpression.put( "filter", filter );
+                dslExpression.put( "filter", populateBooleanExpression( expression.get( "filter" ) ) );
             }
-            else
-            {
-                throw new IllegalArgumentException( "Must be set property for boolean expression" );
-            }
-
             holder.put( "boolean", dslExpression );
         }
+    }
+
+    private List<Map<String, Object>> populateBooleanExpression( Object expression )
+    {
+        List<Map<String, Object>> result = new ArrayList<>();
+        ArrayHelper.forceArray( expression ).forEach(
+            booleanExpression -> result.add( createDslQuery( CastHelper.cast( booleanExpression ) ) ) );
+        return result;
     }
 
     private Map<String, Object> createHighlight( Map<String, Object> inputHighlight )

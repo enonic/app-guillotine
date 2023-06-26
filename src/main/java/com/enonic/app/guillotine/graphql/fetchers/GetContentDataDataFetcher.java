@@ -1,6 +1,5 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import graphql.schema.DataFetcher;
@@ -14,17 +13,6 @@ public class GetContentDataDataFetcher
         throws Exception
     {
         Map<String, Object> sourceAsMap = environment.getSource();
-
-        if ( sourceAsMap.get( "attachments" ) != null && !( (Map<?, ?>) sourceAsMap.get( "attachments" ) ).isEmpty() )
-        {
-            Map<String, Object> result = new HashMap<>();
-            result.put( "__contentWithAttachments", sourceAsMap );
-            result.put( "__data", sourceAsMap.get( "data" ) );
-            return result;
-        }
-        else
-        {
-            return sourceAsMap.get( "data" );
-        }
+        return sourceAsMap.get( "data" );
     }
 }
