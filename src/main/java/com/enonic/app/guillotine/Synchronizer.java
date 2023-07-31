@@ -4,7 +4,7 @@ import com.enonic.xp.script.ScriptValue;
 
 public class Synchronizer
 {
-    public static synchronized void sync( final ScriptValue callbackScriptValue )
+    public synchronized void sync( final ScriptValue callbackScriptValue )
     {
         callbackScriptValue.call();
     }

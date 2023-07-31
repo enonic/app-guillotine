@@ -1,0 +1,14 @@
+query {
+    guillotine {
+        getTypes {
+            name
+            displayName
+            description
+            superType
+            abstract
+            final
+            allowChildContent
+            contentDisplayNameScript
+        }
+    }
+}

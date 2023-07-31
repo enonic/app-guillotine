@@ -1,0 +1,77 @@
+query {
+    guillotine {
+        get(key: "contentId") {
+            _id
+            _name
+            _path
+            _score
+            displayName
+            hasChildren
+            language
+            valid
+            dataAsJson
+            xAsJson
+            pageAsJson
+            pageUrl
+            _references {
+                _id
+            }
+            attachments {
+                name
+                label
+                mimeType
+            }
+            publish {
+                from
+                to
+                first
+            }
+            creator {
+                value
+                type
+                idProvider
+                principalId
+            }
+            modifier {
+                value
+                type
+                idProvider
+                principalId
+            }
+            owner {
+                value
+                type
+                idProvider
+                principalId
+            }
+            type
+            contentType {
+                name
+            }
+            createdTime
+            modifiedTime
+            x {
+                media {
+                    imageInfo {
+                        pixelSize
+                        imageHeight
+                        byteSize
+                    }
+                }
+            }
+            permissions {
+                inheritsPermissions
+                permissions {
+                    principal {
+                        value
+                        type
+                        idProvider
+                        principalId
+                    }
+                    allow
+                    deny
+                }
+            }
+        }
+    }
+}
