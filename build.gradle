@@ -18,6 +18,16 @@ app {
     systemVersion = "${xpVersion}"
 }
 
+def defaultEncoding = 'UTF-8'
+
+compileJava {
+    options.encoding = defaultEncoding
+}
+
+compileTestJava {
+    options.encoding = defaultEncoding
+}
+
 dependencies {
     implementation "com.enonic.xp:core-api:${xpVersion}"
     implementation "com.enonic.xp:script-api:${xpVersion}"
