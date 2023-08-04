@@ -1,0 +1,24 @@
+{
+  "menuItems": [
+    {
+      "title": "Deployment",
+      "document": "deployment"
+    },
+    {
+      "title": "Usage",
+      "document": "usage"
+    },
+    {
+      "title": "Advanced topics",
+      "document": "advanced"
+    },
+    {
+      "title": "API",
+      "document": "api"
+    },
+    {
+      "title": "Release Notes",
+      "document": "release"
+    }
+  ]
+}

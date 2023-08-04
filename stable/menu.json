@@ -1,0 +1,42 @@
+{
+  "menuItems": [
+    {
+      "title": "Endpoints",
+      "document": "endpoints"
+    },
+    {
+      "title": "Usage",
+      "document": "usage"
+    },
+    {
+      "title": "Clients",
+      "document": "clients"
+    },
+    {
+      "title": "GraphQL Schema",
+      "document": "api"
+    },
+    {
+      "title": "Embedding",
+      "document": "embed",
+      "menuItems": [
+        {
+          "title": "Extending",
+          "document": "embed/extending"
+        },
+        {
+          "title": "Integrating",
+          "document": "embed/integrating"
+        },
+        {
+          "title": "Options",
+          "document": "embed/options"
+        }      
+      ]
+    },
+    {
+      "title": "Release Notes",
+      "document": "release"
+    }
+  ]
+}
