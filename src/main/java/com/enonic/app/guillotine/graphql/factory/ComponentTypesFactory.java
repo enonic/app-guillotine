@@ -14,6 +14,7 @@ import graphql.schema.GraphQLTypeReference;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
+import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetAsJsonWithoutContentIdDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetFieldAsJsonDataFetcher;
@@ -97,6 +98,10 @@ public class ComponentTypesFactory
         context.registerType( objectType.getName(), objectType );
 
         context.registerDataFetcher( objectType.getName(), "configAsJson", new GetAsJsonWithoutContentIdDataFetcher( "config" ) );
+        context.registerDataFetcher( objectType.getName(), "template", environment -> {
+            Map<String, Object> sourceAsMap = environment.getSource();
+            return new GetContentCommand( serviceFacade.getContentService() ).execute( CastHelper.cast( sourceAsMap.get( "template" ) ) );
+        } );
     }
 
     private void createLayoutComponentData()
@@ -127,6 +132,11 @@ public class ComponentTypesFactory
 
         GraphQLObjectType objectType = newObject( context.uniqueName( "ImageComponentData" ), "Image component data.", fields );
         context.registerType( objectType.getName(), objectType );
+
+        context.registerDataFetcher( objectType.getName(), "image", environment -> {
+            Map<String, Object> sourceAsMap = environment.getSource();
+            return new GetContentCommand( serviceFacade.getContentService() ).execute( CastHelper.cast( sourceAsMap.get( "id" ) ) );
+        } );
     }
 
     private void createTextComponentDataType()
@@ -154,6 +164,12 @@ public class ComponentTypesFactory
         fields.add( outputField( "fragment", GraphQLTypeReference.typeRef( "Content" ) ) );
 
         GraphQLObjectType objectType = newObject( context.uniqueName( "FragmentComponentData" ), "Fragment component data.", fields );
+
+        context.registerDataFetcher( objectType.getName(), "fragment", environment -> {
+            Map<String, Object> sourceAsMap = environment.getSource();
+            return new GetContentCommand( serviceFacade.getContentService() ).execute( CastHelper.cast( sourceAsMap.get( "id" ) ) );
+        } );
+
         context.registerType( objectType.getName(), objectType );
     }
 
