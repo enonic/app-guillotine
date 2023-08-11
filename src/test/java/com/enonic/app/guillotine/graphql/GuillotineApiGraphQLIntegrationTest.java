@@ -1,6 +1,7 @@
 package com.enonic.app.guillotine.graphql;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -15,6 +16,7 @@ import graphql.schema.GraphQLSchema;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.mapper.ExecutionResultMapper;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentPath;
@@ -169,8 +171,8 @@ public class GuillotineApiGraphQLIntegrationTest
         GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
 
         ExecutionInput executionInput =
-            ExecutionInput.newExecutionInput().query( ResourceHelper.readGraphQLQuery( "graphql/getSiteField.graphql" ) ).root(
-                Map.of( "__siteKey", "/hmdb" ) ).build();
+            ExecutionInput.newExecutionInput().query( ResourceHelper.readGraphQLQuery( "graphql/getSiteField.graphql" ) ).localContext(
+                new HashMap<>() ).graphQLContext( Map.of( "__siteKey", "/hmdb" ) ).build();
 
         ExecutionResultMapper executionResultMapper = new ExecutionResultMapper( graphQL.execute( executionInput ) );
 
@@ -221,5 +223,48 @@ public class GuillotineApiGraphQLIntegrationTest
         result.add( myContentType );
 
         return result;
+    }
+
+    @Test
+    public void testExecuteQueryInLocalContext()
+    {
+        Content contentInMasterBranch =
+            Content.create().id( ContentId.from( "contentId" ) ).path( ContentPath.from( "/contentPath" ) ).name( "name" ).displayName(
+                "Name" ).parentPath( ContentPath.ROOT ).type( ContentTypeName.unstructured() ).data( new PropertyTree() ).build();
+
+        Content contentInDraftBranch =
+            Content.create().id( ContentId.from( "contentId" ) ).path( ContentPath.from( "/contentPath" ) ).displayName(
+                "New Name" ).parentPath( ContentPath.ROOT ).type( ContentTypeName.unstructured() ).data( new PropertyTree() ).build();
+
+        Site site = Site.create().name( "site" ).type( ContentTypeName.site() ).path( ContentPath.from( "/sitePath" ) ).parentPath(
+            ContentPath.ROOT ).data( new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteId" ) ).build();
+
+        when( contentService.findNearestSiteByPath( ContentPath.from( "/sitePath" ) ) ).thenReturn( site );
+        when( contentService.getNearestSite( ContentId.from( "siteId" ) ) ).thenReturn( site );
+
+        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( contentInMasterBranch );
+        when( contentService.getByPath( ContentPath.from( "/sitePath/contentPath" ) ) ).thenReturn( contentInDraftBranch );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> result =
+            executeQuery( graphQLSchema, ResourceHelper.readGraphQLQuery( "graphql/executeQueryInLocalContext.graphql" ) );
+
+        assertFalse( result.containsKey( "errors" ) );
+        assertTrue( result.containsKey( "data" ) );
+
+        Map<String, Object> data = CastHelper.cast( result.get( "data" ) );
+
+        assertTrue( data.containsKey( "g1" ) );
+        Map<String, Object> g1 = CastHelper.cast( data.get( "g1" ) );
+        Map<String, Object> getFoG1 = CastHelper.cast( g1.get( "get" ) );
+        assertEquals( "Name", getFoG1.get( "displayName" ) );
+        assertEquals( "contentId", getFoG1.get( "_id" ) );
+
+        assertTrue( data.containsKey( "g2" ) );
+        Map<String, Object> g2 = CastHelper.cast( data.get( "g2" ) );
+        Map<String, Object> getFoG2 = CastHelper.cast( g2.get( "get" ) );
+        assertEquals( "New Name", getFoG2.get( "displayName" ) );
+        assertEquals( "contentId", getFoG2.get( "_id" ) );
     }
 }

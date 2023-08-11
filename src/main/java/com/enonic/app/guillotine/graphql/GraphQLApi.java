@@ -169,12 +169,32 @@ public class GraphQLApi
         new TypeFactory( context, serviceFacadeSupplier.get() ).createTypes();
         GraphQLObjectType guillotineApi = new HeadlessCmsTypeFactory( context, serviceFacadeSupplier.get() ).create();
 
+        Map<String, Object> guillotineFieldArguments = new HashMap<>();
+        guillotineFieldArguments.put( "repo", Scalars.GraphQLString );
+        guillotineFieldArguments.put( "branch", Scalars.GraphQLString );
+        guillotineFieldArguments.put( "siteKey", Scalars.GraphQLString );
+
+        Map<String, Object> guillotineFieldOptions = new HashMap<>();
+        guillotineFieldOptions.put( "type", guillotineApi );
+        guillotineFieldOptions.put( "args", guillotineFieldArguments );
+
         OutputObjectCreationCallbackParams guillotineQueryCreationCallback = new OutputObjectCreationCallbackParams();
-        guillotineQueryCreationCallback.addFields( Map.of( "guillotine", Map.of( "type", guillotineApi ) ) );
+        guillotineQueryCreationCallback.addFields( Map.of( "guillotine", guillotineFieldOptions ) );
 
         typesRegister.addCreationCallback( "Query", guillotineQueryCreationCallback );
 
-        typesRegister.addResolver( "Query", "guillotine", environment -> new Object() );
+        typesRegister.addResolver( "Query", "guillotine", environment -> {
+            final Map<String, Object> sourceMap = new HashMap<>();
+
+            sourceMap.put( Constants.GUILLOTINE_TARGET_REPO_CTX, environment.getArgument( "repo" ) );
+            sourceMap.put( Constants.GUILLOTINE_TARGET_BRANCH_CTX, environment.getArgument( "branch" ) );
+            sourceMap.put( Constants.GUILLOTINE_TARGET_SITE_CTX, environment.getArgument( "siteKey" ) );
+
+            final Map<String, Object> localContext = environment.getLocalContext();
+            localContext.put( Constants.GUILLOTINE_LOCAL_CTX, sourceMap );
+
+            return new Object();
+        } );
 
         typesRegister.addAdditionalType( context.getAllTypes() );
 
@@ -189,8 +209,9 @@ public class GraphQLApi
     {
         GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
 
-        ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).root(
-            extractValue( queryContext ) ).build();
+        ExecutionInput executionInput =
+            ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).graphQLContext(
+                extractValue( queryContext ) ).localContext( new HashMap<String, Object>() ).build();
 
         return new ExecutionResultMapper( graphQL.execute( executionInput ) );
     }

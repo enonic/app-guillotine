@@ -7,6 +7,7 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.GuillotineContext;
+import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
@@ -45,12 +46,8 @@ public class GetContentPathDataFetcher
             String sitePath = adminContext().callWith( () -> {
                 if ( guillotineContext.isGlobalMode() )
                 {
-                    if ( isPresentSiteKeyHeader( environment ) )
-                    {
-                        ContentPath siteContentPath = getSitePathFromQueryContext( environment );
-                        return Objects.toString( siteContentPath, originalPath );
-                    }
-                    return originalPath;
+                    String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
+                    return Objects.toString( getSitePathBySiteKey( siteKey ), originalPath );
                 }
                 else
                 {
@@ -59,7 +56,6 @@ public class GetContentPathDataFetcher
             } );
             String normalizedPath = originalPath.replace( sitePath, "" );
             return normalizedPath.startsWith( "/" ) ? normalizedPath.substring( 1 ) : normalizedPath;
-
         }
         else
         {
@@ -67,39 +63,27 @@ public class GetContentPathDataFetcher
         }
     }
 
-    private ContentPath getSitePathFromQueryContext( DataFetchingEnvironment environment )
+    private ContentPath getSitePathBySiteKey( final String siteKey )
     {
-        Map<String, Object> queryContext = environment.getRoot();
-        if ( isPresentSiteKeyHeader( environment ) )
+        if ( siteKey.isEmpty() )
         {
-            String siteKey = Objects.toString( queryContext.containsKey( "__siteKey" ), null );
-            if ( siteKey == null )
+            return null;
+        }
+        try
+        {
+            if ( siteKey.startsWith( "/" ) )
             {
-                return null;
+                return contentService.getByPath( ContentPath.from( siteKey ) ).getPath();
             }
-            try
+            else
             {
-                if ( siteKey.startsWith( "/" ) )
-                {
-                    return contentService.getByPath( ContentPath.from( siteKey ) ).getPath();
-                }
-                else
-                {
-                    return contentService.getById( ContentId.from( siteKey ) ).getPath();
-                }
-            }
-            catch ( ContentNotFoundException e )
-            {
-                return null;
+                return contentService.getById( ContentId.from( siteKey ) ).getPath();
             }
         }
-        return null;
-    }
-
-    private boolean isPresentSiteKeyHeader( DataFetchingEnvironment environment )
-    {
-        Map<String, Object> queryContext = environment.getRoot();
-        return queryContext != null && queryContext.containsKey( "__siteKey" );
+        catch ( ContentNotFoundException e )
+        {
+            return null;
+        }
     }
 
     public Context adminContext()

@@ -1,14 +1,16 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ContentSerializer;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
-import com.enonic.app.guillotine.graphql.helper.SecurityHelper;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
+import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
+import com.enonic.app.guillotine.graphql.helper.SecurityHelper;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
@@ -21,6 +23,8 @@ import com.enonic.xp.site.Site;
 public abstract class BaseContentDataFetcher
     implements DataFetcher<Object>
 {
+    private final static Pattern SITE_KEY_PATTERN = Pattern.compile( "\\$\\{site\\}" );
+
     protected final GuillotineContext context;
 
     protected final ContentService contentService;
@@ -35,7 +39,7 @@ public abstract class BaseContentDataFetcher
     {
         PortalRequest portalRequest = PortalRequestAccessor.get();
 
-        Map<String, Object> queryContext = environment.getRoot();
+        String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
 
         String argumentKey = environment.getArgument( "key" );
 
@@ -45,30 +49,33 @@ public abstract class BaseContentDataFetcher
 
             Site site = portalRequest.getSite();
 
-            if ( context.isGlobalMode() && queryContext != null && queryContext.get( "__siteKey" ) != null )
+            if ( context.isGlobalMode() && !siteKey.isEmpty() )
             {
-                site = getSiteByKey( queryContext.get( "__siteKey" ).toString() );
+                site = getSiteByKey( siteKey );
             }
-
             if ( site != null )
             {
-                key = argumentKey.replaceAll( "\\$\\{site\\}", site.getPath().toString() );
+                key = argumentKey.replaceAll( SITE_KEY_PATTERN.pattern(), site.getPath().toString() );
+            }
+            if ( SITE_KEY_PATTERN.matcher( key ).find() )
+            {
+                return null;
             }
 
-            return getContentByKey( key, returnRootContent );
+            return getContentByKey( key, returnRootContent, environment );
         }
         else
         {
             if ( context.isGlobalMode() )
             {
-                if ( queryContext != null && queryContext.get( "__siteKey" ) != null )
+                if ( !siteKey.isEmpty() )
                 {
-                    return getContentByKey( queryContext.get( "__siteKey" ).toString(), returnRootContent );
+                    return getContentByKey( siteKey, returnRootContent, environment );
                 }
                 if ( returnRootContent )
                 {
                     return ContextBuilder.from( ContextAccessor.current() ).build().callWith(
-                        () -> new GetContentCommand( contentService ).execute( "/" ) );
+                        () -> new GetContentCommand( contentService ).execute( "/", environment ) );
                 }
             }
             return ContentSerializer.serialize( portalRequest.getContent() );
@@ -77,21 +84,14 @@ public abstract class BaseContentDataFetcher
 
     private Site getSiteByKey( String siteKey )
     {
-        Site site = siteKey.startsWith( "/" )
+        return siteKey.startsWith( "/" )
             ? contentService.findNearestSiteByPath( ContentPath.from( siteKey ) )
             : contentService.getNearestSite( ContentId.from( siteKey ) );
-
-        if ( site == null )
-        {
-            throw new IllegalArgumentException( "Site not found." );
-        }
-
-        return site;
     }
 
-    private Map<String, Object> getContentByKey( String key, boolean returnRootContent )
+    private Map<String, Object> getContentByKey( String key, boolean returnRootContent, DataFetchingEnvironment environment )
     {
-        Map<String, Object> contentAsMap = new GetContentCommand( contentService ).execute( key );
+        Map<String, Object> contentAsMap = new GetContentCommand( contentService ).execute( key, environment );
 
         if ( contentAsMap != null && "/".equals( contentAsMap.get( "_path" ) ) && !returnRootContent )
         {

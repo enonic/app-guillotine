@@ -58,13 +58,13 @@ public class FormItemDataFetcher
                 }
                 if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) )
                 {
-                    Map<String, Object> attachmentsAsMap = getAttachmentsAsMap( contentId );
+                    Map<String, Object> attachmentsAsMap = getAttachmentsAsMap( contentId, environment );
                     return attachmentsAsMap.get( (String) value );
                 }
                 if ( inputType.equals( InputTypeName.CONTENT_SELECTOR ) || inputType.equals( InputTypeName.MEDIA_SELECTOR ) ||
                     inputType.equals( InputTypeName.IMAGE_SELECTOR ) || inputType.equals( InputTypeName.MEDIA_UPLOADER ) )
                 {
-                    return getContentAsMap( (String) value );
+                    return getContentAsMap( (String) value, environment );
                 }
             }
             return value;
@@ -94,13 +94,13 @@ public class FormItemDataFetcher
                 }
                 if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) )
                 {
-                    Map<String, Object> attachmentsAsMap = getAttachmentsAsMap( contentId );
+                    Map<String, Object> attachmentsAsMap = getAttachmentsAsMap( contentId, environment );
                     return values.stream().map( value -> attachmentsAsMap.get( (String) value ) ).collect( Collectors.toList() );
                 }
                 if ( inputType.equals( InputTypeName.CONTENT_SELECTOR ) || inputType.equals( InputTypeName.MEDIA_SELECTOR ) ||
                     inputType.equals( InputTypeName.IMAGE_SELECTOR ) || inputType.equals( InputTypeName.MEDIA_UPLOADER ) )
                 {
-                    return values.stream().map( value -> getContentAsMap( (String) value ) ).collect( Collectors.toList() );
+                    return values.stream().map( value -> getContentAsMap( (String) value, environment ) ).collect( Collectors.toList() );
                 }
             }
             return values;
@@ -108,14 +108,14 @@ public class FormItemDataFetcher
 
     }
 
-    private Map<String, Object> getContentAsMap( final String contentId )
+    private Map<String, Object> getContentAsMap( final String contentId, final DataFetchingEnvironment environment )
     {
-        return new GetContentCommand( serviceFacade.getContentService() ).execute( contentId );
+        return new GetContentCommand( serviceFacade.getContentService() ).execute( contentId, environment );
     }
 
-    private Map<String, Object> getAttachmentsAsMap( final String contentId )
+    private Map<String, Object> getAttachmentsAsMap( final String contentId, final DataFetchingEnvironment environment )
     {
-        Map<String, Object> contentAsMap = getContentAsMap( contentId );
+        Map<String, Object> contentAsMap = getContentAsMap( contentId, environment );
         return contentAsMap != null ? CastHelper.cast( contentAsMap.get( "attachments" ) ) : Map.of();
     }
 

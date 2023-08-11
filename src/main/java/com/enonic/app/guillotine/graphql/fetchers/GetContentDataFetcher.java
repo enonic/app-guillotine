@@ -3,6 +3,7 @@ package com.enonic.app.guillotine.graphql.fetchers;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.GuillotineContext;
+import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentService;
 
 public class GetContentDataFetcher
@@ -17,6 +18,6 @@ public class GetContentDataFetcher
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
     {
-        return getContent( environment, false );
+        return GuillotineLocalContextHelper.executeInContext( environment, () -> getContent( environment, false ) );
     }
 }

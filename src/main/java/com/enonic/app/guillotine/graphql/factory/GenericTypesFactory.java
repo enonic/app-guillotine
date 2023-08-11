@@ -200,7 +200,7 @@ public class GenericTypesFactory
 
         context.registerDataFetcher( outputObject.getName(), "image", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
-            return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "imageId" ).toString() );
+            return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "imageId" ).toString(), environment );
         } );
 
         context.registerDataFetcher( outputObject.getName(), "ref", new GetFieldAsJsonDataFetcher( "imageRef" ) );
@@ -220,7 +220,7 @@ public class GenericTypesFactory
             Map<String, Object> sourceAsMap = environment.getSource();
             if ( sourceAsMap.containsKey( "contentId" ) )
             {
-                return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "contentId" ).toString() );
+                return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "contentId" ).toString(), environment );
             }
             return null;
         } );
@@ -244,7 +244,7 @@ public class GenericTypesFactory
             Map<String, Object> sourceAsMap = environment.getSource();
             if ( sourceAsMap.get( "contentId" ) != null )
             {
-                return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "contentId" ).toString() );
+                return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "contentId" ).toString(), environment );
             }
             return null;
         } );
@@ -264,6 +264,6 @@ public class GenericTypesFactory
         GraphQLObjectType outputObject = newObject( context.uniqueName( "RichText" ), "RichText type.", fields );
         context.registerType( outputObject.getName(), outputObject );
 
-        context.registerDataFetcher( outputObject.getName(), "macros", new GetFieldAsJsonDataFetcher( "macrosAsJson" ) );
+        context.registerDataFetcher( outputObject.getName(), "macros", new GetAsJsonWithoutContentIdDataFetcher( "macrosAsJson" ) );
     }
 }

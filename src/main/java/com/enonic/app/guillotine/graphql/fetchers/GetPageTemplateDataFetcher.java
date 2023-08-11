@@ -19,6 +19,6 @@ public class GetPageTemplateDataFetcher
         throws Exception
     {
         Map<String, Object> sourceAsMap = environment.getSource();
-        return resolvePageTemplate( sourceAsMap );
+        return resolvePageTemplate( sourceAsMap, environment );
     }
 }

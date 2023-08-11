@@ -10,6 +10,7 @@ import graphql.schema.DataFetchingEnvironment;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.app.guillotine.mapper.NodeMapper;
 import com.enonic.xp.node.Node;
@@ -28,12 +29,17 @@ public class GetComponentsDataFetcher
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
     {
+        return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
+    }
+
+    private List<Map<String, Object>> doGet( final DataFetchingEnvironment environment )
+    {
         Map<String, Object> sourceAsMap = environment.getSource();
 
         boolean resolveTemplate = Objects.requireNonNullElse( environment.getArgument( "resolveTemplate" ), false );
         boolean resolveFragment = Objects.requireNonNullElse( environment.getArgument( "resolveFragment" ), false );
 
-        Map<String, Object> pageTemplate = resolveTemplate ? resolvePageTemplate( sourceAsMap ) : null;
+        Map<String, Object> pageTemplate = resolveTemplate ? resolvePageTemplate( sourceAsMap, environment ) : null;
 
         String nodeId = CastHelper.cast( pageTemplate == null ? sourceAsMap.get( "_id" ) : pageTemplate.get( "_id" ) );
 
