@@ -35,7 +35,7 @@ public class GetContentParentDataFetcher
             return null;
         }
 
-        Object parent = new GetContentCommand( contentService ).execute( parentPath );
+        Object parent = new GetContentCommand( contentService ).execute( parentPath, environment );
 
         return SecurityHelper.filterForbiddenContent( CastHelper.cast( parent ), guillotineContext );
     }

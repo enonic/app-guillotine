@@ -6,9 +6,10 @@ import java.util.Map;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
-import com.enonic.app.guillotine.graphql.helper.ConnectionHelper;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.commands.FindContentsCommand;
+import com.enonic.app.guillotine.graphql.helper.ConnectionHelper;
+import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentService;
 
 public class QueryDslConnectionDataFetcher
@@ -25,6 +26,11 @@ public class QueryDslConnectionDataFetcher
     @Override
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
+    {
+        return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
+    }
+
+    private Object doGet( DataFetchingEnvironment environment )
     {
         ArgumentsValidator.validateDslQuery( environment.getArguments() );
 

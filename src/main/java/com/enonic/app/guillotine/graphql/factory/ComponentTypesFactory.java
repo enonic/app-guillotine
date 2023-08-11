@@ -77,7 +77,6 @@ public class ComponentTypesFactory
         context.registerType( objectType.getName(), objectType );
 
         context.registerDataFetcher( objectType.getName(), "configAsJson", new GetAsJsonWithoutContentIdDataFetcher( "config" ) );
-
     }
 
     private void createPageComponentData()
@@ -100,7 +99,8 @@ public class ComponentTypesFactory
         context.registerDataFetcher( objectType.getName(), "configAsJson", new GetAsJsonWithoutContentIdDataFetcher( "config" ) );
         context.registerDataFetcher( objectType.getName(), "template", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
-            return new GetContentCommand( serviceFacade.getContentService() ).execute( CastHelper.cast( sourceAsMap.get( "template" ) ) );
+            return new GetContentCommand( serviceFacade.getContentService() ).execute( CastHelper.cast( sourceAsMap.get( "template" ) ),
+                                                                                       environment );
         } );
     }
 
@@ -135,7 +135,8 @@ public class ComponentTypesFactory
 
         context.registerDataFetcher( objectType.getName(), "image", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
-            return new GetContentCommand( serviceFacade.getContentService() ).execute( CastHelper.cast( sourceAsMap.get( "id" ) ) );
+            return new GetContentCommand( serviceFacade.getContentService() ).execute( CastHelper.cast( sourceAsMap.get( "id" ) ),
+                                                                                       environment );
         } );
     }
 
@@ -167,7 +168,8 @@ public class ComponentTypesFactory
 
         context.registerDataFetcher( objectType.getName(), "fragment", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
-            return new GetContentCommand( serviceFacade.getContentService() ).execute( CastHelper.cast( sourceAsMap.get( "id" ) ) );
+            return new GetContentCommand( serviceFacade.getContentService() ).execute( CastHelper.cast( sourceAsMap.get( "id" ) ),
+                                                                                       environment );
         } );
 
         context.registerType( objectType.getName(), objectType );

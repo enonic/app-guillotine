@@ -10,6 +10,7 @@ import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.DataFetcherHelper;
 
 public class GetPageAsJsonDataFetcher
     extends BasePageDataFetcher
@@ -28,19 +29,19 @@ public class GetPageAsJsonDataFetcher
         boolean resolveTemplate = Objects.requireNonNullElse( environment.getArgument( "resolveTemplate" ), false );
         boolean resolveFragment = Objects.requireNonNullElse( environment.getArgument( "resolveFragment" ), false );
 
-        Map<String, Object> pageTemplate = resolveTemplate ? resolvePageTemplate( sourceAsMap ) : null;
+        Map<String, Object> pageTemplate = resolveTemplate ? resolvePageTemplate( sourceAsMap, environment ) : null;
 
         Map<String, Object> page = CastHelper.cast( pageTemplate == null ? sourceAsMap.get( "page" ) : pageTemplate.get( "page" ) );
 
         if ( resolveFragment )
         {
-            inlineFragmentContentComponents( page );
+            inlineFragmentContentComponents( page, environment );
         }
 
-        return page;
+        return DataFetcherHelper.removeContentIdField( page );
     }
 
-    private void inlineFragmentContentComponents( Map<String, Object> sourceAsMap )
+    private void inlineFragmentContentComponents( Map<String, Object> sourceAsMap, DataFetchingEnvironment environment )
     {
         if ( sourceAsMap != null && sourceAsMap.get( "regions" ) != null )
         {
@@ -58,7 +59,8 @@ public class GetPageAsJsonDataFetcher
                     if ( "fragment".equals( component.get( "type" ) ) && component.get( "fragment" ) != null )
                     {
                         Map<String, Object> fragmentComponent =
-                            new GetContentCommand( serviceFacade.getContentService() ).execute( component.get( "fragment" ).toString() );
+                            new GetContentCommand( serviceFacade.getContentService() ).execute( component.get( "fragment" ).toString(),
+                                                                                                environment );
 
                         if ( fragmentComponent != null )
                         {
@@ -74,7 +76,7 @@ public class GetPageAsJsonDataFetcher
                     }
                     else if ( "layout".equals( component.get( "type" ) ) )
                     {
-                        inlineFragmentContentComponents( component );
+                        inlineFragmentContentComponents( component, environment );
                     }
                 }
             } );

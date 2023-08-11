@@ -4,12 +4,12 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import graphql.schema.DataFetcher;
+import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
+import com.enonic.app.guillotine.graphql.ContentSerializer;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
-import com.enonic.app.guillotine.mapper.ContentMapper;
-import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
@@ -31,7 +31,7 @@ public abstract class BasePageDataFetcher
         this.serviceFacade = serviceFacade;
     }
 
-    protected Map<String, Object> resolvePageTemplate( Map<String, Object> contentAsMap )
+    protected Map<String, Object> resolvePageTemplate( Map<String, Object> contentAsMap, DataFetchingEnvironment environment )
     {
         if ( "portal:page-template".equals( contentAsMap.get( "type" ) ) )
         {
@@ -50,7 +50,7 @@ public abstract class BasePageDataFetcher
             if ( page.get( "template" ) != null )
             {
                 String templateId = CastHelper.cast( page.get( "template" ) );
-                return CastHelper.cast( new GetContentCommand( serviceFacade.getContentService() ).execute( templateId ) );
+                return CastHelper.cast( new GetContentCommand( serviceFacade.getContentService() ).execute( templateId, environment ) );
             }
         }
 
@@ -74,9 +74,7 @@ public abstract class BasePageDataFetcher
 
                 if ( defaultPageTemplate != null )
                 {
-                    GuillotineMapGenerator generator = new GuillotineMapGenerator();
-                    new ContentMapper( defaultPageTemplate ).serialize( generator );
-                    return CastHelper.cast( generator.getRoot() );
+                    return ContentSerializer.serialize( defaultPageTemplate );
                 }
             }
 

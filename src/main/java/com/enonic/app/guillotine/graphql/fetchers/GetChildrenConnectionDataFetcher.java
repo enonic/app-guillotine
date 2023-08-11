@@ -13,6 +13,7 @@ import com.enonic.app.guillotine.graphql.ArgumentsValidator;
 import com.enonic.app.guillotine.graphql.ContentSerializer;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.helper.ConnectionHelper;
+import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.FindContentByParentParams;
@@ -30,6 +31,11 @@ public class GetChildrenConnectionDataFetcher
     @Override
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
+    {
+        return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
+    }
+
+    private Map<String, Object> doGet( final DataFetchingEnvironment environment )
     {
         ArgumentsValidator.validateArguments( environment.getArguments() );
 

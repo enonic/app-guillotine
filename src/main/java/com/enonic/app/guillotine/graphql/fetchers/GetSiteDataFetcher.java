@@ -7,6 +7,7 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ContentSerializer;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
+import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
@@ -31,17 +32,20 @@ public class GetSiteDataFetcher
     public Map<String, Object> get( final DataFetchingEnvironment environment )
         throws Exception
     {
+        return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
+    }
+
+    private Map<String, Object> doGet( final DataFetchingEnvironment environment )
+    {
         Site site = null;
         if ( guillotineContext.isGlobalMode() )
         {
-            Map<String, Object> queryContext = environment.getRoot();
-            if ( queryContext != null && queryContext.get( "__siteKey" ) != null )
+            String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
+            if ( !siteKey.isEmpty() )
             {
-                String siteKey = queryContext.get( "__siteKey" ).toString();
                 site = siteKey.startsWith( "/" )
                     ? contentService.findNearestSiteByPath( ContentPath.from( siteKey ) )
                     : contentService.getNearestSite( ContentId.from( siteKey ) );
-                return ContentSerializer.serialize( site );
             }
         }
         else
