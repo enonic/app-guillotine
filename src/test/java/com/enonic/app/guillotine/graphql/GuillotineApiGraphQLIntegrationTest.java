@@ -20,6 +20,7 @@ import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.data.PropertySet;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.form.FieldSet;
 import com.enonic.xp.form.FormItemSet;
@@ -266,5 +267,41 @@ public class GuillotineApiGraphQLIntegrationTest
         Map<String, Object> getFoG2 = CastHelper.cast( g2.get( "get" ) );
         assertEquals( "New Name", getFoG2.get( "displayName" ) );
         assertEquals( "contentId", getFoG2.get( "_id" ) );
+    }
+
+    @Test
+    public void testSiteDoesNotContainsSiteConfigField()
+    {
+        final PropertyTree data = new PropertyTree();
+        data.addSet( "siteConfig", new PropertySet() );
+        data.addString( "k", "v" );
+
+        Site site = Site.create().name( "site" ).type( ContentTypeName.site() ).path( ContentPath.from( "/sitePath" ) ).parentPath(
+            ContentPath.ROOT ).data( data ).displayName( "Site" ).id( ContentId.from( "siteId" ) ).build();
+
+        when( contentService.findNearestSiteByPath( ContentPath.from( "/sitePath" ) ) ).thenReturn( site );
+        when( contentService.getByPath( ContentPath.from( "/sitePath" ) ) ).thenReturn( site );
+        when( contentService.getById( ContentId.from( "siteId" ) ) ).thenReturn( site );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> result =
+            executeQuery( graphQLSchema, ResourceHelper.readGraphQLQuery( "graphql/getSiteWithoutSiteConfigField.graphql" ) );
+
+        assertFalse( result.containsKey( "errors" ) );
+        assertTrue( result.containsKey( "data" ) );
+
+        Map<String, Object> getField = CastHelper.cast( getFieldFromGuillotine( result, "get" ) );
+        Map<String, Object> dataAsJson = CastHelper.cast( getField.get( "dataAsJson" ) );
+
+        assertFalse( dataAsJson.containsKey( "siteConfig" ) );
+        assertTrue( dataAsJson.containsKey( "k" ) );
+
+        Map<String, Object> getSiteField = CastHelper.cast( getFieldFromGuillotine( result, "getSite" ) );
+
+        dataAsJson = CastHelper.cast( getSiteField.get( "dataAsJson" ) );
+
+        assertFalse( dataAsJson.containsKey( "siteConfig" ) );
+        assertTrue( dataAsJson.containsKey( "k" ) );
     }
 }

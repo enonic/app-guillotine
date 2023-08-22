@@ -1,0 +1,10 @@
+query {
+    guillotine(repo: "repo-name", branch: "draft", siteKey: "/sitePath") {
+        get(key: "siteId") {
+            dataAsJson
+        }
+        getSite {
+            dataAsJson
+        }
+    }
+}
