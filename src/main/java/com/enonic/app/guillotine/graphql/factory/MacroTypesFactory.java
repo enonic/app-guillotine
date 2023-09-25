@@ -2,6 +2,7 @@ package com.enonic.app.guillotine.graphql.factory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLFieldDefinition;
@@ -12,6 +13,7 @@ import graphql.schema.GraphQLTypeReference;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
 
 import static com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper.getFilteredFormItems;
@@ -42,6 +44,8 @@ public class MacroTypesFactory
     private void createMacroConfigType()
     {
         List<GraphQLFieldDefinition> macroConfigTypeFields = new ArrayList<>();
+
+        String macroConfigTypeName = context.uniqueName( "MacroConfig" );
 
         serviceFacade.getComponentDescriptorService().getMacroDescriptors( context.getApplications() ).forEach( macroDescriptor -> {
             String descriptorName = StringNormalizer.create( macroDescriptor.getName() );
@@ -74,13 +78,19 @@ public class MacroTypesFactory
                                                                    descriptorName + "']", macroDataConfigFields );
 
             context.registerType( macroDataConfigType.getName(), macroDataConfigType );
-            macroConfigTypeFields.add( outputField( descriptorName, macroDataConfigType ) );
+
+            final GraphQLFieldDefinition macroConfigField = outputField( descriptorName, macroDataConfigType );
+            macroConfigTypeFields.add( macroConfigField );
+
+            context.registerDataFetcher( macroConfigTypeName, macroConfigField.getName(), environment ->  {
+                Map<String, Object> sourceAsMap = CastHelper.cast( environment.getSource() );
+                return sourceAsMap.get( macroDescriptor.getName() );
+            }  );
         } );
 
         if ( !macroConfigTypeFields.isEmpty() )
         {
-            GraphQLObjectType macroConfigType =
-                newObject( context.uniqueName( "MacroConfig" ), "Macro config type.", macroConfigTypeFields );
+            GraphQLObjectType macroConfigType = newObject( macroConfigTypeName, "Macro config type.", macroConfigTypeFields );
             context.registerType( macroConfigType.getName(), macroConfigType );
         }
     }
