@@ -24,9 +24,7 @@ query {
                     {
                         like: {
                             field: "displayName",
-                            value: {
-                                string: "*queryString*"
-                            }
+                            value: "*queryString*"
                         }
                     },
                     {

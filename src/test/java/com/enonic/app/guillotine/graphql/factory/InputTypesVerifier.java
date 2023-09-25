@@ -299,7 +299,7 @@ public class InputTypesVerifier
         assertEquals( "LikeDSLExpressionInput type", type.getDescription() );
         assertEquals( Scalars.GraphQLString, getOriginalTypeFromGraphQLNonNull( type, "field" ) );
         assertEquals( Scalars.GraphQLFloat, type.getField( "boost" ).getType() );
-        assertEquals( "DSLExpressionValueInput", getNameForGraphQLTypeReference( getOriginalTypeFromGraphQLNonNull( type, "value" ) ) );
+        assertEquals( Scalars.GraphQLString, getOriginalTypeFromGraphQLNonNull( type, "value" ) );
     }
 
     private void verifyTermDSLExpressionInput()

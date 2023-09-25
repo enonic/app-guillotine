@@ -7,9 +7,11 @@ import java.util.concurrent.Callable;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
+import com.enonic.xp.branch.Branch;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.project.ProjectConstants;
+import com.enonic.xp.repository.RepositoryId;
 
 public class GuillotineLocalContextHelper
 {
@@ -45,6 +47,26 @@ public class GuillotineLocalContextHelper
         }
 
         return environment.getGraphQlContext().getOrDefault( "__siteKey", "" );
+    }
+
+    public static String getRepositoryId( final DataFetchingEnvironment environment, final RepositoryId defaultRepoId )
+    {
+        final Map<String, Object> targetContext = getTargetContext( environment );
+        if ( targetContext != null && targetContext.get( Constants.GUILLOTINE_TARGET_REPO_CTX ) != null )
+        {
+            return ProjectConstants.PROJECT_REPO_ID_PREFIX + targetContext.get( Constants.GUILLOTINE_TARGET_REPO_CTX ).toString();
+        }
+        return defaultRepoId.toString();
+    }
+
+    public static String getBranch( final DataFetchingEnvironment environment, final Branch defaultBranch )
+    {
+        final Map<String, Object> targetContext = getTargetContext( environment );
+        if ( targetContext != null && targetContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ) != null )
+        {
+            return targetContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ).toString();
+        }
+        return defaultBranch.toString();
     }
 
     private static Map<String, Object> getTargetContext( final DataFetchingEnvironment environment )

@@ -359,7 +359,7 @@ public class InputTypesFactory
 
         fields.add( inputField( "field", new GraphQLNonNull( Scalars.GraphQLString ) ) );
         fields.add( inputField( "boost", Scalars.GraphQLFloat ) );
-        fields.add( inputField( "value", new GraphQLNonNull( GraphQLTypeReference.typeRef( "DSLExpressionValueInput" ) ) ) );
+        fields.add( inputField( "value", new GraphQLNonNull( Scalars.GraphQLString ) ) );
 
         GraphQLInputObjectType inputObject =
             newInputObject( context.uniqueName( "LikeDSLExpressionInput" ), "LikeDSLExpressionInput type", fields );
