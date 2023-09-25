@@ -240,7 +240,7 @@ public abstract class QueryBaseDataFetcher
         {
             Map<String, Object> dslExpression = new HashMap<>();
             dslExpression.put( "field", expression.get( "field" ) );
-            dslExpression.put( "value", extractPropertyValue( CastHelper.cast( expression.get( "value" ) ) ) );
+            dslExpression.put( "value", CastHelper.cast( expression.get( "value" ) ) );
 
             if ( expression.get( "boost" ) != null )
             {

@@ -46,8 +46,10 @@ public class GetContentPathDataFetcher
             String sitePath = adminContext().callWith( () -> {
                 if ( guillotineContext.isGlobalMode() )
                 {
-                    String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
-                    return Objects.toString( getSitePathBySiteKey( siteKey ), originalPath );
+                    return GuillotineLocalContextHelper.executeInContext( environment, () -> {
+                        String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
+                        return Objects.toString( getSitePathBySiteKey( siteKey ), originalPath );
+                    } );
                 }
                 else
                 {
