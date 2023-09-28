@@ -18,7 +18,6 @@ public class EnumTypesVerifier
     public void verify()
     {
         verifyUrlType();
-        verifyContentPathType();
         verifyMediaIntentType();
         verifyDslOperatorType();
         verifyDslSortDirectionType();
@@ -42,16 +41,6 @@ public class EnumTypesVerifier
         assertEquals( 2, type.getValues().size() );
         verifyTypeValue( type, "server" );
         verifyTypeValue( type, "absolute" );
-    }
-
-    private void verifyContentPathType()
-    {
-        GraphQLEnumType type = context.getEnumType( "ContentPathType" );
-
-        assertEquals( "ContentPathType", type.getName() );
-        assertEquals( "Content path type.", type.getDescription() );
-        assertEquals( 1, type.getValues().size() );
-        verifyTypeValue( type, "siteRelative" );
     }
 
     private void verifyMediaIntentType()
