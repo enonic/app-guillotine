@@ -21,8 +21,6 @@ public class EnumTypesFactory
     {
         registerEnum( "UrlType", "URL type.", List.of( "server", "absolute" ) );
 
-        registerEnum( "ContentPathType", "Content path type.", List.of( "siteRelative" ) );
-
         registerEnum( "MediaIntentType", "Media intent type.", List.of( "download", "inline" ) );
 
         registerEnum( "DslOperatorType", "DSL Operator type.", List.of( "OR", "AND" ) );

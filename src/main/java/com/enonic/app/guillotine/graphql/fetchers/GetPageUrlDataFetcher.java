@@ -6,6 +6,7 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
+import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.url.PageUrlParams;
@@ -38,7 +39,9 @@ public class GetPageUrlDataFetcher
 
         PageUrlParams params =
             new PageUrlParams().id( sourceAsMap.get( "_id" ).toString() ).type( environment.getArgument( "type" ) ).portalRequest(
-                portalRequest ); // TODO include params
+                portalRequest );
+
+        ParamsUrHelper.resolveParams( params.getParams(), environment.getArgument( "params" ) );
 
         return portalUrlService.pageUrl( params );
     }

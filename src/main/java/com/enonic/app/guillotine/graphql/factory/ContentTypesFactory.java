@@ -29,7 +29,6 @@ import com.enonic.app.guillotine.graphql.fetchers.GetContentChildrenDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentDataDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentFieldDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentParentDataFetcher;
-import com.enonic.app.guillotine.graphql.fetchers.GetContentPathDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentReferencesDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentSiteDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetImageUrlDataFetcher;
@@ -162,7 +161,7 @@ public class ContentTypesFactory
 
         arguments.add( newArgument( "download", Scalars.GraphQLBoolean ) );
         arguments.add( newArgument( "type", GraphQLTypeReference.typeRef( "UrlType" ) ) );
-        arguments.add( newArgument( "params", Scalars.GraphQLString ) );
+        arguments.add( newArgument( "params", ExtendedScalars.Json ) );
 
         return outputField( "mediaUrl", Scalars.GraphQLString, arguments );
     }
@@ -218,8 +217,7 @@ public class ContentTypesFactory
 
         result.add( outputField( "_id", new GraphQLNonNull( Scalars.GraphQLID ) ) );
         result.add( outputField( "_name", new GraphQLNonNull( Scalars.GraphQLString ) ) );
-        result.add( outputField( "_path", new GraphQLNonNull( Scalars.GraphQLString ),
-                                 List.of( newArgument( "type", GraphQLTypeReference.typeRef( "ContentPathType" ) ) ) ) );
+        result.add( outputField( "_path", new GraphQLNonNull( Scalars.GraphQLString ) ) );
         result.add( outputField( "_references", new GraphQLList( GraphQLTypeReference.typeRef( "Content" ) ) ) );
         result.add( outputField( "_score", Scalars.GraphQLFloat ) );
         result.add( outputField( "creator", GraphQLTypeReference.typeRef( "PrincipalKey" ) ) );
@@ -245,9 +243,7 @@ public class ContentTypesFactory
                                           newArgument( "resolveFragment", Scalars.GraphQLBoolean ) ) ) );
         result.add( outputField( "attachments", new GraphQLList( GraphQLTypeReference.typeRef( "Attachment" ) ) ) );
         result.add( outputField( "publish", GraphQLTypeReference.typeRef( "PublishInfo" ) ) );
-        result.add( outputField( "pageUrl", Scalars.GraphQLString,
-                                 List.of( newArgument( "type", GraphQLTypeReference.typeRef( "UrlType" ) ),
-                                          newArgument( "params", Scalars.GraphQLString ) ) ) );
+        result.add( outputField( "pageUrl", Scalars.GraphQLString, List.of( newArgument( "params", ExtendedScalars.Json ) ) ) );
         result.add( outputField( "site", GraphQLTypeReference.typeRef( "portal_Site" ) ) );
         result.add( outputField( "parent", GraphQLTypeReference.typeRef( "Content" ) ) );
         result.add( outputField( "children", new GraphQLList( GraphQLTypeReference.typeRef( "Content" ) ),
@@ -257,8 +253,6 @@ public class ContentTypesFactory
                                  List.of( newArgument( "after", Scalars.GraphQLString ), newArgument( "first", Scalars.GraphQLInt ),
                                           newArgument( "sort", Scalars.GraphQLString ) ) ) );
         result.add( outputField( "permissions", GraphQLTypeReference.typeRef( "Permissions" ) ) );
-
-        context.registerDataFetcher( contentType, "_path", new GetContentPathDataFetcher( serviceFacade.getContentService() ) );
 
         context.registerDataFetcher( contentType, "contentType",
                                      new ContentTypeDataFetcher( serviceFacade.getMixinService(), serviceFacade.getContentTypeService() ) );

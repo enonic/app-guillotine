@@ -7,6 +7,7 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
+import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.url.AttachmentUrlParams;
@@ -40,6 +41,8 @@ public class GetAttachmentUrlByIdDataFetcher
         AttachmentUrlParams params = new AttachmentUrlParams().id( sourceAsMap.get( "_id" ).toString() ).download(
             Objects.toString( environment.getArgument( "download" ), "false" ) ).type( environment.getArgument( "type" ) ).portalRequest(
             portalRequest );
+
+        ParamsUrHelper.resolveParams( params.getParams(), environment.getArgument( "params" ) );
 
         return portalUrlService.attachmentUrl( params );
     }
