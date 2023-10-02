@@ -73,7 +73,31 @@ public abstract class QueryBaseDataFetcher
     {
         if ( queryDsl )
         {
-            return ArrayHelper.forceArray( sort );
+            List<Map<String, Object>> result = new ArrayList<>();
+
+            ArrayHelper.forceArray( sort ).forEach( sortItem -> {
+                Map<String, Object> sortItemAsMap = CastHelper.cast( sortItem );
+
+                Map<String, Object> sortAsMap = new HashMap<>();
+                sortAsMap.put( "field", sortItemAsMap.get( "field" ) );
+                if ( sortItemAsMap.get( "direction" ) != null )
+                {
+                    sortAsMap.put( "direction", sortItemAsMap.get( "direction" ) );
+                }
+                if ( sortItemAsMap.get( "location" ) != null )
+                {
+                    Map<String, Object> locationAsMap = CastHelper.cast( sortItemAsMap.get( "location" ) );
+                    sortAsMap.put( "location", Map.of( "lat", locationAsMap.get( "lat" ), "lon", locationAsMap.get( "lon" ) ) );
+                }
+                if ( sortItemAsMap.get( "unit" ) != null )
+                {
+                    sortAsMap.put( "unit", sortItemAsMap.get( "unit" ) );
+                }
+
+                result.add( sortAsMap );
+            } );
+
+            return result;
         }
         return sort;
     }

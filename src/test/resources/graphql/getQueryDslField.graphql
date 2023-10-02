@@ -75,7 +75,12 @@ query {
             }
         }, offset: 0, first: 100, sort: {
             field: "modifiedTime",
-            direction: ASC
+            direction: ASC,
+            location: {
+                lat: 0.5,
+                lon: 0.5
+            },
+            unit: km
         }) {
             _id
             _name
