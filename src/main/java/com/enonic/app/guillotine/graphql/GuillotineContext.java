@@ -14,9 +14,6 @@ import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLType;
 import graphql.schema.TypeResolver;
 
-import com.enonic.xp.portal.PortalRequest;
-import com.enonic.xp.portal.PortalRequestAccessor;
-
 public class GuillotineContext
 {
     private final ConcurrentMap<String, GraphQLType> types = new ConcurrentHashMap<>();
@@ -33,35 +30,14 @@ public class GuillotineContext
 
     private final CopyOnWriteArrayList<String> applications;
 
-    private final CopyOnWriteArrayList<String> allowPaths;
-
     private GuillotineContext( final Builder builder )
     {
         this.applications = builder.applications;
-        this.allowPaths = builder.allowPaths;
-    }
-
-    public boolean isGlobalMode()
-    {
-        if ( options.containsKey( "__globalModeOn" ) )
-        {
-            return options.get( "__globalModeOn" ) == null || (boolean) options.get( "__globalModeOn" );
-        }
-
-        PortalRequest portalRequest = PortalRequestAccessor.get();
-        boolean globalModeOn = portalRequest.getSite() == null;
-        options.put( "__globalModeOn", globalModeOn );
-        return globalModeOn;
     }
 
     public List<String> getApplications()
     {
         return applications;
-    }
-
-    public List<String> getAllowPaths()
-    {
-        return allowPaths;
     }
 
     public void registerType( String name, GraphQLType type )
@@ -147,8 +123,6 @@ public class GuillotineContext
 
         private final CopyOnWriteArrayList<String> applications = new CopyOnWriteArrayList<>();
 
-        private final CopyOnWriteArrayList<String> allowPaths = new CopyOnWriteArrayList<>();
-
         public Builder()
         {
 
@@ -159,15 +133,6 @@ public class GuillotineContext
             if ( applications != null )
             {
                 this.applications.addAll( applications );
-            }
-            return this;
-        }
-
-        public Builder addAllowPaths( final List<String> allowPaths )
-        {
-            if ( allowPaths != null )
-            {
-                this.allowPaths.addAll( allowPaths );
             }
             return this;
         }

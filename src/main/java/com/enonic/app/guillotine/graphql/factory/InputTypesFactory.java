@@ -44,13 +44,6 @@ public class InputTypesFactory
         createValueCountAggregationInputType();
         createAggregationInputType();
 
-        createExistsFilterInputType();
-        createNotExistsFilterInputType();
-        createHasValueFilterInputType();
-        createIdsFilterInputType();
-        createBooleanFilterInputType();
-        createFilterInputType();
-
         createDslExpressionValueInputType();
         createTermExpressionDslInputType();
         createLikeDslExpressionInputType();
@@ -246,79 +239,6 @@ public class InputTypesFactory
         fields.add( inputField( "count", GraphQLTypeReference.typeRef( "ValueCountAggregationInput" ) ) );
 
         GraphQLInputObjectType inputObject = newInputObject( context.uniqueName( "AggregationInput" ), "Aggregation input type", fields );
-        context.registerType( inputObject.getName(), inputObject );
-    }
-
-    private void createExistsFilterInputType()
-    {
-        List<GraphQLInputObjectField> fields = new ArrayList<>();
-
-        fields.add( inputField( "field", new GraphQLNonNull( Scalars.GraphQLString ) ) );
-
-        GraphQLInputObjectType inputObject = newInputObject( context.uniqueName( "ExistsFilterInput" ), "ExistsFilter input type", fields );
-        context.registerType( inputObject.getName(), inputObject );
-    }
-
-    private void createNotExistsFilterInputType()
-    {
-        List<GraphQLInputObjectField> fields = new ArrayList<>();
-
-        fields.add( inputField( "field", new GraphQLNonNull( Scalars.GraphQLString ) ) );
-
-        GraphQLInputObjectType inputObject =
-            newInputObject( context.uniqueName( "NotExistsFilterInput" ), "NotExistsFilter input type", fields );
-        context.registerType( inputObject.getName(), inputObject );
-    }
-
-    private void createHasValueFilterInputType()
-    {
-        List<GraphQLInputObjectField> fields = new ArrayList<>();
-
-        fields.add( inputField( "field", new GraphQLNonNull( Scalars.GraphQLString ) ) );
-        fields.add( inputField( "stringValues", new GraphQLList( Scalars.GraphQLString ) ) );
-        fields.add( inputField( "intValues", new GraphQLList( Scalars.GraphQLInt ) ) );
-        fields.add( inputField( "floatValues", new GraphQLList( Scalars.GraphQLFloat ) ) );
-        fields.add( inputField( "booleanValues", new GraphQLList( Scalars.GraphQLBoolean ) ) );
-
-        GraphQLInputObjectType inputObject =
-            newInputObject( context.uniqueName( "HasValueFilterInput" ), "HasValueFilter input type", fields );
-        context.registerType( inputObject.getName(), inputObject );
-    }
-
-    private void createIdsFilterInputType()
-    {
-        List<GraphQLInputObjectField> fields = new ArrayList<>();
-
-        fields.add( inputField( "values", new GraphQLList( Scalars.GraphQLString ) ) );
-
-        GraphQLInputObjectType inputObject = newInputObject( context.uniqueName( "IdsFilterInput" ), "IdsFilter input type", fields );
-        context.registerType( inputObject.getName(), inputObject );
-    }
-
-    private void createBooleanFilterInputType()
-    {
-        List<GraphQLInputObjectField> fields = new ArrayList<>();
-
-        fields.add( inputField( "must", new GraphQLList( GraphQLTypeReference.typeRef( "FilterInput" ) ) ) );
-        fields.add( inputField( "mustNot", new GraphQLList( GraphQLTypeReference.typeRef( "FilterInput" ) ) ) );
-        fields.add( inputField( "should", new GraphQLList( GraphQLTypeReference.typeRef( "FilterInput" ) ) ) );
-
-        GraphQLInputObjectType inputObject =
-            newInputObject( context.uniqueName( "BooleanFilterInput" ), "BooleanFilter input type", fields );
-        context.registerType( inputObject.getName(), inputObject );
-    }
-
-    private void createFilterInputType()
-    {
-        List<GraphQLInputObjectField> fields = new ArrayList<>();
-
-        fields.add( inputField( "boolean", GraphQLTypeReference.typeRef( "BooleanFilterInput" ) ) );
-        fields.add( inputField( "exists", GraphQLTypeReference.typeRef( "ExistsFilterInput" ) ) );
-        fields.add( inputField( "notExists", GraphQLTypeReference.typeRef( "NotExistsFilterInput" ) ) );
-        fields.add( inputField( "hasValue", GraphQLTypeReference.typeRef( "HasValueFilterInput" ) ) );
-        fields.add( inputField( "ids", GraphQLTypeReference.typeRef( "IdsFilterInput" ) ) );
-
-        GraphQLInputObjectType inputObject = newInputObject( context.uniqueName( "FilterInput" ), "Filter input type", fields );
         context.registerType( inputObject.getName(), inputObject );
     }
 

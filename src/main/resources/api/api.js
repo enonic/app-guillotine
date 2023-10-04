@@ -41,18 +41,7 @@ function getSchema() {
 }
 
 function createQueryContext(headers) {
-    let siteKey = null;
-    Object.keys(headers).every(header => {
-        if ('x-guillotine-sitekey' === header.toLowerCase()) {
-            siteKey = headers[header];
-            return false;
-        }
-        return true;
-    });
-
-    return {
-        __siteKey: siteKey,
-    }
+    return {};
 }
 
 exports.get = function (req) {

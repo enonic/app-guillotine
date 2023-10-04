@@ -71,7 +71,6 @@ public class ContentTypesFactory
         context.registerType( contentInterface.getName(), contentInterface );
 
         new ConnectionTypeFactory( context ).createConnectionType( contentInterface.getName() );
-        createQueryContentConnectionType();
         createQueryDslContentConnectionType();
 
         GraphQLObjectType untypedContent = newObject( context.uniqueName( "UntypedContent" ), "UntypedContent", List.of( contentInterface ),
@@ -84,17 +83,6 @@ public class ContentTypesFactory
             contentType -> allowedContentTypesPattern.matcher( contentType.getName().toString() ).find() ).collect( Collectors.toList() );
 
         contentTypes.forEach( contentType -> createContentObjectType( contentType, contentInterface ) );
-    }
-
-    private void createQueryContentConnectionType()
-    {
-        GraphQLObjectType edgeType = context.getOutputType( "ContentEdge" );
-
-        List<GraphQLFieldDefinition> fields = List.of( outputField( "aggregationsAsJson", ExtendedScalars.Json ) );
-
-        GraphQLObjectType outputObject = new ConnectionTypeFactory( context ).createConnectionType( "QueryContent", edgeType, fields );
-
-        context.registerType( outputObject.getName(), outputObject );
     }
 
     private void createQueryDslContentConnectionType()
@@ -270,7 +258,7 @@ public class ContentTypesFactory
                                           newArgument( "sort", Scalars.GraphQLString ) ) ) );
         result.add( outputField( "permissions", GraphQLTypeReference.typeRef( "Permissions" ) ) );
 
-        context.registerDataFetcher( contentType, "_path", new GetContentPathDataFetcher( context, serviceFacade.getContentService() ) );
+        context.registerDataFetcher( contentType, "_path", new GetContentPathDataFetcher( serviceFacade.getContentService() ) );
 
         context.registerDataFetcher( contentType, "contentType",
                                      new ContentTypeDataFetcher( serviceFacade.getMixinService(), serviceFacade.getContentTypeService() ) );
@@ -283,7 +271,7 @@ public class ContentTypesFactory
 
         context.registerDataFetcher( contentType, "attachments", new GetAttachmentsDataFetcher() );
 
-        context.registerDataFetcher( contentType, "parent", new GetContentParentDataFetcher( serviceFacade.getContentService(), context ) );
+        context.registerDataFetcher( contentType, "parent", new GetContentParentDataFetcher( serviceFacade.getContentService() ) );
 
         context.registerDataFetcher( contentType, "owner", new GetContentFieldDataFetcher( "owner" ) );
 

@@ -90,44 +90,4 @@ public class QueryDslGraphQLIntegrationTest
         assertNotNull( queryDslConnection );
     }
 
-    @Test
-    public void testQueryField()
-    {
-        when( contentService.find( any( ContentQuery.class ) ) ).thenReturn(
-            FindContentIdsByQueryResult.create().contents( ContentIds.from( "contentId" ) ).hits( 100 ).totalHits( 1000 ).build() );
-
-        when( contentService.getByIds( any() ) ).thenReturn( Contents.from( ContentFixtures.createMediaContent() ) );
-
-        GraphQLSchema graphQLSchema = getBean().createSchema();
-
-        Map<String, Object> result = executeQuery( graphQLSchema, ResourceHelper.readGraphQLQuery( "graphql/QueryField.graphql" ) );
-
-        assertFalse( result.containsKey( "errors" ) );
-        assertTrue( result.containsKey( "data" ) );
-
-        List<Map<String, Object>> query = CastHelper.cast( getFieldFromGuillotine( result, "query" ) );
-
-        assertNotNull( query );
-        assertEquals( 1, query.size() );
-    }
-
-    @Test
-    public void testQueryConnectionField()
-    {
-        when( contentService.find( any( ContentQuery.class ) ) ).thenReturn(
-            FindContentIdsByQueryResult.create().contents( ContentIds.from( "contentId" ) ).hits( 100 ).totalHits( 1000 ).build() );
-
-        when( contentService.getByIds( any() ) ).thenReturn( Contents.from( ContentFixtures.createMediaContent() ) );
-
-        GraphQLSchema graphQLSchema = getBean().createSchema();
-
-        Map<String, Object> result = executeQuery( graphQLSchema, ResourceHelper.readGraphQLQuery( "graphql/QueryConnection.graphql" ) );
-
-        assertFalse( result.containsKey( "errors" ) );
-        assertTrue( result.containsKey( "data" ) );
-
-        Map<String, Object> queryConnection = CastHelper.cast( getFieldFromGuillotine( result, "queryConnection" ) );
-
-        assertNotNull( queryConnection );
-    }
 }

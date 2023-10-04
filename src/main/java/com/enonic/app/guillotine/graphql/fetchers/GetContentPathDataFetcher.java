@@ -6,7 +6,6 @@ import java.util.Objects;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
@@ -15,21 +14,16 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
-import com.enonic.xp.portal.PortalRequest;
-import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.auth.AuthenticationInfo;
 
 public class GetContentPathDataFetcher
     implements DataFetcher<String>
 {
-    private final GuillotineContext guillotineContext;
-
     private final ContentService contentService;
 
-    public GetContentPathDataFetcher( final GuillotineContext guillotineContext, final ContentService contentService )
+    public GetContentPathDataFetcher( final ContentService contentService )
     {
-        this.guillotineContext = guillotineContext;
         this.contentService = contentService;
     }
 
@@ -37,25 +31,15 @@ public class GetContentPathDataFetcher
     public String get( final DataFetchingEnvironment environment )
         throws Exception
     {
-        PortalRequest portalRequest = PortalRequestAccessor.get();
-
         Map<String, Object> contentAsMap = environment.getSource();
         String originalPath = contentAsMap.get( "_path" ).toString();
+
         if ( Objects.equals( "siteRelative", environment.getArgument( "type" ) ) )
         {
-            String sitePath = adminContext().callWith( () -> {
-                if ( guillotineContext.isGlobalMode() )
-                {
-                    return GuillotineLocalContextHelper.executeInContext( environment, () -> {
-                        String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
-                        return Objects.toString( getSitePathBySiteKey( siteKey ), originalPath );
-                    } );
-                }
-                else
-                {
-                    return portalRequest.getSite().getPath().toString();
-                }
-            } );
+            String sitePath = adminContext().callWith( () -> GuillotineLocalContextHelper.executeInContext( environment, () -> {
+                String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
+                return Objects.toString( getSitePathBySiteKey( siteKey ), originalPath );
+            } ) );
             String normalizedPath = originalPath.replace( sitePath, "" );
             return normalizedPath.startsWith( "/" ) ? normalizedPath.substring( 1 ) : normalizedPath;
         }

@@ -5,10 +5,9 @@ import java.util.Map;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.helper.CastHelper;
-import com.enonic.app.guillotine.graphql.GuillotineContext;
-import com.enonic.app.guillotine.graphql.helper.SecurityHelper;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.SecurityHelper;
 import com.enonic.xp.content.ContentService;
 
 public class GetContentParentDataFetcher
@@ -16,12 +15,9 @@ public class GetContentParentDataFetcher
 {
     private final ContentService contentService;
 
-    private final GuillotineContext guillotineContext;
-
-    public GetContentParentDataFetcher( final ContentService contentService, final GuillotineContext guillotineContext )
+    public GetContentParentDataFetcher( final ContentService contentService )
     {
         this.contentService = contentService;
-        this.guillotineContext = guillotineContext;
     }
 
     @Override
@@ -37,7 +33,7 @@ public class GetContentParentDataFetcher
 
         Object parent = new GetContentCommand( contentService ).execute( parentPath, environment );
 
-        return SecurityHelper.filterForbiddenContent( CastHelper.cast( parent ), guillotineContext );
+        return SecurityHelper.filterForbiddenContent( CastHelper.cast( parent ) );
     }
 
     private String resolveParentPath( DataFetchingEnvironment environment )
