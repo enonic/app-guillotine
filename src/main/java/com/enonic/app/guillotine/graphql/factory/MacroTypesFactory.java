@@ -67,7 +67,8 @@ public class MacroTypesFactory
                 GraphQLFieldDefinition field =
                     outputField( fieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
-                context.registerDataFetcher( macroDataConfigTypeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
+                context.registerDataFetcher( macroDataConfigTypeName, fieldName,
+                                             new FormItemDataFetcher( formItem, serviceFacade, context ) );
 
                 macroDataConfigFields.add( field );
             } );

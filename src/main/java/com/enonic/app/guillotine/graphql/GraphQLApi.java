@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,7 @@ import com.enonic.app.guillotine.graphql.transformer.ExtensionsExtractorService;
 import com.enonic.app.guillotine.graphql.transformer.SchemaExtensions;
 import com.enonic.app.guillotine.mapper.ExecutionResultMapper;
 import com.enonic.xp.app.ApplicationService;
+import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.script.ScriptValue;
 import com.enonic.xp.script.bean.BeanContext;
 import com.enonic.xp.script.bean.ScriptBean;
@@ -165,7 +167,8 @@ public class GraphQLApi
 
     private void generateGuillotineApi( GraphQLTypesRegister typesRegister )
     {
-        GuillotineContext context = GuillotineContext.create().addApplications( getApplicationNames() ).build();
+        GuillotineContext context =
+            GuillotineContext.create().addApplications( getApplicationNames() ).addMacroDecorators( getRegisteredMacrosInSystem() ).build();
         new TypeFactory( context, serviceFacadeSupplier.get() ).createTypes();
         GraphQLObjectType guillotineApi = new HeadlessCmsTypeFactory( context, serviceFacadeSupplier.get() ).create();
 
@@ -225,6 +228,12 @@ public class GraphQLApi
     {
         return applicationServiceSupplier.get().getInstalledApplications().stream().map(
             application -> application.getKey().getName() ).collect( Collectors.toList() );
+    }
+
+    private Map<String, MacroDescriptor> getRegisteredMacrosInSystem()
+    {
+        return serviceFacadeSupplier.get().getMacroDescriptorService().getAll().stream().collect(
+            Collectors.toMap( MacroDescriptor::getName, Function.identity() ) );
     }
 
 }

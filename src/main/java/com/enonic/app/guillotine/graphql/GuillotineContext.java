@@ -1,9 +1,13 @@
 package com.enonic.app.guillotine.graphql;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import com.google.common.collect.ImmutableMap;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.FieldCoordinates;
@@ -14,6 +18,7 @@ import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLType;
 import graphql.schema.TypeResolver;
 
+import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
 
@@ -33,12 +38,15 @@ public class GuillotineContext
 
     private final CopyOnWriteArrayList<String> applications;
 
+    private final ImmutableMap<String, MacroDescriptor> macroDecorators;
+
     private final CopyOnWriteArrayList<String> allowPaths;
 
     private GuillotineContext( final Builder builder )
     {
         this.applications = builder.applications;
         this.allowPaths = builder.allowPaths;
+        this.macroDecorators = ImmutableMap.<String, MacroDescriptor>builder().putAll( builder.macroDecorators ).build();
     }
 
     public boolean isGlobalMode()
@@ -62,6 +70,11 @@ public class GuillotineContext
     public List<String> getAllowPaths()
     {
         return allowPaths;
+    }
+
+    public Map<String, MacroDescriptor> getMacroDecorators()
+    {
+        return macroDecorators;
     }
 
     public void registerType( String name, GraphQLType type )
@@ -149,6 +162,8 @@ public class GuillotineContext
 
         private final CopyOnWriteArrayList<String> allowPaths = new CopyOnWriteArrayList<>();
 
+        private final Map<String, MacroDescriptor> macroDecorators = new HashMap<>();
+
         public Builder()
         {
 
@@ -168,6 +183,15 @@ public class GuillotineContext
             if ( allowPaths != null )
             {
                 this.allowPaths.addAll( allowPaths );
+            }
+            return this;
+        }
+
+        public Builder addMacroDecorators( final Map<String, MacroDescriptor> macroDecorators )
+        {
+            if ( macroDecorators != null )
+            {
+                this.macroDecorators.putAll( macroDecorators );
             }
             return this;
         }

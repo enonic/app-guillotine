@@ -152,7 +152,8 @@ public class ComponentTypesFactory
         context.registerDataFetcher( objectType.getName(), "value", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
             return new RichTextDataFetcher( CastHelper.cast( sourceAsMap.get( "value" ) ),
-                                            CastHelper.cast( sourceAsMap.get( "__contentId" ) ), serviceFacade ).get( environment );
+                                            CastHelper.cast( sourceAsMap.get( "__contentId" ) ), serviceFacade, context ).get(
+                environment );
         } );
         context.registerType( objectType.getName(), objectType );
     }
@@ -271,7 +272,7 @@ public class ComponentTypesFactory
             GraphQLFieldDefinition field =
                 outputField( fieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
-            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
+            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
 
             resultFields.add( field );
         } );

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import graphql.schema.GraphQLSchema;
 
-import com.enonic.app.guillotine.BuiltinMacros;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
@@ -18,8 +17,6 @@ import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.inputtype.InputTypeName;
-import com.enonic.xp.macro.MacroDescriptorService;
-import com.enonic.xp.macro.MacroService;
 import com.enonic.xp.portal.url.ProcessHtmlParams;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
@@ -33,40 +30,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class RichTextGraphQLIntegrationTest
     extends BaseGraphQLIntegrationTest
 {
-    private MacroDescriptorService macroDescriptorService;
-
-    private MacroService macroService;
-
-
-    @Override
-    protected void initialize()
-        throws Exception
-    {
-        super.initialize();
-
-        this.macroDescriptorService = mock( MacroDescriptorService.class );
-        this.macroService = mock( MacroService.class );
-
-        addService( MacroDescriptorService.class, this.macroDescriptorService );
-        addService( MacroService.class, this.macroService );
-    }
-
     @Test
     public void testRichTextField()
     {
-        when( macroDescriptorService.getAll() ).thenReturn( BuiltinMacros.getSystemMacroDescriptors() );
-        when( serviceFacade.getMacroDescriptorService() ).thenReturn( macroDescriptorService );
-
-        when( macroService.evaluateMacros( anyString(), any() ) ).thenReturn( "processedMacros" );
-        when( serviceFacade.getMacroService() ).thenReturn( macroService );
-
         when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
 
         when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( createContent() );
