@@ -28,6 +28,8 @@ import com.enonic.xp.config.ConfigBuilder;
 import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
+import com.enonic.xp.macro.MacroDescriptorService;
+import com.enonic.xp.macro.MacroService;
 import com.enonic.xp.portal.script.PortalScriptService;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.resource.ResourceKey;
@@ -40,6 +42,11 @@ import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.User;
 import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.testing.ScriptTestSupport;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BaseGraphQLIntegrationTest
     extends ScriptTestSupport
@@ -54,21 +61,21 @@ public class BaseGraphQLIntegrationTest
     {
         super.initialize();
 
-        final BundleContext bundleContext = Mockito.mock( BundleContext.class );
+        final BundleContext bundleContext = mock( BundleContext.class );
 
-        final Bundle bundle = Mockito.mock( Bundle.class );
-        Mockito.when( bundle.getBundleContext() ).thenReturn( bundleContext );
+        final Bundle bundle = mock( Bundle.class );
+        when( bundle.getBundleContext() ).thenReturn( bundleContext );
 
         final Application application = createApplication( bundle );
 
-        final ApplicationService applicationService = Mockito.mock( ApplicationService.class );
+        final ApplicationService applicationService = mock( ApplicationService.class );
 
         final Applications applications = Applications.from( application );
-        Mockito.when( applicationService.getInstalledApplications() ).thenReturn( applications );
+        when( applicationService.getInstalledApplications() ).thenReturn( applications );
 
-        final PortalScriptService scriptService = Mockito.mock( PortalScriptService.class );
+        final PortalScriptService scriptService = mock( PortalScriptService.class );
 
-        Mockito.when( scriptService.execute( Mockito.any() ) ).thenAnswer( invocation -> {
+        when( scriptService.execute( any() ) ).thenAnswer( invocation -> {
             ResourceKey resourceKey = (ResourceKey) invocation.getArguments()[0];
             return runScript( resourceKey );
         } );
@@ -76,31 +83,40 @@ public class BaseGraphQLIntegrationTest
         final ExtensionsExtractorService extensionsExtractorService =
             new ExtensionsExtractorService( applicationService, getResourceService(), scriptService );
 
-        this.serviceFacade = Mockito.mock( ServiceFacade.class );
+        this.serviceFacade = mock( ServiceFacade.class );
 
-        final ComponentDescriptorService componentDescriptorService = Mockito.mock( ComponentDescriptorService.class );
+        final ComponentDescriptorService componentDescriptorService = mock( ComponentDescriptorService.class );
 
-        Mockito.when( componentDescriptorService.getMacroDescriptors( Mockito.anyList() ) ).thenReturn(
-            BuiltinMacros.getSystemMacroDescriptors() );
+        when( componentDescriptorService.getMacroDescriptors( Mockito.anyList() ) ).thenReturn( BuiltinMacros.getSystemMacroDescriptors() );
 
-        Mockito.when( componentDescriptorService.getExtraData( Mockito.anyString() ) ).thenReturn(
+        when( componentDescriptorService.getExtraData( anyString() ) ).thenReturn(
             XDatas.from( TestFixtures.CAMERA_METADATA, TestFixtures.IMAGE_METADATA, TestFixtures.GPS_METADATA ) );
 
-        final ContentTypeService contentTypeService = Mockito.mock( ContentTypeService.class );
+        final ContentTypeService contentTypeService = mock( ContentTypeService.class );
 
-        Mockito.when( contentTypeService.getAll() ).thenReturn( createContentTypes() );
+        when( contentTypeService.getAll() ).thenReturn( createContentTypes() );
 
-        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        PortalUrlService portalUrlService = mock( PortalUrlService.class );
 
-        Mockito.when( serviceFacade.getComponentDescriptorService() ).thenReturn( componentDescriptorService );
-        Mockito.when( serviceFacade.getContentTypeService() ).thenReturn( contentTypeService );
-        Mockito.when( serviceFacade.getContentService() ).thenReturn( contentService );
-        Mockito.when( serviceFacade.getPortalUrlService() ).thenReturn( portalUrlService );
+        MacroDescriptorService macroDescriptorService = mock( MacroDescriptorService.class );
+        MacroService macroService = mock( MacroService.class );
+
+        when( serviceFacade.getComponentDescriptorService() ).thenReturn( componentDescriptorService );
+        when( serviceFacade.getContentTypeService() ).thenReturn( contentTypeService );
+        when( serviceFacade.getContentService() ).thenReturn( contentService );
+        when( serviceFacade.getPortalUrlService() ).thenReturn( portalUrlService );
+
+        when( macroDescriptorService.getAll() ).thenReturn( BuiltinMacros.getSystemMacroDescriptors() );
+        when( serviceFacade.getMacroDescriptorService() ).thenReturn( macroDescriptorService );
+        when( macroService.evaluateMacros( anyString(), any() ) ).thenReturn( "processedMacros" );
+        when( serviceFacade.getMacroService() ).thenReturn( macroService );
 
         addService( ServiceFacade.class, serviceFacade );
         addService( ExtensionsExtractorService.class, extensionsExtractorService );
         addService( ApplicationService.class, applicationService );
         addService( PortalUrlService.class, portalUrlService );
+        addService( MacroDescriptorService.class, macroDescriptorService );
+        addService( MacroService.class, macroService );
 
         createGraphQLApiBean();
     }
@@ -149,14 +165,14 @@ public class BaseGraphQLIntegrationTest
 
     private Application createApplication( final Bundle bundle )
     {
-        final Application application = Mockito.mock( Application.class );
+        final Application application = mock( Application.class );
 
-        Mockito.when( application.getKey() ).thenReturn( ApplicationKey.from( "myapplication" ) );
-        Mockito.when( application.getVersion() ).thenReturn( Version.emptyVersion );
-        Mockito.when( application.getBundle() ).thenReturn( bundle );
-        Mockito.when( application.getClassLoader() ).thenReturn( getClass().getClassLoader() );
-        Mockito.when( application.isStarted() ).thenReturn( true );
-        Mockito.when( application.getConfig() ).thenReturn( ConfigBuilder.create().build() );
+        when( application.getKey() ).thenReturn( ApplicationKey.from( "myapplication" ) );
+        when( application.getVersion() ).thenReturn( Version.emptyVersion );
+        when( application.getBundle() ).thenReturn( bundle );
+        when( application.getClassLoader() ).thenReturn( getClass().getClassLoader() );
+        when( application.isStarted() ).thenReturn( true );
+        when( application.getConfig() ).thenReturn( ConfigBuilder.create().build() );
 
         return application;
     }

@@ -1,9 +1,13 @@
 package com.enonic.app.guillotine.graphql;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import com.google.common.collect.ImmutableMap;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.FieldCoordinates;
@@ -13,6 +17,8 @@ import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLType;
 import graphql.schema.TypeResolver;
+
+import com.enonic.xp.macro.MacroDescriptor;
 
 public class GuillotineContext
 {
@@ -30,14 +36,22 @@ public class GuillotineContext
 
     private final CopyOnWriteArrayList<String> applications;
 
+    private final ImmutableMap<String, MacroDescriptor> macroDecorators;
+
     private GuillotineContext( final Builder builder )
     {
         this.applications = builder.applications;
+        this.macroDecorators = ImmutableMap.<String, MacroDescriptor>builder().putAll( builder.macroDecorators ).build();
     }
 
     public List<String> getApplications()
     {
         return applications;
+    }
+
+    public Map<String, MacroDescriptor> getMacroDecorators()
+    {
+        return macroDecorators;
     }
 
     public void registerType( String name, GraphQLType type )
@@ -123,6 +137,8 @@ public class GuillotineContext
 
         private final CopyOnWriteArrayList<String> applications = new CopyOnWriteArrayList<>();
 
+        private final Map<String, MacroDescriptor> macroDecorators = new HashMap<>();
+
         public Builder()
         {
 
@@ -133,6 +149,15 @@ public class GuillotineContext
             if ( applications != null )
             {
                 this.applications.addAll( applications );
+            }
+            return this;
+        }
+
+        public Builder addMacroDecorators( final Map<String, MacroDescriptor> macroDecorators )
+        {
+            if ( macroDecorators != null )
+            {
+                this.macroDecorators.putAll( macroDecorators );
             }
             return this;
         }

@@ -90,7 +90,7 @@ public class FormItemTypesFactory
 
                 GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
 
-                context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
+                context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
 
                 return field;
             } ).collect( Collectors.toList() );
@@ -126,7 +126,7 @@ public class FormItemTypesFactory
 
             fields.add( outputField( optionName, type ) );
 
-            context.registerDataFetcher( typeName, optionName, new FormItemDataFetcher( option, serviceFacade ) );
+            context.registerDataFetcher( typeName, optionName, new FormItemDataFetcher( option, serviceFacade, context ) );
         } );
 
         GraphQLObjectType objectType = newObject( context.uniqueName( typeName ), description, fields );
@@ -247,7 +247,7 @@ public class FormItemTypesFactory
 
             GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
 
-            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
+            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
 
             return field;
         } ).collect( Collectors.toList() );
