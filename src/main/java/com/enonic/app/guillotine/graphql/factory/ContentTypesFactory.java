@@ -207,7 +207,7 @@ public class ContentTypesFactory
             GraphQLFieldDefinition field =
                 outputField( fieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
-            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
+            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
 
             return field;
         } ).collect( Collectors.toList() );

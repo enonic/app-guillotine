@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
+import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.macro.CustomHtmlPostProcessor;
 import com.enonic.app.guillotine.macro.HtmlEditorProcessedResult;
@@ -38,11 +38,15 @@ public class RichTextDataFetcher
 
     private final ServiceFacade serviceFacade;
 
-    public RichTextDataFetcher( final String htmlText, final String contentId, final ServiceFacade serviceFacade )
+    private final GuillotineContext guillotineContext;
+
+    public RichTextDataFetcher( final String htmlText, final String contentId, final ServiceFacade serviceFacade,
+                                final GuillotineContext guillotineContext )
     {
         this.htmlText = htmlText;
         this.contentId = contentId;
         this.serviceFacade = serviceFacade;
+        this.guillotineContext = guillotineContext;
     }
 
     public Object execute( final DataFetchingEnvironment environment )
@@ -70,7 +74,7 @@ public class RichTextDataFetcher
         PortalRequest portalRequest = PortalRequestAccessor.get();
 
         Map<String, MacroDescriptor> registeredMacros =
-            portalRequest.getSite() != null ? getRegisteredMacrosInSystemForSite( portalRequest ) : getRegisteredMacrosInSystem();
+            portalRequest.getSite() != null ? getRegisteredMacrosInSystemForSite( portalRequest ) : guillotineContext.getMacroDecorators();
 
         htmlParams.processMacros( false );
         htmlParams.customHtmlProcessor( processor -> {
@@ -151,11 +155,5 @@ public class RichTextDataFetcher
         } );
 
         return result;
-    }
-
-    private Map<String, MacroDescriptor> getRegisteredMacrosInSystem()
-    {
-        return serviceFacade.getMacroDescriptorService().getAll().stream().collect(
-            Collectors.toMap( MacroDescriptor::getName, Function.identity() ) );
     }
 }

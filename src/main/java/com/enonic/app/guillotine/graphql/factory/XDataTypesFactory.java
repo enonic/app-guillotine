@@ -66,10 +66,9 @@ public class XDataTypesFactory
                     if ( !xDataConfigFields.isEmpty() )
                     {
                         GraphQLObjectType xDataConfigType = newObject( context.uniqueName( xDataConfigTypeName ),
-                                                                                        "Extra data config for application ['" +
-                                                                                            applicationKey + "}'] and descriptor ['" +
-                                                                                            xData.getName().getLocalName() + "']",
-                                                                                        xDataConfigFields );
+                                                                       "Extra data config for application ['" + applicationKey +
+                                                                           "}'] and descriptor ['" + xData.getName().getLocalName() + "']",
+                                                                       xDataConfigFields );
 
                         context.registerType( xDataConfigType.getName(), xDataConfigType );
 
@@ -83,10 +82,9 @@ public class XDataTypesFactory
 
                 if ( !xDataApplicationTypeFields.isEmpty() )
                 {
-                    GraphQLObjectType applicationConfigType =
-                        newObject( context.uniqueName( xDataApplicationConfigTypeName ),
-                                                    "XDataApplicationConfig for application ['" + applicationKey + "']",
-                                                    xDataApplicationTypeFields );
+                    GraphQLObjectType applicationConfigType = newObject( context.uniqueName( xDataApplicationConfigTypeName ),
+                                                                         "XDataApplicationConfig for application ['" + applicationKey +
+                                                                             "']", xDataApplicationTypeFields );
 
                     GraphQLFieldDefinition xDataTypeField = outputField( StringNormalizer.create( applicationKey ), applicationConfigType );
                     xDataTypeFields.add( xDataTypeField );
@@ -99,8 +97,7 @@ public class XDataTypesFactory
 
         if ( !xDataTypeFields.isEmpty() )
         {
-            GraphQLObjectType extraDataType =
-                newObject( context.uniqueName( extraDataTypeName ), "Extra data.", xDataTypeFields );
+            GraphQLObjectType extraDataType = newObject( context.uniqueName( extraDataTypeName ), "Extra data.", xDataTypeFields );
 
             context.registerType( extraDataType.getName(), extraDataType );
         }
@@ -118,7 +115,7 @@ public class XDataTypesFactory
             GraphQLFieldDefinition field =
                 outputField( fieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
-            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
+            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
 
             xDataConfigFields.add( field );
         } );
