@@ -1,0 +1,12 @@
+query {
+    q1: guillotine(repo: "repo", branch: "draft") {
+        get(key: "/a/b"){
+            _path(type: siteRelative)
+        }
+    },
+    q2: guillotine(repo: "repo", branch: "draft", siteKey: "/site") {
+        get(key: "${site}/c/d"){
+            _path(type: siteRelative)
+        }
+    }
+}

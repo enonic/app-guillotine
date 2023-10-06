@@ -4,16 +4,15 @@ import java.util.Map;
 
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentService;
 
 public class GetPermissionsDataFetcher
     extends BaseContentDataFetcher
 {
-    public GetPermissionsDataFetcher( final GuillotineContext context, final ContentService contentService )
+    public GetPermissionsDataFetcher( final ContentService contentService )
     {
-        super( context, contentService );
+        super( contentService );
     }
 
     @Override

@@ -6,8 +6,6 @@ public interface Constants
 {
     String CONTENT_ID_FIELD = "__contentId";
 
-    String GUILLOTINE_LOCAL_CTX = "__guillotineLocalContext";
-
     String GUILLOTINE_TARGET_REPO_CTX = "__targetRepository";
 
     String GUILLOTINE_TARGET_BRANCH_CTX = "__targetBranch";

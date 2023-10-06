@@ -172,7 +172,7 @@ public class GuillotineApiGraphQLIntegrationTest
 
         ExecutionInput executionInput =
             ExecutionInput.newExecutionInput().query( ResourceHelper.readGraphQLQuery( "graphql/getSiteField.graphql" ) ).localContext(
-                new HashMap<>() ).graphQLContext( Map.of( "__siteKey", "/hmdb" ) ).build();
+                new HashMap<>() ).build();
 
         ExecutionResultMapper executionResultMapper = new ExecutionResultMapper( graphQL.execute( executionInput ) );
 
@@ -184,11 +184,22 @@ public class GuillotineApiGraphQLIntegrationTest
         assertFalse( response.containsKey( "errors" ) );
         assertTrue( response.containsKey( "data" ) );
 
-        Map<String, Object> getSiteField = CastHelper.cast( getFieldFromGuillotine( response, "getSite" ) );
+        Map<String, Object> data = CastHelper.cast( response.get( "data" ) );
 
-        assertNotNull( getSiteField );
-        assertEquals( "siteId", getSiteField.get( "_id" ) );
-        assertEquals( "Site", getSiteField.get( "displayName" ) );
+        assertTrue( data.containsKey( "getSite" ) );
+        Map<String, Object> getSite = CastHelper.cast( data.get( "getSite" ) );
+        Map<String, Object> getForGetSite = CastHelper.cast( getSite.get( "getSite" ) );
+
+        assertNull( getForGetSite );
+
+        assertTrue( data.containsKey( "getSiteByKey" ) );
+
+        Map<String, Object> getSiteByKey = CastHelper.cast( data.get( "getSiteByKey" ) );
+        Map<String, Object> getForGetSiteByKey = CastHelper.cast( getSiteByKey.get( "getSite" ) );
+
+        assertNotNull( getForGetSiteByKey );
+        assertEquals( "siteId", getForGetSiteByKey.get( "_id" ) );
+        assertEquals( "Site", getForGetSiteByKey.get( "displayName" ) );
     }
 
     @Override
@@ -266,5 +277,38 @@ public class GuillotineApiGraphQLIntegrationTest
         Map<String, Object> getFoG2 = CastHelper.cast( g2.get( "get" ) );
         assertEquals( "New Name", getFoG2.get( "displayName" ) );
         assertEquals( "contentId", getFoG2.get( "_id" ) );
+    }
+
+    @Test
+    public void testGetContentPath()
+    {
+        when( contentService.getByPath( ContentPath.from( "/a/b" ) ) ).thenReturn( ContentFixtures.createContent( "id_1", "b", "/a" ) );
+
+        final Site site = Site.create().name( "site" ).type( ContentTypeName.site() ).parentPath( ContentPath.ROOT ).data(
+            new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "id_0" ) ).build();
+
+        when( contentService.findNearestSiteByPath( ContentPath.from( "/site" ) ) ).thenReturn( site );
+        when( contentService.getByPath( ContentPath.from( "/site/c/d" ) ) ).thenReturn(
+            ContentFixtures.createContent( "id_2", "d", "/site/c" ) );
+        when( contentService.getByPath( ContentPath.from( "/site" ) ) ).thenReturn( site );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> result = executeQuery( graphQLSchema, ResourceHelper.readGraphQLQuery( "graphql/getContentPath.graphql" ) );
+
+        assertFalse( result.containsKey( "errors" ) );
+        assertTrue( result.containsKey( "data" ) );
+
+        Map<String, Object> data = CastHelper.cast( result.get( "data" ) );
+
+        assertTrue( data.containsKey( "q1" ) );
+        Map<String, Object> q1 = CastHelper.cast( data.get( "q1" ) );
+        Map<String, Object> getForQ1 = CastHelper.cast( q1.get( "get" ) );
+        assertEquals( "", getForQ1.get( "_path" ) );
+
+        assertTrue( data.containsKey( "q2" ) );
+        Map<String, Object> q2 = CastHelper.cast( data.get( "q2" ) );
+        Map<String, Object> getForQ2 = CastHelper.cast( q2.get( "get" ) );
+        assertEquals( "c/d", getForQ2.get( "_path" ) );
     }
 }

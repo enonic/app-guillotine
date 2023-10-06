@@ -17,21 +17,18 @@ public class GuillotineLocalContextHelper
 {
     public static <T> T executeInContext( final DataFetchingEnvironment environment, Callable<T> callable )
     {
-        final Map<String, Object> targetContext = getTargetContext( environment );
+        final Map<String, Object> localContext = environment.getLocalContext();
 
         final ContextBuilder contextBuilder = ContextBuilder.from( ContextAccessor.current() );
 
-        if ( targetContext != null )
+        if ( localContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ) != null )
         {
-            if ( targetContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ) != null )
-            {
-                contextBuilder.branch( targetContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ).toString() );
-            }
-            if ( targetContext.get( Constants.GUILLOTINE_TARGET_REPO_CTX ) != null )
-            {
-                contextBuilder.repositoryId(
-                    ProjectConstants.PROJECT_REPO_ID_PREFIX + targetContext.get( Constants.GUILLOTINE_TARGET_REPO_CTX ).toString() );
-            }
+            contextBuilder.branch( localContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ).toString() );
+        }
+        if ( localContext.get( Constants.GUILLOTINE_TARGET_REPO_CTX ) != null )
+        {
+            contextBuilder.repositoryId(
+                ProjectConstants.PROJECT_REPO_ID_PREFIX + localContext.get( Constants.GUILLOTINE_TARGET_REPO_CTX ).toString() );
         }
 
         return contextBuilder.build().callWith( callable );
@@ -39,39 +36,28 @@ public class GuillotineLocalContextHelper
 
     public static String getSiteKey( final DataFetchingEnvironment environment )
     {
-        final Map<String, Object> targetContext = getTargetContext( environment );
-
-        if ( targetContext != null && !Objects.toString( targetContext.get( Constants.GUILLOTINE_TARGET_SITE_CTX ), "" ).isEmpty() )
-        {
-            return targetContext.get( Constants.GUILLOTINE_TARGET_SITE_CTX ).toString();
-        }
-
-        return environment.getGraphQlContext().getOrDefault( "__siteKey", "" );
+        final Map<String, Object> localContext = environment.getLocalContext();
+        return Objects.toString( localContext.get( Constants.GUILLOTINE_TARGET_SITE_CTX ), null );
     }
 
-    public static String getRepositoryId( final DataFetchingEnvironment environment, final RepositoryId defaultRepoId )
-    {
-        final Map<String, Object> targetContext = getTargetContext( environment );
-        if ( targetContext != null && targetContext.get( Constants.GUILLOTINE_TARGET_REPO_CTX ) != null )
-        {
-            return ProjectConstants.PROJECT_REPO_ID_PREFIX + targetContext.get( Constants.GUILLOTINE_TARGET_REPO_CTX ).toString();
-        }
-        return defaultRepoId.toString();
-    }
-
-    public static String getBranch( final DataFetchingEnvironment environment, final Branch defaultBranch )
-    {
-        final Map<String, Object> targetContext = getTargetContext( environment );
-        if ( targetContext != null && targetContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ) != null )
-        {
-            return targetContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ).toString();
-        }
-        return defaultBranch.toString();
-    }
-
-    private static Map<String, Object> getTargetContext( final DataFetchingEnvironment environment )
+    public static RepositoryId getRepositoryId( final DataFetchingEnvironment environment, final RepositoryId defaultRepoId )
     {
         final Map<String, Object> localContext = environment.getLocalContext();
-        return CastHelper.cast( localContext.get( Constants.GUILLOTINE_LOCAL_CTX ) );
+        if ( localContext.get( Constants.GUILLOTINE_TARGET_REPO_CTX ) != null )
+        {
+            return RepositoryId.from(
+                ProjectConstants.PROJECT_REPO_ID_PREFIX + localContext.get( Constants.GUILLOTINE_TARGET_REPO_CTX ).toString() );
+        }
+        return defaultRepoId;
+    }
+
+    public static Branch getBranch( final DataFetchingEnvironment environment, final Branch defaultBranch )
+    {
+        final Map<String, Object> localContext = environment.getLocalContext();
+        if ( localContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ) != null )
+        {
+            return Branch.from( localContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ).toString() );
+        }
+        return defaultBranch;
     }
 }

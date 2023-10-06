@@ -134,7 +134,7 @@ public class BaseGraphQLIntegrationTest
     protected Map<String, Object> executeQuery( final GraphQLSchema graphQLSchema, final String query )
     {
         ExecutionResultMapper executionResultMapper =
-            createAdminContext().callWith( () -> (ExecutionResultMapper) bean.execute( graphQLSchema, query, null, null ) );
+            createAdminContext().callWith( () -> (ExecutionResultMapper) bean.execute( graphQLSchema, query, null ) );
 
         GuillotineMapGenerator generator = new GuillotineMapGenerator();
         executionResultMapper.serialize( generator );

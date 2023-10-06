@@ -1,7 +1,6 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,15 +18,12 @@ import com.enonic.app.guillotine.macro.MacroEditorJsonSerializer;
 import com.enonic.app.guillotine.macro.MacroEditorSerializer;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.app.guillotine.mapper.HtmlEditorResultMapper;
-import com.enonic.xp.app.ApplicationKey;
-import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.html.HtmlDocument;
 import com.enonic.xp.portal.html.HtmlElement;
 import com.enonic.xp.portal.url.ProcessHtmlParams;
-import com.enonic.xp.site.SiteConfig;
 
 public class RichTextDataFetcher
     implements DataFetcher<Object>
@@ -71,10 +67,7 @@ public class RichTextDataFetcher
         List<Map<String, Object>> images = new ArrayList<>();
         List<MacroDecorator> processedMacros = new ArrayList<>();
 
-        PortalRequest portalRequest = PortalRequestAccessor.get();
-
-        Map<String, MacroDescriptor> registeredMacros =
-            portalRequest.getSite() != null ? getRegisteredMacrosInSystemForSite( portalRequest ) : guillotineContext.getMacroDecorators();
+        Map<String, MacroDescriptor> registeredMacros = guillotineContext.getMacroDecorators();
 
         htmlParams.processMacros( false );
         htmlParams.customHtmlProcessor( processor -> {
@@ -115,7 +108,11 @@ public class RichTextDataFetcher
 
     private ProcessHtmlParams createProcessHtmlParams( DataFetchingEnvironment environment )
     {
-        ProcessHtmlParams htmlParams = new ProcessHtmlParams().portalRequest( PortalRequestAccessor.get() ).value( htmlText );
+        final PortalRequest portalRequest = PortalRequestAccessor.get();
+        portalRequest.setRepositoryId( GuillotineLocalContextHelper.getRepositoryId( environment, portalRequest.getRepositoryId() ) );
+        portalRequest.setBranch( GuillotineLocalContextHelper.getBranch( environment, portalRequest.getBranch() ) );
+
+        ProcessHtmlParams htmlParams = new ProcessHtmlParams().portalRequest( portalRequest ).value( htmlText );
 
         Map<String, Object> processHtmlParams = environment.getArgument( "processHtml" );
 
@@ -136,24 +133,5 @@ public class RichTextDataFetcher
         }
 
         return htmlParams;
-    }
-
-    private Map<String, MacroDescriptor> getRegisteredMacrosInSystemForSite( final PortalRequest portalRequest )
-    {
-        List<ApplicationKey> applicationKeys = new ArrayList<>();
-        applicationKeys.add( ApplicationKey.SYSTEM );
-        applicationKeys.addAll(
-            portalRequest.getSite().getSiteConfigs().stream().map( SiteConfig::getApplicationKey ).collect( Collectors.toList() ) );
-
-        Map<String, MacroDescriptor> result = new LinkedHashMap<>();
-
-        serviceFacade.getMacroDescriptorService().getByApplications( ApplicationKeys.from( applicationKeys ) ).forEach( macroDescriptor -> {
-            if ( !result.containsKey( macroDescriptor.getName() ) )
-            {
-                result.put( macroDescriptor.getName(), macroDescriptor );
-            }
-        } );
-
-        return result;
     }
 }

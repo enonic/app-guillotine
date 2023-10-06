@@ -34,7 +34,6 @@ public class ContentTypesVerifier
         verifyPageInfo();
         verifyContentConnection();
         verifyContentEdge();
-        verifyQueryContentConnection();
         verifyQueryDSLContentConnection();
 
         verifyDynamicallyCreatedContentType();
@@ -109,17 +108,6 @@ public class ContentTypesVerifier
         assertEquals( Scalars.GraphQLInt, getOriginalTypeFromGraphQLNonNull( type, "totalCount" ) );
         assertEquals( ExtendedScalars.Json, type.getField( "aggregationsAsJson" ).getType() );
         assertEquals( ExtendedScalars.Json, type.getField( "highlightAsJson" ).getType() );
-        assertEquals( "ContentEdge", ( (GraphQLObjectType) getOriginalTypeFromGraphQLList( type, "edges" ) ).getName() );
-        assertEquals( "PageInfo", getNameForGraphQLTypeReference( type.getField( "pageInfo" ).getType() ) );
-    }
-
-    private void verifyQueryContentConnection()
-    {
-        GraphQLObjectType type = context.getOutputType( "QueryContentConnection" );
-        assertEquals( "QueryContentConnection.", type.getDescription() );
-
-        assertEquals( Scalars.GraphQLInt, getOriginalTypeFromGraphQLNonNull( type, "totalCount" ) );
-        assertEquals( ExtendedScalars.Json, type.getField( "aggregationsAsJson" ).getType() );
         assertEquals( "ContentEdge", ( (GraphQLObjectType) getOriginalTypeFromGraphQLList( type, "edges" ) ).getName() );
         assertEquals( "PageInfo", getNameForGraphQLTypeReference( type.getField( "pageInfo" ).getType() ) );
     }

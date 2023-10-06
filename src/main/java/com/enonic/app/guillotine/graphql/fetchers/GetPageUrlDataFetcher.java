@@ -6,12 +6,10 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
-import com.enonic.xp.branch.Branch;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.url.PageUrlParams;
 import com.enonic.xp.portal.url.PortalUrlService;
-import com.enonic.xp.repository.RepositoryId;
 
 public class GetPageUrlDataFetcher
     implements DataFetcher<String>
@@ -33,9 +31,8 @@ public class GetPageUrlDataFetcher
     private String doGet( final DataFetchingEnvironment environment )
     {
         PortalRequest portalRequest = PortalRequestAccessor.get();
-        portalRequest.setRepositoryId(
-            RepositoryId.from( GuillotineLocalContextHelper.getRepositoryId( environment, portalRequest.getRepositoryId() ) ) );
-        portalRequest.setBranch( Branch.from( GuillotineLocalContextHelper.getBranch( environment, portalRequest.getBranch() ) ) );
+        portalRequest.setRepositoryId( GuillotineLocalContextHelper.getRepositoryId( environment, portalRequest.getRepositoryId() ) );
+        portalRequest.setBranch( GuillotineLocalContextHelper.getBranch( environment, portalRequest.getBranch() ) );
 
         Map<String, Object> sourceAsMap = environment.getSource();
 

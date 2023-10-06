@@ -2,54 +2,30 @@ package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
-import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.commands.FindContentsParams;
 import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
-import com.enonic.app.guillotine.graphql.helper.SecurityHelper;
 
 public abstract class QueryBaseDataFetcher
     implements DataFetcher<Object>
 {
-    private final List<String> HAS_VALUE_FILTERS_VALUES = List.of( "stringValues", "intValues", "floatValues", "booleanValues" );
-
-    protected final GuillotineContext context;
-
-    protected QueryBaseDataFetcher( final GuillotineContext context )
-    {
-        this.context = context;
-    }
-
-    protected FindContentsParams createQueryParams( Integer offset, Integer first, DataFetchingEnvironment environment, boolean queryDsl )
+    protected FindContentsParams createQueryParams( Integer offset, Integer first, DataFetchingEnvironment environment )
     {
         FindContentsParams.Builder builder = FindContentsParams.create().setStart( offset ).setFirst( first ).setQuery(
-            createQuery( environment.getArgument( "query" ), queryDsl ) ).setSort(
-            createSort( environment.getArgument( "sort" ), queryDsl ) );
+            createQuery( environment.getArgument( "query" ) ) ).setSort( createSort( environment.getArgument( "sort" ) ) );
 
         if ( environment.getArgument( "aggregations" ) != null )
         {
             builder.setAggregations( createAggregations( environment.getArgument( "aggregations" ) ) );
-        }
-
-        if ( environment.getArgument( "filters" ) != null )
-        {
-            builder.setFilters( createFilters( environment.getArgument( "filters" ) ) );
-        }
-
-        if ( environment.getArgument( "contentTypes" ) != null )
-        {
-            builder.setContentTypes( environment.getArgument( "contentTypes" ) );
         }
 
         if ( environment.getArgument( "highlight" ) != null )
@@ -60,46 +36,34 @@ public abstract class QueryBaseDataFetcher
         return builder.build();
     }
 
-    private Object createQuery( final Object query, final boolean queryDsl )
+    private Object createQuery( final Object query )
     {
-        if ( query != null && queryDsl )
-        {
-            return adaptDslQuery( createDslQuery( CastHelper.cast( query ) ), context );
-        }
-        return adaptQuery( (String) query, context );
+        return query != null ? createDslQuery( CastHelper.cast( query ) ) : null;
     }
 
-    private Object createSort( final Object sort, final boolean queryDsl )
+    private Object createSort( final Object sort )
     {
-        if ( queryDsl )
-        {
-            List<Map<String, Object>> result = new ArrayList<>();
+        List<Map<String, Object>> result = new ArrayList<>();
 
-            ArrayHelper.forceArray( sort ).forEach( sortItem -> {
-                Map<String, Object> sortItemAsMap = CastHelper.cast( sortItem );
+        ArrayHelper.forceArray( sort ).forEach( sortItem -> {
+            Map<String, Object> sortItemAsMap = CastHelper.cast( sortItem );
 
-                Map<String, Object> sortAsMap = new HashMap<>();
-                sortAsMap.put( "field", sortItemAsMap.get( "field" ) );
-                if ( sortItemAsMap.get( "direction" ) != null )
-                {
-                    sortAsMap.put( "direction", sortItemAsMap.get( "direction" ) );
-                }
-                if ( sortItemAsMap.get( "location" ) != null )
-                {
-                    Map<String, Object> locationAsMap = CastHelper.cast( sortItemAsMap.get( "location" ) );
-                    sortAsMap.put( "location", Map.of( "lat", locationAsMap.get( "lat" ), "lon", locationAsMap.get( "lon" ) ) );
-                }
-                if ( sortItemAsMap.get( "unit" ) != null )
-                {
-                    sortAsMap.put( "unit", sortItemAsMap.get( "unit" ) );
-                }
+            Map<String, Object> sortAsMap = new HashMap<>();
 
-                result.add( sortAsMap );
-            } );
+            sortAsMap.put( "field", sortItemAsMap.get( "field" ) );
+            sortAsMap.computeIfAbsent( "direction", k -> sortItemAsMap.get( "direction" ) );
+            sortAsMap.computeIfAbsent( "unit", k -> sortItemAsMap.get( "unit" ) );
 
-            return result;
-        }
-        return sort;
+            if ( sortItemAsMap.get( "location" ) != null )
+            {
+                Map<String, Object> locationAsMap = CastHelper.cast( sortItemAsMap.get( "location" ) );
+                sortAsMap.put( "location", Map.of( "lat", locationAsMap.get( "lat" ), "lon", locationAsMap.get( "lon" ) ) );
+            }
+
+            result.add( sortAsMap );
+        } );
+
+        return result;
     }
 
     private Map<String, Object> createAggregations( List<Map<String, Object>> inputAggregations )
@@ -133,81 +97,6 @@ public abstract class QueryBaseDataFetcher
 
             subAggregations.forEach( subAggregation -> createAggregation( subAggregationHolder, subAggregation ) );
         }
-    }
-
-    private List<Map<String, Object>> createFilters( List<Map<String, Object>> inputFilters )
-    {
-        if ( inputFilters == null || inputFilters.isEmpty() )
-        {
-            return Collections.emptyList();
-        }
-
-        List<Map<String, Object>> result = new ArrayList<>();
-
-        inputFilters.forEach( inputFilter -> {
-            Map<String, Object> filter = new HashMap<>();
-
-            inputFilter.keySet().forEach( filterName -> {
-                if ( "hasValue".equals( filterName ) )
-                {
-                    filter.put( filterName, processHasValueFilter( CastHelper.cast( inputFilter.get( "hasValue" ) ) ) );
-                }
-                else if ( "boolean".equals( filterName ) )
-                {
-                    filter.put( filterName, processBooleanFilter( CastHelper.cast( inputFilter.get( "boolean" ) ) ) );
-                }
-                else
-                {
-                    filter.put( filterName, inputFilter.get( filterName ) );
-                }
-            } );
-
-            result.add( filter );
-        } );
-
-        return result;
-    }
-
-    private Map<String, Object> processHasValueFilter( final Map<String, Object> inputHasValueFilter )
-    {
-        if ( inputHasValueFilter.containsKey( "field" ) && inputHasValueFilter.keySet().size() > 2 )
-        {
-            throw new IllegalArgumentException(
-                "HasValueFilter must have only one type of values from (\"stringValues, intValues, floatValues and booleanValues\")" );
-        }
-
-        Map<String, Object> result = new HashMap<>();
-
-        result.put( "field", inputHasValueFilter.get( "field" ) );
-
-        HAS_VALUE_FILTERS_VALUES.forEach( fieldName -> {
-            if ( inputHasValueFilter.get( fieldName ) != null )
-            {
-                result.put( "values", inputHasValueFilter.get( fieldName ) );
-            }
-        } );
-
-        return result;
-    }
-
-    private Map<String, Object> processBooleanFilter( final Map<String, Object> inputBooleanFilter )
-    {
-        Map<String, Object> result = new HashMap<>();
-
-        if ( inputBooleanFilter.get( "must" ) != null )
-        {
-            result.put( "must", createFilters( CastHelper.cast( inputBooleanFilter.get( "must" ) ) ) );
-        }
-        if ( inputBooleanFilter.get( "mustNot" ) != null )
-        {
-            result.put( "mustNot", createFilters( CastHelper.cast( inputBooleanFilter.get( "mustNot" ) ) ) );
-        }
-        if ( inputBooleanFilter.get( "should" ) != null )
-        {
-            result.put( "should", createFilters( CastHelper.cast( inputBooleanFilter.get( "should" ) ) ) );
-        }
-
-        return result;
     }
 
     private Map<String, Object> createDslQuery( Map<String, Object> inputQueryDsl )
@@ -573,53 +462,5 @@ public abstract class QueryBaseDataFetcher
         }
 
         throw new IllegalArgumentException( "Value must be not null" );
-    }
-
-    private Object adaptQuery( String query, GuillotineContext context )
-    {
-        if ( context.isGlobalMode() )
-        {
-            return query;
-        }
-
-        String queryPrefix = getAllowedNodePaths( context ).stream().map(
-            nodePath -> "_path = \"" + nodePath + "\" OR _path LIKE \"" + nodePath + "/*\"" ).collect( Collectors.joining( " OR " ) );
-
-        return "(" + queryPrefix + ")" + ( query != null ? " AND (" + query + ")" : "" );
-    }
-
-    private Object adaptDslQuery( Map<String, Object> dslQuery, GuillotineContext context )
-    {
-        if ( context.isGlobalMode() )
-        {
-            return dslQuery;
-        }
-
-        List<Map<String, Object>> dslExpressions = new ArrayList<>();
-
-        getAllowedNodePaths( context ).forEach( nodePath -> {
-            dslExpressions.add( Collections.singletonMap( "term", createTermOrLikeDslExpression( nodePath ) ) );
-            dslExpressions.add( Collections.singletonMap( "like", createTermOrLikeDslExpression( nodePath + "/*" ) ) );
-        } );
-
-        return dslQuery != null
-            ? Map.of( "boolean", Map.of( "must", List.of( dslQuery, Map.of( "boolean", Map.of( "should", dslExpressions ) ) ) ) )
-            : Map.of( "boolean", Map.of( "should", dslExpressions ) );
-    }
-
-    private Map<String, String> createTermOrLikeDslExpression( String value )
-    {
-        Map<String, String> result = new HashMap<>();
-
-        result.put( "field", "_path" );
-        result.put( "value", value );
-
-        return result;
-    }
-
-    private static List<String> getAllowedNodePaths( GuillotineContext context )
-    {
-        return SecurityHelper.getAllowedContentPaths( context ).stream().map( contentPath -> "/content" + contentPath ).collect(
-            Collectors.toList() );
     }
 }

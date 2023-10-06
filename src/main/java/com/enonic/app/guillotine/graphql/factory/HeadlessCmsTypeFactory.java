@@ -19,8 +19,6 @@ import com.enonic.app.guillotine.graphql.fetchers.GetPermissionsDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetSiteDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetTypeDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetTypesDataFetcher;
-import com.enonic.app.guillotine.graphql.fetchers.QueryConnectionDataFetcher;
-import com.enonic.app.guillotine.graphql.fetchers.QueryDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.QueryDslConnectionDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.QueryDslDataFetcher;
 
@@ -48,31 +46,23 @@ public class HeadlessCmsTypeFactory
 
         context.registerType( headlessCms.getName(), headlessCms );
 
-        context.registerDataFetcher( headlessCms.getName(), "get",
-                                     new GetContentDataFetcher( context, serviceFacade.getContentService() ) );
+        context.registerDataFetcher( headlessCms.getName(), "get", new GetContentDataFetcher( serviceFacade.getContentService() ) );
 
         context.registerDataFetcher( headlessCms.getName(), "getChildren",
-                                     new GetChildrenDataFetcher( context, serviceFacade.getContentService() ) );
+                                     new GetChildrenDataFetcher( serviceFacade.getContentService() ) );
 
         context.registerDataFetcher( headlessCms.getName(), "getChildrenConnection",
-                                     new GetChildrenConnectionDataFetcher( context, serviceFacade.getContentService() ) );
+                                     new GetChildrenConnectionDataFetcher( serviceFacade.getContentService() ) );
 
         context.registerDataFetcher( headlessCms.getName(), "getPermissions",
-                                     new GetPermissionsDataFetcher( context, serviceFacade.getContentService() ) );
+                                     new GetPermissionsDataFetcher( serviceFacade.getContentService() ) );
 
-        context.registerDataFetcher( headlessCms.getName(), "getSite",
-                                     new GetSiteDataFetcher( context, serviceFacade.getContentService() ) );
+        context.registerDataFetcher( headlessCms.getName(), "getSite", new GetSiteDataFetcher( serviceFacade.getContentService() ) );
 
-        context.registerDataFetcher( headlessCms.getName(), "query", new QueryDataFetcher( context, serviceFacade.getContentService() ) );
-
-        context.registerDataFetcher( headlessCms.getName(), "queryConnection",
-                                     new QueryConnectionDataFetcher( context, serviceFacade.getContentService() ) );
-
-        context.registerDataFetcher( headlessCms.getName(), "queryDsl",
-                                     new QueryDslDataFetcher( context, serviceFacade.getContentService() ) );
+        context.registerDataFetcher( headlessCms.getName(), "queryDsl", new QueryDslDataFetcher( serviceFacade.getContentService() ) );
 
         context.registerDataFetcher( headlessCms.getName(), "queryDslConnection",
-                                     new QueryDslConnectionDataFetcher( context, serviceFacade.getContentService() ) );
+                                     new QueryDslConnectionDataFetcher( serviceFacade.getContentService() ) );
 
         context.registerDataFetcher( headlessCms.getName(), "getType",
                                      new GetTypeDataFetcher( context, serviceFacade.getContentTypeService() ) );
@@ -103,21 +93,6 @@ public class HeadlessCmsTypeFactory
             outputField( "getPermissions", GraphQLTypeReference.typeRef( "Permissions" ), newArgument( "key", Scalars.GraphQLID ) ) );
 
         fields.add( outputField( "getSite", GraphQLTypeReference.typeRef( "portal_Site" ) ) );
-
-        fields.add( outputField( "query", new GraphQLList( contentInterface ),
-                                 List.of( newArgument( "query", Scalars.GraphQLString ), newArgument( "offset", Scalars.GraphQLInt ),
-                                          newArgument( "first", Scalars.GraphQLInt ), newArgument( "sort", Scalars.GraphQLString ),
-                                          newArgument( "contentTypes", new GraphQLList( Scalars.GraphQLString ) ),
-                                          newArgument( "filters", new GraphQLList( GraphQLTypeReference.typeRef( "FilterInput" ) ) ) ) ) );
-
-        fields.add( outputField( "queryConnection", GraphQLTypeReference.typeRef( "QueryContentConnection" ),
-                                 List.of( newArgument( "query", new GraphQLNonNull( Scalars.GraphQLString ) ),
-                                          newArgument( "after", Scalars.GraphQLString ), newArgument( "first", Scalars.GraphQLInt ),
-                                          newArgument( "sort", Scalars.GraphQLString ),
-                                          newArgument( "contentTypes", new GraphQLList( Scalars.GraphQLString ) ),
-                                          newArgument( "aggregations",
-                                                       new GraphQLList( GraphQLTypeReference.typeRef( "AggregationInput" ) ) ),
-                                          newArgument( "filters", new GraphQLList( GraphQLTypeReference.typeRef( "FilterInput" ) ) ) ) ) );
 
         fields.add( outputField( "queryDsl", new GraphQLList( contentInterface ),
                                  List.of( newArgument( "query", GraphQLTypeReference.typeRef( "QueryDSLInput" ) ),

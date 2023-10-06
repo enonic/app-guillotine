@@ -187,14 +187,11 @@ public class GraphQLApi
         typesRegister.addCreationCallback( "Query", guillotineQueryCreationCallback );
 
         typesRegister.addResolver( "Query", "guillotine", environment -> {
-            final Map<String, Object> sourceMap = new HashMap<>();
-
-            sourceMap.put( Constants.GUILLOTINE_TARGET_REPO_CTX, environment.getArgument( "repo" ) );
-            sourceMap.put( Constants.GUILLOTINE_TARGET_BRANCH_CTX, environment.getArgument( "branch" ) );
-            sourceMap.put( Constants.GUILLOTINE_TARGET_SITE_CTX, environment.getArgument( "siteKey" ) );
-
             final Map<String, Object> localContext = environment.getLocalContext();
-            localContext.put( Constants.GUILLOTINE_LOCAL_CTX, sourceMap );
+
+            localContext.put( Constants.GUILLOTINE_TARGET_REPO_CTX, environment.getArgument( "repo" ) );
+            localContext.put( Constants.GUILLOTINE_TARGET_BRANCH_CTX, environment.getArgument( "branch" ) );
+            localContext.put( Constants.GUILLOTINE_TARGET_SITE_CTX, environment.getArgument( "siteKey" ) );
 
             return new Object();
         } );
@@ -208,13 +205,13 @@ public class GraphQLApi
         context.getTypeResolvers().forEach( typesRegister::addTypeResolver );
     }
 
-    public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables, ScriptValue queryContext )
+    public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
     {
         GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
 
         ExecutionInput executionInput =
-            ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).graphQLContext(
-                extractValue( queryContext ) ).localContext( new HashMap<String, Object>() ).build();
+            ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).localContext(
+                new HashMap<String, Object>() ).build();
 
         return new ExecutionResultMapper( graphQL.execute( executionInput ) );
     }
