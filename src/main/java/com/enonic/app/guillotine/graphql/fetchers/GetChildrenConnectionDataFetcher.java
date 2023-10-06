@@ -11,7 +11,6 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
 import com.enonic.app.guillotine.graphql.ContentSerializer;
-import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.helper.ConnectionHelper;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentId;
@@ -23,9 +22,9 @@ import com.enonic.xp.index.ChildOrder;
 public class GetChildrenConnectionDataFetcher
     extends BaseContentDataFetcher
 {
-    public GetChildrenConnectionDataFetcher( final GuillotineContext context, final ContentService contentService )
+    public GetChildrenConnectionDataFetcher( final ContentService contentService )
     {
-        super( context, contentService );
+        super( contentService );
     }
 
     @Override

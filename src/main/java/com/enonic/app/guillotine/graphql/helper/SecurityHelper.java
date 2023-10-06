@@ -1,14 +1,8 @@
 package com.enonic.app.guillotine.graphql.helper;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.xp.context.ContextAccessor;
-import com.enonic.xp.portal.PortalRequest;
-import com.enonic.xp.portal.PortalRequestAccessor;
 
 public class SecurityHelper
 {
@@ -32,39 +26,9 @@ public class SecurityHelper
         return isAdmin() || isCmsAdmin() || isCmsUser();
     }
 
-    public static Map<String, Object> filterForbiddenContent( Map<String, Object> content, GuillotineContext context )
+    public static Map<String, Object> filterForbiddenContent( Map<String, Object> content )
     {
-        if ( content == null )
-        {
-            return null;
-        }
-        if ( context.isGlobalMode() )
-        {
-            return content;
-        }
-
-        for ( String allowedContentType : getAllowedContentPaths( context ) )
-        {
-            String contentPath = content.get( "_path" ).toString();
-            if ( Objects.equals( contentPath, allowedContentType ) || contentPath.startsWith( allowedContentType + "/" ) )
-            {
-                return content;
-            }
-        }
-
-        return null;
-    }
-
-    public static List<String> getAllowedContentPaths( GuillotineContext context )
-    {
-        PortalRequest portalRequest = PortalRequestAccessor.get();
-        List<String> allowPaths = new ArrayList<>( context.getAllowPaths() );
-        if ( portalRequest != null && portalRequest.getSite() != null )
-        {
-            allowPaths.add( portalRequest.getSite().getPath().toString() );
-        }
-
-        return allowPaths;
+        return content;
     }
 
 }

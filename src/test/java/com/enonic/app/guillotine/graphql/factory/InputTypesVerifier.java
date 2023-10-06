@@ -45,12 +45,6 @@ public class InputTypesVerifier
         verifyMaxAggregationInput();
         verifyValueCountAggregationInput();
         verifyAggregationInput();
-        verifyExistsFilterInput();
-        verifyNotExistsFilterInput();
-        verifyHasValueFilterInput();
-        verifyIdsFilterInput();
-        verifyBooleanFilterInput();
-        verifyFilterInput();
         verifyDSLExpressionValueInput();
         verifyTermDSLExpressionInput();
         verifyLikeDSLExpressionInput();
@@ -326,83 +320,6 @@ public class InputTypesVerifier
         assertEquals( CustomScalars.LocalDateTime, type.getField( "localDateTime" ).getType() );
         assertEquals( CustomScalars.LocalTime, type.getField( "localTime" ).getType() );
         assertEquals( ExtendedScalars.DateTime, type.getField( "instant" ).getType() );
-    }
-
-    private void verifyFilterInput()
-    {
-        GraphQLInputObjectType type = context.getInputType( "FilterInput" );
-
-        assertEquals( "Filter input type", type.getDescription() );
-
-        assertEquals( "BooleanFilterInput", getNameForGraphQLTypeReference( type.getFieldDefinition( "boolean" ).getType() ) );
-        assertEquals( "ExistsFilterInput", getNameForGraphQLTypeReference( type.getFieldDefinition( "exists" ).getType() ) );
-        assertEquals( "NotExistsFilterInput", getNameForGraphQLTypeReference( type.getFieldDefinition( "notExists" ).getType() ) );
-        assertEquals( "HasValueFilterInput", getNameForGraphQLTypeReference( type.getFieldDefinition( "hasValue" ).getType() ) );
-        assertEquals( "IdsFilterInput", getNameForGraphQLTypeReference( type.getFieldDefinition( "ids" ).getType() ) );
-    }
-
-    private void verifyBooleanFilterInput()
-    {
-        GraphQLInputObjectType type = context.getInputType( "BooleanFilterInput" );
-
-        assertEquals( "BooleanFilter input type", type.getDescription() );
-
-        GraphQLType mustField = getOriginalTypeFromGraphQLList( type, "must" );
-        assertTrue( mustField instanceof GraphQLTypeReference );
-        assertEquals( "FilterInput", ( (GraphQLTypeReference) mustField ).getName() );
-
-        GraphQLType mustNotField = getOriginalTypeFromGraphQLList( type, "mustNot" );
-        assertTrue( mustNotField instanceof GraphQLTypeReference );
-        assertEquals( "FilterInput", ( (GraphQLTypeReference) mustNotField ).getName() );
-
-        GraphQLType shouldField = getOriginalTypeFromGraphQLList( type, "should" );
-        assertTrue( shouldField instanceof GraphQLTypeReference );
-        assertEquals( "FilterInput", ( (GraphQLTypeReference) shouldField ).getName() );
-    }
-
-    private void verifyIdsFilterInput()
-    {
-        GraphQLInputObjectType type = context.getInputType( "IdsFilterInput" );
-
-        assertEquals( "IdsFilter input type", type.getDescription() );
-        assertEquals( Scalars.GraphQLString, getOriginalTypeFromGraphQLList( type, "values" ) );
-    }
-
-
-    private void verifyHasValueFilterInput()
-    {
-        GraphQLInputObjectType type = context.getInputType( "HasValueFilterInput" );
-
-        assertEquals( "HasValueFilter input type", type.getDescription() );
-        assertEquals( Scalars.GraphQLString, getOriginalTypeFromGraphQLNonNull( type, "field" ) );
-        assertEquals( Scalars.GraphQLString, getOriginalTypeFromGraphQLList( type, "stringValues" ) );
-        assertEquals( Scalars.GraphQLInt, getOriginalTypeFromGraphQLList( type, "intValues" ) );
-        assertEquals( Scalars.GraphQLFloat, getOriginalTypeFromGraphQLList( type, "floatValues" ) );
-        assertEquals( Scalars.GraphQLBoolean, getOriginalTypeFromGraphQLList( type, "booleanValues" ) );
-    }
-
-    private void verifyNotExistsFilterInput()
-    {
-        GraphQLInputObjectType type = context.getInputType( "NotExistsFilterInput" );
-
-        assertEquals( "NotExistsFilter input type", type.getDescription() );
-
-        assertEquals( 1, type.getFieldDefinitions().size() );
-        GraphQLInputType typeOfFieldField = type.getField( "field" ).getType();
-        assertTrue( typeOfFieldField instanceof GraphQLNonNull );
-        assertEquals( Scalars.GraphQLString, ( (GraphQLNonNull) typeOfFieldField ).getOriginalWrappedType() );
-    }
-
-    private void verifyExistsFilterInput()
-    {
-        GraphQLInputObjectType type = context.getInputType( "ExistsFilterInput" );
-
-        assertEquals( "ExistsFilter input type", type.getDescription() );
-
-        assertEquals( 1, type.getFieldDefinitions().size() );
-        GraphQLInputType typeOfFieldField = type.getField( "field" ).getType();
-        assertTrue( typeOfFieldField instanceof GraphQLNonNull );
-        assertEquals( Scalars.GraphQLString, ( (GraphQLNonNull) typeOfFieldField ).getOriginalWrappedType() );
     }
 
     private void verifyAggregationInput()

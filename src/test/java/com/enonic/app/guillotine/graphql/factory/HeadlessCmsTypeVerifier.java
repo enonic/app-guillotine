@@ -26,7 +26,7 @@ public class HeadlessCmsTypeVerifier
         GraphQLObjectType guillotineApiType = context.getOutputType( "HeadlessCms" );
         assertEquals( "Headless CMS", guillotineApiType.getDescription() );
 
-        assertEquals( 11, guillotineApiType.getFieldDefinitions().size() );
+        assertEquals( 9, guillotineApiType.getFieldDefinitions().size() );
 
         // verify get field
         GraphQLFieldDefinition getField = guillotineApiType.getFieldDefinition( "get" );
@@ -61,36 +61,6 @@ public class HeadlessCmsTypeVerifier
         // verify getSite field
         GraphQLFieldDefinition getSiteField = guillotineApiType.getFieldDefinition( "getSite" );
         assertEquals( "portal_Site", getNameForGraphQLTypeReference( getSiteField.getType() ) );
-
-        // verify query field
-        GraphQLFieldDefinition queryField = guillotineApiType.getFieldDefinition( "query" );
-        assertEquals( "Content", getNameForGraphQLTypeReference( getOriginalTypeFromGraphQLList( guillotineApiType, "query" ) ) );
-        assertEquals( 6, queryField.getArguments().size() );
-        assertEquals( Scalars.GraphQLString, queryField.getArgument( "query" ).getType() );
-        assertEquals( Scalars.GraphQLInt, queryField.getArgument( "offset" ).getType() );
-        assertEquals( Scalars.GraphQLInt, queryField.getArgument( "first" ).getType() );
-        assertEquals( Scalars.GraphQLString, queryField.getArgument( "sort" ).getType() );
-        assertEquals( Scalars.GraphQLString,
-                      ( (GraphQLList) queryField.getArgument( "contentTypes" ).getType() ).getOriginalWrappedType() );
-        assertEquals( "FilterInput", getNameForGraphQLTypeReference(
-            ( (GraphQLList) queryField.getArgument( "filters" ).getType() ).getOriginalWrappedType() ) );
-
-        // verify queryConnection field
-        GraphQLFieldDefinition queryConnectionField = guillotineApiType.getFieldDefinition( "queryConnection" );
-        assertEquals( "QueryContentConnection",
-                      getNameForGraphQLTypeReference( guillotineApiType.getFieldDefinition( "queryConnection" ).getType() ) );
-        assertEquals( 7, queryConnectionField.getArguments().size() );
-        assertEquals( Scalars.GraphQLString,
-                      ( (GraphQLNonNull) queryConnectionField.getArgument( "query" ).getType() ).getOriginalWrappedType() );
-        assertEquals( Scalars.GraphQLString, queryConnectionField.getArgument( "after" ).getType() );
-        assertEquals( Scalars.GraphQLInt, queryConnectionField.getArgument( "first" ).getType() );
-        assertEquals( Scalars.GraphQLString, queryConnectionField.getArgument( "sort" ).getType() );
-        assertEquals( Scalars.GraphQLString,
-                      ( (GraphQLList) queryConnectionField.getArgument( "contentTypes" ).getType() ).getOriginalWrappedType() );
-        assertEquals( "AggregationInput", getNameForGraphQLTypeReference(
-            ( (GraphQLList) queryConnectionField.getArgument( "aggregations" ).getType() ).getOriginalWrappedType() ) );
-        assertEquals( "FilterInput", getNameForGraphQLTypeReference(
-            ( (GraphQLList) queryConnectionField.getArgument( "filters" ).getType() ).getOriginalWrappedType() ) );
 
         // verify queryDsl field
         GraphQLFieldDefinition queryDslField = guillotineApiType.getFieldDefinition( "queryDsl" );

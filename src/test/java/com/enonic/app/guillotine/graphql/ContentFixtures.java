@@ -5,6 +5,7 @@ import java.util.Locale;
 
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.attachment.Attachments;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPublishInfo;
@@ -175,6 +176,12 @@ public class ContentFixtures
         return Region.create().name( "bottom" ).add( createPartComponent( "app-descriptor-y:name-y", newTinyPropertyTree() ) ).add(
             createImageComponent( "img-id-x", "Image Component", newImageComponentPropertyTree() ) ).add(
             ImageComponent.create().build() ).build();
+    }
+
+    public static Content createContent( String contentId, String name, String parentPath )
+    {
+        return Content.create().id( ContentId.from( contentId ) ).name( name ).parentPath( ContentPath.from( parentPath ) ).valid(
+            false ).creator( PrincipalKey.ofAnonymous() ).createdTime( Instant.parse( "1975-01-08T00:00:00Z" ) ).build();
     }
 
     private static ImageComponent createImageComponent( final String imageId, final String imageDisplayName,

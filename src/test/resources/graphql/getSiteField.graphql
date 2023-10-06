@@ -1,5 +1,11 @@
 query {
-    guillotine {
+    getSite: guillotine {
+        getSite {
+            _id
+            displayName
+        }
+    }
+    getSiteByKey: guillotine(siteKey: "/siteKey") {
         getSite {
             _id
             displayName

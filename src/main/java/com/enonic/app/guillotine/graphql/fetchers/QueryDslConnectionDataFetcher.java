@@ -6,7 +6,6 @@ import java.util.Map;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
-import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.commands.FindContentsCommand;
 import com.enonic.app.guillotine.graphql.helper.ConnectionHelper;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
@@ -17,9 +16,8 @@ public class QueryDslConnectionDataFetcher
 {
     private final ContentService contentService;
 
-    public QueryDslConnectionDataFetcher( final GuillotineContext context, final ContentService contentService )
+    public QueryDslConnectionDataFetcher( final ContentService contentService )
     {
-        super( context );
         this.contentService = contentService;
     }
 
@@ -40,7 +38,7 @@ public class QueryDslConnectionDataFetcher
         int first = environment.getArgument( "first" ) != null ? environment.getArgument( "first" ) : 10;
 
         Map<String, Object> queryResult =
-            new FindContentsCommand( createQueryParams( offset, first, environment, true ), contentService ).execute();
+            new FindContentsCommand( createQueryParams( offset, first, environment ), contentService ).execute();
 
         Map<String, Object> result = new HashMap<>();
 

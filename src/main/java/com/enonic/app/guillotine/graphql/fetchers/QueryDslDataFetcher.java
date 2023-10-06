@@ -5,7 +5,6 @@ import java.util.Map;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
-import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.commands.FindContentsCommand;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentService;
@@ -15,9 +14,8 @@ public class QueryDslDataFetcher
 {
     private final ContentService contentService;
 
-    public QueryDslDataFetcher( final GuillotineContext context, final ContentService contentService )
+    public QueryDslDataFetcher( final ContentService contentService )
     {
-        super( context );
         this.contentService = contentService;
     }
 
@@ -33,7 +31,7 @@ public class QueryDslDataFetcher
         ArgumentsValidator.validateDslQuery( environment.getArguments() );
 
         Map<String, Object> queryResult = new FindContentsCommand(
-            createQueryParams( environment.getArgument( "offset" ), environment.getArgument( "first" ), environment, true ),
+            createQueryParams( environment.getArgument( "offset" ), environment.getArgument( "first" ), environment ),
             contentService ).execute();
 
         return queryResult.get( "hits" );

@@ -1,5 +1,6 @@
 package com.enonic.app.guillotine.graphql;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import graphql.schema.DataFetcher;
@@ -19,8 +21,6 @@ import graphql.schema.GraphQLType;
 import graphql.schema.TypeResolver;
 
 import com.enonic.xp.macro.MacroDescriptor;
-import com.enonic.xp.portal.PortalRequest;
-import com.enonic.xp.portal.PortalRequestAccessor;
 
 public class GuillotineContext
 {
@@ -36,40 +36,19 @@ public class GuillotineContext
 
     private final ConcurrentMap<String, TypeResolver> typeResolvers = new ConcurrentHashMap<>();
 
-    private final CopyOnWriteArrayList<String> applications;
+    private final ImmutableList<String> applications;
 
     private final ImmutableMap<String, MacroDescriptor> macroDecorators;
 
-    private final CopyOnWriteArrayList<String> allowPaths;
-
     private GuillotineContext( final Builder builder )
     {
-        this.applications = builder.applications;
-        this.allowPaths = builder.allowPaths;
+        this.applications = ImmutableList.<String>builder().addAll( builder.applications ).build();
         this.macroDecorators = ImmutableMap.<String, MacroDescriptor>builder().putAll( builder.macroDecorators ).build();
-    }
-
-    public boolean isGlobalMode()
-    {
-        if ( options.containsKey( "__globalModeOn" ) )
-        {
-            return options.get( "__globalModeOn" ) == null || (boolean) options.get( "__globalModeOn" );
-        }
-
-        PortalRequest portalRequest = PortalRequestAccessor.get();
-        boolean globalModeOn = portalRequest.getSite() == null;
-        options.put( "__globalModeOn", globalModeOn );
-        return globalModeOn;
     }
 
     public List<String> getApplications()
     {
         return applications;
-    }
-
-    public List<String> getAllowPaths()
-    {
-        return allowPaths;
     }
 
     public Map<String, MacroDescriptor> getMacroDecorators()
@@ -158,9 +137,7 @@ public class GuillotineContext
     public static final class Builder
     {
 
-        private final CopyOnWriteArrayList<String> applications = new CopyOnWriteArrayList<>();
-
-        private final CopyOnWriteArrayList<String> allowPaths = new CopyOnWriteArrayList<>();
+        private final List<String> applications = new ArrayList<>();
 
         private final Map<String, MacroDescriptor> macroDecorators = new HashMap<>();
 
@@ -174,15 +151,6 @@ public class GuillotineContext
             if ( applications != null )
             {
                 this.applications.addAll( applications );
-            }
-            return this;
-        }
-
-        public Builder addAllowPaths( final List<String> allowPaths )
-        {
-            if ( allowPaths != null )
-            {
-                this.allowPaths.addAll( allowPaths );
             }
             return this;
         }

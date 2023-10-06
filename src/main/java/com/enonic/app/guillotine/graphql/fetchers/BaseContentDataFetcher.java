@@ -6,8 +6,6 @@ import java.util.regex.Pattern;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.ContentSerializer;
-import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.graphql.helper.SecurityHelper;
@@ -16,8 +14,6 @@ import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
-import com.enonic.xp.portal.PortalRequest;
-import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.site.Site;
 
 public abstract class BaseContentDataFetcher
@@ -25,20 +21,15 @@ public abstract class BaseContentDataFetcher
 {
     private final static Pattern SITE_KEY_PATTERN = Pattern.compile( "\\$\\{site\\}" );
 
-    protected final GuillotineContext context;
-
     protected final ContentService contentService;
 
-    public BaseContentDataFetcher( final GuillotineContext context, final ContentService contentService )
+    public BaseContentDataFetcher( final ContentService contentService )
     {
-        this.context = context;
         this.contentService = contentService;
     }
 
     protected Map<String, Object> getContent( DataFetchingEnvironment environment, boolean returnRootContent )
     {
-        PortalRequest portalRequest = PortalRequestAccessor.get();
-
         String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
 
         String argumentKey = environment.getArgument( "key" );
@@ -46,40 +37,29 @@ public abstract class BaseContentDataFetcher
         if ( argumentKey != null )
         {
             String key = argumentKey;
-
-            Site site = portalRequest.getSite();
-
-            if ( context.isGlobalMode() && !siteKey.isEmpty() )
+            if ( siteKey != null && !siteKey.isEmpty() )
             {
-                site = getSiteByKey( siteKey );
+                Site site = getSiteByKey( siteKey );
+                if ( site != null )
+                {
+                    key = argumentKey.replaceAll( SITE_KEY_PATTERN.pattern(), site.getPath().toString() );
+                }
             }
-            if ( site != null )
-            {
-                key = argumentKey.replaceAll( SITE_KEY_PATTERN.pattern(), site.getPath().toString() );
-            }
-            if ( SITE_KEY_PATTERN.matcher( key ).find() )
-            {
-                return null;
-            }
-
             return getContentByKey( key, returnRootContent, environment );
         }
         else
         {
-            if ( context.isGlobalMode() )
+            if ( siteKey != null && !siteKey.isEmpty() )
             {
-                if ( !siteKey.isEmpty() )
-                {
-                    return getContentByKey( siteKey, returnRootContent, environment );
-                }
-                if ( returnRootContent )
-                {
-                    return ContextBuilder.from( ContextAccessor.current() ).build().callWith(
-                        () -> new GetContentCommand( contentService ).execute( "/", environment ) );
-                }
+                return getContentByKey( siteKey, returnRootContent, environment );
             }
-            return ContentSerializer.serialize( portalRequest.getContent() );
+            if ( returnRootContent )
+            {
+                return ContextBuilder.from( ContextAccessor.current() ).build().callWith(
+                    () -> new GetContentCommand( contentService ).execute( "/", environment ) );
+            }
         }
+        return null;
     }
 
     private Site getSiteByKey( String siteKey )
@@ -98,6 +78,6 @@ public abstract class BaseContentDataFetcher
             return null;
         }
 
-        return SecurityHelper.filterForbiddenContent( contentAsMap, context );
+        return SecurityHelper.filterForbiddenContent( contentAsMap );
     }
 }
