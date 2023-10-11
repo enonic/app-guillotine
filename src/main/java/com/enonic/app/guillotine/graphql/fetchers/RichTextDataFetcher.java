@@ -70,6 +70,7 @@ public class RichTextDataFetcher
         Map<String, MacroDescriptor> registeredMacros = guillotineContext.getMacroDecorators();
 
         htmlParams.processMacros( false );
+        htmlParams.customStyleDescriptorsCallback( () -> serviceFacade.getStyleDescriptorService().getAll() );
         htmlParams.customHtmlProcessor( processor -> {
             processor.processDefault( new CustomHtmlPostProcessor( links, images ) );
 
