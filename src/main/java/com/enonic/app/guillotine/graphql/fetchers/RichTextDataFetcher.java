@@ -78,6 +78,7 @@ public class RichTextDataFetcher
             portalRequest.getSite() != null ? getRegisteredMacrosInSystemForSite( portalRequest ) : guillotineContext.getMacroDecorators();
 
         htmlParams.processMacros( false );
+        htmlParams.customStyleDescriptorsCallback( () -> serviceFacade.getStyleDescriptorService().getAll() );
         htmlParams.customHtmlProcessor( processor -> {
             processor.processDefault( new CustomHtmlPostProcessor( links, images ) );
 
