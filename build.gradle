@@ -55,8 +55,8 @@ repositories {
 
 jacocoTestReport {
     reports {
-        xml.enabled = true
-        html.enabled = true
+        xml.required = true
+        html.required = true
     }
 }
 
@@ -71,14 +71,17 @@ node {
     download = true
 }
 
-task lint( type: NpmTask, group: "verification", dependsOn: npmInstall ) {
+tasks.register('lint', NpmTask) {
+    group 'verification'
+    dependsOn( npmInstall )
     args = ['run', 'lint:quiet']
     inputs.files fileTree( dir: 'src', include: '**/*.ts' )
 }
 
 check.dependsOn( lint )
 
-task webpack( type: NpmTask, dependsOn: npmInstall ) {
+tasks.register('webpack', NpmTask) {
+    dependsOn( npmInstall )
     environment = ['NODE_ENV': nodeEnvironment()]
     description = 'Build UI resources (ts, css, etc).'
     args = ['run', 'build']
@@ -100,5 +103,8 @@ jar {
 
     outputs.dir "$buildDir/resources/main"
 
-    dependsOn webpack
+    dependsOn( webpack )
 }
+
+javadoc.dependsOn( webpack, jar )
+compileTestJava.dependsOn( webpack, jar )
