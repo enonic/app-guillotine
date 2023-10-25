@@ -6,6 +6,7 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ContentSerializer;
+import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.site.Site;
@@ -24,6 +25,11 @@ public class GetContentSiteDataFetcher
     @Override
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
+    {
+        return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
+    }
+
+    private Object doGet( final DataFetchingEnvironment environment )
     {
         Map<String, Object> sourceMap = environment.getSource();
 

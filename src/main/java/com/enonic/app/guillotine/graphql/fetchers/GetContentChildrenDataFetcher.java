@@ -10,6 +10,7 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
 import com.enonic.app.guillotine.graphql.ContentSerializer;
+import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentService;
@@ -30,6 +31,11 @@ public class GetContentChildrenDataFetcher
     @Override
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
+    {
+        return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
+    }
+
+    private Object doGet( final DataFetchingEnvironment environment )
     {
         ArgumentsValidator.validateArguments( environment.getArguments() );
 
