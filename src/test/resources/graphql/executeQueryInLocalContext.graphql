@@ -1,11 +1,11 @@
 query {
-    g1: guillotine(repo: "repo-name", branch: "master", siteKey: "siteId") {
+    g1: guillotine(project: "myproject", branch: "master", siteKey: "siteId") {
         get(key: "contentId") {
             _id
             displayName
         }
     }
-    g2: guillotine(repo: "repo-name", branch: "draft", siteKey: "/sitePath") {
+    g2: guillotine(project: "myproject", branch: "draft", siteKey: "/sitePath") {
         get(key: "${site}/contentPath") {
             _id
             displayName

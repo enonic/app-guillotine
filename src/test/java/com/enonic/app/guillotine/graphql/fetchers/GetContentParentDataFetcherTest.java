@@ -36,12 +36,12 @@ public class GetContentParentDataFetcherTest
         this.contentService = mock( ContentService.class );
 
         final PortalRequest portalRequest = new PortalRequest();
-        portalRequest.setRepositoryId( RepositoryId.from( "repo" ) );
+        portalRequest.setRepositoryId( RepositoryId.from( "myproject" ) );
         portalRequest.setBranch( Branch.from( "draft" ) );
         PortalRequestAccessor.set( portalRequest );
 
         Map<String, Object> localContext = new HashMap<>();
-        localContext.put( Constants.GUILLOTINE_TARGET_REPO_CTX, "repo" );
+        localContext.put( Constants.GUILLOTINE_TARGET_PROJECT_CTX, "myproject" );
         localContext.put( Constants.GUILLOTINE_TARGET_BRANCH_CTX, "draft" );
 
         this.environment = mock( DataFetchingEnvironment.class );

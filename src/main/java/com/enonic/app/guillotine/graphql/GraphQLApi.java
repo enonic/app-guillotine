@@ -173,7 +173,7 @@ public class GraphQLApi
         GraphQLObjectType guillotineApi = new HeadlessCmsTypeFactory( context, serviceFacadeSupplier.get() ).create();
 
         Map<String, Object> guillotineFieldArguments = new HashMap<>();
-        guillotineFieldArguments.put( "repo", Scalars.GraphQLString );
+        guillotineFieldArguments.put( "project", Scalars.GraphQLString );
         guillotineFieldArguments.put( "branch", Scalars.GraphQLString );
         guillotineFieldArguments.put( "siteKey", Scalars.GraphQLString );
 
@@ -189,7 +189,7 @@ public class GraphQLApi
         typesRegister.addResolver( "Query", "guillotine", environment -> {
             final Map<String, Object> localContext = environment.getLocalContext();
 
-            localContext.put( Constants.GUILLOTINE_TARGET_REPO_CTX, environment.getArgument( "repo" ) );
+            localContext.put( Constants.GUILLOTINE_TARGET_PROJECT_CTX, environment.getArgument( "project" ) );
             localContext.put( Constants.GUILLOTINE_TARGET_BRANCH_CTX, environment.getArgument( "branch" ) );
             localContext.put( Constants.GUILLOTINE_TARGET_SITE_CTX, environment.getArgument( "siteKey" ) );
 
