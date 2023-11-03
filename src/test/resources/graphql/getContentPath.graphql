@@ -1,5 +1,5 @@
 query {
-    guillotine(repo: "repo", branch: "draft") {
+    guillotine(project: "myproject", branch: "draft") {
         get(key: "/a/b"){
             _path
         }
