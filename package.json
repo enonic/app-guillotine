@@ -16,7 +16,7 @@
   "dependencies": {
     "@graphiql/react": "0.19.4",
     "@graphiql/toolkit": "^0.9.0",
-    "graphiql": "^3.0.6",
+    "graphiql": "^3.0.9",
     "graphql": "^16.8.1",
     "graphql-ws": "^5.14.2",
     "react": "^18.2.0",
