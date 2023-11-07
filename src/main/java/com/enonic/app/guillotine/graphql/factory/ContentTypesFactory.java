@@ -34,7 +34,6 @@ import com.enonic.app.guillotine.graphql.fetchers.GetContentSiteDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetImageUrlDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetPageAsJsonDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetPageTemplateDataFetcher;
-import com.enonic.app.guillotine.graphql.fetchers.GetPageUrlDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.app.guillotine.graphql.helper.NamingHelper;
 import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
@@ -220,6 +219,8 @@ public class ContentTypesFactory
         result.add( outputField( "_path", new GraphQLNonNull( Scalars.GraphQLString ) ) );
         result.add( outputField( "_references", new GraphQLList( GraphQLTypeReference.typeRef( "Content" ) ) ) );
         result.add( outputField( "_score", Scalars.GraphQLFloat ) );
+        result.add( outputField( "_project", Scalars.GraphQLString ) );
+        result.add( outputField( "_branch", Scalars.GraphQLString ) );
         result.add( outputField( "creator", GraphQLTypeReference.typeRef( "PrincipalKey" ) ) );
         result.add( outputField( "modifier", GraphQLTypeReference.typeRef( "PrincipalKey" ) ) );
         result.add( outputField( "createdTime", ExtendedScalars.DateTime ) );
@@ -243,7 +244,6 @@ public class ContentTypesFactory
                                           newArgument( "resolveFragment", Scalars.GraphQLBoolean ) ) ) );
         result.add( outputField( "attachments", new GraphQLList( GraphQLTypeReference.typeRef( "Attachment" ) ) ) );
         result.add( outputField( "publish", GraphQLTypeReference.typeRef( "PublishInfo" ) ) );
-        result.add( outputField( "pageUrl", Scalars.GraphQLString, List.of( newArgument( "params", ExtendedScalars.Json ) ) ) );
         result.add( outputField( "site", GraphQLTypeReference.typeRef( "portal_Site" ) ) );
         result.add( outputField( "parent", GraphQLTypeReference.typeRef( "Content" ) ) );
         result.add( outputField( "children", new GraphQLList( GraphQLTypeReference.typeRef( "Content" ) ),
@@ -280,8 +280,6 @@ public class ContentTypesFactory
         context.registerDataFetcher( contentType, "components", new GetComponentsDataFetcher( serviceFacade ) );
 
         context.registerDataFetcher( contentType, "permissions", new GetContentFieldDataFetcher( "permissions" ) );
-
-        context.registerDataFetcher( contentType, "pageUrl", new GetPageUrlDataFetcher( serviceFacade.getPortalUrlService() ) );
 
         context.registerDataFetcher( contentType, "site", new GetContentSiteDataFetcher( serviceFacade.getContentService() ) );
 

@@ -42,7 +42,7 @@ public class ContentTypesVerifier
     private void verifyDynamicallyCreatedContentType()
     {
         GraphQLObjectType type = context.getOutputType( "com_enonic_app_testapp_MyType" );
-        assertEquals( 31, type.getFieldDefinitions().size() );
+        assertEquals( 32, type.getFieldDefinitions().size() );
 
         GraphQLFieldDefinition dataField = type.getFieldDefinition( "data" );
 
@@ -159,7 +159,6 @@ public class ContentTypesVerifier
         assertEquals( Scalars.GraphQLID, getOriginalTypeFromGraphQLNonNull( type, "_id" ) );
         assertEquals( Scalars.GraphQLString, getOriginalTypeFromGraphQLNonNull( type, "_name" ) );
 
-        GraphQLFieldDefinition pathField = type.getFieldDefinition( "_path" );
         assertEquals( Scalars.GraphQLString, getOriginalTypeFromGraphQLNonNull( type, "_path" ) );
 
         assertEquals( "Content", getNameForGraphQLTypeReference( getOriginalTypeFromGraphQLList( type, "_references" ) ) );
@@ -192,8 +191,6 @@ public class ContentTypesVerifier
 
         assertEquals( "Attachment", getNameForGraphQLTypeReference( getOriginalTypeFromGraphQLList( type, "attachments" ) ) );
         assertEquals( "PublishInfo", getNameForGraphQLTypeReference( type.getField( "publish" ).getType() ) );
-        assertEquals( Scalars.GraphQLString, type.getField( "pageUrl" ).getType() );
-        assertEquals( ExtendedScalars.Json, type.getField( "pageUrl" ).getArgument( "params" ).getType() );
 
         assertEquals( "portal_Site", getNameForGraphQLTypeReference( type.getField( "site" ).getType() ) );
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getField( "parent" ).getType() ) );
@@ -222,6 +219,8 @@ public class ContentTypesVerifier
 
         assertEquals( "Content", getNameForGraphQLTypeReference( getOriginalTypeFromGraphQLList( type, "_references" ) ) );
         assertEquals( Scalars.GraphQLFloat, type.getField( "_score" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getField( "_project" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getField( "_branch" ).getType() );
 
         assertEquals( "PrincipalKey", getNameForGraphQLTypeReference( type.getField( "creator" ).getType() ) );
         assertEquals( "PrincipalKey", getNameForGraphQLTypeReference( type.getField( "modifier" ).getType() ) );
@@ -250,8 +249,6 @@ public class ContentTypesVerifier
 
         assertEquals( "Attachment", getNameForGraphQLTypeReference( getOriginalTypeFromGraphQLList( type, "attachments" ) ) );
         assertEquals( "PublishInfo", getNameForGraphQLTypeReference( type.getField( "publish" ).getType() ) );
-        assertEquals( Scalars.GraphQLString, type.getField( "pageUrl" ).getType() );
-        assertEquals( ExtendedScalars.Json, type.getField( "pageUrl" ).getArgument( "params" ).getType() );
 
         assertEquals( "portal_Site", getNameForGraphQLTypeReference( type.getField( "site" ).getType() ) );
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getField( "parent" ).getType() ) );
