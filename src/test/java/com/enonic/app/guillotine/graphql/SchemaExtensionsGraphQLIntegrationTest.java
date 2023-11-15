@@ -64,5 +64,17 @@ public class SchemaExtensionsGraphQLIntegrationTest
         Map<String, Object> testUnionField = CastHelper.cast( data.get( "testUnion" ) );
         assertEquals( "GoogleBooks", testUnionField.get( "__typename" ) );
         assertEquals( "Title", testUnionField.get( "title" ) );
+
+        // verify local context
+        Map<String, Object> testLocalContext = CastHelper.cast( data.get( "testLocalContext" ) );
+        Map<String, Object> instanceOfChildType = CastHelper.cast( testLocalContext.get( "child" ) );
+        assertEquals( "a=1 and b=2", instanceOfChildType.get( "field" ) );
+
+        assertTrue( result.containsKey( "errors" ) );
+        List<Map<String, Object>> errors = CastHelper.cast( result.get( "errors" ) );
+        assertEquals( 1, errors.size() );
+        assertEquals(
+            "Exception while fetching data (/invalidLocalContext) : Unsupported type \"org.openjdk.nashorn.api.scripting.ScriptObjectMirror\". Type of value must be String, Double, Integer or Boolean.",
+            errors.get( 0 ).get( "message" ) );
     }
 }
