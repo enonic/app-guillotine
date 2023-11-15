@@ -1,5 +1,6 @@
 package com.enonic.app.guillotine.graphql;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
 import graphql.Scalars;
+import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetcher;
 import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLCodeRegistry;
@@ -187,13 +189,13 @@ public class GraphQLApi
         typesRegister.addCreationCallback( "Query", guillotineQueryCreationCallback );
 
         typesRegister.addResolver( "Query", "guillotine", environment -> {
-            final Map<String, Object> localContext = environment.getLocalContext();
+            final Map<String, Object> localContext = new HashMap<>();
 
-            localContext.put( Constants.GUILLOTINE_TARGET_PROJECT_CTX, environment.getArgument( "project" ) );
-            localContext.put( Constants.GUILLOTINE_TARGET_BRANCH_CTX, environment.getArgument( "branch" ) );
-            localContext.put( Constants.GUILLOTINE_TARGET_SITE_CTX, environment.getArgument( "siteKey" ) );
+            localContext.computeIfAbsent( Constants.GUILLOTINE_TARGET_PROJECT_CTX, v -> environment.getArgument( "project" ) );
+            localContext.computeIfAbsent( Constants.GUILLOTINE_TARGET_BRANCH_CTX, v -> environment.getArgument( "branch" ) );
+            localContext.computeIfAbsent( Constants.GUILLOTINE_TARGET_SITE_CTX, v -> environment.getArgument( "siteKey" ) );
 
-            return new Object();
+            return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
         } );
 
         typesRegister.addAdditionalType( context.getAllTypes() );
@@ -209,9 +211,7 @@ public class GraphQLApi
     {
         GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
 
-        ExecutionInput executionInput =
-            ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).localContext(
-                new HashMap<String, Object>() ).build();
+        ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).build();
 
         return new ExecutionResultMapper( graphQL.execute( executionInput ) );
     }

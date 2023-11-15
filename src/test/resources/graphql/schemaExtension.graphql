@@ -22,4 +22,14 @@ query {
         }
     }
     customField
+    testLocalContext {
+        child {
+            field
+        }
+    }
+    invalidLocalContext {
+        child {
+            field
+        }
+    }
 }

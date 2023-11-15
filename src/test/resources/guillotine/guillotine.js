@@ -42,6 +42,22 @@ exports.extensions = function (graphQL) {
             }
         },
         types: {
+            ParentType: {
+                description: 'Parent Type',
+                fields: {
+                    child: {
+                        type: graphQL.reference('ChildType'),
+                    }
+                }
+            },
+            ChildType: {
+                description: 'Child Type',
+                fields: {
+                    field: {
+                        type: graphQL.GraphQLString,
+                    }
+                }
+            },
             GoogleBooksAuthor: {
                 description: 'Google Books Author',
                 fields: {
@@ -67,7 +83,7 @@ exports.extensions = function (graphQL) {
                         args: {
                             filter: graphQL.reference('BooksInputFilter'),
                         }
-                    }
+                    },
                 }
             },
             CustomInterfaceImpl: {
@@ -100,12 +116,50 @@ exports.extensions = function (graphQL) {
                     },
                     testInterface: {
                         type: graphQL.reference('CustomInterface')
-                    }
+                    },
+                    testLocalContext: {
+                        type: graphQL.reference('ParentType'),
+                    },
+                    invalidLocalContext: {
+                        type: graphQL.reference('ParentType'),
+                    },
                 });
             },
         },
         resolvers: {
+            ParentType: {
+                child: function (env) {
+                    return graphQL.createDataFetcherResult({
+                        data: __.toScriptValue({}),
+                        localContext: {
+                            b: 2,
+                        },
+                        parentLocalContext: env.localContext,
+                    });
+                }
+            },
+            ChildType: {
+                field: function (env) {
+                    return `a=${env.localContext.a} and b=${env.localContext.b}`;
+                }
+            },
             Query: {
+                testLocalContext: function (env) {
+                    return graphQL.createDataFetcherResult({
+                        data: __.toScriptValue({}),
+                        localContext: {
+                            a: 1,
+                        }
+                    });
+                },
+                invalidLocalContext: function (env) {
+                    return graphQL.createDataFetcherResult({
+                        data: __.toScriptValue({}),
+                        localContext: {
+                            a: [1, 2, 3],
+                        }
+                    });
+                },
                 customField: function (env) {
                     return ["Value 1", "Value 2"];
                 },
