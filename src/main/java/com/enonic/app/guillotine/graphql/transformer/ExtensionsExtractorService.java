@@ -9,8 +9,10 @@ import org.slf4j.LoggerFactory;
 import com.enonic.app.guillotine.graphql.GraphQLApi;
 import com.enonic.app.guillotine.mapper.GraphQLMapper;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
+import com.enonic.app.guillotine.mapper.GuillotineMapper;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationService;
+import com.enonic.xp.content.ContentService;
 import com.enonic.xp.portal.script.PortalScriptService;
 import com.enonic.xp.resource.ResourceKey;
 import com.enonic.xp.resource.ResourceService;
@@ -48,14 +50,19 @@ public class ExtensionsExtractorService
 
     private final PortalScriptService portalScriptService;
 
+
+    private final ContentService contentService;
+
     @Activate
     public ExtensionsExtractorService( final @Reference ApplicationService applicationService,
                                        final @Reference ResourceService resourceService,
-                                       final @Reference PortalScriptService portalScriptService )
+                                       final @Reference PortalScriptService portalScriptService,
+                                       final @Reference ContentService contentService )
     {
         this.applicationService = applicationService;
         this.resourceService = resourceService;
         this.portalScriptService = portalScriptService;
+        this.contentService = contentService;
     }
 
     public SchemaExtensions extractSchemaExtensions()
@@ -63,7 +70,7 @@ public class ExtensionsExtractorService
         SchemaExtensions.Builder schemaExtensionsBuilder = SchemaExtensions.create();
 
         applicationService.getInstalledApplications().forEach( application -> {
-            ScriptValue extensions = executeMethod( application.getKey(), getGraphQLObject() );
+            ScriptValue extensions = executeMethod( application.getKey(), getGraphQLObject(), getGuillotineObject() );
 
             if ( extensions != null && extensions.isObject() )
             {
@@ -187,7 +194,16 @@ public class ExtensionsExtractorService
         return generator.getRoot();
     }
 
-    private ScriptValue executeMethod( ApplicationKey applicationKey, Object graphQL )
+    private Object getGuillotineObject()
+    {
+        GuillotineUtil guillotineUtil = new GuillotineUtil( contentService, portalScriptService );
+
+        GuillotineMapGenerator generator = new GuillotineMapGenerator();
+        new GuillotineMapper( guillotineUtil ).serialize( generator );
+        return generator.getRoot();
+    }
+
+    private ScriptValue executeMethod( ApplicationKey applicationKey, Object graphQL, Object guillotine )
     {
         ResourceKey resourceKey = ResourceKey.from( applicationKey, SCRIPT_PATH );
         if ( resourceService.getResource( resourceKey ).exists() )
@@ -199,7 +215,7 @@ public class ExtensionsExtractorService
                 {
                     try
                     {
-                        return scriptExports.executeMethod( EXTENSIONS_METHOD_NAME, graphQL );
+                        return scriptExports.executeMethod( EXTENSIONS_METHOD_NAME, graphQL, guillotine );
                     }
                     catch ( Exception e )
                     {

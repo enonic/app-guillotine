@@ -4,21 +4,48 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 
+import com.enonic.app.guillotine.graphql.factory.TestFixtures;
 import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
+import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentIds;
+import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.content.ContentQuery;
+import com.enonic.xp.content.Contents;
+import com.enonic.xp.content.FindContentIdsByQueryResult;
+import com.enonic.xp.content.GetContentByIdsParams;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class SchemaExtensionsGraphQLIntegrationTest
     extends BaseGraphQLIntegrationTest
 {
+    @BeforeEach
+    public void setUp()
+    {
+        when( contentService.findNearestSiteByPath( ContentPath.from( "/siteKey" ) ) ).thenReturn(
+            TestFixtures.createSite( "siteName", "siteDescription" ) );
+
+        when( contentService.getByPath( ContentPath.from( "/contentKey" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
+
+        when( contentService.find( any( ContentQuery.class ) ) ).thenReturn(
+            FindContentIdsByQueryResult.create().contents( ContentIds.create().add( ContentId.from( "contentId" ) ).build() ).build() );
+
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn(
+            Contents.from( ContentFixtures.createMediaContent() ) );
+    }
+
+
     @Test
     public void testExtensions()
     {
@@ -76,5 +103,20 @@ public class SchemaExtensionsGraphQLIntegrationTest
         assertEquals(
             "Exception while fetching data (/invalidLocalContext) : Unsupported type \"org.openjdk.nashorn.api.scripting.ScriptObjectMirror\". Type of value must be String, Double, Integer or Boolean.",
             errors.get( 0 ).get( "message" ) );
+
+        // verify testGetSiteUsingExtension field
+        Map<String, Object> testGetSiteUsingExtension = CastHelper.cast( data.get( "testGetSiteUsingExtension" ) );
+        assertNotNull( testGetSiteUsingExtension );
+        assertEquals( "portal:site", testGetSiteUsingExtension.get( "type" ) );
+
+        // verify testGetSiteUsingExtension field
+        Map<String, Object> testGetContentUsingExtension = CastHelper.cast( data.get( "testGetContentUsingExtension" ) );
+        assertNotNull( testGetContentUsingExtension );
+        assertEquals( "media:image", testGetContentUsingExtension.get( "type" ) );
+
+        // verify testQueryUsingExtension field
+        List<Map<String, Object>> testQueryUsingExtension = CastHelper.cast( data.get( "testQueryUsingExtension" ) );
+        assertNotNull( testQueryUsingExtension );
+        assertEquals( 1, testQueryUsingExtension.size() );
     }
 }

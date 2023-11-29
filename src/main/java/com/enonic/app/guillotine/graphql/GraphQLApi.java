@@ -7,9 +7,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import org.dataloader.BatchLoader;
+import org.dataloader.DataLoader;
+import org.dataloader.DataLoaderFactory;
+import org.dataloader.DataLoaderRegistry;
 
 import graphql.ExecutionInput;
 import graphql.GraphQL;
@@ -24,6 +30,7 @@ import graphql.schema.GraphQLSchema;
 import graphql.schema.GraphQLType;
 import graphql.schema.SchemaTransformer;
 
+import com.enonic.app.guillotine.GuillotineScriptService;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.factory.HeadlessCmsTypeFactory;
 import com.enonic.app.guillotine.graphql.factory.TypeFactory;
@@ -31,12 +38,23 @@ import com.enonic.app.guillotine.graphql.helper.GraphQLHelper;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionGraphQLTypeVisitor;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionsExtractorService;
 import com.enonic.app.guillotine.graphql.transformer.SchemaExtensions;
+import com.enonic.app.guillotine.mapper.ContentMapper;
 import com.enonic.app.guillotine.mapper.ExecutionResultMapper;
 import com.enonic.xp.app.ApplicationService;
+import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentNotFoundException;
+import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.content.ContentService;
+import com.enonic.xp.context.Context;
+import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.macro.MacroDescriptor;
+import com.enonic.xp.project.ProjectConstants;
 import com.enonic.xp.script.ScriptValue;
 import com.enonic.xp.script.bean.BeanContext;
 import com.enonic.xp.script.bean.ScriptBean;
+import com.enonic.xp.security.auth.AuthenticationInfo;
 
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField;
 
@@ -49,12 +67,15 @@ public class GraphQLApi
 
     private Supplier<ExtensionsExtractorService> extensionsExtractorServiceSupplier;
 
+    private Supplier<GuillotineScriptService> guillotineScriptServiceSupplier;
+
     @Override
     public void initialize( final BeanContext context )
     {
         this.serviceFacadeSupplier = context.getService( ServiceFacade.class );
         this.applicationServiceSupplier = context.getService( ApplicationService.class );
         this.extensionsExtractorServiceSupplier = context.getService( ExtensionsExtractorService.class );
+        this.guillotineScriptServiceSupplier = context.getService( GuillotineScriptService.class );
     }
 
     public GraphQLSchema createSchema()
@@ -209,9 +230,62 @@ public class GraphQLApi
 
     public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
     {
+        Context oldContext = ContextAccessor.current();
+        AuthenticationInfo authenticationInfo = oldContext.getAuthInfo();
+
+        BatchLoader<Map<String, Object>, Object> contentBatchLoader = list -> CompletableFuture.supplyAsync( () -> {
+
+            ContentService contentService = serviceFacadeSupplier.get().getContentService();
+            return list.stream().map( params -> {
+                final ContextBuilder contextBuilder = ContextBuilder.create().authInfo( authenticationInfo );
+                if ( params.get( "branch" ) != null )
+                {
+                    contextBuilder.branch( params.get( "branch" ).toString() );
+                }
+                if ( params.get( "project" ) != null )
+                {
+                    contextBuilder.repositoryId( ProjectConstants.PROJECT_REPO_ID_PREFIX + params.get( "project" ) );
+                }
+
+                Context context = contextBuilder.build();
+
+                ContentMapper contentMapper = context.callWith( () -> {
+                    try
+                    {
+                        Content result = null;
+                        if ( params.get( "key" ).toString().startsWith( "/" ) )
+                        {
+                            result = contentService.getByPath( ContentPath.from( params.get( "key" ).toString() ) );
+                        }
+                        else
+                        {
+                            result = contentService.getById( ContentId.from( params.get( "key" ).toString() ) );
+                        }
+
+                        return result != null ? new ContentMapper( result ) : null;
+
+                    }
+                    catch ( ContentNotFoundException e )
+                    {
+                        return null;
+                    }
+                } );
+
+                return guillotineScriptServiceSupplier.get().toNativeObject( contentMapper );
+
+            } ).collect( Collectors.toList() );
+        } );
+
         GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
 
-        ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).build();
+        DataLoader<Map<String, Object>, Object> contentDataLoader = DataLoaderFactory.newDataLoader( contentBatchLoader );
+
+        DataLoaderRegistry dataLoaderRegistry = new DataLoaderRegistry();
+        dataLoaderRegistry.register( "contentDataLoader", contentDataLoader );
+
+        ExecutionInput executionInput =
+            ExecutionInput.newExecutionInput().dataLoaderRegistry( dataLoaderRegistry ).query( query ).variables(
+                extractValue( variables ) ).build();
 
         return new ExecutionResultMapper( graphQL.execute( executionInput ) );
     }

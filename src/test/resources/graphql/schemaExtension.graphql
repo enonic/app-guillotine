@@ -32,4 +32,28 @@ query {
             field
         }
     }
+    testGetSiteUsingExtension(key: "/siteKey", project: "project", branch: "branch") {
+        _id
+        type
+        data {
+            description
+        }
+    }
+    testGetContentUsingExtension(key: "/contentKey", project: "project", branch: "branch") {
+        _id
+        type
+        _path
+    }
+    testQueryUsingExtension(query: {
+        term: {
+            field: "field"
+            value: {
+                string: "stringValue"
+            }
+        }
+    }, project: "project", branch: "branch") {
+        _id
+        type
+        _path
+    }
 }

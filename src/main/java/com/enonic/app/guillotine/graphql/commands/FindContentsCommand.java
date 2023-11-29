@@ -11,7 +11,6 @@ import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.app.guillotine.mapper.JsonToFilterMapper;
 import com.enonic.app.guillotine.mapper.JsonToPropertyTreeTranslator;
 import com.enonic.app.guillotine.mapper.QueryMapper;
-import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
@@ -43,6 +42,26 @@ public class FindContentsCommand
 
     public Map<String, Object> execute()
     {
+        FindContentIdsByQueryResult findQueryResult = doExecute();
+
+        Contents contents = !findQueryResult.getContentIds().isEmpty() ? this.contentService.getByIds(
+            new GetContentByIdsParams( findQueryResult.getContentIds() ) ) : Contents.empty();
+
+        return map( contents, findQueryResult );
+    }
+
+    public Object executeFromJS()
+    {
+        FindContentIdsByQueryResult findQueryResult = doExecute();
+
+        Contents contents = !findQueryResult.getContentIds().isEmpty() ? this.contentService.getByIds(
+            new GetContentByIdsParams( findQueryResult.getContentIds() ) ) : Contents.empty();
+
+        return new QueryMapper( contents, findQueryResult );
+    }
+
+    private FindContentIdsByQueryResult doExecute()
+    {
         HighlightQuery highlight = new QueryHighlightParams().getHighlightQuery( params.getHighlight() );
 
         Filters filters = JsonToFilterMapper.create( params.getFilters() );
@@ -55,22 +74,11 @@ public class FindContentsCommand
 
         filters.forEach( queryBuilder::queryFilter );
 
-        return map( contentService.find( queryBuilder.build() ) );
+        return contentService.find( queryBuilder.build() );
     }
 
-    private Map<String, Object> map( final FindContentIdsByQueryResult findQueryResult )
+    private Map<String, Object> map( Contents contents, final FindContentIdsByQueryResult findQueryResult )
     {
-        final ContentIds contentIds = findQueryResult.getContentIds();
-        final Contents contents;
-        if ( contentIds.isEmpty() )
-        {
-            contents = Contents.empty();
-        }
-        else
-        {
-            contents = this.contentService.getByIds( new GetContentByIdsParams( contentIds ) );
-        }
-
         GuillotineMapGenerator generator = new GuillotineMapGenerator();
         new QueryMapper( contents, findQueryResult ).serialize( generator );
         return CastHelper.cast( generator.getRoot() );

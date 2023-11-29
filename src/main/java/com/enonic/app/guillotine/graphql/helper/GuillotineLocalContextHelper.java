@@ -15,20 +15,23 @@ import com.enonic.xp.repository.RepositoryId;
 
 public class GuillotineLocalContextHelper
 {
-    public static <T> T executeInContext( final DataFetchingEnvironment environment, Callable<T> callable )
+    public static <T> T executeInContext( final DataFetchingEnvironment environment, final Callable<T> callable )
     {
-        final Map<String, Object> localContext = environment.getLocalContext();
-
         final ContextBuilder contextBuilder = ContextBuilder.from( ContextAccessor.current() );
 
-        if ( localContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ) != null )
+        if ( environment.getLocalContext() instanceof Map )
         {
-            contextBuilder.branch( localContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ).toString() );
-        }
-        if ( localContext.get( Constants.GUILLOTINE_TARGET_PROJECT_CTX ) != null )
-        {
-            contextBuilder.repositoryId(
-                ProjectConstants.PROJECT_REPO_ID_PREFIX + localContext.get( Constants.GUILLOTINE_TARGET_PROJECT_CTX ).toString() );
+            final Map<String, Object> localContext = environment.getLocalContext();
+
+            if ( localContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ) != null )
+            {
+                contextBuilder.branch( localContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ).toString() );
+            }
+            if ( localContext.get( Constants.GUILLOTINE_TARGET_PROJECT_CTX ) != null )
+            {
+                contextBuilder.repositoryId(
+                    ProjectConstants.PROJECT_REPO_ID_PREFIX + localContext.get( Constants.GUILLOTINE_TARGET_PROJECT_CTX ).toString() );
+            }
         }
 
         return contextBuilder.build().callWith( callable );

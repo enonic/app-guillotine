@@ -1,9 +1,15 @@
 package com.enonic.app.guillotine.graphql.factory;
 
+import java.util.Locale;
+
+import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentName;
+import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.form.Form;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.schema.xdata.XData;
+import com.enonic.xp.site.Site;
 
 import static com.enonic.xp.media.MediaInfo.CAMERA_INFO_METADATA_NAME;
 import static com.enonic.xp.media.MediaInfo.GPS_INFO_GEO_POINT;
@@ -88,6 +94,12 @@ public class TestFixtures
         form.addFormItem( createTextLine( "orientation", "Orientation" ).occurrences( 0, 1 ).build() );
 
         return form.build();
+    }
+
+    public static Site createSite( final String name, final String description )
+    {
+        return Site.create().id( ContentId.from( name ) ).name( ContentName.from( name ) ).description( description ).parentPath(
+            ContentPath.ROOT ).language( Locale.ENGLISH ).build();
     }
 
     private static Input.Builder createDate( final String name, final String label )

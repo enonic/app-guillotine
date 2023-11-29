@@ -38,6 +38,7 @@ import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.ContentTypes;
 import com.enonic.xp.schema.xdata.XDatas;
+import com.enonic.xp.script.serializer.MapSerializable;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.User;
 import com.enonic.xp.security.auth.AuthenticationInfo;
@@ -80,8 +81,16 @@ public class BaseGraphQLIntegrationTest
             return runScript( resourceKey );
         } );
 
+        when( scriptService.toNativeObject( any(), any() ) ).thenAnswer( invocation -> {
+            MapSerializable objectToConvert = invocation.getArgument( 1 );
+
+            GuillotineMapGenerator generator = new GuillotineMapGenerator();
+            objectToConvert.serialize( generator );
+            return generator.getRoot();
+        } );
+
         final ExtensionsExtractorService extensionsExtractorService =
-            new ExtensionsExtractorService( applicationService, getResourceService(), scriptService );
+            new ExtensionsExtractorService( applicationService, getResourceService(), scriptService, contentService );
 
         this.serviceFacade = mock( ServiceFacade.class );
 

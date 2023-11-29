@@ -1,4 +1,4 @@
-exports.extensions = function (graphQL) {
+exports.extensions = function (graphQL, guillotine) {
     return {
         inputTypes: {
             BooksInputFilter: {
@@ -123,6 +123,30 @@ exports.extensions = function (graphQL) {
                     invalidLocalContext: {
                         type: graphQL.reference('ParentType'),
                     },
+                    testGetSiteUsingExtension: {
+                        type: graphQL.reference('portal_Site'),
+                        args: {
+                            key: graphQL.nonNull(graphQL.GraphQLString),
+                            project: graphQL.GraphQLString,
+                            branch: graphQL.GraphQLString,
+                        }
+                    },
+                    testGetContentUsingExtension: {
+                        type: graphQL.reference('Content'),
+                        args: {
+                            key: graphQL.nonNull(graphQL.GraphQLString),
+                            project: graphQL.GraphQLString,
+                            branch: graphQL.GraphQLString,
+                        }
+                    },
+                    testQueryUsingExtension: {
+                        type: graphQL.list(graphQL.reference('Content')),
+                        args: {
+                            query: graphQL.nonNull(graphQL.reference('QueryDSLInput')),
+                            project: graphQL.GraphQLString,
+                            branch: graphQL.GraphQLString,
+                        }
+                    }
                 });
             },
         },
@@ -188,6 +212,30 @@ exports.extensions = function (graphQL) {
                         name: "First Name",
                         extraField: "Value",
                     }
+                },
+                testGetSiteUsingExtension: function (env) {
+                    return guillotine.getSite(__.toScriptValue({
+                        key: env.args.key,
+                        project: env.args.project,
+                        branch: env.args.branch,
+                    }));
+                },
+                testGetContentUsingExtension: function (env) {
+                    return guillotine.getContent(__.toScriptValue({
+                        key: env.args.key,
+                        project: env.args.project,
+                        branch: env.args.branch,
+                    }));
+                },
+                testQueryUsingExtension: function (env) {
+                    const queryResult = guillotine.query(__.toScriptValue({
+                        params: {
+                            query: env.args.query
+                        },
+                        project: env.args.project,
+                        branch: env.args.branch,
+                    }));
+                    return queryResult.hits;
                 }
             },
             GoogleBooksAuthor: {
