@@ -39,9 +39,12 @@ routerLib.get('/site/[^/]+', function (req) {
         path: baseUrl,
     });
 
+    const staticResourceBaseUrl = handlerUrl.replace(/\/$/, '');
+
     const params = {
         wsUrl: wsUrl,
         handlerUrl: handlerUrl,
+        staticResourceBaseUrl: `${staticResourceBaseUrl}/_static`,
     };
 
     return {

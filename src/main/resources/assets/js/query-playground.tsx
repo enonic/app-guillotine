@@ -31,12 +31,19 @@ function getDataConfig() {
     return getRootContainer().dataset;
 }
 
+function normalizeUrl(url) {
+    return url.replace(/\/$/, '');
+}
+
 function createFetcher() {
+    const handlerBaseUrl: string = normalizeUrl(getDataConfig().configHandlerUrl);
+    const wsHandlerBaseUrl: string = normalizeUrl(getDataConfig().configWsUrl);
+
     return createGraphiQLFetcher({
-        url: `${getDataConfig().configHandlerUrl}/${currentBranch}`,
+        url: `${handlerBaseUrl}/${currentBranch}`,
         wsClient: createClient(
             {
-                url: `${getRootContainer().dataset.configWsUrl}/${currentBranch}`,
+                url: `${wsHandlerBaseUrl}/${currentBranch}`,
             }),
     });
 }
