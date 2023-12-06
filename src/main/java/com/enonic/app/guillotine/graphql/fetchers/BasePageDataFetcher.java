@@ -7,7 +7,7 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
-import com.enonic.app.guillotine.graphql.ContentSerializer;
+import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.xp.content.ContentId;
@@ -74,7 +74,7 @@ public abstract class BasePageDataFetcher
 
                 if ( defaultPageTemplate != null )
                 {
-                    return ContentSerializer.serialize( defaultPageTemplate );
+                    return GuillotineSerializer.serialize( defaultPageTemplate );
                 }
             }
 

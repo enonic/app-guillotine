@@ -5,7 +5,7 @@ import java.util.Map;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.ContentSerializer;
+import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentId;
@@ -54,6 +54,6 @@ public class GetSiteDataFetcher
             site = portalRequest.getSite();
         }
 
-        return ContentSerializer.serialize( site );
+        return GuillotineSerializer.serialize( site );
     }
 }

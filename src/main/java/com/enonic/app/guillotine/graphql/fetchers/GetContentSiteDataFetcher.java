@@ -5,7 +5,7 @@ import java.util.Map;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.ContentSerializer;
+import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
@@ -35,6 +35,6 @@ public class GetContentSiteDataFetcher
 
         Site site = contentService.getNearestSite( ContentId.from( sourceMap.get( "_id" ).toString() ) );
 
-        return ContentSerializer.serialize( site );
+        return GuillotineSerializer.serialize( site );
     }
 }

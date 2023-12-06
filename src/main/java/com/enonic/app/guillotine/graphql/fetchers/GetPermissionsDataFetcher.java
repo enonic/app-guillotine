@@ -1,11 +1,11 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
-import java.util.Map;
-
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.GuillotineContext;
+import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentService;
 
 public class GetPermissionsDataFetcher
@@ -25,12 +25,7 @@ public class GetPermissionsDataFetcher
 
     private Object doGet( final DataFetchingEnvironment environment )
     {
-        Map<String, Object> contentAsMap = getContent( environment, false );
-
-        if ( contentAsMap != null )
-        {
-            return contentAsMap.get( "permissions" );
-        }
-        return null;
+        Content content = getContent( environment, false );
+        return GuillotineSerializer.serializePermissions( content );
     }
 }
