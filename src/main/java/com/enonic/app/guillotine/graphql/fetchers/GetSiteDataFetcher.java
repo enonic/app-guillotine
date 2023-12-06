@@ -5,7 +5,7 @@ import java.util.Map;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.ContentSerializer;
+import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
@@ -37,7 +37,7 @@ public class GetSiteDataFetcher
             Site site = siteKey.startsWith( "/" )
                 ? contentService.findNearestSiteByPath( ContentPath.from( siteKey ) )
                 : contentService.getNearestSite( ContentId.from( siteKey ) );
-            return ContentSerializer.serialize( site );
+            return GuillotineSerializer.serialize( site );
         }
 
         return null;

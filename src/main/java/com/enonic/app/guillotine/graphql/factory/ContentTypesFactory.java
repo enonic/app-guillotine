@@ -29,6 +29,7 @@ import com.enonic.app.guillotine.graphql.fetchers.GetContentChildrenDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentDataDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentFieldDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentParentDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.GetContentPermissionsDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentReferencesDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentSiteDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetImageUrlDataFetcher;
@@ -279,7 +280,8 @@ public class ContentTypesFactory
 
         context.registerDataFetcher( contentType, "components", new GetComponentsDataFetcher( serviceFacade ) );
 
-        context.registerDataFetcher( contentType, "permissions", new GetContentFieldDataFetcher( "permissions" ) );
+        context.registerDataFetcher( contentType, "permissions",
+                                     new GetContentPermissionsDataFetcher( serviceFacade.getContentService() ) );
 
         context.registerDataFetcher( contentType, "site", new GetContentSiteDataFetcher( serviceFacade.getContentService() ) );
 

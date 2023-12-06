@@ -9,7 +9,7 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
-import com.enonic.app.guillotine.graphql.ContentSerializer;
+import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
@@ -51,7 +51,7 @@ public class GetContentChildrenDataFetcher
                 FindContentByParentParams.create().parentId( ContentId.from( sourceAsMap.get( "_id" ) ) ).from( from ).size(
                     count ).childOrder( childOrder ).build() );
 
-            return children.getContents().stream().map( ContentSerializer::serialize ).collect( Collectors.toList() );
+            return children.getContents().stream().map( GuillotineSerializer::serialize ).collect( Collectors.toList() );
         }
         catch ( final ContentNotFoundException e )
         {
