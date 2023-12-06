@@ -1,6 +1,6 @@
 {
   "name": "app-guillotine",
-  "version": "6.2.2",
+  "version": "6.2.3-SNAPSHOT",
   "description": "Guillotine App",
   "license": "Apache-2.0 license",
   "repository": {
