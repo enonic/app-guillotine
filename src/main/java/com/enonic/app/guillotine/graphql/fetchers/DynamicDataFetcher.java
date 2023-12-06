@@ -3,7 +3,7 @@ package com.enonic.app.guillotine.graphql.fetchers;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.ContentSerializer;
+import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.mapper.DataFetchingEnvironmentMapper;
 import com.enonic.xp.script.ScriptValue;
 
@@ -21,6 +21,6 @@ public class DynamicDataFetcher
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
     {
-        return ContentSerializer.serialize( resolveFunction.call( new DataFetchingEnvironmentMapper( environment ) ) );
+        return GuillotineSerializer.serialize( resolveFunction.call( new DataFetchingEnvironmentMapper( environment ) ) );
     }
 }

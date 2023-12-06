@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.ContentSerializer;
+import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
@@ -35,7 +35,7 @@ public class GetContentReferencesDataFetcher
 
         return contentService.getOutboundDependencies( ContentId.from( contentAsMap.get( "_id" ).toString() ) ).stream().map( contentId -> {
             Content content = contentService.getById( contentId );
-            return ContentSerializer.serialize( content );
+            return GuillotineSerializer.serialize( content );
         } ).collect( Collectors.toList() );
     }
 }

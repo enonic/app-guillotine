@@ -86,7 +86,6 @@ public final class ContentMapper
         serializePublishInfo( gen, content.getPublishInfo() );
         serializeWorkflowInfo( gen, content.getWorkflowInfo() );
         serializeInherit( gen, content.getInherit() );
-        serializePermissions( gen, content );
     }
 
     private void serializeData( final MapGenerator gen, final PropertyTree value )

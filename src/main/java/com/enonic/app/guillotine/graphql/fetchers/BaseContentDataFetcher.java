@@ -1,6 +1,5 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import graphql.schema.DataFetcher;
@@ -8,12 +7,10 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
-import com.enonic.app.guillotine.graphql.helper.SecurityHelper;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.context.ContextAccessor;
-import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.site.Site;
 
 public abstract class BaseContentDataFetcher
@@ -28,7 +25,7 @@ public abstract class BaseContentDataFetcher
         this.contentService = contentService;
     }
 
-    protected Map<String, Object> getContent( DataFetchingEnvironment environment, boolean returnRootContent )
+    protected Content getContent( DataFetchingEnvironment environment, boolean returnRootContent )
     {
         String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
 
@@ -55,8 +52,7 @@ public abstract class BaseContentDataFetcher
             }
             if ( returnRootContent )
             {
-                return ContextBuilder.from( ContextAccessor.current() ).build().callWith(
-                    () -> new GetContentCommand( contentService ).execute( "/", environment ) );
+                return new GetContentCommand( contentService ).executeAndGetContent( "/", environment );
             }
         }
         return null;
@@ -69,15 +65,15 @@ public abstract class BaseContentDataFetcher
             : contentService.getNearestSite( ContentId.from( siteKey ) );
     }
 
-    private Map<String, Object> getContentByKey( String key, boolean returnRootContent, DataFetchingEnvironment environment )
+    private Content getContentByKey( String key, boolean returnRootContent, DataFetchingEnvironment environment )
     {
-        Map<String, Object> contentAsMap = new GetContentCommand( contentService ).execute( key, environment );
+        Content content = new GetContentCommand( contentService ).executeAndGetContent( key, environment );
 
-        if ( contentAsMap != null && "/".equals( contentAsMap.get( "_path" ) ) && !returnRootContent )
+        if ( content != null && "/".equals( content.getPath().toString() ) && !returnRootContent )
         {
             return null;
         }
 
-        return SecurityHelper.filterForbiddenContent( contentAsMap );
+        return content;
     }
 }
