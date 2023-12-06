@@ -4,8 +4,9 @@ import java.util.Map;
 
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.ContentSerializer;
+import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
@@ -22,10 +23,15 @@ public class GetContentCommand
 
     public Map<String, Object> execute( String key, DataFetchingEnvironment environment )
     {
+        return GuillotineLocalContextHelper.executeInContext( environment, () -> GuillotineSerializer.serialize( doExecute( key ) ) );
+    }
+
+    public Content executeAndGetContent( String key, DataFetchingEnvironment environment )
+    {
         return GuillotineLocalContextHelper.executeInContext( environment, () -> doExecute( key ) );
     }
 
-    private Map<String, Object> doExecute( String key )
+    private Content doExecute( String key )
     {
         if ( key == null || key.isEmpty() )
         {
@@ -34,11 +40,11 @@ public class GetContentCommand
         return key.startsWith( "/" ) ? getByPath( ContentPath.from( key ) ) : getById( ContentId.from( key ) );
     }
 
-    private Map<String, Object> getByPath( ContentPath contentPath )
+    private Content getByPath( ContentPath contentPath )
     {
         try
         {
-            return ContentSerializer.serialize( contentService.getByPath( contentPath ) );
+            return contentService.getByPath( contentPath );
         }
         catch ( final ContentNotFoundException e )
         {
@@ -46,11 +52,11 @@ public class GetContentCommand
         }
     }
 
-    private Map<String, Object> getById( ContentId contentId )
+    private Content getById( ContentId contentId )
     {
         try
         {
-            return ContentSerializer.serialize( contentService.getById( contentId ) );
+            return contentService.getById( contentId );
         }
         catch ( final ContentNotFoundException e )
         {

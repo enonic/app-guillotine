@@ -10,7 +10,7 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
-import com.enonic.app.guillotine.graphql.ContentSerializer;
+import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.ConnectionHelper;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentId;
@@ -53,7 +53,7 @@ public class GetContentChildrenConnectionDataFetcher
                 count ).childOrder( childOrder ).build() );
 
         return map( children.getTotalHits(), offset,
-                    children.getContents().stream().map( ContentSerializer::serialize ).collect( Collectors.toList() ) );
+                    children.getContents().stream().map( GuillotineSerializer::serialize ).collect( Collectors.toList() ) );
     }
 
     private Map<String, Object> map( long total, int offset, List<Map<String, Object>> children )

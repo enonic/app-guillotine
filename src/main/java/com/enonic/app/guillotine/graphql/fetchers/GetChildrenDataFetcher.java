@@ -1,16 +1,16 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
-import com.enonic.app.guillotine.graphql.ContentSerializer;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
+import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentService;
@@ -37,9 +37,9 @@ public class GetChildrenDataFetcher
     {
         ArgumentsValidator.validateArguments( environment.getArguments() );
 
-        Map<String, Object> parentAsMap = getContent( environment, true );
+        Content parent = getContent( environment, true );
 
-        if ( parentAsMap != null )
+        if ( parent != null )
         {
             Integer from = Objects.requireNonNullElse( environment.getArgument( "offset" ), 0 );
             Integer count = Objects.requireNonNullElse( environment.getArgument( "first" ), 10 );
@@ -48,10 +48,10 @@ public class GetChildrenDataFetcher
             try
             {
                 FindContentByParentResult children = contentService.findByParent(
-                    FindContentByParentParams.create().parentId( ContentId.from( parentAsMap.get( "_id" ) ) ).from( from ).size(
+                    FindContentByParentParams.create().parentId( ContentId.from( parent.getId().toString() ) ).from( from ).size(
                         count ).childOrder( childOrder ).build() );
 
-                return children.getContents().stream().map( ContentSerializer::serialize ).collect( Collectors.toList() );
+                return children.getContents().stream().map( GuillotineSerializer::serialize ).collect( Collectors.toList() );
             }
             catch ( final ContentNotFoundException e )
             {

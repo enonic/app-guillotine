@@ -7,13 +7,18 @@ import graphql.execution.DataFetcherResult;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.mapper.ContentMapper;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
+import com.enonic.app.guillotine.mapper.PermissionsMapper;
 import com.enonic.app.guillotine.mapper.SiteMapper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.script.ScriptValue;
 import com.enonic.xp.site.Site;
 
-public final class ContentSerializer
+public final class GuillotineSerializer
 {
+    private GuillotineSerializer()
+    {
+    }
+
     public static Map<String, Object> serialize( Content content )
     {
         if ( content == null )
@@ -24,6 +29,18 @@ public final class ContentSerializer
         GuillotineMapGenerator generator = new GuillotineMapGenerator();
         new ContentMapper( content ).serialize( generator );
         return CastHelper.cast( generator.getRoot() );
+    }
+
+    public static Object serializePermissions( Content content )
+    {
+        if ( content == null )
+        {
+            return null;
+        }
+
+        GuillotineMapGenerator generator = new GuillotineMapGenerator();
+        new PermissionsMapper( content ).serialize( generator );
+        return generator.getRoot();
     }
 
     public static Map<String, Object> serialize( Site site )

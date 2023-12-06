@@ -81,7 +81,6 @@ public final class ContentMapper
         serializePublishInfo( gen, content.getPublishInfo() );
         serializeWorkflowInfo( gen, content.getWorkflowInfo() );
         serializeInherit( gen, content.getInherit() );
-        serializePermissions( gen, content );
     }
 
     private void serializeData( final MapGenerator gen, final PropertyTree value )
@@ -177,13 +176,6 @@ public final class ContentMapper
             value.forEach( gen::value );
             gen.end();
         }
-    }
-
-    private void serializePermissions( final MapGenerator gen, final Content content )
-    {
-        gen.map( "permissions" );
-        new PermissionsMapper( content ).serialize( gen );
-        gen.end();
     }
 
     @Override
