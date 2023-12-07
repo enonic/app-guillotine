@@ -27,7 +27,7 @@ public class GetContentCommand
 
     private Map<String, Object> doExecute( String key )
     {
-        if ( key == null )
+        if ( key == null || key.isEmpty() )
         {
             return null;
         }

@@ -1,5 +1,6 @@
 package com.enonic.app.guillotine.graphql;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
 import graphql.Scalars;
+import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetcher;
 import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLCodeRegistry;
@@ -173,7 +175,7 @@ public class GraphQLApi
         GraphQLObjectType guillotineApi = new HeadlessCmsTypeFactory( context, serviceFacadeSupplier.get() ).create();
 
         Map<String, Object> guillotineFieldArguments = new HashMap<>();
-        guillotineFieldArguments.put( "repo", Scalars.GraphQLString );
+        guillotineFieldArguments.put( "project", Scalars.GraphQLString );
         guillotineFieldArguments.put( "branch", Scalars.GraphQLString );
         guillotineFieldArguments.put( "siteKey", Scalars.GraphQLString );
 
@@ -187,16 +189,13 @@ public class GraphQLApi
         typesRegister.addCreationCallback( "Query", guillotineQueryCreationCallback );
 
         typesRegister.addResolver( "Query", "guillotine", environment -> {
-            final Map<String, Object> sourceMap = new HashMap<>();
+            final Map<String, Object> localContext = new HashMap<>();
 
-            sourceMap.put( Constants.GUILLOTINE_TARGET_REPO_CTX, environment.getArgument( "repo" ) );
-            sourceMap.put( Constants.GUILLOTINE_TARGET_BRANCH_CTX, environment.getArgument( "branch" ) );
-            sourceMap.put( Constants.GUILLOTINE_TARGET_SITE_CTX, environment.getArgument( "siteKey" ) );
+            localContext.computeIfAbsent( Constants.GUILLOTINE_TARGET_PROJECT_CTX, v -> environment.getArgument( "project" ) );
+            localContext.computeIfAbsent( Constants.GUILLOTINE_TARGET_BRANCH_CTX, v -> environment.getArgument( "branch" ) );
+            localContext.computeIfAbsent( Constants.GUILLOTINE_TARGET_SITE_CTX, v -> environment.getArgument( "siteKey" ) );
 
-            final Map<String, Object> localContext = environment.getLocalContext();
-            localContext.put( Constants.GUILLOTINE_LOCAL_CTX, sourceMap );
-
-            return new Object();
+            return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
         } );
 
         typesRegister.addAdditionalType( context.getAllTypes() );
@@ -214,7 +213,7 @@ public class GraphQLApi
 
         ExecutionInput executionInput =
             ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).graphQLContext(
-                extractValue( queryContext ) ).localContext( new HashMap<String, Object>() ).build();
+                extractValue( queryContext ) ).build();
 
         return new ExecutionResultMapper( graphQL.execute( executionInput ) );
     }

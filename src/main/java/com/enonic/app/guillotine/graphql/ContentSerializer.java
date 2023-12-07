@@ -2,6 +2,8 @@ package com.enonic.app.guillotine.graphql;
 
 import java.util.Map;
 
+import graphql.execution.DataFetcherResult;
+
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.mapper.ContentMapper;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
@@ -56,6 +58,10 @@ public final class ContentSerializer
         }
         else if ( scriptValue.isObject() )
         {
+            if ( scriptValue.getValue() instanceof DataFetcherResult )
+            {
+                return scriptValue.getValue();
+            }
             return scriptValue.getMap();
         }
         else if ( scriptValue.isValue() )

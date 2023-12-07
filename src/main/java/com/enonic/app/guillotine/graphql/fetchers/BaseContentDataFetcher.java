@@ -37,8 +37,6 @@ public abstract class BaseContentDataFetcher
 
     protected Map<String, Object> getContent( DataFetchingEnvironment environment, boolean returnRootContent )
     {
-        PortalRequest portalRequest = PortalRequestAccessor.get();
-
         String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
 
         String argumentKey = environment.getArgument( "key" );
@@ -46,40 +44,29 @@ public abstract class BaseContentDataFetcher
         if ( argumentKey != null )
         {
             String key = argumentKey;
-
-            Site site = portalRequest.getSite();
-
-            if ( context.isGlobalMode() && !siteKey.isEmpty() )
+            if ( siteKey != null && !siteKey.isEmpty() )
             {
-                site = getSiteByKey( siteKey );
+                Site site = getSiteByKey( siteKey );
+                if ( site != null )
+                {
+                    key = argumentKey.replaceAll( SITE_KEY_PATTERN.pattern(), site.getPath().toString() );
+                }
             }
-            if ( site != null )
-            {
-                key = argumentKey.replaceAll( SITE_KEY_PATTERN.pattern(), site.getPath().toString() );
-            }
-            if ( SITE_KEY_PATTERN.matcher( key ).find() )
-            {
-                return null;
-            }
-
             return getContentByKey( key, returnRootContent, environment );
         }
         else
         {
-            if ( context.isGlobalMode() )
+            if ( siteKey != null && !siteKey.isEmpty() )
             {
-                if ( !siteKey.isEmpty() )
-                {
-                    return getContentByKey( siteKey, returnRootContent, environment );
-                }
-                if ( returnRootContent )
-                {
-                    return ContextBuilder.from( ContextAccessor.current() ).build().callWith(
-                        () -> new GetContentCommand( contentService ).execute( "/", environment ) );
-                }
+                return getContentByKey( siteKey, returnRootContent, environment );
             }
-            return ContentSerializer.serialize( portalRequest.getContent() );
+            if ( returnRootContent )
+            {
+                return ContextBuilder.from( ContextAccessor.current() ).build().callWith(
+                    () -> new GetContentCommand( contentService ).execute( "/", environment ) );
+            }
         }
+        return null;
     }
 
     private Site getSiteByKey( String siteKey )
