@@ -1,10 +1,12 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
@@ -32,7 +34,7 @@ public class GetComponentsDataFetcher
         return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
     }
 
-    private List<Map<String, Object>> doGet( final DataFetchingEnvironment environment )
+    private Object doGet( final DataFetchingEnvironment environment )
     {
         Map<String, Object> sourceAsMap = environment.getSource();
 
@@ -51,13 +53,22 @@ public class GetComponentsDataFetcher
         }
 
         List<Map<String, Object>> components = CastHelper.cast( ArrayHelper.forceArray( nodeAsMap.get( "components" ) ) );
+        Map<String, Object> attachments = CastHelper.cast( sourceAsMap.get( "attachments" ) );
+
+        final DataFetcherResult.Builder<Object> resultBuilder = DataFetcherResult.newResult();
+        resultBuilder.localContext(
+            Collections.unmodifiableMap( GuillotineLocalContextHelper.applyAttachmentsInfo( environment, nodeId, attachments ) ) );
 
         if ( !resolveFragment )
         {
-            return components;
+            resultBuilder.data( components );
+        }
+        else
+        {
+            resultBuilder.data( resolveInlineFragments( components ) );
         }
 
-        return resolveInlineFragments( components );
+        return resultBuilder.build();
     }
 
     private List<Map<String, Object>> resolveInlineFragments( List<Map<String, Object>> components )

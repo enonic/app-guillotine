@@ -2,13 +2,11 @@ package com.enonic.app.guillotine.mapper;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
-import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentInheritType;
@@ -16,10 +14,8 @@ import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ExtraData;
 import com.enonic.xp.content.WorkflowCheckState;
 import com.enonic.xp.content.WorkflowInfo;
-import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.page.Page;
-import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.script.serializer.MapGenerator;
 import com.enonic.xp.script.serializer.MapSerializable;
 import com.enonic.xp.sortvalues.SortValuesProperty;
@@ -51,8 +47,6 @@ public final class ContentMapper
         gen.value( "_name", content.getName() );
         gen.value( "_path", content.getPath() );
         gen.value( "_score", this.score );
-        gen.value( "_project", Objects.toString( ProjectName.from( ContextAccessor.current().getRepositoryId() ), null ) );
-        gen.value( "_branch", ContextAccessor.current().getBranch() );
         gen.value( "creator", content.getCreator() );
         gen.value( "modifier", content.getModifier() );
         gen.value( "createdTime", content.getCreatedTime() );
@@ -91,8 +85,7 @@ public final class ContentMapper
     private void serializeData( final MapGenerator gen, final PropertyTree value )
     {
         gen.map( "data" );
-        gen.value( Constants.CONTENT_ID_FIELD, content.getId() );
-        new PropertyTreeMapper( value, content.getId().toString() ).serialize( gen );
+        new PropertyTreeMapper( value ).serialize( gen );
         gen.end();
     }
 
@@ -145,7 +138,7 @@ public final class ContentMapper
             for ( final ExtraData extraData : extraDatas )
             {
                 gen.map( extraData.getName().getLocalName() );
-                new PropertyTreeMapper( extraData.getData(), content.getId().toString() ).serialize( gen );
+                new PropertyTreeMapper( extraData.getData() ).serialize( gen );
                 gen.end();
             }
             gen.end();
@@ -157,7 +150,7 @@ public final class ContentMapper
     {
         if ( value != null )
         {
-            new PageMapper( value, content.getId() ).serialize( gen );
+            new PageMapper( value ).serialize( gen );
         }
         else
         {
@@ -181,13 +174,6 @@ public final class ContentMapper
             value.forEach( gen::value );
             gen.end();
         }
-    }
-
-    private void serializePermissions( final MapGenerator gen, final Content content )
-    {
-        gen.map( "permissions" );
-        new PermissionsMapper( content ).serialize( gen );
-        gen.end();
     }
 
     @Override

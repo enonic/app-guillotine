@@ -6,6 +6,8 @@ public interface Constants
 {
     String CONTENT_ID_FIELD = "__contentId";
 
+    String ATTACHMENTS_FIELD = "__attachments";
+
     String GUILLOTINE_TARGET_PROJECT_CTX = "__targetProject";
 
     String GUILLOTINE_TARGET_BRANCH_CTX = "__targetBranch";

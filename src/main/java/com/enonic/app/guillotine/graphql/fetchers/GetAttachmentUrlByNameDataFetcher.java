@@ -37,9 +37,12 @@ public class GetAttachmentUrlByNameDataFetcher
         portalRequest.setRepositoryId( GuillotineLocalContextHelper.getRepositoryId( environment, portalRequest.getRepositoryId() ) );
         portalRequest.setBranch( GuillotineLocalContextHelper.getBranch( environment, portalRequest.getBranch() ) );
 
+        Map<String, Object> localContext = environment.getLocalContext();
+        String contentId = Objects.toString( localContext.get( Constants.CONTENT_ID_FIELD ), null );
+
         Map<String, Object> attachmentAsMap = environment.getSource();
 
-        AttachmentUrlParams params = new AttachmentUrlParams().id( attachmentAsMap.get( Constants.CONTENT_ID_FIELD ).toString() ).name(
+        AttachmentUrlParams params = new AttachmentUrlParams().id( contentId ).name(
             attachmentAsMap.get( "name" ).toString() ).download( Objects.toString( environment.getArgument( "download" ), "false" ) ).type(
             environment.getArgument( "type" ) ).portalRequest( portalRequest );
 

@@ -9,6 +9,7 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
+import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.macro.CustomHtmlPostProcessor;
@@ -30,17 +31,13 @@ public class RichTextDataFetcher
 {
     private final String htmlText;
 
-    private final String contentId;
-
     private final ServiceFacade serviceFacade;
 
     private final GuillotineContext guillotineContext;
 
-    public RichTextDataFetcher( final String htmlText, final String contentId, final ServiceFacade serviceFacade,
-                                final GuillotineContext guillotineContext )
+    public RichTextDataFetcher( final String htmlText, final ServiceFacade serviceFacade, final GuillotineContext guillotineContext )
     {
         this.htmlText = htmlText;
-        this.contentId = contentId;
         this.serviceFacade = serviceFacade;
         this.guillotineContext = guillotineContext;
     }
@@ -78,6 +75,9 @@ public class RichTextDataFetcher
             htmlDocument.select( "figcaption:empty" ).forEach( HtmlElement::remove );
             return htmlDocument.getInnerHtml();
         } );
+
+        Map<String, Object> localContext = environment.getLocalContext();
+        String contentId = (String) localContext.get( Constants.CONTENT_ID_FIELD );
 
         String processedHtml =
             serviceFacade.getMacroService().evaluateMacros( serviceFacade.getPortalUrlService().processHtml( htmlParams ), macro -> {

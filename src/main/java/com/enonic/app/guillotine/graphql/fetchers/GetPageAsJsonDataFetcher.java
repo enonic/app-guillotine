@@ -10,7 +10,6 @@ import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
-import com.enonic.app.guillotine.graphql.helper.DataFetcherHelper;
 
 public class GetPageAsJsonDataFetcher
     extends BasePageDataFetcher
@@ -38,7 +37,7 @@ public class GetPageAsJsonDataFetcher
             inlineFragmentContentComponents( page, environment );
         }
 
-        return DataFetcherHelper.removeContentIdField( page );
+        return page;
     }
 
     private void inlineFragmentContentComponents( Map<String, Object> sourceAsMap, DataFetchingEnvironment environment )
