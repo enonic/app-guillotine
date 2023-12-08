@@ -47,7 +47,7 @@ public class FormItemDataFetcher
 
         Occurrences occurrences = FormItemTypesHelper.getOccurrences( formItem );
 
-        String contentId = Objects.toString( sourceAsMap.get( Constants.CONTENT_ID_FIELD ), null );
+        Map<String, Object> localContext = environment.getLocalContext();
 
         if ( occurrences.getMaximum() == 1 )
         {
@@ -58,11 +58,11 @@ public class FormItemDataFetcher
                 InputTypeName inputType = ( (Input) formItem ).getInputType();
                 if ( inputType.equals( InputTypeName.HTML_AREA ) )
                 {
-                    return new RichTextDataFetcher( (String) value, contentId, serviceFacade, guillotineContext ).execute( environment );
+                    return new RichTextDataFetcher( (String) value, serviceFacade, guillotineContext ).execute( environment );
                 }
                 if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) )
                 {
-                    Map<String, Object> attachmentsAsMap = getAttachmentsAsMap( contentId, environment );
+                    Map<String, Object> attachmentsAsMap = CastHelper.cast( localContext.get( Constants.ATTACHMENTS_FIELD ) );
                     return attachmentsAsMap.get( (String) value );
                 }
                 if ( inputType.equals( InputTypeName.CONTENT_SELECTOR ) || inputType.equals( InputTypeName.MEDIA_SELECTOR ) ||
@@ -93,12 +93,12 @@ public class FormItemDataFetcher
                 if ( inputType.equals( InputTypeName.HTML_AREA ) )
                 {
                     return values.stream().map(
-                        value -> new RichTextDataFetcher( (String) value, contentId, serviceFacade, guillotineContext ).execute(
+                        value -> new RichTextDataFetcher( (String) value, serviceFacade, guillotineContext ).execute(
                             environment ) ).collect( Collectors.toList() );
                 }
                 if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) )
                 {
-                    Map<String, Object> attachmentsAsMap = getAttachmentsAsMap( contentId, environment );
+                    Map<String, Object> attachmentsAsMap = CastHelper.cast( localContext.get( Constants.ATTACHMENTS_FIELD ) );
                     return values.stream().map( value -> attachmentsAsMap.get( (String) value ) ).collect( Collectors.toList() );
                 }
                 if ( inputType.equals( InputTypeName.CONTENT_SELECTOR ) || inputType.equals( InputTypeName.MEDIA_SELECTOR ) ||
@@ -115,12 +115,6 @@ public class FormItemDataFetcher
     private Map<String, Object> getContentAsMap( final String contentId, final DataFetchingEnvironment environment )
     {
         return new GetContentCommand( serviceFacade.getContentService() ).execute( contentId, environment );
-    }
-
-    private Map<String, Object> getAttachmentsAsMap( final String contentId, final DataFetchingEnvironment environment )
-    {
-        Map<String, Object> contentAsMap = getContentAsMap( contentId, environment );
-        return contentAsMap != null ? CastHelper.cast( contentAsMap.get( "attachments" ) ) : Map.of();
     }
 
 }

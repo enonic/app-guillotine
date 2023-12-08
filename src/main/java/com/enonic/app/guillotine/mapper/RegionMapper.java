@@ -1,6 +1,5 @@
 package com.enonic.app.guillotine.mapper;
 
-import com.enonic.xp.content.ContentId;
 import com.enonic.xp.region.Component;
 import com.enonic.xp.region.Region;
 import com.enonic.xp.script.serializer.MapGenerator;
@@ -11,12 +10,9 @@ public final class RegionMapper
 {
     private final Region value;
 
-    private final ContentId contentId;
-
-    public RegionMapper( final Region value, final ContentId contentId )
+    public RegionMapper( final Region value )
     {
         this.value = value;
-        this.contentId = contentId;
     }
 
     @Override
@@ -39,7 +35,7 @@ public final class RegionMapper
         for ( final Component component : values )
         {
             gen.map();
-            new ComponentMapper( component, contentId ).serialize( gen );
+            new ComponentMapper( component ).serialize( gen );
             gen.end();
         }
         gen.end();

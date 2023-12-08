@@ -44,7 +44,7 @@ public class NodeMapper
 
     private void serializeData( final MapGenerator gen, final PropertyTree value )
     {
-        new PropertyTreeMapper( this.useRawValues, value, node.id().toString() ).serialize( gen );
+        new PropertyTreeMapper( this.useRawValues, value ).serialize( gen );
     }
 
     private void serializeIndexConfigDocument( final MapGenerator gen, final IndexConfigDocument value )

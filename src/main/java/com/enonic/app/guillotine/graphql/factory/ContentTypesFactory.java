@@ -19,17 +19,19 @@ import graphql.schema.GraphQLTypeReference;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.fetchers.ContentTypeDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.CreateDataFetcherResultWithAttachmentsInfo;
 import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetAsJsonWithoutContentIdDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentUrlByIdDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentsDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetComponentsDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.GetContentBranchDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentChildrenConnectionDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentChildrenDataFetcher;
-import com.enonic.app.guillotine.graphql.fetchers.GetContentDataDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentFieldDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentParentDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentPermissionsDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.GetContentProjectDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentReferencesDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentSiteDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetImageUrlDataFetcher;
@@ -147,7 +149,7 @@ public class ContentTypesFactory
             fields.add( outputField( "data", dataObject ) );
 
             context.registerType( dataObject.getName(), dataObject );
-            context.registerDataFetcher( typeName, "data", new GetContentDataDataFetcher() );
+            context.registerDataFetcher( typeName, "data", new CreateDataFetcherResultWithAttachmentsInfo( "data" ) );
         }
 
         GraphQLObjectType contentObject = newObject( context.uniqueName( typeName ), typeDescription, List.of( contentInterface ), fields );
@@ -289,6 +291,11 @@ public class ContentTypesFactory
 
         context.registerDataFetcher( contentType, "childrenConnection",
                                      new GetContentChildrenConnectionDataFetcher( serviceFacade.getContentService() ) );
+
+        context.registerDataFetcher( contentType, "_project", new GetContentProjectDataFetcher() );
+
+        context.registerDataFetcher( contentType, "_branch", new GetContentBranchDataFetcher() );
+        context.registerDataFetcher( contentType, "x", new CreateDataFetcherResultWithAttachmentsInfo( "x" ) );
 
         return result;
     }

@@ -1,6 +1,5 @@
 package com.enonic.app.guillotine.mapper;
 
-import com.enonic.xp.content.ContentId;
 import com.enonic.xp.page.Page;
 import com.enonic.xp.page.PageRegions;
 import com.enonic.xp.region.Component;
@@ -18,12 +17,9 @@ public final class PageMapper
 
     private final Page value;
 
-    private final ContentId contentId;
-
-    public PageMapper( final Page value, final ContentId contentId )
+    public PageMapper( final Page value )
     {
         this.value = value;
-        this.contentId = contentId;
     }
 
     @Override
@@ -48,7 +44,7 @@ public final class PageMapper
     {
         gen.map( "fragment" );
 
-        new ComponentMapper( value, contentId ).serialize( gen );
+        new ComponentMapper( value ).serialize( gen );
 
         gen.end();
     }
@@ -65,7 +61,7 @@ public final class PageMapper
         if ( value.hasConfig() )
         {
             gen.map( "config" );
-            new PropertyTreeMapper( value.getConfig(), contentId.toString() ).serialize( gen );
+            new PropertyTreeMapper( value.getConfig() ).serialize( gen );
             gen.end();
         }
         if ( value.hasRegions() )
@@ -84,7 +80,7 @@ public final class PageMapper
         {
             for ( final Region region : values )
             {
-                new RegionMapper( region, contentId ).serialize( gen );
+                new RegionMapper( region ).serialize( gen );
             }
         }
 

@@ -151,9 +151,7 @@ public class ComponentTypesFactory
 
         context.registerDataFetcher( objectType.getName(), "value", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
-            return new RichTextDataFetcher( CastHelper.cast( sourceAsMap.get( "value" ) ),
-                                            CastHelper.cast( sourceAsMap.get( "__contentId" ) ), serviceFacade, context ).execute(
-                environment );
+            return new RichTextDataFetcher( CastHelper.cast( sourceAsMap.get( "value" ) ), serviceFacade, context ).execute( environment );
         } );
         context.registerType( objectType.getName(), objectType );
     }

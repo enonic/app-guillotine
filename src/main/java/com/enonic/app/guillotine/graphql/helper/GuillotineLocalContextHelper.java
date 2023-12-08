@@ -1,5 +1,6 @@
 package com.enonic.app.guillotine.graphql.helper;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -59,5 +60,22 @@ public class GuillotineLocalContextHelper
             return Branch.from( localContext.get( Constants.GUILLOTINE_TARGET_BRANCH_CTX ).toString() );
         }
         return defaultBranch;
+    }
+
+    public static Map<String, Object> applyAttachmentsInfo( final DataFetchingEnvironment environment, final String sourceId,
+                                                            final Map<String, Object> attachments )
+    {
+        final Map<String, Object> parentLocalContext = environment.getLocalContext();
+
+        final Map<String, Object> localContext = new HashMap<>( parentLocalContext );
+
+        localContext.put( Constants.CONTENT_ID_FIELD, sourceId );
+
+        if ( attachments != null && !attachments.isEmpty() )
+        {
+            localContext.put( Constants.ATTACHMENTS_FIELD, attachments );
+        }
+
+        return localContext;
     }
 }

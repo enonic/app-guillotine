@@ -1,6 +1,5 @@
 package com.enonic.app.guillotine.mapper;
 
-import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.script.serializer.MapGenerator;
@@ -32,7 +31,6 @@ public final class AttachmentsMapper
 
     private void serializeAttachment( final MapGenerator gen, final Attachment attachment )
     {
-        gen.value( Constants.CONTENT_ID_FIELD, content.getId() );
         gen.value( "name", attachment.getName() );
         gen.value( "label", attachment.getLabel() );
         gen.value( "size", attachment.getSize() );
