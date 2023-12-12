@@ -7,6 +7,8 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
+import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
+import com.enonic.app.guillotine.graphql.helper.PortalRequestHelper;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.url.AttachmentUrlParams;
@@ -31,16 +33,15 @@ public class GetAttachmentUrlByIdDataFetcher
 
     private String doGet( final DataFetchingEnvironment environment )
     {
-        PortalRequest portalRequest = PortalRequestAccessor.get();
-
-        portalRequest.setRepositoryId( GuillotineLocalContextHelper.getRepositoryId( environment, portalRequest.getRepositoryId() ) );
-        portalRequest.setBranch( GuillotineLocalContextHelper.getBranch( environment, portalRequest.getBranch() ) );
+        PortalRequest portalRequest = PortalRequestHelper.createPortalRequest( PortalRequestAccessor.get(), environment );
 
         Map<String, Object> sourceAsMap = environment.getSource();
 
         AttachmentUrlParams params = new AttachmentUrlParams().id( sourceAsMap.get( "_id" ).toString() ).download(
             Objects.toString( environment.getArgument( "download" ), "false" ) ).type( environment.getArgument( "type" ) ).portalRequest(
             portalRequest );
+
+        ParamsUrHelper.resolveParams( params.getParams(), environment.getArgument( "params" ) );
 
         return portalUrlService.attachmentUrl( params );
     }

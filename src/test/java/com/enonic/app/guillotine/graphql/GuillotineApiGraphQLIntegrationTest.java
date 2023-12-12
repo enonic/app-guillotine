@@ -1,7 +1,6 @@
 package com.enonic.app.guillotine.graphql;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -171,8 +170,7 @@ public class GuillotineApiGraphQLIntegrationTest
         GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
 
         ExecutionInput executionInput =
-            ExecutionInput.newExecutionInput().query( ResourceHelper.readGraphQLQuery( "graphql/getSiteField.graphql" ) ).localContext(
-                new HashMap<>() ).graphQLContext( Map.of( "__siteKey", "/hmdb" ) ).build();
+            ExecutionInput.newExecutionInput().query( ResourceHelper.readGraphQLQuery( "graphql/getSiteField.graphql" ) ).build();
 
         ExecutionResultMapper executionResultMapper = new ExecutionResultMapper( graphQL.execute( executionInput ) );
 
@@ -184,11 +182,22 @@ public class GuillotineApiGraphQLIntegrationTest
         assertFalse( response.containsKey( "errors" ) );
         assertTrue( response.containsKey( "data" ) );
 
-        Map<String, Object> getSiteField = CastHelper.cast( getFieldFromGuillotine( response, "getSite" ) );
+        Map<String, Object> data = CastHelper.cast( response.get( "data" ) );
 
-        assertNotNull( getSiteField );
-        assertEquals( "siteId", getSiteField.get( "_id" ) );
-        assertEquals( "Site", getSiteField.get( "displayName" ) );
+        assertTrue( data.containsKey( "getSite" ) );
+        Map<String, Object> getSite = CastHelper.cast( data.get( "getSite" ) );
+        Map<String, Object> getForGetSite = CastHelper.cast( getSite.get( "getSite" ) );
+
+        assertNull( getForGetSite );
+
+        assertTrue( data.containsKey( "getSiteByKey" ) );
+
+        Map<String, Object> getSiteByKey = CastHelper.cast( data.get( "getSiteByKey" ) );
+        Map<String, Object> getForGetSiteByKey = CastHelper.cast( getSiteByKey.get( "getSite" ) );
+
+        assertNotNull( getForGetSiteByKey );
+        assertEquals( "siteId", getForGetSiteByKey.get( "_id" ) );
+        assertEquals( "Site", getForGetSiteByKey.get( "displayName" ) );
     }
 
     @Override
@@ -266,5 +275,21 @@ public class GuillotineApiGraphQLIntegrationTest
         Map<String, Object> getFoG2 = CastHelper.cast( g2.get( "get" ) );
         assertEquals( "New Name", getFoG2.get( "displayName" ) );
         assertEquals( "contentId", getFoG2.get( "_id" ) );
+    }
+
+    @Test
+    public void testGetContentPath()
+    {
+        when( contentService.getByPath( ContentPath.from( "/a/b" ) ) ).thenReturn( ContentFixtures.createContent( "id_1", "b", "/a" ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> result = executeQuery( graphQLSchema, ResourceHelper.readGraphQLQuery( "graphql/getContentPath.graphql" ) );
+
+        assertFalse( result.containsKey( "errors" ) );
+        assertTrue( result.containsKey( "data" ) );
+
+        Map<String, Object> getField = CastHelper.cast( getFieldFromGuillotine( result, "get" ) );
+        assertEquals( "/a/b", getField.get( "_path" ) );
     }
 }

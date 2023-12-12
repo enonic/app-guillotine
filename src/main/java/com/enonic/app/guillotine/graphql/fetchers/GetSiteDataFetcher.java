@@ -41,7 +41,7 @@ public class GetSiteDataFetcher
         if ( guillotineContext.isGlobalMode() )
         {
             String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
-            if ( !siteKey.isEmpty() )
+            if ( siteKey != null && !siteKey.isEmpty() )
             {
                 site = siteKey.startsWith( "/" )
                     ? contentService.findNearestSiteByPath( ContentPath.from( siteKey ) )

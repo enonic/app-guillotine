@@ -166,7 +166,7 @@ public class GenericTypesVerifier
 
         assertEquals( 3, attachmentUrlField.getArguments().size() );
         assertEquals( Scalars.GraphQLBoolean, attachmentUrlField.getArgument( "download" ).getType() );
-        assertEquals( Scalars.GraphQLString, attachmentUrlField.getArgument( "params" ).getType() );
+        assertEquals( ExtendedScalars.Json, attachmentUrlField.getArgument( "params" ).getType() );
         assertEquals( "UrlType", getNameForGraphQLTypeReference( attachmentUrlField.getArgument( "type" ).getType() ) );
     }
 

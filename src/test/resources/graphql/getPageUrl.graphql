@@ -1,0 +1,11 @@
+query {
+    guillotine {
+        get(key: "contentId") {
+            pageUrl(params: {
+                a: 1,
+                b: [2, 3],
+                c: null
+            })
+        }
+    }
+}

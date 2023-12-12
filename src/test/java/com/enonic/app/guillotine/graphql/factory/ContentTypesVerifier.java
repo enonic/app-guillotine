@@ -207,7 +207,7 @@ public class ContentTypesVerifier
         assertEquals( "PublishInfo", getNameForGraphQLTypeReference( type.getField( "publish" ).getType() ) );
         assertEquals( Scalars.GraphQLString, type.getField( "pageUrl" ).getType() );
         assertEquals( "UrlType", getNameForGraphQLTypeReference( type.getField( "pageUrl" ).getArgument( "type" ).getType() ) );
-        assertEquals( Scalars.GraphQLString, type.getField( "pageUrl" ).getArgument( "params" ).getType() );
+        assertEquals( ExtendedScalars.Json, type.getField( "pageUrl" ).getArgument( "params" ).getType() );
 
         assertEquals( "portal_Site", getNameForGraphQLTypeReference( type.getField( "site" ).getType() ) );
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getField( "parent" ).getType() ) );
@@ -267,7 +267,7 @@ public class ContentTypesVerifier
         assertEquals( "PublishInfo", getNameForGraphQLTypeReference( type.getField( "publish" ).getType() ) );
         assertEquals( Scalars.GraphQLString, type.getField( "pageUrl" ).getType() );
         assertEquals( "UrlType", getNameForGraphQLTypeReference( type.getField( "pageUrl" ).getArgument( "type" ).getType() ) );
-        assertEquals( Scalars.GraphQLString, type.getField( "pageUrl" ).getArgument( "params" ).getType() );
+        assertEquals( ExtendedScalars.Json, type.getField( "pageUrl" ).getArgument( "params" ).getType() );
 
         assertEquals( "portal_Site", getNameForGraphQLTypeReference( type.getField( "site" ).getType() ) );
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getField( "parent" ).getType() ) );
