@@ -12,6 +12,7 @@ import graphql.schema.DataFetchingEnvironment;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
+import com.enonic.app.guillotine.graphql.helper.PortalRequestHelper;
 import com.enonic.app.guillotine.macro.CustomHtmlPostProcessor;
 import com.enonic.app.guillotine.macro.HtmlEditorProcessedResult;
 import com.enonic.app.guillotine.macro.MacroDecorator;
@@ -115,7 +116,8 @@ public class RichTextDataFetcher
 
     private ProcessHtmlParams createProcessHtmlParams( DataFetchingEnvironment environment )
     {
-        ProcessHtmlParams htmlParams = new ProcessHtmlParams().portalRequest( PortalRequestAccessor.get() ).value( htmlText );
+        PortalRequest portalRequest = PortalRequestHelper.createPortalRequest( PortalRequestAccessor.get(), environment );
+        ProcessHtmlParams htmlParams = new ProcessHtmlParams().portalRequest( portalRequest ).value( htmlText );
 
         Map<String, Object> processHtmlParams = environment.getArgument( "processHtml" );
 

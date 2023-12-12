@@ -175,7 +175,7 @@ public class ContentTypesFactory
 
         arguments.add( newArgument( "download", Scalars.GraphQLBoolean ) );
         arguments.add( newArgument( "type", GraphQLTypeReference.typeRef( "UrlType" ) ) );
-        arguments.add( newArgument( "params", Scalars.GraphQLString ) );
+        arguments.add( newArgument( "params", ExtendedScalars.Json ) );
 
         return outputField( "mediaUrl", Scalars.GraphQLString, arguments );
     }
@@ -190,7 +190,7 @@ public class ContentTypesFactory
         arguments.add( newArgument( "background", Scalars.GraphQLString ) );
         arguments.add( newArgument( "format", Scalars.GraphQLString ) );
         arguments.add( newArgument( "filter", Scalars.GraphQLString ) );
-        arguments.add( newArgument( "params", Scalars.GraphQLString ) );
+        arguments.add( newArgument( "params", ExtendedScalars.Json ) );
 
         return outputField( "imageUrl", Scalars.GraphQLString, arguments );
     }
@@ -260,7 +260,7 @@ public class ContentTypesFactory
         result.add( outputField( "publish", GraphQLTypeReference.typeRef( "PublishInfo" ) ) );
         result.add( outputField( "pageUrl", Scalars.GraphQLString,
                                  List.of( newArgument( "type", GraphQLTypeReference.typeRef( "UrlType" ) ),
-                                          newArgument( "params", Scalars.GraphQLString ) ) ) );
+                                          newArgument( "params", ExtendedScalars.Json ) ) ) );
         result.add( outputField( "site", GraphQLTypeReference.typeRef( "portal_Site" ) ) );
         result.add( outputField( "parent", GraphQLTypeReference.typeRef( "Content" ) ) );
         result.add( outputField( "children", new GraphQLList( GraphQLTypeReference.typeRef( "Content" ) ),

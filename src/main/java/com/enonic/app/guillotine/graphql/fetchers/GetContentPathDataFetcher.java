@@ -67,7 +67,7 @@ public class GetContentPathDataFetcher
 
     private ContentPath getSitePathBySiteKey( final String siteKey )
     {
-        if ( siteKey.isEmpty() )
+        if ( siteKey == null || siteKey.isEmpty() )
         {
             return null;
         }
