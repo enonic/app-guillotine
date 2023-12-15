@@ -31,8 +31,16 @@
         {
           "title": "Options",
           "document": "embed/options"
-        }      
+        }
       ]
+    },
+    {
+      "title": "Guillotine App 7.x",
+      "document": "app",
+      "menuItems": [{
+        "title": "Extensions",
+        "document": "app/extensions"
+      }]
     },
     {
       "title": "Release Notes",
