@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Project Guillotine 6</title>
+<title>Extending the schema</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,16 +436,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Project Guillotine 6</h1>
+<h1>Extending the schema</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#introduction">Introduction</a></li>
-<li><a href="#endpoints">Endpoints</a></li>
-<li><a href="#usage">Usage</a></li>
-<li><a href="#clients">Clients</a></li>
-<li><a href="#graphql_api">GraphQL API</a></li>
-<li><a href="#embedding">Embedding</a></li>
+<li><a href="#example_adding_fields">Example: Adding fields</a></li>
 </ul>
 </div>
 </div>
@@ -453,92 +448,124 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Guillotine turns Enonic XP into a headless CMS by adding a GraphQL content API on top of every content project</p>
+<p>The default Guillotine provides fields based on the available schemas.</p>
 </div>
-<div class="admonitionblock tip">
+<div class="paragraph">
+<p>Sometimes you might want to add/modify/delete fields (new retrieval methods, search in a separate database, virtual fields, etc&#8230;&#8203;).</p>
+</div>
+<div class="paragraph">
+<p>The Guillotine schema is entirely configurable. When creating a schema, you can define a listener for a GraphQL type.
+This listener will be called before the type is created and given the possibility to modify the type creation parameters.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="example_adding_fields"><a class="link" href="#example_adding_fields">Example: Adding fields</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this example, we have the Author and Post types. But we wish to apply the following modifications:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Author should have a new field "fullName" that is the concatenation of firstName and lastName</p>
+</li>
+<li>
+<p>Author data field "email" should require admin rights to be retrieved.</p>
+</li>
+<li>
+<p>Author data field "birthDate" should not be accessible through the GraphQL API.</p>
+</li>
+<li>
+<p>Author should have a new field "posts" returning all the blog posts written by an author</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">/services/graphql/graphql.js</div>
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">var contentLib = require('/lib/xp/content');
+var guillotineLib = require('/lib/guillotine');
+var graphQlLib = require('/lib/graphql');
+
+var schema = guillotineLib.createSchema({
+    creationCallbacks: {
+        'com_enonic_app_myapp_Author_Data': function(context, params){ <i class="conum" data-value="1"></i><b>(1)</b>
+            params.fields.fullName = {  <i class="conum" data-value="2"></i><b>(2)</b>
+                 type: graphQlLib.GraphQLString,
+                 resolve: function (env) {
+                     return env.source.firstName + ' ' + env.source.lastName;
+                 }
+             };
+            params.fields.email.resolve = function (env) { <i class="conum" data-value="3"></i><b>(3)</b>
+                return authLib.hasRole('system.admin') ? env.source.email : null
+            };
+            delete params.fields.birthDate;  <i class="conum" data-value="4"></i><b>(4)</b>
+        },
+        'com_enonic_app_myapp_Author': function(context, params){ <i class="conum" data-value="1"></i><b>(1)</b>
+            params.fields.posts = { <i class="conum" data-value="5"></i><b>(5)</b>
+                type: graphQlLib.list(graphQlLib.reference('com_enonic_app_myapp_Post')),
+                resolve: function (env) {
+                    return contentLib.query({
+                        contentTypes: [app.name + ":Post"],
+                        filters: {
+                            hasValue: {
+                                field: "data.author",
+                                values: [env.source._id]
+                            }
+                        }
+                    }).hits;
+                }
+            };
+        }
+    }
+);
+
+exports.post = function (req) {
+    var body = JSON.parse(req.body);
+    var result = graphQlLib.execute(schema, body.query, body.variables);
+    return {
+        contentType: 'application/json',
+        body: JSON.stringify(result)
+    };
+};</code></pre>
+</div>
+</div>
+<div class="colist arabic">
 <table>
 <tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-<strong>Quickstart!</strong> For hands on usage of Enonic XP, check out <a href="https://developer.enonic.com/docs/developer-101">the Developer 101 tutorial</a>.
-</td>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Passes a callback that will be called before the creation of the specified GraphQL type.
+It receives the Guillotine context and the object type creation parameters.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Adds a new string field "fullName" concatenating two other fields.
+The resolution function will query contents of type post having the current author ID as field "data.author"</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Overwrites the resolution function of an existing field "email"</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Deletes an existing field "birthDate"</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Adds a new field "posts" returning a list of posts.</td>
 </tr>
 </table>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>Guillotine is available as an application on <a href="https://market.enonic.com/vendors/enonic/guillotine-headless-cms">Enonic Market</a>!</p>
-</div>
-<div class="paragraph">
-<p>The Guillotine API is essentially a strongly typed GraphQL read-only version of XP&#8217;s internal <a href="https://developer.enonic.com/docs/xp/stable/api/lib-content">JS Content API</a>. In addition to the API, Guillotine adds a new panel to Content Studio, allowing privileged users to query the API in context of their content.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="endpoints"><a class="link" href="#endpoints">Endpoints</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Guillotine automatically provisions endpoints to access the API.</p>
-</div>
-<div class="paragraph">
-<p>Learn how to <a href="endpoints.ahtml">access the API</a></p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="usage"><a class="link" href="#usage">Usage</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>A basic introduction to using the API, with hands on example queries.</p>
-</div>
-<div class="paragraph">
-<p>Learn more about <a href="usage.ahtml">how to use the API</a>.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="clients"><a class="link" href="#clients">Clients</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>How to invoke the API from Content Studio, via cURL, or from JavaScript.</p>
-</div>
-<div class="paragraph">
-<p>Learn more about GraphQL and how to <a href="clients.ahtml">invoke the API from different clients</a>.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="graphql_api"><a class="link" href="#graphql_api">GraphQL API</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Guillotine provides a set of standard fields, but also dynamically generates GraphQL Types based on the installed schemas.</p>
-</div>
-<div class="paragraph">
-<p>Learn more about the <a href="api.ahtml">standard schema types</a>.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="embedding"><a class="link" href="#embedding">Embedding</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Guillotine is also available as a library version, which for advanced use-cases may be embedded into your app. It lets you take control over the endpoints, detailed access control, as well as ability to extend and customise the API itself.</p>
-</div>
-<div class="paragraph">
-<p><a href="embed.ahtml">Read more about integrating and customizing the Guillotine API</a>.</p>
+<p>These are only examples. You could also modify the type <code>Query</code> and add an entire new API next to the Headless CMS API.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-19 14:12:54 UTC
+Last updated 2023-12-19 14:13:07 UTC
 </div>
 </div>
 </body>
