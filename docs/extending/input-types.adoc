@@ -1,0 +1,34 @@
+= inputTypes
+
+This property is used to create custom input types. It must be an object with the following structure:
+
+[source,javascript]
+----
+inputTypes: {
+    <InputTypeName>: {
+        description: <description>
+        fields: {
+            <fieldName>: <graphQLType>,
+            // the rest of fields ...
+        },
+    },
+    // the rest of input type definitions ...
+}
+----
+
+For example:
+
+[source,javascript]
+----
+inputTypes: {
+    CustomFilterInput: {
+        description: "Custom Filter Input",
+        fields: {
+            exact: graphQL.GraphQLString,
+            startsWith: graphQL.GraphQLString,
+            endsWith: graphQL.GraphQLString,
+            contains: graphQL.GraphQLString
+        }
+    }
+}
+----

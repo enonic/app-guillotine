@@ -1,0 +1,93 @@
+= creationCallbacks
+
+This property is used to define `creationCallbacks` that will be called during GraphQL schema generation when a specific type or interface is created.
+
+What you must know about creation callbacks:
+
+- Creation callbacks can be defined only for types and interfaces.
+- Creation callback allows to add new fields, modify and remove existing fields, modify description and interfaces for type.
+- Rename of fields is not supported.
+- Take aware that creation callbacks can be called not in the same order as them are defined in the `creationCallbacks` property.
+- Creation callbacks can be defined in the different applications. Therefore, there is a risk to have conflicts which can lead to schema generation errors or query errors. Not recommended to make modification for Content API's fields. But if you have to do it then make sure that it will not to introduce conflicts and side effects. The developer is fully responsible for that.
+- If you add or modify some fields to the interface in the creation callback, you must do that for all implementations. Otherwise, you will get an error during schema generation.
+- If you modify some field make sure that you implement correct data fetcher in the <<./resolvers#,resolvers>> section. Otherwise, you can get an error during query execution.
+
+This property must be an object with the following structure:
+
+[source,javascript]
+----
+creationCallbacks: {
+    <GraphQLTypeName>: function (params) {
+        // if you want to add new fields
+        params.addFields({
+            <newFieldName>: {
+                type: <GraphQLType>,
+                args: {
+                    <argName>: <GraphQLType>,
+                    // the rest of arguments definitions ...
+                },
+            },
+        });
+
+        // if you want to remove existing fields
+        params.removeFields([
+             "fieldName 1",
+             "filedName 2",
+             // the rest of fieldName ...
+        ]);
+
+        // If you want to modify existing fields.
+        // Take aware that all arguments will be rewritten by new arguments.
+        // If type or args are not provided then will be used type and args from original field.
+        params.modifyFields({
+            <existingFieldName>: {
+                type: <GraphQLType>,
+                args: {
+                    <argName>: <GraphQLType>,
+                    // the rest of arguments definitions ...
+                },
+            },
+        });
+
+        // If you want to change description
+        params.setDescription("New description");
+
+        // If you want to add or remove some interfaces to object.
+        // Take aware that interfaces will be rewritten by new array of interfaces.
+        // Also, developer is responseble for implmentation of interface, do not forget to add all required fields.
+        params.setInterfaces([
+            <GraphQLInterfaceType or GraphQLReferenceType>
+        ]);
+    },
+    // the rest of creation callback definition ...
+}
+----
+
+For example:
+
+[source,javascript]
+----
+creationCallbacks: {
+    MyCustomType: function (params) {
+        params.addFields({
+            extraField: {
+                type: graphQL.GraphQLString,
+            }
+        });
+
+        params.removeFields([
+            "fieldToRemove1",
+            "fieldToRemove2",
+        ]);
+
+        params.modifyFields({
+          fieldToModify: {
+            type: graphQL.GraphQLString,
+          }
+        });
+    },
+
+}
+----
+
+To know how to set or override data fetcher for a field you can refer to the <<./resolvers#,resolvers>> section.

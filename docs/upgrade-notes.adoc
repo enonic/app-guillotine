@@ -1,0 +1,111 @@
+= Upgrade Notes
+
+The previous version of the Guillotine application did not allow for the customization of a GraphQL schema, so developers had to use the Guillotine library instead.
+
+WARNING: We are not going to support the Guillotine library anymore, so you will have to migrate your code to the new version of the Guillotine application.
+
+WARNING: We also are not going to support `Subscription` in Guillotine application, so you will have to migrate your code to a custom solution. Current version of application does not provide any solution how to create a custom `Subscription`.
+
+WARNING: Guillotine application does not support customizing list of `applications` for each schema must be generated, in this case schema will be generated for all installed applications. The rest of options like `allowPaths` and `subscriptionEventTypes` are not supported too.
+
+In order to migrate your code, you will have to:
+
+- Create a new application or use an existing one, where you should create `guillotine.js` file in the `src/main/resources/guillotine` folder of your project.
+- This file must contain a function that returns an object with structure which described <<extending#, here>>.
+- Your schema will be available at the POST `/site/<project-name>/<branch-name>` endpoint. More information about this endpoint can be found  <<endpoints#, here>>.
+- To specify site context you should provide the `siteKey` argument in the `guillotine` field. This approach is recommended, because we will keep it. Of course, you can still use the `X-Guillotine-SiteKey` HTTP header, but it can be deprecated and removed in the future versions.
+
+Let see important changes in the new version of the Guillotine application related with `creationCallbacks`:
+
+- In Guillotine application you can not define `dataFetcher` directly in `creationCallbacks`, you must use `resolvers` node instead.  That done to separate model from logic.
+- To add, modify or remove fields you must use `addFileds`, `modifyFields` and `removeFields` functions of the `params` object respectively.
+- To set description of the type you must use `setDescription` function of the `params` object.
+- To set interfaces of the type you must use `setInterfaces` function of the `params` object.
+- You can not rename field anymore.
+
+More information about `creationCallbacks` can be found <<extending/creation-callbacks#, here>>.
+
+== Example of migration
+
+Now let see the example of migration from the Guillotine library to the Guillotine application.
+
+Let's assume that we have the following `creationCallbacks` in our code when using the Guillotine library:
+
+[source, javascript]
+----
+const authLib = require('/lib/xp/auth');
+const guillotineLib = require('/lib/guillotine');
+const graphQlLib = require('/lib/graphql');
+
+const schema = guillotineLib.createSchema({
+    creationCallbacks: {
+        'com_enonic_app_myapp_Author_Data': function(context, params){
+            params.fields.fullName = { // <1>
+                 type: graphQlLib.GraphQLString,
+                 resolve: function (env) {
+                     return env.source.firstName + ' ' + env.source.lastName;
+                 }
+            };
+
+            params.fields.email.resolve = function (env) { // <2>
+                return authLib.hasRole('system.admin') ? env.source.email : null;
+            };
+
+            delete params.fields.birthDate; // <3>
+        },
+    }
+});
+----
+
+In this example we made the following changes:
+
+<1> Added a new `fullName` field to the `com_enonic_app_myapp_Author_Data` type. Pay attention that the declaration of the field is done by declaring a data fetcher.
+<2> Override the default data fetcher with our own data fetcher containing custom logic.
+<3> Removed the `birthDate` field from `com_enonic_app_myapp_Author_Data` type.
+
+Now, let's see how to migrate this code using `extensions` from the Guillotine application:
+
+First what we need to create a `guillotine.js` file in the `src/main/resources/guillotine` folder. Then we can make the same changes for `com_enonic_app_myapp_Author_Data` type, but in the different way.
+
+[source, javascript]
+----
+const authLib = require('/lib/xp/auth');
+
+exports.extensions = function (graphQL) { // <1>
+    return {
+        creationCallbacks: {
+            com_enonic_app_myapp_Author_Data: function (params) { // <2>
+                params.addFields({
+                    fullName: { // <3>
+                        type: graphQL.GraphQLString,
+                    }
+                });
+
+                params.removeFields(['birthDate']); // <4>
+            },
+        },
+        resolvers: {
+            com_enonic_app_myapp_Author_Data: { // <5>
+                fullName: function (env) {
+                    return env.source.firstName + ' ' + env.source.lastName;
+                },
+                email: function (env) {
+                    return authLib.hasRole('system.admin') ? env.source.email : null;
+                }
+            }
+        },
+    }
+};
+----
+
+This code has the following important things:
+
+<1> Inside the `extenstions` function we will return object with `creationCallbacks` and `resolvers` properties.
+<2> To make changes for `com_enonic_app_myapp_Author_Data` type in the `creationCallbacks` we need to add the property as named function `com_enonic_app_myapp_Author_Data` which has the `params` argument. Using params object we can add, modify and remove fields, set description and override interfaces for type.
+<3> Then we add the `fullName` field with `String` type and without arguments.
+<4> Then we remove `birthDate` field. The `removeFields` function applies an arrays of string with field names which must be removed.
+<5> Then to set a data fetcher for `fullName` and `email` fields we must use the `resolvers` property of the returned object. Where in the same way, inside the `resolvers` property we must define the `com_enonic_app_myapp_Author_Data` object with respectively properties as field names and implement data fetcher functions.
+
+That it, our migration is done.
+
+To know more about extensions you can refer to this <<extending#, page>>.

@@ -1,50 +1,72 @@
 {
   "menuItems": [
     {
-      "title": "Endpoints",
-      "document": "endpoints"
+      "title": "API",
+      "document": "api"
     },
     {
-      "title": "Usage",
-      "document": "usage"
+      "title": "Endpoints",
+      "document": "endpoints"
     },
     {
       "title": "Clients",
       "document": "clients"
     },
     {
-      "title": "GraphQL Schema",
-      "document": "api"
+      "title": "Query examples",
+      "document": "query-examples"
     },
     {
-      "title": "Embedding",
-      "document": "embed",
+      "title": "Extending",
+      "document": "extending",
       "menuItems": [
         {
-          "title": "Extending",
-          "document": "embed/extending"
+          "title": "Best practices",
+          "document": "extending/best-practices"
         },
         {
-          "title": "Integrating",
-          "document": "embed/integrating"
+          "title": "Input Types",
+          "document": "extending/input-types"
         },
         {
-          "title": "Options",
-          "document": "embed/options"
+          "title": "Enums",
+          "document": "extending/enums"
+        },
+        {
+          "title": "Interfaces",
+          "document": "extending/interfaces"
+        },
+        {
+          "title": "Unions",
+          "document": "extending/unions"
+        },
+        {
+          "title": "Types",
+          "document": "extending/types"
+        },
+        {
+          "title": "Creation Callbacks",
+          "document": "extending/creation-callbacks"
+        },
+        {
+          "title": "Resolvers",
+          "document": "extending/resolvers"
+        },
+        {
+          "title": "Type Resolvers",
+          "document": "extending/type-resolvers"
         }
       ]
     },
     {
-      "title": "Guillotine App 7.x",
-      "document": "app",
-      "menuItems": [{
-        "title": "Extensions",
-        "document": "app/extensions"
-      }]
-    },
-    {
       "title": "Release Notes",
-      "document": "release"
+      "document": "release",
+      "menuItems": [
+        {
+          "title": "Upgrade Notes",
+          "document": "upgrade-notes"
+        }
+      ]
     }
   ]
 }

@@ -75,26 +75,26 @@ Gathers all content retrieval requests.
 |getSite: portal_Site
 |Fetches the parent site of the content corresponding to the current execution context
 
-|query(
- query: String,
- offset: Int,
- first: Int,
- sort: String,
- contentTypes: [String],
- filters: [<<FilterInput>>]
- ): [<<Content>>]
-|Queries contents. *Deprecated* from version 6.1.0.
+// |query(
+//  query: String,
+//  offset: Int,
+//  first: Int,
+//  sort: String,
+//  contentTypes: [String],
+//  filters: [<<FilterInput>>]
+//  ): [<<Content>>]
+// |Queries contents. *Deprecated* from version 6.1.0.
 
-|queryConnection(
- query: String!,
- after: String,
- first: Int,
- sort: String,
- contentTypes: [String],
- aggregations: [<<AggregationInput>>],
- filters: [<<FilterInput>>]
- ): <<QueryContentConnection>>
-|Queries contents and returns the result as a connection.  *Deprecated* from version 6.1.0.
+// |queryConnection(
+//  query: String!,
+//  after: String,
+//  first: Int,
+//  sort: String,
+//  contentTypes: [String],
+//  aggregations: [<<AggregationInput>>],
+//  filters: [<<FilterInput>>]
+//  ): <<QueryContentConnection>>
+// |Queries contents and returns the result as a connection.  *Deprecated* from version 6.1.0.
 
 |queryDsl(
 query: <<QueryDSLInput>>,
@@ -139,7 +139,7 @@ All types implementing `Content` share the same fields, with the exception of th
 |Content name
 
 |_path(type: <<ContentPathType>>): String!
-|Content path. The `type` argument is supported starting from version. In the site-less mode, the result will be returned in the raw value, in other words, `env.source._path`.
+|Content path. In the site-less mode, the result will be returned in the raw value, in other words, `env.source._path`.
 
 |creator: <<PrincipalKey>>
 |Content creator
@@ -195,7 +195,7 @@ All types implementing `Content` share the same fields, with the exception of th
 |publish: <<PublishInfo>>
 |Publication information
 
-|pageUrl(type: <<UrlType>>, params: String): String
+|pageUrl(type: <<UrlType>>, params: Json): String
 |Util field to generate a URL pointing to the content
 
 |site: portal_Site
@@ -273,27 +273,27 @@ It allows you to :
 
 |===
 
-=== QueryContentConnection
-
-
-==== Fields
-
-|===
-|Name(Arguments):Type | Description
-
-|totalCount: Int!
-|Total number of related content
-
-|edges: [<<ContentEdge>>]
-|Edge to the related content
-
-|pageInfo: <<PageInfo>>
-|Paging information
-
-|aggregationAsJson: JSON
-|Result of aggregations
-
-|===
+// === QueryContentConnection
+//
+//
+// ==== Fields
+//
+// |===
+// |Name(Arguments):Type | Description
+//
+// |totalCount: Int!
+// |Total number of related content
+//
+// |edges: [<<ContentEdge>>]
+// |Edge to the related content
+//
+// |pageInfo: <<PageInfo>>
+// |Paging information
+//
+// |aggregationAsJson: JSON
+// |Result of aggregations
+//
+// |===
 
 === QueryDSLContentConnection
 
@@ -953,7 +953,7 @@ Direct Known Subtypes: FormInput
 |mimeType: String
 |Attachment mime type
 
-|attachmentUrl: String
+|attachmentUrl (download: Boolean, type: <<UrlType>>, params: Json): String
 |Attachment URL
 
 |===
@@ -1258,113 +1258,113 @@ Aggregations enable extracting statistical data from search results. Only one of
 
 |===
 
-== Filter Input Types
-
-=== FilterInput
-
-==== Fields
-
-|===
-|Name(Arguments):Type | Description
-
-|boolean: <<BooleanFilterInput>>
-|Boolean filter
-
-|exists: <<ExistsFilterInput>>
-|ExistsFilter
-
-|notExists: <<NotExistsFilterInput>>
-|NotExists filter
-
-|hasValue: <<HasValueFilterInput>>
-|HasValue filter
-
-|ids: <<IdsFilterInput>>
-|Ids filter
-
-|===
-
-=== BooleanFilterInput
-
-==== Fields
-
-|===
-|Name(Arguments):Type | Description
-
-|must: [<<FilterInput>>]
-|All functions on the `must` array must evaluate to `true` for the filter to match
-
-|mustNot: [<<FilterInput>>]
-|All functions in the `mustNot` array must evaluate to `false` for the filter to match
-
-|should: [<<FilterInput>>]
-|At least one function in the `should` array must evaluate to `true for the filter to match
-
-|===
-
-=== ExistsFilterInput
-
-==== Fields
-
-|===
-|Name(Arguments):Type | Description
-
-|field: String!
-|The property path
-
-|===
-
-=== NotExistsFilterInput
-
-==== Fields
-
-|===
-|Name(Arguments):Type | Description
-
-|field: String!
-|The property path
-
-|===
-
-
-=== HasValueFilterInput
-
-Only one value field can be specified.
-
-==== Fields
-
-|===
-|Name(Arguments):Type | Description
-
-|field: String!
-|The property path
-
-|stringValues: [String]
-|Array of string values to find a match
-
-|intValues: [Int]
-|Array of integer values to find a match
-
-|booleanValues: [Boolean]
-|Array of boolean values to find a match
-
-|floatValues: [Float]
-|Array of float values to find a match
-
-|===
-
-
-=== IdsFilterInput
-
-==== Fields
-
-|===
-|Name(Arguments):Type | Description
-
-|values: [String]
-|Array of ids to match
-
-|===
+// == Filter Input Types
+//
+// === FilterInput
+//
+// ==== Fields
+//
+// |===
+// |Name(Arguments):Type | Description
+//
+// |boolean: <<BooleanFilterInput>>
+// |Boolean filter
+//
+// |exists: <<ExistsFilterInput>>
+// |ExistsFilter
+//
+// |notExists: <<NotExistsFilterInput>>
+// |NotExists filter
+//
+// |hasValue: <<HasValueFilterInput>>
+// |HasValue filter
+//
+// |ids: <<IdsFilterInput>>
+// |Ids filter
+//
+// |===
+//
+// === BooleanFilterInput
+//
+// ==== Fields
+//
+// |===
+// |Name(Arguments):Type | Description
+//
+// |must: [<<FilterInput>>]
+// |All functions on the `must` array must evaluate to `true` for the filter to match
+//
+// |mustNot: [<<FilterInput>>]
+// |All functions in the `mustNot` array must evaluate to `false` for the filter to match
+//
+// |should: [<<FilterInput>>]
+// |At least one function in the `should` array must evaluate to `true for the filter to match
+//
+// |===
+//
+// === ExistsFilterInput
+//
+// ==== Fields
+//
+// |===
+// |Name(Arguments):Type | Description
+//
+// |field: String!
+// |The property path
+//
+// |===
+//
+// === NotExistsFilterInput
+//
+// ==== Fields
+//
+// |===
+// |Name(Arguments):Type | Description
+//
+// |field: String!
+// |The property path
+//
+// |===
+//
+//
+// === HasValueFilterInput
+//
+// Only one value field can be specified.
+//
+// ==== Fields
+//
+// |===
+// |Name(Arguments):Type | Description
+//
+// |field: String!
+// |The property path
+//
+// |stringValues: [String]
+// |Array of string values to find a match
+//
+// |intValues: [Int]
+// |Array of integer values to find a match
+//
+// |booleanValues: [Boolean]
+// |Array of boolean values to find a match
+//
+// |floatValues: [Float]
+// |Array of float values to find a match
+//
+// |===
+//
+//
+// === IdsFilterInput
+//
+// ==== Fields
+//
+// |===
+// |Name(Arguments):Type | Description
+//
+// |values: [String]
+// |Array of ids to match
+//
+// |===
 
 == Query DSL Input Types
 

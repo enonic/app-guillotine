@@ -4,20 +4,23 @@ This section provides a set of example queries.
 
 == Queries
 
-The API lets you perform advanced queries thanks to Enonic XP's NoSQL storage. This includes ranked search, filters, stemming, aggregations and highlighting to mention a few things.
+The API lets you perform advanced queries thanks to Enonic XP's NoSQL storage. This includes ranked search, queries DSL, aggregations and highlighting to mention a few things.
 
 .Query example: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author
+[source,graphql]
 ----
 {
   guillotine {
-    query(contentTypes:"com.enonic.app.myapp:post") {
-      displayName
-      ... on com_enonic_app_myapp_Post {
-        data {
-          author {
-            displayName
+    queryDsl(query: {
+          term: {
+            field: "type",
+            value: {
+              string: "com.enonic.app.myapp:Post"
+            }
           }
-        }
+        }){
+      ... on com_enonic_app_myapp_Post {
+        displayName
       }
     }
   }
@@ -36,6 +39,7 @@ By default, each items has the following common reference fields:
 Schemas with ContentSelector, MediaSelector or ImageSelector will generate references to the target item(s).
 
 .Query example: Retrieve the display name of a specific content and the display name of its direct children
+[source,graphql]
 ----
 {
   guillotine {
@@ -54,14 +58,22 @@ Schemas with ContentSelector, MediaSelector or ImageSelector will generate refer
 Enonic XP can serve custom scaled images at runtime. Guillotine uses this functionality by using the "imageUrl" field which will generate a URL for the desired image size and crop.
 
 .*Example: Scaled Image URL* - Retrieve the image contents and generate absolute URLs to these images cropped to 800x200px
+[source,graphql]
 ----
 {
   guillotine {
-    query(contentTypes:"media:image") {
-      displayName
-      ... on media_Image {
-        imageUrl(scale:"block(800,200)",type:absolute)
-      }
+    queryDsl(query: {
+          term: {
+            field: "type",
+            value: {
+              string: "media:image"
+            }
+          }
+        }){
+        displayName
+        ... on media_Image {
+          imageUrl(scale:"block(800,200)",type:absolute)
+        }
     }
   }
 }
@@ -72,10 +84,18 @@ Enonic XP can serve custom scaled images at runtime. Guillotine uses this functi
 Rich text fields provide configuration parameters that give you control over output from links, images and much more.
 
 .*Example: Process HTML* - Retrieve the blog posts. For each post, return its author display name, tags and processed content.
+[source,graphql]
 ----
 {
   guillotine {
-    query(contentTypes:"com.enonic.app.myapp:post") {
+    queryDsl(query: {
+          term: {
+            field: "type",
+            value: {
+              string: "com.enonic.app.myapp:post"
+            }
+          }
+        }){
       ... on com_enonic_app_myapp_Post {
         data {
           author {
@@ -92,7 +112,7 @@ Rich text fields provide configuration parameters that give you control over out
 }
 ----
 
-Rich text fields will typically include links, images and macros in the `processedHtml` field of the <<../api#richtext, RichText>> type. Below are further details how how to handle this:
+Rich text fields will typically include links, images and macros in the `processedHtml` field of the <<../api#richtext, RichText>> type. Below are further details how to handle this:
 
 === Links
 
@@ -266,10 +286,10 @@ query {
       ... on com_app_example_ContentType {
         data {
           description {
-            raw            // (1)
-            processedHtml  // (2)
-            macrosAsJson   // (3)
-            macros {       // (4)
+            raw            // <1>
+            processedHtml  // <2>
+            macrosAsJson   // <3>
+            macros {       // <4>
               ref
               name
               descriptor
@@ -352,7 +372,7 @@ In the query below, we access the SoMe (SocialMedia) fields that have been used 
 ----
 { 
   guillotine {
-    query(contentTypes:"com.example.myproject:person") {
+    query(key: "contentID") {
       displayName
       x {
       	com_example_myproject {
@@ -394,7 +414,7 @@ NOTE: SiteKey is either the ID of the site content item, or the path to the site
 
 With the site context set, you may run queries to access the site content using getSite field
 
-.Example: Acessing the displayName of the site
+.Example: Accessing the displayName of the site
 ----
 {
   guillotine {
@@ -409,7 +429,7 @@ With the site context set, you may run queries to access the site content using 
 
 Use the `${site}` placeholder when querying for path's within the site.
 
-.Example: Acessing content within specific path of a site
+.Example: Accessing content within specific path of a site
 ----
 { 
   guillotine {

@@ -1,0 +1,34 @@
+= enums
+
+This property is used to create custom enums.
+It must be an object with the following structure:
+
+[source,javascript]
+----
+enums: {
+    <EnumTypeName>: {
+        description: <description>
+        values: {
+            <key1>: <value1>,
+            <key2>: <value2>,
+            // the rest of pairs of key and value ...
+        },
+    },
+    // the rest of enum type definitions ...
+}
+----
+
+For example:
+
+[source,javascript]
+----
+enums: {
+    CustomEnum: {
+        description: "Custom Enum",
+        values: {
+            a: "A",
+            b: "B",
+        }
+    }
+}
+----
