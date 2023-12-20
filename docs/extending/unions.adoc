@@ -1,0 +1,33 @@
+= unions
+
+This property is used to create custom unions.
+It must be an object with the following structure:
+
+[source,javascript]
+----
+unions: {
+    <UnionTypeName>: {
+        description: <description>,
+        types: [
+            <graphQLType>,
+            // the rest of types or reference to type ...
+        ],
+    },
+    // the rest union definitions ...
+}
+----
+
+For example:
+
+[source,javascript]
+----
+unions: {
+    CustomUnion: {
+        description: "Custom Union",
+        types: [
+            graphQL.reference('GraphQLTypeNameOne'),
+            graphQL.reference('GraphQLTypeNameTwo'),
+        ]
+    }
+}
+----

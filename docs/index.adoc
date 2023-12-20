@@ -1,4 +1,4 @@
-= Project Guillotine 6
+= Project Guillotine 7
 
 Guillotine turns Enonic XP into a headless CMS by adding a GraphQL content API on top of every content project
 
@@ -15,11 +15,11 @@ Guillotine automatically provisions endpoints to access the API.
 
 Learn how to <<endpoints#,access the API>>
 
-== Usage
+== Query examples
 
 A basic introduction to using the API, with hands on example queries.
 
-Learn more about <<usage#,how to use the API>>.
+Learn more about <<query-examples.adoc#,how to use the API>>.
 
 
 == Clients
@@ -35,8 +35,8 @@ Guillotine provides a set of standard fields, but also dynamically generates Gra
 
 Learn more about the <<api#,standard schema types>>.
 
-== Embedding
+== Extending
 
-Guillotine is also available as a library version, which for advanced use-cases may be embedded into your app. It lets you take control over the endpoints, detailed access control, as well as ability to extend and customise the API itself.
+Guillotine allows you to extend the API with custom fields, types and more.
 
-<<embed#, Read more about integrating and customizing the Guillotine API>>.
+Learn more about <<extending#,extending the API>>.

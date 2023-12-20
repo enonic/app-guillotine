@@ -1,0 +1,108 @@
+= Best Practices
+
+On this page we would like to share with you some of the best practices that we have learned from our experience. We hope that you will find them useful too.
+
+== Extending
+
+Guillotine GraphQL API provides the `guillotine` field in the root `Query` type. Utilizing this field enables you to access a variety of functionalities, including retrieving individual Content instances by key, querying multiple Contents, and more.
+
+=== Adding custom fields
+
+Guillotine allows you to extend not only Guillotine-specific features, but also the root `Query` type.
+
+For instance, you may want to add to fields:
+
+- `serverTime: DateTime` - this field returns the current server time
+- `getMenu(contentKey: String!): Menu` - this field returns a menu for specified `Content` instance
+
+So, you should decide where to put those fields. You can either add them to the root `Query` type or to the `HeadlessCms` type which represents `guillotine` field.
+
+We recommend to use this rule: if field is related to a `Content` instance, then add it to the `HeadlessCms` type, otherwise add it to the root `Query` type.
+
+For example:
+
+[source,javascript]
+----
+exports.extensions = function (graphQL) {
+    return {
+        types: {
+            Menu: {
+                fields: {
+                    // add fields here
+                }
+            }
+        },
+        creationCallbacks: {
+            Query: function (params) {
+                params.addFields({
+                    serverTime: {
+                        type: graphQL.DateTime
+                    }
+                });
+            },
+            HeadlessCms: function (params) {
+                params.addFields({
+                    getMenu: {
+                        type: graphQL.reference('Menu'),
+                        args: {
+                            contentKey: {
+                                type: graphQL.nonNull(graphQL.GraphQLString)
+                            }
+                        }
+                    }
+                });
+            }
+        },
+        resolvers: {
+            Query: {
+                serverTime: function (env) {
+                    // return current server time
+                }
+            },
+            HeadlessCms: {
+                getMenu: function (env) {
+                    // return menu for specified Content instance
+                }
+            },
+        },
+    }
+};
+----
+
+In the same way you can add fields to any other type.
+
+=== Coding guidelines
+
+The `extensions` function can be huge enough, so we recommend to split it into several files. For example, you can create a file for each property such `types`, `creationCallbacks`, `resolvers` and others. And if needed, you can split them into several files too.
+
+[source,javascript]
+----
+const typesFactory = require('./types-factory');
+const creationCallbacksFactory = require('./creation-callbacks-factory');
+const resolversFactory = require('./resolvers-factory');
+
+exports.extensions = function (graphQL) {
+    return {
+        types: typesFactory.create(graphQL),
+        creationCallbacks: creationCallbacksFactory.create(graphQL),
+        resolvers: resolversFactory.create(graphQL)
+    }
+};
+----
+
+Let's take a look at the `resolvers-factory.js` file:
+
+[source,javascript]
+----
+const headlessCmsResolversFactory = require('./headless-cms-resolvers-factory');
+const queryResolversFactory = require('./query-resolvers-factory');
+
+exports.create = function (graphQL) {
+    return {
+        Query: queryResolversFactory.create(graphQL),
+        HeadlessCms: headlessCmsResolversFactory.create(graphQL)
+    }
+};
+----
+
+This example shows how to split the `resolvers` property into two files: `headless-cms-resolvers-factory.js` and `query-resolvers-factory.js`, where each file contains resolvers for fields the corresponding type.

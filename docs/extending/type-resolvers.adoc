@@ -1,0 +1,35 @@
+= typeResolvers
+
+This property is used to set or override type resolver for a union or interface. It must be an object with the following structure:
+
+[source,javascript]
+----
+{
+    typeResolvers: {
+        <GraphQLTypeName>: function (obj) {
+            // your code here
+        },
+        // the rest of type resolvers ...
+    }
+}
+----
+
+For example:
+
+[source,javascript]
+----
+{
+    typeResolvers: {
+        CustomInterface: function (obj) {
+            return 'CustomInterfaceImpl';
+        },
+        CustomUnion: function (obj) {
+            if (obj.title) {
+                return 'GraphQLTypeNameOne';
+            }
+            return 'GraphQLTypeNameTwo';
+        },
+    }
+}
+
+----

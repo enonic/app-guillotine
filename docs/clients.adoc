@@ -28,37 +28,16 @@ This query can be read as: Retrieve the display name and type of the root items.
 * The service response is displayed in the center panel
 
 .getSite
-[source,graphQL]
+[source,graphql]
 ----
 {
   guillotine{
- 		getChildren(key:"/") {
- 		displayName
- 		}
- 	}  
-}
-
-----
-
-=== Subscription example
-
-Guillotine also enables you to use GraphQL subscription in order to listen to events from the server.
-
-The subscriptions are implemented using Websockets, providing instant and high performance streaming of events over HTTP.
-
-[source,graphQL]
-.Listen to server events for the specific site
-----
-subscription {
-  event {
-    type
-    dataAsJson
+ 	getChildren(key:"/") {
+ 	  displayName
+ 	}
   }
 }
 ----
-
-Just like for regular queries, Guillotine listens to events only for the contextual repository and branch
-
 
 == cURL
 
@@ -69,115 +48,71 @@ TIP: cURL must be installed on your device for the examples below to work
 .Create the file req.json
 [source,json]
 ----
-{
-  "query": "query getPlaylist {\n guillotine {\n query(query: \"type='com.enonic.app.hmdb:playlist'\") {\n ... on com_enonic_app_hmdb_Playlist {\n  _id\n }\n }\n }\n}",
-  "variables": null,
-  "operationName": "getPlaylist"
-}
+{"query":"query {\n  guillotine {\n    queryDsl(query: {\n      term: {\n        field: \"type\",\n        value: {\n          string: \"com.enonic.app.moviedb:playlist\"\n        }\n      }\n    }){\n      ... on com_enonic_app_moviedb_Playlist {\n        _id\n        displayName\n      }\n    }\n  }\n}"}
 ----
 
 .POST request using cURL
 [source,curl]
 ----
-curl -X POST -H "Content-Type: application/json" -d @req.json http://localhost:8080/site/hmdb/draft | json_pp
+curl -X POST -H "Content-Type: application/json" -d @req.json http://localhost:8080/site/moviedb/draft | json_pp
 ----
 
 .Response
 [source,json]
 ----
 {
-   "data" : {
-      "guillotine" : {
-         "query" : [
-            {
-               "_id" : "531e40c9-6e5b-4259-b9e0-0d3144b2382a"
-            }
-         ]
-      }
-   }
+  "data": {
+    "guillotine": {
+      "queryDsl": [
+        {
+          "_id": "531e40c9-6e5b-4259-b9e0-0d3144b2382a",
+          "displayName": "CTO's favorite movies"
+        }
+      ]
+    }
+  }
 }
-----
-
-=== Subscription example
-
-.Handshake request
-
-[source,curl]
-----
-curl -X GET -i -N -H "Connection: Upgrade" \
-                  -H "Upgrade: websocket" \
-                  -H "Host: localhost:8080" \
-                  -H "Origin: http://localhost:8080" \
-                  -H "Sec-WebSocket-Protocol: graphql-transport-ws" \
-                  -H "Sec-WebSocket-Key: c29tZWtleQ==" \
-                  -H "Sec-WebSocket-Version: 13" \
-                  --http1.1 \
-                 http://localhost:8080/site/hmdb/draft
-----
-
-.Handshake response
-
-[source,curl]
-----
-HTTP/1.1 101 Switching Protocols
-Date: Fri, 24 Jun 2022 15:09:08 GMT
-X-Frame-Options: DENY
-X-XSS-Protection: 1; mode=block
-X-Content-Type-Options: nosniff
-Sec-WebSocket-Protocol: graphql-transport-ws
-Connection: Upgrade
-Sec-WebSocket-Accept: eXT5yQBZ/TOhFBUi6nLY8cfzs1s=
-Upgrade: WebSocket
-----
-
-To send a message to the WS server in the terminal let's use https://www.npmjs.com/package/wscat[wscat], if WebSocket Cat is not installed, please use the following command:
-
-[source]
-----
-npm install -g wscat
-----
-
-Then run the following command in the terminal:
-
-[source,curl]
-----
-> wscat -c ws://localhost:8080/site/hmdb/draft
-Connected (press CTRL+C to quit)
-> {"id":"myid","type":"subscribe","payload":{"query":"subscription {\n  event {\n    type\n    dataAsJson\n  }\n}","variables":null}}
-< {"type":"next","id":"myid","payload":{"data":{"event":{"type":"node.updated","dataAsJson":{"nodes":{"0":{"id":"b028f04b-b020-4ef1-92eb-d4e657359dae","path":"/content/hmdb/dir","branch":"draft","repo":"com.enonic.cms.hmdb"}}}}}}}
-< {"type":"next","id":"myid","payload":{"data":{"event":{"type":"node.renamed","dataAsJson":{"nodes":{"0":{"id":"b028f04b-b020-4ef1-92eb-d4e657359dae","path":"/content/hmdb/dir-renamed","branch":"draft","repo":"com.enonic.cms.hmdb","newPath":"/content/hmdb/dir-renamed"}}}}}}}
 ----
 
 == JavaScript
 
 This section describes how to access the Guillotine API directly from a JavaScript client.
 
-=== Example: Fetch content by path
+=== Example: Fetch content by type
 
-To use your GraphQL service, your client will send all its requests to the same service. The endpoint is expecting to receive a POST request with the following body:
+In our example, we will use the `http://localhost:8080/site/moviedb/master` endpoint to make a request to the GraphQL API. More information about endpoints can be found <<endpoints#, here>>.
+
+This endpoint expects to receive an HTTP POST request with the following properties in the body of the request:
 
 * A mandatory "query" String
 * An optional "variables" Object
-* An optional "operationName" String
-
 
 .Example: Fetch data from a javascript client
 [source,javascript]
 ----
-const query = `query($path:ID!){
+const query = `query($type:String){
     guillotine {
-        get(key:$path) {
+        queryDsl(query: {
+          term: {
+            field: "type",
+            value: {
+              string: $type
+            }
+          }
+        }){
+          ... on com_enonic_app_moviedb_Playlist {
+            _id
             displayName
-            type
+          }
         }
     }
 }`;
 
 const variables = {
-    'path': '/mysite/mycontentpath'
+    'type': 'com.enonic.app.moviedb:playlist'
 };
 
-fetch('{{graphqlServiceUrl}}', {
+fetch('http://localhost:8080/site/moviedb/master', {
     method: 'POST',
     body: JSON.stringify({
         query: query,

@@ -1,5 +1,0 @@
-= Guillotine 7
-:TOC:
-
-
-

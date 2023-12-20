@@ -1,0 +1,175 @@
+= Extending
+
+You can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types.
+
+To extend the Guillotine application you need to create a file named `guillotine.js` in the `src/main/resources/guillotine` folder of your application.
+
+This file must export a `extensions` function with the following structure:
+
+[source,javascript]
+----
+exports.extensions = function (graphQL) {
+    return {
+        inputTypes: { // <1>
+            // input type definitions ...
+        },
+        enums: { // <2>
+            // enum type definitions ...
+        },
+        interfaces: { // <3>
+            // interfaces type definitions ...
+        },
+        unions: { // <4>
+            // unions type definitions ...
+        },
+        types: { // <5>
+            // output types definitions ...
+        },
+        creationCallbacks: { // <6>
+            // creation callback definitions ...
+        },
+        resolvers: { // <7>
+            // resolver definitions ...
+        },
+        typeResolvers: { // <8>
+            // type resolver definitions ...
+        }
+    }
+};
+----
+
+<1> The `inputTypes` property allows you to define new input types. More information about usage of input types you can find <<extending/input-types#,here>>.
+<2> The `enums` property allows you to define new enum types. More information about usage of enums you can find <<extending/enums#,here>>.
+<3> The `interfaces` property allows you to define new interfaces. More information about usage of interfaces you can find <<extending/interfaces#,here>>.
+<4> The `unions` property allows you to define new unions. More information about usage of unions you can find <<extending/unions.adoc#,here>>.
+<5> The `types` property allows you to define new output types. More information about usage of types you can find <<extending/types#,here>>.
+<6> The `creationCallbacks` property allows you to set or override data fetcher for a field. More information about usage of creation callbacks you can find <<extending/creation-callbacks#,here>>.
+<7> The `resolvers` property allows you to set or override type resolver for a type. More information about usage of resolvers you can find <<extending/resolvers#,here>>.
+<8> The `typeResolvers` property allows you to set or override type resolver for an interface or a union. More information about usage of type resolvers you can find <<extending/type-resolvers#,here>>.
+
+
+You can omit any of the properties, but you must return an object with the same structure. The order of the properties is not important.
+
+This function will be called when the application is started. Also, this function takes an `graphQL` argument, which is a reference to the GraphQL utility object and provides to access to scalars, types, type modifiers and functions.
+
+== Scalars and Types
+
+`GraphQLString`, `GraphQLInt`, `GraphQLID`, `GraphQLBoolean`, `GraphQLFloat`, `Json`, `DateTime`, `Date`, `LocalTime` `LocalDateTime` and `reference` type.
+
+== Type modifiers
+
+The `list` and `nonNull` type modifiers allow applies additional validation of those values.
+
+== Functions
+
+`createDataFetcherResult` - allows to return object with `data` which will be as a source for children fields and provide a `localContext` to share unmodifiable data available in a child field using `env.localContext`.
+
+== Example of usage
+
+Let's imagine that we have to extend the GraphQL schema with a new type `GoogleBooks` and add a new field `findBooks` to the `Query` type to be able to find books by query string. To execute requests to Google Books API we will use `lib-http-client` library.
+
+----
+dependencies {
+    include 'com.enonic.lib:lib-http-client:3.2.2'
+}
+----
+
+In our application we have to create a new file `src/main/resources/guillotine/guillotine.js` if it absent and add the following content:
+
+[source,javascript]
+----
+const httpClient = require('/lib/http-client');
+
+const GOOGLE_BOOKS_API_KEY = app.config.googleBooksApiKey;
+
+exports.extensions = function (graphQL) {
+    return {
+        types: {
+            GoogleBooks: {
+                description: 'Google Books Type',
+                fields: {
+                    id: {
+                        type: graphQL.GraphQLString,
+                    },
+                    title: {
+                        type: graphQL.GraphQLString,
+                    },
+                    authors: {
+                        type: graphQL.list(graphQL.GraphQLString),
+                    },
+                    publisher: {
+                        type: graphQL.GraphQLString,
+                    },
+                    publishedDate: {
+                        type: graphQL.GraphQLString,
+                    },
+                    description: {
+                        type: graphQL.GraphQLString,
+                    },
+                    pageCount: {
+                        type: graphQL.GraphQLInt,
+                    },
+                    language: {
+                        type: graphQL.GraphQLString,
+                    },
+                    averageRating: {
+                        type: graphQL.GraphQLFloat,
+                    },
+                }
+            },
+        },
+        creationCallbacks: {
+            Query: function (params) {
+                params.addFields({
+                    findBooks: {
+                        type: graphQL.list(graphQL.reference('GoogleBooks')),
+                        args: {
+                            queryString: graphQL.GraphQLString,
+                        }
+                    }
+                });
+            },
+        },
+        resolvers: {
+            Query: {
+                findBooks: function (env) {
+                    const response = sendRequestToBooksApi(env.args.queryString);
+
+                    return response.items.map(function (item) {
+                        const volumeInfo = item.volumeInfo;
+
+                        return {
+                            id: item.id,
+                            title: volumeInfo.title,
+                            authors: volumeInfo.authors,
+                            publisher: volumeInfo.publisher,
+                            publishedDate: volumeInfo.publishedDate,
+                            description: volumeInfo.description,
+                            pageCount: volumeInfo.pageCount,
+                            language: volumeInfo.language,
+                            averageRating: volumeInfo.averageRating,
+                        }
+                    });
+                }
+            }
+        },
+    }
+};
+
+function sendRequestToBooksApi(queryString) {
+    const response = httpClient.request({
+        url: 'https://www.googleapis.com/books/v1/volumes',
+        method: 'GET',
+        contentType: 'application/json',
+        queryParams: {
+            q: queryString,
+            key: GOOGLE_BOOKS_API_KEY,
+        }
+    });
+    return JSON.parse(response.body);
+}
+----
+
+This example is very simple and does not cover all possible cases. For example, it does not handle errors from the Google Books API, does not cache values and, etc. But it shows how to extend the GraphQL schema with a new type and a new field.
+
+You can separate definitions of types, creationCallbacks, resolvers and the rest of options into different files and import them into the `guillotine.js` file, to make your code more readable and maintainable.

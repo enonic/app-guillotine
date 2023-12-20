@@ -1,0 +1,43 @@
+= interfaces
+
+This property is used to create custom interfaces.
+It must be an object with the following structure:
+
+[source,javascript]
+----
+interfaces: {
+    <InterfaceTypeName>: {
+        description: <description>
+        fields: {
+            <fieldName>: {
+               type: <graphQLType>,
+               args: {
+                 <argName>: <graphQLType>,
+                 // the rest of arguments ...
+               }
+            },
+            // the rest of field definitions ...
+        },
+    },
+    // the rest of interface definitions ...
+}
+----
+
+For example:
+
+[source,javascript]
+----
+interfaces: {
+    CustomInterface: {
+        description: "Custom Interface",
+        fields: {
+            query: {
+                type: graphQL.list(graphQL.GraphQLString),
+                args: {
+                    filter: graphQL.reference('CustomFilterInput')
+                }
+            }
+        },
+    }
+}
+----
