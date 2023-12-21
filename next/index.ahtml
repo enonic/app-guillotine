@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Project Guillotine 6</title>
+<title>Project Guillotine 7</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,7 +436,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Project Guillotine 6</h1>
+<h1>Project Guillotine 7</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
@@ -445,7 +445,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#usage">Usage</a></li>
 <li><a href="#clients">Clients</a></li>
 <li><a href="#graphql_api">GraphQL API</a></li>
-<li><a href="#embedding">Embedding</a></li>
 </ul>
 </div>
 </div>
@@ -524,21 +523,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
-<div class="sect1">
-<h2 id="embedding"><a class="link" href="#embedding">Embedding</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Guillotine is also available as a library version, which for advanced use-cases may be embedded into your app. It lets you take control over the endpoints, detailed access control, as well as ability to extend and customise the API itself.</p>
-</div>
-<div class="paragraph">
-<p><a href="embed.ahtml">Read more about integrating and customizing the Guillotine API</a>.</p>
-</div>
-</div>
-</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-20 14:42:55 UTC
+Last updated 2023-12-21 16:51:31 UTC
 </div>
 </div>
 </body>

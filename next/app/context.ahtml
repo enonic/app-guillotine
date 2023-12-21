@@ -470,7 +470,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>You can also specify the <code>siteKey</code> argument in the <code>guillotine</code> field to query within the site context. This argument is an alternative to the <code>X-Guillotine-SiteKey</code> header, which will be removed in a future version.</p>
+<p>You can also specify the <code>siteKey</code> argument in the <code>guillotine</code> field to use the <code>${site}</code> placeholder when querying for path&#8217;s within the site. This argument is an alternative to the <code>X-Guillotine-SiteKey</code> header, which will be removed in a future version.</p>
 </div>
 <div class="listingblock">
 <div class="title">Example: Query with site context</div>
@@ -512,7 +512,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-20 14:42:55 UTC
+Last updated 2023-12-21 16:51:31 UTC
 </div>
 </div>
 </body>

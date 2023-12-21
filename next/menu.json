@@ -17,25 +17,7 @@
       "document": "api"
     },
     {
-      "title": "Embedding",
-      "document": "embed",
-      "menuItems": [
-        {
-          "title": "Extending",
-          "document": "embed/extending"
-        },
-        {
-          "title": "Integrating",
-          "document": "embed/integrating"
-        },
-        {
-          "title": "Options",
-          "document": "embed/options"
-        }
-      ]
-    },
-    {
-      "title": "Guillotine App 7.x",
+      "title": "Extending Guillotine",
       "document": "app",
       "menuItems": [
         {
@@ -45,10 +27,6 @@
         {
           "title": "Guillotine Context",
           "document": "app/context"
-        },
-        {
-          "title": "Migration from 6.x to 7.x",
-          "document": "app/migration"
         }
       ]
     },

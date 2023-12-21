@@ -474,21 +474,23 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="queries"><a class="link" href="#queries">Queries</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The API lets you perform advanced queries thanks to Enonic XP&#8217;s NoSQL storage. This includes ranked search, filters, stemming, aggregations and highlighting to mention a few things.</p>
+<p>The API lets you perform advanced queries thanks to Enonic XP&#8217;s NoSQL storage. This includes ranked search, queries DSL, aggregations and highlighting to mention a few things.</p>
 </div>
 <div class="listingblock">
 <div class="title">Query example: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author</div>
 <div class="content">
 <pre>{
   guillotine {
-    query(contentTypes:"com.enonic.app.myapp:post") {
-      displayName
-      ... on com_enonic_app_myapp_Post {
-        data {
-          author {
-            displayName
+    queryDsl(query: {
+          term: {
+            field: "type",
+            value: {
+              string: "com.enonic.app.myapp:Post"
+            }
           }
-        }
+        }){
+      ... on com_enonic_app_myapp_Post {
+        displayName
       }
     }
   }
@@ -547,11 +549,18 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="content">
 <pre>{
   guillotine {
-    query(contentTypes:"media:image") {
-      displayName
-      ... on media_Image {
-        imageUrl(scale:"block(800,200)",type:absolute)
-      }
+    queryDsl(query: {
+          term: {
+            field: "type",
+            value: {
+              string: "media:image"
+            }
+          }
+        }){
+        displayName
+        ... on media_Image {
+          imageUrl(scale:"block(800,200)",type:absolute)
+        }
     }
   }
 }</pre>
@@ -570,7 +579,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="content">
 <pre>{
   guillotine {
-    query(contentTypes:"com.enonic.app.myapp:post") {
+    queryDsl(query: {
+          term: {
+            field: "type",
+            value: {
+              string: "com.enonic.app.myapp:post"
+            }
+          }
+        }){
       ... on com_enonic_app_myapp_Post {
         data {
           author {
@@ -588,7 +604,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>Rich text fields will typically include links, images and macros in the <code>processedHtml</code> field of the <a href="../api.ahtml#richtext">RichText</a> type. Below are further details how how to handle this:</p>
+<p>Rich text fields will typically include links, images and macros in the <code>processedHtml</code> field of the <a href="../api.ahtml#richtext">RichText</a> type. Below are further details how to handle this:</p>
 </div>
 <div class="sect2">
 <h3 id="links"><a class="link" href="#links">Links</a></h3>
@@ -929,7 +945,7 @@ In this case <code>srcset</code> attribute will be added to <code>img</code> tag
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">{
   guillotine {
-    query(contentTypes:"com.example.myproject:person") {
+    query(key: "contentID") {
       displayName
       x {
       	com_example_myproject {
@@ -1064,7 +1080,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-20 14:42:55 UTC
+Last updated 2023-12-21 16:51:31 UTC
 </div>
 </div>
 </body>
