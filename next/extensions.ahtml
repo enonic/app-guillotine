@@ -447,7 +447,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#interfaces">interfaces</a></li>
 <li><a href="#unions">unions</a></li>
 <li><a href="#types">types</a></li>
-<li><a href="#creation_callbacks">Creation callbacks</a></li>
+<li><a href="#creationcallbacks">creationCallbacks</a></li>
 <li><a href="#resolvers">resolvers</a></li>
 <li><a href="#typeresolvers">typeResolvers</a></li>
 </ul>
@@ -471,7 +471,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>exports.extensions = function (graphQL) {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.extensions = function (graphQL) {
     return {
         inputTypes: {
             // input type definitions ...
@@ -498,7 +498,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
             // type resolver definitions ...
         }
     }
-};</pre>
+};</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -543,7 +543,7 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>inputTypes: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">inputTypes: {
     &lt;InputTypeName&gt;: {
         description: &lt;description&gt;
         fields: {
@@ -552,7 +552,7 @@ It must be an object with the following structure:</p>
         },
     },
     // the rest of input type definitions ...
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -560,7 +560,7 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>inputTypes: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">inputTypes: {
     CustomInputFilter: {
         description: "Custom Input Filter",
         fields: {
@@ -570,7 +570,7 @@ It must be an object with the following structure:</p>
             contains: graphQL.GraphQLString
         }
     }
-}</pre>
+}</code></pre>
 </div>
 </div>
 </div>
@@ -582,7 +582,7 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>enums: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">enums: {
     &lt;EnumTypeName&gt;: {
         description: &lt;description&gt;
         values: {
@@ -592,7 +592,7 @@ It must be an object with the following structure:</p>
         },
     },
     // the rest of enum type definitions ...
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -600,7 +600,7 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>enums: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">enums: {
     CustomEnum: {
         description: "Custom Enum",
         values: {
@@ -608,7 +608,7 @@ It must be an object with the following structure:</p>
             b: "B",
         }
     }
-}</pre>
+}</code></pre>
 </div>
 </div>
 </div>
@@ -620,7 +620,7 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>interfaces: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">interfaces: {
     &lt;InterfaceTypeName&gt;: {
         description: &lt;description&gt;
         fields: {
@@ -635,7 +635,7 @@ It must be an object with the following structure:</p>
         },
     },
     // the rest of interface definitions ...
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -643,7 +643,7 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>interfaces: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">interfaces: {
     CustomInterface: {
         description: "Custom Interface",
         fields: {
@@ -655,7 +655,7 @@ It must be an object with the following structure:</p>
             }
         },
     }
-}</pre>
+}</code></pre>
 </div>
 </div>
 </div>
@@ -667,7 +667,7 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>unions: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">unions: {
     &lt;UnionTypeName&gt;: {
         description: &lt;description&gt;,
         types: [
@@ -676,7 +676,7 @@ It must be an object with the following structure:</p>
         ],
     },
     // the rest union definitions ...
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -684,7 +684,7 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>unions: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">unions: {
     CustomUnion: {
         description: "Custom Union",
         types: [
@@ -692,7 +692,7 @@ It must be an object with the following structure:</p>
             graphQL.reference('GraphQLTypeNameTwo'),
         ]
     }
-}</pre>
+}</code></pre>
 </div>
 </div>
 </div>
@@ -703,7 +703,7 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>types: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">types: {
     &lt;GraphQLTypeName&gt;: {
         description: &lt;description&gt;,
         interfaces: [
@@ -722,7 +722,7 @@ It must be an object with the following structure:</p>
         },
     },
     ...
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -730,7 +730,7 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>types: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">types: {
     CustomInterfaceImpl: {
         description: 'CustomInterface Implementation',
         interfaces: [graphQL.reference('CustomInterface')],
@@ -746,7 +746,7 @@ It must be an object with the following structure:</p>
             }
         }
     }
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -754,7 +754,7 @@ It must be an object with the following structure:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="creation_callbacks"><a class="link" href="#creation_callbacks">Creation callbacks</a></h3>
+<h3 id="creationcallbacks"><a class="link" href="#creationcallbacks">creationCallbacks</a></h3>
 <div class="paragraph">
 <p>This property is used to create callbacks that will be called during GraphQL schema generation when a specific type or interface is created.</p>
 </div>
@@ -788,7 +788,7 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>creationCallbacks: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">creationCallbacks: {
     &lt;GraphQLTypeName&gt;: function (params) {
         // if you want to add new fields
         params.addFields({
@@ -832,7 +832,7 @@ It must be an object with the following structure:</p>
         ]);
     },
     // the rest of creation callback definition ...
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -840,7 +840,7 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>creationCallbacks: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">creationCallbacks: {
     MyCustomType: function (params) {
         params.addFields({
             extraField: {
@@ -860,7 +860,7 @@ It must be an object with the following structure:</p>
         });
     },
 
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -874,7 +874,7 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>resolvers: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">resolvers: {
     &lt;GraphQLTypeName&gt;: {
         &lt;fieldName&gt;: function (env) {
             // your code here
@@ -882,7 +882,7 @@ It must be an object with the following structure:</p>
         // the rest of field resolvers ...
     },
     // the rest of type resolvers ...
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="sect3">
@@ -898,7 +898,7 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>const appName = app.name;
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">const appName = app.name;
 const appConfig = app.config;
 
 exports.extensions = function (graphQL) {
@@ -913,7 +913,7 @@ exports.extensions = function (graphQL) {
         },
         ...
    }
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -993,7 +993,7 @@ exports.extensions = function (graphQL) {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>exports.extensions = function (graphQL) {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.extensions = function (graphQL) {
     return {
         ...
         resolvers: {
@@ -1013,7 +1013,7 @@ exports.extensions = function (graphQL) {
         },
         ...
    }
-}</pre>
+}</code></pre>
 </div>
 </div>
 </div>
@@ -1025,12 +1025,14 @@ exports.extensions = function (graphQL) {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>typeResolvers: {
-    &lt;GraphQLTypeName&gt;: function (obj) {
-        // your code here
-    },
-    // the rest of type resolvers ...
-}</pre>
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+    typeResolvers: {
+        &lt;GraphQLTypeName&gt;: function (obj) {
+            // your code here
+        },
+        // the rest of type resolvers ...
+    }
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1038,17 +1040,19 @@ exports.extensions = function (graphQL) {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>typeResolvers: {
-    CustomInterface: function (obj) {
-        return 'CustomInterfaceImpl';
-    },
-    CustomUnion: function (obj) {
-        if (obj.title) {
-            return 'GraphQLTypeNameOne';
-        }
-        return 'GraphQLTypeNameTwo';
-    },
-}</pre>
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+    typeResolvers: {
+        CustomInterface: function (obj) {
+            return 'CustomInterfaceImpl';
+        },
+        CustomUnion: function (obj) {
+            if (obj.title) {
+                return 'GraphQLTypeNameOne';
+            }
+            return 'GraphQLTypeNameTwo';
+        },
+    }
+}</code></pre>
 </div>
 </div>
 </div>
@@ -1072,7 +1076,7 @@ exports.extensions = function (graphQL) {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>const httpClient = require('/lib/http-client');
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">const httpClient = require('/lib/http-client');
 
 const GOOGLE_BOOKS_API_KEY = app.config.googleBooksApiKey;
 
@@ -1161,7 +1165,7 @@ function sendRequestToBooksApi(queryString) {
         }
     });
     return JSON.parse(response.body);
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1175,7 +1179,7 @@ function sendRequestToBooksApi(queryString) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-27 12:18:09 UTC
+Last updated 2023-12-27 13:06:00 UTC
 </div>
 </div>
 </body>
