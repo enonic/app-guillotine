@@ -479,7 +479,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Query example: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author</div>
 <div class="content">
-<pre>{
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
   guillotine {
     queryDsl(query: {
           term: {
@@ -494,7 +494,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
       }
     }
   }
-}</pre>
+}</code></pre>
 </div>
 </div>
 </div>
@@ -524,7 +524,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Query example: Retrieve the display name of a specific content and the display name of its direct children</div>
 <div class="content">
-<pre>{
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
   guillotine {
     get(key: "/path/to/item") {
       displayName
@@ -533,7 +533,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
       }
     }
   }
-}</pre>
+}</code></pre>
 </div>
 </div>
 </div>
@@ -547,7 +547,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title"><strong>Example: Scaled Image URL</strong> - Retrieve the image contents and generate absolute URLs to these images cropped to 800x200px</div>
 <div class="content">
-<pre>{
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
   guillotine {
     queryDsl(query: {
           term: {
@@ -563,7 +563,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
         }
     }
   }
-}</pre>
+}</code></pre>
 </div>
 </div>
 </div>
@@ -577,7 +577,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title"><strong>Example: Process HTML</strong> - Retrieve the blog posts. For each post, return its author display name, tags and processed content.</div>
 <div class="content">
-<pre>{
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
   guillotine {
     queryDsl(query: {
           term: {
@@ -600,7 +600,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
       }
     }
   }
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1021,7 +1021,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 <p>With the site context set, you may run queries to access the site content using getSite field</p>
 </div>
 <div class="listingblock">
-<div class="title">Example: Acessing the displayName of the site</div>
+<div class="title">Example: Accessing the displayName of the site</div>
 <div class="content">
 <pre>{
   guillotine {
@@ -1039,7 +1039,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 <p>Use the <code>${site}</code> placeholder when querying for path&#8217;s within the site.</p>
 </div>
 <div class="listingblock">
-<div class="title">Example: Acessing content within specific path of a site</div>
+<div class="title">Example: Accessing content within specific path of a site</div>
 <div class="content">
 <pre>{
   guillotine {
@@ -1080,7 +1080,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-27 13:06:00 UTC
+Last updated 2023-12-27 13:31:08 UTC
 </div>
 </div>
 </body>
