@@ -558,7 +558,7 @@ const schema = guillotineLib.createSchema({
                  }
              };
             params.fields.email.resolve = function (env) {
-                return authLib.hasRole('system.admin') ? env.source.email : null
+                return authLib.hasRole('system.admin') ? env.source.email : null;
             };
             delete params.fields.birthDate;
         },
@@ -593,7 +593,7 @@ exports.extensions = function (graphQL) {
                     return env.source.firstName + ' ' + env.source.lastName;
                 },
                 email: function (env) {
-                    return authLib.hasRole('system.admin') ? env.source.email : null
+                    return authLib.hasRole('system.admin') ? env.source.email : null;
                 }
             }
         },
@@ -606,7 +606,7 @@ exports.extensions = function (graphQL) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-27 15:33:22 UTC
+Last updated 2023-12-27 15:38:14 UTC
 </div>
 </div>
 </body>
