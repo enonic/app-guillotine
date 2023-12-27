@@ -447,7 +447,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#headlesscms">HeadlessCms</a></li>
 <li><a href="#content">Content</a></li>
 <li><a href="#contentconnection">ContentConnection</a></li>
-<li><a href="#querycontentconnection">QueryContentConnection</a></li>
 <li><a href="#querydslcontentconnection">QueryDSLContentConnection</a></li>
 <li><a href="#contentedge">ContentEdge</a></li>
 <li><a href="#pageinfo">PageInfo</a></li>
@@ -484,7 +483,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#processhtmlinput">ProcessHtmlInput</a>
 <ul class="sectlevel2">
-<li><a href="#fields_30">Fields</a></li>
+<li><a href="#fields_29">Fields</a></li>
 </ul>
 </li>
 <li><a href="#aggregation_input_types">Aggregation Input Types</a>
@@ -502,16 +501,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#datehistogramaggregationinput">DateHistogramAggregationInput</a></li>
 <li><a href="#geodistanceaggregationinput">GeoDistanceAggregationInput</a></li>
 <li><a href="#geopointinput">GeoPointInput</a></li>
-</ul>
-</li>
-<li><a href="#filter_input_types">Filter Input Types</a>
-<ul class="sectlevel2">
-<li><a href="#filterinput">FilterInput</a></li>
-<li><a href="#booleanfilterinput">BooleanFilterInput</a></li>
-<li><a href="#existsfilterinput">ExistsFilterInput</a></li>
-<li><a href="#notexistsfilterinput">NotExistsFilterInput</a></li>
-<li><a href="#hasvaluefilterinput">HasValueFilterInput</a></li>
-<li><a href="#idsfilterinput">IdsFilterInput</a></li>
 </ul>
 </li>
 <li><a href="#query_dsl_input_types">Query DSL Input Types</a>
@@ -708,29 +697,6 @@ A more intuitive way to discover the API is by using the <a href="clients.ahtml#
 <td class="tableblock halign-left valign-top"><p class="tableblock">Fetches the parent site of the content corresponding to the current execution context</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">query(
- query: String,
- offset: Int,
- first: Int,
- sort: String,
- contentTypes: [String],
- filters: [<a href="#filterinput">FilterInput</a>]
- ): [<a href="#content">Content</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Queries contents. <strong>Deprecated</strong> from version 6.1.0.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">queryConnection(
- query: String!,
- after: String,
- first: Int,
- sort: String,
- contentTypes: [String],
- aggregations: [<a href="#aggregationinput">AggregationInput</a>],
- filters: [<a href="#filterinput">FilterInput</a>]
- ): <a href="#querycontentconnection">QueryContentConnection</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Queries contents and returns the result as a connection.  <strong>Deprecated</strong> from version 6.1.0.</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">queryDsl(
 query: <a href="#querydslinput">QueryDSLInput</a>,
 offset: Int,
@@ -794,7 +760,7 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_path(type: <a href="#contentpathtype">ContentPathType</a>): String!</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Content path. The <code>type</code> argument is supported starting from version. In the site-less mode, the result will be returned in the raw value, in other words, <code>env.source._path</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content path. In the site-less mode, the result will be returned in the raw value, in other words, <code>env.source._path</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">creator: <a href="#principalkey">PrincipalKey</a></p></td>
@@ -982,45 +948,9 @@ It allows you to :</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="querycontentconnection"><a class="link" href="#querycontentconnection">QueryContentConnection</a></h3>
-<div class="sect3">
-<h4 id="fields_5"><a class="link" href="#fields_5">Fields</a></h4>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name(Arguments):Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">totalCount: Int!</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Total number of related content</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">edges: [<a href="#contentedge">ContentEdge</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Edge to the related content</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">pageInfo: <a href="#pageinfo">PageInfo</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Paging information</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">aggregationAsJson: JSON</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Result of aggregations</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="sect2">
 <h3 id="querydslcontentconnection"><a class="link" href="#querydslcontentconnection">QueryDSLContentConnection</a></h3>
 <div class="sect3">
-<h4 id="fields_6"><a class="link" href="#fields_6">Fields</a></h4>
+<h4 id="fields_5"><a class="link" href="#fields_5">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1060,7 +990,7 @@ It allows you to :</p>
 <div class="sect2">
 <h3 id="contentedge"><a class="link" href="#contentedge">ContentEdge</a></h3>
 <div class="sect3">
-<h4 id="fields_7"><a class="link" href="#fields_7">Fields</a></h4>
+<h4 id="fields_6"><a class="link" href="#fields_6">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1088,7 +1018,7 @@ It allows you to :</p>
 <div class="sect2">
 <h3 id="pageinfo"><a class="link" href="#pageinfo">PageInfo</a></h3>
 <div class="sect3">
-<h4 id="fields_8"><a class="link" href="#fields_8">Fields</a></h4>
+<h4 id="fields_7"><a class="link" href="#fields_7">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1398,7 +1328,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <div class="sect2">
 <h3 id="permissions"><a class="link" href="#permissions">Permissions</a></h3>
 <div class="sect3">
-<h4 id="fields_9"><a class="link" href="#fields_9">Fields</a></h4>
+<h4 id="fields_8"><a class="link" href="#fields_8">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1426,7 +1356,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <div class="sect2">
 <h3 id="accesscontrolentry"><a class="link" href="#accesscontrolentry">AccessControlEntry</a></h3>
 <div class="sect3">
-<h4 id="fields_10"><a class="link" href="#fields_10">Fields</a></h4>
+<h4 id="fields_9"><a class="link" href="#fields_9">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1458,7 +1388,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <div class="sect2">
 <h3 id="principalkey"><a class="link" href="#principalkey">PrincipalKey</a></h3>
 <div class="sect3">
-<h4 id="fields_11"><a class="link" href="#fields_11">Fields</a></h4>
+<h4 id="fields_10"><a class="link" href="#fields_10">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1497,7 +1427,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <p>Representation of a content type definition</p>
 </div>
 <div class="sect3">
-<h4 id="fields_12"><a class="link" href="#fields_12">Fields</a></h4>
+<h4 id="fields_11"><a class="link" href="#fields_11">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1575,7 +1505,7 @@ after: String
 <div class="sect2">
 <h3 id="formitem"><a class="link" href="#formitem">FormItem</a></h3>
 <div class="sect3">
-<h4 id="fields_13"><a class="link" href="#fields_13">Fields</a></h4>
+<h4 id="fields_12"><a class="link" href="#fields_12">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1616,7 +1546,7 @@ after: String
 <div class="sect2">
 <h3 id="extradata"><a class="link" href="#extradata">ExtraData</a></h3>
 <div class="sect3">
-<h4 id="fields_14"><a class="link" href="#fields_14">Fields</a></h4>
+<h4 id="fields_13"><a class="link" href="#fields_13">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1648,7 +1578,7 @@ after: String
 <div class="sect2">
 <h3 id="xdata_media_applicationconfig"><a class="link" href="#xdata_media_applicationconfig">XData_media_ApplicationConfig</a></h3>
 <div class="sect3">
-<h4 id="fields_15"><a class="link" href="#fields_15">Fields</a></h4>
+<h4 id="fields_14"><a class="link" href="#fields_14">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1676,7 +1606,7 @@ after: String
 <div class="sect2">
 <h3 id="xdata_media_imageinfo_dataconfig"><a class="link" href="#xdata_media_imageinfo_dataconfig">XData_media_imageInfo_DataConfig</a></h3>
 <div class="sect3">
-<h4 id="fields_16"><a class="link" href="#fields_16">Fields</a></h4>
+<h4 id="fields_15"><a class="link" href="#fields_15">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1724,7 +1654,7 @@ after: String
 <div class="sect2">
 <h3 id="xdata_media_camerainfo_dataconfig"><a class="link" href="#xdata_media_camerainfo_dataconfig">XData_media_cameraInfo_DataConfig</a></h3>
 <div class="sect3">
-<h4 id="fields_17"><a class="link" href="#fields_17">Fields</a></h4>
+<h4 id="fields_16"><a class="link" href="#fields_16">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1821,7 +1751,7 @@ after: String
 
 </div>
 <div class="sect3">
-<h4 id="fields_18"><a class="link" href="#fields_18">Fields</a></h4>
+<h4 id="fields_17"><a class="link" href="#fields_17">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1845,7 +1775,7 @@ after: String
 <div class="sect2">
 <h3 id="xdata_base_gpsinfo_dataconfig"><a class="link" href="#xdata_base_gpsinfo_dataconfig">XData_base_gpsInfo_DataConfig</a></h3>
 <div class="sect3">
-<h4 id="fields_19"><a class="link" href="#fields_19">Fields</a></h4>
+<h4 id="fields_18"><a class="link" href="#fields_18">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1877,7 +1807,7 @@ after: String
 <div class="sect2">
 <h3 id="component"><a class="link" href="#component">Component</a></h3>
 <div class="sect3">
-<h4 id="fields_20"><a class="link" href="#fields_20">Fields</a></h4>
+<h4 id="fields_19"><a class="link" href="#fields_19">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1929,7 +1859,7 @@ after: String
 <div class="sect2">
 <h3 id="pagecomponentdata"><a class="link" href="#pagecomponentdata">PageComponentData</a></h3>
 <div class="sect3">
-<h4 id="fields_21"><a class="link" href="#fields_21">Fields</a></h4>
+<h4 id="fields_20"><a class="link" href="#fields_20">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1965,7 +1895,7 @@ after: String
 <div class="sect2">
 <h3 id="layoutcomponentdata"><a class="link" href="#layoutcomponentdata">LayoutComponentData</a></h3>
 <div class="sect3">
-<h4 id="fields_22"><a class="link" href="#fields_22">Fields</a></h4>
+<h4 id="fields_21"><a class="link" href="#fields_21">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1993,7 +1923,7 @@ after: String
 <div class="sect2">
 <h3 id="imagecomponentdata"><a class="link" href="#imagecomponentdata">ImageComponentData</a></h3>
 <div class="sect3">
-<h4 id="fields_23"><a class="link" href="#fields_23">Fields</a></h4>
+<h4 id="fields_22"><a class="link" href="#fields_22">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2025,7 +1955,7 @@ after: String
 <div class="sect2">
 <h3 id="partcomponentdata"><a class="link" href="#partcomponentdata">PartComponentData</a></h3>
 <div class="sect3">
-<h4 id="fields_24"><a class="link" href="#fields_24">Fields</a></h4>
+<h4 id="fields_23"><a class="link" href="#fields_23">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2053,7 +1983,7 @@ after: String
 <div class="sect2">
 <h3 id="textcomponentdata"><a class="link" href="#textcomponentdata">TextComponentData</a></h3>
 <div class="sect3">
-<h4 id="fields_25"><a class="link" href="#fields_25">Fields</a></h4>
+<h4 id="fields_24"><a class="link" href="#fields_24">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2077,7 +2007,7 @@ after: String
 <div class="sect2">
 <h3 id="fragmentcomponentdata"><a class="link" href="#fragmentcomponentdata">FragmentComponentData</a></h3>
 <div class="sect3">
-<h4 id="fields_26"><a class="link" href="#fields_26">Fields</a></h4>
+<h4 id="fields_25"><a class="link" href="#fields_25">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2105,7 +2035,7 @@ after: String
 <div class="sect2">
 <h3 id="attachment"><a class="link" href="#attachment">Attachment</a></h3>
 <div class="sect3">
-<h4 id="fields_27"><a class="link" href="#fields_27">Fields</a></h4>
+<h4 id="fields_26"><a class="link" href="#fields_26">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2145,7 +2075,7 @@ after: String
 <div class="sect2">
 <h3 id="publishinfo"><a class="link" href="#publishinfo">PublishInfo</a></h3>
 <div class="sect3">
-<h4 id="fields_28"><a class="link" href="#fields_28">Fields</a></h4>
+<h4 id="fields_27"><a class="link" href="#fields_27">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2177,7 +2107,7 @@ after: String
 <div class="sect2">
 <h3 id="icon"><a class="link" href="#icon">Icon</a></h3>
 <div class="sect3">
-<h4 id="fields_29"><a class="link" href="#fields_29">Fields</a></h4>
+<h4 id="fields_28"><a class="link" href="#fields_28">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2208,7 +2138,7 @@ after: String
 <h2 id="processhtmlinput"><a class="link" href="#processhtmlinput">ProcessHtmlInput</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="fields_30"><a class="link" href="#fields_30">Fields</a></h3>
+<h3 id="fields_29"><a class="link" href="#fields_29">Fields</a></h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2247,7 +2177,7 @@ after: String
 <p>Aggregations enable extracting statistical data from search results. Only one of the aggregation fields at a time can be specified.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_31"><a class="link" href="#fields_31">Fields</a></h4>
+<h4 id="fields_30"><a class="link" href="#fields_30">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2311,7 +2241,7 @@ after: String
 <div class="sect2">
 <h3 id="termsaggregationinput"><a class="link" href="#termsaggregationinput">TermsAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_32"><a class="link" href="#fields_32">Fields</a></h4>
+<h4 id="fields_31"><a class="link" href="#fields_31">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2347,7 +2277,7 @@ after: String
 <div class="sect2">
 <h3 id="statsaggregationinput"><a class="link" href="#statsaggregationinput">StatsAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_33"><a class="link" href="#fields_33">Fields</a></h4>
+<h4 id="fields_32"><a class="link" href="#fields_32">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2371,7 +2301,7 @@ after: String
 <div class="sect2">
 <h3 id="minaggregationinput"><a class="link" href="#minaggregationinput">MinAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_34"><a class="link" href="#fields_34">Fields</a></h4>
+<h4 id="fields_33"><a class="link" href="#fields_33">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2395,7 +2325,7 @@ after: String
 <div class="sect2">
 <h3 id="maxaggregationinput"><a class="link" href="#maxaggregationinput">MaxAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_35"><a class="link" href="#fields_35">Fields</a></h4>
+<h4 id="fields_34"><a class="link" href="#fields_34">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2419,7 +2349,7 @@ after: String
 <div class="sect2">
 <h3 id="valuecountaggregationinput"><a class="link" href="#valuecountaggregationinput">ValueCountAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_36"><a class="link" href="#fields_36">Fields</a></h4>
+<h4 id="fields_35"><a class="link" href="#fields_35">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2443,7 +2373,7 @@ after: String
 <div class="sect2">
 <h3 id="rangeaggregationinput"><a class="link" href="#rangeaggregationinput">RangeAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_37"><a class="link" href="#fields_37">Fields</a></h4>
+<h4 id="fields_36"><a class="link" href="#fields_36">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2471,7 +2401,7 @@ after: String
 <div class="sect2">
 <h3 id="numberrangeinput"><a class="link" href="#numberrangeinput">NumberRangeInput</a></h3>
 <div class="sect3">
-<h4 id="fields_38"><a class="link" href="#fields_38">Fields</a></h4>
+<h4 id="fields_37"><a class="link" href="#fields_37">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2503,7 +2433,7 @@ after: String
 <div class="sect2">
 <h3 id="daterangeaggregationinput"><a class="link" href="#daterangeaggregationinput">DateRangeAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_39"><a class="link" href="#fields_39">Fields</a></h4>
+<h4 id="fields_38"><a class="link" href="#fields_38">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2535,7 +2465,7 @@ after: String
 <div class="sect2">
 <h3 id="daterangeinput"><a class="link" href="#daterangeinput">DateRangeInput</a></h3>
 <div class="sect3">
-<h4 id="fields_40"><a class="link" href="#fields_40">Fields</a></h4>
+<h4 id="fields_39"><a class="link" href="#fields_39">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2567,7 +2497,7 @@ after: String
 <div class="sect2">
 <h3 id="datehistogramaggregationinput"><a class="link" href="#datehistogramaggregationinput">DateHistogramAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_41"><a class="link" href="#fields_41">Fields</a></h4>
+<h4 id="fields_40"><a class="link" href="#fields_40">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2603,7 +2533,7 @@ after: String
 <div class="sect2">
 <h3 id="geodistanceaggregationinput"><a class="link" href="#geodistanceaggregationinput">GeoDistanceAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_42"><a class="link" href="#fields_42">Fields</a></h4>
+<h4 id="fields_41"><a class="link" href="#fields_41">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2639,7 +2569,7 @@ after: String
 <div class="sect2">
 <h3 id="geopointinput"><a class="link" href="#geopointinput">GeoPointInput</a></h3>
 <div class="sect3">
-<h4 id="fields_43"><a class="link" href="#fields_43">Fields</a></h4>
+<h4 id="fields_42"><a class="link" href="#fields_42">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2667,198 +2597,6 @@ after: String
 </div>
 </div>
 <div class="sect1">
-<h2 id="filter_input_types"><a class="link" href="#filter_input_types">Filter Input Types</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="filterinput"><a class="link" href="#filterinput">FilterInput</a></h3>
-<div class="sect3">
-<h4 id="fields_44"><a class="link" href="#fields_44">Fields</a></h4>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name(Arguments):Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">boolean: <a href="#booleanfilterinput">BooleanFilterInput</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean filter</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">exists: <a href="#existsfilterinput">ExistsFilterInput</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ExistsFilter</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">notExists: <a href="#notexistsfilterinput">NotExistsFilterInput</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">NotExists filter</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">hasValue: <a href="#hasvaluefilterinput">HasValueFilterInput</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">HasValue filter</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ids: <a href="#idsfilterinput">IdsFilterInput</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Ids filter</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="booleanfilterinput"><a class="link" href="#booleanfilterinput">BooleanFilterInput</a></h3>
-<div class="sect3">
-<h4 id="fields_45"><a class="link" href="#fields_45">Fields</a></h4>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name(Arguments):Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">must: [<a href="#filterinput">FilterInput</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">All functions on the <code>must</code> array must evaluate to <code>true</code> for the filter to match</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">mustNot: [<a href="#filterinput">FilterInput</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">All functions in the <code>mustNot</code> array must evaluate to <code>false</code> for the filter to match</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">should: [<a href="#filterinput">FilterInput</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">At least one function in the <code>should</code> array must evaluate to `true for the filter to match</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="existsfilterinput"><a class="link" href="#existsfilterinput">ExistsFilterInput</a></h3>
-<div class="sect3">
-<h4 id="fields_46"><a class="link" href="#fields_46">Fields</a></h4>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name(Arguments):Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">field: String!</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The property path</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="notexistsfilterinput"><a class="link" href="#notexistsfilterinput">NotExistsFilterInput</a></h3>
-<div class="sect3">
-<h4 id="fields_47"><a class="link" href="#fields_47">Fields</a></h4>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name(Arguments):Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">field: String!</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The property path</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="hasvaluefilterinput"><a class="link" href="#hasvaluefilterinput">HasValueFilterInput</a></h3>
-<div class="paragraph">
-<p>Only one value field can be specified.</p>
-</div>
-<div class="sect3">
-<h4 id="fields_48"><a class="link" href="#fields_48">Fields</a></h4>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name(Arguments):Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">field: String!</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The property path</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">stringValues: [String]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Array of string values to find a match</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">intValues: [Int]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Array of integer values to find a match</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">booleanValues: [Boolean]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Array of boolean values to find a match</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">floatValues: [Float]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Array of float values to find a match</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="idsfilterinput"><a class="link" href="#idsfilterinput">IdsFilterInput</a></h3>
-<div class="sect3">
-<h4 id="fields_49"><a class="link" href="#fields_49">Fields</a></h4>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name(Arguments):Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">values: [String]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Array of ids to match</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="query_dsl_input_types"><a class="link" href="#query_dsl_input_types">Query DSL Input Types</a></h2>
 <div class="sectionbody">
 <div class="sect2">
@@ -2867,7 +2605,7 @@ after: String
 <p>Query DSL input type. Only one field must be provided. More details about Query DSL you can find <a href="https://developer.enonic.com/docs/xp/next/storage/dsl">here</a>.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_50"><a class="link" href="#fields_50">Fields</a></h4>
+<h4 id="fields_43"><a class="link" href="#fields_43">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2934,7 +2672,7 @@ after: String
 <p>Boolean DSL expression input type.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_51"><a class="link" href="#fields_51">Fields</a></h4>
+<h4 id="fields_44"><a class="link" href="#fields_44">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2977,7 +2715,7 @@ after: String
 <p>Ngram DSL expression input type.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_52"><a class="link" href="#fields_52">Fields</a></h4>
+<h4 id="fields_45"><a class="link" href="#fields_45">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3012,7 +2750,7 @@ after: String
 <p>Stemmed DSL expression input type.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_53"><a class="link" href="#fields_53">Fields</a></h4>
+<h4 id="fields_46"><a class="link" href="#fields_46">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3055,7 +2793,7 @@ after: String
 <p>Fulltext DSL expression input type.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_54"><a class="link" href="#fields_54">Fields</a></h4>
+<h4 id="fields_47"><a class="link" href="#fields_47">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3090,7 +2828,7 @@ after: String
 <p>MatchAll DSL expression input type.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_55"><a class="link" href="#fields_55">Fields</a></h4>
+<h4 id="fields_48"><a class="link" href="#fields_48">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3117,7 +2855,7 @@ after: String
 <p>PathMatch DSL expression input type.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_56"><a class="link" href="#fields_56">Fields</a></h4>
+<h4 id="fields_49"><a class="link" href="#fields_49">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3156,7 +2894,7 @@ after: String
 <p>Possible value. Only one field must be provided.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_57"><a class="link" href="#fields_57">Fields</a></h4>
+<h4 id="fields_50"><a class="link" href="#fields_50">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3211,7 +2949,7 @@ after: String
 <p>Range DSL expression input type.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_58"><a class="link" href="#fields_58">Fields</a></h4>
+<h4 id="fields_51"><a class="link" href="#fields_51">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3258,7 +2996,7 @@ after: String
 <p>Term DSL expression input type.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_59"><a class="link" href="#fields_59">Fields</a></h4>
+<h4 id="fields_52"><a class="link" href="#fields_52">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3293,7 +3031,7 @@ after: String
 <p>Like DSL expression input type. Returns nodes that contain the field matching a wildcard pattern. A wildcard operator ( * ) is a placeholder that matches one or more characters.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_60"><a class="link" href="#fields_60">Fields</a></h4>
+<h4 id="fields_53"><a class="link" href="#fields_53">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3328,7 +3066,7 @@ after: String
 <p>In DSL expression input type. Fetch nodes if a provided field contains any of listed values. Only one <code>values</code> field must be provided.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_61"><a class="link" href="#fields_61">Fields</a></h4>
+<h4 id="fields_54"><a class="link" href="#fields_54">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3391,7 +3129,7 @@ after: String
 <p>Exists DSL expression input type. Returns nodes that contain a value for a field.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_62"><a class="link" href="#fields_62">Fields</a></h4>
+<h4 id="fields_55"><a class="link" href="#fields_55">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3422,7 +3160,7 @@ after: String
 <p>GeoPoint sort DSL expression input type.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_63"><a class="link" href="#fields_63">Fields</a></h4>
+<h4 id="fields_56"><a class="link" href="#fields_56">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3453,7 +3191,7 @@ after: String
 <p>Sort DSL expression input type.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_64"><a class="link" href="#fields_64">Fields</a></h4>
+<h4 id="fields_57"><a class="link" href="#fields_57">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3497,7 +3235,7 @@ after: String
 <p>Highlight properties input type.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_65"><a class="link" href="#fields_65">Fields</a></h4>
+<h4 id="fields_58"><a class="link" href="#fields_58">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3556,7 +3294,7 @@ after: String
 <p>Highlight input type.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_66"><a class="link" href="#fields_66">Fields</a></h4>
+<h4 id="fields_59"><a class="link" href="#fields_59">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -3747,7 +3485,7 @@ Defaults to none - will be displayed in the same order in which fragments appear
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-27 09:46:47 UTC
+Last updated 2023-12-27 12:18:09 UTC
 </div>
 </div>
 </body>

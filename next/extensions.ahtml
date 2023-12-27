@@ -447,6 +447,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#interfaces">interfaces</a></li>
 <li><a href="#unions">unions</a></li>
 <li><a href="#types">types</a></li>
+<li><a href="#creation_callbacks">Creation callbacks</a></li>
 <li><a href="#resolvers">resolvers</a></li>
 <li><a href="#typeresolvers">typeResolvers</a></li>
 </ul>
@@ -751,8 +752,9 @@ It must be an object with the following structure:</p>
 <div class="paragraph">
 <p>According to GraphQL specification an implementation of an interface must implement all fields of the interface.</p>
 </div>
-<div class="sect3">
-<h4 id="creation_callbacks"><a class="link" href="#creation_callbacks">Creation callbacks</a></h4>
+</div>
+<div class="sect2">
+<h3 id="creation_callbacks"><a class="link" href="#creation_callbacks">Creation callbacks</a></h3>
 <div class="paragraph">
 <p>This property is used to create callbacks that will be called during GraphQL schema generation when a specific type or interface is created.</p>
 </div>
@@ -863,7 +865,6 @@ It must be an object with the following structure:</p>
 </div>
 <div class="paragraph">
 <p>To know how to set or override data fetcher for a field you can refer to the <code>resolvers</code> section.</p>
-</div>
 </div>
 </div>
 <div class="sect2">
@@ -1174,7 +1175,7 @@ function sendRequestToBooksApi(queryString) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-27 09:46:47 UTC
+Last updated 2023-12-27 12:18:09 UTC
 </div>
 </div>
 </body>
