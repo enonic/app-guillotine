@@ -1,34 +1,28 @@
 {
   "menuItems": [
     {
-      "title": "Endpoints",
-      "document": "endpoints"
-    },
-    {
-      "title": "Usage",
-      "document": "usage"
+      "title": "API",
+      "document": "api"
     },
     {
       "title": "Clients",
       "document": "clients"
     },
     {
-      "title": "GraphQL Schema",
-      "document": "api"
+      "title": "Extending Guillotine",
+      "document": "extensions"
     },
     {
-      "title": "Extending Guillotine",
-      "document": "app",
-      "menuItems": [
-        {
-          "title": "Extensions",
-          "document": "app/extensions"
-        },
-        {
-          "title": "Guillotine Context",
-          "document": "app/context"
-        }
-      ]
+      "title": "Guillotine Context",
+      "document": "context"
+    },
+    {
+      "title": "Query examples",
+      "document": "query-examples"
+    },
+    {
+      "title": "Endpoints",
+      "document": "endpoints"
     },
     {
       "title": "Release Notes",

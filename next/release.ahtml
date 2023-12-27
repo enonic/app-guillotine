@@ -506,7 +506,7 @@ This release includes <a href="#breaking_changes">breaking changes</a>
 </dd>
 <dt class="hdlist1">Params as Json instead of String</dt>
 <dd>
-<p>For such fields as <code>pageUrl</code>, <code>mediaUrl</code>, <code>imageUrl</code> and <code>attachmentUrl</code> the <code>params</code> argument has Json type instead of String.</p>
+<p>For such fields as <code>pageUrl</code>, <code>mediaUrl</code>, <code>imageUrl</code> and <code>attachmentUrl</code> the <code>params</code> argument has <code>Json</code> type instead of <code>String</code>.</p>
 </dd>
 </dl>
 </div>
@@ -516,7 +516,7 @@ This release includes <a href="#breaking_changes">breaking changes</a>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-21 16:51:31 UTC
+Last updated 2023-12-27 09:46:47 UTC
 </div>
 </div>
 </body>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Query examples</title>
+<title>Extending Guillotine</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,651 +436,745 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Query examples</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#queries">Queries</a></li>
-<li><a href="#follow_references">Follow references</a></li>
-<li><a href="#accessing_images">Accessing images</a></li>
-<li><a href="#rich_text">Rich text</a>
+<li><a href="#extending_guillotine">Extending Guillotine</a>
 <ul class="sectlevel2">
-<li><a href="#links">Links</a></li>
-<li><a href="#images">Images</a></li>
-<li><a href="#macros">Macros</a></li>
+<li><a href="#graphql_argument">graphQL argument</a></li>
+<li><a href="#inputtypes">inputTypes</a></li>
+<li><a href="#enums">enums</a></li>
+<li><a href="#interfaces">interfaces</a></li>
+<li><a href="#unions">unions</a></li>
+<li><a href="#types">types</a></li>
+<li><a href="#resolvers">resolvers</a></li>
+<li><a href="#typeresolvers">typeResolvers</a></li>
 </ul>
 </li>
-<li><a href="#xdata">xData</a></li>
-<li><a href="#site_context">Site context</a>
-<ul class="sectlevel2">
-<li><a href="#set_header">Set header</a></li>
-<li><a href="#getsite">getSite</a></li>
-<li><a href="#path_placeholder">Path placeholder</a></li>
-<li><a href="#site_relative_paths">Site relative paths</a></li>
-</ul>
-</li>
+<li><a href="#example_of_usage">Example of usage</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div id="preamble">
-<div class="sectionbody">
-<div class="paragraph">
-<p>This section provides a set of example queries.</p>
-</div>
-</div>
-</div>
 <div class="sect1">
-<h2 id="queries"><a class="link" href="#queries">Queries</a></h2>
+<h2 id="extending_guillotine"><a class="link" href="#extending_guillotine">Extending Guillotine</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The API lets you perform advanced queries thanks to Enonic XP&#8217;s NoSQL storage. This includes ranked search, queries DSL, aggregations and highlighting to mention a few things.</p>
+<p>You can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types.</p>
+</div>
+<div class="paragraph">
+<p>To extend the Guillotine application you need to create a file named <code>guillotine.js</code> in the <code>src/main/resources/guillotine</code> folder of your application.</p>
+</div>
+<div class="paragraph">
+<p>This file must export a <code>extensions</code> function with the following structure:</p>
 </div>
 <div class="listingblock">
-<div class="title">Query example: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author</div>
 <div class="content">
-<pre>{
-  guillotine {
-    queryDsl(query: {
-          term: {
-            field: "type",
-            value: {
-              string: "com.enonic.app.myapp:Post"
-            }
-          }
-        }){
-      ... on com_enonic_app_myapp_Post {
-        displayName
-      }
+<pre>exports.extensions = function (graphQL) {
+    return {
+        inputTypes: {
+            // input type definitions ...
+        },
+        enums: {
+            // enum type definitions ...
+        },
+        interfaces: {
+            // interfaces type definitions ...
+        },
+        unions: {
+            // unions type definitions ...
+        },
+        types: {
+            // output types definitions ...
+        },
+        creationCallbacks: {
+            // creation callback definitions ...
+        },
+        resolvers: {
+            // resolver definitions ...
+        },
+        typeResolvers: {
+            // type resolver definitions ...
+        }
     }
-  }
+};</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can omit any of the properties, but you must return an object with the same structure. The order of the properties is not important.</p>
+</div>
+<div class="paragraph">
+<p>The <code>extensions</code> function will be called when the application is started.</p>
+</div>
+<div class="paragraph">
+<p>Now let&#8217;s see that closer.</p>
+</div>
+<div class="sect2">
+<h3 id="graphql_argument"><a class="link" href="#graphql_argument">graphQL argument</a></h3>
+<div class="paragraph">
+<p>This function takes an <code>graphQL</code> argument, which is a reference to the GraphQL utility object.
+You can use it to use the following scalars, types, type modifiers and functions:</p>
+</div>
+<div class="sect3">
+<h4 id="scalars_and_types"><a class="link" href="#scalars_and_types">Scalars and Types</a></h4>
+<div class="paragraph">
+<p><code>GraphQLString</code>, <code>GraphQLInt</code>, <code>GraphQLID</code>, <code>GraphQLBoolean</code>, <code>GraphQLFloat</code>, <code>Json</code>, <code>DateTime</code>, <code>Date</code>, <code>LocalTime</code> <code>LocalDateTime</code> and <code>reference</code> type.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="type_modifiers"><a class="link" href="#type_modifiers">Type modifiers</a></h4>
+<div class="paragraph">
+<p>The <code>list</code> and <code>nonNull</code> type modifiers allow applies additional validation of those values.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="functions"><a class="link" href="#functions">Functions</a></h4>
+<div class="paragraph">
+<p><code>createDataFetcherResult</code> - allows to return object with <code>data</code> which will be as a source for children fields and provide a <code>localContext</code> to share unmodifiable data available in a child field using <code>env.localContext</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="inputtypes"><a class="link" href="#inputtypes">inputTypes</a></h3>
+<div class="paragraph">
+<p>This property is used to create custom input types.
+It must be an object with the following structure:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>inputTypes: {
+    &lt;InputTypeName&gt;: {
+        description: &lt;description&gt;
+        fields: {
+            &lt;fieldName&gt;: &lt;graphQLType&gt;,
+            // the rest of fields ...
+        },
+    },
+    // the rest of input type definitions ...
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>inputTypes: {
+    CustomInputFilter: {
+        description: "Custom Input Filter",
+        fields: {
+            exact: graphQL.GraphQLString,
+            startsWith: graphQL.GraphQLString,
+            endsWith: graphQL.GraphQLString,
+            contains: graphQL.GraphQLString
+        }
+    }
 }</pre>
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="follow_references"><a class="link" href="#follow_references">Follow references</a></h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="enums"><a class="link" href="#enums">enums</a></h3>
 <div class="paragraph">
-<p>References between content items are available via regular GraphQL fields, allowing you to traverse and extract details from referenced content.</p>
+<p>This property is used to create custom enums.
+It must be an object with the following structure:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>enums: {
+    &lt;EnumTypeName&gt;: {
+        description: &lt;description&gt;
+        values: {
+            &lt;key1&gt;: &lt;value1&gt;,
+            &lt;key2&gt;: &lt;value2&gt;,
+            // the rest of pairs of key and value ...
+        },
+    },
+    // the rest of enum type definitions ...
+}</pre>
+</div>
 </div>
 <div class="paragraph">
-<p>By default, each items has the following common reference fields:</p>
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>enums: {
+    CustomEnum: {
+        description: "Custom Enum",
+        values: {
+            a: "A",
+            b: "B",
+        }
+    }
+}</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="interfaces"><a class="link" href="#interfaces">interfaces</a></h3>
+<div class="paragraph">
+<p>This property is used to create custom interfaces.
+It must be an object with the following structure:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>interfaces: {
+    &lt;InterfaceTypeName&gt;: {
+        description: &lt;description&gt;
+        fields: {
+            &lt;fieldName&gt;: {
+               type: &lt;graphQLType&gt;,
+               args: {
+                 &lt;argName&gt;: &lt;graphQLType&gt;,
+                 // the rest of arguments ...
+               }
+            },
+            // the rest of field definitions ...
+        },
+    },
+    // the rest of interface definitions ...
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>interfaces: {
+    CustomInterface: {
+        description: "Custom Interface",
+        fields: {
+            query: {
+                type: graphQL.list(graphQL.GraphQLString),
+                args: {
+                    filter: graphQL.reference('CustomInputFilter')
+                }
+            }
+        },
+    }
+}</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="unions"><a class="link" href="#unions">unions</a></h3>
+<div class="paragraph">
+<p>This property is used to create custom unions.
+It must be an object with the following structure:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>unions: {
+    &lt;UnionTypeName&gt;: {
+        description: &lt;description&gt;,
+        types: [
+            &lt;graphQLType&gt;,
+            // the rest of types or reference to type ...
+        ],
+    },
+    // the rest union definitions ...
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>unions: {
+    CustomUnion: {
+        description: "Custom Union",
+        types: [
+            graphQL.reference('GraphQLTypeNameOne'),
+            graphQL.reference('GraphQLTypeNameTwo'),
+        ]
+    }
+}</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="types"><a class="link" href="#types">types</a></h3>
+<div class="paragraph">
+<p>This property is used to create object types. It must be an object with the following structure:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>types: {
+    &lt;GraphQLTypeName&gt;: {
+        description: &lt;description&gt;,
+        interfaces: [
+            &lt;InterfaceGraphQLType&gt;,
+            // the rest of interface types...
+        ],
+        fields: {
+            &lt;fieldName&gt;: {
+                type: &lt;graphQLType&gt;,
+                args: {
+                    &lt;argName&gt;: &lt;graphQLType&gt;,
+                    // the rest of arguments definitions ...
+                }
+            },
+            ...
+        },
+    },
+    ...
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>types: {
+    CustomInterfaceImpl: {
+        description: 'CustomInterface Implementation',
+        interfaces: [graphQL.reference('CustomInterface')],
+        fields: {
+            query: {
+                type: graphQL.list(graphQL.GraphQLString),
+                args: {
+                    filter: graphQL.reference('CustomInputFilter')
+                }
+            },
+            extraField: {
+                type: graphQL.GraphQLString,
+            }
+        }
+    }
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>According to GraphQL specification an implementation of an interface must implement all fields of the interface.</p>
+</div>
+<div class="sect3">
+<h4 id="creation_callbacks"><a class="link" href="#creation_callbacks">Creation callbacks</a></h4>
+<div class="paragraph">
+<p>This property is used to create callbacks that will be called during GraphQL schema generation when a specific type or interface is created.</p>
+</div>
+<div class="paragraph">
+<p>What you must know about creation callbacks:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>parent: the parent content item</p>
+<p>Creation callbacks can be defined only for types and interfaces.</p>
 </li>
 <li>
-<p>children: the child item(s) if any</p>
+<p>Creation callback allows to add new fields, modify and remove existing fields, modify description and interfaces for type. Rename of fields is not supported.</p>
+</li>
+<li>
+<p>Take aware that creation callbacks can be called not in the same order as them are defined in the <code>creationCallbacks</code> property.</p>
+</li>
+<li>
+<p>Creation callbacks can be defined in the different applications. Therefore, there is a risk to have conflicts which can lead to schema generation errors or query errors. Not recommended to make modification for Content API&#8217;s fields. But if you have to do it then make sure that it will not to introduce conflicts and side effects. The developer is fully responsible for that.</p>
+</li>
+<li>
+<p>If you add or modify some fields to the interface in the creation callback, you must do that for all implementations. Otherwise, you will get an error during schema generation.</p>
+</li>
+<li>
+<p>If you modify some field make sure that you implement correct data fetcher in the <code>resolvers</code> section. Otherwise, you can get an error during query execution.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>Schemas with ContentSelector, MediaSelector or ImageSelector will generate references to the target item(s).</p>
-</div>
-<div class="listingblock">
-<div class="title">Query example: Retrieve the display name of a specific content and the display name of its direct children</div>
-<div class="content">
-<pre>{
-  guillotine {
-    get(key: "/path/to/item") {
-      displayName
-      children {
-        displayName
-      }
-    }
-  }
-}</pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="accessing_images"><a class="link" href="#accessing_images">Accessing images</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Enonic XP can serve custom scaled images at runtime. Guillotine uses this functionality by using the "imageUrl" field which will generate a URL for the desired image size and crop.</p>
-</div>
-<div class="listingblock">
-<div class="title"><strong>Example: Scaled Image URL</strong> - Retrieve the image contents and generate absolute URLs to these images cropped to 800x200px</div>
-<div class="content">
-<pre>{
-  guillotine {
-    queryDsl(query: {
-          term: {
-            field: "type",
-            value: {
-              string: "media:image"
-            }
-          }
-        }){
-        displayName
-        ... on media_Image {
-          imageUrl(scale:"block(800,200)",type:absolute)
-        }
-    }
-  }
-}</pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="rich_text"><a class="link" href="#rich_text">Rich text</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Rich text fields provide configuration parameters that give you control over output from links, images and much more.</p>
-</div>
-<div class="listingblock">
-<div class="title"><strong>Example: Process HTML</strong> - Retrieve the blog posts. For each post, return its author display name, tags and processed content.</div>
-<div class="content">
-<pre>{
-  guillotine {
-    queryDsl(query: {
-          term: {
-            field: "type",
-            value: {
-              string: "com.enonic.app.myapp:post"
-            }
-          }
-        }){
-      ... on com_enonic_app_myapp_Post {
-        data {
-          author {
-            displayName
-          }
-          tags
-          post(processHtml:{type:absolute}) {
-             processedHtml
-          }
-        }
-      }
-    }
-  }
-}</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Rich text fields will typically include links, images and macros in the <code>processedHtml</code> field of the <a href="../api.ahtml#richtext">RichText</a> type. Below are further details how to handle this:</p>
-</div>
-<div class="sect2">
-<h3 id="links"><a class="link" href="#links">Links</a></h3>
-<div class="paragraph">
-<p>By default, all internal links to <code>media</code> or <code>content</code> will be replaced by an absolute (<code>server</code>) link relative to the context of your endpoint.</p>
-</div>
-<div class="paragraph">
-<p>For each <code>a</code> tag a <code>data-link-ref</code> attribute with referenced content Id will be added. Additional content related to the <code>links</code> field is available for custom processing by your client.</p>
-</div>
-<div class="paragraph">
-<p>For instance, the processed value of a link looks like below:</p>
+<p>This property must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-html" data-lang="html">&lt;p&gt;
-    &lt;a title="Tooltip"
-        href="/admin/site/preview/hmdb/draft/hmdb/persons/lea-seydoux"
-        data-link-ref="e72f48b6-a972-4133-a300-a3ab5d132800"&gt;Link 1&lt;/a&gt;
-&lt;/p&gt;</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The GraphQL query below will process links inside the field:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">query {
-  guillotine {
-    get(key: "contentID") {
-      ... on com_app_example_ContentType {
-        data {
-          htmlAreaField {
-            links {
-              ref          <i class="conum" data-value="1"></i><b>(1)</b>
-              uri          <i class="conum" data-value="2"></i><b>(2)</b>
-              media {      <i class="conum" data-value="3"></i><b>(3)</b>
-                content {
-                 _id
-                }
-                intent     <i class="conum" data-value="4"></i><b>(4)</b>
-              }
-              content {    <i class="conum" data-value="5"></i><b>(5)</b>
-                _id
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}</code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Reference to link in the processedHtml field</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Link URI</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Related media content. This field has <code>null</code> value for non-media content</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>Link intent. Available values <code>download</code> and <code>inline</code></td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Related content. This field has <code>null</code> value for media content</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="images"><a class="link" href="#images">Images</a></h3>
-<div class="paragraph">
-<p>Guillotine by default provides image processing in the <code>processedHtml</code> field of the RichText GraphQL type. All internal links to resources will be replaced by an absolute (<code>server</code>) link and for each <code>img</code> tag a <code>data-image-ref</code> attribute with referenced content Id will be added.
-Using that reference you will be able to find image details in the <code>images</code> field and to do custom image processing if needed.</p>
-</div>
-<div class="paragraph">
-<p>For instance, the processed value of an image looks like below:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-html" data-lang="html">&lt;figure class="editor-align-justify"&gt;
-    &lt;img alt="Alt text"
-         src="/site/repo/branch/appName/_/image/contentID/width-768/imageName.jpg"
-         data-image-ref="4f2439ff-ecef-4470-a4b4-d8929bce6ee2" /&gt;
-    &lt;figcaption&gt;Caption text&lt;/figcaption&gt;
-&lt;/figure&gt;</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The query below will process images inside the field:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">query {
-  guillotine {
-    get(key: "contentID") {
-      ... on com_app_example_ContentType {
-        data {
-          richTextField {
-            images {
-              ref                           <i class="conum" data-value="1"></i><b>(1)</b>
-              image {                       <i class="conum" data-value="2"></i><b>(2)</b>
-                ... imageFragment
-              }
-              style {                       <i class="conum" data-value="3"></i><b>(3)</b>
-                name
-                aspectRatio
-                filter
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
+<pre>creationCallbacks: {
+    &lt;GraphQLTypeName&gt;: function (params) {
+        // if you want to add new fields
+        params.addFields({
+            &lt;newFieldName&gt;: {
+                type: &lt;GraphQLType&gt;,
+                args: {
+                    &lt;argName&gt;: &lt;GraphQLType&gt;,
+                    // the rest of arguments definitions ...
+                },
+            },
+        });
 
-fragment imageFragment on Content {
-  _id
-  type
-  ... on media_Image {
-    data {
-      caption
-    }
-  }
-  ... on media_Vector {
-    data {
-      caption
-    }
-  }
-}</code></pre>
+        // if you want to remove existing fields
+        params.removeFields([
+             "fieldName 1",
+             "filedName 2",
+             // the rest of fieldName ...
+        ]);
+
+        // If you want to modify existing fields.
+        // Take aware that all arguments will be rewritten by new arguments.
+        // If type or args are not provided then will be used type and args from original field.
+        params.modifyFields({
+            &lt;existingFieldName&gt;: {
+                type: &lt;GraphQLType&gt;,
+                args: {
+                    &lt;argName&gt;: &lt;GraphQLType&gt;,
+                    // the rest of arguments definitions ...
+                },
+            },
+        });
+
+        // If you want to change description
+        params.setDescription("New description");
+
+        // If you want to add or remove some interfaces to object.
+        // Take aware that interfaces will be rewritten by new array of interfaces.
+        // Also, developer is responseble for implmentation of interface, do not forget to add all required fields.
+        params.setInterfaces([
+            &lt;GraphQLInterfaceType or GraphQLReferenceType&gt;
+        ]);
+    },
+    // the rest of creation callback definition ...
+}</pre>
 </div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Reference to an image in the processedHtml field</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Image as <a href="../api.ahtml#content">Content</a> type</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Image style as <a href="../api.ahtml#imagestyle">ImageStyle</a> type</td>
-</tr>
-</table>
 </div>
 <div class="paragraph">
-<p>Using the <code>processHtml</code> argument which has <a href="../api.ahtml#processhtmlinput">ProcessHtmlInput</a> type for a form item of type <code>HtmlArea</code> or for
-<code>TextComponent</code> field you can specify <code>imageWidths</code> to generate relevant links for specific widths of an image.
-In this case <code>srcset</code> attribute will be added to <code>img</code> tags.</p>
-</div>
-<div class="paragraph">
-<p>For instance, when using the following fragment of query:</p>
+<p>For example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">htmlAreaField(processHtml: { imageWidths: [600, 992] }){
-    processedHtml
-    images {
-      ref
-    }
-}</code></pre>
+<pre>creationCallbacks: {
+    MyCustomType: function (params) {
+        params.addFields({
+            extraField: {
+                type: graphQL.GraphQLString,
+            }
+        });
+
+        params.removeFields([
+            "fieldToRemove1",
+            "fieldToRemove2",
+        ]);
+
+        params.modifyFields({
+          fieldToModify: {
+            type: graphQL.GraphQLString,
+          }
+        });
+    },
+
+}</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The result will look as follows:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-html" data-lang="html">&lt;figure class="editor-align-justify"&gt;
-    &lt;img alt="Alt text"
-         src="/site/repo/branch/appName/_/image/contentID/width-768/imageName.jpg"
-         data-image-ref="4f2439ff-ecef-4470-a4b4-d8929bce6ee2"
-         srcset="/site/repo/branch/appName/_/image/contentID/width-600/imageName.jpg 600w,
-                 /site/repo/branch/appName/_/image/contentID/width-992/imageName.jpg 992w"/&gt;
-    &lt;figcaption&gt;Caption text&lt;/figcaption&gt;
-&lt;/figure&gt;</code></pre>
+<p>To know how to set or override data fetcher for a field you can refer to the <code>resolvers</code> section.</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="macros"><a class="link" href="#macros">Macros</a></h3>
+<h3 id="resolvers"><a class="link" href="#resolvers">resolvers</a></h3>
 <div class="paragraph">
-<p>Each macro will be translated to an <code>editor-macro</code> tag with <code>data-macro-ref</code> and <code>data-macro-name</code> attributes in the <code>processedHtml</code> field value. Using these references you will be able to find details of a specific macro in the <code>macrosAsJson</code> or <code>macros</code> fields and perform custom macro processing if needed.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Guillotine processes macros which have a descriptor and built-in macros called <code>disable</code> and <code>embed</code>, otherwise processing will be skipped. <a href="https://developer.enonic.com/docs/xp/stable/cms/macros">More details about macros</a>.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>For instance, we have an input form item called <code>description</code> of <code>HtmlArea</code> type which contains the <code>embed</code> macro as shown below:</p>
-</div>
-<div class="paragraph">
-<p><span class="image"><img src="images/embed-macro.png" alt="Embed Macro"></span></p>
-</div>
-<div class="paragraph">
-<p>The query below will fetch data for the <code>description</code> field:</p>
+<p>This property is used to set or override data fetcher for a field. It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">query {
-  guillotine {
-    get(key: "contentID") {
-      ... on com_app_example_ContentType {
-        data {
-          description {
-            raw            // (1)
-            processedHtml  // (2)
-            macrosAsJson   // (3)
-            macros {       // (4)
-              ref
-              name
-              descriptor
-              config {
-                embed {
-                  body
+<pre>resolvers: {
+    &lt;GraphQLTypeName&gt;: {
+        &lt;fieldName&gt;: function (env) {
+            // your code here
+        },
+        // the rest of field resolvers ...
+    },
+    // the rest of type resolvers ...
+}</pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="application_context"><a class="link" href="#application_context">Application context</a></h4>
+<div class="paragraph">
+<p>You can assume that inside resolver function you have access to the application context where extension is defined and can use <code>app.name</code> or <code>app.config</code> properties. But in the real that will be context for Guillotine application and those properties will return <code>com.enonic.app.guillotine</code> and an actual config for Guillotine application.</p>
+</div>
+<div class="paragraph">
+<p>If you need to have access in the resolver to the application context where extension is defined, then you can store these values outside <code>exports.extensions</code>.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>const appName = app.name;
+const appConfig = app.config;
+
+exports.extensions = function (graphQL) {
+    return {
+        ...
+        resolvers: {
+            MyCustomType: {
+                myCustomField: function (env) {
+                    // here you can use `appName` and `appConfig`
                 }
-              }
             }
-          }
-        }
-      }
-    }
-  }
-}</code></pre>
+        },
+        ...
+   }
+}</pre>
 </div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Non-processed value of the <code>description</code> field</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Processed value of the <code>description</code> field</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Array of processed macros in JSON format. The order of macros will be the same as in the <code>raw</code> and <code>processedHtml</code> fields.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td><a href="api.ahtml#macro">Macro</a> allows to specify necessary fields. That field is an alternative for <code>macroAsJson</code> field</td>
-</tr>
-</table>
 </div>
 <div class="paragraph">
-<p>Results of the query:</p>
+<p>If the configuration of application is changed, then that will trigger restart of the application and Guillotine will update GraphQL schema. In the result you will have actual state of app.config in the resolver.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="datafetchingenvironment"><a class="link" href="#datafetchingenvironment">DataFetchingEnvironment</a></h4>
+<div class="paragraph">
+<p>A DataFetchingEnvironment instance (env) is passed to a DataFetcher as an execution context, and it&#8217;s the place where you can find information to help you resolve a data value given a GraphQL field input.</p>
 </div>
 <div class="paragraph">
-<p><span class="image"><img src="images/embed-response-example.png" alt="Response for embed macro"></span></p>
+<p>Guillotine provides the following properties and function in the DataFetchingEnvironment:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>source</code> - it is the value of the parent field. For the root query it is equal to <code>null</code>.</p>
+</li>
+<li>
+<p><code>args</code> - the arguments provided to the field in the GraphQL query.</p>
+</li>
+<li>
+<p><code>localContext</code> - a context object that parent fields may have returned. This object  is unmodifiable.</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p>It is common to define a <a href="https://developer.enonic.com/docs/xp/stable/cms/macros#descriptor">schema for your macro</a>. This is located in the <code>/site/macros/</code> directory. For instance, for a macro with name <code>testmacro</code> the schema must be placed at <code>/site/macros/testmacro/testmacro.xml</code></p>
+<p>Guillotine Content API supports the following additional properties in <code>localContext</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>__targetProject</code> - the current project, can be provided as the <code>project</code> argument for <code>guillotine</code> field. To read value of this property you can use <code>env.localContext.__targetProject</code>.</p>
+</li>
+<li>
+<p><code>__targetBranch</code> - the current branch, can be provided as the <code>branch</code> argument for <code>guillotine</code> field. To read value of this property you can use <code>env.localContext.__targetBranch</code>.</p>
+</li>
+<li>
+<p><code>__targetSiteKey</code> - the key of a site, can be provided as the <code>siteKey</code> argument for <code>guillotine</code> field. To read value of this property you can use <code>env.localContext.__targetSiteKey</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The <code>localContext</code> object supports value types such as <code>string</code>, <code>double</code>, <code>integer</code>, <code>boolean</code>, and <code>null</code>. Keys with a value equal to <code>null</code> will be ignored. If you need to provide as a value a complex object, you can use the <code>JSON.stringify</code> function to convert it to a string.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="createdatafetcherresult"><a class="link" href="#createdatafetcherresult">createDataFetcherResult</a></h4>
+<div class="paragraph">
+<p>Guillotine provides <code>createDataFetcherResult</code> function via <code>graphQL</code> object. This function will be useful when your <code>DataFetcher</code> retrieves data from multiple sources, or you want to pass extra context to lower levels.</p>
+</div>
+<div class="paragraph">
+<p>The <code>createDataFetcherResult</code> function accepts an object with the following properties:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>data - the data to return, must not be <code>null</code>. Object must be wrapped by <code>__.toScriptValue</code> function.</p>
+</li>
+<li>
+<p>localContext - a context object that will be passed to the lower levels. This object is unmodifiable.</p>
+</li>
+<li>
+<p>parentLocalContext - a context object that parent fields may have returned.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <code>parentLocalContext</code> is not provided, then <code>localContext</code> will override <code>parentLocalContext</code>. Otherwise, <code>localContext</code> will be merged with <code>parentLocalContext</code> and <code>localContext</code> will override <code>parentLocalContext</code> if they have the same keys.</p>
+</div>
+<div class="paragraph">
+<p>If <code>localContext</code> is not provided, then <code>parentLocalContext</code> will be used as <code>localContext</code>.</p>
+</div>
+<div class="paragraph">
+<p>Below you can find an example of how to use <code>createDataFetcherResult</code> function:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;macro&gt;
-  &lt;display-name&gt;Current user&lt;/display-name&gt;
-  &lt;description&gt;Shows currently logged user&lt;/description&gt;
-  &lt;form&gt;
-    &lt;input name="defaulttext" type="TextLine"&gt;
-      &lt;label&gt;Text to show if no user logged in&lt;/label&gt;
-    &lt;/input&gt;
-  &lt;/form&gt;
-&lt;/macro&gt;</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><span class="image"><img src="images/custom-macro.png" alt="Custom Macro"></span></p>
-</div>
-<div class="paragraph">
-<p>Executing the query below will give your value of the <code>defaultText</code> input, as defined in the above schema.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">query {
-  guillotine {
-    get(key: "contentID") {
-      ... on com_app_example_ContentType {
-        data {
-          description {
-            macros {
-              ref
-              name
-              descriptor
-              config {
-                testmacro {
-                  defaultText
+<pre>exports.extensions = function (graphQL) {
+    return {
+        ...
+        resolvers: {
+            MyCustomType: {
+                myCustomField: function (env) {
+                    return graphQL.createDataFetcherResult({
+                        data: __.toScriptValue({
+                           id: "100",
+                        }),
+                        localContext: {
+                            parentId: "101",
+                        },
+                        parentLocalContext: env.localContext,
+                    });
                 }
-              }
             }
-          }
+        },
+        ...
+   }
+}</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="typeresolvers"><a class="link" href="#typeresolvers">typeResolvers</a></h3>
+<div class="paragraph">
+<p>This property is used to set or override type resolver for a union or interface. It must be an object with the following structure:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>typeResolvers: {
+    &lt;GraphQLTypeName&gt;: function (obj) {
+        // your code here
+    },
+    // the rest of type resolvers ...
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>typeResolvers: {
+    CustomInterface: function (obj) {
+        return 'CustomInterfaceImpl';
+    },
+    CustomUnion: function (obj) {
+        if (obj.title) {
+            return 'GraphQLTypeNameOne';
         }
-      }
-    }
-  }
-}</code></pre>
+        return 'GraphQLTypeNameTwo';
+    },
+}</pre>
 </div>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="xdata"><a class="link" href="#xdata">xData</a></h2>
+<h2 id="example_of_usage"><a class="link" href="#example_of_usage">Example of usage</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Enonic XP supports dynamically extending content with fields from other schemas/applications - so-called eXtra Data.</p>
-</div>
-<div class="paragraph">
-<p>In the query below, we access the SoMe (SocialMedia) fields that have been used to extend the Person content type.</p>
+<p>Let&#8217;s imagine that we have to extend the GraphQL schema with a new type <code>GoogleBooks</code> and add a new field <code>findBooks</code> to the <code>Query</code> type to be able to find books by query string. To execute requests to Google Books API we will use <code>lib-http-client</code> library.</p>
 </div>
 <div class="listingblock">
-<div class="title">Example: Access xData fields</div>
 <div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine {
-    query(key: "contentID") {
-      displayName
-      x {
-      	com_example_myproject {
-          SoMe {
-          	imdb
-          }
+<pre>dependencies {
+    include 'com.enonic.lib:lib-http-client:3.2.2'
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In our application we have to create a new file <code>src/main/resources/guillotine/guillotine.js</code> if it absent and add the following content:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>const httpClient = require('/lib/http-client');
+
+const GOOGLE_BOOKS_API_KEY = app.config.googleBooksApiKey;
+
+exports.extensions = function (graphQL) {
+    return {
+        types: {
+            GoogleBooks: {
+                description: 'Google Books Type',
+                fields: {
+                    id: {
+                        type: graphQL.GraphQLString,
+                    },
+                    title: {
+                        type: graphQL.GraphQLString,
+                    },
+                    authors: {
+                        type: graphQL.list(graphQL.GraphQLString),
+                    },
+                    publisher: {
+                        type: graphQL.GraphQLString,
+                    },
+                    publishedDate: {
+                        type: graphQL.GraphQLString,
+                    },
+                    description: {
+                        type: graphQL.GraphQLString,
+                    },
+                    pageCount: {
+                        type: graphQL.GraphQLInt,
+                    },
+                    language: {
+                        type: graphQL.GraphQLString,
+                    },
+                    averageRating: {
+                        type: graphQL.GraphQLFloat,
+                    },
+                }
+            },
+        },
+        creationCallbacks: {
+            Query: function (params) {
+                params.addFields({
+                    findBooks: {
+                        type: graphQL.list(graphQL.reference('GoogleBooks')),
+                        args: {
+                            queryString: graphQL.GraphQLString,
+                        }
+                    }
+                });
+            },
+        },
+        resolvers: {
+            Query: {
+                findBooks: function (env) {
+                    const response = sendRequestToBooksApi(env.args.queryString);
+
+                    return response.items.map(function (item) {
+                        const volumeInfo = item.volumeInfo;
+
+                        return {
+                            id: item.id,
+                            title: volumeInfo.title,
+                            authors: volumeInfo.authors,
+                            publisher: volumeInfo.publisher,
+                            publishedDate: volumeInfo.publishedDate,
+                            description: volumeInfo.description,
+                            pageCount: volumeInfo.pageCount,
+                            language: volumeInfo.language,
+                            averageRating: volumeInfo.averageRating,
+                        }
+                    });
+                }
+            }
+        },
+    }
+};
+
+function sendRequestToBooksApi(queryString) {
+    const response = httpClient.request({
+        url: 'https://www.googleapis.com/books/v1/volumes',
+        method: 'GET',
+        contentType: 'application/json',
+        queryParams: {
+            q: queryString,
+            key: GOOGLE_BOOKS_API_KEY,
         }
-      }
-    }
-  }
-}</code></pre>
-</div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Notice that xData fields are grouped by application name, this ensures there will never be a conflict between field names, even when schemas come from different applications.
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="site_context"><a class="link" href="#site_context">Site context</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>When building websites, you will create root content item of type site. It is practical not having to know the exact location of the site within the project structure.</p>
-</div>
-<div class="paragraph">
-<p>By passing a special HTTP header along the query, you get access to some useful features:</p>
-</div>
-<div class="sect2">
-<h3 id="set_header"><a class="link" href="#set_header">Set header</a></h3>
-<div class="paragraph">
-<p>You need to specify the following HTTP header in your client:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>X-Guillotine-SiteKey: IdOrPathToYourSite</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Using Query playground, add the following to the HTTP headers config - remember to replace with a proper site ID:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>{
-  "X-Guillotine-SiteKey": "IdOrPathToYourSite"
+    });
+    return JSON.parse(response.body);
 }</pre>
 </div>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-SiteKey is either the ID of the site content item, or the path to the site within your project.
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="getsite"><a class="link" href="#getsite">getSite</a></h3>
 <div class="paragraph">
-<p>With the site context set, you may run queries to access the site content using getSite field</p>
+<p>This example is very simple and does not cover all possible cases. For example, it does not handle errors from the Google Books API, does not cache values and, etc. But it shows how to extend the GraphQL schema with a new type and a new field.</p>
 </div>
-<div class="listingblock">
-<div class="title">Example: Acessing the displayName of the site</div>
-<div class="content">
-<pre>{
-  guillotine {
-    getSite{
-        displayName
-    }
-  }
-}</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="path_placeholder"><a class="link" href="#path_placeholder">Path placeholder</a></h3>
 <div class="paragraph">
-<p>Use the <code>${site}</code> placeholder when querying for path&#8217;s within the site.</p>
-</div>
-<div class="listingblock">
-<div class="title">Example: Acessing content within specific path of a site</div>
-<div class="content">
-<pre>{
-  guillotine {
-    getChildren(key: "${site}/persons"){
-      displayName
-      ... on com_example_myproject_Person {
-        data {
-          dateofbirth
-        }
-      }
-    }
-  }
-}</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="site_relative_paths"><a class="link" href="#site_relative_paths">Site relative paths</a></h3>
-<div class="paragraph">
-<p>Finally, you may retrieve site relative paths - which may be useful when generating site relative URLs for instance.</p>
-</div>
-<div class="listingblock">
-<div class="title">Example: Retrive site relative item paths</div>
-<div class="content">
-<pre>{
-  guillotine {
-    getChildren(key: "${site}/persons"){
-      displayName
-      _path(type: siteRelative)
-    }
-  }
-}</pre>
-</div>
-</div>
+<p>You can separate definitions of types, creationCallbacks, resolvers and the rest of options into different files and import them into the <code>guillotine.js</code> file, to make your code more readable and maintainable.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-21 16:51:31 UTC
+Last updated 2023-12-27 09:46:47 UTC
 </div>
 </div>
 </body>

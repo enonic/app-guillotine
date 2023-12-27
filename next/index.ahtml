@@ -497,7 +497,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>A basic introduction to using the API, with hands on example queries.</p>
 </div>
 <div class="paragraph">
-<p>Learn more about <a href="usage.ahtml">how to use the API</a>.</p>
+<p>Learn more about <a href="query-examples.ahtml">how to use the API</a>.</p>
 </div>
 </div>
 </div>
@@ -526,7 +526,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-21 16:51:31 UTC
+Last updated 2023-12-27 09:46:47 UTC
 </div>
 </div>
 </body>
