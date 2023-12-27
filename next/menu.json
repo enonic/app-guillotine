@@ -26,7 +26,13 @@
     },
     {
       "title": "Release Notes",
-      "document": "release"
+      "document": "release",
+      "menuItems": [
+        {
+          "title": "Upgrade Notes",
+          "document": "upgradenotes"
+        }
+      ]
     }
   ]
 }
