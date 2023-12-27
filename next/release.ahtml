@@ -487,11 +487,11 @@ This release includes <a href="#breaking_changes">breaking changes</a>
 </dd>
 <dt class="hdlist1">LocalContext</dt>
 <dd>
-<p>LocalContext allows sharing data between parent and child fields. See <a href="extensions.ahtml#_datafetchingenvironment">here</a> for more information.</p>
+<p>LocalContext allows sharing data between parent and child fields. See <a href="extensions.ahtml#datafetchingenvironment">here</a> for more information.</p>
 </dd>
 <dt class="hdlist1"><code>createDataFetcherResult</code> function</dt>
 <dd>
-<p>This function allows you to create a <code>DataFetcherResult</code> object with the <code>data</code> and <code>localContext</code> fields to be returned from the data fetcher. See more information <a href="extensions.ahtml#_createdatafetcherresult">here</a>.</p>
+<p>This function allows you to create a <code>DataFetcherResult</code> object with the <code>data</code> and <code>localContext</code> fields to be returned from the data fetcher. See more information <a href="extensions.ahtml#createdatafetcherresult">here</a>.</p>
 </dd>
 </dl>
 </div>
@@ -516,7 +516,7 @@ This release includes <a href="#breaking_changes">breaking changes</a>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-27 13:31:08 UTC
+Last updated 2023-12-27 13:34:42 UTC
 </div>
 </div>
 </body>
