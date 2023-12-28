@@ -551,44 +551,64 @@ const graphQlLib = require('/lib/graphql');
 const schema = guillotineLib.createSchema({
     creationCallbacks: {
         'com_enonic_app_myapp_Author_Data': function(context, params){
-            params.fields.fullName = {
+            params.fields.fullName = { // (1)
                  type: graphQlLib.GraphQLString,
                  resolve: function (env) {
                      return env.source.firstName + ' ' + env.source.lastName;
                  }
-             };
-            params.fields.email.resolve = function (env) {
+            };
+
+            params.fields.email.resolve = function (env) { // (2)
                 return authLib.hasRole('system.admin') ? env.source.email : null;
             };
-            delete params.fields.birthDate;
+
+            delete params.fields.birthDate; // (3)
         },
     }
 });</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Then we can migrate it to the Guillotine application in the following way:</p>
+<p>In this example we made the following changes:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Added a new <code>fullName</code> field to the <code>com_enonic_app_myapp_Author_Data</code> type. Pay attention that the declaration of the field is done by declaring a data fetcher.</p>
+</li>
+<li>
+<p>Override the default data fetcher with our own data fetcher containing custom logic.</p>
+</li>
+<li>
+<p>Removed the <code>birthDate</code> field from <code>com_enonic_app_myapp_Author_Data</code> type.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Now, let&#8217;s see how to migrate this code using <code>extensions</code> from the Guillotine application:</p>
+</div>
+<div class="paragraph">
+<p>First what we need to create a <code>guillotine.js</code> file in the <code>src/main/resources/guillotine</code> folder. Then we can make the same changes for <code>com_enonic_app_myapp_Author_Data</code> type, but in the different way.</p>
 </div>
 <div class="listingblock">
-<div class="title">File <code>src/main/resources/guillotine/guillotine.js</code> in your application:</div>
 <div class="content">
 <pre class="highlight"><code class="language-javascript" data-lang="javascript">const authLib = require('/lib/xp/auth');
 
-exports.extensions = function (graphQL) {
+exports.extensions = function (graphQL) { // (1)
     return {
         creationCallbacks: {
-            com_enonic_app_myapp_Author_Data: function (params) {
+            com_enonic_app_myapp_Author_Data: function (params) { // (2)
                 params.addFields({
-                    fullName: {
+                    fullName: { // (3)
                         type: graphQL.GraphQLString,
                     }
                 });
 
-                params.removeFields(['birthDate']);
+                params.removeFields(['birthDate']); // (4)
             },
         },
         resolvers: {
-            com_enonic_app_myapp_Author_Data: {
+            com_enonic_app_myapp_Author_Data: { // (5)
                 fullName: function (env) {
                     return env.source.firstName + ' ' + env.source.lastName;
                 },
@@ -601,12 +621,40 @@ exports.extensions = function (graphQL) {
 };</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>This code has the following important things:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Inside the <code>extenstions</code> function we will return object with <code>creationCallbacks</code> and <code>resolvers</code> properties.</p>
+</li>
+<li>
+<p>To make changes for <code>com_enonic_app_myapp_Author_Data</code> type in the <code>creationCallbacks</code> we need to add the property as named function <code>com_enonic_app_myapp_Author_Data</code> which has the <code>params</code> argument. Using params object we can add, modify and remove fields, set description and override interfaces for type.</p>
+</li>
+<li>
+<p>Then we add the <code>fullName</code> field with <code>String</code> type and without arguments.</p>
+</li>
+<li>
+<p>Then we remove <code>birthDate</code> field. The <code>removeFields</code> function applies an arrays of string with field names which must be removed.</p>
+</li>
+<li>
+<p>Then to set a data fetcher for <code>fullName</code> and <code>email</code> fields we must use the <code>resolvers</code> property of the returned object. Where in the same way, inside the <code>resolvers</code> property we must define the <code>com_enonic_app_myapp_Author_Data</code> object with respectively properties as field names and implement data fetcher functions.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>That it, our migration is done.</p>
+</div>
+<div class="paragraph">
+<p>To know more about extensions you can refer to this <a href="extensions.ahtml">page</a>.</p>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-27 15:38:14 UTC
+Last updated 2023-12-28 16:08:32 UTC
 </div>
 </div>
 </body>
