@@ -1,7 +1,0 @@
-query {
-    guillotine(project: "myproject", branch: "draft") {
-        get(key: "/a/b"){
-            _path
-        }
-    }
-}

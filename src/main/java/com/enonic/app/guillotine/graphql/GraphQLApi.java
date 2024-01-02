@@ -174,29 +174,16 @@ public class GraphQLApi
         new TypeFactory( context, serviceFacadeSupplier.get() ).createTypes();
         GraphQLObjectType guillotineApi = new HeadlessCmsTypeFactory( context, serviceFacadeSupplier.get() ).create();
 
-        Map<String, Object> guillotineFieldArguments = new HashMap<>();
-        guillotineFieldArguments.put( "project", Scalars.GraphQLString );
-        guillotineFieldArguments.put( "branch", Scalars.GraphQLString );
-        guillotineFieldArguments.put( "siteKey", Scalars.GraphQLString );
-
         Map<String, Object> guillotineFieldOptions = new HashMap<>();
         guillotineFieldOptions.put( "type", guillotineApi );
-        guillotineFieldOptions.put( "args", guillotineFieldArguments );
 
         OutputObjectCreationCallbackParams guillotineQueryCreationCallback = new OutputObjectCreationCallbackParams();
         guillotineQueryCreationCallback.addFields( Map.of( "guillotine", guillotineFieldOptions ) );
 
         typesRegister.addCreationCallback( "Query", guillotineQueryCreationCallback );
 
-        typesRegister.addResolver( "Query", "guillotine", environment -> {
-            final Map<String, Object> localContext = new HashMap<>();
-
-            localContext.computeIfAbsent( Constants.GUILLOTINE_TARGET_PROJECT_CTX, v -> environment.getArgument( "project" ) );
-            localContext.computeIfAbsent( Constants.GUILLOTINE_TARGET_BRANCH_CTX, v -> environment.getArgument( "branch" ) );
-            localContext.computeIfAbsent( Constants.GUILLOTINE_TARGET_SITE_CTX, v -> environment.getArgument( "siteKey" ) );
-
-            return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
-        } );
+        typesRegister.addResolver( "Query", "guillotine", environment -> DataFetcherResult.newResult().data( new Object() ).localContext(
+            Collections.unmodifiableMap( new HashMap<>() ) ).build() );
 
         typesRegister.addAdditionalType( context.getAllTypes() );
 
