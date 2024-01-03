@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>interfaces</title>
+<title>inputTypes</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -434,40 +434,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article toc2 toc-right">
+<body class="article">
 <div id="header">
-<div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#interfaces">interfaces</a></li>
-</ul>
-</div>
+<h1>inputTypes</h1>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="interfaces"><a class="link" href="#interfaces">interfaces</a></h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>This property is used to create custom interfaces.
-It must be an object with the following structure:</p>
+<p>This property is used to create custom input types. It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">interfaces: {
-    &lt;InterfaceTypeName&gt;: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">inputTypes: {
+    &lt;InputTypeName&gt;: {
         description: &lt;description&gt;
         fields: {
-            &lt;fieldName&gt;: {
-               type: &lt;graphQLType&gt;,
-               args: {
-                 &lt;argName&gt;: &lt;graphQLType&gt;,
-                 // the rest of arguments ...
-               }
-            },
-            // the rest of field definitions ...
+            &lt;fieldName&gt;: &lt;graphQLType&gt;,
+            // the rest of fields ...
         },
     },
-    // the rest of interface definitions ...
+    // the rest of input type definitions ...
 }</code></pre>
 </div>
 </div>
@@ -476,27 +461,23 @@ It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">interfaces: {
-    CustomInterface: {
-        description: "Custom Interface",
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">inputTypes: {
+    CustomInputFilter: {
+        description: "Custom Input Filter",
         fields: {
-            query: {
-                type: graphQL.list(graphQL.GraphQLString),
-                args: {
-                    filter: graphQL.reference('CustomInputFilter')
-                }
-            }
-        },
+            exact: graphQL.GraphQLString,
+            startsWith: graphQL.GraphQLString,
+            endsWith: graphQL.GraphQLString,
+            contains: graphQL.GraphQLString
+        }
     }
 }</code></pre>
 </div>
 </div>
 </div>
-</div>
-</div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-03 14:50:51 UTC
+Last updated 2024-01-03 15:36:50 UTC
 </div>
 </div>
 </body>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Release Notes</title>
+<title>typeResolvers</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -434,148 +434,50 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article toc2 toc-right">
+<body class="article">
 <div id="header">
-<h1>Release Notes</h1>
-<div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#guillotine_6_update_2">Guillotine 6 Update 2</a>
-<ul class="sectlevel2">
-<li><a href="#release_features">Release features</a></li>
-</ul>
-</li>
-<li><a href="#guillotine_6_update_1">Guillotine 6 Update 1</a>
-<ul class="sectlevel2">
-<li><a href="#release_features_2">Release features</a></li>
-<li><a href="#deprecations">Deprecations</a></li>
-</ul>
-</li>
-<li><a href="#guillotine_6">Guillotine 6</a>
-<ul class="sectlevel2">
-<li><a href="#release_features_3">Release features</a></li>
-<li><a href="#breaking_changes">Breaking changes</a></li>
-</ul>
-</li>
-</ul>
-</div>
+<h1>typeResolvers</h1>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="guillotine_6_update_2"><a class="link" href="#guillotine_6_update_2">Guillotine 6 Update 2</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="release_features"><a class="link" href="#release_features">Release features</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Upgrade GraphiQL to version 2.x.</p>
-</li>
-<li>
-<p>Make Query Playground available on GET <code>/site/&lt;repo&gt;</code> endpoint.</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="guillotine_6_update_1"><a class="link" href="#guillotine_6_update_1">Guillotine 6 Update 1</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="release_features_2"><a class="link" href="#release_features_2">Release features</a></h3>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Query DSL and Highlight</dt>
-<dd>
-<div class="ulist">
-<ul>
-<li>
-<p>Deprecated fields <code>query</code> and <code>queryConnection</code> in <a href="api.ahtml#fields_2">Query type</a> are replaced with <code>queryDsl</code> and <code>queryDslConnection</code> for DSL expressions.</p>
-</li>
-<li>
-<p>Added new input types for <a href="api.ahtml#query_dsl_input_types">Query DSL</a> and <a href="api.ahtml#highlight_input_types">Highlight</a></p>
-</li>
-<li>
-<p>Added new <a href="api.ahtml#enum_types">Enum types</a> for DSL and Highlight</p>
-</li>
-</ul>
-</div>
-</dd>
-</dl>
-</div>
-</div>
-<div class="sect2">
-<h3 id="deprecations"><a class="link" href="#deprecations">Deprecations</a></h3>
 <div class="paragraph">
-<p><code>query</code> and <code>queryConnection</code> fields in <a href="api.ahtml#fields_2">Query type</a> are deprecated and will be removed in Guillotine 7.</p>
+<p>This property is used to set or override type resolver for a union or interface. It must be an object with the following structure:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+    typeResolvers: {
+        &lt;GraphQLTypeName&gt;: function (obj) {
+            // your code here
+        },
+        // the rest of type resolvers ...
+    }
+}</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>For example:</p>
 </div>
-</div>
-<div class="sect1">
-<h2 id="guillotine_6"><a class="link" href="#guillotine_6">Guillotine 6</a></h2>
-<div class="sectionbody">
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-This release includes <a href="#breaking_changes">breaking changes</a>
-</td>
-</tr>
-</table>
-</div>
-<div class="sect2">
-<h3 id="release_features_3"><a class="link" href="#release_features_3">Release features</a></h3>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Project level API</dt>
-<dd>
-<p>The Guillotine app now mounts to the root of all projects - automatically provisioning an API to all project branches root i.e. <code>/site/&lt;myproject&gt;/&lt;branch&gt;</code>.</p>
-</dd>
-<dt class="hdlist1">Dynamic site context</dt>
-<dd>
-<p>With the API now being project-relative, setting the site context in a header enable you to <a href="usage.ahtml#site_context">perform site relative queries</a>.</p>
-</dd>
-<dt class="hdlist1">Global schema</dt>
-<dd>
-<p>The GraphQL type schema is generated from all available schemas (across all installed apps) in the Enonic instance.</p>
-</dd>
-<dt class="hdlist1">Content Studio API browser</dt>
-<dd>
-<p>Guillotine also features an embedded GraphQL API browser called <a href="clients.ahtml#query_playground">Query playground</a>. Query Playground is available directly in Content Studio, in context of your projects.</p>
-</dd>
-<dt class="hdlist1">Typed x-data schemas</dt>
-<dd>
-<p>Like for all other schemas, x-data are now also fully typed - grouped by application key. See <a href="usage.ahtml#xdata">examples of xData usage</a></p>
-</dd>
-</dl>
-</div>
-</div>
-<div class="sect2">
-<h3 id="breaking_changes"><a class="link" href="#breaking_changes">Breaking changes</a></h3>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Site deployment removed</dt>
-<dd>
-<p>You may no longer add this application to a site, and get a contextual API. Use the <a href="usage.ahtml#site_context">site context header</a>, or <a href="embed.ahtml">embed Guillotine</a> in your application to replicate this functionality.</p>
-</dd>
-<dt class="hdlist1">ItemSet and OptionSet type name fix</dt>
-<dd>
-<p>Previously, their types were erroneously generated from their schema label, rather than name. Clients using these types through introspection will break if label and name are different in the schemas.</p>
-</dd>
-</dl>
-</div>
-</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+    typeResolvers: {
+        CustomInterface: function (obj) {
+            return 'CustomInterfaceImpl';
+        },
+        CustomUnion: function (obj) {
+            if (obj.title) {
+                return 'GraphQLTypeNameOne';
+            }
+            return 'GraphQLTypeNameTwo';
+        },
+    }
+}</code></pre>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-03 15:36:36 UTC
+Last updated 2024-01-03 15:36:50 UTC
 </div>
 </div>
 </body>

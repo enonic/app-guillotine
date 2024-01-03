@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>enums</title>
+<title>Extending</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,58 +436,245 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
+<h1>Extending</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#enums">enums</a></li>
+<ul class="sectlevel2">
+<li><a href="#scalars_and_types">Scalars and Types</a></li>
+<li><a href="#type_modifiers">Type modifiers</a></li>
+<li><a href="#functions">Functions</a></li>
+<li><a href="#example_of_usage">Example of usage</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="enums"><a class="link" href="#enums">enums</a></h2>
+<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This property is used to create custom enums.
-It must be an object with the following structure:</p>
+<p>You can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types.</p>
+</div>
+<div class="paragraph">
+<p>To extend the Guillotine application you need to create a file named <code>guillotine.js</code> in the <code>src/main/resources/guillotine</code> folder of your application.</p>
+</div>
+<div class="paragraph">
+<p>This file must export a <code>extensions</code> function with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">enums: {
-    &lt;EnumTypeName&gt;: {
-        description: &lt;description&gt;
-        values: {
-            &lt;key1&gt;: &lt;value1&gt;,
-            &lt;key2&gt;: &lt;value2&gt;,
-            // the rest of pairs of key and value ...
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.extensions = function (graphQL) {
+    return {
+        inputTypes: { <i class="conum" data-value="1"></i><b>(1)</b>
+            // input type definitions ...
         },
-    },
-    // the rest of enum type definitions ...
+        enums: { <i class="conum" data-value="2"></i><b>(2)</b>
+            // enum type definitions ...
+        },
+        interfaces: { <i class="conum" data-value="3"></i><b>(3)</b>
+            // interfaces type definitions ...
+        },
+        unions: { <i class="conum" data-value="4"></i><b>(4)</b>
+            // unions type definitions ...
+        },
+        types: { <i class="conum" data-value="5"></i><b>(5)</b>
+            // output types definitions ...
+        },
+        creationCallbacks: { <i class="conum" data-value="6"></i><b>(6)</b>
+            // creation callback definitions ...
+        },
+        resolvers: { <i class="conum" data-value="7"></i><b>(7)</b>
+            // resolver definitions ...
+        },
+        typeResolvers: { <i class="conum" data-value="8"></i><b>(8)</b>
+            // type resolver definitions ...
+        }
+    }
+};</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>inputTypes</code> property allows you to define new input types. More information about usage of input types you can find <a href="extending/input-types.ahtml">here</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>enums</code> property allows you to define new enum types. More information about usage of enums you can find <a href="extending/enums.ahtml">here</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <code>interfaces</code> property allows you to define new interfaces. More information about usage of interfaces you can find <a href="extending/interfaces.ahtml">here</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>The <code>unions</code> property allows you to define new unions. More information about usage of unions you can find <a href="extending/unions.ahtml">here</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>The <code>types</code> property allows you to define new output types. More information about usage of types you can find <a href="extending/types.ahtml">here</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>The <code>creationCallbacks</code> property allows you to set or override data fetcher for a field. More information about usage of creation callbacks you can find <a href="extending/creation-callbacks.ahtml">here</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>The <code>resolvers</code> property allows you to set or override type resolver for a type. More information about usage of resolvers you can find <a href="extending/resolvers.ahtml">here</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>The <code>typeResolvers</code> property allows you to set or override type resolver for an interface or a union. More information about usage of type resolvers you can find <a href="extending/type-resolvers.ahtml">here</a>.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>You can omit any of the properties, but you must return an object with the same structure. The order of the properties is not important.</p>
+</div>
+<div class="paragraph">
+<p>This function will be called when the application is started. Also, this function takes an <code>graphQL</code> argument, which is a reference to the GraphQL utility object and provides to access to scalars, types, type modifiers and functions.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="scalars_and_types"><a class="link" href="#scalars_and_types">Scalars and Types</a></h3>
+<div class="paragraph">
+<p><code>GraphQLString</code>, <code>GraphQLInt</code>, <code>GraphQLID</code>, <code>GraphQLBoolean</code>, <code>GraphQLFloat</code>, <code>Json</code>, <code>DateTime</code>, <code>Date</code>, <code>LocalTime</code> <code>LocalDateTime</code> and <code>reference</code> type.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="type_modifiers"><a class="link" href="#type_modifiers">Type modifiers</a></h3>
+<div class="paragraph">
+<p>The <code>list</code> and <code>nonNull</code> type modifiers allow applies additional validation of those values.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="functions"><a class="link" href="#functions">Functions</a></h3>
+<div class="paragraph">
+<p><code>createDataFetcherResult</code> - allows to return object with <code>data</code> which will be as a source for children fields and provide a <code>localContext</code> to share unmodifiable data available in a child field using <code>env.localContext</code>.</p>
+</div>
+</div>
+<div class="sect1">
+<h2 id="example_of_usage"><a class="link" href="#example_of_usage">Example of usage</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Let&#8217;s imagine that we have to extend the GraphQL schema with a new type <code>GoogleBooks</code> and add a new field <code>findBooks</code> to the <code>Query</code> type to be able to find books by query string. To execute requests to Google Books API we will use <code>lib-http-client</code> library.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>dependencies {
+    include 'com.enonic.lib:lib-http-client:3.2.2'
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In our application we have to create a new file <code>src/main/resources/guillotine/guillotine.js</code> if it absent and add the following content:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">const httpClient = require('/lib/http-client');
+
+const GOOGLE_BOOKS_API_KEY = app.config.googleBooksApiKey;
+
+exports.extensions = function (graphQL) {
+    return {
+        types: {
+            GoogleBooks: {
+                description: 'Google Books Type',
+                fields: {
+                    id: {
+                        type: graphQL.GraphQLString,
+                    },
+                    title: {
+                        type: graphQL.GraphQLString,
+                    },
+                    authors: {
+                        type: graphQL.list(graphQL.GraphQLString),
+                    },
+                    publisher: {
+                        type: graphQL.GraphQLString,
+                    },
+                    publishedDate: {
+                        type: graphQL.GraphQLString,
+                    },
+                    description: {
+                        type: graphQL.GraphQLString,
+                    },
+                    pageCount: {
+                        type: graphQL.GraphQLInt,
+                    },
+                    language: {
+                        type: graphQL.GraphQLString,
+                    },
+                    averageRating: {
+                        type: graphQL.GraphQLFloat,
+                    },
+                }
+            },
+        },
+        creationCallbacks: {
+            Query: function (params) {
+                params.addFields({
+                    findBooks: {
+                        type: graphQL.list(graphQL.reference('GoogleBooks')),
+                        args: {
+                            queryString: graphQL.GraphQLString,
+                        }
+                    }
+                });
+            },
+        },
+        resolvers: {
+            Query: {
+                findBooks: function (env) {
+                    const response = sendRequestToBooksApi(env.args.queryString);
+
+                    return response.items.map(function (item) {
+                        const volumeInfo = item.volumeInfo;
+
+                        return {
+                            id: item.id,
+                            title: volumeInfo.title,
+                            authors: volumeInfo.authors,
+                            publisher: volumeInfo.publisher,
+                            publishedDate: volumeInfo.publishedDate,
+                            description: volumeInfo.description,
+                            pageCount: volumeInfo.pageCount,
+                            language: volumeInfo.language,
+                            averageRating: volumeInfo.averageRating,
+                        }
+                    });
+                }
+            }
+        },
+    }
+};
+
+function sendRequestToBooksApi(queryString) {
+    const response = httpClient.request({
+        url: 'https://www.googleapis.com/books/v1/volumes',
+        method: 'GET',
+        contentType: 'application/json',
+        queryParams: {
+            q: queryString,
+            key: GOOGLE_BOOKS_API_KEY,
+        }
+    });
+    return JSON.parse(response.body);
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>For example:</p>
+<p>This example is very simple and does not cover all possible cases. For example, it does not handle errors from the Google Books API, does not cache values and, etc. But it shows how to extend the GraphQL schema with a new type and a new field.</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">enums: {
-    CustomEnum: {
-        description: "Custom Enum",
-        values: {
-            a: "A",
-            b: "B",
-        }
-    }
-}</code></pre>
-</div>
+<div class="paragraph">
+<p>You can separate definitions of types, creationCallbacks, resolvers and the rest of options into different files and import them into the <code>guillotine.js</code> file, to make your code more readable and maintainable.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-03 14:50:51 UTC
+Last updated 2024-01-03 15:36:50 UTC
 </div>
 </div>
 </body>

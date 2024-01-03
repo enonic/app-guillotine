@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>types</title>
+<title>unions</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -434,43 +434,26 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article toc2 toc-right">
+<body class="article">
 <div id="header">
-<div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#types">types</a></li>
-</ul>
-</div>
+<h1>unions</h1>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="types"><a class="link" href="#types">types</a></h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>This property is used to create types. It must be an object with the following structure:</p>
+<p>This property is used to create custom unions.
+It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">types: {
-    &lt;GraphQLTypeName&gt;: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">unions: {
+    &lt;UnionTypeName&gt;: {
         description: &lt;description&gt;,
-        interfaces: [
-            &lt;InterfaceGraphQLType&gt;,
-            // the rest of interface types...
+        types: [
+            &lt;graphQLType&gt;,
+            // the rest of types or reference to type ...
         ],
-        fields: {
-            &lt;fieldName&gt;: {
-                type: &lt;graphQLType&gt;,
-                args: {
-                    &lt;argName&gt;: &lt;graphQLType&gt;,
-                    // the rest of arguments definitions ...
-                }
-            },
-            ...
-        },
     },
-    ...
+    // the rest union definitions ...
 }</code></pre>
 </div>
 </div>
@@ -479,34 +462,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">types: {
-    CustomInterfaceImpl: {
-        description: 'CustomInterface Implementation',
-        interfaces: [graphQL.reference('CustomInterface')],
-        fields: {
-            query: {
-                type: graphQL.list(graphQL.GraphQLString),
-                args: {
-                    filter: graphQL.reference('CustomInputFilter')
-                }
-            },
-            extraField: {
-                type: graphQL.GraphQLString,
-            }
-        }
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">unions: {
+    CustomUnion: {
+        description: "Custom Union",
+        types: [
+            graphQL.reference('GraphQLTypeNameOne'),
+            graphQL.reference('GraphQLTypeNameTwo'),
+        ]
     }
 }</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>According to GraphQL specification an implementation of an interface must implement all fields of the interface.</p>
-</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-03 14:50:51 UTC
+Last updated 2024-01-03 15:36:50 UTC
 </div>
 </div>
 </body>

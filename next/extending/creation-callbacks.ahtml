@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>typeResolvers</title>
+<title>creationCallbacks</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -434,31 +434,91 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article toc2 toc-right">
+<body class="article">
 <div id="header">
-<div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#typeresolvers">typeResolvers</a></li>
-</ul>
-</div>
+<h1>creationCallbacks</h1>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="typeresolvers"><a class="link" href="#typeresolvers">typeResolvers</a></h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>This property is used to set or override type resolver for a union or interface. It must be an object with the following structure:</p>
+<p>This property is used to define <code>creationCallbacks</code> that will be called during GraphQL schema generation when a specific type or interface is created.</p>
+</div>
+<div class="paragraph">
+<p>What you must know about creation callbacks:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Creation callbacks can be defined only for types and interfaces.</p>
+</li>
+<li>
+<p>Creation callback allows to add new fields, modify and remove existing fields, modify description and interfaces for type.</p>
+</li>
+<li>
+<p>Rename of fields is not supported.</p>
+</li>
+<li>
+<p>Take aware that creation callbacks can be called not in the same order as them are defined in the <code>creationCallbacks</code> property.</p>
+</li>
+<li>
+<p>Creation callbacks can be defined in the different applications. Therefore, there is a risk to have conflicts which can lead to schema generation errors or query errors. Not recommended to make modification for Content API&#8217;s fields. But if you have to do it then make sure that it will not to introduce conflicts and side effects. The developer is fully responsible for that.</p>
+</li>
+<li>
+<p>If you add or modify some fields to the interface in the creation callback, you must do that for all implementations. Otherwise, you will get an error during schema generation.</p>
+</li>
+<li>
+<p>If you modify some field make sure that you implement correct data fetcher in the <code>resolvers</code> section. Otherwise, you can get an error during query execution.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This property must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
-    typeResolvers: {
-        &lt;GraphQLTypeName&gt;: function (obj) {
-            // your code here
-        },
-        // the rest of type resolvers ...
-    }
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">creationCallbacks: {
+    &lt;GraphQLTypeName&gt;: function (params) {
+        // if you want to add new fields
+        params.addFields({
+            &lt;newFieldName&gt;: {
+                type: &lt;GraphQLType&gt;,
+                args: {
+                    &lt;argName&gt;: &lt;GraphQLType&gt;,
+                    // the rest of arguments definitions ...
+                },
+            },
+        });
+
+        // if you want to remove existing fields
+        params.removeFields([
+             "fieldName 1",
+             "filedName 2",
+             // the rest of fieldName ...
+        ]);
+
+        // If you want to modify existing fields.
+        // Take aware that all arguments will be rewritten by new arguments.
+        // If type or args are not provided then will be used type and args from original field.
+        params.modifyFields({
+            &lt;existingFieldName&gt;: {
+                type: &lt;GraphQLType&gt;,
+                args: {
+                    &lt;argName&gt;: &lt;GraphQLType&gt;,
+                    // the rest of arguments definitions ...
+                },
+            },
+        });
+
+        // If you want to change description
+        params.setDescription("New description");
+
+        // If you want to add or remove some interfaces to object.
+        // Take aware that interfaces will be rewritten by new array of interfaces.
+        // Also, developer is responseble for implmentation of interface, do not forget to add all required fields.
+        params.setInterfaces([
+            &lt;GraphQLInterfaceType or GraphQLReferenceType&gt;
+        ]);
+    },
+    // the rest of creation callback definition ...
 }</code></pre>
 </div>
 </div>
@@ -467,27 +527,36 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
-    typeResolvers: {
-        CustomInterface: function (obj) {
-            return 'CustomInterfaceImpl';
-        },
-        CustomUnion: function (obj) {
-            if (obj.title) {
-                return 'GraphQLTypeNameOne';
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">creationCallbacks: {
+    MyCustomType: function (params) {
+        params.addFields({
+            extraField: {
+                type: graphQL.GraphQLString,
             }
-            return 'GraphQLTypeNameTwo';
-        },
-    }
+        });
+
+        params.removeFields([
+            "fieldToRemove1",
+            "fieldToRemove2",
+        ]);
+
+        params.modifyFields({
+          fieldToModify: {
+            type: graphQL.GraphQLString,
+          }
+        });
+    },
+
 }</code></pre>
 </div>
 </div>
-</div>
+<div class="paragraph">
+<p>To know how to set or override data fetcher for a field you can refer to the <code>resolvers</code> section.</p>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-03 14:50:51 UTC
+Last updated 2024-01-03 15:36:50 UTC
 </div>
 </div>
 </body>

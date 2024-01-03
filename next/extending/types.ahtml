@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>resolvers</title>
+<title>types</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -434,166 +434,69 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article toc2 toc-right">
+<body class="article">
 <div id="header">
-<div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#resolvers">resolvers</a></li>
-<li><a href="#application_context">Application context</a></li>
-<li><a href="#datafetchingenvironment">DataFetchingEnvironment</a></li>
-<li><a href="#createdatafetcherresult">createDataFetcherResult</a></li>
-</ul>
-</div>
+<h1>types</h1>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="resolvers"><a class="link" href="#resolvers">resolvers</a></h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>This property is used to set or override data fetcher for a field. It must be an object with the following structure:</p>
+<p>This property is used to create types. It must be an object with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">resolvers: {
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">types: {
     &lt;GraphQLTypeName&gt;: {
-        &lt;fieldName&gt;: function (env) {
-            // your code here
+        description: &lt;description&gt;,
+        interfaces: [
+            &lt;InterfaceGraphQLType&gt;,
+            // the rest of interface types...
+        ],
+        fields: {
+            &lt;fieldName&gt;: {
+                type: &lt;graphQLType&gt;,
+                args: {
+                    &lt;argName&gt;: &lt;graphQLType&gt;,
+                    // the rest of arguments definitions ...
+                }
+            },
+            ...
         },
-        // the rest of field resolvers ...
     },
-    // the rest of type resolvers ...
+    ...
 }</code></pre>
 </div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="application_context"><a class="link" href="#application_context">Application context</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>You can assume that inside resolver function you have access to the application context where extension is defined and can use <code>app.name</code> or <code>app.config</code> properties. But in the real that will be context for Guillotine application and those properties will return <code>com.enonic.app.guillotine</code> and an actual config for Guillotine application.</p>
-</div>
-<div class="paragraph">
-<p>If you need to have access in the resolver to the application context where extension is defined, then you can store these values outside <code>exports.extensions</code>.</p>
 </div>
 <div class="paragraph">
 <p>For example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">const appName = app.name;
-const appConfig = app.config;
-
-exports.extensions = function (graphQL) {
-    return {
-        ...
-        resolvers: {
-            MyCustomType: {
-                myCustomField: function (env) {
-                    // here you can use `appName` and `appConfig`
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">types: {
+    CustomInterfaceImpl: {
+        description: 'CustomInterface Implementation',
+        interfaces: [graphQL.reference('CustomInterface')],
+        fields: {
+            query: {
+                type: graphQL.list(graphQL.GraphQLString),
+                args: {
+                    filter: graphQL.reference('CustomInputFilter')
                 }
+            },
+            extraField: {
+                type: graphQL.GraphQLString,
             }
-        },
-        ...
-   }
+        }
+    }
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If the configuration of application is changed, then that will trigger restart of the application and Guillotine will update GraphQL schema. In the result you will have actual state of app.config in the resolver.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="datafetchingenvironment"><a class="link" href="#datafetchingenvironment">DataFetchingEnvironment</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>A DataFetchingEnvironment instance (env) is passed to a DataFetcher as an execution context, and it&#8217;s the place where you can find information to help you resolve a data value given a GraphQL field input.</p>
-</div>
-<div class="paragraph">
-<p>Guillotine provides the following properties and function in the DataFetchingEnvironment:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>source</code> - it is the value of the parent field. For the root query it is equal to <code>null</code>.</p>
-</li>
-<li>
-<p><code>args</code> - the arguments provided to the field in the GraphQL query.</p>
-</li>
-<li>
-<p><code>localContext</code> - a context object that parent fields may have returned. This object  is unmodifiable.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>The <code>localContext</code> object supports value types such as <code>string</code>, <code>double</code>, <code>integer</code>, <code>boolean</code>, and <code>null</code>. Keys with a value equal to <code>null</code> will be ignored. If you need to provide as a value a complex object, you can use the <code>JSON.stringify</code> function to convert it to a string.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="createdatafetcherresult"><a class="link" href="#createdatafetcherresult">createDataFetcherResult</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Guillotine provides <code>createDataFetcherResult</code> function via <code>graphQL</code> object. This function will be useful when your <code>DataFetcher</code> retrieves data from multiple sources, or you want to pass extra context to lower levels.</p>
-</div>
-<div class="paragraph">
-<p>The <code>createDataFetcherResult</code> function accepts an object with the following properties:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>data - the data to return, must not be <code>null</code>. Object must be wrapped by <code>__.toScriptValue</code> function.</p>
-</li>
-<li>
-<p>localContext - a key-value object that will be passed to the lower levels. This object is unmodifiable at the lowest level.</p>
-</li>
-<li>
-<p>parentLocalContext - a context object that parent fields may have returned.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>If <code>parentLocalContext</code> is not provided, then <code>localContext</code> will override <code>parentLocalContext</code>. Otherwise, <code>localContext</code> will be merged with <code>parentLocalContext</code> and <code>localContext</code> will override <code>parentLocalContext</code> if they have the same keys.</p>
-</div>
-<div class="paragraph">
-<p>If <code>localContext</code> is not provided, then <code>parentLocalContext</code> will be used as <code>localContext</code>.</p>
-</div>
-<div class="paragraph">
-<p>Below you can find an example of how to use <code>createDataFetcherResult</code> function:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.extensions = function (graphQL) {
-    return {
-        ...
-        resolvers: {
-            MyCustomType: {
-                myCustomField: function (env) {
-                    return graphQL.createDataFetcherResult({
-                        data: __.toScriptValue({
-                           id: "100",
-                        }),
-                        localContext: {
-                            parentId: "101",
-                        },
-                        parentLocalContext: env.localContext,
-                    });
-                }
-            }
-        },
-        ...
-   }
-}</code></pre>
-</div>
-</div>
-</div>
+<p>According to GraphQL specification an implementation of an interface must implement all fields of the interface.</p>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-03 14:50:51 UTC
+Last updated 2024-01-03 15:36:50 UTC
 </div>
 </div>
 </body>

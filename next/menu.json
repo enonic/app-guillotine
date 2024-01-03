@@ -5,54 +5,58 @@
       "document": "api"
     },
     {
-      "title": "Clients",
-      "document": "clients"
+      "title": "Endpoints",
+      "document": "endpoints"
     },
     {
-      "title": "Extending Guillotine",
-      "document": "extensions",
-      "menuItems": [
-        {
-          "title": "Input Types",
-          "document": "extensions/input-types"
-        },
-        {
-          "title": "Enums",
-          "document": "extensions/enums"
-        },
-        {
-          "title": "Interfaces",
-          "document": "extensions/interfaces"
-        },
-        {
-          "title": "Unions",
-          "document": "extensions/unions"
-        },
-        {
-          "title": "Types",
-          "document": "extensions/types"
-        },
-        {
-          "title": "Creation Callbacks",
-          "document": "extensions/creationcallbacks"
-        },
-        {
-          "title": "Resolvers",
-          "document": "extensions/resolvers"
-        },
-        {
-          "title": "Type Resolvers",
-          "document": "extensions/typeresolvers"
-        }
-      ]
+      "title": "Clients",
+      "document": "clients"
     },
     {
       "title": "Query examples",
       "document": "query-examples"
     },
     {
-      "title": "Endpoints",
-      "document": "endpoints"
+      "title": "Extending",
+      "document": "extending",
+      "menuItems": [
+        {
+          "title": "Best practices",
+          "document": "extending/best-practices"
+        },
+        {
+          "title": "Input Types",
+          "document": "extending/input-types"
+        },
+        {
+          "title": "Enums",
+          "document": "extending/enums"
+        },
+        {
+          "title": "Interfaces",
+          "document": "extending/interfaces"
+        },
+        {
+          "title": "Unions",
+          "document": "extending/unions"
+        },
+        {
+          "title": "Types",
+          "document": "extending/types"
+        },
+        {
+          "title": "Creation Callbacks",
+          "document": "extending/creation-callbacks"
+        },
+        {
+          "title": "Resolvers",
+          "document": "extending/resolvers"
+        },
+        {
+          "title": "Type Resolvers",
+          "document": "extending/type-resolvers"
+        }
+      ]
     },
     {
       "title": "Release Notes",
@@ -60,7 +64,7 @@
       "menuItems": [
         {
           "title": "Upgrade Notes",
-          "document": "upgradenotes"
+          "document": "upgrade-notes"
         }
       ]
     }
