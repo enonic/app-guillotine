@@ -551,18 +551,18 @@ const graphQlLib = require('/lib/graphql');
 const schema = guillotineLib.createSchema({
     creationCallbacks: {
         'com_enonic_app_myapp_Author_Data': function(context, params){
-            params.fields.fullName = { // (1)
+            params.fields.fullName = { <i class="conum" data-value="1"></i><b>(1)</b>
                  type: graphQlLib.GraphQLString,
                  resolve: function (env) {
                      return env.source.firstName + ' ' + env.source.lastName;
                  }
             };
 
-            params.fields.email.resolve = function (env) { // (2)
+            params.fields.email.resolve = function (env) { <i class="conum" data-value="2"></i><b>(2)</b>
                 return authLib.hasRole('system.admin') ? env.source.email : null;
             };
 
-            delete params.fields.birthDate; // (3)
+            delete params.fields.birthDate; <i class="conum" data-value="3"></i><b>(3)</b>
         },
     }
 });</code></pre>
@@ -571,18 +571,21 @@ const schema = guillotineLib.createSchema({
 <div class="paragraph">
 <p>In this example we made the following changes:</p>
 </div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Added a new <code>fullName</code> field to the <code>com_enonic_app_myapp_Author_Data</code> type. Pay attention that the declaration of the field is done by declaring a data fetcher.</p>
-</li>
-<li>
-<p>Override the default data fetcher with our own data fetcher containing custom logic.</p>
-</li>
-<li>
-<p>Removed the <code>birthDate</code> field from <code>com_enonic_app_myapp_Author_Data</code> type.</p>
-</li>
-</ol>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Added a new <code>fullName</code> field to the <code>com_enonic_app_myapp_Author_Data</code> type. Pay attention that the declaration of the field is done by declaring a data fetcher.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Override the default data fetcher with our own data fetcher containing custom logic.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Removed the <code>birthDate</code> field from <code>com_enonic_app_myapp_Author_Data</code> type.</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>Now, let&#8217;s see how to migrate this code using <code>extensions</code> from the Guillotine application:</p>
@@ -594,21 +597,21 @@ const schema = guillotineLib.createSchema({
 <div class="content">
 <pre class="highlight"><code class="language-javascript" data-lang="javascript">const authLib = require('/lib/xp/auth');
 
-exports.extensions = function (graphQL) { // (1)
+exports.extensions = function (graphQL) { <i class="conum" data-value="1"></i><b>(1)</b>
     return {
         creationCallbacks: {
-            com_enonic_app_myapp_Author_Data: function (params) { // (2)
+            com_enonic_app_myapp_Author_Data: function (params) { <i class="conum" data-value="2"></i><b>(2)</b>
                 params.addFields({
-                    fullName: { // (3)
+                    fullName: { <i class="conum" data-value="3"></i><b>(3)</b>
                         type: graphQL.GraphQLString,
                     }
                 });
 
-                params.removeFields(['birthDate']); // (4)
+                params.removeFields(['birthDate']); <i class="conum" data-value="4"></i><b>(4)</b>
             },
         },
         resolvers: {
-            com_enonic_app_myapp_Author_Data: { // (5)
+            com_enonic_app_myapp_Author_Data: { <i class="conum" data-value="5"></i><b>(5)</b>
                 fullName: function (env) {
                     return env.source.firstName + ' ' + env.source.lastName;
                 },
@@ -624,24 +627,29 @@ exports.extensions = function (graphQL) { // (1)
 <div class="paragraph">
 <p>This code has the following important things:</p>
 </div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Inside the <code>extenstions</code> function we will return object with <code>creationCallbacks</code> and <code>resolvers</code> properties.</p>
-</li>
-<li>
-<p>To make changes for <code>com_enonic_app_myapp_Author_Data</code> type in the <code>creationCallbacks</code> we need to add the property as named function <code>com_enonic_app_myapp_Author_Data</code> which has the <code>params</code> argument. Using params object we can add, modify and remove fields, set description and override interfaces for type.</p>
-</li>
-<li>
-<p>Then we add the <code>fullName</code> field with <code>String</code> type and without arguments.</p>
-</li>
-<li>
-<p>Then we remove <code>birthDate</code> field. The <code>removeFields</code> function applies an arrays of string with field names which must be removed.</p>
-</li>
-<li>
-<p>Then to set a data fetcher for <code>fullName</code> and <code>email</code> fields we must use the <code>resolvers</code> property of the returned object. Where in the same way, inside the <code>resolvers</code> property we must define the <code>com_enonic_app_myapp_Author_Data</code> object with respectively properties as field names and implement data fetcher functions.</p>
-</li>
-</ol>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Inside the <code>extenstions</code> function we will return object with <code>creationCallbacks</code> and <code>resolvers</code> properties.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>To make changes for <code>com_enonic_app_myapp_Author_Data</code> type in the <code>creationCallbacks</code> we need to add the property as named function <code>com_enonic_app_myapp_Author_Data</code> which has the <code>params</code> argument. Using params object we can add, modify and remove fields, set description and override interfaces for type.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Then we add the <code>fullName</code> field with <code>String</code> type and without arguments.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Then we remove <code>birthDate</code> field. The <code>removeFields</code> function applies an arrays of string with field names which must be removed.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Then to set a data fetcher for <code>fullName</code> and <code>email</code> fields we must use the <code>resolvers</code> property of the returned object. Where in the same way, inside the <code>resolvers</code> property we must define the <code>com_enonic_app_myapp_Author_Data</code> object with respectively properties as field names and implement data fetcher functions.</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>That it, our migration is done.</p>
@@ -654,7 +662,7 @@ exports.extensions = function (graphQL) { // (1)
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-03 08:47:16 UTC
+Last updated 2024-01-03 09:51:46 UTC
 </div>
 </div>
 </body>
