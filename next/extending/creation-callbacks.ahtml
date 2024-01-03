@@ -466,7 +466,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>If you add or modify some fields to the interface in the creation callback, you must do that for all implementations. Otherwise, you will get an error during schema generation.</p>
 </li>
 <li>
-<p>If you modify some field make sure that you implement correct data fetcher in the <code>resolvers</code> section. Otherwise, you can get an error during query execution.</p>
+<p>If you modify some field make sure that you implement correct data fetcher in the <a href="./resolvers.ahtml">resolvers</a> section. Otherwise, you can get an error during query execution.</p>
 </li>
 </ul>
 </div>
@@ -551,12 +551,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>To know how to set or override data fetcher for a field you can refer to the <code>resolvers</code> section.</p>
+<p>To know how to set or override data fetcher for a field you can refer to the <a href="./resolvers.ahtml">resolvers</a> section.</p>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-03 15:36:50 UTC
+Last updated 2024-01-03 15:45:00 UTC
 </div>
 </div>
 </body>
