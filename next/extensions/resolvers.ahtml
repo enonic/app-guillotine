@@ -439,13 +439,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#resolvers">resolvers</a>
-<ul class="sectlevel2">
+<li><a href="#resolvers">resolvers</a></li>
 <li><a href="#application_context">Application context</a></li>
 <li><a href="#datafetchingenvironment">DataFetchingEnvironment</a></li>
 <li><a href="#createdatafetcherresult">createDataFetcherResult</a></li>
-</ul>
-</li>
 </ul>
 </div>
 </div>
@@ -469,8 +466,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 }</code></pre>
 </div>
 </div>
-<div class="sect2">
-<h3 id="application_context"><a class="link" href="#application_context">Application context</a></h3>
+</div>
+</div>
+<div class="sect1">
+<h2 id="application_context"><a class="link" href="#application_context">Application context</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>You can assume that inside resolver function you have access to the application context where extension is defined and can use <code>app.name</code> or <code>app.config</code> properties. But in the real that will be context for Guillotine application and those properties will return <code>com.enonic.app.guillotine</code> and an actual config for Guillotine application.</p>
 </div>
@@ -504,8 +504,10 @@ exports.extensions = function (graphQL) {
 <p>If the configuration of application is changed, then that will trigger restart of the application and Guillotine will update GraphQL schema. In the result you will have actual state of app.config in the resolver.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="datafetchingenvironment"><a class="link" href="#datafetchingenvironment">DataFetchingEnvironment</a></h3>
+</div>
+<div class="sect1">
+<h2 id="datafetchingenvironment"><a class="link" href="#datafetchingenvironment">DataFetchingEnvironment</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>A DataFetchingEnvironment instance (env) is passed to a DataFetcher as an execution context, and it&#8217;s the place where you can find information to help you resolve a data value given a GraphQL field input.</p>
 </div>
@@ -529,8 +531,10 @@ exports.extensions = function (graphQL) {
 <p>The <code>localContext</code> object supports value types such as <code>string</code>, <code>double</code>, <code>integer</code>, <code>boolean</code>, and <code>null</code>. Keys with a value equal to <code>null</code> will be ignored. If you need to provide as a value a complex object, you can use the <code>JSON.stringify</code> function to convert it to a string.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="createdatafetcherresult"><a class="link" href="#createdatafetcherresult">createDataFetcherResult</a></h3>
+</div>
+<div class="sect1">
+<h2 id="createdatafetcherresult"><a class="link" href="#createdatafetcherresult">createDataFetcherResult</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>Guillotine provides <code>createDataFetcherResult</code> function via <code>graphQL</code> object. This function will be useful when your <code>DataFetcher</code> retrieves data from multiple sources, or you want to pass extra context to lower levels.</p>
 </div>
@@ -587,10 +591,9 @@ exports.extensions = function (graphQL) {
 </div>
 </div>
 </div>
-</div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-03 14:20:29 UTC
+Last updated 2024-01-03 14:50:51 UTC
 </div>
 </div>
 </body>

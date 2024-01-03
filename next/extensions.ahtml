@@ -436,23 +436,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
+<h1>Extending Guillotine</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#extending_guillotine">Extending Guillotine</a>
 <ul class="sectlevel2">
 <li><a href="#scalars_and_types">Scalars and Types</a></li>
 <li><a href="#type_modifiers">Type modifiers</a></li>
 <li><a href="#functions">Functions</a></li>
-</ul>
-</li>
 <li><a href="#example_of_usage">Example of usage</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="extending_guillotine"><a class="link" href="#extending_guillotine">Extending Guillotine</a></h2>
+<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>You can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types.</p>
@@ -499,7 +495,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>The <code>inputTypes</code> property allows you to define new input types. More information about usage of input types you can find <a href="extensions/inputtypes.ahtml">here</a>.</td>
+<td>The <code>inputTypes</code> property allows you to define new input types. More information about usage of input types you can find <a href="extensions/input-types.ahtml">here</a>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
@@ -537,6 +533,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>This function will be called when the application is started. Also, this function takes an <code>graphQL</code> argument, which is a reference to the GraphQL utility object and provides to access to scalars, types, type modifiers and functions.</p>
 </div>
+</div>
+</div>
 <div class="sect2">
 <h3 id="scalars_and_types"><a class="link" href="#scalars_and_types">Scalars and Types</a></h3>
 <div class="paragraph">
@@ -553,8 +551,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h3 id="functions"><a class="link" href="#functions">Functions</a></h3>
 <div class="paragraph">
 <p><code>createDataFetcherResult</code> - allows to return object with <code>data</code> which will be as a source for children fields and provide a <code>localContext</code> to share unmodifiable data available in a child field using <code>env.localContext</code>.</p>
-</div>
-</div>
 </div>
 </div>
 <div class="sect1">
@@ -678,7 +674,7 @@ function sendRequestToBooksApi(queryString) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-03 14:20:29 UTC
+Last updated 2024-01-03 14:50:51 UTC
 </div>
 </div>
 </body>
