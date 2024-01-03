@@ -473,14 +473,6 @@ This release includes <a href="#breaking_changes">breaking changes</a>
 <dd>
 <p>Guillotine has been fully reimplemented from JavaScript to Java. This transition has not only improved the performance and stability of the application but also enabled the implementation of more powerful and flexible <a href="extensions.ahtml">extensions</a> for the GraphQL schema.</p>
 </dd>
-<dt class="hdlist1">Querying multiple projects and branches in the same query</dt>
-<dd>
-<p>Guillotine started to support querying multiple projects and branches in the same query. This is done by using the <code>project</code> and <code>branch</code> arguments on the <code>guillotine</code> field. See <a href="context.ahtml">Guillotine context</a> for more information.</p>
-</dd>
-<dt class="hdlist1">Site context</dt>
-<dd>
-<p>Alternative way how to specify site context. This is done by using the <code>siteKey</code> arguments on the <code>guillotine</code> field. We are going to stop support the <code>X-Guillotine-SiteKey</code> header in the future.</p>
-</dd>
 <dt class="hdlist1">Extensions</dt>
 <dd>
 <p>Extensions are a new way how to extend the GraphQL schema. They are more powerful and flexible than the <code>creationCallbacks</code> in the Guillotine Lib. Now you can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types. See <a href="extensions.ahtml">extensions</a> for more information.</p>
@@ -516,7 +508,7 @@ This release includes <a href="#breaking_changes">breaking changes</a>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-28 16:08:32 UTC
+Last updated 2024-01-03 08:47:16 UTC
 </div>
 </div>
 </body>

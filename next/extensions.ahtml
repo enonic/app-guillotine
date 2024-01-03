@@ -942,22 +942,6 @@ exports.extensions = function (graphQL) {
 </ul>
 </div>
 <div class="paragraph">
-<p>Guillotine Content API supports the following additional properties in <code>localContext</code>:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>__targetProject</code> - the current project, can be provided as the <code>project</code> argument for <code>guillotine</code> field. To read value of this property you can use <code>env.localContext.__targetProject</code>.</p>
-</li>
-<li>
-<p><code>__targetBranch</code> - the current branch, can be provided as the <code>branch</code> argument for <code>guillotine</code> field. To read value of this property you can use <code>env.localContext.__targetBranch</code>.</p>
-</li>
-<li>
-<p><code>__targetSiteKey</code> - the key of a site, can be provided as the <code>siteKey</code> argument for <code>guillotine</code> field. To read value of this property you can use <code>env.localContext.__targetSiteKey</code>.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
 <p>The <code>localContext</code> object supports value types such as <code>string</code>, <code>double</code>, <code>integer</code>, <code>boolean</code>, and <code>null</code>. Keys with a value equal to <code>null</code> will be ignored. If you need to provide as a value a complex object, you can use the <code>JSON.stringify</code> function to convert it to a string.</p>
 </div>
 </div>
@@ -975,7 +959,7 @@ exports.extensions = function (graphQL) {
 <p>data - the data to return, must not be <code>null</code>. Object must be wrapped by <code>__.toScriptValue</code> function.</p>
 </li>
 <li>
-<p>localContext - a context object that will be passed to the lower levels. This object is unmodifiable.</p>
+<p>localContext - a key-value object that will be passed to the lower levels. This object is unmodifiable at the lowest level.</p>
 </li>
 <li>
 <p>parentLocalContext - a context object that parent fields may have returned.</p>
@@ -1179,7 +1163,7 @@ function sendRequestToBooksApi(queryString) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-12-28 16:08:32 UTC
+Last updated 2024-01-03 08:47:16 UTC
 </div>
 </div>
 </body>
