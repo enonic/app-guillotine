@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Release Notes</title>
+<title>creationCallbacks</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,72 +436,130 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Release Notes</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#guillotine_7">Guillotine 7</a>
-<ul class="sectlevel2">
-<li><a href="#release_features">Release features</a></li>
-<li><a href="#breaking_changes">Breaking changes</a></li>
-</ul>
-</li>
+<li><a href="#creationcallbacks">creationCallbacks</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="guillotine_7"><a class="link" href="#guillotine_7">Guillotine 7</a></h2>
+<h2 id="creationcallbacks"><a class="link" href="#creationcallbacks">creationCallbacks</a></h2>
 <div class="sectionbody">
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-This release includes <a href="#breaking_changes">breaking changes</a>
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>This property is used to define <code>creationCallbacks</code> that will be called during GraphQL schema generation when a specific type or interface is created.</p>
 </div>
-<div class="sect2">
-<h3 id="release_features"><a class="link" href="#release_features">Release features</a></h3>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Migrated from JS to Java</dt>
-<dd>
-<p>Guillotine has been fully reimplemented from JavaScript to Java. This transition has not only improved the performance and stability of the application but also enabled the implementation of more powerful and flexible <a href="extensions.ahtml">extensions</a> for the GraphQL schema.</p>
-</dd>
-<dt class="hdlist1">Extensions</dt>
-<dd>
-<p>Extensions are a new way how to extend the GraphQL schema. They are more powerful and flexible than the <code>creationCallbacks</code> in the Guillotine Lib. Now you can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types. See <a href="extensions.ahtml">extensions</a> for more information.</p>
-</dd>
-<dt class="hdlist1">LocalContext</dt>
-<dd>
-<p>LocalContext allows sharing data between parent and child fields. See <a href="extensions.ahtml#datafetchingenvironment">here</a> for more information.</p>
-</dd>
-<dt class="hdlist1"><code>createDataFetcherResult</code> function</dt>
-<dd>
-<p>This function allows you to create a <code>DataFetcherResult</code> object with the <code>data</code> and <code>localContext</code> fields to be returned from the data fetcher. See more information <a href="extensions.ahtml#createdatafetcherresult">here</a>.</p>
-</dd>
-</dl>
+<div class="paragraph">
+<p>What you must know about creation callbacks:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Creation callbacks can be defined only for types and interfaces.</p>
+</li>
+<li>
+<p>Creation callback allows to add new fields, modify and remove existing fields, modify description and interfaces for type.</p>
+</li>
+<li>
+<p>Rename of fields is not supported.</p>
+</li>
+<li>
+<p>Take aware that creation callbacks can be called not in the same order as them are defined in the <code>creationCallbacks</code> property.</p>
+</li>
+<li>
+<p>Creation callbacks can be defined in the different applications. Therefore, there is a risk to have conflicts which can lead to schema generation errors or query errors. Not recommended to make modification for Content API&#8217;s fields. But if you have to do it then make sure that it will not to introduce conflicts and side effects. The developer is fully responsible for that.</p>
+</li>
+<li>
+<p>If you add or modify some fields to the interface in the creation callback, you must do that for all implementations. Otherwise, you will get an error during schema generation.</p>
+</li>
+<li>
+<p>If you modify some field make sure that you implement correct data fetcher in the <code>resolvers</code> section. Otherwise, you can get an error during query execution.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This property must be an object with the following structure:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">creationCallbacks: {
+    &lt;GraphQLTypeName&gt;: function (params) {
+        // if you want to add new fields
+        params.addFields({
+            &lt;newFieldName&gt;: {
+                type: &lt;GraphQLType&gt;,
+                args: {
+                    &lt;argName&gt;: &lt;GraphQLType&gt;,
+                    // the rest of arguments definitions ...
+                },
+            },
+        });
+
+        // if you want to remove existing fields
+        params.removeFields([
+             "fieldName 1",
+             "filedName 2",
+             // the rest of fieldName ...
+        ]);
+
+        // If you want to modify existing fields.
+        // Take aware that all arguments will be rewritten by new arguments.
+        // If type or args are not provided then will be used type and args from original field.
+        params.modifyFields({
+            &lt;existingFieldName&gt;: {
+                type: &lt;GraphQLType&gt;,
+                args: {
+                    &lt;argName&gt;: &lt;GraphQLType&gt;,
+                    // the rest of arguments definitions ...
+                },
+            },
+        });
+
+        // If you want to change description
+        params.setDescription("New description");
+
+        // If you want to add or remove some interfaces to object.
+        // Take aware that interfaces will be rewritten by new array of interfaces.
+        // Also, developer is responseble for implmentation of interface, do not forget to add all required fields.
+        params.setInterfaces([
+            &lt;GraphQLInterfaceType or GraphQLReferenceType&gt;
+        ]);
+    },
+    // the rest of creation callback definition ...
+}</code></pre>
 </div>
 </div>
-<div class="sect2">
-<h3 id="breaking_changes"><a class="link" href="#breaking_changes">Breaking changes</a></h3>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Subscriptions are not supported anymore</dt>
-<dd>
-<p>The GraphQL subscriptions are not supported anymore. You have to implement your own solution for this without using Guillotine.</p>
-</dd>
-<dt class="hdlist1">Params as Json instead of String</dt>
-<dd>
-<p>For such fields as <code>pageUrl</code>, <code>mediaUrl</code>, <code>imageUrl</code> and <code>attachmentUrl</code> the <code>params</code> argument has <code>Json</code> type instead of <code>String</code>.</p>
-</dd>
-</dl>
+<div class="paragraph">
+<p>For example:</p>
 </div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">creationCallbacks: {
+    MyCustomType: function (params) {
+        params.addFields({
+            extraField: {
+                type: graphQL.GraphQLString,
+            }
+        });
+
+        params.removeFields([
+            "fieldToRemove1",
+            "fieldToRemove2",
+        ]);
+
+        params.modifyFields({
+          fieldToModify: {
+            type: graphQL.GraphQLString,
+          }
+        });
+    },
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To know how to set or override data fetcher for a field you can refer to the <code>resolvers</code> section.</p>
 </div>
 </div>
 </div>

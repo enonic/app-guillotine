@@ -10,7 +10,41 @@
     },
     {
       "title": "Extending Guillotine",
-      "document": "extensions"
+      "document": "extensions",
+      "menuItems": [
+        {
+          "title": "Input Types",
+          "document": "extensions/input-types"
+        },
+        {
+          "title": "Enums",
+          "document": "extensions/enums"
+        },
+        {
+          "title": "Interfaces",
+          "document": "extensions/interfaces"
+        },
+        {
+          "title": "Unions",
+          "document": "extensions/unions"
+        },
+        {
+          "title": "Types",
+          "document": "extensions/types"
+        },
+        {
+          "title": "Creation Callbacks",
+          "document": "extensions/creationcallbacks"
+        },
+        {
+          "title": "Resolvers",
+          "document": "extensions/resolvers"
+        },
+        {
+          "title": "Type Resolvers",
+          "document": "extensions/typeresolvers"
+        }
+      ]
     },
     {
       "title": "Query examples",

@@ -833,10 +833,10 @@ In this case <code>srcset</code> attribute will be added to <code>img</code> tag
       ... on com_app_example_ContentType {
         data {
           description {
-            raw            // (1)
-            processedHtml  // (2)
-            macrosAsJson   // (3)
-            macros {       // (4)
+            raw            <i class="conum" data-value="1"></i><b>(1)</b>
+            processedHtml  <i class="conum" data-value="2"></i><b>(2)</b>
+            macrosAsJson   <i class="conum" data-value="3"></i><b>(3)</b>
+            macros {       <i class="conum" data-value="4"></i><b>(4)</b>
               ref
               name
               descriptor
@@ -1080,7 +1080,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-03 09:51:46 UTC
+Last updated 2024-01-03 14:20:29 UTC
 </div>
 </div>
 </body>

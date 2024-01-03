@@ -441,15 +441,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#extending_guillotine">Extending Guillotine</a>
 <ul class="sectlevel2">
-<li><a href="#graphql_argument">graphQL argument</a></li>
-<li><a href="#inputtypes">inputTypes</a></li>
-<li><a href="#enums">enums</a></li>
-<li><a href="#interfaces">interfaces</a></li>
-<li><a href="#unions">unions</a></li>
-<li><a href="#types">types</a></li>
-<li><a href="#creationcallbacks">creationCallbacks</a></li>
-<li><a href="#resolvers">resolvers</a></li>
-<li><a href="#typeresolvers">typeResolvers</a></li>
+<li><a href="#scalars_and_types">Scalars and Types</a></li>
+<li><a href="#type_modifiers">Type modifiers</a></li>
+<li><a href="#functions">Functions</a></li>
 </ul>
 </li>
 <li><a href="#example_of_usage">Example of usage</a></li>
@@ -473,571 +467,92 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="content">
 <pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.extensions = function (graphQL) {
     return {
-        inputTypes: {
+        inputTypes: { <i class="conum" data-value="1"></i><b>(1)</b>
             // input type definitions ...
         },
-        enums: {
+        enums: { <i class="conum" data-value="2"></i><b>(2)</b>
             // enum type definitions ...
         },
-        interfaces: {
+        interfaces: { <i class="conum" data-value="3"></i><b>(3)</b>
             // interfaces type definitions ...
         },
-        unions: {
+        unions: { <i class="conum" data-value="4"></i><b>(4)</b>
             // unions type definitions ...
         },
-        types: {
+        types: { <i class="conum" data-value="5"></i><b>(5)</b>
             // output types definitions ...
         },
-        creationCallbacks: {
+        creationCallbacks: { <i class="conum" data-value="6"></i><b>(6)</b>
             // creation callback definitions ...
         },
-        resolvers: {
+        resolvers: { <i class="conum" data-value="7"></i><b>(7)</b>
             // resolver definitions ...
         },
-        typeResolvers: {
+        typeResolvers: { <i class="conum" data-value="8"></i><b>(8)</b>
             // type resolver definitions ...
         }
     }
 };</code></pre>
 </div>
 </div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>inputTypes</code> property allows you to define new input types. More information about usage of input types you can find <a href="extensions/inputtypes.ahtml">here</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>enums</code> property allows you to define new enum types. More information about usage of enums you can find <a href="extensions/enums.ahtml">here</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <code>interfaces</code> property allows you to define new interfaces. More information about usage of interfaces you can find <a href="extensions/interfaces.ahtml">here</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>The <code>unions</code> property allows you to define new unions. More information about usage of unions you can find <a href="extensions/unions.ahtml">here</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>The <code>types</code> property allows you to define new output types. More information about usage of types you can find <a href="extensions/types.ahtml">here</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>The <code>creationCallbacks</code> property allows you to set or override data fetcher for a field. More information about usage of creation callbacks you can find <a href="extensions/creationcallbacks.ahtml">here</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>The <code>resolvers</code> property allows you to set or override type resolver for a type. More information about usage of resolvers you can find <a href="extensions/resolvers.ahtml">here</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>The <code>typeResolvers</code> property allows you to set or override type resolver for an interface or a union. More information about usage of type resolvers you can find <a href="extensions/typeresolvers.ahtml">here</a>.</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>You can omit any of the properties, but you must return an object with the same structure. The order of the properties is not important.</p>
 </div>
 <div class="paragraph">
-<p>The <code>extensions</code> function will be called when the application is started.</p>
-</div>
-<div class="paragraph">
-<p>Now let&#8217;s see that closer.</p>
+<p>This function will be called when the application is started. Also, this function takes an <code>graphQL</code> argument, which is a reference to the GraphQL utility object and provides to access to scalars, types, type modifiers and functions.</p>
 </div>
 <div class="sect2">
-<h3 id="graphql_argument"><a class="link" href="#graphql_argument">graphQL argument</a></h3>
-<div class="paragraph">
-<p>This function takes an <code>graphQL</code> argument, which is a reference to the GraphQL utility object.
-You can use it to use the following scalars, types, type modifiers and functions:</p>
-</div>
-<div class="sect3">
-<h4 id="scalars_and_types"><a class="link" href="#scalars_and_types">Scalars and Types</a></h4>
+<h3 id="scalars_and_types"><a class="link" href="#scalars_and_types">Scalars and Types</a></h3>
 <div class="paragraph">
 <p><code>GraphQLString</code>, <code>GraphQLInt</code>, <code>GraphQLID</code>, <code>GraphQLBoolean</code>, <code>GraphQLFloat</code>, <code>Json</code>, <code>DateTime</code>, <code>Date</code>, <code>LocalTime</code> <code>LocalDateTime</code> and <code>reference</code> type.</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="type_modifiers"><a class="link" href="#type_modifiers">Type modifiers</a></h4>
+<div class="sect2">
+<h3 id="type_modifiers"><a class="link" href="#type_modifiers">Type modifiers</a></h3>
 <div class="paragraph">
 <p>The <code>list</code> and <code>nonNull</code> type modifiers allow applies additional validation of those values.</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="functions"><a class="link" href="#functions">Functions</a></h4>
+<div class="sect2">
+<h3 id="functions"><a class="link" href="#functions">Functions</a></h3>
 <div class="paragraph">
 <p><code>createDataFetcherResult</code> - allows to return object with <code>data</code> which will be as a source for children fields and provide a <code>localContext</code> to share unmodifiable data available in a child field using <code>env.localContext</code>.</p>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="inputtypes"><a class="link" href="#inputtypes">inputTypes</a></h3>
-<div class="paragraph">
-<p>This property is used to create custom input types.
-It must be an object with the following structure:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">inputTypes: {
-    &lt;InputTypeName&gt;: {
-        description: &lt;description&gt;
-        fields: {
-            &lt;fieldName&gt;: &lt;graphQLType&gt;,
-            // the rest of fields ...
-        },
-    },
-    // the rest of input type definitions ...
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">inputTypes: {
-    CustomInputFilter: {
-        description: "Custom Input Filter",
-        fields: {
-            exact: graphQL.GraphQLString,
-            startsWith: graphQL.GraphQLString,
-            endsWith: graphQL.GraphQLString,
-            contains: graphQL.GraphQLString
-        }
-    }
-}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="enums"><a class="link" href="#enums">enums</a></h3>
-<div class="paragraph">
-<p>This property is used to create custom enums.
-It must be an object with the following structure:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">enums: {
-    &lt;EnumTypeName&gt;: {
-        description: &lt;description&gt;
-        values: {
-            &lt;key1&gt;: &lt;value1&gt;,
-            &lt;key2&gt;: &lt;value2&gt;,
-            // the rest of pairs of key and value ...
-        },
-    },
-    // the rest of enum type definitions ...
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">enums: {
-    CustomEnum: {
-        description: "Custom Enum",
-        values: {
-            a: "A",
-            b: "B",
-        }
-    }
-}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="interfaces"><a class="link" href="#interfaces">interfaces</a></h3>
-<div class="paragraph">
-<p>This property is used to create custom interfaces.
-It must be an object with the following structure:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">interfaces: {
-    &lt;InterfaceTypeName&gt;: {
-        description: &lt;description&gt;
-        fields: {
-            &lt;fieldName&gt;: {
-               type: &lt;graphQLType&gt;,
-               args: {
-                 &lt;argName&gt;: &lt;graphQLType&gt;,
-                 // the rest of arguments ...
-               }
-            },
-            // the rest of field definitions ...
-        },
-    },
-    // the rest of interface definitions ...
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">interfaces: {
-    CustomInterface: {
-        description: "Custom Interface",
-        fields: {
-            query: {
-                type: graphQL.list(graphQL.GraphQLString),
-                args: {
-                    filter: graphQL.reference('CustomInputFilter')
-                }
-            }
-        },
-    }
-}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="unions"><a class="link" href="#unions">unions</a></h3>
-<div class="paragraph">
-<p>This property is used to create custom unions.
-It must be an object with the following structure:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">unions: {
-    &lt;UnionTypeName&gt;: {
-        description: &lt;description&gt;,
-        types: [
-            &lt;graphQLType&gt;,
-            // the rest of types or reference to type ...
-        ],
-    },
-    // the rest union definitions ...
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">unions: {
-    CustomUnion: {
-        description: "Custom Union",
-        types: [
-            graphQL.reference('GraphQLTypeNameOne'),
-            graphQL.reference('GraphQLTypeNameTwo'),
-        ]
-    }
-}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="types"><a class="link" href="#types">types</a></h3>
-<div class="paragraph">
-<p>This property is used to create object types. It must be an object with the following structure:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">types: {
-    &lt;GraphQLTypeName&gt;: {
-        description: &lt;description&gt;,
-        interfaces: [
-            &lt;InterfaceGraphQLType&gt;,
-            // the rest of interface types...
-        ],
-        fields: {
-            &lt;fieldName&gt;: {
-                type: &lt;graphQLType&gt;,
-                args: {
-                    &lt;argName&gt;: &lt;graphQLType&gt;,
-                    // the rest of arguments definitions ...
-                }
-            },
-            ...
-        },
-    },
-    ...
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">types: {
-    CustomInterfaceImpl: {
-        description: 'CustomInterface Implementation',
-        interfaces: [graphQL.reference('CustomInterface')],
-        fields: {
-            query: {
-                type: graphQL.list(graphQL.GraphQLString),
-                args: {
-                    filter: graphQL.reference('CustomInputFilter')
-                }
-            },
-            extraField: {
-                type: graphQL.GraphQLString,
-            }
-        }
-    }
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>According to GraphQL specification an implementation of an interface must implement all fields of the interface.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="creationcallbacks"><a class="link" href="#creationcallbacks">creationCallbacks</a></h3>
-<div class="paragraph">
-<p>This property is used to create callbacks that will be called during GraphQL schema generation when a specific type or interface is created.</p>
-</div>
-<div class="paragraph">
-<p>What you must know about creation callbacks:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Creation callbacks can be defined only for types and interfaces.</p>
-</li>
-<li>
-<p>Creation callback allows to add new fields, modify and remove existing fields, modify description and interfaces for type. Rename of fields is not supported.</p>
-</li>
-<li>
-<p>Take aware that creation callbacks can be called not in the same order as them are defined in the <code>creationCallbacks</code> property.</p>
-</li>
-<li>
-<p>Creation callbacks can be defined in the different applications. Therefore, there is a risk to have conflicts which can lead to schema generation errors or query errors. Not recommended to make modification for Content API&#8217;s fields. But if you have to do it then make sure that it will not to introduce conflicts and side effects. The developer is fully responsible for that.</p>
-</li>
-<li>
-<p>If you add or modify some fields to the interface in the creation callback, you must do that for all implementations. Otherwise, you will get an error during schema generation.</p>
-</li>
-<li>
-<p>If you modify some field make sure that you implement correct data fetcher in the <code>resolvers</code> section. Otherwise, you can get an error during query execution.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>This property must be an object with the following structure:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">creationCallbacks: {
-    &lt;GraphQLTypeName&gt;: function (params) {
-        // if you want to add new fields
-        params.addFields({
-            &lt;newFieldName&gt;: {
-                type: &lt;GraphQLType&gt;,
-                args: {
-                    &lt;argName&gt;: &lt;GraphQLType&gt;,
-                    // the rest of arguments definitions ...
-                },
-            },
-        });
-
-        // if you want to remove existing fields
-        params.removeFields([
-             "fieldName 1",
-             "filedName 2",
-             // the rest of fieldName ...
-        ]);
-
-        // If you want to modify existing fields.
-        // Take aware that all arguments will be rewritten by new arguments.
-        // If type or args are not provided then will be used type and args from original field.
-        params.modifyFields({
-            &lt;existingFieldName&gt;: {
-                type: &lt;GraphQLType&gt;,
-                args: {
-                    &lt;argName&gt;: &lt;GraphQLType&gt;,
-                    // the rest of arguments definitions ...
-                },
-            },
-        });
-
-        // If you want to change description
-        params.setDescription("New description");
-
-        // If you want to add or remove some interfaces to object.
-        // Take aware that interfaces will be rewritten by new array of interfaces.
-        // Also, developer is responseble for implmentation of interface, do not forget to add all required fields.
-        params.setInterfaces([
-            &lt;GraphQLInterfaceType or GraphQLReferenceType&gt;
-        ]);
-    },
-    // the rest of creation callback definition ...
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">creationCallbacks: {
-    MyCustomType: function (params) {
-        params.addFields({
-            extraField: {
-                type: graphQL.GraphQLString,
-            }
-        });
-
-        params.removeFields([
-            "fieldToRemove1",
-            "fieldToRemove2",
-        ]);
-
-        params.modifyFields({
-          fieldToModify: {
-            type: graphQL.GraphQLString,
-          }
-        });
-    },
-
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>To know how to set or override data fetcher for a field you can refer to the <code>resolvers</code> section.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="resolvers"><a class="link" href="#resolvers">resolvers</a></h3>
-<div class="paragraph">
-<p>This property is used to set or override data fetcher for a field. It must be an object with the following structure:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">resolvers: {
-    &lt;GraphQLTypeName&gt;: {
-        &lt;fieldName&gt;: function (env) {
-            // your code here
-        },
-        // the rest of field resolvers ...
-    },
-    // the rest of type resolvers ...
-}</code></pre>
-</div>
-</div>
-<div class="sect3">
-<h4 id="application_context"><a class="link" href="#application_context">Application context</a></h4>
-<div class="paragraph">
-<p>You can assume that inside resolver function you have access to the application context where extension is defined and can use <code>app.name</code> or <code>app.config</code> properties. But in the real that will be context for Guillotine application and those properties will return <code>com.enonic.app.guillotine</code> and an actual config for Guillotine application.</p>
-</div>
-<div class="paragraph">
-<p>If you need to have access in the resolver to the application context where extension is defined, then you can store these values outside <code>exports.extensions</code>.</p>
-</div>
-<div class="paragraph">
-<p>For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">const appName = app.name;
-const appConfig = app.config;
-
-exports.extensions = function (graphQL) {
-    return {
-        ...
-        resolvers: {
-            MyCustomType: {
-                myCustomField: function (env) {
-                    // here you can use `appName` and `appConfig`
-                }
-            }
-        },
-        ...
-   }
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>If the configuration of application is changed, then that will trigger restart of the application and Guillotine will update GraphQL schema. In the result you will have actual state of app.config in the resolver.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="datafetchingenvironment"><a class="link" href="#datafetchingenvironment">DataFetchingEnvironment</a></h4>
-<div class="paragraph">
-<p>A DataFetchingEnvironment instance (env) is passed to a DataFetcher as an execution context, and it&#8217;s the place where you can find information to help you resolve a data value given a GraphQL field input.</p>
-</div>
-<div class="paragraph">
-<p>Guillotine provides the following properties and function in the DataFetchingEnvironment:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>source</code> - it is the value of the parent field. For the root query it is equal to <code>null</code>.</p>
-</li>
-<li>
-<p><code>args</code> - the arguments provided to the field in the GraphQL query.</p>
-</li>
-<li>
-<p><code>localContext</code> - a context object that parent fields may have returned. This object  is unmodifiable.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>The <code>localContext</code> object supports value types such as <code>string</code>, <code>double</code>, <code>integer</code>, <code>boolean</code>, and <code>null</code>. Keys with a value equal to <code>null</code> will be ignored. If you need to provide as a value a complex object, you can use the <code>JSON.stringify</code> function to convert it to a string.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="createdatafetcherresult"><a class="link" href="#createdatafetcherresult">createDataFetcherResult</a></h4>
-<div class="paragraph">
-<p>Guillotine provides <code>createDataFetcherResult</code> function via <code>graphQL</code> object. This function will be useful when your <code>DataFetcher</code> retrieves data from multiple sources, or you want to pass extra context to lower levels.</p>
-</div>
-<div class="paragraph">
-<p>The <code>createDataFetcherResult</code> function accepts an object with the following properties:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>data - the data to return, must not be <code>null</code>. Object must be wrapped by <code>__.toScriptValue</code> function.</p>
-</li>
-<li>
-<p>localContext - a key-value object that will be passed to the lower levels. This object is unmodifiable at the lowest level.</p>
-</li>
-<li>
-<p>parentLocalContext - a context object that parent fields may have returned.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>If <code>parentLocalContext</code> is not provided, then <code>localContext</code> will override <code>parentLocalContext</code>. Otherwise, <code>localContext</code> will be merged with <code>parentLocalContext</code> and <code>localContext</code> will override <code>parentLocalContext</code> if they have the same keys.</p>
-</div>
-<div class="paragraph">
-<p>If <code>localContext</code> is not provided, then <code>parentLocalContext</code> will be used as <code>localContext</code>.</p>
-</div>
-<div class="paragraph">
-<p>Below you can find an example of how to use <code>createDataFetcherResult</code> function:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.extensions = function (graphQL) {
-    return {
-        ...
-        resolvers: {
-            MyCustomType: {
-                myCustomField: function (env) {
-                    return graphQL.createDataFetcherResult({
-                        data: __.toScriptValue({
-                           id: "100",
-                        }),
-                        localContext: {
-                            parentId: "101",
-                        },
-                        parentLocalContext: env.localContext,
-                    });
-                }
-            }
-        },
-        ...
-   }
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="typeresolvers"><a class="link" href="#typeresolvers">typeResolvers</a></h3>
-<div class="paragraph">
-<p>This property is used to set or override type resolver for a union or interface. It must be an object with the following structure:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
-    typeResolvers: {
-        &lt;GraphQLTypeName&gt;: function (obj) {
-            // your code here
-        },
-        // the rest of type resolvers ...
-    }
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
-    typeResolvers: {
-        CustomInterface: function (obj) {
-            return 'CustomInterfaceImpl';
-        },
-        CustomUnion: function (obj) {
-            if (obj.title) {
-                return 'GraphQLTypeNameOne';
-            }
-            return 'GraphQLTypeNameTwo';
-        },
-    }
-}</code></pre>
-</div>
 </div>
 </div>
 </div>
@@ -1163,7 +678,7 @@ function sendRequestToBooksApi(queryString) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-03 09:51:46 UTC
+Last updated 2024-01-03 14:20:29 UTC
 </div>
 </div>
 </body>
