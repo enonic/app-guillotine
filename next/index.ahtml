@@ -445,6 +445,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#query_examples">Query examples</a></li>
 <li><a href="#clients">Clients</a></li>
 <li><a href="#graphql_api">GraphQL API</a></li>
+<li><a href="#extending">Extending</a></li>
 </ul>
 </div>
 </div>
@@ -523,10 +524,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="extending"><a class="link" href="#extending">Extending</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Guillotine allows you to extend the API with custom fields, types and more.</p>
+</div>
+<div class="paragraph">
+<p>Learn more about <a href="extending.ahtml">extending the API</a>.</p>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-04 14:26:49 UTC
+Last updated 2024-01-04 14:30:33 UTC
 </div>
 </div>
 </body>
