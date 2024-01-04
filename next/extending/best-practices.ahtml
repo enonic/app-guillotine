@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Untitled</title>
+<title>Best Practices</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -434,15 +434,160 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body class="article toc2 toc-right">
 <div id="header">
+<h1>Best Practices</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#extending">Extending</a>
+<ul class="sectlevel2">
+<li><a href="#adding_custom_fields">Adding custom fields</a></li>
+<li><a href="#coding_guidelines">Coding guidelines</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>On this page we would like to share with you some of the best practices that we have learned from our experience. We hope that you will find them useful too.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="extending"><a class="link" href="#extending">Extending</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Guillotine GraphQL API provides the <code>guillotine</code> field in the root <code>Query</code> type. Utilizing this field enables you to access a variety of functionalities, including retrieving individual Content instances by key, querying multiple Contents, and more.</p>
+</div>
+<div class="sect2">
+<h3 id="adding_custom_fields"><a class="link" href="#adding_custom_fields">Adding custom fields</a></h3>
+<div class="paragraph">
+<p>Guillotine allows you to extend not only Guillotine-specific features, but also the root <code>Query</code> type.</p>
+</div>
+<div class="paragraph">
+<p>For instance, you may want to add to fields:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>serverTime: DateTime</code> - this field returns the current server time</p>
+</li>
+<li>
+<p><code>getMenu(contentKey: String!): Menu</code> - this field returns a menu for specified <code>Content</code> instance</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>So, you should decide where to put those fields. You can either add them to the root <code>Query</code> type or to the <code>HeadlessCms</code> type which represents <code>guillotine</code> field.</p>
+</div>
+<div class="paragraph">
+<p>We recommend to use this rule: if field is related to a <code>Content</code> instance, then add it to the <code>HeadlessCms</code> type, otherwise add it to the root <code>Query</code> type.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.extensions = function (graphQL) {
+    return {
+        types: {
+            Menu: {
+                fields: {
+                    // add fields here
+                }
+            }
+        },
+        creationCallbacks: {
+            Query: function (params) {
+                params.addFields({
+                    serverTime: {
+                        type: graphQL.DateTime
+                    }
+                });
+            },
+            HeadlessCms: function (params) {
+                params.addFields({
+                    getMenu: {
+                        type: graphQL.reference('Menu'),
+                        args: {
+                            contentKey: {
+                                type: graphQL.nonNull(graphQL.GraphQLString)
+                            }
+                        }
+                    }
+                });
+            }
+        },
+        resolvers: {
+            Query: {
+                serverTime: function (env) {
+                    // return current server time
+                }
+            },
+            HeadlessCms: {
+                getMenu: function (env) {
+                    // return menu for specified Content instance
+                }
+            },
+        },
+    }
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the same way you can add fields to any other type.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="coding_guidelines"><a class="link" href="#coding_guidelines">Coding guidelines</a></h3>
+<div class="paragraph">
+<p>The <code>extensions</code> function can be huge enough, so we recommend to split it into several files. For example, you can create a file for each property such <code>types</code>, <code>creationCallbacks</code>, <code>resolvers</code> and others. And if needed, you can split them into several files too.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">const typesFactory = require('./types-factory');
+const creationCallbacksFactory = require('./creation-callbacks-factory');
+const resolversFactory = require('./resolvers-factory');
 
+exports.extensions = function (graphQL) {
+    return {
+        types: typesFactory.create(graphQL),
+        creationCallbacks: creationCallbacksFactory.create(graphQL),
+        resolvers: resolversFactory.create(graphQL)
+    }
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s take a look at the <code>resolvers-factory.js</code> file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">const headlessCmsResolversFactory = require('./headless-cms-resolvers-factory');
+const queryResolversFactory = require('./query-resolvers-factory');
+
+exports.create = function (graphQL) {
+    return {
+        Query: queryResolversFactory.create(graphQL),
+        HeadlessCms: headlessCmsResolversFactory.create(graphQL)
+    }
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This example shows how to split the <code>resolvers</code> property into two files: <code>headless-cms-resolvers-factory.js</code> and <code>query-resolvers-factory.js</code>, where each file contains resolvers for fields the corresponding type.</p>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-03 15:45:00 UTC
+Last updated 2024-01-04 14:26:49 UTC
 </div>
 </div>
 </body>
