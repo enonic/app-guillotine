@@ -1,0 +1,40 @@
+= Query Playground
+
+Access and test the API via the embedded API browser
+
+== Content Studio Extension
+
+Guillotine extends Content Studio with a new panel called Query Playground. It is only accessible for users with the `system.admin` or `cms.admin` roles.
+
+Query Playground lets you run queries in context of your content. You may choose to query either the draft items (draft branch), or the published items (master branch).
+
+* The left panel is used to display documentation generated from the GraphQL API
+* The center panel allows you to edit your GraphQL query
+* The right panel displays the result of the query execution
+* Branch selector (Draft/Master) can be found in the top right corner
+* Each query is executed in a specific context, which is determined by the project and the branch
+
+image::images/graphiql2-ide.png[Query playground interface]
+
+
+=== Query example
+
+* Paste the query below inside the left panel.
++
+This query can be read as: Retrieve the display name and type of the root items.
+* Click on the query play button above
+* The service response is displayed in the center panel
+
+.getSite
+[source,graphql]
+----
+{
+  guillotine{
+ 	getChildren(key:"/") {
+ 	  displayName
+ 	}
+  }
+}
+----
+
+

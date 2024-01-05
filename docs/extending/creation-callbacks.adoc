@@ -1,16 +1,27 @@
 = creationCallbacks
 
-This property is used to define `creationCallbacks` that will be called during GraphQL schema generation when a specific type or interface is created.
+Add remove, or modify existing fields, their description, types and interfaces. 
 
-What you must know about creation callbacks:
+== Introduction
 
-- Creation callbacks can be defined only for types and interfaces.
-- Creation callback allows to add new fields, modify and remove existing fields, modify description and interfaces for type.
-- Rename of fields is not supported.
-- Take aware that creation callbacks can be called not in the same order as them are defined in the `creationCallbacks` property.
-- Creation callbacks can be defined in the different applications. Therefore, there is a risk to have conflicts which can lead to schema generation errors or query errors. Not recommended to make modification for Content API's fields. But if you have to do it then make sure that it will not to introduce conflicts and side effects. The developer is fully responsible for that.
-- If you add or modify some fields to the interface in the creation callback, you must do that for all implementations. Otherwise, you will get an error during schema generation.
-- If you modify some field make sure that you implement correct data fetcher in the <<./resolvers#,resolvers>> section. Otherwise, you can get an error during query execution.
+creationCallbacks are invoked during the GraphQL schema generation - every time Guillotine or an application extending Guilltine is started or stopped.
+
+
+Important to remember:
+
+- Can only be defined for <<types#, types>> and <<interfaces#, interfaces>>.
++
+NOTE: field renaming is not supported.
++
+- May be invoked in a different order from what is defined in the `creationCallbacks` property.
+- If you add or modify some fields to an interface in the creation callback, you must also do that for all implementations. Otherwise, you will get an error during schema generation.
+- If you modify some field, make sure that you implement correct data fetcher in the <<./resolvers#,resolvers>> section. Otherwise, you can get an error during query execution.
+
+WARNING: *Conflicts*. Multiple applications may define creationCallbacks. Conflicts between these may lead to schema generation errors or query errors.
+
+NOTE: It is *NOT recommended* to make modification to the standard fields of the `HeadlessCMS` type. But if you have to do it then make sure that it will not introduce conflicts and side effects.
+
+== Usage
 
 This property must be an object with the following structure:
 

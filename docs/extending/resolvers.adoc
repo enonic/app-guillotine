@@ -1,6 +1,10 @@
 = resolvers
 
-This property is used to set or override data fetcher for a field. It must be an object with the following structure:
+Set or override data fetcher for a field.
+
+== Usage
+
+It must be an object with the following structure:
 
 [source,javascript]
 ----

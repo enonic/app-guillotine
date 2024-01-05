@@ -2,11 +2,11 @@
 
 The previous version of the Guillotine application did not allow for the customization of a GraphQL schema, so developers had to use the Guillotine library instead.
 
-WARNING: We are not going to support the Guillotine library anymore, so you will have to migrate your code to the new version of the Guillotine application.
+WARNING: The Guillotine library is deprecated, so you will have to migrate your code to the new version of the Guillotine application, or keep the current library setup.
 
-WARNING: We also are not going to support `Subscription` in Guillotine application, so you will have to migrate your code to a custom solution. Current version of application does not provide any solution how to create a custom `Subscription`.
+WARNING: `Subscriptions` are deprecated, so you will have to migrate your code to a custom solution. Current version of application does not provide any solution how to create a custom `Subscription`.
 
-WARNING: Guillotine application does not support customizing list of `applications` for each schema must be generated, in this case schema will be generated for all installed applications. The rest of options like `allowPaths` and `subscriptionEventTypes` are not supported too.
+WARNING: The Guillotine API is now Global, meaning the schema will be generated once, for all installed applications. Old options like `allowPaths` and `subscriptionEventTypes` are no longer supported.
 
 In order to migrate your code, you will have to:
 

@@ -1,0 +1,17 @@
+= Configuration options
+
+The following configuration options are avaiable for Guillotine
+
+== Config file
+
+To configure Guillotine, add a configuration file to your instance config folder.
+
+.com.enonic.app.guillotine.cfg
+[source,properties]
+----
+queryplayground.ui.mode=off  // <1>
+----
+
+<1> Enable or disable Query playground on project root.
++
+NOTE: For Enonic SDK default = on, for server distributions, default = off.

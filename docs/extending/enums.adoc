@@ -1,6 +1,9 @@
 = enums
 
-This property is used to create custom enums.
+Add custom GraphQL enums
+
+== Usage
+
 It must be an object with the following structure:
 
 [source,javascript]

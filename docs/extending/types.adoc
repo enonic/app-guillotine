@@ -1,6 +1,10 @@
 = types
 
-This property is used to create types. It must be an object with the following structure:
+Add custom GraphQL types
+
+== Usage
+
+It must be an object with the following structure:
 
 [source,javascript]
 ----
