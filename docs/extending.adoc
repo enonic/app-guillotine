@@ -53,22 +53,8 @@ exports.extensions = function (graphQL) {
 <7> The `resolvers` property allows you to set or override type resolver for a type. More information about usage of resolvers you can find <<extending/resolvers#,here>>.
 <8> The `typeResolvers` property allows you to set or override type resolver for an interface or a union. More information about usage of type resolvers you can find <<extending/type-resolvers#,here>>.
 
-
 You can omit any of the properties, but you must return an object with the same structure. The order of the properties is not important.
 
-This function will be called when the application is started. Also, this function takes an `graphQL` argument, which is a reference to the GraphQL utility object and provides to access to scalars, types, type modifiers and functions.
-
-== Scalars and Types
-
-`GraphQLString`, `GraphQLInt`, `GraphQLID`, `GraphQLBoolean`, `GraphQLFloat`, `Json`, `DateTime`, `Date`, `LocalTime` `LocalDateTime` and `reference` type.
-
-== Type modifiers
-
-The `list` and `nonNull` type modifiers allow applies additional validation of those values.
-
-== Functions
-
-`createDataFetcherResult` - allows to return object with `data` which will be as a source for children fields and provide a `localContext` to share unmodifiable data available in a child field using `env.localContext`.
 
 == Example of usage
 
@@ -179,3 +165,22 @@ function sendRequestToBooksApi(queryString) {
 This example is very simple and does not cover all possible cases. For example, it does not handle errors from the Google Books API, does not cache values and, etc. But it shows how to extend the GraphQL schema with a new type and a new field.
 
 You can separate definitions of types, creationCallbacks, resolvers and the rest of options into different files and import them into the `guillotine.js` file, to make your code more readable and maintainable.
+
+
+== Arguments
+
+When Guilltine invokes the extensions function, it will pass a utility object as an argument, giving your extension acccess to standard scalars, types, type modifiers and functions.
+
+These are:
+
+Scalars and Types:: `GraphQLString`, `GraphQLInt`, `GraphQLID`, `GraphQLBoolean`, `GraphQLFloat`, `Json`, `DateTime`, `Date`, `LocalTime` `LocalDateTime` and `reference` type.
+
+Type modifiers:: The `list` and `nonNull` type modifiers allow applies additional validation of those values.
+
+Functions:: `createDataFetcherResult` - allows to return object with `data` which will be as a source for children fields and provide a `localContext` to share unmodifiable data available in a child field using `env.localContext`.
+
+
+== Lifecycle
+
+The extensions function will be invoked by Guillotine when your application (the application containing the guillotine.js controller) is started, or when Guillotine itself is started.
+
