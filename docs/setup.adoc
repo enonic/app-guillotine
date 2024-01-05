@@ -27,7 +27,7 @@ When using the Enonic SDK, you may instantly access and verify that the API is w
 
     http://localhost:8080/site/<project>
 
-Accessing this URL with your browser will load the <<query-playground#, GraphQL Playground>>, where you may instantly <<usage#, try out some queries>>.
+Accessing this URL with your browser will load the <<playground#, GraphQL Playground>>, where you may instantly <<usage#, try out some queries>>.
 
 NOTE: For production servers this feature is disabled by default - but can be activated via a <<configuration#, configuration file>>.
 

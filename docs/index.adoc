@@ -14,7 +14,7 @@ What you will find in this documentation, enjoy:
 
 Installation:: How to <<setup#, install and deploy Guillotine>>
 
-Query playground:: Content Studio extension, allowing privileged users to <<query-playground#, query the API in context of the content>>.
+Query playground:: Content Studio extension, allowing privileged users to <<playground#, query the API in context of the content>>.
 
 Query examples:: A basic introduction to using the API, with hands <<usage#,examples on how to use the API>>.
 
