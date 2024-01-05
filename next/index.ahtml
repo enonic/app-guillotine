@@ -484,7 +484,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Query playground</dt>
 <dd>
-<p>Content Studio extension, allowing privileged users to <a href="query-playground.ahtml">query the API in context of the content</a>.</p>
+<p>Content Studio extension, allowing privileged users to <a href="playground.ahtml">query the API in context of the content</a>.</p>
 </dd>
 <dt class="hdlist1">Query examples</dt>
 <dd>
@@ -505,7 +505,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 13:59:36 UTC
+Last updated 2024-01-05 14:25:08 UTC
 </div>
 </div>
 </body>

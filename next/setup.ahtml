@@ -512,7 +512,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>Accessing this URL with your browser will load the <a href="query-playground.ahtml">GraphQL Playground</a>, where you may instantly <a href="usage.ahtml">try out some queries</a>.</p>
+<p>Accessing this URL with your browser will load the <a href="playground.ahtml">GraphQL Playground</a>, where you may instantly <a href="usage.ahtml">try out some queries</a>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -590,7 +590,7 @@ mapping.my-api.target = /site/&lt;project&gt;</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 13:59:36 UTC
+Last updated 2024-01-05 14:25:08 UTC
 </div>
 </div>
 </body>

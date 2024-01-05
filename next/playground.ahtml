@@ -440,11 +440,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#content_studio_extension">Content Studio Extension</a>
-<ul class="sectlevel2">
+<li><a href="#content_studio_extension">Content Studio Extension</a></li>
+<li><a href="#api_browser">API browser</a></li>
 <li><a href="#query_example">Query example</a></li>
-</ul>
-</li>
 </ul>
 </div>
 </div>
@@ -462,42 +460,63 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>Guillotine extends Content Studio with a new panel called Query Playground. It is only accessible for users with the <code>system.admin</code> or <code>cms.admin</code> roles.</p>
 </div>
-<div class="paragraph">
-<p>Query Playground lets you run queries in context of your content. You may choose to query either the draft items (draft branch), or the published items (master branch).</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>The left panel is used to display documentation generated from the GraphQL API</p>
-</li>
-<li>
-<p>The center panel allows you to edit your GraphQL query</p>
-</li>
-<li>
-<p>The right panel displays the result of the query execution</p>
-</li>
-<li>
-<p>Branch selector (Draft/Master) can be found in the top right corner</p>
-</li>
-<li>
-<p>Each query is executed in a specific context, which is determined by the project and the branch</p>
-</li>
-</ul>
+</div>
+<div class="sect1">
+<h2 id="api_browser"><a class="link" href="#api_browser">API browser</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Query Playground lets you access the detailed documentation, and peform queries in context of your content:</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/graphiql2-ide.png" alt="Query playground interface">
+<img src="images/playground.png" alt="Query playground interface" width="1320px">
 </div>
 </div>
-<div class="sect2">
-<h3 id="query_example"><a class="link" href="#query_example">Query example</a></h3>
-<div class="ulist">
-<ul>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Left panel</dt>
+<dd>
+<p>GraphQL API documentation</p>
+</dd>
+<dt class="hdlist1">Center panel</dt>
+<dd>
+<p>Edit your GraphQL query</p>
+</dd>
+<dt class="hdlist1">Right panel</dt>
+<dd>
+<p>Displays query results</p>
+</dd>
+<dt class="hdlist1">Branch selector</dt>
+<dd>
+<p>Toggle between querying Draft and Master branches</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Each query is executed in a specific context, which is determined by the project and the branch.
+</td>
+</tr>
+</table>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="query_example"><a class="link" href="#query_example">Query example</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Try out this query for a start.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
 <p>Paste the query below inside the left panel.</p>
-<div class="paragraph">
-<p>This query can be read as: Retrieve the display name and type of the root items.</p>
-</div>
 </li>
 <li>
 <p>Click on the query play button above</p>
@@ -505,10 +524,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li>
 <p>The service response is displayed in the center panel</p>
 </li>
-</ul>
+</ol>
 </div>
 <div class="listingblock">
-<div class="title">getSite</div>
+<div class="title">Retrieve the displayName and type of the root items.</div>
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">{
   guillotine{
@@ -519,13 +538,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 }</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>There are more examples available in the <a href="usage.ahtml">Usage section</a>.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 13:59:36 UTC
+Last updated 2024-01-05 14:25:08 UTC
 </div>
 </div>
 </body>
