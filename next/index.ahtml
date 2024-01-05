@@ -445,10 +445,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#introduction">Introduction</a></li>
-<li><a href="#query_playground">Query Playground</a></li>
-<li><a href="#query_examples">Query examples</a></li>
-<li><a href="#command_line_and_javascript">Command line and JavaScript</a></li>
-<li><a href="#extending">Extending</a></li>
+<li><a href="#overview">Overview</a></li>
 </ul>
 </div>
 </div>
@@ -474,50 +471,41 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="query_playground"><a class="link" href="#query_playground">Query Playground</a></h2>
+<h2 id="overview"><a class="link" href="#overview">Overview</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Guillotine extends Content Studio, allowing privileged users to <a href="query-playground.ahtml">query the API in context of their content</a>.</p>
+<p>What you will find in this documentation, enjoy:</p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="query_examples"><a class="link" href="#query_examples">Query examples</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>A basic introduction to using the API, with hands on example queries.</p>
-</div>
-<div class="paragraph">
-<p>Learn more about <a href="query-examples.ahtml">how to use the API</a>.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="command_line_and_javascript"><a class="link" href="#command_line_and_javascript">Command line and JavaScript</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Examples on how to invoke the API using <a href="usage/curl.ahtml">cURL</a> or <a href="usage/javascript.ahtml">JavaScript</a>.</p>
-</div>
-<div class="paragraph">
-<p>Learn more about GraphQL and how to <a href="clients.ahtml">invoke the API from different clients</a>.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="extending"><a class="link" href="#extending">Extending</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Guillotine&#8217;s superpower lies in the ability to dynamically extend and augment the API to match the requirements of your digital experiences and front-ends.</p>
-</div>
-<div class="paragraph">
-<p>Learn more about <a href="extending.ahtml">extending the API</a>.</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Installation</dt>
+<dd>
+<p>How to <a href="setup.ahtml">install and deploy Guillotine</a></p>
+</dd>
+<dt class="hdlist1">Query playground</dt>
+<dd>
+<p>Content Studio extension, allowing privileged users to <a href="query-playground.ahtml">query the API in context of the content</a>.</p>
+</dd>
+<dt class="hdlist1">Query examples</dt>
+<dd>
+<p>A basic introduction to using the API, with hands <a href="usage.ahtml">examples on how to use the API</a>.</p>
+</dd>
+<dt class="hdlist1">Clients</dt>
+<dd>
+<p>Demonstrating how to invoke the API using <a href="usage/curl.ahtml">cURL</a> or <a href="usage/javascript.ahtml">JavaScript</a>.</p>
+</dd>
+<dt class="hdlist1">Extending and augmenting</dt>
+<dd>
+<p>Discover Guillotine&#8217;s superpower and how to <a href="extending.ahtml">dynamically extend the API to match your needs</a>.</p>
+</dd>
+</dl>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 13:52:59 UTC
+Last updated 2024-01-05 13:59:36 UTC
 </div>
 </div>
 </body>
