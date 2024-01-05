@@ -5,7 +5,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<meta name="author" content="A bend-over-backwards flexible GraphQL API based on XP&#8217;s content API">
 <title>Guillotine 7 - GraphQL API for Enonic XP</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -438,9 +437,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <body class="article toc2 toc-right">
 <div id="header">
 <h1>Guillotine 7 - GraphQL API for Enonic XP</h1>
-<div class="details">
-<span id="author" class="author">A bend-over-backwards flexible GraphQL API based on XP&#8217;s content API</span><br>
-</div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
@@ -450,6 +446,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>A bend-over-backwards flexible GraphQL API based on XP&#8217;s content API</p>
+</div>
+</div>
+</div>
 <div class="sect1">
 <h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
 <div class="sectionbody">
@@ -460,13 +463,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-<strong>Quickstart!</strong> Check out <a href="https://developer.enonic.com/docs/developer-101">the Developer 101 tutorial</a> for a hands-on introduction to Enonic and the Guillotine API.
+<strong>Quickstart!</strong> Check out <a href="https://developer.enonic.com/docs/developer-101">the Developer 101 tutorial</a> for a hands-on introduction to Enonic and the GraphQL API.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>Guillotine is at the essence a strongly typed GraphQL read-only version of XP&#8217;s internal <a href="https://developer.enonic.com/docs/xp/stable/api/lib-content">JS Content API</a>.</p>
+<p>At its core, Guillotine is a strongly typed GraphQL version of XP&#8217;s internal <a href="https://developer.enonic.com/docs/xp/stable/api/lib-content">JS Content API</a>.</p>
 </div>
 </div>
 </div>
@@ -474,7 +477,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="overview"><a class="link" href="#overview">Overview</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>What you will find in this documentation, enjoy:</p>
+<p>What you will find in this documentation:</p>
 </div>
 <div class="dlist">
 <dl>
@@ -505,7 +508,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 14:25:08 UTC
+Last updated 2024-01-05 14:36:42 UTC
 </div>
 </div>
 </body>

@@ -460,13 +460,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="installation"><a class="link" href="#installation">Installation</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Guillotine is available as an Enonic app.</p>
+<p>Guillotine is available as an Enonic app. Guillotine will normally be pre-installed when you create a new solution in the self-service cloud, or when setting up a new SDK Sandbox.</p>
 </div>
 <div class="paragraph">
-<p>In most cases, Guillotine will be pre-installed when you create a new solution in the self-service cloud, or when setting up a new SDK Sandbox.</p>
-</div>
-<div class="paragraph">
-<p>To install it manually, simply following the instructions on <a href="https://market.enonic.com/vendors/enonic/guillotine-headless-cms">Enonic Market</a>.</p>
+<p>To install it manually, follow the <a href="https://market.enonic.com/vendors/enonic/guillotine-headless-cms">instructions on Enonic Market</a>.</p>
 </div>
 </div>
 </div>
@@ -535,10 +532,10 @@ For production servers this feature is disabled by default - but can be activate
 <p>When using Enonic&#8217;s self service hosting (or the <a href="https://developer.enonic.com/docs/kubernetes-operator-for-xp">Enonic K8s Operator</a>), expose the API publicly by creating an Ingress.</p>
 </div>
 <div class="paragraph">
-<p>You may expose an entire project, or just a selected branch. The following example exposes the entire project.</p>
+<p>You may expose an entire project, or just a selected branch. The following example exposes the entire project:</p>
 </div>
 <div class="paragraph">
-<p>In your Ingress, specify the target as <code>/site/&lt;myproject&gt;</code> (where &lt;myproject&gt; is replaced with your actual project name).</p>
+<p>In your Ingress, specify the target as <code>/site/&lt;project&gt;</code> (where &lt;project&gt; is replaced with your actual project name).</p>
 </div>
 <div class="paragraph">
 <p>If the Ingress is example.com/api, you will now be able to access the master and draft API&#8217;s on example.com/api/master and example.com/api/draft respectively.</p>
@@ -590,7 +587,7 @@ mapping.my-api.target = /site/&lt;project&gt;</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 14:25:08 UTC
+Last updated 2024-01-05 14:36:42 UTC
 </div>
 </div>
 </body>
