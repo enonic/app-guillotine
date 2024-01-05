@@ -1,14 +1,16 @@
 = Using the Guillotine API
 
-This section provides a set of example queries.
+Example queries when using Guillotine
 
 TIP: Visit our https://developer.enonic.com/docs/developer-101[Developer 101 tutorial] for detailed introduction to Enonic and use of the Guillotine API
 
 == Introduction
 
-With Guillotine setup, you may perform a range of queries. 
+The Guillotine API and GrapQL schema dynamically adapts to your content model, the examples below are based on a fictional content model and content structure.
 
-NOTE: The API and GrapQL types dynamically adapts to your content model, the examples below are based on a fictional content model and data.
+TIP: Here are details on how to invoke the API from <<usage/javascript#, JavaScript>> or command line via <<usage/curl#, cURL>>
+
+Below is a selection of sample GraphQL queries:
 
 == Content queries
 

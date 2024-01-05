@@ -1,19 +1,16 @@
 = Guillotine - GraphQL content API for Enonic XP
 
-Guillotine exposes a highly flexible GraphQL API built on top of XP's content API
-
-TIP: *Quickstart!* For hands on usage of Enonic and the Guillotine API, check out https://developer.enonic.com/docs/developer-101[the Developer 101 tutorial].
+A bend-over-backwards flexible GraphQL API based on XP's content API
 
 == Introduction
-The Guillotine API is essentially a strongly typed GraphQL read-only version of XP's internal https://developer.enonic.com/docs/xp/stable/api/lib-content[JS Content API]. 
 
-In addition to the API, Guillotine adds a new panel to Content Studio, allowing privileged users to query the API in context of their content.
+TIP: *Quickstart!* Check out https://developer.enonic.com/docs/developer-101[the Developer 101 tutorial] for a hands-on introduction to Enonic and the Guillotine API.
 
-== Endpoints
+Guillotine is at the essence a strongly typed GraphQL read-only version of XP's internal https://developer.enonic.com/docs/xp/stable/api/lib-content[JS Content API]. 
 
-Guillotine automatically provisions endpoints to access the API.
+== Query Playground
 
-Learn how to <<endpoints#,access the API>>
+Guillotine extends Content Studio, allowing privileged users to <<query-playground#, query the API in context of their content>>.
 
 == Query examples
 
@@ -21,22 +18,14 @@ A basic introduction to using the API, with hands on example queries.
 
 Learn more about <<query-examples.adoc#,how to use the API>>.
 
+== Command line and JavaScript
 
-== Clients
-
-How to invoke the API from Content Studio, via cURL, or from JavaScript.
+Examples on how to invoke the API using <<usage/curl#, cURL>> or <<usage/javascript#, JavaScript>>.
 
 Learn more about GraphQL and how to <<clients#,invoke the API from different clients>>.
 
-
-== GraphQL API
-
-Guillotine provides a set of standard fields, but also dynamically generates GraphQL Types based on the installed schemas.
-
-Learn more about the <<api#,standard schema types>>.
-
 == Extending
 
-Guillotine allows you to extend the API with custom fields, types and more.
+Guillotine's superpower lies in the ability to dynamically extend and augment the API to match the requirements of your digital experiences and front-ends.
 
 Learn more about <<extending#,extending the API>>.
