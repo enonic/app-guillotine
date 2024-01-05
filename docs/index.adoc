@@ -1,5 +1,4 @@
-= Guillotine - GraphQL content API for Enonic XP
-
+= Guillotine 7 - GraphQL API for Enonic XP
 A bend-over-backwards flexible GraphQL API based on XP's content API
 
 == Introduction
