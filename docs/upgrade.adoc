@@ -1,19 +1,47 @@
 = Upgrade Notes
 
-The previous version of the Guillotine application did not allow for the customization of a GraphQL schema, so developers had to use the Guillotine library instead.
 
-WARNING: The Guillotine library is deprecated, so you will have to migrate your code to the new version of the Guillotine application, or keep the current library setup.
+== Global Schema
 
-WARNING: `Subscriptions` are deprecated, so you will have to migrate your code to a custom solution. Current version of application does not provide any solution how to create a custom `Subscription`.
+The Guillotine API is now Global, meaning the schema will include types and extensions for all installed applications, regardless of the context you use to access the API.
 
-WARNING: The Guillotine API is now Global, meaning the schema will be generated once, for all installed applications. Old options like `allowPaths` and `subscriptionEventTypes` are no longer supported.
+== Subscriptions
+
+Due to limited interest and use, `Subscriptions` have been removed from Guillotine 7. 
+
+Guillotine 7 does not provide a way to add custom subscriptions at the moment. If you need subscriptions, this will require you to build a custom API, consider using the Guillotine 6 code as a foundation.
+
+== Deprecated fields
+
+The `query` and `queryConnection` fields are deprecated. Use `queryDsl` and `queryDslConnection` instead
+
+== Url fields
+
+URL field arguments (i,e, pageUrl(), imageUrl() etc) were previously of type `String`, but are now of type `JSON`.
+
+* Old way: `pageUrl(type: xxx TODO)`
+* New way: `pageUrl({args})`
+
+
+== Guillotine library
+
+Guillotine 7 now supports <<extending#, dynamically extending and augmenting of the API>>. As a result the Guillotine library has been discontinued.
+
+If you have been using the Guillotine library, and want to keep similar funcitonality with v7, you will have to migrate to the new way of extending.
+
+Legacy options like `allowPaths` and `subscriptionEventTypes` are no longer supported either.
+
+NOTE: Remember, you can still install Guillotine 7, and keep your old library-based application in the same Enonic instance.
+
+
+=== Migrating
 
 In order to migrate your code, you will have to:
 
-- Create a new application or use an existing one, where you should create `guillotine.js` file in the `src/main/resources/guillotine` folder of your project.
-- This file must contain a function that returns an object with structure which described <<extending#, here>>.
-- Your schema will be available at the POST `/site/<project-name>/<branch-name>` endpoint. More information about this endpoint can be found  <<endpoints#, here>>.
-- To specify site context you should provide the `siteKey` argument in the `guillotine` field. This approach is recommended, because we will keep it. Of course, you can still use the `X-Guillotine-SiteKey` HTTP header, but it can be deprecated and removed in the future versions.
+. Create a new application or use an existing one, where you should create `guillotine.js` file in the `src/main/resources/guillotine` folder of your project.
+. This file must contain a function that returns an object with structure which described <<extending#, here>>.
+. Your schema will be available at the POST `/site/<project-name>/<branch-name>` endpoint. More information about this endpoint can be found  <<endpoints#, here>>.
+. To specify site context you should provide the `siteKey` argument in the `guillotine` field. This approach is recommended, because we will keep it. Of course, you can still use the `X-Guillotine-SiteKey` HTTP header, but it can be deprecated and removed in the future versions.
 
 Let see important changes in the new version of the Guillotine application related with `creationCallbacks`:
 
@@ -25,7 +53,7 @@ Let see important changes in the new version of the Guillotine application relat
 
 More information about `creationCallbacks` can be found <<extending/creation-callbacks#, here>>.
 
-== Example of migration
+=== Example of migration
 
 Now let see the example of migration from the Guillotine library to the Guillotine application.
 
@@ -108,4 +136,4 @@ This code has the following important things:
 
 That it, our migration is done.
 
-To know more about extensions you can refer to this <<extending#, page>>.
+Visit the <<extending#,extensions documentation>> for more details.

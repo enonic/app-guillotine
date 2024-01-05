@@ -44,14 +44,14 @@ exports.extensions = function (graphQL) {
 };
 ----
 
-<1> The `inputTypes` property allows you to define new input types. More information about usage of input types you can find <<extending/input-types#,here>>.
-<2> The `enums` property allows you to define new enum types. More information about usage of enums you can find <<extending/enums#,here>>.
-<3> The `interfaces` property allows you to define new interfaces. More information about usage of interfaces you can find <<extending/interfaces#,here>>.
-<4> The `unions` property allows you to define new unions. More information about usage of unions you can find <<extending/unions.adoc#,here>>.
-<5> The `types` property allows you to define new output types. More information about usage of types you can find <<extending/types#,here>>.
-<6> The `creationCallbacks` property allows you to set or override data fetcher for a field. More information about usage of creation callbacks you can find <<extending/creation-callbacks#,here>>.
-<7> The `resolvers` property allows you to set or override type resolver for a type. More information about usage of resolvers you can find <<extending/resolvers#,here>>.
-<8> The `typeResolvers` property allows you to set or override type resolver for an interface or a union. More information about usage of type resolvers you can find <<extending/type-resolvers#,here>>.
+<1> Define <<extending/input-types#,custom input types>>.
+<2> Define <<extending/enums#,custom enums>>.
+<3> Define <<extending/interfaces#,custom iterfaces>>.
+<4> Define <<extending/unions#,custom unions>>.
+<5> Define <<extending/types#,custom types>>.
+<6> Use `creationCallbacks` to <<extending/creation-callbacks#,add, remove or augment existing fields and interfaces.>>.
+<7> Use `resolvers` to <<extending/resolvers#,set or override data fetchers for specific fields>>.
+<8> Use `typeResolvers` to <<extending/type-resolvers#,set or override the type resolver for an interface or a union>>.
 
 You can omit any of the properties, but you must return an object with the same structure. The order of the properties is not important.
 
@@ -169,9 +169,7 @@ You can separate definitions of types, creationCallbacks, resolvers and the rest
 
 == Arguments
 
-When Guilltine invokes the extensions function, it will pass a utility object as an argument, giving your extension acccess to standard scalars, types, type modifiers and functions.
-
-These are:
+When Guillotine invokes the extensions function, it will pass a utility object as an argument, giving your extension acccess to standard scalars, types, type modifiers and functions:
 
 Scalars and Types:: `GraphQLString`, `GraphQLInt`, `GraphQLID`, `GraphQLBoolean`, `GraphQLFloat`, `Json`, `DateTime`, `Date`, `LocalTime` `LocalDateTime` and `reference` type.
 
