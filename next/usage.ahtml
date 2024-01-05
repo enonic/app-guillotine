@@ -467,7 +467,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section provides a set of example queries.</p>
+<p>Example queries when using Guillotine</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -487,19 +487,22 @@ Visit our <a href="https://developer.enonic.com/docs/developer-101">Developer 10
 <h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>With Guillotine setup, you may perform a range of queries.</p>
+<p>The Guillotine API and GrapQL schema dynamically adapts to your content model, the examples below are based on a fictional content model and content structure.</p>
 </div>
-<div class="admonitionblock note">
+<div class="admonitionblock tip">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-The API and GrapQL types dynamically adapts to your content model, the examples below are based on a fictional content model and data.
+Here are details on how to invoke the API from <a href="usage/javascript.ahtml">JavaScript</a> or command line via <a href="usage/curl.ahtml">cURL</a>
 </td>
 </tr>
 </table>
+</div>
+<div class="paragraph">
+<p>Below is a selection of sample GraphQL queries:</p>
 </div>
 </div>
 </div>
@@ -1113,7 +1116,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 13:01:18 UTC
+Last updated 2024-01-05 13:50:25 UTC
 </div>
 </div>
 </body>

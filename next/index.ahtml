@@ -441,10 +441,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#introduction">Introduction</a></li>
-<li><a href="#endpoints">Endpoints</a></li>
+<li><a href="#query_playground">Query Playground</a></li>
 <li><a href="#query_examples">Query examples</a></li>
-<li><a href="#clients">Clients</a></li>
-<li><a href="#graphql_api">GraphQL API</a></li>
+<li><a href="#command_line_and_javascript">Command line and JavaScript</a></li>
 <li><a href="#extending">Extending</a></li>
 </ul>
 </div>
@@ -453,8 +452,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Guillotine exposes a highly flexible GraphQL API built on top of XP&#8217;s content API</p>
+<p>A bend-over-backwards flexible GraphQL API based on XP&#8217;s content API</p>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
+<div class="sectionbody">
 <div class="admonitionblock tip">
 <table>
 <tr>
@@ -462,32 +466,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-<strong>Quickstart!</strong> For hands on usage of Enonic and the Guillotine API, check out <a href="https://developer.enonic.com/docs/developer-101">the Developer 101 tutorial</a>.
+<strong>Quickstart!</strong> Check out <a href="https://developer.enonic.com/docs/developer-101">the Developer 101 tutorial</a> for a hands-on introduction to Enonic and the Guillotine API.
 </td>
 </tr>
 </table>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>The Guillotine API is essentially a strongly typed GraphQL read-only version of XP&#8217;s internal <a href="https://developer.enonic.com/docs/xp/stable/api/lib-content">JS Content API</a>.</p>
-</div>
-<div class="paragraph">
-<p>In addition to the API, Guillotine adds a new panel to Content Studio, allowing privileged users to query the API in context of their content.</p>
+<p>Guillotine is at the essence a strongly typed GraphQL read-only version of XP&#8217;s internal <a href="https://developer.enonic.com/docs/xp/stable/api/lib-content">JS Content API</a>.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="endpoints"><a class="link" href="#endpoints">Endpoints</a></h2>
+<h2 id="query_playground"><a class="link" href="#query_playground">Query Playground</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Guillotine automatically provisions endpoints to access the API.</p>
-</div>
-<div class="paragraph">
-<p>Learn how to <a href="endpoints.ahtml">access the API</a></p>
+<p>Guillotine extends Content Studio, allowing privileged users to <a href="query-playground.ahtml">query the API in context of their content</a>.</p>
 </div>
 </div>
 </div>
@@ -503,10 +496,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="clients"><a class="link" href="#clients">Clients</a></h2>
+<h2 id="command_line_and_javascript"><a class="link" href="#command_line_and_javascript">Command line and JavaScript</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>How to invoke the API from Content Studio, via cURL, or from JavaScript.</p>
+<p>Examples on how to invoke the API using <a href="usage/curl.ahtml">cURL</a> or <a href="usage/javascript.ahtml">JavaScript</a>.</p>
 </div>
 <div class="paragraph">
 <p>Learn more about GraphQL and how to <a href="clients.ahtml">invoke the API from different clients</a>.</p>
@@ -514,21 +507,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="graphql_api"><a class="link" href="#graphql_api">GraphQL API</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Guillotine provides a set of standard fields, but also dynamically generates GraphQL Types based on the installed schemas.</p>
-</div>
-<div class="paragraph">
-<p>Learn more about the <a href="api.ahtml">standard schema types</a>.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="extending"><a class="link" href="#extending">Extending</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Guillotine allows you to extend the API with custom fields, types and more.</p>
+<p>Guillotine&#8217;s superpower lies in the ability to dynamically extend and augment the API to match the requirements of your digital experiences and front-ends.</p>
 </div>
 <div class="paragraph">
 <p>Learn more about <a href="extending.ahtml">extending the API</a>.</p>
@@ -538,7 +520,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 13:01:18 UTC
+Last updated 2024-01-05 13:50:25 UTC
 </div>
 </div>
 </body>
