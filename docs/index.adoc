@@ -7,24 +7,17 @@ TIP: *Quickstart!* Check out https://developer.enonic.com/docs/developer-101[the
 
 Guillotine is at the essence a strongly typed GraphQL read-only version of XP's internal https://developer.enonic.com/docs/xp/stable/api/lib-content[JS Content API]. 
 
-== Query Playground
+== Overview
 
-Guillotine extends Content Studio, allowing privileged users to <<query-playground#, query the API in context of their content>>.
+What you will find in this documentation, enjoy:
 
-== Query examples
 
-A basic introduction to using the API, with hands on example queries.
+Installation:: How to <<setup#, install and deploy Guillotine>>
 
-Learn more about <<query-examples.adoc#,how to use the API>>.
+Query playground:: Content Studio extension, allowing privileged users to <<query-playground#, query the API in context of the content>>.
 
-== Command line and JavaScript
+Query examples:: A basic introduction to using the API, with hands <<usage#,examples on how to use the API>>.
 
-Examples on how to invoke the API using <<usage/curl#, cURL>> or <<usage/javascript#, JavaScript>>.
+Clients:: Demonstrating how to invoke the API using <<usage/curl#, cURL>> or <<usage/javascript#, JavaScript>>.
 
-Learn more about GraphQL and how to <<clients#,invoke the API from different clients>>.
-
-== Extending
-
-Guillotine's superpower lies in the ability to dynamically extend and augment the API to match the requirements of your digital experiences and front-ends.
-
-Learn more about <<extending#,extending the API>>.
+Extending and augmenting::  Discover Guillotine's superpower and how to <<extending#,dynamically extend the API to match your needs>>.
