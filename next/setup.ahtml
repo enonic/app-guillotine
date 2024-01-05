@@ -442,7 +442,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#installation">Installation</a></li>
 <li><a href="#endpoints">Endpoints</a></li>
-<li><a href="#enonic_sdk">Enonic SDK</a></li>
 <li><a href="#enonic_cloud_kubernetes">Enonic Cloud / Kubernetes</a></li>
 <li><a href="#using_vhosts">Using Vhosts</a></li>
 </ul>
@@ -476,10 +475,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p><code>:8080/site/&lt;project&gt;/draft</code> - Drafts API</p>
+<p>HTTP POST <code>:8080/site/&lt;project&gt;/draft</code> - Drafts API</p>
 </li>
 <li>
-<p><code>:8080/site/&lt;project&gt;/master</code> - Live API</p>
+<p>HTTP POST <code>:8080/site/&lt;project&gt;/master</code> - Live API</p>
+</li>
+<li>
+<p>HTTP GET <code>:8080/site/&lt;project&gt;</code> - optionally serves <a href="playground.ahtml">Query Playground</a></p>
 </li>
 </ul>
 </div>
@@ -490,35 +492,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-&lt;project&gt; must be replaced with an actual content project in your installation
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="enonic_sdk"><a class="link" href="#enonic_sdk">Enonic SDK</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>When using the Enonic SDK, you may instantly access and verify that the API is working via the project URL:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>http://localhost:8080/site/&lt;project&gt;</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Accessing this URL with your browser will load the <a href="playground.ahtml">GraphQL Playground</a>, where you may instantly <a href="usage.ahtml">try out some queries</a>.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-For production servers this feature is disabled by default - but can be activated via a <a href="configuration.ahtml">configuration file</a>.
+&lt;project&gt; must be replaced with an actual content project in your installation.
 </td>
 </tr>
 </table>
@@ -574,9 +548,9 @@ mapping.my-api.target = /site/&lt;project&gt;/master</code></pre>
 <div class="listingblock">
 <div class="title">Example - mapping entire project root example.com/api</div>
 <div class="content">
-<pre class="highlight"><code class="language-properties" data-lang="properties">mapping.my-api.host = example.com
-mapping.my-api.source = /api
-mapping.my-api.target = /site/&lt;project&gt;</code></pre>
+<pre class="highlight"><code class="language-properties" data-lang="properties">mapping.example-api.host = example.com
+mapping.example-api.source = /api
+mapping.example-api.target = /site/&lt;project&gt;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -587,7 +561,7 @@ mapping.my-api.target = /site/&lt;project&gt;</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 15:36:33 UTC
+Last updated 2024-01-05 15:49:05 UTC
 </div>
 </div>
 </body>
