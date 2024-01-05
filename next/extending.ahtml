@@ -509,35 +509,35 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>The <code>inputTypes</code> property allows you to define new input types. More information about usage of input types you can find <a href="extending/input-types.ahtml">here</a>.</td>
+<td>Define <a href="extending/input-types.ahtml">custom input types</a>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>The <code>enums</code> property allows you to define new enum types. More information about usage of enums you can find <a href="extending/enums.ahtml">here</a>.</td>
+<td>Define <a href="extending/enums.ahtml">custom enums</a>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>The <code>interfaces</code> property allows you to define new interfaces. More information about usage of interfaces you can find <a href="extending/interfaces.ahtml">here</a>.</td>
+<td>Define <a href="extending/interfaces.ahtml">custom iterfaces</a>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>The <code>unions</code> property allows you to define new unions. More information about usage of unions you can find <a href="extending/unions.ahtml">here</a>.</td>
+<td>Define <a href="extending/unions.ahtml">custom unions</a>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>The <code>types</code> property allows you to define new output types. More information about usage of types you can find <a href="extending/types.ahtml">here</a>.</td>
+<td>Define <a href="extending/types.ahtml">custom types</a>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="6"></i><b>6</b></td>
-<td>The <code>creationCallbacks</code> property allows you to set or override data fetcher for a field. More information about usage of creation callbacks you can find <a href="extending/creation-callbacks.ahtml">here</a>.</td>
+<td>Use <code>creationCallbacks</code> to <a href="extending/creation-callbacks.ahtml">add, remove or augment existing fields and interfaces.</a>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="7"></i><b>7</b></td>
-<td>The <code>resolvers</code> property allows you to set or override type resolver for a type. More information about usage of resolvers you can find <a href="extending/resolvers.ahtml">here</a>.</td>
+<td>Use <code>resolvers</code> to <a href="extending/resolvers.ahtml">set or override data fetchers for specific fields</a>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="8"></i><b>8</b></td>
-<td>The <code>typeResolvers</code> property allows you to set or override type resolver for an interface or a union. More information about usage of type resolvers you can find <a href="extending/type-resolvers.ahtml">here</a>.</td>
+<td>Use <code>typeResolvers</code> to <a href="extending/type-resolvers.ahtml">set or override the type resolver for an interface or a union</a>.</td>
 </tr>
 </table>
 </div>
@@ -668,10 +668,7 @@ function sendRequestToBooksApi(queryString) {
 <h2 id="arguments"><a class="link" href="#arguments">Arguments</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When Guilltine invokes the extensions function, it will pass a utility object as an argument, giving your extension acccess to standard scalars, types, type modifiers and functions.</p>
-</div>
-<div class="paragraph">
-<p>These are:</p>
+<p>When Guillotine invokes the extensions function, it will pass a utility object as an argument, giving your extension acccess to standard scalars, types, type modifiers and functions:</p>
 </div>
 <div class="dlist">
 <dl>
@@ -702,7 +699,7 @@ function sendRequestToBooksApi(queryString) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 14:55:19 UTC
+Last updated 2024-01-05 15:36:33 UTC
 </div>
 </div>
 </body>

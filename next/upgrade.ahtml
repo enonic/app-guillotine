@@ -440,57 +440,96 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
+<li><a href="#global_schema">Global Schema</a></li>
+<li><a href="#subscriptions">Subscriptions</a></li>
+<li><a href="#deprecated_fields">Deprecated fields</a></li>
+<li><a href="#url_fields">Url fields</a></li>
+<li><a href="#guillotine_library">Guillotine library</a>
+<ul class="sectlevel2">
+<li><a href="#migrating">Migrating</a></li>
 <li><a href="#example_of_migration">Example of migration</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div id="preamble">
+<div class="sect1">
+<h2 id="global_schema"><a class="link" href="#global_schema">Global Schema</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The previous version of the Guillotine application did not allow for the customization of a GraphQL schema, so developers had to use the Guillotine library instead.</p>
+<p>The Guillotine API is now Global, meaning the schema will include types and extensions for all installed applications, regardless of the context you use to access the API.</p>
 </div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-The Guillotine library is deprecated, so you will have to migrate your code to the new version of the Guillotine application, or keep the current library setup.
-</td>
-</tr>
-</table>
 </div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-<code>Subscriptions</code> are deprecated, so you will have to migrate your code to a custom solution. Current version of application does not provide any solution how to create a custom <code>Subscription</code>.
-</td>
-</tr>
-</table>
 </div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-The Guillotine API is now Global, meaning the schema will be generated once, for all installed applications. Old options like <code>allowPaths</code> and <code>subscriptionEventTypes</code> are no longer supported.
-</td>
-</tr>
-</table>
+<div class="sect1">
+<h2 id="subscriptions"><a class="link" href="#subscriptions">Subscriptions</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Due to limited interest and use, <code>Subscriptions</code> have been removed from Guillotine 7.</p>
 </div>
 <div class="paragraph">
-<p>In order to migrate your code, you will have to:</p>
+<p>Guillotine 7 does not provide a way to add custom subscriptions at the moment. If you need subscriptions, this will require you to build a custom API, consider using the Guillotine 6 code as a foundation.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="deprecated_fields"><a class="link" href="#deprecated_fields">Deprecated fields</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>query</code> and <code>queryConnection</code> fields are deprecated. Use <code>queryDsl</code> and <code>queryDslConnection</code> instead</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="url_fields"><a class="link" href="#url_fields">Url fields</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>URL field arguments (i,e, pageUrl(), imageUrl() etc) were previously of type <code>String</code>, but are now of type <code>JSON</code>.</p>
 </div>
 <div class="ulist">
 <ul>
+<li>
+<p>Old way: <code>pageUrl(type: xxx TODO)</code></p>
+</li>
+<li>
+<p>New way: <code>pageUrl({args})</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="guillotine_library"><a class="link" href="#guillotine_library">Guillotine library</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Guillotine 7 now supports <a href="extending.ahtml">dynamically extending and augmenting of the API</a>. As a result the Guillotine library has been discontinued.</p>
+</div>
+<div class="paragraph">
+<p>If you have been using the Guillotine library, and want to keep similar funcitonality with v7, you will have to migrate to the new way of extending.</p>
+</div>
+<div class="paragraph">
+<p>Legacy options like <code>allowPaths</code> and <code>subscriptionEventTypes</code> are no longer supported either.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Remember, you can still install Guillotine 7, and keep your old library-based application in the same Enonic instance.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="migrating"><a class="link" href="#migrating">Migrating</a></h3>
+<div class="paragraph">
+<p>In order to migrate your code, you will have to:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
 <p>Create a new application or use an existing one, where you should create <code>guillotine.js</code> file in the <code>src/main/resources/guillotine</code> folder of your project.</p>
 </li>
@@ -503,7 +542,7 @@ The Guillotine API is now Global, meaning the schema will be generated once, for
 <li>
 <p>To specify site context you should provide the <code>siteKey</code> argument in the <code>guillotine</code> field. This approach is recommended, because we will keep it. Of course, you can still use the <code>X-Guillotine-SiteKey</code> HTTP header, but it can be deprecated and removed in the future versions.</p>
 </li>
-</ul>
+</ol>
 </div>
 <div class="paragraph">
 <p>Let see important changes in the new version of the Guillotine application related with <code>creationCallbacks</code>:</p>
@@ -531,10 +570,8 @@ The Guillotine API is now Global, meaning the schema will be generated once, for
 <p>More information about <code>creationCallbacks</code> can be found <a href="extending/creation-callbacks.ahtml">here</a>.</p>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="example_of_migration"><a class="link" href="#example_of_migration">Example of migration</a></h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="example_of_migration"><a class="link" href="#example_of_migration">Example of migration</a></h3>
 <div class="paragraph">
 <p>Now let see the example of migration from the Guillotine library to the Guillotine application.</p>
 </div>
@@ -654,14 +691,15 @@ exports.extensions = function (graphQL) { <i class="conum" data-value="1"></i><b
 <p>That it, our migration is done.</p>
 </div>
 <div class="paragraph">
-<p>To know more about extensions you can refer to this <a href="extending.ahtml">page</a>.</p>
+<p>Visit the <a href="extending.ahtml">extensions documentation</a> for more details.</p>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 14:55:19 UTC
+Last updated 2024-01-05 15:36:33 UTC
 </div>
 </div>
 </body>
