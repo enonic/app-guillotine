@@ -440,12 +440,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#extending">Extending</a>
-<ul class="sectlevel2">
+<li><a href="#the_guillotine_field">The Guillotine field</a></li>
 <li><a href="#adding_custom_fields">Adding custom fields</a></li>
 <li><a href="#coding_guidelines">Coding guidelines</a></li>
-</ul>
-</li>
 </ul>
 </div>
 </div>
@@ -453,18 +450,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>On this page we would like to share with you some of the best practices that we have learned from our experience. We hope that you will find them useful too.</p>
+<p>Recommendations fromour experience of extending Guillotine</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="extending"><a class="link" href="#extending">Extending</a></h2>
+<h2 id="the_guillotine_field"><a class="link" href="#the_guillotine_field">The Guillotine field</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Guillotine GraphQL API provides the <code>guillotine</code> field in the root <code>Query</code> type. Utilizing this field enables you to access a variety of functionalities, including retrieving individual Content instances by key, querying multiple Contents, and more.</p>
+<p>The <code>guillotine</code> field in the root <code>Query</code> type . Utilizing this field enables you to access a variety of functionalities, including retrieving individual Content instances by key, querying multiple Contents, and more.</p>
 </div>
-<div class="sect2">
-<h3 id="adding_custom_fields"><a class="link" href="#adding_custom_fields">Adding custom fields</a></h3>
+</div>
+</div>
+<div class="sect1">
+<h2 id="adding_custom_fields"><a class="link" href="#adding_custom_fields">Adding custom fields</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>Guillotine allows you to extend not only Guillotine-specific features, but also the root <code>Query</code> type.</p>
 </div>
@@ -485,7 +485,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>So, you should decide where to put those fields. You can either add them to the root <code>Query</code> type or to the <code>HeadlessCms</code> type which represents <code>guillotine</code> field.</p>
 </div>
 <div class="paragraph">
-<p>We recommend to use this rule: if field is related to a <code>Content</code> instance, then add it to the <code>HeadlessCms</code> type, otherwise add it to the root <code>Query</code> type.</p>
+<p>We recommend to use this rule: if field is related to <code>Content</code>, then add it to the <code>HeadlessCms</code> type, otherwise add it to the root <code>Query</code> type.</p>
 </div>
 <div class="paragraph">
 <p>For example:</p>
@@ -542,8 +542,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>In the same way you can add fields to any other type.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="coding_guidelines"><a class="link" href="#coding_guidelines">Coding guidelines</a></h3>
+</div>
+<div class="sect1">
+<h2 id="coding_guidelines"><a class="link" href="#coding_guidelines">Coding guidelines</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>The <code>extensions</code> function can be huge enough, so we recommend to split it into several files. For example, you can create a file for each property such <code>types</code>, <code>creationCallbacks</code>, <code>resolvers</code> and others. And if needed, you can split them into several files too.</p>
 </div>
@@ -584,10 +586,9 @@ exports.create = function (graphQL) {
 </div>
 </div>
 </div>
-</div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-04 14:30:33 UTC
+Last updated 2024-01-05 13:01:18 UTC
 </div>
 </div>
 </body>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Endpoints</title>
+<title>Using cURL</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,16 +436,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Endpoints</h1>
+<h1>Using cURL</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#draft_and_master">Draft and master</a>
-<ul class="sectlevel2">
-<li><a href="#custom_domain">Custom domain</a></li>
-</ul>
-</li>
-<li><a href="#graphql_ui">GraphQL UI</a></li>
+<li><a href="#query_example">Query example</a></li>
 </ul>
 </div>
 </div>
@@ -453,109 +448,60 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section describes the available API endpoints and how to access and expose them.</p>
+<p>Below is an example of how to invoke the API from command line using cURL</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+cURL must be installed on your device for the examples below to work
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="draft_and_master"><a class="link" href="#draft_and_master">Draft and master</a></h2>
+<h2 id="query_example"><a class="link" href="#query_example">Query example</a></h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p>The Guillotine application exposes two endpoints per content project:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>POST <code>/site/&lt;project-name&gt;/draft</code> - draft items</p>
-</li>
-<li>
-<p>POST <code>/site/&lt;project-name&gt;/master</code> - published items</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>As an example, when running the Enonic SDK on your local machine, you may access the items of a project called <code>blog</code>, using the following URLs:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code><a href="http://localhost:8080/site/blog/draft" class="bare">http://localhost:8080/site/blog/draft</a></code> - Drafts API</p>
-</li>
-<li>
-<p><code><a href="http://localhost:8080/site/blog/master" class="bare">http://localhost:8080/site/blog/master</a></code> - Live API</p>
-</li>
-</ul>
-</div>
-<div class="sect2">
-<h3 id="custom_domain"><a class="link" href="#custom_domain">Custom domain</a></h3>
-<div class="paragraph">
-<p>When setting up Enonic XP in production, the APIs will normally not be publicly accessible. Using Vhosts, you may expose the APIs and even providing custom domain names:</p>
-</div>
-<div class="paragraph">
-<p>Examples for a project called <code>myproject</code>.</p>
-</div>
 <div class="listingblock">
-<div class="title">Example - mapping Live API to myapi.com</div>
+<div class="title">Create the file req.json</div>
 <div class="content">
-<pre class="highlight"><code class="language-properties" data-lang="properties">mapping.my-api.host = myapi.com
-mapping.my-api.source = /
-mapping.my-api.target = /site/myproject/master</code></pre>
+<pre class="highlight"><code class="language-json" data-lang="json">{"query":"query {\n  guillotine {\n    queryDsl(query: {\n      term: {\n        field: \"type\",\n        value: {\n          string: \"com.enonic.app.moviedb:playlist\"\n        }\n      }\n    }){\n      ... on com_enonic_app_moviedb_Playlist {\n        _id\n        displayName\n      }\n    }\n  }\n}"}</code></pre>
 </div>
 </div>
 <div class="listingblock">
-<div class="title">Example - mapping Drafts API to example.com/api</div>
+<div class="title">POST request using cURL</div>
 <div class="content">
-<pre class="highlight"><code class="language-properties" data-lang="properties">mapping.my-api.host = example.com
-mapping.my-api.source = /api
-mapping.my-api.target = /site/myproject/draft</code></pre>
+<pre class="highlight"><code class="language-curl" data-lang="curl">curl -X POST -H "Content-Type: application/json" -d @req.json http://localhost:8080/site/moviedb/draft | json_pp</code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>For more details about vhosts, check out the <a href="https://developer.enonic.com/docs/xp/stable/deployment/vhosts">XP documentation</a></p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="graphql_ui"><a class="link" href="#graphql_ui">GraphQL UI</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The Guillotine application exposes endpoint to provide a query playground with GraphiQL UI, which can be enabled or disabled via config file <code>com.enonic.app.guillotine.cfg</code>:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>GET <code>/site/&lt;project-name&gt;</code> - GraphQL UI</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>To enable the endpoint:</p>
 </div>
 <div class="listingblock">
-<div class="title">com.enonic.app.guillotine.cfg</div>
+<div class="title">Response</div>
 <div class="content">
-<pre class="highlight"><code class="language-properties" data-lang="properties">queryplayground.ui.mode=on</code></pre>
+<pre class="highlight"><code class="language-json" data-lang="json">{
+  "data": {
+    "guillotine": {
+      "queryDsl": [
+        {
+          "_id": "531e40c9-6e5b-4259-b9e0-0d3144b2382a",
+          "displayName": "CTO's favorite movies"
+        }
+      ]
+    }
+  }
+}</code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>To disable the endpoint:</p>
-</div>
-<div class="listingblock">
-<div class="title">com.enonic.app.guillotine.cfg</div>
-<div class="content">
-<pre class="highlight"><code class="language-properties" data-lang="properties">queryplayground.ui.mode=off</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The default value is determined by the XP distribution type: on server-based distributions the endpoint is off, while on SDK-based distributions it is on.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-04 14:30:33 UTC
+Last updated 2024-01-05 13:01:18 UTC
 </div>
 </div>
 </body>

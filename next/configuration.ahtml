@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Upgrade Notes</title>
+<title>Configuration options</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,11 +436,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Upgrade Notes</h1>
+<h1>Configuration options</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#example_of_migration">Example of migration</a></li>
+<li><a href="#config_file">Config file</a></li>
 </ul>
 </div>
 </div>
@@ -448,220 +448,48 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>The previous version of the Guillotine application did not allow for the customization of a GraphQL schema, so developers had to use the Guillotine library instead.</p>
-</div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-We are not going to support the Guillotine library anymore, so you will have to migrate your code to the new version of the Guillotine application.
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-We also are not going to support <code>Subscription</code> in Guillotine application, so you will have to migrate your code to a custom solution. Current version of application does not provide any solution how to create a custom <code>Subscription</code>.
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-Guillotine application does not support customizing list of <code>applications</code> for each schema must be generated, in this case schema will be generated for all installed applications. The rest of options like <code>allowPaths</code> and <code>subscriptionEventTypes</code> are not supported too.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>In order to migrate your code, you will have to:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Create a new application or use an existing one, where you should create <code>guillotine.js</code> file in the <code>src/main/resources/guillotine</code> folder of your project.</p>
-</li>
-<li>
-<p>This file must contain a function that returns an object with structure which described <a href="extending.ahtml">here</a>.</p>
-</li>
-<li>
-<p>Your schema will be available at the POST <code>/site/&lt;project-name&gt;/&lt;branch-name&gt;</code> endpoint. More information about this endpoint can be found  <a href="endpoints.ahtml">here</a>.</p>
-</li>
-<li>
-<p>To specify site context you should provide the <code>siteKey</code> argument in the <code>guillotine</code> field. This approach is recommended, because we will keep it. Of course, you can still use the <code>X-Guillotine-SiteKey</code> HTTP header, but it can be deprecated and removed in the future versions.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Let see important changes in the new version of the Guillotine application related with <code>creationCallbacks</code>:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>In Guillotine application you can not define <code>dataFetcher</code> directly in <code>creationCallbacks</code>, you must use <code>resolvers</code> node instead.  That done to separate model from logic.</p>
-</li>
-<li>
-<p>To add, modify or remove fields you must use <code>addFileds</code>, <code>modifyFields</code> and <code>removeFields</code> functions of the <code>params</code> object respectively.</p>
-</li>
-<li>
-<p>To set description of the type you must use <code>setDescription</code> function of the <code>params</code> object.</p>
-</li>
-<li>
-<p>To set interfaces of the type you must use <code>setInterfaces</code> function of the <code>params</code> object.</p>
-</li>
-<li>
-<p>You can not rename field anymore.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>More information about <code>creationCallbacks</code> can be found <a href="extending/creation-callbacks.ahtml">here</a>.</p>
+<p>The following configuration options are avaiable for Guillotine</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="example_of_migration"><a class="link" href="#example_of_migration">Example of migration</a></h2>
+<h2 id="config_file"><a class="link" href="#config_file">Config file</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now let see the example of migration from the Guillotine library to the Guillotine application.</p>
-</div>
-<div class="paragraph">
-<p>Let&#8217;s assume that we have the following <code>creationCallbacks</code> in our code when using the Guillotine library:</p>
+<p>To configure Guillotine, add a configuration file to your instance config folder.</p>
 </div>
 <div class="listingblock">
+<div class="title">com.enonic.app.guillotine.cfg</div>
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">const authLib = require('/lib/xp/auth');
-const guillotineLib = require('/lib/guillotine');
-const graphQlLib = require('/lib/graphql');
-
-const schema = guillotineLib.createSchema({
-    creationCallbacks: {
-        'com_enonic_app_myapp_Author_Data': function(context, params){
-            params.fields.fullName = { <i class="conum" data-value="1"></i><b>(1)</b>
-                 type: graphQlLib.GraphQLString,
-                 resolve: function (env) {
-                     return env.source.firstName + ' ' + env.source.lastName;
-                 }
-            };
-
-            params.fields.email.resolve = function (env) { <i class="conum" data-value="2"></i><b>(2)</b>
-                return authLib.hasRole('system.admin') ? env.source.email : null;
-            };
-
-            delete params.fields.birthDate; <i class="conum" data-value="3"></i><b>(3)</b>
-        },
-    }
-});</code></pre>
+<pre class="highlight"><code class="language-properties" data-lang="properties">queryplayground.ui.mode=off  <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>In this example we made the following changes:</p>
 </div>
 <div class="colist arabic">
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Added a new <code>fullName</code> field to the <code>com_enonic_app_myapp_Author_Data</code> type. Pay attention that the declaration of the field is done by declaring a data fetcher.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Override the default data fetcher with our own data fetcher containing custom logic.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Removed the <code>birthDate</code> field from <code>com_enonic_app_myapp_Author_Data</code> type.</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>Now, let&#8217;s see how to migrate this code using <code>extensions</code> from the Guillotine application:</p>
-</div>
-<div class="paragraph">
-<p>First what we need to create a <code>guillotine.js</code> file in the <code>src/main/resources/guillotine</code> folder. Then we can make the same changes for <code>com_enonic_app_myapp_Author_Data</code> type, but in the different way.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">const authLib = require('/lib/xp/auth');
-
-exports.extensions = function (graphQL) { <i class="conum" data-value="1"></i><b>(1)</b>
-    return {
-        creationCallbacks: {
-            com_enonic_app_myapp_Author_Data: function (params) { <i class="conum" data-value="2"></i><b>(2)</b>
-                params.addFields({
-                    fullName: { <i class="conum" data-value="3"></i><b>(3)</b>
-                        type: graphQL.GraphQLString,
-                    }
-                });
-
-                params.removeFields(['birthDate']); <i class="conum" data-value="4"></i><b>(4)</b>
-            },
-        },
-        resolvers: {
-            com_enonic_app_myapp_Author_Data: { <i class="conum" data-value="5"></i><b>(5)</b>
-                fullName: function (env) {
-                    return env.source.firstName + ' ' + env.source.lastName;
-                },
-                email: function (env) {
-                    return authLib.hasRole('system.admin') ? env.source.email : null;
-                }
-            }
-        },
-    }
-};</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This code has the following important things:</p>
-</div>
-<div class="colist arabic">
+<td>Enable or disable Query playground on project root.
+<div class="admonitionblock note">
 <table>
 <tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Inside the <code>extenstions</code> function we will return object with <code>creationCallbacks</code> and <code>resolvers</code> properties.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>To make changes for <code>com_enonic_app_myapp_Author_Data</code> type in the <code>creationCallbacks</code> we need to add the property as named function <code>com_enonic_app_myapp_Author_Data</code> which has the <code>params</code> argument. Using params object we can add, modify and remove fields, set description and override interfaces for type.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Then we add the <code>fullName</code> field with <code>String</code> type and without arguments.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>Then we remove <code>birthDate</code> field. The <code>removeFields</code> function applies an arrays of string with field names which must be removed.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Then to set a data fetcher for <code>fullName</code> and <code>email</code> fields we must use the <code>resolvers</code> property of the returned object. Where in the same way, inside the <code>resolvers</code> property we must define the <code>com_enonic_app_myapp_Author_Data</code> object with respectively properties as field names and implement data fetcher functions.</td>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+For Enonic SDK default = on, for server distributions, default = off.
+</td>
 </tr>
 </table>
-</div>
-<div class="paragraph">
-<p>That it, our migration is done.</p>
-</div>
-<div class="paragraph">
-<p>To know more about extensions you can refer to this <a href="extending.ahtml">page</a>.</p>
+</div></td>
+</tr>
+</table>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-04 14:30:33 UTC
+Last updated 2024-01-05 13:01:18 UTC
 </div>
 </div>
 </body>

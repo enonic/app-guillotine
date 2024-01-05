@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Release Notes</title>
+<title>Release Notes - Guillotine 7</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,22 +436,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Release Notes</h1>
+<h1>Release Notes - Guillotine 7</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#guillotine_7">Guillotine 7</a>
-<ul class="sectlevel2">
 <li><a href="#release_features">Release features</a></li>
 <li><a href="#breaking_changes">Breaking changes</a></li>
-</ul>
-</li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="guillotine_7"><a class="link" href="#guillotine_7">Guillotine 7</a></h2>
+<div id="preamble">
 <div class="sectionbody">
 <div class="admonitionblock warning">
 <table>
@@ -465,14 +460,13 @@ This release includes <a href="#breaking_changes">breaking changes</a>
 </tr>
 </table>
 </div>
-<div class="sect2">
-<h3 id="release_features"><a class="link" href="#release_features">Release features</a></h3>
+</div>
+</div>
+<div class="sect1">
+<h2 id="release_features"><a class="link" href="#release_features">Release features</a></h2>
+<div class="sectionbody">
 <div class="dlist">
 <dl>
-<dt class="hdlist1">Migrated from JS to Java</dt>
-<dd>
-<p>Guillotine has been fully reimplemented from JavaScript to Java. This transition has not only improved the performance and stability of the application but also enabled the implementation of more powerful and flexible <a href="extending.ahtml">extensions</a> for the GraphQL schema.</p>
-</dd>
 <dt class="hdlist1">Extensions</dt>
 <dd>
 <p>Extensions are a new way how to extend the GraphQL schema. They are more powerful and flexible than the <code>creationCallbacks</code> in the Guillotine Lib. Now you can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types. See <a href="extending.ahtml">extensions</a> for more information.</p>
@@ -485,18 +479,24 @@ This release includes <a href="#breaking_changes">breaking changes</a>
 <dd>
 <p>This function allows you to create a <code>DataFetcherResult</code> object with the <code>data</code> and <code>localContext</code> fields to be returned from the data fetcher. See more information <a href="extending/resolvers.ahtml#createdatafetcherresult">here</a>.</p>
 </dd>
+<dt class="hdlist1">Migrated from JS to Java</dt>
+<dd>
+<p>Guillotine has been fully reimplemented from JavaScript to Java. This transition has not only improved the performance and stability of the application but also enabled the implementation of more powerful and flexible ways of <a href="extending.ahtml">extending and customizing</a> the GraphQL schema.</p>
+</dd>
 </dl>
 </div>
 </div>
-<div class="sect2">
-<h3 id="breaking_changes"><a class="link" href="#breaking_changes">Breaking changes</a></h3>
+</div>
+<div class="sect1">
+<h2 id="breaking_changes"><a class="link" href="#breaking_changes">Breaking changes</a></h2>
+<div class="sectionbody">
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Subscriptions are not supported anymore</dt>
 <dd>
-<p>The GraphQL subscriptions are not supported anymore. You have to implement your own solution for this without using Guillotine.</p>
+<p>Due to limited use,  GraphQL subscriptions are not supported anymore. You have to implement your own solution for this without using Guillotine.</p>
 </dd>
-<dt class="hdlist1">Params as Json instead of String</dt>
+<dt class="hdlist1">Params as JSON instead of String</dt>
 <dd>
 <p>For such fields as <code>pageUrl</code>, <code>mediaUrl</code>, <code>imageUrl</code> and <code>attachmentUrl</code> the <code>params</code> argument has <code>Json</code> type instead of <code>String</code>.</p>
 </dd>
@@ -505,10 +505,9 @@ This release includes <a href="#breaking_changes">breaking changes</a>
 </div>
 </div>
 </div>
-</div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-04 14:30:33 UTC
+Last updated 2024-01-05 13:01:18 UTC
 </div>
 </div>
 </body>

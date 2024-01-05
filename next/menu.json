@@ -1,36 +1,38 @@
 {
   "menuItems": [
     {
-      "title": "API",
-      "document": "api"
+      "title": "Setup",
+      "document": "setup"
     },
     {
-      "title": "Endpoints",
-      "document": "endpoints"
+      "title": "Query playground",
+      "document": "query-playground"
     },
     {
-      "title": "Clients",
-      "document": "clients"
-    },
-    {
-      "title": "Query examples",
-      "document": "query-examples"
+      "title": "Usage",
+      "document": "usage",
+      "menuItems": [
+        {
+          "title": "cURL",
+          "document": "usage/cURL"
+        },
+        {
+          "title": "JavaScript",
+          "document": "usage/javascript"
+        }
+      ]
     },
     {
       "title": "Extending",
       "document": "extending",
       "menuItems": [
         {
-          "title": "Best practices",
-          "document": "extending/best-practices"
+          "title": "Enums",
+          "document": "extending/enums"
         },
         {
           "title": "Input Types",
           "document": "extending/input-types"
-        },
-        {
-          "title": "Enums",
-          "document": "extending/enums"
         },
         {
           "title": "Interfaces",
@@ -55,8 +57,20 @@
         {
           "title": "Type Resolvers",
           "document": "extending/type-resolvers"
+        },
+        {
+          "title": "Best practices",
+          "document": "extending/best-practices"
         }
       ]
+    },
+    {
+      "title": "Configuration",
+      "document": "configuration"
+    },
+    {
+      "title": "API",
+      "document": "api"
     },
     {
       "title": "Release Notes",
@@ -64,7 +78,7 @@
       "menuItems": [
         {
           "title": "Upgrade Notes",
-          "document": "upgrade-notes"
+          "document": "upgrade"
         }
       ]
     }

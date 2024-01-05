@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Project Guillotine 7</title>
+<title>Guillotine - GraphQL content API for Enonic XP</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,7 +436,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Project Guillotine 7</h1>
+<h1>Guillotine - GraphQL content API for Enonic XP</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
@@ -453,7 +453,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Guillotine turns Enonic XP into a headless CMS by adding a GraphQL content API on top of every content project</p>
+<p>Guillotine exposes a highly flexible GraphQL API built on top of XP&#8217;s content API</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -462,7 +462,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-<strong>Quickstart!</strong> For hands on usage of Enonic XP, check out <a href="https://developer.enonic.com/docs/developer-101">the Developer 101 tutorial</a>.
+<strong>Quickstart!</strong> For hands on usage of Enonic and the Guillotine API, check out <a href="https://developer.enonic.com/docs/developer-101">the Developer 101 tutorial</a>.
 </td>
 </tr>
 </table>
@@ -473,10 +473,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Guillotine is available as an application on <a href="https://market.enonic.com/vendors/enonic/guillotine-headless-cms">Enonic Market</a>!</p>
+<p>The Guillotine API is essentially a strongly typed GraphQL read-only version of XP&#8217;s internal <a href="https://developer.enonic.com/docs/xp/stable/api/lib-content">JS Content API</a>.</p>
 </div>
 <div class="paragraph">
-<p>The Guillotine API is essentially a strongly typed GraphQL read-only version of XP&#8217;s internal <a href="https://developer.enonic.com/docs/xp/stable/api/lib-content">JS Content API</a>. In addition to the API, Guillotine adds a new panel to Content Studio, allowing privileged users to query the API in context of their content.</p>
+<p>In addition to the API, Guillotine adds a new panel to Content Studio, allowing privileged users to query the API in context of their content.</p>
 </div>
 </div>
 </div>
@@ -538,7 +538,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-04 14:30:33 UTC
+Last updated 2024-01-05 13:01:18 UTC
 </div>
 </div>
 </body>

@@ -434,42 +434,91 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body class="article toc2 toc-right">
 <div id="header">
 <h1>creationCallbacks</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#usage">Usage</a></li>
+</ul>
+</div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
 <div class="paragraph">
-<p>This property is used to define <code>creationCallbacks</code> that will be called during GraphQL schema generation when a specific type or interface is created.</p>
+<p>Add remove, or modify existing fields, their description, types and interfaces.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>creationCallbacks are invoked during the GraphQL schema generation - every time Guillotine or an application extending Guilltine is started or stopped.</p>
 </div>
 <div class="paragraph">
-<p>What you must know about creation callbacks:</p>
+<p>Important to remember:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Creation callbacks can be defined only for types and interfaces.</p>
+<p>Can only be defined for <a href="types.ahtml">types</a> and <a href="interfaces.ahtml">interfaces</a>.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+field renaming is not supported.
+</td>
+</tr>
+</table>
+</div>
 </li>
 <li>
-<p>Creation callback allows to add new fields, modify and remove existing fields, modify description and interfaces for type.</p>
+<p>May be invoked in a different order from what is defined in the <code>creationCallbacks</code> property.</p>
 </li>
 <li>
-<p>Rename of fields is not supported.</p>
+<p>If you add or modify some fields to an interface in the creation callback, you must also do that for all implementations. Otherwise, you will get an error during schema generation.</p>
 </li>
 <li>
-<p>Take aware that creation callbacks can be called not in the same order as them are defined in the <code>creationCallbacks</code> property.</p>
-</li>
-<li>
-<p>Creation callbacks can be defined in the different applications. Therefore, there is a risk to have conflicts which can lead to schema generation errors or query errors. Not recommended to make modification for Content API&#8217;s fields. But if you have to do it then make sure that it will not to introduce conflicts and side effects. The developer is fully responsible for that.</p>
-</li>
-<li>
-<p>If you add or modify some fields to the interface in the creation callback, you must do that for all implementations. Otherwise, you will get an error during schema generation.</p>
-</li>
-<li>
-<p>If you modify some field make sure that you implement correct data fetcher in the <a href="./resolvers.ahtml">resolvers</a> section. Otherwise, you can get an error during query execution.</p>
+<p>If you modify some field, make sure that you implement correct data fetcher in the <a href="./resolvers.ahtml">resolvers</a> section. Otherwise, you can get an error during query execution.</p>
 </li>
 </ul>
 </div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<strong>Conflicts</strong>. Multiple applications may define creationCallbacks. Conflicts between these may lead to schema generation errors or query errors.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+It is <strong>NOT recommended</strong> to make modification to the standard fields of the <code>HeadlessCMS</code> type. But if you have to do it then make sure that it will not introduce conflicts and side effects.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="usage"><a class="link" href="#usage">Usage</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>This property must be an object with the following structure:</p>
 </div>
@@ -554,9 +603,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>To know how to set or override data fetcher for a field you can refer to the <a href="./resolvers.ahtml">resolvers</a> section.</p>
 </div>
 </div>
+</div>
+</div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-04 14:30:33 UTC
+Last updated 2024-01-05 13:01:18 UTC
 </div>
 </div>
 </body>
