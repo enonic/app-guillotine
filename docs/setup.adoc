@@ -12,22 +12,11 @@ To install it manually, follow the https://market.enonic.com/vendors/enonic/guil
 
 Once installed to your Enonic environment, Guillotine exposes two endpoints per content project:
 
-* `:8080/site/<project>/draft` - Drafts API
-* `:8080/site/<project>/master` - Live API
+* HTTP POST `:8080/site/<project>/draft` - Drafts API
+* HTTP POST `:8080/site/<project>/master` - Live API
+* HTTP GET `:8080/site/<project>` - optionally serves <<playground#, Query Playground>>
 
-NOTE: <project> must be replaced with an actual content project in your installation
-
-
-== Enonic SDK
-
-When using the Enonic SDK, you may instantly access and verify that the API is working via the project URL:
-
-    http://localhost:8080/site/<project>
-
-Accessing this URL with your browser will load the <<playground#, GraphQL Playground>>, where you may instantly <<usage#, try out some queries>>.
-
-NOTE: For production servers this feature is disabled by default - but can be activated via a <<configuration#, configuration file>>.
-
+NOTE: <project> must be replaced with an actual content project in your installation.
 
 == Enonic Cloud / Kubernetes
 
@@ -58,9 +47,9 @@ mapping.my-api.target = /site/<project>/master
 .Example - mapping entire project root example.com/api
 [source,properties]
 ----
-mapping.my-api.host = example.com
-mapping.my-api.source = /api
-mapping.my-api.target = /site/<project>
+mapping.example-api.host = example.com
+mapping.example-api.source = /api
+mapping.example-api.target = /site/<project>
 ----
 
 For more details about vhosts, check out the https://developer.enonic.com/docs/xp/stable/deployment/vhosts[XP documentation]
