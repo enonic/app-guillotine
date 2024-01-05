@@ -4,12 +4,9 @@ This section describes how to install and access the Guillotine API
 
 == Installation
 
-Guillotine is available as an Enonic app.
+Guillotine is available as an Enonic app. Guillotine will normally be pre-installed when you create a new solution in the self-service cloud, or when setting up a new SDK Sandbox.
 
-In most cases, Guillotine will be pre-installed when you create a new solution in the self-service cloud, or when setting up a new SDK Sandbox.
-
-To install it manually, simply following the instructions on https://market.enonic.com/vendors/enonic/guillotine-headless-cms[Enonic Market].
-
+To install it manually, follow the https://market.enonic.com/vendors/enonic/guillotine-headless-cms[instructions on Enonic Market].
 
 == Endpoints
 
@@ -36,9 +33,9 @@ NOTE: For production servers this feature is disabled by default - but can be ac
 
 When using Enonic's self service hosting (or the https://developer.enonic.com/docs/kubernetes-operator-for-xp[Enonic K8s Operator]), expose the API publicly by creating an Ingress.
 
-You may expose an entire project, or just a selected branch. The following example exposes the entire project.
+You may expose an entire project, or just a selected branch. The following example exposes the entire project:
 
-In your Ingress, specify the target as `/site/<myproject>` (where <myproject> is replaced with your actual project name).
+In your Ingress, specify the target as `/site/<project>` (where <project> is replaced with your actual project name).
 
 If the Ingress is example.com/api, you will now be able to access the master and draft API's on example.com/api/master and example.com/api/draft respectively.
 
