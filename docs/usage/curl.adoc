@@ -1,0 +1,36 @@
+= Using cURL
+
+Below is an example of how to invoke the API from command line using cURL
+
+TIP: cURL must be installed on your device for the examples below to work
+
+== Query example
+
+.Create the file req.json
+[source,json]
+----
+{"query":"query {\n  guillotine {\n    queryDsl(query: {\n      term: {\n        field: \"type\",\n        value: {\n          string: \"com.enonic.app.moviedb:playlist\"\n        }\n      }\n    }){\n      ... on com_enonic_app_moviedb_Playlist {\n        _id\n        displayName\n      }\n    }\n  }\n}"}
+----
+
+.POST request using cURL
+[source,curl]
+----
+curl -X POST -H "Content-Type: application/json" -d @req.json http://localhost:8080/site/moviedb/draft | json_pp
+----
+
+.Response
+[source,json]
+----
+{
+  "data": {
+    "guillotine": {
+      "queryDsl": [
+        {
+          "_id": "531e40c9-6e5b-4259-b9e0-0d3144b2382a",
+          "displayName": "CTO's favorite movies"
+        }
+      ]
+    }
+  }
+}
+----

@@ -1,12 +1,8 @@
-= Release Notes
-
-== Guillotine 7
+= Release Notes - Guillotine 7
 
 WARNING: This release includes <<breaking_changes, breaking changes>>
 
-=== Release features
-
-Migrated from JS to Java:: Guillotine has been fully reimplemented from JavaScript to Java. This transition has not only improved the performance and stability of the application but also enabled the implementation of more powerful and flexible <<extending#, extensions>> for the GraphQL schema.
+== Release features
 
 Extensions:: Extensions are a new way how to extend the GraphQL schema. They are more powerful and flexible than the `creationCallbacks` in the Guillotine Lib. Now you can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types. See <<extending#, extensions>> for more information.
 
@@ -14,9 +10,11 @@ LocalContext:: LocalContext allows sharing data between parent and child fields.
 
 `createDataFetcherResult` function:: This function allows you to create a `DataFetcherResult` object with the `data` and `localContext` fields to be returned from the data fetcher. See more information <<extending/resolvers#createdatafetcherresult, here>>.
 
-=== Breaking changes
+Migrated from JS to Java:: Guillotine has been fully reimplemented from JavaScript to Java. This transition has not only improved the performance and stability of the application but also enabled the implementation of more powerful and flexible ways of <<extending#, extending and customizing>> the GraphQL schema.
 
-Subscriptions are not supported anymore:: The GraphQL subscriptions are not supported anymore. You have to implement your own solution for this without using Guillotine.
+== Breaking changes
 
-Params as Json instead of String::
+Subscriptions are not supported anymore:: Due to limited use,  GraphQL subscriptions are not supported anymore. You have to implement your own solution for this without using Guillotine.
+
+Params as JSON instead of String::
 For such fields as `pageUrl`, `mediaUrl`, `imageUrl` and `attachmentUrl` the `params` argument has `Json` type instead of `String`.

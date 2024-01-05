@@ -1,6 +1,9 @@
 = interfaces
 
-This property is used to create custom interfaces.
+Add custom GraphQL interfaces
+
+== Usage
+
 It must be an object with the following structure:
 
 [source,javascript]

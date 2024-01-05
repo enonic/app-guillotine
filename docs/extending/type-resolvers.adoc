@@ -1,6 +1,10 @@
 = typeResolvers
 
-This property is used to set or override type resolver for a union or interface. It must be an object with the following structure:
+Set or override type resolver for a union or interface. 
+
+== Usage
+
+It must be an object with the following structure:
 
 [source,javascript]
 ----

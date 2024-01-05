@@ -1,6 +1,9 @@
 = unions
 
-This property is used to create custom unions.
+Used to create custom unions
+
+== Usage
+
 It must be an object with the following structure:
 
 [source,javascript]

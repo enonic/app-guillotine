@@ -1,0 +1,71 @@
+= Setting up Guillotine
+
+This section describes how to install and access the Guillotine API
+
+== Installation
+
+Guillotine is available as an Enonic app.
+
+In most cases, Guillotine will be pre-installed when you create a new solution in the self-service cloud, or when setting up a new SDK Sandbox.
+
+To install it manually, simply following the instructions on https://market.enonic.com/vendors/enonic/guillotine-headless-cms[Enonic Market].
+
+
+== Endpoints
+
+Once installed to your Enonic environment, Guillotine exposes two endpoints per content project:
+
+* `:8080/site/<project>/draft` - Drafts API
+* `:8080/site/<project>/master` - Live API
+
+NOTE: <project> must be replaced with an actual content project in your installation
+
+
+== Enonic SDK
+
+When using the Enonic SDK, you may instantly access and verify that the API is working via the project URL:
+
+    http://localhost:8080/site/<project>
+
+Accessing this URL with your browser will load the <<query-playground#, GraphQL Playground>>, where you may instantly <<usage#, try out some queries>>.
+
+NOTE: For production servers this feature is disabled by default - but can be activated via a <<configuration#, configuration file>>.
+
+
+== Enonic Cloud / Kubernetes
+
+When using Enonic's self service hosting (or the https://developer.enonic.com/docs/kubernetes-operator-for-xp[Enonic K8s Operator]), expose the API publicly by creating an Ingress.
+
+You may expose an entire project, or just a selected branch. The following example exposes the entire project.
+
+In your Ingress, specify the target as `/site/<myproject>` (where <myproject> is replaced with your actual project name).
+
+If the Ingress is example.com/api, you will now be able to access the master and draft API's on example.com/api/master and example.com/api/draft respectively.
+
+NOTE: The draft API is access protected by default
+
+== Using Vhosts
+
+For other hosting options, you may explose the API on custom domains or URLs using vhosts:
+
+Examples for a project called `myproject`.
+
+.Example - mapping  API to myapi.com
+[source,properties]
+----
+mapping.my-api.host = myapi.com
+mapping.my-api.source = /
+mapping.my-api.target = /site/<project>/master
+----
+
+.Example - mapping entire project root example.com/api
+[source,properties]
+----
+mapping.my-api.host = example.com
+mapping.my-api.source = /api
+mapping.my-api.target = /site/<project>
+----
+
+For more details about vhosts, check out the https://developer.enonic.com/docs/xp/stable/deployment/vhosts[XP documentation]
+
+

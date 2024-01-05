@@ -1,12 +1,20 @@
-= Query examples
+= Using the Guillotine API
 
 This section provides a set of example queries.
 
-== Queries
+TIP: Visit our https://developer.enonic.com/docs/developer-101[Developer 101 tutorial] for detailed introduction to Enonic and use of the Guillotine API
 
-The API lets you perform advanced queries thanks to Enonic XP's NoSQL storage. This includes ranked search, queries DSL, aggregations and highlighting to mention a few things.
+== Introduction
 
-.Query example: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author
+With Guillotine setup, you may perform a range of queries. 
+
+NOTE: The API and GrapQL types dynamically adapts to your content model, the examples below are based on a fictional content model and data.
+
+== Content queries
+
+Enonic offers advanced search and aggregation queries using a query DSL (Domain Specific Language). Ranked search, aggregations and highlighting are just some of the features.
+
+.Query DSL example: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author
 [source,graphql]
 ----
 {

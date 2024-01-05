@@ -1,13 +1,13 @@
-= Project Guillotine 7
+= Guillotine - GraphQL content API for Enonic XP
 
-Guillotine turns Enonic XP into a headless CMS by adding a GraphQL content API on top of every content project
+Guillotine exposes a highly flexible GraphQL API built on top of XP's content API
 
-TIP: *Quickstart!* For hands on usage of Enonic XP, check out https://developer.enonic.com/docs/developer-101[the Developer 101 tutorial].
+TIP: *Quickstart!* For hands on usage of Enonic and the Guillotine API, check out https://developer.enonic.com/docs/developer-101[the Developer 101 tutorial].
 
 == Introduction
-Guillotine is available as an application on https://market.enonic.com/vendors/enonic/guillotine-headless-cms[Enonic Market]!
+The Guillotine API is essentially a strongly typed GraphQL read-only version of XP's internal https://developer.enonic.com/docs/xp/stable/api/lib-content[JS Content API]. 
 
-The Guillotine API is essentially a strongly typed GraphQL read-only version of XP's internal https://developer.enonic.com/docs/xp/stable/api/lib-content[JS Content API]. In addition to the API, Guillotine adds a new panel to Content Studio, allowing privileged users to query the API in context of their content.
+In addition to the API, Guillotine adds a new panel to Content Studio, allowing privileged users to query the API in context of their content.
 
 == Endpoints
 

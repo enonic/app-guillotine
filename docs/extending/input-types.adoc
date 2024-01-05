@@ -1,6 +1,10 @@
 = inputTypes
 
-This property is used to create custom input types. It must be an object with the following structure:
+Add custom GraphQL input types.
+
+== Usage
+
+It must be an object with the following structure:
 
 [source,javascript]
 ----

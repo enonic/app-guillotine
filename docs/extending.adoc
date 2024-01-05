@@ -1,10 +1,16 @@
 = Extending
 
-You can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types.
+Extend, augment and customize the Guillotine API
+
+== Introduction
+
+One of Guillotine's super-powers is the ability to customize the GraphQL schema with your own input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, and even modify existing interfaces, types and fields.
+
+== Guillotine.js
 
 To extend the Guillotine application you need to create a file named `guillotine.js` in the `src/main/resources/guillotine` folder of your application.
 
-This file must export a `extensions` function with the following structure:
+This file must export the `extensions` function with the following structure:
 
 [source,javascript]
 ----
