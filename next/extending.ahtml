@@ -442,10 +442,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#guillotine_js">Guillotine.js</a></li>
-<li><a href="#scalars_and_types">Scalars and Types</a></li>
-<li><a href="#type_modifiers">Type modifiers</a></li>
-<li><a href="#functions">Functions</a></li>
 <li><a href="#example_of_usage">Example of usage</a></li>
+<li><a href="#arguments">Arguments</a></li>
+<li><a href="#lifecycle">Lifecycle</a></li>
 </ul>
 </div>
 </div>
@@ -544,33 +543,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="paragraph">
 <p>You can omit any of the properties, but you must return an object with the same structure. The order of the properties is not important.</p>
-</div>
-<div class="paragraph">
-<p>This function will be called when the application is started. Also, this function takes an <code>graphQL</code> argument, which is a reference to the GraphQL utility object and provides to access to scalars, types, type modifiers and functions.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="scalars_and_types"><a class="link" href="#scalars_and_types">Scalars and Types</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p><code>GraphQLString</code>, <code>GraphQLInt</code>, <code>GraphQLID</code>, <code>GraphQLBoolean</code>, <code>GraphQLFloat</code>, <code>Json</code>, <code>DateTime</code>, <code>Date</code>, <code>LocalTime</code> <code>LocalDateTime</code> and <code>reference</code> type.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="type_modifiers"><a class="link" href="#type_modifiers">Type modifiers</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The <code>list</code> and <code>nonNull</code> type modifiers allow applies additional validation of those values.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="functions"><a class="link" href="#functions">Functions</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p><code>createDataFetcherResult</code> - allows to return object with <code>data</code> which will be as a source for children fields and provide a <code>localContext</code> to share unmodifiable data available in a child field using <code>env.localContext</code>.</p>
 </div>
 </div>
 </div>
@@ -692,10 +664,45 @@ function sendRequestToBooksApi(queryString) {
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="arguments"><a class="link" href="#arguments">Arguments</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When Guilltine invokes the extensions function, it will pass a utility object as an argument, giving your extension acccess to standard scalars, types, type modifiers and functions.</p>
+</div>
+<div class="paragraph">
+<p>These are:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Scalars and Types</dt>
+<dd>
+<p><code>GraphQLString</code>, <code>GraphQLInt</code>, <code>GraphQLID</code>, <code>GraphQLBoolean</code>, <code>GraphQLFloat</code>, <code>Json</code>, <code>DateTime</code>, <code>Date</code>, <code>LocalTime</code> <code>LocalDateTime</code> and <code>reference</code> type.</p>
+</dd>
+<dt class="hdlist1">Type modifiers</dt>
+<dd>
+<p>The <code>list</code> and <code>nonNull</code> type modifiers allow applies additional validation of those values.</p>
+</dd>
+<dt class="hdlist1">Functions</dt>
+<dd>
+<p><code>createDataFetcherResult</code> - allows to return object with <code>data</code> which will be as a source for children fields and provide a <code>localContext</code> to share unmodifiable data available in a child field using <code>env.localContext</code>.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="lifecycle"><a class="link" href="#lifecycle">Lifecycle</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The extensions function will be invoked by Guillotine when your application (the application containing the guillotine.js controller) is started, or when Guillotine itself is started.</p>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 14:36:42 UTC
+Last updated 2024-01-05 14:55:19 UTC
 </div>
 </div>
 </body>
