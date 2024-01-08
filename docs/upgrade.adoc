@@ -62,7 +62,6 @@ In order to migrate your code, you will have to:
 . Create a new application or use an existing one, where you should create `guillotine.js` file in the `src/main/resources/guillotine` folder of your project.
 . This file must contain a function that returns an object with structure which described <<extending#, here>>.
 . Your schema will be available at the POST `/site/<project-name>/<branch-name>` endpoint. More information <<setup#endpoints, here>>.
-. To specify site context you should provide the `siteKey` argument in the `guillotine` field. This approach is recommended, because we will keep it. Of course, you can still use the `X-Guillotine-SiteKey` HTTP header, but it can be deprecated and removed in the future versions.
 
 Let see important changes in the new version of the Guillotine application related with `creationCallbacks`:
 
