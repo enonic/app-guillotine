@@ -15,7 +15,7 @@ It can also be enabled for production servers via <<configuration#, configuratio
 
 == API browser
 
-Query Playground lets you access the detailed documentation, and peform queries in context of your content:
+Query Playground lets you access the detailed documentation, and perform queries in context of your content:
 
 
 image::images/playground.png[Query playground interface, 1320px]
