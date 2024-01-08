@@ -640,7 +640,7 @@ Here are details on how to invoke the API from <a href="usage/javascript.ahtml">
 </div>
 </div>
 <div class="paragraph">
-<p>Rich text fields will typically include links, images and macros in the <code>processedHtml</code> field of the <a href="../api.ahtml#richtext">RichText</a> type. Below are further details how to handle this:</p>
+<p>Rich text fields will typically include links, images and macros in the <code>processedHtml</code> field of the <a href="api.ahtml#richtext">RichText</a> type. Below are further details how to handle this:</p>
 </div>
 <div class="sect2">
 <h3 id="links"><a class="link" href="#links">Links</a></h3>
@@ -791,16 +791,16 @@ fragment imageFragment on Content {
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Image as <a href="../api.ahtml#content">Content</a> type</td>
+<td>Image as <a href="api.ahtml#content">Content</a> type</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Image style as <a href="../api.ahtml#imagestyle">ImageStyle</a> type</td>
+<td>Image style as <a href="api.ahtml#imagestyle">ImageStyle</a> type</td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>Using the <code>processHtml</code> argument which has <a href="../api.ahtml#processhtmlinput">ProcessHtmlInput</a> type for a form item of type <code>HtmlArea</code> or for
+<p>Using the <code>processHtml</code> argument which has <a href="api.ahtml#processhtmlinput">ProcessHtmlInput</a> type for a form item of type <code>HtmlArea</code> or for
 <code>TextComponent</code> field you can specify <code>imageWidths</code> to generate relevant links for specific widths of an image.
 In this case <code>srcset</code> attribute will be added to <code>img</code> tags.</p>
 </div>
@@ -1098,7 +1098,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 <p>Finally, you may retrieve site relative paths - which may be useful when generating site relative URLs for instance.</p>
 </div>
 <div class="listingblock">
-<div class="title">Example: Retrive site relative item paths</div>
+<div class="title">Example: Retrieve site relative item paths</div>
 <div class="content">
 <pre>{
   guillotine {
@@ -1116,7 +1116,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 15:49:05 UTC
+Last updated 2024-01-08 09:52:41 UTC
 </div>
 </div>
 </body>

@@ -477,7 +477,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="deprecated_fields"><a class="link" href="#deprecated_fields">Deprecated fields</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>query</code> and <code>queryConnection</code> fields are deprecated. Use <code>queryDsl</code> and <code>queryDslConnection</code> instead</p>
+<p>The <code>query</code> and <code>queryConnection</code> fields are deprecated. Use <code>queryDsl</code> and <code>queryDslConnection</code> instead.</p>
 </div>
 </div>
 </div>
@@ -485,17 +485,43 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="url_fields"><a class="link" href="#url_fields">Url fields</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>URL field arguments (i,e, pageUrl(), imageUrl() etc) were previously of type <code>String</code>, but are now of type <code>JSON</code>.</p>
+<p>The <code>params</code> argument of URL field (i,e, pageUrl, imageUrl, attachmentUrl and mediaUrl) were previously of type <code>String</code>, but are now of type <code>JSON</code>.</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Old way: <code>pageUrl(type: xxx TODO)</code></p>
-</li>
-<li>
-<p>New way: <code>pageUrl({args})</code></p>
+<p>Old way: <code>pageUrl(params: String)</code></p>
 </li>
 </ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+  guillotine {
+    get(key: "/path/to/content") {
+      pageUrl(params: "{\"a\": [1, 4], \"b\": 2, \"c\": 3 }")
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>New way: <code>pageUrl(params: JSON)</code></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+  guillotine {
+    get(key: "/path/to/content") {
+      pageUrl(params: {a: [1, 4], b: 2, c: 3})
+    }
+  }
+}</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -537,7 +563,7 @@ Remember, you can still install Guillotine 7, and keep your old library-based ap
 <p>This file must contain a function that returns an object with structure which described <a href="extending.ahtml">here</a>.</p>
 </li>
 <li>
-<p>Your schema will be available at the POST <code>/site/&lt;project-name&gt;/&lt;branch-name&gt;</code> endpoint. More information about this endpoint can be found  <a href="endpoints.ahtml">here</a>.</p>
+<p>Your schema will be available at the POST <code>/site/&lt;project-name&gt;/&lt;branch-name&gt;</code> endpoint. More information <a href="setup.ahtml#endpoints">here</a>.</p>
 </li>
 <li>
 <p>To specify site context you should provide the <code>siteKey</code> argument in the <code>guillotine</code> field. This approach is recommended, because we will keep it. Of course, you can still use the <code>X-Guillotine-SiteKey</code> HTTP header, but it can be deprecated and removed in the future versions.</p>
@@ -699,7 +725,7 @@ exports.extensions = function (graphQL) { <i class="conum" data-value="1"></i><b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 15:49:05 UTC
+Last updated 2024-01-08 09:52:41 UTC
 </div>
 </div>
 </body>

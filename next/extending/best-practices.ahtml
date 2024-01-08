@@ -443,6 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#the_guillotine_field">The Guillotine field</a></li>
 <li><a href="#adding_custom_fields">Adding custom fields</a></li>
 <li><a href="#coding_guidelines">Coding guidelines</a></li>
+<li><a href="#naming_conventions">Naming conventions</a></li>
 </ul>
 </div>
 </div>
@@ -585,10 +586,28 @@ exports.create = function (graphQL) {
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="naming_conventions"><a class="link" href="#naming_conventions">Naming conventions</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Custom fields should be named uniquely to avoid conflicts with already exists fields.</p>
+</div>
+<div class="paragraph">
+<p>For instance, you can use prefixes for custom fields:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>&lt;app-prefix&gt;_fieldName</code> - for fields related to your application. The prefix must not contain <code>-</code>, <code>.</code> use <code>_</code> instead. Also, must not start with numbers.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-05 15:49:05 UTC
+Last updated 2024-01-08 09:52:41 UTC
 </div>
 </div>
 </body>
