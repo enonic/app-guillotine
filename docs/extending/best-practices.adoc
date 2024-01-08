@@ -106,3 +106,11 @@ exports.create = function (graphQL) {
 ----
 
 This example shows how to split the `resolvers` property into two files: `headless-cms-resolvers-factory.js` and `query-resolvers-factory.js`, where each file contains resolvers for fields the corresponding type.
+
+== Naming conventions
+
+Custom fields should be named uniquely to avoid conflicts with already exists fields.
+
+For instance, you can use prefixes for custom fields:
+
+- `<app-prefix>_fieldName` - for fields related to your application. The prefix must not contain `-`, `.` use `_` instead. Also, must not start with numbers.

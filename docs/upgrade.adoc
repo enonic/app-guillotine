@@ -13,15 +13,36 @@ Guillotine 7 does not provide a way to add custom subscriptions at the moment. I
 
 == Deprecated fields
 
-The `query` and `queryConnection` fields are deprecated. Use `queryDsl` and `queryDslConnection` instead
+The `query` and `queryConnection` fields are deprecated. Use `queryDsl` and `queryDslConnection` instead.
 
 == Url fields
 
-URL field arguments (i,e, pageUrl(), imageUrl() etc) were previously of type `String`, but are now of type `JSON`.
+The `params` argument of URL field (i,e, pageUrl, imageUrl, attachmentUrl and mediaUrl) were previously of type `String`, but are now of type `JSON`.
 
-* Old way: `pageUrl(type: xxx TODO)`
-* New way: `pageUrl({args})`
+* Old way: `pageUrl(params: String)`
 
+[source,javascript]
+----
+{
+  guillotine {
+    get(key: "/path/to/content") {
+      pageUrl(params: "{\"a\": [1, 4], \"b\": 2, \"c\": 3 }")
+    }
+  }
+}
+----
+* New way: `pageUrl(params: JSON)`
+
+[source,javascript]
+----
+{
+  guillotine {
+    get(key: "/path/to/content") {
+      pageUrl(params: {a: [1, 4], b: 2, c: 3})
+    }
+  }
+}
+----
 
 == Guillotine library
 
@@ -40,7 +61,7 @@ In order to migrate your code, you will have to:
 
 . Create a new application or use an existing one, where you should create `guillotine.js` file in the `src/main/resources/guillotine` folder of your project.
 . This file must contain a function that returns an object with structure which described <<extending#, here>>.
-. Your schema will be available at the POST `/site/<project-name>/<branch-name>` endpoint. More information about this endpoint can be found  <<endpoints#, here>>.
+. Your schema will be available at the POST `/site/<project-name>/<branch-name>` endpoint. More information <<setup#endpoints, here>>.
 . To specify site context you should provide the `siteKey` argument in the `guillotine` field. This approach is recommended, because we will keep it. Of course, you can still use the `X-Guillotine-SiteKey` HTTP header, but it can be deprecated and removed in the future versions.
 
 Let see important changes in the new version of the Guillotine application related with `creationCallbacks`:

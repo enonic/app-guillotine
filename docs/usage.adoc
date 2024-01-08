@@ -122,7 +122,7 @@ Rich text fields provide configuration parameters that give you control over out
 }
 ----
 
-Rich text fields will typically include links, images and macros in the `processedHtml` field of the <<../api#richtext, RichText>> type. Below are further details how to handle this:
+Rich text fields will typically include links, images and macros in the `processedHtml` field of the <<api#richtext, RichText>> type. Below are further details how to handle this:
 
 === Links
 
@@ -239,10 +239,10 @@ fragment imageFragment on Content {
 }
 ----
 <1> Reference to an image in the processedHtml field
-<2> Image as <<../api#content, Content>> type
-<3> Image style as <<../api#imagestyle, ImageStyle>> type
+<2> Image as <<api#content, Content>> type
+<3> Image style as <<api#imagestyle, ImageStyle>> type
 
-Using the `processHtml` argument which has <<../api#processhtmlinput, ProcessHtmlInput>> type for a form item of type `HtmlArea` or for
+Using the `processHtml` argument which has <<api#processhtmlinput, ProcessHtmlInput>> type for a form item of type `HtmlArea` or for
 `TextComponent` field you can specify `imageWidths` to generate relevant links for specific widths of an image.
 In this case `srcset` attribute will be added to `img` tags.
 
@@ -460,7 +460,7 @@ Use the `${site}` placeholder when querying for path's within the site.
 Finally, you may retrieve site relative paths - which may be useful when generating site relative URLs for instance.
 
 
-.Example: Retrive site relative item paths
+.Example: Retrieve site relative item paths
 ----
 { 
   guillotine {
