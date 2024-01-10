@@ -116,14 +116,13 @@ public class ExtensionsProcessor
         } );
     }
 
-    private void processCreationCallbacks( final Map<String, ScriptValue> creationCallbacks )
+    private void processCreationCallbacks( final Map<String, List<ScriptValue>> creationCallbacksMap )
     {
-        creationCallbacks.forEach( ( typeName, creationCallback ) -> {
+        creationCallbacksMap.forEach( ( typeName, creationCallbacks ) -> creationCallbacks.forEach( creationCallback -> {
             OutputObjectCreationCallbackParams params = new OutputObjectCreationCallbackParams();
             creationCallback.call( params );
-
             typesRegister.addCreationCallback( typeName, params );
-        } );
+        } ) );
     }
 
     private List<GraphQLFieldDefinition> extractFields( ScriptValue fieldDefs )
