@@ -6,11 +6,13 @@ public interface Constants
 {
     String CONTENT_ID_FIELD = "__contentId";
 
-    String GUILLOTINE_TARGET_PROJECT_CTX = "__targetProject";
+    String PROJECT_ARG = "project";
 
-    String GUILLOTINE_TARGET_BRANCH_CTX = "__targetBranch";
+    String BRANCH_ARG = "branch";
 
-    String GUILLOTINE_TARGET_SITE_CTX = "__targetSiteKey";
+    String SITE_ARG = "siteKey";
+
+    String SITE_HEADER = "X-Guillotine-SiteKey";
 
     List<String> SUPPORTED_AGGREGATIONS =
         List.of( "terms", "stats", "range", "dateRange", "dateHistogram", "geoDistance", "min", "max", "count" );
