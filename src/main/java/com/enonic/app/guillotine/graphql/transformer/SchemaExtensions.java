@@ -1,6 +1,8 @@
 package com.enonic.app.guillotine.graphql.transformer;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.enonic.xp.script.ScriptValue;
@@ -21,7 +23,7 @@ public class SchemaExtensions
 
     private final Map<String, ScriptValue> typeResolvers;
 
-    private final Map<String, ScriptValue> creationCallbacks;
+    private final Map<String, List<ScriptValue>> creationCallbacks;
 
     private SchemaExtensions( final Builder builder )
     {
@@ -70,7 +72,7 @@ public class SchemaExtensions
         return typeResolvers;
     }
 
-    public Map<String, ScriptValue> getCreationCallbacks()
+    public Map<String, List<ScriptValue>> getCreationCallbacks()
     {
         return creationCallbacks;
     }
@@ -96,7 +98,7 @@ public class SchemaExtensions
 
         private final Map<String, ScriptValue> typeResolvers = new LinkedHashMap<>();
 
-        private final Map<String, ScriptValue> creationCallbacks = new LinkedHashMap<>();
+        private final Map<String, List<ScriptValue>> creationCallbacks = new LinkedHashMap<>();
 
         private Builder()
         {
@@ -150,7 +152,7 @@ public class SchemaExtensions
 
         public Builder addCreationCallback( String typeName, ScriptValue creationCallbackDef )
         {
-            this.creationCallbacks.put( typeName, creationCallbackDef );
+            this.creationCallbacks.computeIfAbsent( typeName, k -> new ArrayList<>() ).add( creationCallbackDef );
             return this;
         }
 
