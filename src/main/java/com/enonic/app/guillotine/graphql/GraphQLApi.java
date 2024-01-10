@@ -1,6 +1,5 @@
 package com.enonic.app.guillotine.graphql;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -14,7 +13,6 @@ import java.util.stream.Collectors;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
 import graphql.Scalars;
-import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetcher;
 import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLCodeRegistry;
@@ -27,6 +25,7 @@ import graphql.schema.SchemaTransformer;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.factory.HeadlessCmsTypeFactory;
 import com.enonic.app.guillotine.graphql.factory.TypeFactory;
+import com.enonic.app.guillotine.graphql.fetchers.GuillotineDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.GraphQLHelper;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionGraphQLTypeVisitor;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionsExtractorService;
@@ -34,6 +33,7 @@ import com.enonic.app.guillotine.graphql.transformer.SchemaExtensions;
 import com.enonic.app.guillotine.mapper.ExecutionResultMapper;
 import com.enonic.xp.app.ApplicationService;
 import com.enonic.xp.macro.MacroDescriptor;
+import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.script.ScriptValue;
 import com.enonic.xp.script.bean.BeanContext;
 import com.enonic.xp.script.bean.ScriptBean;
@@ -49,12 +49,15 @@ public class GraphQLApi
 
     private Supplier<ExtensionsExtractorService> extensionsExtractorServiceSupplier;
 
+    private Supplier<PortalRequest> portalRequestSupplier;
+
     @Override
     public void initialize( final BeanContext context )
     {
         this.serviceFacadeSupplier = context.getService( ServiceFacade.class );
         this.applicationServiceSupplier = context.getService( ApplicationService.class );
         this.extensionsExtractorServiceSupplier = context.getService( ExtensionsExtractorService.class );
+        this.portalRequestSupplier = context.getBinding( PortalRequest.class );
     }
 
     public GraphQLSchema createSchema()
@@ -182,8 +185,7 @@ public class GraphQLApi
 
         typesRegister.addCreationCallback( "Query", guillotineQueryCreationCallback );
 
-        typesRegister.addResolver( "Query", "guillotine", environment -> DataFetcherResult.newResult().data( new Object() ).localContext(
-            Collections.unmodifiableMap( new HashMap<>() ) ).build() );
+        typesRegister.addResolver( "Query", "guillotine", new GuillotineDataFetcher( portalRequestSupplier ) );
 
         typesRegister.addAdditionalType( context.getAllTypes() );
 
@@ -194,13 +196,11 @@ public class GraphQLApi
         context.getTypeResolvers().forEach( typesRegister::addTypeResolver );
     }
 
-    public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables, ScriptValue queryContext )
+    public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
     {
         GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
 
-        ExecutionInput executionInput =
-            ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).graphQLContext(
-                extractValue( queryContext ) ).build();
+        ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).build();
 
         return new ExecutionResultMapper( graphQL.execute( executionInput ) );
     }

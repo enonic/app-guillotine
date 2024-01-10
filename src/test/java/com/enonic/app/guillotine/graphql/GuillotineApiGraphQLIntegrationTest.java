@@ -169,8 +169,7 @@ public class GuillotineApiGraphQLIntegrationTest
         GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
 
         ExecutionInput executionInput =
-            ExecutionInput.newExecutionInput().query( ResourceHelper.readGraphQLQuery( "graphql/getSiteField.graphql" ) ).graphQLContext(
-                Map.of( "__siteKey", "/siteKey" ) ).build();
+            ExecutionInput.newExecutionInput().query( ResourceHelper.readGraphQLQuery( "graphql/getSiteField.graphql" ) ).build();
 
         ExecutionResultMapper executionResultMapper = new ExecutionResultMapper( graphQL.execute( executionInput ) );
 
