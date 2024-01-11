@@ -30,6 +30,7 @@ import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.macro.MacroDescriptorService;
 import com.enonic.xp.macro.MacroService;
+import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.script.PortalScriptService;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.resource.ResourceKey;
@@ -42,6 +43,7 @@ import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.User;
 import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.testing.ScriptTestSupport;
+import com.enonic.xp.testing.mock.MockBeanContext;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -152,7 +154,18 @@ public class BaseGraphQLIntegrationTest
     private void createGraphQLApiBean()
     {
         this.bean = new GraphQLApi();
-        this.bean.initialize( newBeanContext( ResourceKey.from( "myapplication:/test" ) ) );
+
+        final MockBeanContext context = newBeanContext( ResourceKey.from( "myapplication:/test" ) );
+
+        PortalRequest request = modifyPortalRequest( new PortalRequest( portalRequest ) );
+        context.addBinding( PortalRequest.class, request );
+
+        this.bean.initialize( context );
+    }
+
+    protected PortalRequest modifyPortalRequest( final PortalRequest portalRequest )
+    {
+        return portalRequest;
     }
 
     private ResourceService getResourceService()

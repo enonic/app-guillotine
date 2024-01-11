@@ -1,7 +1,6 @@
 package com.enonic.app.guillotine.graphql;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -171,8 +170,7 @@ public class GuillotineApiGraphQLIntegrationTest
         GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
 
         ExecutionInput executionInput =
-            ExecutionInput.newExecutionInput().query( ResourceHelper.readGraphQLQuery( "graphql/getSiteField.graphql" ) ).localContext(
-                new HashMap<>() ).build();
+            ExecutionInput.newExecutionInput().query( ResourceHelper.readGraphQLQuery( "graphql/getSiteField.graphql" ) ).build();
 
         ExecutionResultMapper executionResultMapper = new ExecutionResultMapper( graphQL.execute( executionInput ) );
 

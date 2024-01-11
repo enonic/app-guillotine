@@ -38,9 +38,9 @@ public class GetSiteDataFetcherTest
         PortalRequestAccessor.set( portalRequest );
 
         Map<String, Object> localContext = new HashMap<>();
-        localContext.put( Constants.GUILLOTINE_TARGET_PROJECT_CTX, "myproject" );
-        localContext.put( Constants.GUILLOTINE_TARGET_BRANCH_CTX, "draft" );
-        localContext.put( Constants.GUILLOTINE_TARGET_SITE_CTX, "/siteKey" );
+        localContext.put( Constants.PROJECT_ARG, "myproject" );
+        localContext.put( Constants.BRANCH_ARG, "draft" );
+        localContext.put( Constants.SITE_ARG, "/siteKey" );
 
         environment = Mockito.mock( DataFetchingEnvironment.class );
         when( environment.getLocalContext() ).thenReturn( localContext );

@@ -20,8 +20,8 @@ public class GetContentProjectDataFetcherTest
         throws Exception
     {
         Map<String, Object> localContext = new HashMap<>();
-        localContext.put( Constants.GUILLOTINE_TARGET_PROJECT_CTX, "project" );
-        localContext.put( Constants.GUILLOTINE_TARGET_BRANCH_CTX, "master" );
+        localContext.put( Constants.PROJECT_ARG, "project" );
+        localContext.put( Constants.BRANCH_ARG, "master" );
 
         DataFetchingEnvironment environment = mock( DataFetchingEnvironment.class );
         when( environment.getLocalContext() ).thenReturn( localContext );
