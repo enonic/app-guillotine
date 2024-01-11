@@ -56,7 +56,7 @@ exports.extensions = function (graphQL) {
 You can omit any of the properties, but you must return an object with the same structure. The order of the properties is not important.
 
 
-== Example of usage
+== Usage example
 
 Let's imagine that we have to extend the GraphQL schema with a new type `GoogleBooks` and add a new field `findBooks` to the `Query` type to be able to find books by query string. To execute requests to Google Books API we will use `lib-http-client` library.
 
@@ -180,5 +180,5 @@ Functions:: `createDataFetcherResult` - allows to return object with `data` whic
 
 == Lifecycle
 
-The extensions function will be invoked by Guillotine when your application (the application containing the guillotine.js controller) is started, or when Guillotine itself is started.
+The `extensions` function will automatically be invoked by Guillotine when your application (the app containing the `guillotine.js` controller) is started, or when Guillotine itself is started/restarted.
 
