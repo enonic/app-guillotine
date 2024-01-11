@@ -551,7 +551,7 @@ Enonic&#8217;s own apps never use prefixes. This is done in order to keep common
 <div class="sect2">
 <h3 id="headlesscms_type_guillotine_field"><a class="link" href="#headlesscms_type_guillotine_field">HeadlessCms Type (guillotine field)</a></h3>
 <div class="paragraph">
-<p>The <code>guillotine</code> field is the only stanard root field in the <code>Query</code> type. Utilizing this field enables you to access a variety of functionalities, including retrieving individual Content instances by key.</p>
+<p>The <code>guillotine</code> field is the only standard root field in the <code>Query</code> type. Utilizing this field enables you to access a variety of functionalities, including retrieving individual Content instances by key.</p>
 </div>
 <div class="paragraph">
 <p>We recommend to use this rule: if field is related to <code>Content</code>, then add it to the <code>HeadlessCms</code> type.</p>
@@ -559,7 +559,7 @@ Enonic&#8217;s own apps never use prefixes. This is done in order to keep common
 <div class="ulist">
 <ul>
 <li>
-<p><code>myapp_menu(contentKey: String!): Menu</code> - Returns a menu for specified <code>Content</code> instance, the response might include existing Guillotine types like <code>Content</code>.</p>
+<p><code>myapp_menu(contentKey: String!): MyApp_Menu</code> - Returns a menu for specified <code>Content</code> instance, the response might include existing Guillotine types like <code>Content</code>.</p>
 </li>
 </ul>
 </div>
@@ -580,8 +580,8 @@ Enonic&#8217;s own apps never use prefixes. This is done in order to keep common
         creationCallbacks: {
            HeadlessCms: function (params) {
                 params.addFields({
-                    getMenu: {
-                        type: graphQL.reference('Menu'),
+                    myapp_menu: {
+                        type: graphQL.reference('MyApp_Menu'),
                         args: {
                             contentKey: {
                                 type: graphQL.nonNull(graphQL.GraphQLString)
@@ -656,7 +656,7 @@ exports.create = function (graphQL) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-11 08:35:20 UTC
+Last updated 2024-01-11 09:04:17 UTC
 </div>
 </div>
 </body>
