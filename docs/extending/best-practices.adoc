@@ -63,11 +63,11 @@ exports.extensions = function (graphQL) {
 
 === HeadlessCms Type (guillotine field)
 
-The `guillotine` field is the only stanard root field in the `Query` type. Utilizing this field enables you to access a variety of functionalities, including retrieving individual Content instances by key.
+The `guillotine` field is the only standard root field in the `Query` type. Utilizing this field enables you to access a variety of functionalities, including retrieving individual Content instances by key.
 
 We recommend to use this rule: if field is related to `Content`, then add it to the `HeadlessCms` type.
 
-- `myapp_menu(contentKey: String!): Menu` - Returns a menu for specified `Content` instance, the response might include existing Guillotine types like `Content`.
+- `myapp_menu(contentKey: String!): MyApp_Menu` - Returns a menu for specified `Content` instance, the response might include existing Guillotine types like `Content`.
 
 For example:
 
@@ -85,8 +85,8 @@ exports.extensions = function (graphQL) {
         creationCallbacks: {
            HeadlessCms: function (params) {
                 params.addFields({
-                    getMenu: {
-                        type: graphQL.reference('Menu'),
+                    myapp_menu: {
+                        type: graphQL.reference('MyApp_Menu'),
                         args: {
                             contentKey: {
                                 type: graphQL.nonNull(graphQL.GraphQLString)
