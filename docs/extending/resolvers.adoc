@@ -68,6 +68,28 @@ The `localContext` object is unmodifiable, so you can't change it. If you need t
 - `branch` - branch name, taken from the current context.
 - `siteKey` - site key, taken from the `X-Guillotine-SiteKey` header. If header is not provided, then it will be equal to `null`.
 
+Below you can find an example of how to use these properties:
+
+[source,javascript]
+----
+exports.extensions = function (graphQL) {
+    return {
+        ...
+        resolvers: {
+            MyCustomType: {
+                myCustomField: function (env) {
+                    const project = env.localContext.project;
+                    const branch = env.localContext.branch;
+                    const siteKey = env.localContext.siteKey;
+                    ...
+                }
+            }
+        },
+        ...
+   }
+}
+----
+
 == createDataFetcherResult
 
 Guillotine provides `createDataFetcherResult` function via `graphQL` object. This function will be useful when your `DataFetcher` retrieves data from multiple sources, or you want to pass extra context to lower levels.
