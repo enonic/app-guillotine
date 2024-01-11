@@ -442,7 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#guillotine_js">Guillotine.js</a></li>
-<li><a href="#example_of_usage">Example of usage</a></li>
+<li><a href="#usage_example">Usage example</a></li>
 <li><a href="#arguments">Arguments</a></li>
 <li><a href="#lifecycle">Lifecycle</a></li>
 </ul>
@@ -547,7 +547,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="example_of_usage"><a class="link" href="#example_of_usage">Example of usage</a></h2>
+<h2 id="usage_example"><a class="link" href="#usage_example">Usage example</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Let&#8217;s imagine that we have to extend the GraphQL schema with a new type <code>GoogleBooks</code> and add a new field <code>findBooks</code> to the <code>Query</code> type to be able to find books by query string. To execute requests to Google Books API we will use <code>lib-http-client</code> library.</p>
@@ -692,14 +692,14 @@ function sendRequestToBooksApi(queryString) {
 <h2 id="lifecycle"><a class="link" href="#lifecycle">Lifecycle</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The extensions function will be invoked by Guillotine when your application (the application containing the guillotine.js controller) is started, or when Guillotine itself is started.</p>
+<p>The <code>extensions</code> function will automatically be invoked by Guillotine when your application (the app containing the <code>guillotine.js</code> controller) is started, or when Guillotine itself is started/restarted.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-08 10:01:33 UTC
+Last updated 2024-01-11 08:35:20 UTC
 </div>
 </div>
 </body>
