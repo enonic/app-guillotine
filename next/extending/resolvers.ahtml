@@ -554,6 +554,29 @@ exports.extensions = function (graphQL) {
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>Below you can find an example of how to use these properties:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.extensions = function (graphQL) {
+    return {
+        ...
+        resolvers: {
+            MyCustomType: {
+                myCustomField: function (env) {
+                    const project = env.localContext.project;
+                    const branch = env.localContext.branch;
+                    const siteKey = env.localContext.siteKey;
+                    ...
+                }
+            }
+        },
+        ...
+   }
+}</code></pre>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -617,7 +640,7 @@ exports.extensions = function (graphQL) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-11 09:31:17 UTC
+Last updated 2024-01-11 12:08:47 UTC
 </div>
 </div>
 </body>
