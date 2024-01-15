@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@types/core-js": "^2.5.8",
-    "@typescript-eslint/eslint-plugin": "^6.18.0",
+    "@typescript-eslint/eslint-plugin": "^6.18.1",
     "@typescript-eslint/parser": "^6.18.0",
     "circular-dependency-plugin": "^5.2.2",
     "copy-webpack-plugin": "^11.0.0",
