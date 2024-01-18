@@ -13,6 +13,7 @@ import com.enonic.xp.page.PageTemplateService;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.mixin.MixinService;
+import com.enonic.xp.style.StyleDescriptorService;
 
 @Component(immediate = true, service = ServiceFacade.class)
 public class ServiceFacade
@@ -35,13 +36,16 @@ public class ServiceFacade
 
     private final PageTemplateService pageTemplateService;
 
+    private final StyleDescriptorService styleDescriptorService;
+
     @Activate
     public ServiceFacade( final @Reference ContentService contentService, final @Reference ContentTypeService contentTypeService,
                           final @Reference ComponentDescriptorService componentDescriptorService,
                           final @Reference PortalUrlService portalUrlService, final @Reference NodeService nodeService,
                           final @Reference MixinService mixinService, final @Reference MacroService macroService,
                           final @Reference MacroDescriptorService macroDescriptorService,
-                          final @Reference PageTemplateService pageTemplateService )
+                          final @Reference PageTemplateService pageTemplateService,
+                          final @Reference StyleDescriptorService styleDescriptorService )
     {
         this.contentService = contentService;
         this.contentTypeService = contentTypeService;
@@ -52,6 +56,7 @@ public class ServiceFacade
         this.macroService = macroService;
         this.macroDescriptorService = macroDescriptorService;
         this.pageTemplateService = pageTemplateService;
+        this.styleDescriptorService = styleDescriptorService;
     }
 
     public ContentService getContentService()
@@ -97,6 +102,11 @@ public class ServiceFacade
     public PageTemplateService getPageTemplateService()
     {
         return pageTemplateService;
+    }
+
+    public StyleDescriptorService getStyleDescriptorService()
+    {
+        return styleDescriptorService;
     }
 
 }
