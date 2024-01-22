@@ -32,7 +32,7 @@
     "css-minimizer-webpack-plugin": "^6.0.0",
     "eslint": "^8.56.0",
     "less": "^4.2.0",
-    "less-loader": "^11.1.4",
+    "less-loader": "^12.1.0",
     "mini-css-extract-plugin": "^2.7.7",
     "postcss": "^8.4.33",
     "postcss-loader": "^7.3.4",
