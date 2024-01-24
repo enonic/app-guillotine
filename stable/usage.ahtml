@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Query examples</title>
+<title>Using the Guillotine API</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,11 +436,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Query examples</h1>
+<h1>Using the Guillotine API</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#queries">Queries</a></li>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#content_queries">Content queries</a></li>
 <li><a href="#follow_references">Follow references</a></li>
 <li><a href="#accessing_images">Accessing images</a></li>
 <li><a href="#rich_text">Rich text</a>
@@ -466,33 +467,70 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section provides a set of example queries.</p>
+<p>Example queries when using Guillotine</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Visit our <a href="https://developer.enonic.com/docs/developer-101">Developer 101 tutorial</a> for detailed introduction to Enonic and use of the Guillotine API
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="queries"><a class="link" href="#queries">Queries</a></h2>
+<h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The API lets you perform advanced queries thanks to Enonic XP&#8217;s NoSQL storage. This includes ranked search, filters, stemming, aggregations and highlighting to mention a few things.</p>
+<p>The Guillotine API and GrapQL schema dynamically adapts to your content model, the examples below are based on a fictional content model and content structure.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Here are details on how to invoke the API from <a href="usage/javascript.ahtml">JavaScript</a> or command line via <a href="usage/curl.ahtml">cURL</a>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Below is a selection of sample GraphQL queries:</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="content_queries"><a class="link" href="#content_queries">Content queries</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Enonic offers advanced search and aggregation queries using a query DSL (Domain Specific Language). Ranked search, aggregations and highlighting are just some of the features.</p>
 </div>
 <div class="listingblock">
-<div class="title">Query example: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author</div>
+<div class="title">Query DSL example: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author</div>
 <div class="content">
-<pre>{
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
   guillotine {
-    query(contentTypes:"com.enonic.app.myapp:post") {
-      displayName
-      ... on com_enonic_app_myapp_Post {
-        data {
-          author {
-            displayName
+    queryDsl(query: {
+          term: {
+            field: "type",
+            value: {
+              string: "com.enonic.app.myapp:Post"
+            }
           }
-        }
+        }){
+      ... on com_enonic_app_myapp_Post {
+        displayName
       }
     }
   }
-}</pre>
+}</code></pre>
 </div>
 </div>
 </div>
@@ -522,7 +560,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">Query example: Retrieve the display name of a specific content and the display name of its direct children</div>
 <div class="content">
-<pre>{
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
   guillotine {
     get(key: "/path/to/item") {
       displayName
@@ -531,7 +569,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
       }
     }
   }
-}</pre>
+}</code></pre>
 </div>
 </div>
 </div>
@@ -545,16 +583,23 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title"><strong>Example: Scaled Image URL</strong> - Retrieve the image contents and generate absolute URLs to these images cropped to 800x200px</div>
 <div class="content">
-<pre>{
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
   guillotine {
-    query(contentTypes:"media:image") {
-      displayName
-      ... on media_Image {
-        imageUrl(scale:"block(800,200)",type:absolute)
-      }
+    queryDsl(query: {
+          term: {
+            field: "type",
+            value: {
+              string: "media:image"
+            }
+          }
+        }){
+        displayName
+        ... on media_Image {
+          imageUrl(scale:"block(800,200)",type:absolute)
+        }
     }
   }
-}</pre>
+}</code></pre>
 </div>
 </div>
 </div>
@@ -568,9 +613,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title"><strong>Example: Process HTML</strong> - Retrieve the blog posts. For each post, return its author display name, tags and processed content.</div>
 <div class="content">
-<pre>{
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
   guillotine {
-    query(contentTypes:"com.enonic.app.myapp:post") {
+    queryDsl(query: {
+          term: {
+            field: "type",
+            value: {
+              string: "com.enonic.app.myapp:post"
+            }
+          }
+        }){
       ... on com_enonic_app_myapp_Post {
         data {
           author {
@@ -584,11 +636,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
       }
     }
   }
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Rich text fields will typically include links, images and macros in the <code>processedHtml</code> field of the <a href="../api.ahtml#richtext">RichText</a> type. Below are further details how how to handle this:</p>
+<p>Rich text fields will typically include links, images and macros in the <code>processedHtml</code> field of the <a href="api.ahtml#richtext">RichText</a> type. Below are further details how to handle this:</p>
 </div>
 <div class="sect2">
 <h3 id="links"><a class="link" href="#links">Links</a></h3>
@@ -739,16 +791,16 @@ fragment imageFragment on Content {
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Image as <a href="../api.ahtml#content">Content</a> type</td>
+<td>Image as <a href="api.ahtml#content">Content</a> type</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Image style as <a href="../api.ahtml#imagestyle">ImageStyle</a> type</td>
+<td>Image style as <a href="api.ahtml#imagestyle">ImageStyle</a> type</td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>Using the <code>processHtml</code> argument which has <a href="../api.ahtml#processhtmlinput">ProcessHtmlInput</a> type for a form item of type <code>HtmlArea</code> or for
+<p>Using the <code>processHtml</code> argument which has <a href="api.ahtml#processhtmlinput">ProcessHtmlInput</a> type for a form item of type <code>HtmlArea</code> or for
 <code>TextComponent</code> field you can specify <code>imageWidths</code> to generate relevant links for specific widths of an image.
 In this case <code>srcset</code> attribute will be added to <code>img</code> tags.</p>
 </div>
@@ -817,10 +869,10 @@ In this case <code>srcset</code> attribute will be added to <code>img</code> tag
       ... on com_app_example_ContentType {
         data {
           description {
-            raw            // (1)
-            processedHtml  // (2)
-            macrosAsJson   // (3)
-            macros {       // (4)
+            raw            <i class="conum" data-value="1"></i><b>(1)</b>
+            processedHtml  <i class="conum" data-value="2"></i><b>(2)</b>
+            macrosAsJson   <i class="conum" data-value="3"></i><b>(3)</b>
+            macros {       <i class="conum" data-value="4"></i><b>(4)</b>
               ref
               name
               descriptor
@@ -929,7 +981,7 @@ In this case <code>srcset</code> attribute will be added to <code>img</code> tag
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">{
   guillotine {
-    query(contentTypes:"com.example.myproject:person") {
+    query(key: "contentID") {
       displayName
       x {
       	com_example_myproject {
@@ -1005,7 +1057,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 <p>With the site context set, you may run queries to access the site content using getSite field</p>
 </div>
 <div class="listingblock">
-<div class="title">Example: Acessing the displayName of the site</div>
+<div class="title">Example: Accessing the displayName of the site</div>
 <div class="content">
 <pre>{
   guillotine {
@@ -1023,7 +1075,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 <p>Use the <code>${site}</code> placeholder when querying for path&#8217;s within the site.</p>
 </div>
 <div class="listingblock">
-<div class="title">Example: Acessing content within specific path of a site</div>
+<div class="title">Example: Accessing content within specific path of a site</div>
 <div class="content">
 <pre>{
   guillotine {
@@ -1046,7 +1098,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 <p>Finally, you may retrieve site relative paths - which may be useful when generating site relative URLs for instance.</p>
 </div>
 <div class="listingblock">
-<div class="title">Example: Retrive site relative item paths</div>
+<div class="title">Example: Retrieve site relative item paths</div>
 <div class="content">
 <pre>{
   guillotine {
@@ -1064,7 +1116,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-11 12:08:34 UTC
+Last updated 2024-01-24 15:08:34 UTC
 </div>
 </div>
 </body>

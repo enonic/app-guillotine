@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Release Notes</title>
+<title>Embedding</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,230 +436,408 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Release Notes</h1>
+<h1>Embedding</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#version_5_2">Version 5.2</a>
+<li><a href="#add_library">Add library</a></li>
+<li><a href="#creating_an_endpoint">Creating an endpoint</a>
 <ul class="sectlevel2">
-<li><a href="#improvements">Improvements</a></li>
+<li><a href="#controller">Controller</a></li>
+<li><a href="#mounting">Mounting</a></li>
 </ul>
 </li>
-<li><a href="#version_5_1">Version 5.1</a>
-<ul class="sectlevel2">
-<li><a href="#subscriptions">Subscriptions</a></li>
-<li><a href="#schema_creation_and_query_execution">Schema creation and query execution</a></li>
-<li><a href="#improvements_2">Improvements</a></li>
-<li><a href="#bug_fixes">Bug fixes</a></li>
-</ul>
-</li>
-<li><a href="#version_5_0">Version 5.0</a>
-<ul class="sectlevel2">
-<li><a href="#aggregations">Aggregations</a></li>
-<li><a href="#filters">Filters</a></li>
-<li><a href="#attachments">Attachments</a></li>
-<li><a href="#rich_text">Rich text</a></li>
-<li><a href="#subscriptions_2">Subscriptions</a></li>
-</ul>
-</li>
-<li><a href="#breaking_changes">Breaking changes</a>
-<ul class="sectlevel2">
-<li><a href="#version_5_0_2">Version 5.0</a></li>
-</ul>
-</li>
+<li><a href="#subscriptions_and_websockets">Subscriptions and websockets</a></li>
+<li><a href="#cors_headers">CORS headers</a></li>
+<li><a href="#api_browser">API browser</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="version_5_2"><a class="link" href="#version_5_2">Version 5.2</a></h2>
+<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This release introduces improvements to the aggregations</p>
+<p>Guillotine is also available as a standalone library which may be embedded into your custom Enonic application. This gives you extensive control over the API.</p>
 </div>
-<div class="sect2">
-<h3 id="improvements"><a class="link" href="#improvements">Improvements</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Added the <code>min</code>, <code>max</code> and <code>count</code> aggregations.</p>
-</li>
-<li>
-<p>Added the <code>minDocCount</code> field to the <code>TermsAggregationInput</code> aggregation.</p>
-</li>
-</ul>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+To create a new app with the Guillotine library boot-strapped: <code>enonic project create -r starter-guillotine</code>
+</td>
+</tr>
+</table>
 </div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="version_5_1"><a class="link" href="#version_5_1">Version 5.1</a></h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>This release introduces improvements to the subscriptions API, new functions to simplify execution of a GraphQL query and bugs fixes.</p>
-</div>
-<div class="sect2">
-<h3 id="subscriptions"><a class="link" href="#subscriptions">Subscriptions</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>The <code>SCHEMA</code> argument becomes optional for <code>guillotineLib.initWebSockets(SCHEMA)</code> function</p>
-</li>
-<li>
-<p>New function to create WebSocket data from request <code>guillotineLib.createWebSocketData(req)</code></p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="schema_creation_and_query_execution"><a class="link" href="#schema_creation_and_query_execution">Schema creation and query execution</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>New function <code>guillotine Lib.execute(params)</code> to execute a GraphQL query. Also this function allows to create and generate a schema if the site or related apps were changed. More details <a href="advanced.ahtml">here</a>.</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="improvements_2"><a class="link" href="#improvements_2">Improvements</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Introduced new <code>xAsJson</code> field for Content type.</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="bug_fixes"><a class="link" href="#bug_fixes">Bug fixes</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Getting draft events via master branch</p>
-</li>
-<li>
-<p><code>first</code> argument does not have effect on content with ImageSelector input type</p>
-</li>
-</ul>
-</div>
+<p>Follow the instructions below to embed Guillotine into your existing application.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="version_5_0"><a class="link" href="#version_5_0">Version 5.0</a></h2>
+<h2 id="add_library"><a class="link" href="#add_library">Add library</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This release simplifies use of rich text content, introduces aggregations and filters, adds scalars for JSON and other common data types, improvements to the subscriptions API and improved consistency in type and field naming.</p>
+<p>Update the dependencies of your project:</p>
+</div>
+<div class="listingblock">
+<div class="title">/build.gradle</div>
+<div class="content">
+<pre class="highlight"><code class="language-gradle" data-lang="gradle">dependencies {
+    implementation "com.enonic.xp:portal-api:${xpVersion}"
+    include "com.enonic.lib:lib-guillotine:&lt;version&gt;"
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Replace <code>&lt;version&gt;</code> with the actual version you want to use, see available versions on <a href="https://market.enonic.com/vendors/enonic/guillotine-headless-lib">Enonic Market</a>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="creating_an_endpoint"><a class="link" href="#creating_an_endpoint">Creating an endpoint</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When using the Guillotine library, you control where and how your API is exposed.
+Most commonly, the API is mounted in the context of a site, which means you will have to add a site.xml file in your app, and then add the application to the specific site:</p>
 </div>
 <div class="sect2">
-<h3 id="aggregations"><a class="link" href="#aggregations">Aggregations</a></h3>
+<h3 id="controller"><a class="link" href="#controller">Controller</a></h3>
 <div class="paragraph">
-<p>Aggregations are now available when using <code>queryConnections</code></p>
+<p>Starting off, you will need a minimal JavaScript controller file that will handle the requests. Below is a minimal example:</p>
+</div>
+<div class="listingblock">
+<div class="title">Sample JS controller</div>
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">var guillotineLib = require('/lib/guillotine'); <i class="conum" data-value="1"></i><b>(1)</b>
+var graphQlLib = require('/lib/graphql'); <i class="conum" data-value="1"></i><b>(1)</b>
+
+var schema = guillotineLib.createSchema(); <i class="conum" data-value="2"></i><b>(2)</b>
+
+exports.post = function (req) { <i class="conum" data-value="3"></i><b>(3)</b>
+ var body = JSON.parse(req.body); <i class="conum" data-value="4"></i><b>(4)</b>
+ var result = JSON.stringify(graphQlLib.execute(schema, body.query, body.variables)); <i class="conum" data-value="5"></i><b>(5)</b>
+ return {
+     contentType: 'application/json',
+     body: JSON.stringify(result)
+ };
+};</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The GraphQL library is already a dependency in Guillotine and does not need explicitly need to be added to your Gradle file</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Creates the GraphQL schema the first time the service is called.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Handles POST requests</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Parses the JSON body to retrieve the GraphQL query and variables</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Executes the query and variables against the schema created</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
-<h3 id="filters"><a class="link" href="#filters">Filters</a></h3>
+<h3 id="mounting"><a class="link" href="#mounting">Mounting</a></h3>
 <div class="paragraph">
-<p><code>queryConnection</code> and <code>query</code> now also support filters</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="attachments"><a class="link" href="#attachments">Attachments</a></h3>
-<div class="paragraph">
-<p><code>attachmentUrl</code> field has been added to the <code>Attachment</code> type</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="rich_text"><a class="link" href="#rich_text">Rich text</a></h3>
-<div class="paragraph">
-<p>Content produced by the HtmlArea input type is now pre-processed to give front-end developers more control over the result. Rather than returning a basic string response, a RichText object, with several interesting new fields is returned.</p>
+<p>The controller alone is not enough to give you an end-point. The following approaches are available.</p>
 </div>
 <div class="paragraph">
-<p>The most imporant capabilities are:</p>
+<p>The various approaches are described below:</p>
+</div>
+<div class="sect3">
+<h4 id="service"><a class="link" href="#service">Service</a></h4>
+<div class="paragraph">
+<p>Service endpoints are automatically mounted in a unique URL-pattern, contextual of your site.</p>
 </div>
 <div class="dlist">
 <dl>
-<dt class="hdlist1">Macros</dt>
+<dt class="hdlist1">Example</dt>
 <dd>
-<p>The <code>processedHtml</code> field now returns macro placeholder elements with references the macro configuration data with can be retrived via another field. This simplifies custom processing of macros in your client.</p>
-</dd>
-<dt class="hdlist1">Images</dt>
-<dd>
-<p>A default img element is still in the markup, but now additionally includes a reference to data object of the image. This enables developers to customise the end result and presentation of images.</p>
-</dd>
-<dt class="hdlist1">Image srcset</dt>
-<dd>
-<p>The processHtml function now supports a new parameter for imageWidth. Simply pass in the imageWidths you would like to use, and an srcset will automatically be generated for each image, including the default style settings.</p>
+<p>i.e. <a href="https://&lt;vhost&gt;/_/service/&lt;app-name&gt;/&lt;service-name&gt" class="bare">https://&lt;vhost&gt;/_/service/&lt;app-name&gt;/&lt;service-name&gt</a>;</p>
 </dd>
 </dl>
 </div>
-</div>
-<div class="sect2">
-<h3 id="subscriptions_2"><a class="link" href="#subscriptions_2">Subscriptions</a></h3>
 <div class="paragraph">
-<p>New event processing for subscriptions only listens for events specific to site/project and branch. Event filter can be further tuned using <code>subscriptionEventTypes</code> option.</p>
+<p>Simply place the controller file above in your app using the following pattern:
+<code>/src/main/resources/services/&lt;service-name&gt;/&lt;service-name&gt;.js</code></p>
 </div>
 <div class="paragraph">
-<p>A new default WS event handler <code>guillotineLib.initWebSockets(SCHEMA)</code> has also been added.</p>
+<p>That&#8217;s it</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="mapping"><a class="link" href="#mapping">Mapping</a></h4>
+<div class="paragraph">
+<p>As opposed to services, mappings are explicitly declared.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Example</dt>
+<dd>
+<p>i.e. <a href="https://&lt;vhost&gt;/&lt;my-mapping&gt" class="bare">https://&lt;vhost&gt;/&lt;my-mapping&gt</a>;</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>This time, however, you may place the controller anywhere within your app resources structure, i.e. <code>/src/main/resources/controllers/guillotine.js</code>. Then declare the mapping in your site.xml schema. For instance like this</p>
+</div>
+<div class="listingblock">
+<div class="title">/resources/site/site.xml</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;mappings&gt;
+  &lt;mapping controller="/controllers/graphql.js" order="50"&gt;
+    &lt;pattern&gt;/myapi&lt;/pattern&gt;
+  &lt;/mapping&gt;
+&lt;/mappings&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Using the example above, the API will be available directly in context of your site like this: <code>&lt;url-to-site&gt;/myapi</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="filters"><a class="link" href="#filters">Filters</a></h4>
+<div class="paragraph">
+<p>Filters are similar to mappings, but may also work in combination with other controller on the same path. I.e. a filter handling <code>POST</code> requests may for instance be mapped to the site root, even if your site serves content using <code>GET</code> requests on the same endpoint.</p>
+</div>
+<div class="paragraph">
+<p>Example filter mapping</p>
+</div>
+<div class="listingblock">
+<div class="title">/resources/site/site.xml</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;mappings&gt;
+  &lt;mapping filter="/controllers/graphql.js" order="50"&gt;
+    &lt;pattern&gt;/&lt;/pattern&gt;
+  &lt;/mapping&gt;
+&lt;/mappings&gt;</code></pre>
+</div>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="breaking_changes"><a class="link" href="#breaking_changes">Breaking changes</a></h2>
+<h2 id="subscriptions_and_websockets"><a class="link" href="#subscriptions_and_websockets">Subscriptions and websockets</a></h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="version_5_0_2"><a class="link" href="#version_5_0_2">Version 5.0</a></h3>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Type renaming</dt>
-<dd>
-<p>Component types like Part, Page and Layout was changed:
-from <code>&lt;ComponentType&gt;ComponentDataDescriptorConfig</code> to <code>&lt;ComponentType&gt;_&lt;applicationKey&gt;_&lt;descriptorName&gt;</code>, and
-from <code>ComponentType&gt;ComponentDataApplicationConfig</code> to <code>&lt;ComponentType&gt;_&lt;applicationKey&gt;_ComponentDataApplicationConfig</code>.</p>
-</dd>
-<dt class="hdlist1">Attachment type</dt>
-<dd>
-<p>is now returned instead of String for <code>AttachmentUploader</code> input types.</p>
-</dd>
-<dt class="hdlist1">asJson</dt>
-<dd>
-<p><code>dataAsJson</code> and <code>pageAsJson</code>, as well as component <code>config</code> fields now return <code>JSON</code> instead of <code>String</code>.</p>
-</dd>
-<dt class="hdlist1">Subscription</dt>
-<dd>
-<p>field <code>newEvent</code> has been renamed to <code>event</code>. The <code>type</code> and  <code>localOnly</code> arguments have been removed. Events are now also filtered, so only site/project related events are returned.</p>
-</dd>
-<dt class="hdlist1">UrlTypeType</dt>
-<dd>
-<p>has been renamed to <code>UrlType</code></p>
-</dd>
-<dt class="hdlist1">queryConnection</dt>
-<dd>
-<p>field now returns type <code>QueryContentConnection</code> instead of an array of type <code>ContentConnection</code></p>
-</dd>
-<dt class="hdlist1">Field name generation</dt>
-<dd>
-<p>to comply with GraphQL from the types <code>OptionSet</code> and <code>ItemSet</code> no longer use camel-case. This is consistent with other field name generation in Guillotine.</p>
-</dd>
-<dt class="hdlist1">TextComponent and HtmlArea</dt>
-<dd>
-<p>based fields now returns type <code>RichText</code> instead of <code>String</code> and supports the <code>processHtml</code> argument of type <code>ProcessHtmlInput</code>.</p>
-</dd>
-<dt class="hdlist1">Date</dt>
-<dd>
-<p>input type now return <code>Date</code> scalar instead of <code>String</code></p>
-</dd>
-<dt class="hdlist1">Time</dt>
-<dd>
-<p>input type now return <code>LocalTime</code> scalar instead of <code>String</code></p>
-</dd>
-<dt class="hdlist1">DateTime</dt>
-<dd>
-<p>input type now return <code>DateTime</code> scalar instead of <code>String</code> if there is A config with <code>timezone</code>, otherwise "LocalDateTime" scalar</p>
-</dd>
-</dl>
+<div class="paragraph">
+<p>The Guillotine API also support GraphQL subscriptions. This is implemented via websockets.
+To enable this functionality, your controller must be extended.</p>
+</div>
+<div class="paragraph">
+<p>Make sure you have a dependency for websockets in your application:</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle with websocket dependency</div>
+<div class="content">
+<pre class="highlight"><code class="language-gradle" data-lang="gradle">dependencies {
+    implementation "com.enonic.xp:portal-api:${xpVersion}"
+    include "com.enonic.xp:lib-websocket:${xpVersion}"
+    include "com.enonic.lib:lib-guillotine:&lt;version&gt;"
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Controller with Websockets</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">const guillotineLib = require('/lib/guillotine');
+
+exports.get = function (req) {
+    if (req.webSocket) {
+        return {
+            webSocket: {
+                data: guillotineLib.createWebSocketData(req),
+                subProtocols: ['graphql-ws']
+            }
+        };
+    }
+};
+
+exports.post = function (req) {
+    let input = JSON.parse(req.body);
+
+    let params = {
+        query: input.query,
+        variables: input.variables
+    };
+
+    return {
+        contentType: 'application/json',
+        body: guillotineLib.execute(params)
+    };
+};
+
+exports.webSocketEvent = guillotineLib.initWebSockets();</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cors_headers"><a class="link" href="#cors_headers">CORS headers</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To enable flexible access to the API from browser clients, you may also need to set specific <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">CORS headers</a>.</p>
+</div>
+<div class="paragraph">
+<p>The example below includes both support for websockets and CORS headers:</p>
+</div>
+<div class="listingblock">
+<div class="title">Controller with CORS headers</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">const guillotineLib = require('/lib/guillotine');
+
+//──────────────────────────────────────────────────────────────────────────────
+// Constants
+//──────────────────────────────────────────────────────────────────────────────
+const CORS_HEADERS = {
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Origin': '*'
+};
+
+//──────────────────────────────────────────────────────────────────────────────
+// Methods
+//──────────────────────────────────────────────────────────────────────────────
+exports.options = function () {
+    return {
+        contentType: 'text/plain;charset=utf-8',
+        headers: CORS_HEADERS
+    };
+};
+
+exports.get = function (req) {
+    if (req.webSocket) {
+        return {
+            webSocket: {
+                data: guillotineLib.createWebSocketData(req),
+                subProtocols: ['graphql-ws']
+            }
+        };
+    }
+};
+
+exports.post = function (req) {
+    let input = JSON.parse(req.body);
+
+    let params = {
+        query: input.query,
+        variables: input.variables
+    };
+
+    return {
+        contentType: 'application/json',
+        headers: CORS_HEADERS,
+        body: guillotineLib.execute(params)
+    };
+};
+
+exports.webSocketEvent = guillotineLib.initWebSockets();</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="api_browser"><a class="link" href="#api_browser">API browser</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Finally - to simplify use of your API, you may also embed a GraphQL API browser on the very same endpoint. As oppsed to the GraphQL API, which uses the <code>POST</code> method, the API browser will be handling the <code>GET</code> requests.</p>
+</div>
+<div class="paragraph">
+<p>Make sure you have a dependency to GraphQL playground</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle with all dependencies</div>
+<div class="content">
+<pre class="highlight"><code class="language-gradle" data-lang="gradle">dependencies {
+    implementation "com.enonic.xp:portal-api:${xpVersion}"
+    include "com.enonic.xp:lib-websocket:${xpVersion}"
+    include "com.enonic.lib:lib-guillotine:&lt;version&gt;"
+    include "com.enonic.lib:lib-graphql-playground:&lt;version&gt;"
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">JS controller with all features</div>
+<div class="content">
+<pre class="highlight"><code class="language-JavaScript" data-lang="JavaScript">const guillotineLib = require('/lib/guillotine');
+const graphqlPlaygroundLib = require('/lib/graphql-playground');
+
+//──────────────────────────────────────────────────────────────────────────────
+// Constants
+//──────────────────────────────────────────────────────────────────────────────
+const CORS_HEADERS = {
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Origin': '*'
+};
+
+//──────────────────────────────────────────────────────────────────────────────
+// Methods
+//──────────────────────────────────────────────────────────────────────────────
+exports.options = function () {
+    return {
+        contentType: 'text/plain;charset=utf-8',
+        headers: CORS_HEADERS
+    };
+};
+
+exports.get = function (req) {
+    if (req.webSocket) {
+        return {
+            webSocket: {
+                data: guillotineLib.createWebSocketData(req),
+                subProtocols: ['graphql-ws']
+            }
+        };
+    }
+
+    let body = graphqlPlaygroundLib.render();
+    return {
+        contentType: 'text/html; charset=utf-8',
+        body: body
+    };
+};
+
+exports.post = function (req) {
+    let input = JSON.parse(req.body);
+
+    let params = {
+        query: input.query,
+        variables: input.variables
+    };
+
+    return {
+        contentType: 'application/json',
+        headers: CORS_HEADERS,
+        body: guillotineLib.execute(params)
+    };
+};
+
+exports.webSocketEvent = guillotineLib.initWebSockets();</code></pre>
 </div>
 </div>
 </div>

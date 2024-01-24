@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<title>Release Notes</title>
+<title>unions</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,230 +436,56 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Release Notes</h1>
+<h1>unions</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#version_5_2">Version 5.2</a>
-<ul class="sectlevel2">
-<li><a href="#improvements">Improvements</a></li>
-</ul>
-</li>
-<li><a href="#version_5_1">Version 5.1</a>
-<ul class="sectlevel2">
-<li><a href="#subscriptions">Subscriptions</a></li>
-<li><a href="#schema_creation_and_query_execution">Schema creation and query execution</a></li>
-<li><a href="#improvements_2">Improvements</a></li>
-<li><a href="#bug_fixes">Bug fixes</a></li>
-</ul>
-</li>
-<li><a href="#version_5_0">Version 5.0</a>
-<ul class="sectlevel2">
-<li><a href="#aggregations">Aggregations</a></li>
-<li><a href="#filters">Filters</a></li>
-<li><a href="#attachments">Attachments</a></li>
-<li><a href="#rich_text">Rich text</a></li>
-<li><a href="#subscriptions_2">Subscriptions</a></li>
-</ul>
-</li>
-<li><a href="#breaking_changes">Breaking changes</a>
-<ul class="sectlevel2">
-<li><a href="#version_5_0_2">Version 5.0</a></li>
-</ul>
-</li>
+<li><a href="#usage">Usage</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="version_5_2"><a class="link" href="#version_5_2">Version 5.2</a></h2>
+<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This release introduces improvements to the aggregations</p>
-</div>
-<div class="sect2">
-<h3 id="improvements"><a class="link" href="#improvements">Improvements</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Added the <code>min</code>, <code>max</code> and <code>count</code> aggregations.</p>
-</li>
-<li>
-<p>Added the <code>minDocCount</code> field to the <code>TermsAggregationInput</code> aggregation.</p>
-</li>
-</ul>
-</div>
+<p>Used to create custom unions</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="version_5_1"><a class="link" href="#version_5_1">Version 5.1</a></h2>
+<h2 id="usage"><a class="link" href="#usage">Usage</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This release introduces improvements to the subscriptions API, new functions to simplify execution of a GraphQL query and bugs fixes.</p>
+<p>It must be an object with the following structure:</p>
 </div>
-<div class="sect2">
-<h3 id="subscriptions"><a class="link" href="#subscriptions">Subscriptions</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>The <code>SCHEMA</code> argument becomes optional for <code>guillotineLib.initWebSockets(SCHEMA)</code> function</p>
-</li>
-<li>
-<p>New function to create WebSocket data from request <code>guillotineLib.createWebSocketData(req)</code></p>
-</li>
-</ul>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">unions: {
+    &lt;UnionTypeName&gt;: {
+        description: &lt;description&gt;,
+        types: [
+            &lt;graphQLType&gt;,
+            // the rest of types or reference to type ...
+        ],
+    },
+    // the rest union definitions ...
+}</code></pre>
 </div>
-</div>
-<div class="sect2">
-<h3 id="schema_creation_and_query_execution"><a class="link" href="#schema_creation_and_query_execution">Schema creation and query execution</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>New function <code>guillotine Lib.execute(params)</code> to execute a GraphQL query. Also this function allows to create and generate a schema if the site or related apps were changed. More details <a href="advanced.ahtml">here</a>.</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="improvements_2"><a class="link" href="#improvements_2">Improvements</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Introduced new <code>xAsJson</code> field for Content type.</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="bug_fixes"><a class="link" href="#bug_fixes">Bug fixes</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Getting draft events via master branch</p>
-</li>
-<li>
-<p><code>first</code> argument does not have effect on content with ImageSelector input type</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="version_5_0"><a class="link" href="#version_5_0">Version 5.0</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>This release simplifies use of rich text content, introduces aggregations and filters, adds scalars for JSON and other common data types, improvements to the subscriptions API and improved consistency in type and field naming.</p>
-</div>
-<div class="sect2">
-<h3 id="aggregations"><a class="link" href="#aggregations">Aggregations</a></h3>
-<div class="paragraph">
-<p>Aggregations are now available when using <code>queryConnections</code></p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="filters"><a class="link" href="#filters">Filters</a></h3>
-<div class="paragraph">
-<p><code>queryConnection</code> and <code>query</code> now also support filters</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="attachments"><a class="link" href="#attachments">Attachments</a></h3>
-<div class="paragraph">
-<p><code>attachmentUrl</code> field has been added to the <code>Attachment</code> type</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="rich_text"><a class="link" href="#rich_text">Rich text</a></h3>
-<div class="paragraph">
-<p>Content produced by the HtmlArea input type is now pre-processed to give front-end developers more control over the result. Rather than returning a basic string response, a RichText object, with several interesting new fields is returned.</p>
 </div>
 <div class="paragraph">
-<p>The most imporant capabilities are:</p>
+<p>For example:</p>
 </div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Macros</dt>
-<dd>
-<p>The <code>processedHtml</code> field now returns macro placeholder elements with references the macro configuration data with can be retrived via another field. This simplifies custom processing of macros in your client.</p>
-</dd>
-<dt class="hdlist1">Images</dt>
-<dd>
-<p>A default img element is still in the markup, but now additionally includes a reference to data object of the image. This enables developers to customise the end result and presentation of images.</p>
-</dd>
-<dt class="hdlist1">Image srcset</dt>
-<dd>
-<p>The processHtml function now supports a new parameter for imageWidth. Simply pass in the imageWidths you would like to use, and an srcset will automatically be generated for each image, including the default style settings.</p>
-</dd>
-</dl>
-</div>
-</div>
-<div class="sect2">
-<h3 id="subscriptions_2"><a class="link" href="#subscriptions_2">Subscriptions</a></h3>
-<div class="paragraph">
-<p>New event processing for subscriptions only listens for events specific to site/project and branch. Event filter can be further tuned using <code>subscriptionEventTypes</code> option.</p>
-</div>
-<div class="paragraph">
-<p>A new default WS event handler <code>guillotineLib.initWebSockets(SCHEMA)</code> has also been added.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="breaking_changes"><a class="link" href="#breaking_changes">Breaking changes</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="version_5_0_2"><a class="link" href="#version_5_0_2">Version 5.0</a></h3>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Type renaming</dt>
-<dd>
-<p>Component types like Part, Page and Layout was changed:
-from <code>&lt;ComponentType&gt;ComponentDataDescriptorConfig</code> to <code>&lt;ComponentType&gt;_&lt;applicationKey&gt;_&lt;descriptorName&gt;</code>, and
-from <code>ComponentType&gt;ComponentDataApplicationConfig</code> to <code>&lt;ComponentType&gt;_&lt;applicationKey&gt;_ComponentDataApplicationConfig</code>.</p>
-</dd>
-<dt class="hdlist1">Attachment type</dt>
-<dd>
-<p>is now returned instead of String for <code>AttachmentUploader</code> input types.</p>
-</dd>
-<dt class="hdlist1">asJson</dt>
-<dd>
-<p><code>dataAsJson</code> and <code>pageAsJson</code>, as well as component <code>config</code> fields now return <code>JSON</code> instead of <code>String</code>.</p>
-</dd>
-<dt class="hdlist1">Subscription</dt>
-<dd>
-<p>field <code>newEvent</code> has been renamed to <code>event</code>. The <code>type</code> and  <code>localOnly</code> arguments have been removed. Events are now also filtered, so only site/project related events are returned.</p>
-</dd>
-<dt class="hdlist1">UrlTypeType</dt>
-<dd>
-<p>has been renamed to <code>UrlType</code></p>
-</dd>
-<dt class="hdlist1">queryConnection</dt>
-<dd>
-<p>field now returns type <code>QueryContentConnection</code> instead of an array of type <code>ContentConnection</code></p>
-</dd>
-<dt class="hdlist1">Field name generation</dt>
-<dd>
-<p>to comply with GraphQL from the types <code>OptionSet</code> and <code>ItemSet</code> no longer use camel-case. This is consistent with other field name generation in Guillotine.</p>
-</dd>
-<dt class="hdlist1">TextComponent and HtmlArea</dt>
-<dd>
-<p>based fields now returns type <code>RichText</code> instead of <code>String</code> and supports the <code>processHtml</code> argument of type <code>ProcessHtmlInput</code>.</p>
-</dd>
-<dt class="hdlist1">Date</dt>
-<dd>
-<p>input type now return <code>Date</code> scalar instead of <code>String</code></p>
-</dd>
-<dt class="hdlist1">Time</dt>
-<dd>
-<p>input type now return <code>LocalTime</code> scalar instead of <code>String</code></p>
-</dd>
-<dt class="hdlist1">DateTime</dt>
-<dd>
-<p>input type now return <code>DateTime</code> scalar instead of <code>String</code> if there is A config with <code>timezone</code>, otherwise "LocalDateTime" scalar</p>
-</dd>
-</dl>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">unions: {
+    CustomUnion: {
+        description: "Custom Union",
+        types: [
+            graphQL.reference('GraphQLTypeNameOne'),
+            graphQL.reference('GraphQLTypeNameTwo'),
+        ]
+    }
+}</code></pre>
 </div>
 </div>
 </div>
@@ -667,7 +493,7 @@ from <code>ComponentType&gt;ComponentDataApplicationConfig</code> to <code>&lt;C
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-24 15:08:49 UTC
+Last updated 2024-01-24 15:08:34 UTC
 </div>
 </div>
 </body>

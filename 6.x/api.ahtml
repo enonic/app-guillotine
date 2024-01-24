@@ -448,6 +448,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#content">Content</a></li>
 <li><a href="#contentconnection">ContentConnection</a></li>
 <li><a href="#querycontentconnection">QueryContentConnection</a></li>
+<li><a href="#querydslcontentconnection">QueryDSLContentConnection</a></li>
 <li><a href="#contentedge">ContentEdge</a></li>
 <li><a href="#pageinfo">PageInfo</a></li>
 <li><a href="#richtext">RichText</a></li>
@@ -465,6 +466,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#contenttype">ContentType</a></li>
 <li><a href="#formitem">FormItem</a></li>
 <li><a href="#extradata">ExtraData</a></li>
+<li><a href="#xdata_media_applicationconfig">XData_media_ApplicationConfig</a></li>
+<li><a href="#xdata_media_imageinfo_dataconfig">XData_media_imageInfo_DataConfig</a></li>
+<li><a href="#xdata_media_camerainfo_dataconfig">XData_media_cameraInfo_DataConfig</a></li>
+<li><a href="#xdata_base_gpsinfo_dataconfig">XData_base_gpsInfo_DataConfig</a></li>
 <li><a href="#component">Component</a></li>
 <li><a href="#pagecomponentdata">PageComponentData</a></li>
 <li><a href="#layoutcomponentdata">LayoutComponentData</a></li>
@@ -479,7 +484,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#processhtmlinput">ProcessHtmlInput</a>
 <ul class="sectlevel2">
-<li><a href="#fields_24">Fields</a></li>
+<li><a href="#fields_30">Fields</a></li>
 </ul>
 </li>
 <li><a href="#aggregation_input_types">Aggregation Input Types</a>
@@ -509,6 +514,31 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#idsfilterinput">IdsFilterInput</a></li>
 </ul>
 </li>
+<li><a href="#query_dsl_input_types">Query DSL Input Types</a>
+<ul class="sectlevel2">
+<li><a href="#querydslinput">QueryDSLInput</a></li>
+<li><a href="#booleandslexpressioninput">BooleanDSLExpressionInput</a></li>
+<li><a href="#ngramdslexpressioninput">NgramDSLExpressionInput</a></li>
+<li><a href="#stemmeddslexpressioninput">StemmedDSLExpressionInput</a></li>
+<li><a href="#fulltextdslexpressioninput">FulltextDSLExpressionInput</a></li>
+<li><a href="#matchalldslexpressioninput">MatchAllDSLExpressionInput</a></li>
+<li><a href="#pathmatchdslexpressioninput">PathMatchDSLExpressionInput</a></li>
+<li><a href="#dslexpressionvalueinput">DSLExpressionValueInput</a></li>
+<li><a href="#rangedslexpressioninput">RangeDSLExpressionInput</a></li>
+<li><a href="#termdslexpressioninput">TermDSLExpressionInput</a></li>
+<li><a href="#likedslexpressioninput">LikeDSLExpressionInput</a></li>
+<li><a href="#indslexpressioninput">InDSLExpressionInput</a></li>
+<li><a href="#existsdslexpressioninput">ExistsDSLExpressionInput</a></li>
+<li><a href="#geopointsortdslinput">GeoPointSortDslInput</a></li>
+<li><a href="#sortdslinput">SortDslInput</a></li>
+</ul>
+</li>
+<li><a href="#highlight_input_types">Highlight Input types</a>
+<ul class="sectlevel2">
+<li><a href="#highlightpropertiesinputtype">HighlightPropertiesInputType</a></li>
+<li><a href="#highlightinputtype">HighlightInputType</a></li>
+</ul>
+</li>
 <li><a href="#enum_types">Enum Types</a>
 <ul class="sectlevel2">
 <li><a href="#principaltype">PrincipalType</a></li>
@@ -518,6 +548,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#componenttype">ComponentType</a></li>
 <li><a href="#contentpathtype">ContentPathType</a></li>
 <li><a href="#mediaintenttype">MediaIntentType</a></li>
+<li><a href="#dsloperatortype">DslOperatorType</a></li>
+<li><a href="#dslsortdirectiontype">DslSortDirectionType</a></li>
+<li><a href="#dslgeopointdistancetype">DslGeoPointDistanceType</a></li>
+<li><a href="#highlightencodertype">HighlightEncoderType</a></li>
+<li><a href="#highlighttagsschematype">HighlightTagsSchemaType</a></li>
+<li><a href="#highlightfragmentertype">HighlightFragmenterType</a></li>
+<li><a href="#highlightordertype">HighlightOrderType</a></li>
 </ul>
 </li>
 </ul>
@@ -527,7 +564,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This documentation lists and describes all static GraphQL types</p>
+<p>This section describes the available GraphQL types.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+A more intuitive way to discover the API is by using the <a href="clients.ahtml#_query_playground">Query Playground</a>
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -667,7 +716,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
  contentTypes: [String],
  filters: [<a href="#filterinput">FilterInput</a>]
  ): [<a href="#content">Content</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Queries contents</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Queries contents. <strong>Deprecated</strong> from version 6.1.0.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">queryConnection(
@@ -679,6 +728,26 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
  aggregations: [<a href="#aggregationinput">AggregationInput</a>],
  filters: [<a href="#filterinput">FilterInput</a>]
  ): <a href="#querycontentconnection">QueryContentConnection</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Queries contents and returns the result as a connection.  <strong>Deprecated</strong> from version 6.1.0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">queryDsl(
+query: <a href="#querydslinput">QueryDSLInput</a>,
+offset: Int,
+first: Int,
+sort: <a href="#sortdslinput">SortDslInput</a>
+): [<a href="#content">Content</a>]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Queries contents</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">queryDslConnection(
+query: <a href="#querydslinput">QueryDSLInput</a>!,
+after: String,
+first: Int,
+sort: <a href="#sortdslinput">SortDslInput</a>,
+aggregations: [<a href="#aggregationinput">AggregationInput</a>],
+highlight: <a href="#highlightinputtype">HighlightInputType</a>
+): <a href="#querydslcontentconnection">QueryDSLContentConnection</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Queries contents and returns the result as a connection</p></td>
 </tr>
 <tr>
@@ -696,7 +765,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="content"><a class="link" href="#content">Content</a></h3>
 <div class="paragraph">
-<p>Interface of all contents.</p>
+<p>The <code>Content</code> interface is implemented by both built-in and custom defined content types. All content types are dynamically generated based on the installed schemas.</p>
+</div>
+<div class="paragraph">
+<p>All types implementing <code>Content</code> share the same fields, with the exception of the <code>data</code> field, which offers a specific implementation per type.</p>
 </div>
 <div class="sect3">
 <h4 id="fields_3"><a class="link" href="#fields_3">Fields</a></h4>
@@ -722,7 +794,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_path(type: <a href="#contentpathtype">ContentPathType</a>): String!</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Content path. The <code>type</code> argument is supported starting from version <span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.3.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.3.0</text></g></svg></span>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content path. The <code>type</code> argument is supported starting from version. In the site-less mode, the result will be returned in the raw value, in other words, <code>env.source._path</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">creator: <a href="#principalkey">PrincipalKey</a></p></td>
@@ -769,16 +841,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content data</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="line-through">x: [<a href="#extradata">ExtraData</a>]</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Content extra data. <strong>This field is deprecated and will be removed starting from version 6.0.0.</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">x: [<a href="#extradata">ExtraData</a>]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content extra data.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">xAsJson: JSON</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Content extra data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content extra data as JSON</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">pageAsJson: JSON</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Page specific information</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Page specific information.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">pageTemplate: <a href="#content">Content</a></p></td>
@@ -911,9 +983,6 @@ It allows you to :</p>
 </div>
 <div class="sect2">
 <h3 id="querycontentconnection"><a class="link" href="#querycontentconnection">QueryContentConnection</a></h3>
-<div class="paragraph">
-<p><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.0.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.0.0</text></g></svg></span></p>
-</div>
 <div class="sect3">
 <h4 id="fields_5"><a class="link" href="#fields_5">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
@@ -949,9 +1018,49 @@ It allows you to :</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="contentedge"><a class="link" href="#contentedge">ContentEdge</a></h3>
+<h3 id="querydslcontentconnection"><a class="link" href="#querydslcontentconnection">QueryDSLContentConnection</a></h3>
 <div class="sect3">
 <h4 id="fields_6"><a class="link" href="#fields_6">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">totalCount: Int!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Total number of related content</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">edges: [<a href="#contentedge">ContentEdge</a>]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Edge to the related content</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pageInfo: <a href="#pageinfo">PageInfo</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Paging information</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">aggregationAsJson: JSON</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Result of aggregations</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">highlightAsJson: JSON</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Result of highlight</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="contentedge"><a class="link" href="#contentedge">ContentEdge</a></h3>
+<div class="sect3">
+<h4 id="fields_7"><a class="link" href="#fields_7">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -979,7 +1088,7 @@ It allows you to :</p>
 <div class="sect2">
 <h3 id="pageinfo"><a class="link" href="#pageinfo">PageInfo</a></h3>
 <div class="sect3">
-<h4 id="fields_7"><a class="link" href="#fields_7">Fields</a></h4>
+<h4 id="fields_8"><a class="link" href="#fields_8">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1011,7 +1120,7 @@ It allows you to :</p>
 <div class="sect2">
 <h3 id="richtext"><a class="link" href="#richtext">RichText</a></h3>
 <div class="paragraph">
-<p><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.0.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.0.0</text></g></svg></span> Represents result of HtmlArea processing.</p>
+<p>Represents result of HtmlArea processing.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1055,7 +1164,7 @@ It allows you to :</p>
 <div class="sect2">
 <h3 id="macro"><a class="link" href="#macro">Macro</a></h3>
 <div class="paragraph">
-<p><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.0.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.0.0</text></g></svg></span> Dynamic type which contains macro details. By default contains two fields: <code>disable</code> and <code>embed</code>, other fields will be added dynamically based on macro descriptors for provided <code>applicationKeys</code> during schema creation.
+<p>Dynamic type which contains macro details. By default contains two fields: <code>disable</code> and <code>embed</code>, other fields will be added dynamically based on macro descriptors for provided <code>applicationKeys</code> during schema creation.
 Given <code>applicationKeys</code> are expected to have the same order as in the site configs. It means that first macro descriptor that was matched will be used to process it.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
@@ -1170,7 +1279,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <div class="sect2">
 <h3 id="image"><a class="link" href="#image">Image</a></h3>
 <div class="paragraph">
-<p><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.0.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.0.0</text></g></svg></span> Represents details for image found and processed in the <a href="#richtext">RichText</a> type.</p>
+<p>Represents details for image found and processed in the <a href="#richtext">RichText</a> type.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1201,9 +1310,6 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </div>
 <div class="sect2">
 <h3 id="imagestyle"><a class="link" href="#imagestyle">ImageStyle</a></h3>
-<div class="paragraph">
-<p><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.0.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.0.0</text></g></svg></span></p>
-</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1233,9 +1339,6 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </div>
 <div class="sect2">
 <h3 id="media"><a class="link" href="#media">Media</a></h3>
-<div class="paragraph">
-<p><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.5.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.5.0</text></g></svg></span></p>
-</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1261,9 +1364,6 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </div>
 <div class="sect2">
 <h3 id="link"><a class="link" href="#link">Link</a></h3>
-<div class="paragraph">
-<p><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.5.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.5.0</text></g></svg></span></p>
-</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1298,7 +1398,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <div class="sect2">
 <h3 id="permissions"><a class="link" href="#permissions">Permissions</a></h3>
 <div class="sect3">
-<h4 id="fields_8"><a class="link" href="#fields_8">Fields</a></h4>
+<h4 id="fields_9"><a class="link" href="#fields_9">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1326,7 +1426,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <div class="sect2">
 <h3 id="accesscontrolentry"><a class="link" href="#accesscontrolentry">AccessControlEntry</a></h3>
 <div class="sect3">
-<h4 id="fields_9"><a class="link" href="#fields_9">Fields</a></h4>
+<h4 id="fields_10"><a class="link" href="#fields_10">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1358,7 +1458,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <div class="sect2">
 <h3 id="principalkey"><a class="link" href="#principalkey">PrincipalKey</a></h3>
 <div class="sect3">
-<h4 id="fields_10"><a class="link" href="#fields_10">Fields</a></h4>
+<h4 id="fields_11"><a class="link" href="#fields_11">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1397,7 +1497,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <p>Representation of a content type definition</p>
 </div>
 <div class="sect3">
-<h4 id="fields_11"><a class="link" href="#fields_11">Fields</a></h4>
+<h4 id="fields_12"><a class="link" href="#fields_12">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1475,7 +1575,7 @@ after: String
 <div class="sect2">
 <h3 id="formitem"><a class="link" href="#formitem">FormItem</a></h3>
 <div class="sect3">
-<h4 id="fields_12"><a class="link" href="#fields_12">Fields</a></h4>
+<h4 id="fields_13"><a class="link" href="#fields_13">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1516,7 +1616,7 @@ after: String
 <div class="sect2">
 <h3 id="extradata"><a class="link" href="#extradata">ExtraData</a></h3>
 <div class="sect3">
-<h4 id="fields_13"><a class="link" href="#fields_13">Fields</a></h4>
+<h4 id="fields_14"><a class="link" href="#fields_14">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1530,12 +1630,245 @@ after: String
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">name: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Mixin name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">media: <a href="#xdata_media_applicationconfig">XData_media_ApplicationConfig</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">X-Data for <code>media</code> application</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">data: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Mixin value</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">base: <a href="#xdata_base_applicationconfig">XData_base_ApplicationConfig</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">X-Data for <code>base</code> application</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;applicationKey&gt;: XData_&lt;applicationKey&gt;_ApplicationConfig</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">X-Data for <code>&lt;applicationKey&gt;</code> application</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="xdata_media_applicationconfig"><a class="link" href="#xdata_media_applicationconfig">XData_media_ApplicationConfig</a></h3>
+<div class="sect3">
+<h4 id="fields_15"><a class="link" href="#fields_15">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name(Arguments):Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">imageInfo: <a href="#xdata_media_imageinfo_dataconfig">XData_media_imageInfo_DataConfig</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Related X-Data config</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cameraInfo: <a href="#xdata_media_camerainfo_dataconfig">XData_media_cameraInfo_DataConfig</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Related X-Data config</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="xdata_media_imageinfo_dataconfig"><a class="link" href="#xdata_media_imageinfo_dataconfig">XData_media_imageInfo_DataConfig</a></h3>
+<div class="sect3">
+<h4 id="fields_16"><a class="link" href="#fields_16">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name(Arguments):Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pixelSize: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pixel size</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">imageHeight: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Image height</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">imageWidth: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Image width</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">contentType: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content type</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">description: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">byteSize: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Byte size</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">colorSpace(offset: Int, first: Int): [String]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Color space</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="xdata_media_camerainfo_dataconfig"><a class="link" href="#xdata_media_camerainfo_dataconfig">XData_media_cameraInfo_DataConfig</a></h3>
+<div class="sect3">
+<h4 id="fields_17"><a class="link" href="#fields_17">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name(Arguments):Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">date: LocalDateTime</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Date</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">make: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Make</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">model: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Model</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">lens: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lens</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">iso: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ISO</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">focalLength: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Focal length</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">focalLength35: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Focal length 35</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">exposureBias: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exposure bias</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">aperture(offset: Int, first: Int): [String]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Aperture</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">shutterTime: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shutter time</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">flash: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Flash</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">autoFlashCompensation: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Auto flash compensation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">whiteBalance: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">White balance</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">exposureProgram: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exposure program</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">shootingMode: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shooting mode</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">meteringMode: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Metering mode</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">exposureMode: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exposure mode</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">focusDistance: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Focus distance</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">orientation: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Orientation</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="xdata_base_applicationconfig"><a class="link" href="#xdata_base_applicationconfig">XData_base_ApplicationConfig</a></h4>
+
+</div>
+<div class="sect3">
+<h4 id="fields_18"><a class="link" href="#fields_18">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name(Arguments):Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">gpsInfo: <a href="#xdata_base_gpsinfo_dataconfig">XData_base_gpsInfo_DataConfig</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GPS information</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="xdata_base_gpsinfo_dataconfig"><a class="link" href="#xdata_base_gpsinfo_dataconfig">XData_base_gpsInfo_DataConfig</a></h3>
+<div class="sect3">
+<h4 id="fields_19"><a class="link" href="#fields_19">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name(Arguments):Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">geoPoint: GeoPoint</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GeoPoint</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">direction: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Direction</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">altitude: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Altitude</p></td>
 </tr>
 </tbody>
 </table>
@@ -1544,7 +1877,7 @@ after: String
 <div class="sect2">
 <h3 id="component"><a class="link" href="#component">Component</a></h3>
 <div class="sect3">
-<h4 id="fields_14"><a class="link" href="#fields_14">Fields</a></h4>
+<h4 id="fields_20"><a class="link" href="#fields_20">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1596,7 +1929,7 @@ after: String
 <div class="sect2">
 <h3 id="pagecomponentdata"><a class="link" href="#pagecomponentdata">PageComponentData</a></h3>
 <div class="sect3">
-<h4 id="fields_15"><a class="link" href="#fields_15">Fields</a></h4>
+<h4 id="fields_21"><a class="link" href="#fields_21">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1632,7 +1965,7 @@ after: String
 <div class="sect2">
 <h3 id="layoutcomponentdata"><a class="link" href="#layoutcomponentdata">LayoutComponentData</a></h3>
 <div class="sect3">
-<h4 id="fields_16"><a class="link" href="#fields_16">Fields</a></h4>
+<h4 id="fields_22"><a class="link" href="#fields_22">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1660,7 +1993,7 @@ after: String
 <div class="sect2">
 <h3 id="imagecomponentdata"><a class="link" href="#imagecomponentdata">ImageComponentData</a></h3>
 <div class="sect3">
-<h4 id="fields_17"><a class="link" href="#fields_17">Fields</a></h4>
+<h4 id="fields_23"><a class="link" href="#fields_23">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1692,7 +2025,7 @@ after: String
 <div class="sect2">
 <h3 id="partcomponentdata"><a class="link" href="#partcomponentdata">PartComponentData</a></h3>
 <div class="sect3">
-<h4 id="fields_18"><a class="link" href="#fields_18">Fields</a></h4>
+<h4 id="fields_24"><a class="link" href="#fields_24">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1720,7 +2053,7 @@ after: String
 <div class="sect2">
 <h3 id="textcomponentdata"><a class="link" href="#textcomponentdata">TextComponentData</a></h3>
 <div class="sect3">
-<h4 id="fields_19"><a class="link" href="#fields_19">Fields</a></h4>
+<h4 id="fields_25"><a class="link" href="#fields_25">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1744,7 +2077,7 @@ after: String
 <div class="sect2">
 <h3 id="fragmentcomponentdata"><a class="link" href="#fragmentcomponentdata">FragmentComponentData</a></h3>
 <div class="sect3">
-<h4 id="fields_20"><a class="link" href="#fields_20">Fields</a></h4>
+<h4 id="fields_26"><a class="link" href="#fields_26">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1772,7 +2105,7 @@ after: String
 <div class="sect2">
 <h3 id="attachment"><a class="link" href="#attachment">Attachment</a></h3>
 <div class="sect3">
-<h4 id="fields_21"><a class="link" href="#fields_21">Fields</a></h4>
+<h4 id="fields_27"><a class="link" href="#fields_27">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1802,7 +2135,7 @@ after: String
 <td class="tableblock halign-left valign-top"><p class="tableblock">Attachment mime type</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.0.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.0.0</text></g></svg></span>  attachmentUrl: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">attachmentUrl: String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Attachment URL</p></td>
 </tr>
 </tbody>
@@ -1812,7 +2145,7 @@ after: String
 <div class="sect2">
 <h3 id="publishinfo"><a class="link" href="#publishinfo">PublishInfo</a></h3>
 <div class="sect3">
-<h4 id="fields_22"><a class="link" href="#fields_22">Fields</a></h4>
+<h4 id="fields_28"><a class="link" href="#fields_28">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1844,7 +2177,7 @@ after: String
 <div class="sect2">
 <h3 id="icon"><a class="link" href="#icon">Icon</a></h3>
 <div class="sect3">
-<h4 id="fields_23"><a class="link" href="#fields_23">Fields</a></h4>
+<h4 id="fields_29"><a class="link" href="#fields_29">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1875,7 +2208,7 @@ after: String
 <h2 id="processhtmlinput"><a class="link" href="#processhtmlinput">ProcessHtmlInput</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="fields_24"><a class="link" href="#fields_24">Fields</a></h3>
+<h3 id="fields_30"><a class="link" href="#fields_30">Fields</a></h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1897,7 +2230,7 @@ after: String
 <td class="tableblock halign-left valign-top"><p class="tableblock">Generates image URLs for given widths which will be used in the <code>srcset</code> attribute of <code>img</code> tag.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.3.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.3.0</text></g></svg></span> imageSizes: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">imageSizes: String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Specifies image width for a specific browser resolution in the following format: <code>(media-condition) width</code>. Multiple sizes are comma-separated.</p></td>
 </tr>
 </tbody>
@@ -1911,10 +2244,10 @@ after: String
 <div class="sect2">
 <h3 id="aggregationinput"><a class="link" href="#aggregationinput">AggregationInput</a></h3>
 <div class="paragraph">
-<p><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.0.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.0.0</text></g></svg></span> Aggregations enable extracting statistical data from search results. Only one of the aggregation fields at a time can be specified.</p>
+<p>Aggregations enable extracting statistical data from search results. Only one of the aggregation fields at a time can be specified.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_25"><a class="link" href="#fields_25">Fields</a></h4>
+<h4 id="fields_31"><a class="link" href="#fields_31">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1978,7 +2311,7 @@ after: String
 <div class="sect2">
 <h3 id="termsaggregationinput"><a class="link" href="#termsaggregationinput">TermsAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_26"><a class="link" href="#fields_26">Fields</a></h4>
+<h4 id="fields_32"><a class="link" href="#fields_32">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2005,7 +2338,7 @@ after: String
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">minDocCount: Int</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.2.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.2.0</text></g></svg></span> Only include bucket in result if number of hits more or equal minDocCount.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Only include bucket in result if number of hits more or equal minDocCount.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2014,7 +2347,7 @@ after: String
 <div class="sect2">
 <h3 id="statsaggregationinput"><a class="link" href="#statsaggregationinput">StatsAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_27"><a class="link" href="#fields_27">Fields</a></h4>
+<h4 id="fields_33"><a class="link" href="#fields_33">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2037,11 +2370,8 @@ after: String
 </div>
 <div class="sect2">
 <h3 id="minaggregationinput"><a class="link" href="#minaggregationinput">MinAggregationInput</a></h3>
-<div class="paragraph">
-<p><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.2.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.2.0</text></g></svg></span></p>
-</div>
 <div class="sect3">
-<h4 id="fields_28"><a class="link" href="#fields_28">Fields</a></h4>
+<h4 id="fields_34"><a class="link" href="#fields_34">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2064,11 +2394,8 @@ after: String
 </div>
 <div class="sect2">
 <h3 id="maxaggregationinput"><a class="link" href="#maxaggregationinput">MaxAggregationInput</a></h3>
-<div class="paragraph">
-<p><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.2.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.2.0</text></g></svg></span></p>
-</div>
 <div class="sect3">
-<h4 id="fields_29"><a class="link" href="#fields_29">Fields</a></h4>
+<h4 id="fields_35"><a class="link" href="#fields_35">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2091,11 +2418,8 @@ after: String
 </div>
 <div class="sect2">
 <h3 id="valuecountaggregationinput"><a class="link" href="#valuecountaggregationinput">ValueCountAggregationInput</a></h3>
-<div class="paragraph">
-<p><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.2.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.2.0</text></g></svg></span></p>
-</div>
 <div class="sect3">
-<h4 id="fields_30"><a class="link" href="#fields_30">Fields</a></h4>
+<h4 id="fields_36"><a class="link" href="#fields_36">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2119,7 +2443,7 @@ after: String
 <div class="sect2">
 <h3 id="rangeaggregationinput"><a class="link" href="#rangeaggregationinput">RangeAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_31"><a class="link" href="#fields_31">Fields</a></h4>
+<h4 id="fields_37"><a class="link" href="#fields_37">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2147,7 +2471,7 @@ after: String
 <div class="sect2">
 <h3 id="numberrangeinput"><a class="link" href="#numberrangeinput">NumberRangeInput</a></h3>
 <div class="sect3">
-<h4 id="fields_32"><a class="link" href="#fields_32">Fields</a></h4>
+<h4 id="fields_38"><a class="link" href="#fields_38">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2160,6 +2484,10 @@ after: String
 </tr>
 </thead>
 <tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">key: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A unique string key which will be associated with a bucket.</p></td>
+</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">from: Float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">From-value is included in bucket.</p></td>
@@ -2175,7 +2503,7 @@ after: String
 <div class="sect2">
 <h3 id="daterangeaggregationinput"><a class="link" href="#daterangeaggregationinput">DateRangeAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_33"><a class="link" href="#fields_33">Fields</a></h4>
+<h4 id="fields_39"><a class="link" href="#fields_39">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2207,7 +2535,7 @@ after: String
 <div class="sect2">
 <h3 id="daterangeinput"><a class="link" href="#daterangeinput">DateRangeInput</a></h3>
 <div class="sect3">
-<h4 id="fields_34"><a class="link" href="#fields_34">Fields</a></h4>
+<h4 id="fields_40"><a class="link" href="#fields_40">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2220,6 +2548,10 @@ after: String
 </tr>
 </thead>
 <tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">key: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A unique string key which will be associated with a bucket.</p></td>
+</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">from: String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">From-value is included in bucket.</p></td>
@@ -2235,7 +2567,7 @@ after: String
 <div class="sect2">
 <h3 id="datehistogramaggregationinput"><a class="link" href="#datehistogramaggregationinput">DateHistogramAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_35"><a class="link" href="#fields_35">Fields</a></h4>
+<h4 id="fields_41"><a class="link" href="#fields_41">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2271,7 +2603,7 @@ after: String
 <div class="sect2">
 <h3 id="geodistanceaggregationinput"><a class="link" href="#geodistanceaggregationinput">GeoDistanceAggregationInput</a></h3>
 <div class="sect3">
-<h4 id="fields_36"><a class="link" href="#fields_36">Fields</a></h4>
+<h4 id="fields_42"><a class="link" href="#fields_42">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2293,11 +2625,11 @@ after: String
 <td class="tableblock halign-left valign-top"><p class="tableblock">The measurement unit to use for the ranges. Allowed values are either full name or the abbreviation of the following: km (kilometers), m (meters), cm (centimeters), mm (millimeters), mi (miles), yd (yards), ft (feet) or nmi (nauticalmiles).</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">origin: <a href="#geopointinput">GeoPointInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">origin: <a href="#geopointinput">GeoPointInput</a>!</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The GeoPoint from which the distance is measured.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ranges: [ <a href="#numberrangeinput">NumberRangeInput</a> ]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ranges: [ <a href="#numberrangeinput">NumberRangeInput</a> ]!</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The range-buckets to create.</p></td>
 </tr>
 </tbody>
@@ -2307,7 +2639,7 @@ after: String
 <div class="sect2">
 <h3 id="geopointinput"><a class="link" href="#geopointinput">GeoPointInput</a></h3>
 <div class="sect3">
-<h4 id="fields_37"><a class="link" href="#fields_37">Fields</a></h4>
+<h4 id="fields_43"><a class="link" href="#fields_43">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2337,13 +2669,10 @@ after: String
 <div class="sect1">
 <h2 id="filter_input_types"><a class="link" href="#filter_input_types">Filter Input Types</a></h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p><span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">5.0.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">5.0.0</text></g></svg></span></p>
-</div>
 <div class="sect2">
 <h3 id="filterinput"><a class="link" href="#filterinput">FilterInput</a></h3>
 <div class="sect3">
-<h4 id="fields_38"><a class="link" href="#fields_38">Fields</a></h4>
+<h4 id="fields_44"><a class="link" href="#fields_44">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2383,7 +2712,7 @@ after: String
 <div class="sect2">
 <h3 id="booleanfilterinput"><a class="link" href="#booleanfilterinput">BooleanFilterInput</a></h3>
 <div class="sect3">
-<h4 id="fields_39"><a class="link" href="#fields_39">Fields</a></h4>
+<h4 id="fields_45"><a class="link" href="#fields_45">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2415,7 +2744,7 @@ after: String
 <div class="sect2">
 <h3 id="existsfilterinput"><a class="link" href="#existsfilterinput">ExistsFilterInput</a></h3>
 <div class="sect3">
-<h4 id="fields_40"><a class="link" href="#fields_40">Fields</a></h4>
+<h4 id="fields_46"><a class="link" href="#fields_46">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2439,7 +2768,7 @@ after: String
 <div class="sect2">
 <h3 id="notexistsfilterinput"><a class="link" href="#notexistsfilterinput">NotExistsFilterInput</a></h3>
 <div class="sect3">
-<h4 id="fields_41"><a class="link" href="#fields_41">Fields</a></h4>
+<h4 id="fields_47"><a class="link" href="#fields_47">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2466,7 +2795,7 @@ after: String
 <p>Only one value field can be specified.</p>
 </div>
 <div class="sect3">
-<h4 id="fields_42"><a class="link" href="#fields_42">Fields</a></h4>
+<h4 id="fields_48"><a class="link" href="#fields_48">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2506,7 +2835,7 @@ after: String
 <div class="sect2">
 <h3 id="idsfilterinput"><a class="link" href="#idsfilterinput">IdsFilterInput</a></h3>
 <div class="sect3">
-<h4 id="fields_43"><a class="link" href="#fields_43">Fields</a></h4>
+<h4 id="fields_49"><a class="link" href="#fields_49">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -2522,6 +2851,763 @@ after: String
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">values: [String]</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Array of ids to match</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="query_dsl_input_types"><a class="link" href="#query_dsl_input_types">Query DSL Input Types</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="querydslinput"><a class="link" href="#querydslinput">QueryDSLInput</a></h3>
+<div class="paragraph">
+<p>Query DSL input type. Only one field must be provided. More details about Query DSL you can find <a href="https://developer.enonic.com/docs/xp/next/storage/dsl">here</a>.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_50"><a class="link" href="#fields_50">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boolean: <a href="#booleandslexpressioninput">BooleanDSLExpressionInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean DSL expression</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ngram: <a href="#ngramdslexpressioninput">NgramDSLExpressionInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ngram DSL expression</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">stemmed: <a href="#stemmeddslexpressioninput">StemmedDSLExpressionInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stemmed DSL expression</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fulltext: <a href="#fulltextdslexpressioninput">FulltextDSLExpressionInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fulltext DSL expression</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">matchAll: <a href="#matchalldslexpressioninput">MatchAllDSLExpressionInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MatchAll DSL expression</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pathMatch: <a href="#pathmatchdslexpressioninput">PathMatchDSLExpressionInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PathMatch DSL expression</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">range: <a href="#rangedslexpressioninput">RangeDSLExpressionInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Range DSL expression</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">term: <a href="#termdslexpressioninput">TermDSLExpressionInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Term DSL expression</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">like: <a href="#likedslexpressioninput">LikeDSLExpressionInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Like DSL expression</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">in: <a href="#indslexpressioninput">InDSLExpressionInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">In DSL expression</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">exists: <a href="#existsdslexpressioninput">ExistsDSLExpressionInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exists DSL expression</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="booleandslexpressioninput"><a class="link" href="#booleandslexpressioninput">BooleanDSLExpressionInput</a></h3>
+<div class="paragraph">
+<p>Boolean DSL expression input type.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_51"><a class="link" href="#fields_51">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">should: [<a href="#querydslinput">QueryDSLInput</a>]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The query should appear in the matching document.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">must: [<a href="#querydslinput">QueryDSLInput</a>]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The query must appear in matching documents and will contribute to the score.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">mustNot: [<a href="#querydslinput">QueryDSLInput</a>]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The query must not appear in the matching documents</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">filter: [<a href="#querydslinput">QueryDSLInput</a>]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The query must appear in matching documents.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boost: Float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ngramdslexpressioninput"><a class="link" href="#ngramdslexpressioninput">NgramDSLExpressionInput</a></h3>
+<div class="paragraph">
+<p>Ngram DSL expression input type.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_52"><a class="link" href="#fields_52">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fields: [String]!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of fields (propertyPaths) to include in the search.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">query: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A query string to match field value(s). Support the set of operators.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">operator: [<a href="#dsloperatortype">DslOperatorType</a>]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DSL operator. By default, <code>OR</code> (any of the words in the query matches).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="stemmeddslexpressioninput"><a class="link" href="#stemmeddslexpressioninput">StemmedDSLExpressionInput</a></h3>
+<div class="paragraph">
+<p>Stemmed DSL expression input type.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_53"><a class="link" href="#fields_53">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fields: [String]!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of fields (propertyPaths) to include in the search.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">query: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A query string to match field value(s). Supports the set of <a href="https://developer.enonic.com/docs/xp/next/storage/dsl#search_string_operators">operators</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">language: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content language that was used for stemming. List of <a href="https://developer.enonic.com/docs/xp/next/storage/indexing#languages">supported languages</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">operator: <a href="#dsloperatortype">DslOperatorType</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DSL operator. By default, <code>OR</code> (any of the words in the query matches).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boost: Float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="fulltextdslexpressioninput"><a class="link" href="#fulltextdslexpressioninput">FulltextDSLExpressionInput</a></h3>
+<div class="paragraph">
+<p>Fulltext DSL expression input type.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_54"><a class="link" href="#fields_54">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fields: [String]!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of fields (propertyPaths) to include in the search.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">query: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A query string to match field value(s). Supports the set of <a href="https://developer.enonic.com/docs/xp/next/storage/dsl#search_string_operators">operators</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">operator: <a href="#dsloperatortype">DslOperatorType</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DSL operator. By default, <code>OR</code> (any of the words in the query matches).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="matchalldslexpressioninput"><a class="link" href="#matchalldslexpressioninput">MatchAllDSLExpressionInput</a></h3>
+<div class="paragraph">
+<p>MatchAll DSL expression input type.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_55"><a class="link" href="#fields_55">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boost: Float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pathmatchdslexpressioninput"><a class="link" href="#pathmatchdslexpressioninput">PathMatchDSLExpressionInput</a></h3>
+<div class="paragraph">
+<p>PathMatch DSL expression input type.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_56"><a class="link" href="#fields_56">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">field: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Property name to search.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path value.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">minimumMatch: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of minimum matching elements.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boost: Float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="dslexpressionvalueinput"><a class="link" href="#dslexpressionvalueinput">DSLExpressionValueInput</a></h3>
+<div class="paragraph">
+<p>Possible value. Only one field must be provided.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_57"><a class="link" href="#fields_57">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String value.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">double: Float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String value</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">long: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integer value.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boolean: Boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A value representing true or false.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">localDate: Date</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A date representation. Will be indexed with UTC timezone offset. For instance, <code>2015-03-16</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">localDateTime: LocalDateTime</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A date-time representation without timezone. Will be indexed with UTC timezone offset. For instance, <code>2015-03-16T10:00:02</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">localTime: LocalTime</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A time representation without date or timezone(nor subsecond). For instance, <code>10:00:03</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">instant: DateTime</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A single point on the time-line (may include subsecond up to 9 digits). For instance, <code>2015-03-16T10:00:02Z</code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="rangedslexpressioninput"><a class="link" href="#rangedslexpressioninput">RangeDSLExpressionInput</a></h3>
+<div class="paragraph">
+<p>Range DSL expression input type.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_58"><a class="link" href="#fields_58">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">field: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Property name to search.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">lt: <a href="#dslexpressionvalueinput">DSLExpressionValueInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Less than.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">lte: <a href="#dslexpressionvalueinput">DSLExpressionValueInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Less than or equals.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">gt: <a href="#dslexpressionvalueinput">DSLExpressionValueInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Greater than.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">gte: <a href="#dslexpressionvalueinput">DSLExpressionValueInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Greater than or equals.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boost: Float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="termdslexpressioninput"><a class="link" href="#termdslexpressioninput">TermDSLExpressionInput</a></h3>
+<div class="paragraph">
+<p>Term DSL expression input type.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_59"><a class="link" href="#fields_59">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">field: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Property name to search.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">value: <a href="#dslexpressionvalueinput">DSLExpressionValueInput</a>!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exact property value.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boost: Float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="likedslexpressioninput"><a class="link" href="#likedslexpressioninput">LikeDSLExpressionInput</a></h3>
+<div class="paragraph">
+<p>Like DSL expression input type. Returns nodes that contain the field matching a wildcard pattern. A wildcard operator ( * ) is a placeholder that matches one or more characters.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_60"><a class="link" href="#fields_60">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">field: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Property name to search.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">value: <a href="#dslexpressionvalueinput">DSLExpressionValueInput</a>!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Search string.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boost: Float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="indslexpressioninput"><a class="link" href="#indslexpressioninput">InDSLExpressionInput</a></h3>
+<div class="paragraph">
+<p>In DSL expression input type. Fetch nodes if a provided field contains any of listed values. Only one <code>values</code> field must be provided.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_61"><a class="link" href="#fields_61">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">field: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Property name to search.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boost: Float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">stringValues: [String]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String values.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">doubleValues: [Float]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Float values.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">longValues: [Int]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integer values.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">booleanValues: [Boolean]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean values.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">localDateValues: [Date]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Date values. Element of array is a date representation. Will be indexed with UTC timezone offset. For instance, <code>2015-03-16</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">localDateTimeValues: [LocalDateTime]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LocalDateTime values. Element of array is a date-time representation without timezone. Will be indexed with UTC timezone offset. For instance, <code>2015-03-16T10:00:02</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">localTimeValues: [LocalTime]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LocalTime values. Element of array is a time representation without date or timezone(nor subsecond). For instance, <code>10:00:03</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">instantValues: [DateTime]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DateTime values. Element of array is a single point on the time-line (may include subsecond up to 9 digits). For instance, <code>2015-03-16T10:00:02Z</code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="existsdslexpressioninput"><a class="link" href="#existsdslexpressioninput">ExistsDSLExpressionInput</a></h3>
+<div class="paragraph">
+<p>Exists DSL expression input type. Returns nodes that contain a value for a field.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_62"><a class="link" href="#fields_62">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">field: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of a field to check for existence.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boost: Float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any query operator result (expression or compound) can be boosted to change the relevance score of the nodes.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="geopointsortdslinput"><a class="link" href="#geopointsortdslinput">GeoPointSortDslInput</a></h3>
+<div class="paragraph">
+<p>GeoPoint sort DSL expression input type.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_63"><a class="link" href="#fields_63">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">lat: Float!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Latitude.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">lon: Float!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Longitude.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="sortdslinput"><a class="link" href="#sortdslinput">SortDslInput</a></h3>
+<div class="paragraph">
+<p>Sort DSL expression input type.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_64"><a class="link" href="#fields_64">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">field: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of a field to sort by.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">direction: <a href="#dslsortdirectiontype">DslSortDirectionType</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ASC</code> or <code>DESC</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">location: <a href="#geopointsortdslinput">GeoPointSortDslInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A geoPoint from which the distance factor should be calculated</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unit: <a href="#dslgeopointdistancetype">DslGeoPointDistanceType</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The string representation of distance unit to use. Defaults to "m" or "meters".</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="highlight_input_types"><a class="link" href="#highlight_input_types">Highlight Input types</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="highlightpropertiesinputtype"><a class="link" href="#highlightpropertiesinputtype">HighlightPropertiesInputType</a></h3>
+<div class="paragraph">
+<p>Highlight properties input type.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_65"><a class="link" href="#fields_65">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">propertyName: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Property name.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fragmenter: <a href="#highlightfragmentertype">HighlightFragmenterType</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies how text should be broken up in highlight snippets: <code>simple</code> or <code>span</code> (default).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fragmentSize: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The size of the highlighted fragment in characters. Defaults to 100.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">noMatchSize: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The amount of characters you want to return from the beginning of the property if there are no matching fragments to highlight. Defaults to 0 (nothing is returned).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">numberOfFragments: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum number of fragments to return. If <code>numberOfFragments</code> is 0, no fragments will be returned and <code>fragmentSize</code> will be ignored. Defaults to 5.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">order: <a href="#highlightordertype">HighlightOrderType</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sorts highlighted fragments by score when set to <code>score</code>. Defaults to <code>none</code> - will be displayed in the same order in which fragments appear in the property.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">preTag: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use in conjunction with <code>postTag</code> to define the HTML tags to wrap the highlighted text. <code>&lt;em&gt;</code> by default.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">postTag: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use in conjunction with <code>preTag</code> to define the HTML tags to wrap the highlighted text. <code>&lt;/em&gt;</code> by default.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">requireFieldMatch: Boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Set to <code>false</code> if you want to highlight result in every listed property, regardless it was used in the query or not. Default is <code>true</code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="highlightinputtype"><a class="link" href="#highlightinputtype">HighlightInputType</a></h3>
+<div class="paragraph">
+<p>Highlight input type.</p>
+</div>
+<div class="sect3">
+<h4 id="fields_66"><a class="link" href="#fields_66">Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field name: Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">encoder: <a href="#highlightencodertype">HighlightEncoderType</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates if the snippet should be HTML encoded: <code>default</code> (no encoding) or <code>html</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">tagsSchema: <a href="#highlighttagsschematype">HighlightTagsSchemaType</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Set to <code>styled</code> to use the built-in tag schema.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fragmenter: <a href="#highlightfragmentertype">HighlightFragmenterType</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies how text should be broken up in highlight snippets: <code>simple</code> or <code>span</code> (default).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fragmentSize: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The size of the highlighted fragment in characters. Defaults to 100.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">noMatchSize: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The amount of characters you want to return from the beginning of the property if there are no matching fragments to highlight. Defaults to 0 (nothing is returned).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">numberOfFragments: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum number of fragments to return. If <code>numberOfFragments</code> is 0, no fragments will be returned and <code>fragmentSize</code> will be ignored. Defaults to 5.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">order: <a href="#highlightordertype">HighlightOrderType</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sorts highlighted fragments by score when set to <code>score</code>. Defaults to <code>none</code> - will be displayed in the same order in which fragments appear in the property.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">preTag: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use in conjunction with <code>postTag</code> to define the HTML tags to wrap the highlighted text. <code>&lt;em&gt;</code> by default.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">postTag: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use in conjunction with <code>preTag</code> to define the HTML tags to wrap the highlighted text. <code>&lt;/em&gt;</code> by default.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">requireFieldMatch: Boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Set to <code>false</code> if you want to highlight result in every listed property, regardless it was used in the query or not. Default is <code>true</code>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2590,6 +3676,70 @@ after: String
 <div class="paragraph">
 <p>Enum values: download
 , inline</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="dsloperatortype"><a class="link" href="#dsloperatortype">DslOperatorType</a></h3>
+<div class="paragraph">
+<p>DSL Operator type.</p>
+</div>
+<div class="paragraph">
+<p>Enum values: OR, AND</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="dslsortdirectiontype"><a class="link" href="#dslsortdirectiontype">DslSortDirectionType</a></h3>
+<div class="paragraph">
+<p>DSL sort direction type.</p>
+</div>
+<div class="paragraph">
+<p>Enum values: ASC, DESC</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="dslgeopointdistancetype"><a class="link" href="#dslgeopointdistancetype">DslGeoPointDistanceType</a></h3>
+<div class="paragraph">
+<p>DSL GeoPoint Distance type.</p>
+</div>
+<div class="paragraph">
+<p>Enum values: m, meters, in, inch, yd, yards, ft, feet, km, kilometers, NM, nmi, nauticalmiles, mm, millimeters, cm, centimeters, mi, miles</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="highlightencodertype"><a class="link" href="#highlightencodertype">HighlightEncoderType</a></h3>
+<div class="paragraph">
+<p>Indicates if the snippet should be HTML encoded: default (no encoding) or html.</p>
+</div>
+<div class="paragraph">
+<p>Enum values: default, html</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="highlighttagsschematype"><a class="link" href="#highlighttagsschematype">HighlightTagsSchemaType</a></h3>
+<div class="paragraph">
+<p>Set to styled to use the built-in tag schema.</p>
+</div>
+<div class="paragraph">
+<p>Enum values: styled</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="highlightfragmentertype"><a class="link" href="#highlightfragmentertype">HighlightFragmenterType</a></h3>
+<div class="paragraph">
+<p>Specifies how text should be broken up in highlight snippets: simple or span (default).</p>
+</div>
+<div class="paragraph">
+<p>Enum values: simple, span</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="highlightordertype"><a class="link" href="#highlightordertype">HighlightOrderType</a></h3>
+<div class="paragraph">
+<p>Sorts highlighted fragments by score when set to score.
+Defaults to none - will be displayed in the same order in which fragments appear in the property.</p>
+</div>
+<div class="paragraph">
+<p>Enum values: score, none</p>
 </div>
 </div>
 </div>
