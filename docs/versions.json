@@ -2,16 +2,16 @@
   "versions": [
     {
       "label": "stable",
-      "checkout": "6.2",
+      "checkout": "master",
       "latest": true
+    },
+    {
+      "label": "6.x",
+      "checkout": "6.2"
     },
     {
       "label": "5.x",
       "checkout": "078c4cc4a5652e91b0e1f2c25f7f8a6d3d8e2f0f"
-    },
-    {
-      "label": "next",
-      "checkout": "issue-605"
     }
   ]
 }
