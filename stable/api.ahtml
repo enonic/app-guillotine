@@ -562,7 +562,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-A more intuitive way to discover the API is by using the <a href="clients.ahtml#_query_playground">Query Playground</a>
+A more intuitive way to discover the API is by using the <a href="playground.ahtml">Query Playground</a>
 </td>
 </tr>
 </table>
@@ -3485,7 +3485,7 @@ Defaults to none - will be displayed in the same order in which fragments appear
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-30 16:14:35 UTC
+Last updated 2024-01-30 16:20:08 UTC
 </div>
 </div>
 </body>
