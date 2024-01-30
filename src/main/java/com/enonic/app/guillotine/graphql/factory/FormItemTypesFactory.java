@@ -79,7 +79,9 @@ public class FormItemTypesFactory
 
     private GraphQLType generateItemSetObjectType( String parentTypeName, FormItemSet formItemSet )
     {
-        String typeName = parentTypeName + "_" + NamingHelper.camelCase( StringNormalizer.create( formItemSet.getName() ) );
+        String typeName =
+            context.uniqueName( parentTypeName + "_" + NamingHelper.camelCase( StringNormalizer.create( formItemSet.getName() ) ) );
+
         String description = formItemSet.getLabel();
 
         List<GraphQLFieldDefinition> fields =
@@ -95,7 +97,7 @@ public class FormItemTypesFactory
                 return field;
             } ).collect( Collectors.toList() );
 
-        GraphQLObjectType objectType = newObject( context.uniqueName( typeName ), description, fields );
+        GraphQLObjectType objectType = newObject( typeName, description, fields );
         context.registerType( objectType.getName(), objectType );
         return objectType;
     }
@@ -103,6 +105,7 @@ public class FormItemTypesFactory
     private GraphQLObjectType generateOptionSetObjectType( String parentTypeName, FormOptionSet formOptionSet )
     {
         String typeName = parentTypeName + "_" + NamingHelper.camelCase( StringNormalizer.create( formOptionSet.getName() ) );
+        String uniqueTypeName = context.uniqueName( typeName );
         String description = formOptionSet.getLabel();
 
         GraphQLEnumType enumType = generateOptionSetEnum( formOptionSet, typeName );
@@ -113,7 +116,7 @@ public class FormItemTypesFactory
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
         fields.add( selectedField );
 
-        context.registerDataFetcher( typeName, selectedField.getName(), environment -> {
+        context.registerDataFetcher( uniqueTypeName, selectedField.getName(), environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
             return formOptionSet.getMultiselection().getMaximum() == 1
                 ? sourceAsMap.get( "_selected" )
@@ -126,10 +129,10 @@ public class FormItemTypesFactory
 
             fields.add( outputField( optionName, type ) );
 
-            context.registerDataFetcher( typeName, optionName, new FormItemDataFetcher( option, serviceFacade, context ) );
+            context.registerDataFetcher( uniqueTypeName, optionName, new FormItemDataFetcher( option, serviceFacade, context ) );
         } );
 
-        GraphQLObjectType objectType = newObject( context.uniqueName( typeName ), description, fields );
+        GraphQLObjectType objectType = newObject( uniqueTypeName, description, fields );
         context.registerType( objectType.getName(), objectType );
         return objectType;
     }
@@ -229,14 +232,15 @@ public class FormItemTypesFactory
 
         formOptionSet.forEach( option -> enumValues.put( StringNormalizer.create( option.getName() ), option.getName() ) );
 
-        GraphQLEnumType enumType = newEnum( enumName, description, enumValues );
+        GraphQLEnumType enumType = newEnum( context.uniqueName( enumName ), description, enumValues );
         context.registerType( enumType.getName(), enumType );
         return enumType;
     }
 
     private GraphQLObjectType generateOptionSetObjectType( String parentTypeName, FormOptionSetOption formOptionSet )
     {
-        String typeName = parentTypeName + "_" + NamingHelper.camelCase( StringNormalizer.create( formOptionSet.getName() ) );
+        String typeName =
+            context.uniqueName( parentTypeName + "_" + NamingHelper.camelCase( StringNormalizer.create( formOptionSet.getName() ) ) );
         String description = formOptionSet.getLabel();
 
         List<FormItem> formItems = FormItemTypesHelper.getFilteredFormItems( formOptionSet.getFormItems() );
@@ -252,7 +256,7 @@ public class FormItemTypesFactory
             return field;
         } ).collect( Collectors.toList() );
 
-        GraphQLObjectType objectType = newObject( context.uniqueName( typeName ), description, fields );
+        GraphQLObjectType objectType = newObject( typeName, description, fields );
         context.registerType( objectType.getName(), objectType );
         return objectType;
     }
