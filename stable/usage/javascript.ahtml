@@ -456,7 +456,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="example_fetch_content_by_type"><a class="link" href="#example_fetch_content_by_type">Example: Fetch content by type</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>In our example, we will use the <code><a href="http://localhost:8080/site/moviedb/master" class="bare">http://localhost:8080/site/moviedb/master</a></code> endpoint to make a request to the GraphQL API. More information about endpoints can be found <a href="endpoints.ahtml">here</a>.</p>
+<p>In our example, we will use the <code><a href="http://localhost:8080/site/moviedb/master" class="bare">http://localhost:8080/site/moviedb/master</a></code> endpoint to make a request to the GraphQL API. More information about endpoints can be found <a href="../setup.ahtml#endpoints#">here</a>.</p>
 </div>
 <div class="paragraph">
 <p>This endpoint expects to receive an HTTP POST request with the following properties in the body of the request:</p>
@@ -513,7 +513,7 @@ fetch('http://localhost:8080/site/moviedb/master', {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-24 15:08:34 UTC
+Last updated 2024-01-30 16:14:35 UTC
 </div>
 </div>
 </body>
