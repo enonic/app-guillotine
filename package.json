@@ -33,7 +33,7 @@
     "eslint": "^8.56.0",
     "less": "^4.2.0",
     "less-loader": "^12.1.0",
-    "mini-css-extract-plugin": "^2.7.7",
+    "mini-css-extract-plugin": "^2.8.0",
     "postcss": "^8.4.33",
     "postcss-loader": "^8.0.0",
     "source-map-loader": "^5.0.0",
