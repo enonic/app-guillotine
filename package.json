@@ -35,7 +35,7 @@
     "less-loader": "^12.1.0",
     "mini-css-extract-plugin": "^2.8.0",
     "postcss": "^8.4.33",
-    "postcss-loader": "^8.0.0",
+    "postcss-loader": "^8.1.0",
     "source-map-loader": "^5.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "ts-loader": "^9.5.1",
