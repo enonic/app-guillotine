@@ -1,12 +1,6 @@
 package com.enonic.app.guillotine.handler;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
+import com.enonic.app.guillotine.GuillotineConfig;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalResponse;
@@ -22,30 +16,36 @@ import com.enonic.xp.web.handler.WebHandlerChain;
 import com.enonic.xp.web.websocket.WebSocketConfig;
 import com.enonic.xp.web.websocket.WebSocketContext;
 import com.enonic.xp.web.websocket.WebSocketEndpoint;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
-@Component(immediate = true, service = WebHandler.class)
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+@Component(immediate = true, service = WebHandler.class, configurationPid = "com.enonic.app.guillotine")
 public class GuillotineApiWebHandler
     extends BaseWebHandler
 {
-    private static final Pattern URL_PATTERN =
-        Pattern.compile( "^/(admin/site/preview|site)/(([a-z0-9\\-:])([a-z0-9_\\-.:])*)/(([a-z0-9\\-:])([a-z0-9_\\-.:])*)([/]*)$" );
-
     private static final ApplicationKey APPLICATION_KEY = ApplicationKey.from( "com.enonic.app.guillotine" );
+
+    private final Pattern urlPattern;
 
     private final ControllerScriptFactory controllerScriptFactory;
 
     @Activate
-    public GuillotineApiWebHandler( final @Reference ControllerScriptFactory controllerScriptFactory )
+    public GuillotineApiWebHandler( final @Reference ControllerScriptFactory controllerScriptFactory, final GuillotineConfig config )
     {
         super( -49 );
         this.controllerScriptFactory = controllerScriptFactory;
+        this.urlPattern = Pattern.compile( "^/(admin/site/preview|site)/(([a-z0-9\\-:])([a-z0-9_\\-.:])*)/(([a-z0-9\\-:])([a-z0-9_\\-.:])*)" + config.endpoint_postfix() + "(/*)$" );
     }
 
     @Override
     protected boolean canHandle( final WebRequest webRequest )
     {
         final String path = webRequest.getRawPath();
-        final Matcher matcher = URL_PATTERN.matcher( path );
+        final Matcher matcher = urlPattern.matcher( path );
         return ( webRequest.getMethod() == HttpMethod.POST || ( webRequest.getMethod() == HttpMethod.GET && webRequest.isWebSocket() ) ) &&
             matcher.matches();
     }
