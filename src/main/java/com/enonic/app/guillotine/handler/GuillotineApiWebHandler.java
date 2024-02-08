@@ -38,7 +38,7 @@ public class GuillotineApiWebHandler
     {
         super( -49 );
         this.controllerScriptFactory = controllerScriptFactory;
-        this.urlPattern = Pattern.compile( "^/(admin/site/preview|site)/(([a-z0-9\\-:])([a-z0-9_\\-.:])*)/(([a-z0-9\\-:])([a-z0-9_\\-.:])*)" + config.endpoint_postfix() + "(/*)$" );
+        this.urlPattern = Pattern.compile( "^/(admin/site/preview|site)/(([a-z0-9\\-:])([a-z0-9_\\-.:])*)/(([a-z0-9\\-:])([a-z0-9_\\-.:])*)" + config.endpoint_postfix_regex() + "(/*)$" );
     }
 
     @Override

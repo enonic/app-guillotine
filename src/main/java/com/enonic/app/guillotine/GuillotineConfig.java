@@ -4,5 +4,5 @@ public @interface GuillotineConfig
 {
     String queryplayground_ui_mode() default "auto";
 
-    String endpoint_postfix() default "";
+    String endpoint_postfix_regex() default "";
 }

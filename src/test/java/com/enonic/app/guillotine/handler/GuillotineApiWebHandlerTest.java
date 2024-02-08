@@ -18,7 +18,7 @@ public class GuillotineApiWebHandlerTest
     {
         ControllerScriptFactory scriptFactory = mock( ControllerScriptFactory.class );
         GuillotineConfig config = mock( GuillotineConfig.class );
-        when( config.endpoint_postfix() ).thenReturn( "" );
+        when( config.endpoint_postfix_regex() ).thenReturn( "" );
 
         GuillotineApiWebHandler instance = new GuillotineApiWebHandler( scriptFactory, config );
 
@@ -53,7 +53,7 @@ public class GuillotineApiWebHandlerTest
     {
         ControllerScriptFactory scriptFactory = mock( ControllerScriptFactory.class );
         GuillotineConfig config = mock( GuillotineConfig.class );
-        when( config.endpoint_postfix() ).thenReturn( "/postfix" );
+        when( config.endpoint_postfix_regex() ).thenReturn( "/postfix" );
 
         GuillotineApiWebHandler instance = new GuillotineApiWebHandler( scriptFactory, config );
 
