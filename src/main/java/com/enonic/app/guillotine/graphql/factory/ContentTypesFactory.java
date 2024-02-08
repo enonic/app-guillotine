@@ -197,7 +197,7 @@ public class ContentTypesFactory
 
     private GraphQLObjectType generateContentDataType( String parentTypeName, String parentDescription, List<FormItem> formItems )
     {
-        String typeName = parentTypeName + "_Data";
+        String typeName = context.uniqueName( parentTypeName + "_Data" );
         String description = parentDescription + " data";
 
         List<GraphQLFieldDefinition> fields = formItems.stream().map( formItem -> {
@@ -213,7 +213,7 @@ public class ContentTypesFactory
             return field;
         } ).collect( Collectors.toList() );
 
-        return newObject( context.uniqueName( typeName ), description, fields );
+        return newObject( typeName, description, fields );
     }
 
 

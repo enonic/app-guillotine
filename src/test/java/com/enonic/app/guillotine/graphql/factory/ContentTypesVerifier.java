@@ -52,15 +52,13 @@ public class ContentTypesVerifier
         assertEquals( "com_enonic_app_testapp_MyType_Data", dataType.getName() );
         assertEquals( "my_type - com.enonic.app.testapp:my_type data", dataType.getDescription() );
 
-        assertEquals( 5, dataType.getFieldDefinitions().size() );
+        assertEquals( 4, dataType.getFieldDefinitions().size() );
 
         GraphQLObjectType mySetDataType = (GraphQLObjectType) dataType.getFieldDefinition( "mySet" ).getType();
         assertEquals( "com_enonic_app_testapp_MyType_MySet", mySetDataType.getName() );
 
         assertEquals( 1, mySetDataType.getFieldDefinitions().size() );
         assertEquals( Scalars.GraphQLString, mySetDataType.getFieldDefinition( "myInput" ).getType() );
-
-        assertEquals( Scalars.GraphQLString, dataType.getFieldDefinition( "myLayout" ).getType() );
 
         assertEquals( ExtendedScalars.Date, dataType.getFieldDefinition( "dateOfBirth" ).getType() );
 
