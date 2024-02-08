@@ -26,7 +26,8 @@ public class FormItemTypesHelper
             }
             if ( formItem instanceof Layout )
             {
-                ( (FieldSet) formItem ).getFormItems().forEach( result::add );
+                result.addAll( getFilteredFormItems( ( (FieldSet) formItem ).getFormItems() ) );
+                continue;
             }
             if ( formItem instanceof Input && ( (Input) formItem ).getInputType().equals( InputTypeName.SITE_CONFIGURATOR ) )
             {
