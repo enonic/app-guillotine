@@ -1,0 +1,43 @@
+{
+  "author": "Christian Westgaard cwe@enonic.com",
+  "bugs": {
+    "url": "https://github.com/enonic/app-guillotine/issues"
+  },
+  "dependencies": {
+    "@enonic-types/core": "^7.14.0",
+    "@enonic-types/global": "^7.14.0"
+  },
+  "devDependencies": {
+    "tsd": "^0.30.4",
+    "typescript": "^5.3.3"
+  },
+  "description": "Types for Guillotine extensions",
+  "keywords": [
+    "enonic",
+    "enonic-xp",
+    "extensions",
+    "graphql",
+    "guillotine",
+    "types",
+    "typescript"
+  ],
+  "files": [
+    "*.d.ts"
+  ],
+  "homepage": "https://github.com/enonic/app-guillotine/tree/master#readme",
+  "license": "Apache-2.0",
+  "name": "@enonic-types/guillotine",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enonic/app-guillotine.git#master"
+  },
+  "scripts": {
+    "check": "npx tsc --noEmit",
+    "test": "tsd ./"
+  },
+  "types": "index.d.ts",
+  "version": "0.0.1"
+}
