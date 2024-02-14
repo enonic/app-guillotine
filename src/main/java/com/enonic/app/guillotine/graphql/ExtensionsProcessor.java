@@ -14,6 +14,7 @@ import com.enonic.app.guillotine.graphql.fetchers.DynamicDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.DynamicTypeResolver;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.GraphQLHelper;
+import com.enonic.app.guillotine.graphql.transformer.ContextualFieldResolver;
 import com.enonic.app.guillotine.graphql.transformer.SchemaExtensions;
 import com.enonic.xp.script.ScriptValue;
 
@@ -107,10 +108,10 @@ public class ExtensionsProcessor
             ( typeName, typeResolver ) -> typesRegister.addTypeResolver( typeName, new DynamicTypeResolver( typeResolver ) ) );
     }
 
-    private void processResolvers( final Map<String, Map<String, ScriptValue>> resolvers )
+    private void processResolvers( final Map<String, Map<String, ContextualFieldResolver>> resolvers )
     {
         resolvers.forEach( ( typeName, typeResolver ) -> {
-            Map<String, ScriptValue> fieldResolvers = resolvers.get( typeName );
+            Map<String, ContextualFieldResolver> fieldResolvers = resolvers.get( typeName );
             fieldResolvers.forEach(
                 ( fieldName, fieldResolver ) -> typesRegister.addResolver( typeName, fieldName, new DynamicDataFetcher( fieldResolver ) ) );
         } );
