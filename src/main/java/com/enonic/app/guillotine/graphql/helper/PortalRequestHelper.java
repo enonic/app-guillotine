@@ -2,6 +2,7 @@ package com.enonic.app.guillotine.graphql.helper;
 
 import graphql.schema.DataFetchingEnvironment;
 
+import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.portal.PortalRequest;
 
 public final class PortalRequestHelper
@@ -12,10 +13,35 @@ public final class PortalRequestHelper
 
     public static PortalRequest createPortalRequest( final PortalRequest source, final DataFetchingEnvironment environment )
     {
-        final PortalRequest result = new PortalRequest();
+        if ( source == null )
+        {
+            return null;
+        }
 
+        final PortalRequest result = createDefaultPortalRequest( source );
         result.setRepositoryId( GuillotineLocalContextHelper.getRepositoryId( environment, source.getRepositoryId() ) );
         result.setBranch( GuillotineLocalContextHelper.getBranch( environment, source.getBranch() ) );
+        return result;
+    }
+
+    public static PortalRequest createPortalRequest( final PortalRequest source, final ApplicationKey applicationKey )
+    {
+        if ( source == null )
+        {
+            return null;
+        }
+
+        final PortalRequest result = createDefaultPortalRequest( source );
+        result.setApplicationKey( applicationKey );
+        return result;
+    }
+
+    private static PortalRequest createDefaultPortalRequest( final PortalRequest source )
+    {
+        final PortalRequest result = new PortalRequest();
+
+        result.setRepositoryId( source.getRepositoryId() );
+        result.setBranch( source.getBranch() );
         result.setApplicationKey( source.getApplicationKey() );
         result.setContentPath( source.getContentPath() );
         result.setMode( source.getMode() );
