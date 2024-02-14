@@ -11,6 +11,8 @@ import com.enonic.app.guillotine.mapper.GraphQLMapper;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationService;
+import com.enonic.xp.portal.PortalRequest;
+import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.script.PortalScriptService;
 import com.enonic.xp.resource.ResourceKey;
 import com.enonic.xp.resource.ResourceService;
@@ -81,7 +83,7 @@ public class ExtensionsExtractorService
                 extractEnums( schemaExtensionsBuilder, enums );
                 extractUnions( schemaExtensionsBuilder, unions );
                 extractInterfaces( schemaExtensionsBuilder, interfaces );
-                extractResolvers( schemaExtensionsBuilder, resolvers );
+                extractResolvers( schemaExtensionsBuilder, resolvers, application.getKey() );
                 extractTypeResolvers( schemaExtensionsBuilder, typeResolvers );
                 extractCreationCallbacks( schemaExtensionsBuilder, creationCallbacks );
             }
@@ -116,7 +118,8 @@ public class ExtensionsExtractorService
         }
     }
 
-    private static void extractResolvers( final SchemaExtensions.Builder schemaExtensionsBuilder, final ScriptValue resolvers )
+    private static void extractResolvers( final SchemaExtensions.Builder schemaExtensionsBuilder, final ScriptValue resolvers,
+                                          final ApplicationKey applicationKey )
     {
         if ( resolvers != null )
         {
@@ -128,7 +131,8 @@ public class ExtensionsExtractorService
                 {
                     typeResolverDef.getKeys().forEach( fieldName -> {
                         ScriptValue resolverDef = typeResolverDef.getMember( fieldName );
-                        schemaExtensionsBuilder.addResolver( typeName, fieldName, resolverDef );
+                        ContextualFieldResolver fieldResolver = new ContextualFieldResolver( applicationKey, resolverDef );
+                        schemaExtensionsBuilder.addResolver( typeName, fieldName, fieldResolver );
                     } );
                 }
             } );
@@ -189,25 +193,35 @@ public class ExtensionsExtractorService
 
     private ScriptValue executeMethod( ApplicationKey applicationKey, Object graphQL )
     {
-        ResourceKey resourceKey = ResourceKey.from( applicationKey, SCRIPT_PATH );
-        if ( resourceService.getResource( resourceKey ).exists() )
+        PortalRequest oldPortalRequest = PortalRequestAccessor.get();
+        PortalRequestAccessor.remove();
+        try
         {
-            ScriptExports scriptExports = portalScriptService.execute( resourceKey );
-            if ( scriptExports != null )
+            ResourceKey resourceKey = ResourceKey.from( applicationKey, SCRIPT_PATH );
+            if ( resourceService.getResource( resourceKey ).exists() )
             {
-                if ( scriptExports.hasMethod( EXTENSIONS_METHOD_NAME ) )
+                ScriptExports scriptExports = portalScriptService.execute( resourceKey );
+                if ( scriptExports != null )
                 {
-                    try
+                    if ( scriptExports.hasMethod( EXTENSIONS_METHOD_NAME ) )
                     {
-                        return scriptExports.executeMethod( EXTENSIONS_METHOD_NAME, graphQL );
-                    }
-                    catch ( Exception e )
-                    {
-                        LOG.warn( "{} function can not be extracted from {}", EXTENSIONS_METHOD_NAME, SCRIPT_PATH, e );
+                        try
+                        {
+                            return scriptExports.executeMethod( EXTENSIONS_METHOD_NAME, graphQL );
+                        }
+                        catch ( Exception e )
+                        {
+                            LOG.warn( "{} function can not be extracted from {}", EXTENSIONS_METHOD_NAME, SCRIPT_PATH, e );
+                        }
                     }
                 }
             }
         }
+        finally
+        {
+            PortalRequestAccessor.set( oldPortalRequest );
+        }
+
         return null;
     }
 }
