@@ -19,37 +19,6 @@ resolvers: {
 }
 ----
 
-== Application context
-
-You can assume that inside resolver function you have access to the application context where extension is defined and can use `app.name` or `app.config` properties. But in the real that will be context for Guillotine application and those properties will return `com.enonic.app.guillotine` and an actual config for Guillotine application.
-
-If you need to have access in the resolver to the application context where extension is defined, then you can store these values outside `exports.extensions`.
-
-For example:
-
-[source,javascript]
-----
-const appName = app.name;
-const appConfig = app.config;
-
-exports.extensions = function (graphQL) {
-    return {
-        ...
-        resolvers: {
-            MyCustomType: {
-                myCustomField: function (env) {
-                    // here you can use `appName` and `appConfig`
-                }
-            }
-        },
-        ...
-   }
-}
-----
-
-If the configuration of application is changed, then that will trigger restart of the application and Guillotine will update GraphQL schema. In the result you will have actual state of `app.config` in the resolver.
-
-
 == DataFetchingEnvironment
 
 A DataFetchingEnvironment instance (env) is passed to a DataFetcher as an execution context, and it's the place where you can find information to help you resolve a data value given a GraphQL field input.
