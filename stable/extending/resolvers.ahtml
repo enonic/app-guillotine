@@ -441,7 +441,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#usage">Usage</a></li>
-<li><a href="#application_context">Application context</a></li>
 <li><a href="#datafetchingenvironment">DataFetchingEnvironment</a></li>
 <li><a href="#createdatafetcherresult">createDataFetcherResult</a></li>
 </ul>
@@ -473,43 +472,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
     // the rest of type resolvers ...
 }</code></pre>
 </div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="application_context"><a class="link" href="#application_context">Application context</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>You can assume that inside resolver function you have access to the application context where extension is defined and can use <code>app.name</code> or <code>app.config</code> properties. But in the real that will be context for Guillotine application and those properties will return <code>com.enonic.app.guillotine</code> and an actual config for Guillotine application.</p>
-</div>
-<div class="paragraph">
-<p>If you need to have access in the resolver to the application context where extension is defined, then you can store these values outside <code>exports.extensions</code>.</p>
-</div>
-<div class="paragraph">
-<p>For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">const appName = app.name;
-const appConfig = app.config;
-
-exports.extensions = function (graphQL) {
-    return {
-        ...
-        resolvers: {
-            MyCustomType: {
-                myCustomField: function (env) {
-                    // here you can use `appName` and `appConfig`
-                }
-            }
-        },
-        ...
-   }
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>If the configuration of application is changed, then that will trigger restart of the application and Guillotine will update GraphQL schema. In the result you will have actual state of <code>app.config</code> in the resolver.</p>
 </div>
 </div>
 </div>
@@ -640,7 +602,7 @@ exports.extensions = function (graphQL) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-30 16:28:26 UTC
+Last updated 2024-02-15 12:00:12 UTC
 </div>
 </div>
 </body>
