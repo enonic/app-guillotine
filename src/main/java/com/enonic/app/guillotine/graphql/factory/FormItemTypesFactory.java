@@ -196,6 +196,10 @@ public class FormItemTypesFactory
         {
             return GraphQLTypeReference.typeRef( "SiteConfigurator" );
         }
+        if ( InputTypeName.LONG.equals( formItem.getInputType() ) )
+        {
+            return Scalars.GraphQLInt;
+        }
 
         return Scalars.GraphQLString;
     }
