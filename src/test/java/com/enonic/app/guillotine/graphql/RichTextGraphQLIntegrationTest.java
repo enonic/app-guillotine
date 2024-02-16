@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import graphql.schema.GraphQLSchema;
@@ -28,6 +27,7 @@ import com.enonic.xp.security.acl.AccessControlList;
 import static com.enonic.app.guillotine.graphql.ResourceHelper.readGraphQLQuery;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -40,11 +40,11 @@ public class RichTextGraphQLIntegrationTest
     {
         when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
 
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( createContent() );
+        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( createContent( true ) );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
-        Assertions.assertNotNull( graphQLSchema.getObjectType( "myapplication_News" ) );
+        assertNotNull( graphQLSchema.getObjectType( "myapplication_News" ) );
 
         Map<String, Object> response = executeQuery( graphQLSchema, readGraphQLQuery( "graphql/richText.graphql" ) );
 
@@ -60,6 +60,27 @@ public class RichTextGraphQLIntegrationTest
         assertNotNull( textField );
     }
 
+    @Test
+    public void testEmptyRichTextField()
+    {
+        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( createContent( false ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        assertNotNull( graphQLSchema.getObjectType( "myapplication_News" ) );
+
+        Map<String, Object> response = executeQuery( graphQLSchema, readGraphQLQuery( "graphql/richText.graphql" ) );
+
+        assertFalse( response.containsKey( "errors" ) );
+        assertTrue( response.containsKey( "data" ) );
+
+        Map<String, Object> getField = CastHelper.cast( getFieldFromGuillotine( response, "get" ) );
+
+        Map<String, Object> dataField = CastHelper.cast( getField.get( "data" ) );
+
+        assertNull( CastHelper.cast( dataField.get( "text" ) ) );
+    }
+
     @Override
     protected List<ContentType> getCustomContentTypes()
     {
@@ -70,7 +91,7 @@ public class RichTextGraphQLIntegrationTest
         return List.of( newsContentType );
     }
 
-    private Content createContent()
+    private Content createContent( boolean includeHtml )
     {
         final Content.Builder<?> builder = Content.create();
 
@@ -91,12 +112,15 @@ public class RichTextGraphQLIntegrationTest
 
         PropertyTree data = new PropertyTree();
 
-        data.setString( "text", "" + "<p><a href=\"content://a8b374a2-c532-45eb-9aa1-73d1c37cd681\">Link to Content</a></p>\n" +
-            "<p><a href=\"media://inline/289e6ba0-e5f7-4667-a2a0-fe6afa4a6267\" target=\"_blank\">Link to Media</a></p>\n" +
-            "<p>[embed]&lt;iframe title=\"YouTube video player\" src=\"https://www.youtube.com/embed/6FTpJtS8NVE\" height=\"315\" width=\"560\"&gt;&lt;/iframe&gt;[/embed]</p>\n" +
-            "<figure class=\"captioned conteditor-style-grayscale editor-align-justify\">\n" +
-            "  <img alt=\"bruce-willis.jpg\" src=\"image://cbad75b1-7048-46a4-85b1-99b923da139c?style=conteditor-style-grayscale\" style=\"width:100%\" />\n" +
-            "  <figcaption>Bruce Willis</figcaption>\n" + "</figure>\n" + "<p>Text</p>\n" );
+        if ( includeHtml )
+        {
+            data.setString( "text", "<p><a href=\"content://a8b374a2-c532-45eb-9aa1-73d1c37cd681\">Link to Content</a></p>\n" +
+                "<p><a href=\"media://inline/289e6ba0-e5f7-4667-a2a0-fe6afa4a6267\" target=\"_blank\">Link to Media</a></p>\n" +
+                "<p>[embed]&lt;iframe title=\"YouTube video player\" src=\"https://www.youtube.com/embed/6FTpJtS8NVE\" height=\"315\" width=\"560\"&gt;&lt;/iframe&gt;[/embed]</p>\n" +
+                "<figure class=\"captioned conteditor-style-grayscale editor-align-justify\">\n" +
+                "  <img alt=\"bruce-willis.jpg\" src=\"image://cbad75b1-7048-46a4-85b1-99b923da139c?style=conteditor-style-grayscale\" style=\"width:100%\" />\n" +
+                "  <figcaption>Bruce Willis</figcaption>\n" + "</figure>\n" + "<p>Text</p>\n" );
+        }
 
         builder.data( data );
 
