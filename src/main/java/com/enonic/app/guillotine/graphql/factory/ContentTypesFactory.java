@@ -18,6 +18,7 @@ import graphql.schema.GraphQLTypeReference;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
+import com.enonic.app.guillotine.graphql.fetchers.ContentDataFieldDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.ContentTypeDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetAsJsonWithoutContentIdDataFetcher;
@@ -288,7 +289,7 @@ public class ContentTypesFactory
 
         context.registerDataFetcher( contentType, "owner", new GetContentFieldDataFetcher( "owner" ) );
 
-        context.registerDataFetcher( contentType, "dataAsJson", new GetAsJsonWithoutContentIdDataFetcher( "data" ) );
+        context.registerDataFetcher( contentType, "dataAsJson", new ContentDataFieldDataFetcher() );
 
         context.registerDataFetcher( contentType, "xAsJson", new GetAsJsonWithoutContentIdDataFetcher( "x" ) );
 
