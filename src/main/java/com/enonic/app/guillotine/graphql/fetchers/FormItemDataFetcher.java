@@ -53,7 +53,7 @@ public class FormItemDataFetcher
         {
             Object value = sourceAsMap.get( formItem.getName() );
 
-            if ( formItem.getType() == FormItemType.INPUT )
+            if ( formItem.getType() == FormItemType.INPUT && value != null )
             {
                 InputTypeName inputType = ( (Input) formItem ).getInputType();
                 if ( inputType.equals( InputTypeName.HTML_AREA ) )
