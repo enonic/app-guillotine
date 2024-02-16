@@ -18,6 +18,7 @@ import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.data.PropertySet;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.form.FieldSet;
 import com.enonic.xp.form.FormItemSet;
@@ -225,5 +226,32 @@ public class GuillotineApiGraphQLIntegrationTest
         result.add( myContentType );
 
         return result;
+    }
+
+    @Test
+    public void testGetContentDataAsJson()
+    {
+        final PropertyTree data = new PropertyTree();
+        data.addSet( "siteConfig", new PropertySet() );
+        data.addString( "k", "v" );
+
+        Site site = Site.create().name( "site" ).type( ContentTypeName.site() ).path( ContentPath.from( "/sitePath" ) ).parentPath(
+            ContentPath.ROOT ).data( data ).displayName( "Site" ).id( ContentId.from( "siteId" ) ).build();
+
+        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( site );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> result =
+            executeQuery( graphQLSchema, ResourceHelper.readGraphQLQuery( "graphql/getContentDataAsJson.graphql" ) );
+
+        assertFalse( result.containsKey( "errors" ) );
+        assertTrue( result.containsKey( "data" ) );
+
+        Map<String, Object> getField = CastHelper.cast( getFieldFromGuillotine( result, "get" ) );
+        Map<String, Object> dataAsJson = CastHelper.cast( getField.get( "dataAsJson" ) );
+
+        assertFalse( dataAsJson.containsKey( "siteConfig" ) );
+        assertTrue( dataAsJson.containsKey( "k" ) );
     }
 }
