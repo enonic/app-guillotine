@@ -12,14 +12,13 @@ import type {
 // 	GraphQLLocalDateTime,
 // 	GraphQLLocalTime,
 	GraphQLString,
-} from './GraphQL';
+} from './graphQL/ScalarTypes';
 import {
-	GuillotineBuiltinObjectTypeName
-} from './ObjectTypes';
-import {
-	GraphQLContent,
-	GraphQLmedia_Image,
-} from './Schema';
+	GuillotineBuiltinObjectTypeName,
+	GuillotineContent,
+	Guillotinemedia_Image,
+} from './guillotine/ObjectTypes';
+// import {GuillotineBuiltinScalarTypeName} from './guillotine/ScalarTypes';
 
 
 declare global {
@@ -27,18 +26,8 @@ declare global {
 		[inputTypeName: string]: unknown
 	}
 	interface GraphQLObjectTypesMap {
-		// Date: GraphQLDate
-		// DateTime: GraphQLDateTime
-		// Json: GraphQLJson
-		// GraphQLBoolean: GraphQLBoolean
-		// GraphQLFloat: GraphQLFloat
-		// GraphQLID: GraphQLID
-		// GraphQLInt: GraphQLInt
-		// GraphQLString: GraphQLString
-		// LocalDateTime: GraphQLLocalDateTime
-		// LocalTime: GraphQLLocalTime
-		[GuillotineBuiltinObjectTypeName.Content]: GraphQLContent
-		[GuillotineBuiltinObjectTypeName.media_Image]: GraphQLmedia_Image
+		[GuillotineBuiltinObjectTypeName.Content]: GuillotineContent
+		[GuillotineBuiltinObjectTypeName.media_Image]: Guillotinemedia_Image
 		[typeName: string]: unknown
 	}
 	interface GraphQLObjectTypeFieldsMap {
@@ -60,10 +49,10 @@ declare global {
 		// 	hasChildren: Boolean
 		// 	language: String
 		// 	valid: Boolean
-		// 	dataAsJson: JSON
+		// 	dataAsJson: ParsedJSON
 		// 	x: ExtraData
-		// 	xAsJson: JSON
-		// 	pageAsJson: JSON
+		// 	xAsJson: ParsedJSON
+		// 	pageAsJson: ParsedJSON
 		// 	pageTemplate: Content
 		// 	components: [Component]
 		// 	attachments: [Attachment]
@@ -79,6 +68,18 @@ declare global {
 			[fieldName: string]: unknown // TODO
 		}
 	}
+	// interface GraphQLScalarTypesMap {
+	// 	[GuillotineBuiltinScalarTypeName.Boolean]: GraphQLBoolean
+	// 	[GuillotineBuiltinScalarTypeName.Date]: GraphQLDate
+	// 	[GuillotineBuiltinScalarTypeName.DateTime]: GraphQLDateTime
+	// 	[GuillotineBuiltinScalarTypeName.Float]: GraphQLFloat
+	// 	[GuillotineBuiltinScalarTypeName.ID]: GraphQLID
+	// 	[GuillotineBuiltinScalarTypeName.Json]: GraphQLJson
+	// 	[GuillotineBuiltinScalarTypeName.Int]: GraphQLInt
+	// 	[GuillotineBuiltinScalarTypeName.LocalDateTime]: GraphQLLocalDateTime
+	// 	[GuillotineBuiltinScalarTypeName.LocalTime]: GraphQLLocalTime
+	// 	[GuillotineBuiltinScalarTypeName.String]: GraphQLString
+	// }
 } // global
 
 
