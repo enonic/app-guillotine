@@ -1,9 +1,13 @@
-import type {NonNull} from '../Branded'
+import type {Content} from '@enonic-types/core';
+import type {
+	BrandGraphQLObjectType,
+	NonNull
+} from '../brand'
 import type {
 	GuillotineFormItemType,
 	GuillotinePermission,
 	GuillotinePrincipalType,
-} from './EnumTypes'
+} from './enumTypes'
 import type {
 	GraphQLBoolean,
 	GraphQLDateTime,
@@ -14,9 +18,14 @@ import type {
 	GraphQLLocalDateTime,
 	GraphQLString,
 } from '../graphQL/ScalarTypes'
+import type {
+	MediaImageContent,
+	PortalSiteContent,
+} from '../xp'
 
 
-export declare enum GuillotineBuiltinObjectTypeName {
+// This is a value, do not add declare.
+export enum GuillotineBuiltinObjectTypeName {
 	AccessControlEntry = 'AccessControlEntry',
 	Attachment = 'Attachment',
 	base_Folder = 'base_Folder',
@@ -133,38 +142,42 @@ export declare interface GuillotineAttachment {
 
 export declare type GuillotineContent<
 	Extensions extends Record<string, unknown> = Record<string, unknown>
-> = {
-	_id: NonNull<GraphQLID>
-	_name: NonNull<GraphQLString>
-	_path: NonNull<GraphQLString>
-	_references: GuillotineContent[]
-	_score: GraphQLFloat
-	attachments: GuillotineAttachment[]
-	children: GuillotineContent[]
-	childrenConnection: GuillotineContentConnection
-	components: GuillotineContent[]
-	contentType: GuillotineContentType
-	createdTime: GraphQLDateTime
-	creator: GuillotinePrincipalKey
-	dataAsJson: GraphQLJson
-	displayName: GraphQLString
-	hasChildren: GraphQLBoolean
-	language: GraphQLString
-	modifiedTime: GraphQLDateTime
-	modifier: GuillotinePrincipalKey
-	owner: GuillotinePrincipalKey
-	pageAsJson: GraphQLJson
-	pageTemplate: GuillotineContent
-	pageUrl: GraphQLString
-	parent: GuillotineContent
-	permissions: GuillotinePermissions
-	publish: GuillotinePublishInfo
-	site: Guillotineportal_Site
-	type: GraphQLString
-	valid: GraphQLBoolean
-	x: GuillotineExtraData
-	xAsJson: GraphQLJson
-} & Extensions
+> = BrandGraphQLObjectType<
+	'Content',
+	{
+		_id: NonNull<GraphQLID>
+		_name: NonNull<GraphQLString>
+		_path: NonNull<GraphQLString>
+		_references: GuillotineContent[]
+		_score: GraphQLFloat
+		attachments: GuillotineAttachment[]
+		children: GuillotineContent[]
+		childrenConnection: GuillotineContentConnection
+		components: GuillotineContent[]
+		contentType: GuillotineContentType
+		createdTime: GraphQLDateTime
+		creator: GuillotinePrincipalKey
+		dataAsJson: GraphQLJson
+		displayName: GraphQLString
+		hasChildren: GraphQLBoolean
+		language: GraphQLString
+		modifiedTime: GraphQLDateTime
+		modifier: GuillotinePrincipalKey
+		owner: GuillotinePrincipalKey
+		pageAsJson: GraphQLJson
+		pageTemplate: GuillotineContent
+		pageUrl: GraphQLString
+		parent: GuillotineContent
+		permissions: GuillotinePermissions
+		publish: GuillotinePublishInfo
+		site: Guillotineportal_Site
+		type: GraphQLString
+		valid: GraphQLBoolean
+		x: GuillotineExtraData
+		xAsJson: GraphQLJson
+	} & Extensions,
+	Content
+>
 
 export declare interface GuillotineContentConnection {
 	totalCount: NonNull<GraphQLInt>
@@ -213,11 +226,15 @@ export declare interface GuillotineIcon {
 	modifiedTime: GraphQLString
 }
 
-export declare interface Guillotinemedia_Image extends GuillotineContent {
-	data: Guillotinemedia_Image_Data
-	imageUrl: GraphQLString
-	mediaUrl: GraphQLString
-}
+export declare type Guillotinemedia_Image = BrandGraphQLObjectType<
+	'media_Image',
+	{
+		data: Guillotinemedia_Image_Data
+		imageUrl: GraphQLString
+		mediaUrl: GraphQLString
+	},
+	MediaImageContent
+>
 
 export declare interface Guillotinemedia_Image_Data {
 	media: GuillotineMediaUploader
@@ -249,9 +266,13 @@ export declare interface GuillotinePermissions {
 	permissions: GuillotineAccessControlEntry[]
 }
 
-export declare interface Guillotineportal_Site extends GuillotineContent {
-	data: Guillotineportal_Site_Data
-}
+export declare type Guillotineportal_Site = BrandGraphQLObjectType<
+	'portal_Site',
+	{
+		data: Guillotineportal_Site_Data
+	},
+	PortalSiteContent
+>
 
 export declare interface Guillotineportal_Site_Data {
 	description: GraphQLString

@@ -1,4 +1,5 @@
-export declare enum GuillotineBuiltinEnumTypeName {
+// This is a value, do not add declare.
+export enum GuillotineBuiltinEnumTypeName {
 	ComponentType = 'ComponentType',
 	ContentPathType = 'ContentPathType',
 	DslGeoPointDistanceType = 'DslGeoPointDistanceType',
@@ -19,14 +20,16 @@ export declare type GuillotineBuiltinEnumTypeNames = keyof typeof GuillotineBuil
 
 //──────────────────────────────────────────────────────────────────────────────
 
-export declare enum GuillotineFormItemType {
+// This is a value, do not add declare.
+export enum GuillotineFormItemType {
 	ItemSet = 'ItemSet',
 	Layout = 'Layout',
 	Input = 'Input',
 	OptionSet = 'OptionSet',
 }
 
-export declare enum GuillotinePermission {
+// This is a value, do not add declare.
+export enum GuillotinePermission {
 	READ = 'READ',
 	CREATE = 'CREATE',
 	MODIFY = 'MODIFY',
@@ -36,7 +39,8 @@ export declare enum GuillotinePermission {
 	WRITE_PERMISSIONS = 'WRITE_PERMISSIONS',
 }
 
-export declare enum GuillotinePrincipalType {
+// This is a value, do not add declare.
+export enum GuillotinePrincipalType {
 	user = 'user',
 	group = 'group',
 	role = 'role',

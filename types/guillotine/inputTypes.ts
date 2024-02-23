@@ -1,4 +1,5 @@
-export declare enum GuillotineBuiltinInputTypeName {
+// This is a value, do not add declare.
+export enum GuillotineBuiltinInputTypeName {
 	AggregationInput = 'AggregationInput',
 	BooleanDSLExpressionInput = 'BooleanDSLExpressionInput',
 	BooleanFilterInput = 'BooleanFilterInput',

@@ -1,4 +1,5 @@
-export declare enum GuillotineBuiltinScalarTypeName {
+// This is a value, do not add declare.
+export enum GuillotineBuiltinScalarTypeName {
 	Boolean = 'Boolean',
 	Date = 'Date',
 	DateTime = 'DateTime',

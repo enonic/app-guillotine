@@ -1,18 +1,12 @@
 export type {
-	GuillotineBuiltinEnumTypeName,
 	GuillotineBuiltinEnumTypeNames,
-	GuillotineFormItemType,
-	GuillotinePermission,
-	GuillotinePrincipalType,
-} from './EnumTypes'
+} from './enumTypes'
 
 export type {
-	GuillotineBuiltinInputTypeName,
 	GuillotineBuiltinInputTypeNames,
-} from './InputTypes'
+} from './inputTypes'
 
 export type {
-	GuillotineBuiltinObjectTypeName,
 	GuillotineBuiltinObjectTypeNames,
 	GuillotineAccessControlEntry,
 	GuillotineAttachment,
@@ -39,12 +33,23 @@ export type {
 	GuillotineXData_media_ApplicationConfig,
 	GuillotineXData_media_cameraInfo_DataConfig,
 	GuillotineXData_media_imageInfo_DataConfig,
-} from './ObjectTypes'
+} from './objectTypes'
 
 export type {
-	GuillotineBuiltinScalarTypeName,
 	GuillotineBuiltinScalarTypeNames,
-} from './ScalarTypes'
+} from './scalarTypes'
 
 
 
+export {
+	GuillotineBuiltinEnumTypeName,
+	GuillotineFormItemType,
+	GuillotinePermission,
+	GuillotinePrincipalType,
+} from './enumTypes'
+
+export {GuillotineBuiltinInputTypeName} from './inputTypes'
+
+export {GuillotineBuiltinObjectTypeName} from './objectTypes'
+
+export {GuillotineBuiltinScalarTypeName} from './scalarTypes'

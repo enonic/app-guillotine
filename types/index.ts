@@ -29,9 +29,17 @@ In resolvers the type of localContext depends on a combination of all ancestor r
 
 
 export type {
-	Branded,
-	GraphQLBranded,
-} from './Branded'
+	Brand,
+	BrandGraphQLObjectType,
+	BrandGraphQLScalarType,
+	GetParsedJson,
+	GetNonNull,
+	GetReturnType,
+	GetSuperType,
+	GetTypeName,
+	GetReference,
+	Reference,
+} from './brand'
 
 export type {
 	CreationCallback,
@@ -44,7 +52,7 @@ export type {
 	Resolvers,
 	Type,
 	Types,
-} from './extensions/'
+} from './extensions'
 
 export type {
 	CreateDataFetcherResult,
@@ -73,18 +81,14 @@ export type {
 	GraphQLString,
 	GraphQLTypeToGuillotineFields,
 	GraphQLTypeToResolverResult,
-} from './graphQL/'
+} from './graphQL'
 
 export type {
 	GuillotineAccessControlEntry,
 	GuillotineAttachment,
-	GuillotineBuiltinEnumTypeName,
 	GuillotineBuiltinEnumTypeNames,
-	GuillotineBuiltinInputTypeName,
 	GuillotineBuiltinInputTypeNames,
-	GuillotineBuiltinObjectTypeName,
 	GuillotineBuiltinObjectTypeNames,
-	GuillotineBuiltinScalarTypeName,
 	GuillotineBuiltinScalarTypeNames,
 	GuillotineContent,
 	GuillotineContentConnection,
@@ -92,7 +96,6 @@ export type {
 	GuillotineContentType,
 	GuillotineExtraData,
 	GuillotineFormItem,
-	GuillotineFormItemType, // enum
 	GuillotineGeoPoint,
 	GuillotineIcon,
 	Guillotinemedia_Image,
@@ -100,16 +103,35 @@ export type {
 	GuillotineMediaFocalPoint,
 	GuillotineMediaUploader,
 	GuillotinePageInfo,
-	GuillotinePermission, // enum
 	GuillotinePermissions,
 	Guillotineportal_Site,
 	Guillotineportal_Site_Data,
 	GuillotinePrincipalKey,
-	GuillotinePrincipalType, // enum
 	GuillotinePublishInfo,
 	GuillotineXData_base_ApplicationConfig,
 	GuillotineXData_base_gpsInfo_DataConfig,
 	GuillotineXData_media_ApplicationConfig,
 	GuillotineXData_media_cameraInfo_DataConfig,
 	GuillotineXData_media_imageInfo_DataConfig,
-} from './guillotine/'
+} from './guillotine'
+
+export type {
+	MediaImageContent,
+} from './xp'
+
+
+export {
+	GuillotineBuiltinEnumTypeName,
+	GuillotineBuiltinInputTypeName,
+	GuillotineBuiltinObjectTypeName,
+	GuillotineBuiltinScalarTypeName,
+	GuillotineFormItemType,
+	GuillotinePermission,
+	GuillotinePrincipalType,
+} from './guillotine'
+
+
+export {
+	jsonParse,
+	jsonStringify,
+} from './brand'

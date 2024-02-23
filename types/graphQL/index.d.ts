@@ -3,11 +3,10 @@
 
 import type {
 	AnyGraphQLBrand,
-	GetBase,
-	GraphQLBranded,
+	GetSuperType,
 	NonNull,
 	Reference,
-} from '../Branded'
+} from '../brand'
 import type {
 	ArrayElement,
 	PartialRecord,
@@ -96,15 +95,15 @@ export declare type GraphQLTypeToResolverResult<
 	Type // extends ValueOf<GraphQLObjectTypesMap>
 > =
 	Type extends AnyGraphQLBrand
-	? GetBase<Type>
+	? GetSuperType<Type>
 	: Type extends AnyGraphQLBrand[]
-		? GetBase<ArrayElement<Type>>[]
+		? GetSuperType<ArrayElement<Type>>[]
 		: Type extends Record<string,any>
 			? {
 				[fieldKey in keyof Type]: Type[fieldKey] extends AnyGraphQLBrand
-				? GetBase<Type[fieldKey]>
+				? GetSuperType<Type[fieldKey]>
 				: Type[fieldKey] extends AnyGraphQLBrand[]
-					? GetBase<ArrayElement<Type[fieldKey]>>[]
+					? GetSuperType<ArrayElement<Type[fieldKey]>>[]
 						: 'Record with unhandeled key'
 			}
 			: 'Unhandled type'
