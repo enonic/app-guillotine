@@ -1,6 +1,6 @@
 import type {
 	NonNull,
-} from './Branded';
+} from './brand';
 import type {
 // 	GraphQLBoolean,
 // 	GraphQLDate,
@@ -17,7 +17,8 @@ import {
 	GuillotineBuiltinObjectTypeName,
 	GuillotineContent,
 	Guillotinemedia_Image,
-} from './guillotine/ObjectTypes';
+	Guillotineportal_Site,
+} from './guillotine/objectTypes';
 // import {GuillotineBuiltinScalarTypeName} from './guillotine/ScalarTypes';
 
 
@@ -28,6 +29,7 @@ declare global {
 	interface GraphQLObjectTypesMap {
 		[GuillotineBuiltinObjectTypeName.Content]: GuillotineContent
 		[GuillotineBuiltinObjectTypeName.media_Image]: Guillotinemedia_Image
+		[GuillotineBuiltinObjectTypeName.portal_Site]: Guillotineportal_Site
 		[typeName: string]: unknown
 	}
 	interface GraphQLObjectTypeFieldsMap {

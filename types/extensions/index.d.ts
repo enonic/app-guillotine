@@ -30,7 +30,6 @@ export declare interface Extensions {
 	// enums?: Record<string, ExtensionEnum>
 	// inputTypes?: Record<string, any>
 	// interfaces?: Record<string, any>
-	//resolvers?: PartialRecord<GraphQLObjectTypeName, PartialRecord<GraphQLFieldName, Resolver>>
 	resolvers?: Resolvers
 	// typeResolvers?: Record<string, any>
 	types?: Types

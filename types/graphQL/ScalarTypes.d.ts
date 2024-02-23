@@ -1,16 +1,16 @@
-import type {GraphQLBranded} from '../Branded'
+import type {BrandGraphQLScalarType} from '../brand'
 
 
-export declare type GraphQLBoolean = GraphQLBranded<boolean, 'GraphQLBoolean'>
-export declare type GraphQLDate = GraphQLBranded<string, 'Date'>
-export declare type GraphQLDateTime = GraphQLBranded<string, 'DateTime'>
-export declare type GraphQLFloat = GraphQLBranded<number, 'GraphQLFloat'>
-export declare type GraphQLID = GraphQLBranded<string, 'GraphQLID'>
-export declare type GraphQLInt = GraphQLBranded<number, 'GraphQLInt'>
-export declare type GraphQLJson = GraphQLBranded<string, 'Json'>
-export declare type GraphQLLocalDateTime = GraphQLBranded<string, 'LocalDateTime'>
-export declare type GraphQLLocalTime = GraphQLBranded<string, 'LocalTime'>
-export declare type GraphQLString = GraphQLBranded<string, 'GraphQLString'>
+export declare type GraphQLBoolean = BrandGraphQLScalarType<'GraphQLBoolean', boolean>
+export declare type GraphQLDate = BrandGraphQLScalarType<'Date', string>
+export declare type GraphQLDateTime = BrandGraphQLScalarType<'DateTime', string>
+export declare type GraphQLFloat = BrandGraphQLScalarType<'GraphQLFloat', number>
+export declare type GraphQLID = BrandGraphQLScalarType<'GraphQLID', string>
+export declare type GraphQLInt = BrandGraphQLScalarType<'GraphQLInt', number>
+export declare type GraphQLJson = BrandGraphQLScalarType<'Json', string>
+export declare type GraphQLLocalDateTime = BrandGraphQLScalarType<'LocalDateTime', string>
+export declare type GraphQLLocalTime = BrandGraphQLScalarType<'LocalTime', string>
+export declare type GraphQLString = BrandGraphQLScalarType<'GraphQLString', string>
 
 export declare interface GraphQLBaseScalars {
 	GraphQLBoolean: GraphQLBoolean
