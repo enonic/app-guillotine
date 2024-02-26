@@ -1,4 +1,6 @@
 import type {CreationCallbacks} from './CreationCallbacks'
+import type {Enums} from './Enums'
+import type {InputTypes} from './InputTypes'
 import type {Resolvers} from './Resolvers'
 import type {Types} from './Types'
 
@@ -25,10 +27,11 @@ export type {
 } from './Types'
 
 
+
 export declare interface Extensions {
 	creationCallbacks?: CreationCallbacks
-	// enums?: Record<string, ExtensionEnum>
-	// inputTypes?: Record<string, any>
+	enums?: Enums
+	inputTypes?: InputTypes
 	// interfaces?: Record<string, any>
 	resolvers?: Resolvers
 	// typeResolvers?: Record<string, any>

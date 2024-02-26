@@ -23,52 +23,30 @@ import {
 
 
 declare global {
+	interface GraphQLEnumTypesMap {
+		[enumTypeName: string]: unknown
+	}
+	interface GraphQLInputTypeFieldsMap {
+		[inputTypeName: string]: {
+			[inputTypeFieldName: string]: unknown // TODO GraphQLScalars | GraphQLReference<GraphQLInputType>
+		}
+	}
 	interface GraphQLInputTypesMap {
 		[inputTypeName: string]: unknown
+	}
+	interface GraphQLInterfaceTypesMap {
+		[interfaceTypeName: string]: unknown
+	}
+	interface GraphQLObjectTypeFieldsMap {
+		[objectTypeName: string]: {
+			[objectTypeFieldName: string]: unknown // TODO GraphQLScalars | GraphQLReference<GraphQLObjectType>
+		}
 	}
 	interface GraphQLObjectTypesMap {
 		[GuillotineBuiltinObjectTypeName.Content]: GuillotineContent
 		[GuillotineBuiltinObjectTypeName.media_Image]: Guillotinemedia_Image
 		[GuillotineBuiltinObjectTypeName.portal_Site]: Guillotineportal_Site
 		[typeName: string]: unknown
-	}
-	interface GraphQLObjectTypeFieldsMap {
-		// [typeName: string]: string[]
-		// [GuillotineObjectTypeName.Content]: {
-		// 	_id: NonNull<GraphQLID>
-		// 	_name: NonNull<GraphQLString>
-		// 	_path: NonNull<GraphQLString>
-		// 	//_references: GraphQLContent[]
-		// 	_score: GraphQLFloat
-		// 	creator: PrincipalKey
-		// 	modifier: PrincipalKey
-		// 	createdTime: GraphQLDateTime
-		// 	modifiedTime: GraphQLDateTime
-		// 	owner: PrincipalKey
-		// 	type: String
-		// 	contentType: ContentType
-		// 	displayName: String
-		// 	hasChildren: Boolean
-		// 	language: String
-		// 	valid: Boolean
-		// 	dataAsJson: ParsedJSON
-		// 	x: ExtraData
-		// 	xAsJson: ParsedJSON
-		// 	pageAsJson: ParsedJSON
-		// 	pageTemplate: Content
-		// 	components: [Component]
-		// 	attachments: [Attachment]
-		// 	publish: PublishInfo
-		// 	pageUrl: String
-		// 	site: portal_Site
-		// 	parent: Content
-		// 	children: [Content]
-		// 	childrenConnection: ContentConnection
-		// 	permissions: Permissions
-		// }
-		[typeName: string]: {
-			[fieldName: string]: unknown // TODO
-		}
 	}
 	// interface GraphQLScalarTypesMap {
 	// 	[GuillotineBuiltinScalarTypeName.Boolean]: GraphQLBoolean
@@ -82,6 +60,9 @@ declare global {
 	// 	[GuillotineBuiltinScalarTypeName.LocalTime]: GraphQLLocalTime
 	// 	[GuillotineBuiltinScalarTypeName.String]: GraphQLString
 	// }
+	interface GraphQLUnionTypesMap {
+		[unionTypeName: string]: unknown
+	}
 } // global
 
 
