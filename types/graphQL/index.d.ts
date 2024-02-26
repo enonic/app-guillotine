@@ -14,6 +14,14 @@ import type {
 } from '../Utils'
 import type {CreateDataFetcherResult} from './CreateDataFetcherResult'
 import type {
+	GraphQLEnumType,
+	GraphQLEnumTypeName,
+} from './EnumTypes'
+import type {
+	GraphQLInputType,
+	GraphQLInputTypeName,
+} from './InputTypes'
+import type {
 	GraphQLObjectType,
 	GraphQLObjectTypeName
 } from './ObjectTypes'
@@ -63,17 +71,49 @@ export declare type GraphQLNonNull<
 > = NonNull<GraphQLObjectType>
 
 export declare type GraphQLReference<
-	GraphQLObjectType extends ValueOf<GraphQLObjectTypesMap>
-> = Reference<GraphQLObjectType>
+	GraphQLEnumOrInputOrInterfaceOrObjectOrUnionType extends ValueOf<
+		GraphQLEnumTypesMap
+		& GraphQLInputTypesMap
+		& GraphQLInterfaceTypesMap
+		& GraphQLObjectTypesMap
+		& GraphQLUnionTypesMap
+	>
+> = Reference<GraphQLEnumOrInputOrInterfaceOrObjectOrUnionType>
 
+export declare type GraphQLEnumTypeReference<
+	GraphQLEnumType extends ValueOf<GraphQLEnumTypesMap>
+> = GraphQLReference<GraphQLEnumType>
+
+
+export declare type GraphQLInputTypeReference<
+	GraphQLInputType extends ValueOf<GraphQLInputTypesMap>
+> = GraphQLReference<GraphQLInputType>
+
+export declare type GraphQLObjectTypeReference<
+	GraphQLObjectType extends ValueOf<GraphQLObjectTypesMap>
+> = GraphQLReference<GraphQLObjectType>
+
+export declare type GraphQLType =
+	| GraphQLEnumType
+	| GraphQLInputType
+	| GraphQLObjectType
+	| GraphQLScalars
 
 export declare interface GraphQL
-	extends GraphQLScalars, GraphQLExtendedScalars, GraphQLCustomScalars
+	extends GraphQLScalars//, GraphQLExtendedScalars, GraphQLCustomScalars
 {
 	createDataFetcherResult: CreateDataFetcherResult
-	nonNull: (type: GraphQLObjectType) => GraphQLNonNull<GraphQLObjectType>
-	list: (type: GraphQLObjectType) => (typeof type)[]
-	reference: (typeKey: GraphQLObjectTypeName) => GraphQLReference<GraphQLObjectTypesMap[typeof typeKey]> // GraphQLReference<typeof typeKey>
+	nonNull: (type: GraphQLType) => GraphQLNonNull<typeof type>
+	list: (type: GraphQLType) => (typeof type)[]
+	reference: (typeName: string) =>
+		typeof typeName extends GraphQLEnumTypeName
+			? GraphQLEnumTypeReference<GraphQLEnumTypesMap[typeof typeName]>
+			: typeof typeName extends GraphQLInputTypeName
+				? GraphQLInputTypeReference<GraphQLInputTypesMap[typeof typeName]>
+				: typeof typeName extends GraphQLObjectTypeName
+					? GraphQLObjectTypeReference<GraphQLObjectTypesMap[typeof typeName]>
+					: 'reference(typeName) not registered in global GraphQLInputTypesMap or GraphQLObjectTypesMap'
+	// GraphQLReference<(GraphQLInputTypesMap & GraphQLObjectTypesMap)[typeof typeKey]> // GraphQLReference<typeof typeKey>
 }
 
 //──────────────────────────────────────────────────────────────────────────────

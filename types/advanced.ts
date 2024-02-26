@@ -38,6 +38,7 @@ export type {
 	GetSuperType,
 	GetTypeName,
 	GetReference,
+	NonNull,
 	Reference,
 } from './brand'
 

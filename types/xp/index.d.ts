@@ -1,4 +1,5 @@
 import type {Content} from '@enonic-types/core';
+import type {Site} from '@enonic-types/lib-content';
 
 
 export declare type MediaImageContent = Content<{
@@ -16,6 +17,4 @@ export declare type MediaImageContent = Content<{
 	tags?: string[]
 }, 'media:image'>;
 
-export declare type PortalSiteContent = Content<{
-	description?: string
-}, 'portal:site'>;
+export declare type PortalSiteContent<Config extends any = undefined> = Site<Config>;
