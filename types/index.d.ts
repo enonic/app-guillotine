@@ -43,22 +43,22 @@ export declare interface GraphQL {
 		localContext?: LocalContext<Out>
 		parentLocalContext?: LocalContext<In>
 	}
-	nonNull: (type: GraphQLType) => typeof type
-	list: (type: GraphQLType) => (typeof type)[]
+	nonNull: (type: GraphQLType) => GraphQLType
+	list: (type: GraphQLType) => GraphQLType[]
 	reference: (typeName: string) => GraphQLType
 }
 
-export declare type GraphQLArgs = Record<string, GraphQLType>
+export declare type GraphQLArgs = Record<string, GraphQLType | GraphQLType[]>
 
 export declare interface CreationCallback {
 	(params: {
 		addFields: (newFields: Record<string, {
 			args?: GraphQLArgs
-			type: GraphQLType
+			type: GraphQLType | GraphQLType[]
 		}>) => void
 		modifyFields: (existingFields: Record<string, {
 			args?: GraphQLArgs
-			type: GraphQLType
+			type: GraphQLType | GraphQLType[]
 		}>) => void
 		removeFields: (existingFields: string[]) => void
 		setDescription: (newDescription: string) => void
