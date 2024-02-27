@@ -122,6 +122,7 @@ export type {
 
 export type {
 	MediaImageContent,
+	PortalSiteContent,
 } from './xp'
 
 
