@@ -1,5 +1,5 @@
 // This is a value, do not add declare.
-export enum GuillotineBuiltinInputTypeName {
+export enum InputTypeName {
 	AggregationInput = 'AggregationInput',
 	BooleanDSLExpressionInput = 'BooleanDSLExpressionInput',
 	BooleanFilterInput = 'BooleanFilterInput',
@@ -40,4 +40,4 @@ export enum GuillotineBuiltinInputTypeName {
 	ValueCountAggregationInput = 'ValueCountAggregationInput',
 }
 
-export declare type GuillotineBuiltinInputTypeNames = keyof typeof GuillotineBuiltinInputTypeName
+export declare type InputTypeNames = keyof typeof InputTypeName

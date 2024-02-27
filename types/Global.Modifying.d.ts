@@ -14,12 +14,12 @@ import type {
 	GraphQLString,
 } from './graphQL/ScalarTypes';
 import {
-	GuillotineBuiltinObjectTypeName,
-	GuillotineContent,
-	Guillotinemedia_Image,
-	Guillotineportal_Site,
+	ObjectTypeName,
+	Content,
+	media_Image,
+	portal_Site,
 } from './guillotine/objectTypes';
-// import {GuillotineBuiltinScalarTypeName} from './guillotine/ScalarTypes';
+// import {ScalarTypeName} from './guillotine/ScalarTypes';
 
 
 declare global {
@@ -43,22 +43,22 @@ declare global {
 		}
 	}
 	interface GraphQLObjectTypesMap {
-		[GuillotineBuiltinObjectTypeName.Content]: GuillotineContent
-		[GuillotineBuiltinObjectTypeName.media_Image]: Guillotinemedia_Image
-		[GuillotineBuiltinObjectTypeName.portal_Site]: Guillotineportal_Site
+		[ObjectTypeName.Content]: Content
+		[ObjectTypeName.media_Image]: media_Image
+		[ObjectTypeName.portal_Site]: portal_Site
 		[typeName: string]: unknown
 	}
 	// interface GraphQLScalarTypesMap {
-	// 	[GuillotineBuiltinScalarTypeName.Boolean]: GraphQLBoolean
-	// 	[GuillotineBuiltinScalarTypeName.Date]: GraphQLDate
-	// 	[GuillotineBuiltinScalarTypeName.DateTime]: GraphQLDateTime
-	// 	[GuillotineBuiltinScalarTypeName.Float]: GraphQLFloat
-	// 	[GuillotineBuiltinScalarTypeName.ID]: GraphQLID
-	// 	[GuillotineBuiltinScalarTypeName.Json]: GraphQLJson
-	// 	[GuillotineBuiltinScalarTypeName.Int]: GraphQLInt
-	// 	[GuillotineBuiltinScalarTypeName.LocalDateTime]: GraphQLLocalDateTime
-	// 	[GuillotineBuiltinScalarTypeName.LocalTime]: GraphQLLocalTime
-	// 	[GuillotineBuiltinScalarTypeName.String]: GraphQLString
+	// 	[ScalarTypeName.Boolean]: GraphQLBoolean
+	// 	[ScalarTypeName.Date]: GraphQLDate
+	// 	[ScalarTypeName.DateTime]: GraphQLDateTime
+	// 	[ScalarTypeName.Float]: GraphQLFloat
+	// 	[ScalarTypeName.ID]: GraphQLID
+	// 	[ScalarTypeName.Json]: GraphQLJson
+	// 	[ScalarTypeName.Int]: GraphQLInt
+	// 	[ScalarTypeName.LocalDateTime]: GraphQLLocalDateTime
+	// 	[ScalarTypeName.LocalTime]: GraphQLLocalTime
+	// 	[ScalarTypeName.String]: GraphQLString
 	// }
 	interface GraphQLUnionTypesMap {
 		[unionTypeName: string]: unknown

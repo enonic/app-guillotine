@@ -1,5 +1,5 @@
 // This is a value, do not add declare.
-export enum GuillotineBuiltinScalarTypeName {
+export enum ScalarTypeName {
 	Boolean = 'Boolean',
 	Date = 'Date',
 	DateTime = 'DateTime',
@@ -12,4 +12,4 @@ export enum GuillotineBuiltinScalarTypeName {
 	String = 'String',
 }
 
-export declare type GuillotineBuiltinScalarTypeNames = keyof typeof GuillotineBuiltinScalarTypeName
+export declare type ScalarTypeNames = keyof typeof ScalarTypeName

@@ -31,7 +31,7 @@
     "typescript"
   ],
   "license": "Apache-2.0",
-  "main": "index.d.ts",
+  "main": "index.ts",
   "name": "@enonic-types/guillotine",
   "publishConfig": {
     "access": "public"
@@ -44,6 +44,6 @@
     "check": "npx tsc --noEmit",
     "test": "tsd ./"
   },
-  "types": "index.d.ts",
+  "types": "index.ts",
   "version": "0.0.1"
 }

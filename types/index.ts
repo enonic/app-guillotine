@@ -141,3 +141,14 @@ export declare interface Extensions {
 		types: GraphQLType[]
 	}>
 }
+
+
+export {
+	EnumTypeName,
+	FormItemType,
+	InputTypeName,
+	ObjectTypeName,
+	Permission,
+	PrincipalType,
+	ScalarTypeName,
+} from './guillotine'
