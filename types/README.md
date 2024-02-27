@@ -29,7 +29,7 @@ export const extensions = (graphQL: GraphQL): Extensions => {
       [ObjectTypeName.Content]: (params) => {
         params.addFields({
           [MY_FIELD_NAME]: {
-            type: graphQL.reference(MY_OBJECT_TYPE_NAME) // nullable
+            type: graphQL.reference(MY_OBJECT_TYPE_NAME)
           }
         });
       }
