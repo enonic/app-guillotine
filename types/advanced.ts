@@ -121,6 +121,7 @@ export type {
 } from './guillotine'
 
 export type {
+	BaseFolderContent,
 	MediaImageContent,
 	PortalSiteContent,
 } from './xp'

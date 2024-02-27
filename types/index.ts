@@ -143,6 +143,7 @@ export declare interface Extensions {
 
 
 export type {
+	BaseFolderContent,
 	MediaImageContent,
 	PortalSiteContent,
 } from './xp'
