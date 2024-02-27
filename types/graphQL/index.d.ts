@@ -3,7 +3,7 @@
 
 import type {
 	AnyGraphQLBrand,
-	GetSuperType,
+	GetReturnType,
 	NonNull,
 	Reference,
 } from '../brand'
@@ -22,14 +22,29 @@ import type {
 	GraphQLInputTypeName,
 } from './InputTypes'
 import type {
+	GraphQLInterfaceType,
+	GraphQLInterfaceTypeName,
+} from './InterfaceTypes'
+import type {
 	GraphQLObjectType,
 	GraphQLObjectTypeName
 } from './ObjectTypes'
+import type {
+	GraphQLEnumTypeReference,
+	GraphQLInputTypeReference,
+	GraphQLInterfaceTypeReference,
+	GraphQLObjectTypeReference,
+	GraphQLUnionTypeReference,
+} from './ReferenceTypes'
 import type {
 	GraphQLCustomScalars,
 	GraphQLExtendedScalars,
 	GraphQLScalars,
 } from './ScalarTypes'
+import type {
+	GraphQLUnionType,
+	GraphQLUnionTypeName
+} from './UnionTypes'
 
 
 export type {
@@ -38,15 +53,38 @@ export type {
 } from './CreateDataFetcherResult'
 
 export type {
+	GraphQLEnumType,
+	GraphQLEnumTypeName,
+} from './EnumTypes'
+
+export type {
 	GraphQLArgs,
 	GraphQLInputType,
 	GraphQLInputTypeName,
 } from './InputTypes'
 
 export type {
+	GraphQLInterfaceType,
+	GraphQLInterfaceTypeName,
+} from './InterfaceTypes'
+
+export type {
+	LocalContext,
+	LocalContextRecord,
+} from './LocalContext'
+
+export type {
 	GraphQLObjectType,
 	GraphQLObjectTypeName,
 } from './ObjectTypes'
+
+export type {
+	GraphQLEnumTypeReference,
+	GraphQLInputTypeReference,
+	GraphQLInterfaceTypeReference,
+	GraphQLObjectTypeReference,
+	GraphQLUnionTypeReference,
+} from './ReferenceTypes'
 
 export type {
 	GraphQLBaseScalars,
@@ -70,29 +108,6 @@ export declare type GraphQLNonNull<
 	GraphQLObjectType extends ValueOf<GraphQLObjectTypesMap>
 > = NonNull<GraphQLObjectType>
 
-export declare type GraphQLReference<
-	GraphQLEnumOrInputOrInterfaceOrObjectOrUnionType extends ValueOf<
-		GraphQLEnumTypesMap
-		& GraphQLInputTypesMap
-		& GraphQLInterfaceTypesMap
-		& GraphQLObjectTypesMap
-		& GraphQLUnionTypesMap
-	>
-> = Reference<GraphQLEnumOrInputOrInterfaceOrObjectOrUnionType>
-
-export declare type GraphQLEnumTypeReference<
-	GraphQLEnumType extends ValueOf<GraphQLEnumTypesMap>
-> = GraphQLReference<GraphQLEnumType>
-
-
-export declare type GraphQLInputTypeReference<
-	GraphQLInputType extends ValueOf<GraphQLInputTypesMap>
-> = GraphQLReference<GraphQLInputType>
-
-export declare type GraphQLObjectTypeReference<
-	GraphQLObjectType extends ValueOf<GraphQLObjectTypesMap>
-> = GraphQLReference<GraphQLObjectType>
-
 export declare type GraphQLType =
 	| GraphQLEnumType
 	| GraphQLInputType
@@ -110,9 +125,13 @@ export declare interface GraphQL
 			? GraphQLEnumTypeReference<GraphQLEnumTypesMap[typeof typeName]>
 			: typeof typeName extends GraphQLInputTypeName
 				? GraphQLInputTypeReference<GraphQLInputTypesMap[typeof typeName]>
-				: typeof typeName extends GraphQLObjectTypeName
-					? GraphQLObjectTypeReference<GraphQLObjectTypesMap[typeof typeName]>
-					: 'reference(typeName) not registered in global GraphQLInputTypesMap or GraphQLObjectTypesMap'
+				: typeof typeName extends GraphQLInterfaceTypeName
+					? GraphQLInterfaceTypeReference<GraphQLInterfaceTypesMap[typeof typeName]>
+					: typeof typeName extends GraphQLObjectTypeName
+						? GraphQLObjectTypeReference<GraphQLObjectTypesMap[typeof typeName]>
+						: typeof typeName extends GraphQLUnionTypeName
+							? GraphQLUnionTypeReference<GraphQLUnionTypesMap[typeof typeName]>
+							: 'reference(typeName) not registered in global GraphQLEnumTypesMap, GraphQLInputTypesMap, GraphQLInterfaceTypesMap, GraphQLObjectTypesMap or GraphQLUnionTypesMap'
 	// GraphQLReference<(GraphQLInputTypesMap & GraphQLObjectTypesMap)[typeof typeKey]> // GraphQLReference<typeof typeKey>
 }
 
@@ -135,15 +154,15 @@ export declare type GraphQLTypeToResolverResult<
 	Type // extends ValueOf<GraphQLObjectTypesMap>
 > =
 	Type extends AnyGraphQLBrand
-	? GetSuperType<Type>
+	? GetReturnType<Type>
 	: Type extends AnyGraphQLBrand[]
-		? GetSuperType<ArrayElement<Type>>[]
+		? GetReturnType<ArrayElement<Type>>[]
 		: Type extends Record<string,any>
 			? {
 				[fieldKey in keyof Type]: Type[fieldKey] extends AnyGraphQLBrand
-				? GetSuperType<Type[fieldKey]>
+				? GetReturnType<Type[fieldKey]>
 				: Type[fieldKey] extends AnyGraphQLBrand[]
-					? GetSuperType<ArrayElement<Type[fieldKey]>>[]
+					? GetReturnType<ArrayElement<Type[fieldKey]>>[]
 						: 'Record with unhandeled key'
 			}
 			: 'Unhandled type'

@@ -14,7 +14,11 @@
     "typescript": "^5.3.3"
   },
   "files": [
-    "**/*.ts"
+    "extensions",
+    "graphQL",
+    "guillotine",
+    "xp",
+    "*.ts"
   ],
   "homepage": "https://github.com/enonic/app-guillotine/tree/master#readme",
   "keywords": [

@@ -176,7 +176,7 @@ export declare type BrandGraphQLScalarType<
 	SCALAR_TYPE,          // 2. Super type
 	undefined,            // 3. Parsed JSON type
 	false,                // 4. Non-null
-	undefined,            // 5. Return type
+	SCALAR_TYPE,          // 5. Return type // Needed by GraphQLTypeToResolverResult
 	false                 // 6. Reference
 >
 
