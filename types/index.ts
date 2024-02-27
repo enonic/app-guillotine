@@ -62,8 +62,7 @@ export declare interface CreationCallback {
 		}>) => void
 		removeFields: (existingFields: string[]) => void
 		setDescription: (newDescription: string) => void
-		// TODO
-		// setInterfaces: (reWrittenInterfaces: (GraphQLInterfaceType|GraphQLReferenceType)[]) => void
+		setInterfaces: (reWrittenInterfaces: GraphQLType[]) => void
 	}): void
 }
 
