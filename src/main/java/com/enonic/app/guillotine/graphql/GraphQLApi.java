@@ -226,8 +226,11 @@ public class GraphQLApi
 
     private Map<String, MacroDescriptor> getRegisteredMacrosInSystem()
     {
-        return serviceFacadeSupplier.get().getMacroDescriptorService().getAll().stream().collect(
-            Collectors.toMap( MacroDescriptor::getName, Function.identity() ) );
+        Map<String, MacroDescriptor> result = new LinkedHashMap<>();
+        serviceFacadeSupplier.get().getMacroDescriptorService().getAll().forEach( macroDescriptor -> {
+            result.putIfAbsent( macroDescriptor.getName(), macroDescriptor );
+        } );
+        return result;
     }
 
 }
