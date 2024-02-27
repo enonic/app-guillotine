@@ -142,6 +142,12 @@ export declare interface Extensions {
 }
 
 
+export type {
+	MediaImageContent,
+	PortalSiteContent,
+} from './xp'
+
+
 export {
 	EnumTypeName,
 	FormItemType,
