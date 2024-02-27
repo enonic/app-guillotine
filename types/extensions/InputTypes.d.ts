@@ -1,18 +1,21 @@
 import type {
+	GraphQLEnumType,
+	GraphQLEnumTypeReference,
 	GraphQLInputType,
-	GraphQLInputTypeName
-} from '../graphQL/InputTypes'
-import type {GraphQLScalars} from '../graphQL/ScalarTypes'
-import type {GraphQLReference} from '../graphQL/'
-
-
-export declare type InputTypes = Record<
 	GraphQLInputTypeName,
-	{
-		description?: string
-		fields: Record<
-			string, // Could make a global InputTypeFieldsMap
-			GraphQLScalars | GraphQLReference<GraphQLInputType>
-		>
-	}
->
+	GraphQLInputTypeReference,
+	GraphQLScalars
+} from '../graphQL/'
+
+
+export declare interface InputType {
+	description?: string
+	fields: Record<
+		string, // Could make a global InputTypeFieldsMap
+		| GraphQLEnumTypeReference<GraphQLEnumType>
+		| GraphQLInputTypeReference<GraphQLInputType>
+		| GraphQLScalars
+	>
+}
+
+export declare type InputTypes = Record<GraphQLInputTypeName,InputType>
