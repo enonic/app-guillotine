@@ -1,5 +1,6 @@
 import type {GraphQLArgs} from '../graphQL/InputTypes'
 import type {GraphQLObjectType} from '../graphQL/ObjectTypes'
+import type {GraphQLInterfaceTypeReference} from '../graphQL/ReferenceTypes'
 import type {Field} from './Field'
 
 
@@ -9,8 +10,7 @@ export declare interface CreationCallback {
 		modifyFields: (existingFields: Record<string, Field>) => void
 		removeFields: (existingFields: string[]) => void
 		setDescription: (newDescription: string) => void
-		// TODO
-		// setInterfaces: (reWrittenInterfaces: (GraphQLInterfaceType|GraphQLReferenceType)[]) => void
+		setInterfaces: (reWrittenInterfaces: GraphQLInterfaceTypeReference[]) => void
 	}): void
 }
 
