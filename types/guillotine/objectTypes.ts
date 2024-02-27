@@ -1,12 +1,12 @@
-import type {Content} from '@enonic-types/core';
+import type {Content as CoreContent} from '@enonic-types/core';
 import type {
 	BrandGraphQLObjectType,
 	NonNull
 } from '../brand'
 import type {
-	GuillotineFormItemType,
-	GuillotinePermission,
-	GuillotinePrincipalType,
+	FormItemType,
+	Permission,
+	PrincipalType,
 } from './enumTypes'
 import type {
 	GraphQLBoolean,
@@ -25,7 +25,7 @@ import type {
 
 
 // This is a value, do not add declare.
-export enum GuillotineBuiltinObjectTypeName {
+export enum ObjectTypeName {
 	AccessControlEntry = 'AccessControlEntry',
 	Attachment = 'Attachment',
 	base_Folder = 'base_Folder',
@@ -122,17 +122,17 @@ export enum GuillotineBuiltinObjectTypeName {
 	XData_media_imageInfo_DataConfig = 'XData_media_imageInfo_DataConfig',
 }
 
-export declare type GuillotineBuiltinObjectTypeNames = keyof typeof GuillotineBuiltinObjectTypeName
+export declare type ObjectTypeNames = keyof typeof ObjectTypeName
 
 //──────────────────────────────────────────────────────────────────────────────
 
-export declare interface GuillotineAccessControlEntry {
-	principal: GuillotinePrincipalKey
-	allow: GuillotinePermission[] // enum
-	deny: GuillotinePermission[] // enum
+export declare interface AccessControlEntry {
+	principal: PrincipalKey
+	allow: Permission[] // enum
+	deny: Permission[] // enum
 }
 
-export declare interface GuillotineAttachment {
+export declare interface Attachment {
 	name: GraphQLString
 	label: GraphQLString
 	size: GraphQLInt
@@ -140,7 +140,7 @@ export declare interface GuillotineAttachment {
 	attachmentUrl: GraphQLString
 }
 
-export declare type GuillotineContent<
+export declare type Content<
 	Extensions extends Record<string, unknown> = Record<string, unknown>
 > = BrandGraphQLObjectType<
 	'Content',
@@ -148,49 +148,49 @@ export declare type GuillotineContent<
 		_id: NonNull<GraphQLID>
 		_name: NonNull<GraphQLString>
 		_path: NonNull<GraphQLString>
-		_references: GuillotineContent[]
+		_references: Content[]
 		_score: GraphQLFloat
-		attachments: GuillotineAttachment[]
-		children: GuillotineContent[]
-		childrenConnection: GuillotineContentConnection
-		components: GuillotineContent[]
-		contentType: GuillotineContentType
+		attachments: Attachment[]
+		children: Content[]
+		childrenConnection: ContentConnection
+		components: Content[]
+		contentType: ContentType
 		createdTime: GraphQLDateTime
-		creator: GuillotinePrincipalKey
+		creator: PrincipalKey
 		dataAsJson: GraphQLJson
 		displayName: GraphQLString
 		hasChildren: GraphQLBoolean
 		language: GraphQLString
 		modifiedTime: GraphQLDateTime
-		modifier: GuillotinePrincipalKey
-		owner: GuillotinePrincipalKey
+		modifier: PrincipalKey
+		owner: PrincipalKey
 		pageAsJson: GraphQLJson
-		pageTemplate: GuillotineContent
+		pageTemplate: Content
 		pageUrl: GraphQLString
-		parent: GuillotineContent
-		permissions: GuillotinePermissions
-		publish: GuillotinePublishInfo
-		site: Guillotineportal_Site
+		parent: Content
+		permissions: Permissions
+		publish: PublishInfo
+		site: portal_Site
 		type: GraphQLString
 		valid: GraphQLBoolean
-		x: GuillotineExtraData
+		x: ExtraData
 		xAsJson: GraphQLJson
 	} & Extensions,
-	Content
+	CoreContent
 >
 
-export declare interface GuillotineContentConnection {
+export declare interface ContentConnection {
 	totalCount: NonNull<GraphQLInt>
-	edges?: GuillotineContentEdge[]
-	pageInfo?: GuillotinePageInfo
+	edges?: ContentEdge[]
+	pageInfo?: PageInfo
 }
 
-export declare interface GuillotineContentEdge {
-	node: NonNull<GuillotineContent>
+export declare interface ContentEdge {
+	node: NonNull<Content>
 	cursor: NonNull<GraphQLString>
 }
 
-export declare interface GuillotineContentType {
+export declare interface ContentType {
 	name: GraphQLString
 	displayName: GraphQLString
 	description: GraphQLString
@@ -199,45 +199,45 @@ export declare interface GuillotineContentType {
 	final: GraphQLBoolean
 	allowChildContent: GraphQLBoolean
 	contentDisplayNameScript: GraphQLString
-	icon: GuillotineIcon
-	form: GuillotineFormItem[]
+	icon: Icon
+	form: FormItem[]
 	formAsJson: GraphQLJson
 }
 
-export declare interface GuillotineExtraData {
-	media: GuillotineXData_media_ApplicationConfig
-	base: GuillotineXData_base_ApplicationConfig
+export declare interface ExtraData {
+	media: XData_media_ApplicationConfig
+	base: XData_base_ApplicationConfig
 }
 
-export declare interface GuillotineFormItem {
-	formItemType: GuillotineFormItemType // enum
+export declare interface FormItem {
+	formItemType: FormItemType // enum
 	name: GraphQLString
 	label: GraphQLString
 }
 
-export declare interface GuillotineGeoPoint {
+export declare interface GeoPoint {
 	value: GraphQLString
 	latitude: GraphQLFloat
 	longitude: GraphQLFloat
 }
 
-export declare interface GuillotineIcon {
+export declare interface Icon {
 	mimeType: GraphQLString
 	modifiedTime: GraphQLString
 }
 
-export declare type Guillotinemedia_Image = BrandGraphQLObjectType<
+export declare type media_Image = BrandGraphQLObjectType<
 	'media_Image',
 	{
-		data: Guillotinemedia_Image_Data
+		data: media_Image_Data
 		imageUrl: GraphQLString
 		mediaUrl: GraphQLString
 	},
 	MediaImageContent
 >
 
-export declare interface Guillotinemedia_Image_Data {
-	media: GuillotineMediaUploader
+export declare interface media_Image_Data {
+	media: MediaUploader
 	caption: GraphQLString
 	altText: GraphQLString
 	artist: GraphQLString[]
@@ -245,68 +245,68 @@ export declare interface Guillotinemedia_Image_Data {
 	tags: GraphQLString[]
 }
 
-export declare interface GuillotineMediaFocalPoint {
+export declare interface MediaFocalPoint {
 	x: GraphQLFloat
 	y: GraphQLFloat
 }
 
-export declare interface GuillotineMediaUploader {
+export declare interface MediaUploader {
 	attachment: GraphQLString
-	focalPoint: GuillotineMediaFocalPoint
+	focalPoint: MediaFocalPoint
 }
 
-export declare interface GuillotinePageInfo {
+export declare interface PageInfo {
 	startCursor: NonNull<GraphQLString>
 	endCursor: NonNull<GraphQLString>
 	hasNext: NonNull<GraphQLBoolean>
 }
 
-export declare interface GuillotinePermissions {
+export declare interface Permissions {
 	inheritsPermissions: GraphQLBoolean
-	permissions: GuillotineAccessControlEntry[]
+	permissions: AccessControlEntry[]
 }
 
-export declare type Guillotineportal_Site = BrandGraphQLObjectType<
+export declare type portal_Site = BrandGraphQLObjectType<
 	'portal_Site',
 	{
-		data: Guillotineportal_Site_Data
+		data: portal_Site_Data
 	},
 	PortalSiteContent
 >
 
-export declare interface Guillotineportal_Site_Data {
+export declare interface portal_Site_Data {
 	description: GraphQLString
 }
 
-export declare interface GuillotinePrincipalKey {
+export declare interface PrincipalKey {
 	idProvider: GraphQLString
 	principalId: GraphQLString
-	type: GuillotinePrincipalType // enum
+	type: PrincipalType // enum
 	value: GraphQLString
 }
 
-export declare interface GuillotinePublishInfo {
+export declare interface PublishInfo {
 	from: GraphQLString
 	to: GraphQLString
 	first: GraphQLString
 }
 
-export declare interface GuillotineXData_base_ApplicationConfig {
-	gpsInfo: GuillotineXData_base_gpsInfo_DataConfig
+export declare interface XData_base_ApplicationConfig {
+	gpsInfo: XData_base_gpsInfo_DataConfig
 }
 
-export declare interface GuillotineXData_base_gpsInfo_DataConfig {
-	geoPoint: GuillotineGeoPoint
+export declare interface XData_base_gpsInfo_DataConfig {
+	geoPoint: GeoPoint
 	altitude: GraphQLString
 	direction: GraphQLString
 }
 
-export declare interface GuillotineXData_media_ApplicationConfig {
-	imageInfo: GuillotineXData_media_imageInfo_DataConfig
-	cameraInfo: GuillotineXData_media_cameraInfo_DataConfig
+export declare interface XData_media_ApplicationConfig {
+	imageInfo: XData_media_imageInfo_DataConfig
+	cameraInfo: XData_media_cameraInfo_DataConfig
 }
 
-export declare interface GuillotineXData_media_cameraInfo_DataConfig {
+export declare interface XData_media_cameraInfo_DataConfig {
 	date: GraphQLLocalDateTime
 	make: GraphQLString
 	model: GraphQLString
@@ -328,7 +328,7 @@ export declare interface GuillotineXData_media_cameraInfo_DataConfig {
 	orientation: GraphQLString
 }
 
-export declare interface GuillotineXData_media_imageInfo_DataConfig {
+export declare interface XData_media_imageInfo_DataConfig {
 	pixelSize: GraphQLString
 	imageHeight: GraphQLString
 	imageWidth: GraphQLString

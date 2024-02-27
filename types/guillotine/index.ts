@@ -1,55 +1,55 @@
 export type {
-	GuillotineBuiltinEnumTypeNames,
+	EnumTypeNames,
 } from './enumTypes'
 
 export type {
-	GuillotineBuiltinInputTypeNames,
+	InputTypeNames,
 } from './inputTypes'
 
 export type {
-	GuillotineBuiltinObjectTypeNames,
-	GuillotineAccessControlEntry,
-	GuillotineAttachment,
-	GuillotineContent,
-	GuillotineContentConnection,
-	GuillotineContentEdge,
-	GuillotineContentType,
-	GuillotineExtraData,
-	GuillotineFormItem,
-	GuillotineGeoPoint,
-	GuillotineIcon,
-	Guillotinemedia_Image,
-	Guillotinemedia_Image_Data,
-	GuillotineMediaFocalPoint,
-	GuillotineMediaUploader,
-	GuillotinePageInfo,
-	GuillotinePermissions,
-	Guillotineportal_Site,
-	Guillotineportal_Site_Data,
-	GuillotinePrincipalKey,
-	GuillotinePublishInfo,
-	GuillotineXData_base_ApplicationConfig,
-	GuillotineXData_base_gpsInfo_DataConfig,
-	GuillotineXData_media_ApplicationConfig,
-	GuillotineXData_media_cameraInfo_DataConfig,
-	GuillotineXData_media_imageInfo_DataConfig,
+	ObjectTypeNames,
+	AccessControlEntry,
+	Attachment,
+	Content,
+	ContentConnection,
+	ContentEdge,
+	ContentType,
+	ExtraData,
+	FormItem,
+	GeoPoint,
+	Icon,
+	media_Image,
+	media_Image_Data,
+	MediaFocalPoint,
+	MediaUploader,
+	PageInfo,
+	Permissions,
+	portal_Site,
+	portal_Site_Data,
+	PrincipalKey,
+	PublishInfo,
+	XData_base_ApplicationConfig,
+	XData_base_gpsInfo_DataConfig,
+	XData_media_ApplicationConfig,
+	XData_media_cameraInfo_DataConfig,
+	XData_media_imageInfo_DataConfig,
 } from './objectTypes'
 
 export type {
-	GuillotineBuiltinScalarTypeNames,
+	ScalarTypeNames,
 } from './scalarTypes'
 
 
 
 export {
-	GuillotineBuiltinEnumTypeName,
-	GuillotineFormItemType,
-	GuillotinePermission,
-	GuillotinePrincipalType,
+	EnumTypeName,
+	FormItemType,
+	Permission,
+	PrincipalType,
 } from './enumTypes'
 
-export {GuillotineBuiltinInputTypeName} from './inputTypes'
+export {InputTypeName} from './inputTypes'
 
-export {GuillotineBuiltinObjectTypeName} from './objectTypes'
+export {ObjectTypeName} from './objectTypes'
 
-export {GuillotineBuiltinScalarTypeName} from './scalarTypes'
+export {ScalarTypeName} from './scalarTypes'
