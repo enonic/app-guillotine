@@ -42,6 +42,7 @@
   },
   "scripts": {
     "check": "npx tsc --noEmit",
+    "prepublishOnly": "node setversion.js",
     "test": "tsd ./"
   },
   "types": "index.ts",
