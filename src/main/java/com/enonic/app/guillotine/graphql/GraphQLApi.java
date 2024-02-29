@@ -1,12 +1,9 @@
 package com.enonic.app.guillotine.graphql;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -19,14 +16,15 @@ import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
-import graphql.schema.GraphQLType;
 import graphql.schema.SchemaTransformer;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.factory.HeadlessCmsTypeFactory;
 import com.enonic.app.guillotine.graphql.factory.TypeFactory;
+import com.enonic.app.guillotine.graphql.fetchers.DynamicDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GuillotineDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.GraphQLHelper;
+import com.enonic.app.guillotine.graphql.transformer.ContextualFieldResolver;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionGraphQLTypeVisitor;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionsExtractorService;
 import com.enonic.app.guillotine.graphql.transformer.SchemaExtensions;
@@ -90,7 +88,7 @@ public class GraphQLApi
         graphQLSchema =
             SchemaTransformer.transformSchema( graphQLSchema, new ExtensionGraphQLTypeVisitor( typesRegister.getCreationCallbacks() ) );
 
-        final GraphQLCodeRegistry codeRegistry = registerDataFetchers( graphQLSchema, typesRegister );
+        final GraphQLCodeRegistry codeRegistry = registerDataFetchers( graphQLSchema, typesRegister, schemaExtensions );
 
         return graphQLSchema.transform( builder -> builder.codeRegistry( codeRegistry ) );
     }
@@ -100,63 +98,50 @@ public class GraphQLApi
         return graphQLSchema.getCodeRegistry().transform( builder -> typesRegister.getTypeResolvers().forEach( builder::typeResolver ) );
     }
 
-    private GraphQLCodeRegistry registerDataFetchers( GraphQLSchema graphQLSchema, GraphQLTypesRegister typesRegister )
+    private GraphQLCodeRegistry registerDataFetchers( GraphQLSchema graphQLSchema, GraphQLTypesRegister typesRegister,
+                                                      SchemaExtensions schemaExtensions )
     {
         return graphQLSchema.getCodeRegistry().transform( builder -> {
-
-            Map<String, GraphQLInterfaceType> interfaces = new HashMap<>();
-            for ( GraphQLType type : typesRegister.getAdditionalTypes() )
+            // register the data fetchers for all defined types
+            for ( String typeName : typesRegister.getResolvers().keySet() )
             {
-                if ( type instanceof GraphQLInterfaceType )
-                {
-                    GraphQLInterfaceType interfaceType = (GraphQLInterfaceType) type;
-                    interfaces.put( interfaceType.getName(), interfaceType );
-                }
-            }
-
-            Map<String, List<GraphQLObjectType>> implementations = new LinkedHashMap<>();
-            for ( GraphQLInterfaceType interfaceType : interfaces.values() )
-            {
-                implementations.put( interfaceType.getName(), graphQLSchema.getImplementations( interfaceType ) );
-            }
-
-            Set<String> processedTypes = new HashSet<>();
-
-            for ( String interfaceTypeName : interfaces.keySet() )
-            {
-                Map<String, DataFetcher<?>> fieldResolvers = typesRegister.getResolvers().get( interfaceTypeName );
+                Map<String, DataFetcher<?>> fieldResolvers = typesRegister.getResolvers().get( typeName );
                 if ( fieldResolvers != null )
                 {
                     fieldResolvers.forEach(
-                        ( fieldName, dataFetcher ) -> builder.dataFetcher( FieldCoordinates.coordinates( interfaceTypeName, fieldName ),
+                        ( fieldName, dataFetcher ) -> builder.dataFetcher( FieldCoordinates.coordinates( typeName, fieldName ),
                                                                            dataFetcher ) );
-
-                    if ( implementations.get( interfaceTypeName ) != null )
-                    {
-                        implementations.get( interfaceTypeName ).forEach( implementation -> fieldResolvers.forEach(
-                            ( fieldName, fieldResolver ) -> builder.dataFetcher(
-                                FieldCoordinates.coordinates( implementation.getName(), fieldName ), fieldResolvers.get( fieldName ) ) ) );
-                    }
                 }
-
-                processedTypes.add( interfaceTypeName );
             }
 
-            for ( String typeName : typesRegister.getResolvers().keySet() )
+            // If the dataFetcher has been overridden for an interface, it should be overridden for all implementations,
+            // except when it has also been overridden for a specific implementation.
+            List<GraphQLInterfaceType> interfaces =
+                typesRegister.getAdditionalTypes().stream().filter( type -> type instanceof GraphQLInterfaceType ).map(
+                    type -> (GraphQLInterfaceType) type ).collect( Collectors.toList() );
+
+            for ( GraphQLInterfaceType interfaceType : interfaces )
             {
-                if ( !processedTypes.contains( typeName ) )
+                Map<String, ContextualFieldResolver> interfaceDataFetchers = schemaExtensions.getResolvers().get( interfaceType.getName() );
+
+                List<GraphQLObjectType> implementations = graphQLSchema.getImplementations( interfaceType );
+
+                if ( interfaceDataFetchers != null && implementations != null )
                 {
-                    Map<String, DataFetcher<?>> fieldResolvers = typesRegister.getResolvers().get( typeName );
-                    if ( fieldResolvers != null )
-                    {
-                        fieldResolvers.forEach(
-                            ( fieldName, dataFetcher ) -> builder.dataFetcher( FieldCoordinates.coordinates( typeName, fieldName ),
-                                                                               dataFetcher ) );
-                    }
+                    implementations.forEach( implementation -> interfaceDataFetchers.forEach( ( fieldName, fieldResolver ) -> {
+                        Map<String, ContextualFieldResolver> implementationDataFetchers =
+                            schemaExtensions.getResolvers().get( implementation.getName() );
+
+                        if ( ( implementationDataFetchers == null || !implementationDataFetchers.containsKey( fieldName ) ) &&
+                            interfaceDataFetchers.containsKey( fieldName ) )
+                        {
+                            builder.dataFetcher( FieldCoordinates.coordinates( implementation.getName(), fieldName ),
+                                                 new DynamicDataFetcher( fieldResolver ) );
+                        }
+                    } ) );
                 }
             }
         } );
-
     }
 
     private GraphQLSchema createBaseGraphQLSchema()
