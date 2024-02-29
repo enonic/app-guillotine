@@ -2,7 +2,7 @@ exports.extensions = function (graphQL) {
     return {
         inputTypes: {
             BooksInputFilter: {
-                description: "Books Input Filter",
+                description: 'Books Input Filter',
                 fields: {
                     name: graphQL.GraphQLString,
                     startsWith: graphQL.GraphQLString,
@@ -14,30 +14,33 @@ exports.extensions = function (graphQL) {
         },
         enums: {
             CustomEnum: {
-                description: "Custom Enum",
+                description: 'Custom Enum',
                 values: {
-                    a: "A",
-                    b: "B",
-                    c: "C"
+                    a: 'A',
+                    b: 'B',
+                    c: 'C'
                 }
             }
         },
         interfaces: {
             CustomInterface: {
-                description: "Custom Interface",
+                description: 'Custom Interface',
                 fields: {
                     name: {
                         type: graphQL.GraphQLString,
                         args: {
                             filter: graphQL.reference('BooksInputFilter')
                         }
-                    }
+                    },
+                    description: {
+                        type: graphQL.GraphQLString,
+                    },
                 },
             }
         },
         unions: {
             CustomUnion: {
-                description: "Custom Union",
+                description: 'Custom Union',
                 types: [graphQL.reference('GoogleBooks'), graphQL.reference('GoogleBooksAuthor')],
             }
         },
@@ -86,6 +89,21 @@ exports.extensions = function (graphQL) {
                     },
                 }
             },
+            DefaultCustomInterfaceImpl: {
+                description: 'DefaultCustomInterface Implementation',
+                interfaces: [graphQL.reference('CustomInterface')],
+                fields: {
+                    name: {
+                        type: graphQL.GraphQLString,
+                        args: {
+                            filter: graphQL.reference('BooksInputFilter')
+                        }
+                    },
+                    description: {
+                        type: graphQL.GraphQLString,
+                    },
+                }
+            },
             CustomInterfaceImpl: {
                 description: 'CustomInterface Implementation',
                 interfaces: [graphQL.reference('CustomInterface')],
@@ -96,9 +114,12 @@ exports.extensions = function (graphQL) {
                             filter: graphQL.reference('BooksInputFilter')
                         }
                     },
+                    description: {
+                        type: graphQL.GraphQLString,
+                    },
                     extraField: {
                         type: graphQL.GraphQLString,
-                    }
+                    },
                 }
             }
         },
@@ -115,7 +136,7 @@ exports.extensions = function (graphQL) {
                         type: graphQL.reference('CustomUnion'),
                     },
                     testInterface: {
-                        type: graphQL.reference('CustomInterface')
+                        type: graphQL.list(graphQL.reference('CustomInterface')),
                     },
                     testLocalContext: {
                         type: graphQL.reference('ParentType'),
@@ -161,20 +182,20 @@ exports.extensions = function (graphQL) {
                     });
                 },
                 customField: function (env) {
-                    return ["Value 1", "Value 2"];
+                    return ['Value 1', 'Value 2'];
                 },
                 googleBooks: function (env) {
                     return [{
-                        title: "Title 1",
-                        description: "Description 1",
+                        title: 'Title 1',
+                        description: 'Description 1',
                         author: {
-                            name: "Author 1"
+                            name: 'Author 1'
                         }
                     }, {
-                        title: "Title 2",
-                        description: "Description 2",
+                        title: 'Title 2',
+                        description: 'Description 2',
                         author: {
-                            name: "Author 2"
+                            name: 'Author 2'
                         }
                     }]
                 },
@@ -184,10 +205,17 @@ exports.extensions = function (graphQL) {
                     }
                 },
                 testInterface: function (env) {
-                    return {
-                        name: "First Name",
-                        extraField: "Value",
-                    }
+                    return [
+                        {
+                            name: 'Name 1',
+                            extraField: 'Value',
+                            description: 'Description'
+                        },
+                        {
+                            name: 'Name 2',
+                            description: 'Brief Description'
+                        }
+                    ]
                 }
             },
             GoogleBooksAuthor: {
@@ -196,14 +224,22 @@ exports.extensions = function (graphQL) {
                 }
             },
             CustomInterface: {
-                name: function (env) {
-                    return 'No Name';
-                }
+                description: function (env) {
+                    return env.source.description + ' - CustomInterface';
+                },
             },
+            CustomInterfaceImpl: {
+                description: function (env) {
+                    return env.source.description + ' - CustomInterfaceImpl';
+                }
+            }
         },
         typeResolvers: {
             CustomInterface: function (obj) {
-                return 'CustomInterfaceImpl';
+                if (obj.extraField) {
+                    return 'CustomInterfaceImpl';
+                }
+                return 'DefaultCustomInterfaceImpl';
             },
             CustomUnion: function (obj) {
                 if (obj.title) {
