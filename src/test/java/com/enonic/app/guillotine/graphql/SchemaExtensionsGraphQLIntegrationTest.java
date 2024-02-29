@@ -14,6 +14,7 @@ import com.enonic.app.guillotine.graphql.helper.CastHelper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SchemaExtensionsGraphQLIntegrationTest
@@ -56,9 +57,21 @@ public class SchemaExtensionsGraphQLIntegrationTest
         assertEquals( "Author 2", author_2.get( "name" ) );
 
         // verify testInterface field
-        Map<String, Object> testInterfaceField = CastHelper.cast( data.get( "testInterface" ) );
-        assertEquals( "Value", testInterfaceField.get( "extraField" ) );
-        assertEquals( "No Name", testInterfaceField.get( "name" ) );
+        List<Map<String, Object>> testInterfaceField = CastHelper.cast( data.get( "testInterface" ) );
+
+        assertEquals( 2, testInterfaceField.size() );
+
+        Map<String, Object> interface_1 = testInterfaceField.get( 0 );
+
+        assertEquals( "Name 1", interface_1.get( "name" ) );
+        assertEquals( "Value", interface_1.get( "extraField" ) );
+        assertEquals( "Description - CustomInterfaceImpl", interface_1.get( "description" ) );
+
+        Map<String, Object> interface_2 = testInterfaceField.get( 1 );
+
+        assertEquals( "Name 2", interface_2.get( "name" ) );
+        assertNull( interface_2.get( "extraField" ) );
+        assertEquals( "Brief Description - CustomInterface", interface_2.get( "description" ) );
 
         // verify testUnion field
         Map<String, Object> testUnionField = CastHelper.cast( data.get( "testUnion" ) );
