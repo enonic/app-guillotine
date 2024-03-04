@@ -6,20 +6,22 @@ import type {LocalContext} from '../graphQL/LocalContext'
 
 
 export declare interface DataFetchingEnvironment<
-	Args extends Record<string, any> = Record<string, any>,
-	Source extends unknown = unknown,
+	ARGS extends Record<string, any> = Record<string, any>,
+	LOCAL_CONTEXT extends LocalContextRecord = LocalContextRecord,
+	SOURCE extends unknown = unknown,
 > {
-	args: Args
-	localContext: LocalContext
-	source: Source
+	args: ARGS
+	localContext: LocalContext<LOCAL_CONTEXT>
+	source: SOURCE
 }
 
 export declare interface Resolver<
-	Args extends Record<string, any> = Record<string, any>,
-	Source extends unknown = unknown,
-	Return = any
+	ARGS extends Record<string, any> = Record<string, any>,
+	LOCAL_CONTEXT extends LocalContextRecord = LocalContextRecord,
+	SOURCE extends unknown = unknown,
+	RETURN_TYPE = any
 > {
-	(env: DataFetchingEnvironment<Args,Source>): Return
+	(env: DataFetchingEnvironment<ARGS,LOCAL_CONTEXT,SOURCE>): RETURN_TYPE
 }
 
 export declare type Resolvers = PartialRecord<
