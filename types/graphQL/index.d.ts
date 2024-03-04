@@ -12,7 +12,11 @@ import type {
 	PartialRecord,
 	ValueOf,
 } from '../Utils'
-import type {CreateDataFetcherResult} from './CreateDataFetcherResult'
+import type {
+	CreateDataFetcherResult,
+	CreateDataFetcherResultParams,
+	DataFetcherResult,
+} from './CreateDataFetcherResult'
 import type {
 	GraphQLEnumType,
 	GraphQLEnumTypeName,

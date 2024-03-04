@@ -1,6 +1,8 @@
 // Make sure ScriptValue type exists in global scope:
 /// <reference types="@enonic-types/global"/>
 
+import type {CreateDataFetcherResult} from './graphQL/CreateDataFetcherResult'
+import type {Resolver} from './extensions/Resolvers'
 
 declare const __name: unique symbol
 
@@ -10,6 +12,25 @@ declare type BrandGraphQLScalarType<
 > = SCALAR_TYPE & {
 	[__name]: GQL_SCALAR_TYPE_NAME
 }
+
+
+export type {
+	CreateDataFetcherResult,
+	CreateDataFetcherResultParams,
+	DataFetcherResult,
+} from './graphQL/CreateDataFetcherResult'
+
+export type {
+	LocalContext,
+	LocalContextRecord,
+} from './graphQL/LocalContext'
+
+export type {
+	DataFetchingEnvironment,
+	Resolver,
+	// Resolvers, // NOTE: This is not exported because it the advanced version of Resolvers
+} from './extensions/Resolvers'
+
 
 export declare type GraphQLBoolean = BrandGraphQLScalarType<'GraphQLBoolean', boolean>
 export declare type GraphQLDate = BrandGraphQLScalarType<'Date', string>
@@ -35,14 +56,7 @@ export declare interface GraphQL {
 	Json: GraphQLJson
 	LocalDateTime: GraphQLLocalDateTime
 	LocalTime: GraphQLLocalTime
-	createDataFetcherResult: <
-	In extends LocalContextRecord = LocalContext,
-	Out extends LocalContextRecord = LocalContext
-> () => {
-		data: ScriptValue // NOTE: ScriptValue type is expected to exist in global scope
-		localContext?: LocalContext<Out>
-		parentLocalContext?: LocalContext<In>
-	}
+	createDataFetcherResult: CreateDataFetcherResult
 	nonNull: (type: GraphQLType) => GraphQLType
 	list: (type: GraphQLType) => GraphQLType[]
 	reference: (typeName: string) => GraphQLType
@@ -69,33 +83,6 @@ export declare interface CreationCallback {
 export declare interface Enum {
 	description: string
 	values: Record<string, string>
-}
-
-export declare type LocalContextRecord = Record<string,string|number|boolean|null>
-
-export declare type LocalContext<
-	T extends LocalContextRecord = LocalContextRecord
-> = {
-	branch: string
-	project: string
-	siteKey?: string
-} & T
-
-export declare interface DataFetchingEnvironment<
-	Args extends Record<string, any> = Record<string, any>,
-	Source extends unknown = unknown,
-> {
-	args: Args
-	localContext: LocalContext
-	source: Source
-}
-
-export declare interface Resolver<
-	Args extends Record<string, any> = Record<string, any>,
-	Source extends unknown = unknown,
-	Return = any
-> {
-	(env: DataFetchingEnvironment<Args,Source>): Return
 }
 
 export declare interface Extensions {
