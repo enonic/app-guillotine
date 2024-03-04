@@ -14,7 +14,6 @@ import graphql.schema.GraphQLTypeReference;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
-import com.enonic.app.guillotine.graphql.fetchers.GetAsJsonWithoutContentIdDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentUrlByNameDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetFieldAsJsonDataFetcher;
 
@@ -107,7 +106,7 @@ public class GenericTypesFactory
         GraphQLObjectType outputObject = newObject( context.uniqueName( "SiteConfigurator" ), "Site configurator.", fields );
         context.registerType( outputObject.getName(), outputObject );
 
-        context.registerDataFetcher( outputObject.getName(), "configAsJson", new GetAsJsonWithoutContentIdDataFetcher( "config" ) );
+        context.registerDataFetcher( outputObject.getName(), "configAsJson", new GetFieldAsJsonDataFetcher( "config" ) );
     }
 
     private void createPublishInfoType()
@@ -172,7 +171,7 @@ public class GenericTypesFactory
         GraphQLObjectType outputObject = newObject( context.uniqueName( "ContentType" ), "Content type.", fields );
         context.registerType( outputObject.getName(), outputObject );
 
-        context.registerDataFetcher( outputObject.getName(), "formAsJson", new GetAsJsonWithoutContentIdDataFetcher( "form" ) );
+        context.registerDataFetcher( outputObject.getName(), "formAsJson", new GetFieldAsJsonDataFetcher( "form" ) );
     }
 
     private void createImageStyleType()
@@ -264,6 +263,6 @@ public class GenericTypesFactory
         GraphQLObjectType outputObject = newObject( context.uniqueName( "RichText" ), "RichText type.", fields );
         context.registerType( outputObject.getName(), outputObject );
 
-        context.registerDataFetcher( outputObject.getName(), "macros", new GetAsJsonWithoutContentIdDataFetcher( "macrosAsJson" ) );
+		context.registerDataFetcher( outputObject.getName(), "macros", new GetFieldAsJsonDataFetcher( "macrosAsJson" ) );
     }
 }
