@@ -7,7 +7,7 @@ The Guillotine API is now Global, meaning the schema will include types and exte
 
 == Subscriptions
 
-Due to limited interest and use, `Subscriptions` have been removed from Guillotine 7. 
+Due to limited interest and use, `Subscriptions` have been removed from Guillotine 7.
 
 Guillotine 7 does not provide a way to add custom subscriptions at the moment. If you need subscriptions, this will require you to build a custom API, consider using the Guillotine 6 code as a foundation.
 
@@ -44,11 +44,15 @@ The `params` argument of URL field (i,e, pageUrl, imageUrl, attachmentUrl and me
 }
 ----
 
+== Site Configuration
+
+It is no longer possible to obtain the `siteConfig` from the `dataAsJson` and `site` fields of the `Content` type, as well as from the `dataAsJson` field of the `portal_Site` type. If you need to retrieve the site configuration, please use the `getSite` or `getSiteConfig` functions from the https://developer.enonic.com/docs/xp/stable/api/lib-content#getsiteconfig[Content Lib].
+
 == Guillotine library
 
 Guillotine 7 now supports <<extending#, dynamically extending and augmenting of the API>>. As a result the Guillotine library has been discontinued.
 
-If you have been using the Guillotine library, and want to keep similar funcitonality with v7, you will have to migrate to the new way of extending.
+If you have been using the Guillotine library, and want to keep similar functionality with v7, you will have to migrate to the new way of extending.
 
 Legacy options like `allowPaths` and `subscriptionEventTypes` are no longer supported either.
 
