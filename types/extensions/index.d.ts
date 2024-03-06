@@ -32,7 +32,10 @@ export type {
 } from './InputTypes'
 
 export type {DataFetchingEnvironment} from './DataFetchingEnvironment'
-export type {Resolver} from './Resolver'
+export type {
+	AnyResolver,
+	Resolver
+} from './Resolver'
 export type {Resolvers} from './Resolvers'
 
 export type {
