@@ -2,7 +2,7 @@
 /// <reference types="@enonic-types/global"/>
 
 import type {CreateDataFetcherResult} from './graphQL/CreateDataFetcherResult'
-import type {Resolver} from './extensions/Resolvers'
+import type {Resolver} from './extensions/Resolver'
 
 declare const __name: unique symbol
 
@@ -25,11 +25,8 @@ export type {
 	LocalContextRecord,
 } from './graphQL/LocalContext'
 
-export type {
-	DataFetchingEnvironment,
-	Resolver,
-	// Resolvers, // NOTE: This is not exported because it the advanced version of Resolvers
-} from './extensions/Resolvers'
+export type {DataFetchingEnvironment} from './extensions/DataFetchingEnvironment'
+export type {Resolver} from './extensions/Resolver'
 
 
 export declare type GraphQLBoolean = BrandGraphQLScalarType<'GraphQLBoolean', boolean>
@@ -64,50 +61,70 @@ export declare interface GraphQL {
 
 export declare type GraphQLArgs = Record<string, GraphQLType | GraphQLType[]>
 
+export declare interface Field {
+	type: GraphQLType | GraphQLType[]
+}
+
+export declare type Fields = Record<string, Field>
+
+export declare interface FieldWithOptionalArgs extends Field {
+	args?: GraphQLArgs
+}
+
+export declare type FieldsWithOptionalArgs = Record<string, FieldWithOptionalArgs>
+
 export declare interface CreationCallback {
 	(params: {
-		addFields: (newFields: Record<string, {
-			args?: GraphQLArgs
-			type: GraphQLType | GraphQLType[]
-		}>) => void
-		modifyFields: (existingFields: Record<string, {
-			args?: GraphQLArgs
-			type: GraphQLType | GraphQLType[]
-		}>) => void
+		addFields: (newFields: FieldsWithOptionalArgs) => void
+		modifyFields: (existingFields: FieldsWithOptionalArgs) => void
 		removeFields: (existingFields: string[]) => void
 		setDescription: (newDescription: string) => void
 		setInterfaces: (reWrittenInterfaces: GraphQLType[]) => void
 	}): void
 }
 
+export declare type CreationCallbacks = Record<string, CreationCallback>
+
 export declare interface Enum {
 	description: string
 	values: Record<string, string>
 }
 
+export declare type Enums = Record<string, Enum>
+
+export declare interface Type {
+	description: string
+	fields: Fields
+}
+
+export declare type Types = Record<string, Type>
+
+export declare interface InputType {
+	description?: string
+	fields: Fields
+}
+
+export declare type InputTypes = Record<string, InputType>
+
+export declare interface Interface {
+	description: string
+	fields: FieldsWithOptionalArgs
+}
+
+export declare type Interfaces = Record<string, Interface>
+
+export declare interface Union {
+	description: string
+	types: GraphQLType[]
+}
+
+export declare type Unions = Record<string, Union>
+
 export declare interface Extensions {
-	creationCallbacks?: Record<string, CreationCallback>
-	enums?: Record<
-		string,
-		Enum
-	>
-	inputTypes?: Record<
-		string,
-		{
-			description?: string
-			fields: Record<
-				string,
-				GraphQLType | GraphQLType[]
-			>
-		}
-	>
-	interfaces?: Record<string, {
-		description: string
-		fields: Record<string, {
-			args?: GraphQLArgs
-			type: GraphQLType | GraphQLType[]
-		}>
-	}>
+	creationCallbacks?: CreationCallbacks
+	enums?: Enums
+	inputTypes?: InputTypes
+	interfaces?: Interfaces
 	resolvers?: Record<
 		string,
 		Record<
@@ -116,16 +133,8 @@ export declare interface Extensions {
 		>
 	>
 	typeResolvers?: Record<string, (param: any) => string>
-	types?: Record<string, {
-		description: string
-		fields: Record<string, {
-			type: GraphQLType | GraphQLType[]
-		}>
-	}>
-	unions?: Record<string, {
-		description: string
-		types: GraphQLType[]
-	}>
+	types?: Types
+	unions?: Unions
 }
 
 

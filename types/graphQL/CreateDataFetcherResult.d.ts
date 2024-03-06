@@ -47,7 +47,7 @@ export declare type CreateDataFetcherResult = <
 >(params: CreateDataFetcherResultParams<
 	DATA,
 	LOCAL_CONTEXT,
-	PARENT_LOCAL_CONTEXT,
+	PARENT_LOCAL_CONTEXT
 >) => DataFetcherResult<
 	DATA,
 	LocalContext<PARENT_LOCAL_CONTEXT & LOCAL_CONTEXT>

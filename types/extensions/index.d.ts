@@ -18,16 +18,22 @@ export type {
 	Enums,
 } from './Enums'
 
+// TODO There are different versions of Fields: CreationCallback, InputType, InterfaceType and Type
+// export type {
+// 	Field,
+// 	Fields,
+// 	FieldWithOptionalArgs,
+// 	FieldsWithOptionalArgs,
+// }
+
 export type {
 	InputType,
 	InputTypes,
 } from './InputTypes'
 
-export type {
-	DataFetchingEnvironment,
-	Resolver,
-	Resolvers,
-} from './Resolvers'
+export type {DataFetchingEnvironment} from './DataFetchingEnvironment'
+export type {Resolver} from './Resolver'
+export type {Resolvers} from './Resolvers'
 
 export type {
 	Type,

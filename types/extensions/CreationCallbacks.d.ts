@@ -1,13 +1,13 @@
 import type {GraphQLArgs} from '../graphQL/InputTypes'
 import type {GraphQLObjectType} from '../graphQL/ObjectTypes'
 import type {GraphQLInterfaceTypeReference} from '../graphQL/ReferenceTypes'
-import type {Field} from './Field'
+import type {FieldsWithOptionalArgs} from './Field'
 
 
 export declare interface CreationCallback {
 	(params: {
-		addFields: (newFields: Record<string, Field>) => void
-		modifyFields: (existingFields: Record<string, Field>) => void
+		addFields: (newFields: FieldsWithOptionalArgs) => void
+		modifyFields: (existingFields: FieldsWithOptionalArgs) => void
 		removeFields: (existingFields: string[]) => void
 		setDescription: (newDescription: string) => void
 		setInterfaces: (reWrittenInterfaces: GraphQLInterfaceTypeReference[]) => void

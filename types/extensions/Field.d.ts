@@ -4,8 +4,7 @@ import type {GraphQLObjectTypeReference} from '../graphQL/ReferenceTypes'
 import type {GraphQLScalars} from '../graphQL/ScalarTypes'
 
 
-export interface Field {
-	args?: GraphQLArgs
+export declare interface Field {
 	type:
 		| GraphQLScalars
 		| GraphQLObjectType
@@ -13,3 +12,11 @@ export interface Field {
 		// | GraphQLEnumType doesn't make sense here?
 		// | GraphQLInputType doesn't make sense here.
 }
+
+export declare type Fields = Record<string, Field>
+
+export declare interface FieldWithOptionalArgs extends Field {
+	args?: GraphQLArgs
+}
+
+export declare type FieldsWithOptionalArgs = Record<string, FieldWithOptionalArgs>

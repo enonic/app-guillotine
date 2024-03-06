@@ -3,12 +3,12 @@ import type {
 	GraphQLInterfaceTypeReference,
 	GraphQLObjectType,
 } from '../graphQL'
-import type {Field} from './Field'
+import type {Fields} from './Field'
 
 
 export declare interface Type {
 	description: string
-	fields: Record<string, Field>
+	fields: Fields
 	interfaces: GraphQLInterfaceTypeReference<GraphQLInterfaceType>[]
 }
 
