@@ -18,4 +18,6 @@ export declare type PartialRecord<K extends keyof any, T> = {
 	[P in K]?: T
 }
 
+type RecordValueType<T> = T extends Record<string, infer U> ? U : never;
+
 export declare type ValueOf<T> = T[keyof T]
