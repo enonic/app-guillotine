@@ -62,21 +62,16 @@ export declare interface GraphQL {
 export declare type GraphQLArgs = Record<string, GraphQLType | GraphQLType[]>
 
 export declare interface Field {
+	args?: GraphQLArgs
 	type: GraphQLType | GraphQLType[]
 }
 
 export declare type Fields = Record<string, Field>
 
-export declare interface FieldWithOptionalArgs extends Field {
-	args?: GraphQLArgs
-}
-
-export declare type FieldsWithOptionalArgs = Record<string, FieldWithOptionalArgs>
-
 export declare interface CreationCallback {
 	(params: {
-		addFields: (newFields: FieldsWithOptionalArgs) => void
-		modifyFields: (existingFields: FieldsWithOptionalArgs) => void
+		addFields: (newFields: Fields) => void
+		modifyFields: (existingFields: Fields) => void
 		removeFields: (existingFields: string[]) => void
 		setDescription: (newDescription: string) => void
 		setInterfaces: (reWrittenInterfaces: GraphQLType[]) => void
@@ -99,16 +94,22 @@ export declare interface Type {
 
 export declare type Types = Record<string, Type>
 
+export declare interface InputTypeField {
+	type: GraphQLType | GraphQLType[]
+}
+
+export declare type InputTypeFields = Record<string, InputTypeField>
+
 export declare interface InputType {
 	description?: string
-	fields: Fields
+	fields: InputTypeFields
 }
 
 export declare type InputTypes = Record<string, InputType>
 
 export declare interface Interface {
 	description: string
-	fields: FieldsWithOptionalArgs
+	fields: Fields
 }
 
 export declare type Interfaces = Record<string, Interface>

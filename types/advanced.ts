@@ -43,14 +43,27 @@ export type {
 } from './brand'
 
 export type {
+	// AnyResolver, // Not certain this should be exported
 	CreationCallback,
 	CreationCallbacks,
 	DataFetchingEnvironment,
+	Enum,
+	Enums,
 	Extensions,
+	Field,
+	Fields,
+	InputType,
+	InputTypeField,
+	InputTypeFields,
+	InputTypes,
 	Resolver,
 	Resolvers,
 	Type,
+	TypeResolver,
+	TypeResolvers,
 	Types,
+	Union,
+	Unions
 } from './extensions'
 
 export type {
