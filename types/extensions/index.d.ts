@@ -18,16 +18,15 @@ export type {
 	Enums,
 } from './Enums'
 
-// TODO There are different versions of Fields: CreationCallback, InputType, InterfaceType and Type
-// export type {
-// 	Field,
-// 	Fields,
-// 	FieldWithOptionalArgs,
-// 	FieldsWithOptionalArgs,
-// }
+export type {
+	Field,
+	Fields,
+}
 
 export type {
 	InputType,
+	InputTypeField,
+	InputTypeFields,
 	InputTypes,
 } from './InputTypes'
 
