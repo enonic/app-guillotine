@@ -2,7 +2,7 @@
 /// <reference types="@enonic-types/global"/>
 
 import type {CreateDataFetcherResult} from './graphQL/CreateDataFetcherResult'
-import type {Resolver} from './extensions/Resolver'
+import type {AnyResolver} from './extensions/Resolver'
 
 declare const __name: unique symbol
 
@@ -129,7 +129,7 @@ export declare interface Extensions {
 		string,
 		Record<
 			string,
-			Resolver
+			AnyResolver
 		>
 	>
 	typeResolvers?: Record<string, (param: any) => string>

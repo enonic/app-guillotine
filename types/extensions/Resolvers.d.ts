@@ -4,13 +4,13 @@ import type {
 	PartialRecord,
 	ValueOf,
 } from '../Utils'
-import type {Resolver} from './Resolver'
+import type {AnyResolver} from './Resolver'
 
 
 export declare type Resolvers = PartialRecord<
 	keyof GraphQLObjectTypeFieldsMap,
 	Record<
 		keyof ValueOf<GraphQLObjectTypeFieldsMap>,
-		Resolver
+		AnyResolver
 	>
 >
