@@ -5,8 +5,8 @@ import java.util.Map;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
+import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
@@ -37,16 +37,13 @@ public class GetSiteDataFetcher
 
     private Map<String, Object> doGet( final DataFetchingEnvironment environment )
     {
-        Site site = null;
+        Site site;
         if ( guillotineContext.isGlobalMode() )
         {
-            String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
-            if ( siteKey != null && !siteKey.isEmpty() )
-            {
-                site = siteKey.startsWith( "/" )
-                    ? contentService.findNearestSiteByPath( ContentPath.from( siteKey ) )
-                    : contentService.getNearestSite( ContentId.from( siteKey ) );
-            }
+			final String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
+			site = siteKey.startsWith( "/" )
+				? contentService.findNearestSiteByPath( ContentPath.from( siteKey ) )
+				: contentService.getNearestSite( ContentId.from( siteKey ) );
         }
         else
         {

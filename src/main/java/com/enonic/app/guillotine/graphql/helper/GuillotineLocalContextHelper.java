@@ -33,11 +33,11 @@ public class GuillotineLocalContextHelper
         return contextBuilder.build().callWith( callable );
     }
 
-    public static String getSiteKey( final DataFetchingEnvironment environment )
-    {
-        final Map<String, Object> localContext = environment.getLocalContext();
-        return Objects.toString( localContext.get( Constants.SITE_ARG ), null );
-    }
+	public static String getSiteKey( final DataFetchingEnvironment environment )
+	{
+		final Map<String, Object> localContext = environment.getLocalContext();
+		return Objects.toString( localContext.get( Constants.SITE_ARG ), "/" );
+	}
 
     public static RepositoryId getRepositoryId( final DataFetchingEnvironment environment, final RepositoryId defaultRepoId )
     {

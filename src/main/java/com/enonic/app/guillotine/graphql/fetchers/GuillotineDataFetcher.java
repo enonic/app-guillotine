@@ -39,9 +39,12 @@ public class GuillotineDataFetcher
                                       v -> Objects.requireNonNullElse( environment.getArgument( Constants.PROJECT_ARG ), defaultProject ) );
         localContext.computeIfAbsent( Constants.BRANCH_ARG,
                                       v -> Objects.requireNonNullElse( environment.getArgument( Constants.BRANCH_ARG ), defaultBranch ) );
-        localContext.computeIfAbsent( Constants.SITE_ARG,
-                                      v -> environment.getArgument( Constants.SITE_ARG ) != null ? environment.getArgument(
-                                          Constants.SITE_ARG ) : portalRequestSupplier.get().getHeaders().get( Constants.SITE_HEADER ) );
+
+		final String siteKey = environment.getArgument( Constants.SITE_ARG );
+		final String siteKeyHeader = portalRequestSupplier.get().getHeaders().get( Constants.SITE_HEADER );
+
+		localContext.computeIfAbsent( Constants.SITE_ARG,
+									  v -> Objects.requireNonNullElse( siteKey, Objects.requireNonNullElse( siteKeyHeader, "/" ) ) );
 
         return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
     }

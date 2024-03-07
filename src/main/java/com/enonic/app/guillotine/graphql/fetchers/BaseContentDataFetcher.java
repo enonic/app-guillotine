@@ -31,35 +31,20 @@ public abstract class BaseContentDataFetcher
 
     protected Content getContent( DataFetchingEnvironment environment, boolean returnRootContent )
     {
-        String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
+		String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
 
-        String argumentKey = environment.getArgument( "key" );
+		String argumentKey = environment.getArgument( "key" );
 
-        if ( argumentKey != null )
-        {
-            String key = argumentKey;
-            if ( siteKey != null && !siteKey.isEmpty() )
-            {
-                Site site = getSiteByKey( siteKey );
-                if ( site != null )
-                {
-                    key = argumentKey.replaceAll( SITE_KEY_PATTERN.pattern(), site.getPath().toString() );
-                }
-            }
-            return getContentByKey( key, returnRootContent, environment );
-        }
-        else
-        {
-            if ( siteKey != null && !siteKey.isEmpty() )
-            {
-                return getContentByKey( siteKey, returnRootContent, environment );
-            }
-            if ( returnRootContent )
-            {
-                return new GetContentCommand( contentService ).executeAndGetContent( "/", environment );
-            }
-        }
-        return null;
+		if ( argumentKey != null )
+		{
+			Site site = getSiteByKey( siteKey );
+			String key = argumentKey.replaceAll( SITE_KEY_PATTERN.pattern(), site != null ? site.getPath().toString() : "" );
+			return getContentByKey( key, returnRootContent, environment );
+		}
+		else
+		{
+			return getContentByKey( siteKey, returnRootContent, environment );
+		}
     }
 
     private Site getSiteByKey( String siteKey )

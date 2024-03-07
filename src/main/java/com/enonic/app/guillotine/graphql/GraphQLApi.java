@@ -162,8 +162,12 @@ public class GraphQLApi
         new TypeFactory( context, serviceFacadeSupplier.get() ).createTypes();
         GraphQLObjectType guillotineApi = new HeadlessCmsTypeFactory( context, serviceFacadeSupplier.get() ).create();
 
-        Map<String, Object> guillotineFieldOptions = new HashMap<>();
-        guillotineFieldOptions.put( "type", guillotineApi );
+		Map<String, Object> guillotineFieldArguments = new HashMap<>();
+		guillotineFieldArguments.put( "siteKey", Scalars.GraphQLString );
+
+		Map<String, Object> guillotineFieldOptions = new HashMap<>();
+		guillotineFieldOptions.put( "type", guillotineApi );
+		guillotineFieldOptions.put( "args", guillotineFieldArguments );
 
         OutputObjectCreationCallbackParams guillotineQueryCreationCallback = new OutputObjectCreationCallbackParams();
         guillotineQueryCreationCallback.addFields( Map.of( "guillotine", guillotineFieldOptions ) );
