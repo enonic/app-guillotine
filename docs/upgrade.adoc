@@ -52,7 +52,7 @@ It is no longer possible to obtain the `siteConfig` from the `dataAsJson` and `s
 
 Guillotine 7 now supports <<extending#, dynamically extending and augmenting of the API>>. As a result the Guillotine library has been discontinued.
 
-If you have been using the Guillotine library, and want to keep similar functionality with v7, you will have to migrate to the new way of extending.
+If you have been using the Guillotine library, and want to keep similar functionality with v7, you will have to migrate to the new way of <<extending#,extending>>.
 
 Legacy options like `allowPaths` and `subscriptionEventTypes` are no longer supported either.
 
