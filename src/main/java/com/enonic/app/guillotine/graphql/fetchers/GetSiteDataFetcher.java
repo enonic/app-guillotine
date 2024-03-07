@@ -13,33 +13,28 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.site.Site;
 
 public class GetSiteDataFetcher
-    implements DataFetcher<Map<String, Object>>
+	implements DataFetcher<Map<String, Object>>
 {
-    private final ContentService contentService;
+	private final ContentService contentService;
 
-    public GetSiteDataFetcher( final ContentService contentService )
-    {
-        this.contentService = contentService;
-    }
+	public GetSiteDataFetcher( final ContentService contentService )
+	{
+		this.contentService = contentService;
+	}
 
-    @Override
-    public Map<String, Object> get( final DataFetchingEnvironment environment )
-        throws Exception
-    {
-        return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
-    }
+	@Override
+	public Map<String, Object> get( final DataFetchingEnvironment environment )
+		throws Exception
+	{
+		return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
+	}
 
-    private Map<String, Object> doGet( final DataFetchingEnvironment environment )
-    {
-        String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
-        if ( siteKey != null && !siteKey.isEmpty() )
-        {
-            Site site = siteKey.startsWith( "/" )
-                ? contentService.findNearestSiteByPath( ContentPath.from( siteKey ) )
-                : contentService.getNearestSite( ContentId.from( siteKey ) );
-            return GuillotineSerializer.serialize( site );
-        }
-
-        return null;
-    }
+	private Map<String, Object> doGet( final DataFetchingEnvironment environment )
+	{
+		String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
+		Site site = siteKey.startsWith( "/" )
+			? contentService.findNearestSiteByPath( ContentPath.from( siteKey ) )
+			: contentService.getNearestSite( ContentId.from( siteKey ) );
+		return GuillotineSerializer.serialize( site );
+	}
 }
