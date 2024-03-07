@@ -1,4 +1,12 @@
-= Release Notes - Guillotine 7
+= Release Notes
+
+== Guillotine 7 Update 1
+
+SiteKey:: A new `siteKey` argument has been added to the `guillotine` field. This argument is optional and can be used instead of the `X-Guillotine-SiteKey` header.
+
+== Guillotine 7
+
+IMPORTANT: Guillotine 7 requires XP 7.14.0 or higher.
 
 WARNING: This release includes <<breaking_changes, breaking changes>>
 

@@ -29,13 +29,13 @@ Guillotine provides the following properties and function in the DataFetchingEnv
 - `args` - the arguments provided to the field in the GraphQL query.
 - `localContext` - a context object that parent fields may have returned. This object is unmodifiable.
 
-The `localContext` object supports value types such as `string`, `double`, `integer`, `boolean`, and `null`. Keys with a value equal to `null` will be ignored. If you need to provide as a value a complex object, you can use the `JSON.stringify` function to convert it to a string.
+The `localContext` object supports value types such as `string`, `double`, `integer`, `boolean`, and `null`. Keys with a value equal to `null` will be removed. If you need to provide as a value a complex object, you can use the `JSON.stringify` function to convert it to a string.
 
 The `localContext` object is unmodifiable, so you can't change it. If you need to pass some data to the lower levels, then you can use `createDataFetcherResult` function. Also, the `localContext` object provides the following properties:
 
 - `project` - project name, taken from the current context.
 - `branch` - branch name, taken from the current context.
-- `siteKey` - site key, taken from the `X-Guillotine-SiteKey` header. If header is not provided, then it will be equal to `null`.
+- `siteKey` - site key is taken from the `siteKey` argument of the `guillotine` field. If this argument is not provided, the value will be taken from the `X-Guillotine-SiteKey` header. Otherwise, it will be equal to `/`.
 
 Below you can find an example of how to use these properties:
 
