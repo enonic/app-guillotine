@@ -17,6 +17,7 @@ import graphql.schema.GraphQLTypeVisitorStub;
 import graphql.util.TraversalControl;
 import graphql.util.TraverserContext;
 
+import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.graphql.OutputObjectCreationCallbackParams;
 
 public class ExtensionGraphQLTypeVisitor
@@ -24,10 +25,14 @@ public class ExtensionGraphQLTypeVisitor
 {
     private final Map<String, List<OutputObjectCreationCallbackParams>> creationCallbacks;
 
-    public ExtensionGraphQLTypeVisitor( final Map<String, List<OutputObjectCreationCallbackParams>> creationCallbacksDefs )
-    {
-        this.creationCallbacks = creationCallbacksDefs;
-    }
+	private final GuillotineConfigService guillotineConfigService;
+
+	public ExtensionGraphQLTypeVisitor( final Map<String, List<OutputObjectCreationCallbackParams>> creationCallbacksDefs,
+										final GuillotineConfigService guillotineConfigService )
+	{
+		this.creationCallbacks = creationCallbacksDefs;
+		this.guillotineConfigService = guillotineConfigService;
+	}
 
     @Override
     public TraversalControl visitGraphQLInterfaceType( final GraphQLInterfaceType node,
@@ -43,7 +48,7 @@ public class ExtensionGraphQLTypeVisitor
                     Objects.requireNonNullElse( creationCallbackParams.getDescription(), transformedNode.getDescription() );
 
                 List<GraphQLFieldDefinition> newFields =
-                    GraphQLFieldsMerger.merge( transformedNode.getFieldDefinitions(), creationCallbackParams );
+                    GraphQLFieldsMerger.merge( node.getName(), transformedNode.getFieldDefinitions(), creationCallbackParams, guillotineConfigService );
 
                 transformedNode = transformedNode.transform( builder -> builder.description( newDescription ).fields( newFields ) );
             }
@@ -83,7 +88,8 @@ public class ExtensionGraphQLTypeVisitor
                     for ( OutputObjectCreationCallbackParams creationCallbackParams : creationCallback )
                     {
                         List<GraphQLFieldDefinition> newFields =
-                            GraphQLFieldsMerger.merge( transformedNode.getFieldDefinitions(), creationCallbackParams );
+							GraphQLFieldsMerger.merge( interfaceName, transformedNode.getFieldDefinitions(), creationCallbackParams,
+													   guillotineConfigService );
 
                         transformedNode = transformedNode.transform( builder -> builder.replaceFields( newFields ) );
                         transformedCount = true;
@@ -100,7 +106,7 @@ public class ExtensionGraphQLTypeVisitor
         return super.visitGraphQLObjectType( node, context );
     }
 
-    private static GraphQLObjectType transformGraphQLObjectType( final GraphQLObjectType node, GraphQLObjectType transformedNode,
+    private GraphQLObjectType transformGraphQLObjectType( final GraphQLObjectType node, GraphQLObjectType transformedNode,
                                                                  final OutputObjectCreationCallbackParams creationCallbackParams )
     {
         String newDescription = Objects.requireNonNullElse( creationCallbackParams.getDescription(), transformedNode.getDescription() );
@@ -109,7 +115,8 @@ public class ExtensionGraphQLTypeVisitor
                                                                                 Objects.requireNonNullElse( node.getInterfaces(),
                                                                                                             List.of() ) );
 
-        List<GraphQLFieldDefinition> newFields = GraphQLFieldsMerger.merge( transformedNode.getFieldDefinitions(), creationCallbackParams );
+		List<GraphQLFieldDefinition> newFields =
+			GraphQLFieldsMerger.merge( node.getName(), transformedNode.getFieldDefinitions(), creationCallbackParams, guillotineConfigService );
 
         transformedNode = transformedNode.transform( builder -> {
             builder.description( newDescription );

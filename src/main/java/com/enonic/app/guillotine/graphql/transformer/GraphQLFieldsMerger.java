@@ -7,18 +7,26 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLType;
 
+import com.enonic.app.guillotine.GuillotineConfigService;
+import com.enonic.app.guillotine.ModifyUnknownFieldMode;
 import com.enonic.app.guillotine.graphql.OutputObjectCreationCallbackParams;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.GraphQLHelper;
 
 public class GraphQLFieldsMerger
 {
-    public static List<GraphQLFieldDefinition> merge( List<GraphQLFieldDefinition> originalFields,
-                                                      OutputObjectCreationCallbackParams creationCallbackParams )
+	private static final Logger LOG = LoggerFactory.getLogger( GraphQLFieldsMerger.class );
+
+	public static List<GraphQLFieldDefinition> merge( String typeName, List<GraphQLFieldDefinition> originalFields,
+													  OutputObjectCreationCallbackParams creationCallbackParams,
+													  GuillotineConfigService guillotineConfigService )
     {
         Map<String, GraphQLFieldDefinition> fieldsAsMap =
             originalFields.stream().collect( Collectors.toMap( GraphQLFieldDefinition::getName, Function.identity() ) );
@@ -39,13 +47,28 @@ public class GraphQLFieldsMerger
             Map<String, Map<String, Object>> modifyFields = creationCallbackParams.getModifyFields();
 
             modifyFields.forEach( ( fieldName, settings ) -> {
-                GraphQLFieldDefinition originalField = fieldsAsMap.get( fieldName );
+				GraphQLFieldDefinition originalField = fieldsAsMap.get( fieldName );
+				if ( originalField != null )
+				{
+					GraphQLType type = Objects.requireNonNullElse( CastHelper.cast( settings.get( "type" ) ), originalField.getType() );
+					List<GraphQLArgument> arguments =
+						Objects.requireNonNullElse( extractArguments( CastHelper.cast( settings.get( "args" ) ) ),
+													originalField.getArguments() );
 
-                GraphQLType type = Objects.requireNonNullElse( CastHelper.cast( settings.get( "type" ) ), originalField.getType() );
-                List<GraphQLArgument> arguments = Objects.requireNonNullElse( extractArguments( CastHelper.cast( settings.get( "args" ) ) ),
-                                                                              originalField.getArguments() );
-
-                fieldsAsMap.put( fieldName, GraphQLHelper.outputField( fieldName, type, arguments ) );
+					fieldsAsMap.put( fieldName, GraphQLHelper.outputField( fieldName, type, arguments ) );
+				}
+				else if ( guillotineConfigService.getModifyUnknownFieldMode() == ModifyUnknownFieldMode.THROW )
+				{
+					throw new IllegalArgumentException( String.format( "Field '%s' does not exist in type '%s'.", fieldName, typeName ) );
+				}
+				else if ( guillotineConfigService.getModifyUnknownFieldMode() == ModifyUnknownFieldMode.WARN )
+				{
+					LOG.warn( "Field '{}' does not exist in type '{}'.", fieldName, typeName );
+				}
+				else
+				{
+					LOG.debug( "Field '{}' does not exist in type '{}'.", fieldName, typeName );
+				}
             } );
         }
 
