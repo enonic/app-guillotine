@@ -10,14 +10,14 @@ public class GuillotineConfigService
 
 	private QueryPlaygroundUIMode queryPlaygroundUIMode;
 
-	private boolean throwErrorOnModifyingUnknownFields;
+	private ModifyUnknownFieldMode modifyUnknownFieldMode;
 
 	@Activate
 	@Modified
 	public void activate( final GuillotineConfig config )
 	{
 		this.queryPlaygroundUIMode = QueryPlaygroundUIMode.from( config.queryplayground_ui_mode() );
-		this.throwErrorOnModifyingUnknownFields = config.throw_error_on_modifying_unknown_fields();
+		this.modifyUnknownFieldMode = ModifyUnknownFieldMode.from( config.graphql_extensions_modifyUnknownField() );
 	}
 
 	public QueryPlaygroundUIMode getQueryPlaygroundUIMode()
@@ -25,8 +25,8 @@ public class GuillotineConfigService
 		return queryPlaygroundUIMode;
 	}
 
-	public boolean isThrowErrorOnModifyingUnknownFields()
+	public ModifyUnknownFieldMode getModifyUnknownFieldMode()
 	{
-		return throwErrorOnModifyingUnknownFields;
+		return modifyUnknownFieldMode;
 	}
 }

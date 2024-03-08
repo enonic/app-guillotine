@@ -7,17 +7,23 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLType;
 
 import com.enonic.app.guillotine.GuillotineConfigService;
+import com.enonic.app.guillotine.ModifyUnknownFieldMode;
 import com.enonic.app.guillotine.graphql.OutputObjectCreationCallbackParams;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.GraphQLHelper;
 
 public class GraphQLFieldsMerger
 {
+	private static final Logger LOG = LoggerFactory.getLogger( GraphQLFieldsMerger.class );
+
 	public static List<GraphQLFieldDefinition> merge( String typeName, List<GraphQLFieldDefinition> originalFields,
 													  OutputObjectCreationCallbackParams creationCallbackParams,
 													  GuillotineConfigService guillotineConfigService )
@@ -51,9 +57,17 @@ public class GraphQLFieldsMerger
 
 					fieldsAsMap.put( fieldName, GraphQLHelper.outputField( fieldName, type, arguments ) );
 				}
-				else if ( guillotineConfigService.isThrowErrorOnModifyingUnknownFields() )
+				else if ( guillotineConfigService.getModifyUnknownFieldMode() == ModifyUnknownFieldMode.THROW )
 				{
 					throw new IllegalArgumentException( String.format( "Field '%s' does not exist in type '%s'.", fieldName, typeName ) );
+				}
+				else if ( guillotineConfigService.getModifyUnknownFieldMode() == ModifyUnknownFieldMode.WARN )
+				{
+					LOG.warn( "Field '{}' does not exist in type '{}'.", fieldName, typeName );
+				}
+				else
+				{
+					LOG.debug( "Field '{}' does not exist in type '{}'.", fieldName, typeName );
 				}
             } );
         }

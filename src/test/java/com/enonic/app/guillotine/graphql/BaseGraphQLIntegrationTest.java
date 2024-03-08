@@ -15,6 +15,7 @@ import graphql.schema.GraphQLSchema;
 import com.enonic.app.guillotine.BuiltinContentTypes;
 import com.enonic.app.guillotine.BuiltinMacros;
 import com.enonic.app.guillotine.GuillotineConfigService;
+import com.enonic.app.guillotine.ModifyUnknownFieldMode;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.factory.TestFixtures;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
@@ -115,7 +116,7 @@ public class BaseGraphQLIntegrationTest
         when( serviceFacade.getMacroService() ).thenReturn( macroService );
 
 		GuillotineConfigService guillotineConfigService = mock( GuillotineConfigService.class );
-		when( guillotineConfigService.isThrowErrorOnModifyingUnknownFields() ).thenReturn( false );
+		when( guillotineConfigService.getModifyUnknownFieldMode() ).thenReturn( ModifyUnknownFieldMode.WARN );
 
         addService( ServiceFacade.class, serviceFacade );
         addService( ExtensionsExtractorService.class, extensionsExtractorService );

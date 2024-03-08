@@ -4,5 +4,5 @@ public @interface GuillotineConfig
 {
 	String queryplayground_ui_mode() default "auto";
 
-	boolean throw_error_on_modifying_unknown_fields() default true;
+	String graphql_extensions_modifyUnknownField() default "throw";
 }
