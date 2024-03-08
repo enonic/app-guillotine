@@ -10,6 +10,8 @@ SiteKey:: A new `siteKey` argument has been added to the `guillotine` field. Thi
 
 WARNING: This release includes <<breaking_changes, breaking changes>>
 
+IMPORTANT: All links/urls to `media` or `content` within the `pageUrl`, `imageUrl`, `mediaUrl`, `attachmentUrl` fields and inside the `processedHtml` field of <<api#_richtext,RichText>> will be generated as an `absolute` (`server`) link relative to the context of your endpoint. For instance, if you want to use a different domain or base URL you should make custom processing by your client.
+
 == Release features
 
 Extensions:: Extensions are a new way how to extend the GraphQL schema. They are more powerful and flexible than the `creationCallbacks` in the Guillotine Lib. Now you can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types. See <<extending#, extensions>> for more information.
