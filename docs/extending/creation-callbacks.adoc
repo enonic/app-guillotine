@@ -1,6 +1,6 @@
 = creationCallbacks
 
-Add remove, or modify existing fields, their description, types and interfaces. 
+Add remove, or modify existing fields, their description, types and interfaces.
 
 == Introduction
 
@@ -73,6 +73,9 @@ creationCallbacks: {
     // the rest of creation callback definition ...
 }
 ----
+
+NOTE: By default, Guillotine will throw an error if it encounters an unknown field during modification of fields of some GraphQL type. You can customize this behavior by setting the `graphql.extensions.modifyUnknownField` property in the <<../configuration#, configuration>>.
+
 
 For example:
 

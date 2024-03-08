@@ -10,8 +10,11 @@ To configure Guillotine, add a configuration file to your instance config folder
 [source,properties]
 ----
 queryplayground.ui.mode=off  // <1>
+graphql.extensions.modifyUnknownField=throw  // <2>
 ----
 
 <1> Enable or disable Query playground on project root.
 +
 NOTE: For Enonic SDK default = on, for server distributions, default = off.
+
+<2> Allows you to modify the standard behavior during modification of fields of some GraphQL type, when it encounters an unknown field. Possible values are: `throw`, `ignore`, or `warn`. Default is `throw`.
