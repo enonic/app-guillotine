@@ -29,7 +29,7 @@ Guillotine provides the following properties and function in the DataFetchingEnv
 - `args` - the arguments provided to the field in the GraphQL query.
 - `localContext` - a context object that parent fields may have returned. This object is unmodifiable.
 
-The `localContext` object supports value types such as `string`, `double`, `integer`, `boolean`, and `null`. Keys with a value equal to `null` will be removed. If you need to provide as a value a complex object, you can use the `JSON.stringify` function to convert it to a string.
+The `localContext` object supports value types such as `string`, `double`, `integer`, `boolean`, and `null`. Keys with `null` values will be removed. If you need to provide a complex object as a value, you can use the `JSON.stringify` function to convert it to a string.
 
 The `localContext` object is unmodifiable, so you can't change it. If you need to pass some data to the lower levels, then you can use `createDataFetcherResult` function. Also, the `localContext` object provides the following properties:
 
