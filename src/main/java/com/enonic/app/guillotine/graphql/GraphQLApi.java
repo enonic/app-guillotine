@@ -18,6 +18,7 @@ import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.SchemaTransformer;
 
+import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.factory.HeadlessCmsTypeFactory;
 import com.enonic.app.guillotine.graphql.factory.TypeFactory;
@@ -49,6 +50,8 @@ public class GraphQLApi
 
     private Supplier<PortalRequest> portalRequestSupplier;
 
+	private Supplier<GuillotineConfigService> guillotineConfigServiceSupplier;
+
     @Override
     public void initialize( final BeanContext context )
     {
@@ -56,6 +59,7 @@ public class GraphQLApi
         this.applicationServiceSupplier = context.getService( ApplicationService.class );
         this.extensionsExtractorServiceSupplier = context.getService( ExtensionsExtractorService.class );
         this.portalRequestSupplier = context.getBinding( PortalRequest.class );
+		this.guillotineConfigServiceSupplier = context.getService( GuillotineConfigService.class );
     }
 
     public GraphQLSchema createSchema()
@@ -86,7 +90,7 @@ public class GraphQLApi
         } );
 
         graphQLSchema =
-            SchemaTransformer.transformSchema( graphQLSchema, new ExtensionGraphQLTypeVisitor( typesRegister.getCreationCallbacks() ) );
+            SchemaTransformer.transformSchema( graphQLSchema, new ExtensionGraphQLTypeVisitor( typesRegister.getCreationCallbacks(), guillotineConfigServiceSupplier.get() ) );
 
         final GraphQLCodeRegistry codeRegistry = registerDataFetchers( graphQLSchema, typesRegister, schemaExtensions );
 

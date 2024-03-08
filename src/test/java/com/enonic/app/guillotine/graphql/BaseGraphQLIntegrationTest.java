@@ -14,6 +14,7 @@ import graphql.schema.GraphQLSchema;
 
 import com.enonic.app.guillotine.BuiltinContentTypes;
 import com.enonic.app.guillotine.BuiltinMacros;
+import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.factory.TestFixtures;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
@@ -113,12 +114,16 @@ public class BaseGraphQLIntegrationTest
         when( macroService.evaluateMacros( anyString(), any() ) ).thenReturn( "processedMacros" );
         when( serviceFacade.getMacroService() ).thenReturn( macroService );
 
+		GuillotineConfigService guillotineConfigService = mock( GuillotineConfigService.class );
+		when( guillotineConfigService.isThrowErrorOnModifyingUnknownFields() ).thenReturn( false );
+
         addService( ServiceFacade.class, serviceFacade );
         addService( ExtensionsExtractorService.class, extensionsExtractorService );
         addService( ApplicationService.class, applicationService );
         addService( PortalUrlService.class, portalUrlService );
         addService( MacroDescriptorService.class, macroDescriptorService );
         addService( MacroService.class, macroService );
+		addService( GuillotineConfigService.class, guillotineConfigService );
 
         createGraphQLApiBean();
     }
