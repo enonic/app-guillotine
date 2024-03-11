@@ -10,7 +10,7 @@ SiteKey:: A new `siteKey` argument has been added to the `guillotine` field. Thi
 
 WARNING: This release includes <<breaking_changes, breaking changes>>
 
-IMPORTANT: All links/urls to `media` or `content` within the `pageUrl`, `imageUrl`, `mediaUrl`, `attachmentUrl` fields and inside the `processedHtml` field of <<api#_richtext,RichText>> will be generated as an `absolute` (`server`) link relative to the context of your endpoint. For instance, if you want to use a different domain or base URL you should make custom processing by your client.
+IMPORTANT: All `media` and `content` URLs in the `pageUrl`, `imageUrl`, `mediaUrl`, `attachmentUrl` fields and in the `processedHtml` field of <<api#_richtext,RichText>> will be generated as an `absolute` (`server`) URL, relative to the context of your endpoint. If you want to use a different domain or base URL you should implement your own custom processing.
 
 == Release features
 
