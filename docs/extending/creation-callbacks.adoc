@@ -74,7 +74,7 @@ creationCallbacks: {
 }
 ----
 
-NOTE: By default, Guillotine will throw an error if it encounters an unknown field during modification of fields of some GraphQL type. You can customize this behavior by setting the `graphql.extensions.modifyUnknownField` property in the <<../configuration#, configuration>>.
+NOTE: By default, Guillotine will throw an error if it tries to modify an unknown field. You can customise this behaviour by setting the `graphql.extensions.modifyUnknownField` property in the <<../configuration#, configuration>>.
 
 
 For example:
