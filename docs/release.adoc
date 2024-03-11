@@ -8,7 +8,7 @@ IMPORTANT: Guillotine 7 requires XP 7.14.0 or higher.
 
 SiteKey:: A new `siteKey` argument has been added to the `guillotine` field. This argument is optional and can be used instead of the `X-Guillotine-SiteKey` header.
 
-modifyUnknownFields:: A new `graphql.extensions.modifyUnknownFields` configuration option allows you to control how Guillotine handles unknown fields in the GraphQL schema. By default, Guillotine will throw an error if an unknown field is requested. You can now change this behavior to ignore unknown fields or log a warning instead of throwing an error. See <<configuration#,configuration>> for more information.
+modifyUnknownFields:: A new `graphql.extensions.modifyUnknownFields` configuration option allows you to control how Guillotine handles unknown fields in the GraphQL schema. By default, Guillotine will throw an error if an unknown field is requested. You can now change this behaviour to ignore unknown fields or log a warning instead of throwing an error. See <<configuration#,configuration>> for more information.
 
 == Guillotine 7
 
