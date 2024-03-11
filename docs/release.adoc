@@ -6,7 +6,37 @@ IMPORTANT: Guillotine 7 requires XP 7.14.0 or higher.
 
 === Release features
 
-SiteKey:: A new `siteKey` argument has been added to the `guillotine` field. This argument is optional and can be used instead of the `X-Guillotine-SiteKey` header.
+Type definitions on NPM:: Guillotine type definitions are now https://www.npmjs.com/package/@enonic-types/guillotine[available on NPM^]. You can install them using the following command:
+
+  npm install @enonic/guillotine-types --save-dev
+
+then use them in your code like this:
+
+.Import Guillotine type definitions from NPM
+[source,graphql]
+----
+import type {GraphQL, Extensions} from '@enonic-types/guillotine';
+
+import {ObjectTypeName} from '@enonic-types/guillotine';
+----
+
+siteKey:: A new `siteKey` argument has been added to the `guillotine` field. This argument is optional and can be used instead of the `X-Guillotine-SiteKey` header.
+
+.Retrieve site's displayName and child items using `siteKey` argument.
+[source,graphql]
+----
+{
+  guillotine(siteKey: "/my-site") {
+    get(key: "${site}") {
+      displayName
+      children {
+        displayName
+        type
+      }
+    }
+  }
+}
+----
 
 modifyUnknownFields:: A new `graphql.extensions.modifyUnknownFields` configuration option allows you to control how Guillotine handles unknown fields in the GraphQL schema. By default, Guillotine will throw an error if an unknown field is requested. You can now change this behaviour to ignore unknown fields or log a warning instead of throwing an error. See <<configuration#,configuration>> for more information.
 
