@@ -35,7 +35,7 @@ TIP: A more intuitive way to discover the API is by using the <<playground#, Que
 |===
 |Name(Arguments):Type | Description
 
-|guillotine(siteKey: String image:v-710.svg[role="presentation"]): <<HeadlessCms>>
+|guillotine(siteKey: String image:v-710.svg[Guillotine 7.1.0,opts=inline]): <<HeadlessCms>>
 |Type gathering all content retrieval requests
 |===
 

@@ -14,7 +14,7 @@ modifyUnknownFields:: A new `graphql.extensions.modifyUnknownFields` configurati
 
 WARNING: This release includes <<breaking_changes, breaking changes>>
 
-IMPORTANT: All `media` and `content` URLs in the `pageUrl`, `imageUrl`, `mediaUrl`, `attachmentUrl` fields and in the `processedHtml` field of <<api#_richtext,RichText>> will be `absolute` (`server`) URLs generated in the context of your endpoint. If you want to use a different domain or base URL you should implement your own custom processing.
+IMPORTANT: All `media` and `content` URLs in the `pageUrl`, `imageUrl`, `mediaUrl`, `attachmentUrl` fields and in the `processedHtml` field of <<api#richtext,RichText>> will be `absolute` (`server`) URLs generated in the context of your endpoint. If you want to use a different domain or base URL you should implement your own custom processing.
 
 == Release features
 
@@ -32,3 +32,5 @@ Subscriptions are not supported anymore:: Due to limited use,  GraphQL subscript
 
 Params as JSON instead of String::
 For such fields as `pageUrl`, `mediaUrl`, `imageUrl` and `attachmentUrl` the `params` argument has `Json` type instead of `String`.
+
+Site configuration:: It is no longer possible to obtain the `siteConfig` from the `dataAsJson` and `site` fields of the `Content` type, as well as from the `dataAsJson` field of the `portal_Site` type.
