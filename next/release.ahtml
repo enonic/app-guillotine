@@ -442,8 +442,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#guillotine_7_update_1">Guillotine 7 Update 1</a></li>
-<li><a href="#guillotine_7">Guillotine 7</a></li>
 <li><a href="#release_features">Release features</a></li>
+<li><a href="#guillotine_7">Guillotine 7</a></li>
+<li><a href="#release_features_2">Release features</a></li>
 <li><a href="#breaking_changes">Breaking changes</a></li>
 </ul>
 </div>
@@ -468,11 +469,21 @@ Guillotine 7 requires XP 7.14.0 or higher.
 <div class="sect1">
 <h2 id="guillotine_7_update_1"><a class="link" href="#guillotine_7_update_1">Guillotine 7 Update 1</a></h2>
 <div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="release_features"><a class="link" href="#release_features">Release features</a></h2>
+<div class="sectionbody">
 <div class="dlist">
 <dl>
 <dt class="hdlist1">SiteKey</dt>
 <dd>
 <p>A new <code>siteKey</code> argument has been added to the <code>guillotine</code> field. This argument is optional and can be used instead of the <code>X-Guillotine-SiteKey</code> header.</p>
+</dd>
+<dt class="hdlist1">modifyUnknownFields</dt>
+<dd>
+<p>A new <code>graphql.extensions.modifyUnknownFields</code> configuration option allows you to control how Guillotine handles unknown fields in the GraphQL schema. By default, Guillotine will throw an error if an unknown field is requested. You can now change this behaviour to ignore unknown fields or log a warning instead of throwing an error. See <a href="configuration.ahtml">configuration</a> for more information.</p>
 </dd>
 </dl>
 </div>
@@ -508,7 +519,7 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 </div>
 </div>
 <div class="sect1">
-<h2 id="release_features"><a class="link" href="#release_features">Release features</a></h2>
+<h2 id="release_features_2"><a class="link" href="#release_features_2">Release features</a></h2>
 <div class="sectionbody">
 <div class="dlist">
 <dl>
@@ -552,7 +563,7 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-11 09:50:36 UTC
+Last updated 2024-03-11 10:04:33 UTC
 </div>
 </div>
 </body>
