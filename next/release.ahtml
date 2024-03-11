@@ -479,10 +479,54 @@ Guillotine 7 requires XP 7.14.0 or higher.
 <h3 id="release_features"><a class="link" href="#release_features">Release features</a></h3>
 <div class="dlist">
 <dl>
-<dt class="hdlist1">SiteKey</dt>
+<dt class="hdlist1">Type definitions on NPM</dt>
+<dd>
+<p>Guillotine type definitions are now <a href="https://www.npmjs.com/package/@enonic-types/guillotine" target="_blank" rel="noopener">available on NPM</a>. You can install them using the following command:</p>
+<div class="literalblock">
+<div class="content">
+<pre>npm install @enonic/guillotine-types --save-dev</pre>
+</div>
+</div>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>then use them in your code like this:</p>
+</div>
+<div class="listingblock">
+<div class="title">Import Guillotine type definitions from NPM</div>
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">import type {GraphQL, Extensions} from '@enonic-types/guillotine';
+
+import {ObjectTypeName} from '@enonic-types/guillotine';</code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">siteKey</dt>
 <dd>
 <p>A new <code>siteKey</code> argument has been added to the <code>guillotine</code> field. This argument is optional and can be used instead of the <code>X-Guillotine-SiteKey</code> header.</p>
 </dd>
+</dl>
+</div>
+<div class="listingblock">
+<div class="title">Retrieve site&#8217;s displayName and child items using <code>siteKey</code> argument.</div>
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine(siteKey: "/my-site") {
+    get(key: "${site}") {
+      displayName
+      children {
+        displayName
+        type
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
 <dt class="hdlist1">modifyUnknownFields</dt>
 <dd>
 <p>A new <code>graphql.extensions.modifyUnknownFields</code> configuration option allows you to control how Guillotine handles unknown fields in the GraphQL schema. By default, Guillotine will throw an error if an unknown field is requested. You can now change this behaviour to ignore unknown fields or log a warning instead of throwing an error. See <a href="configuration.ahtml">configuration</a> for more information.</p>
@@ -566,7 +610,7 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-11 10:25:29 UTC
+Last updated 2024-03-11 20:15:05 UTC
 </div>
 </div>
 </body>
