@@ -4,7 +4,7 @@ IMPORTANT: Guillotine 7 requires XP 7.14.0 or higher.
 
 == Guillotine 7 Update 1
 
-== Release features
+=== Release features
 
 SiteKey:: A new `siteKey` argument has been added to the `guillotine` field. This argument is optional and can be used instead of the `X-Guillotine-SiteKey` header.
 
@@ -16,7 +16,7 @@ WARNING: This release includes <<breaking_changes, breaking changes>>
 
 IMPORTANT: All `media` and `content` URLs in the `pageUrl`, `imageUrl`, `mediaUrl`, `attachmentUrl` fields and in the `processedHtml` field of <<api#richtext,RichText>> will be `absolute` (`server`) URLs generated in the context of your endpoint. If you want to use a different domain or base URL you should implement your own custom processing.
 
-== Release features
+=== Release features
 
 Extensions:: Extensions are a new way how to extend the GraphQL schema. They are more powerful and flexible than the `creationCallbacks` in the Guillotine Lib. Now you can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types. See <<extending#, extensions>> for more information.
 
@@ -26,7 +26,7 @@ LocalContext:: LocalContext allows sharing data between parent and child fields.
 
 Migrated from JS to Java:: Guillotine has been fully reimplemented from JavaScript to Java. This transition has not only improved the performance and stability of the application but also enabled the implementation of more powerful and flexible ways of <<extending#, extending and customizing>> the GraphQL schema.
 
-== Breaking changes
+=== Breaking changes
 
 Subscriptions are not supported anymore:: Due to limited use,  GraphQL subscriptions are not supported anymore. You have to implement your own solution for this without using Guillotine.
 
