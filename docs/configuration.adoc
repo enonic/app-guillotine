@@ -17,4 +17,4 @@ graphql.extensions.modifyUnknownField=throw  // <2>
 +
 NOTE: For Enonic SDK default value is `on`, for server distributions - `off`.
 
-<2> Allows you to modify the standard behavior during modification of fields of some GraphQL type, when it encounters an unknown field. Possible values are: `throw`, `ignore`, or `warn`. Default is `throw`.
+<2> Allows you to modify the standard behaviour during modification of unknown fields. Possible values are: `throw`, `ignore`, or `warn`. Default is `throw`.
