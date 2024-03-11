@@ -441,11 +441,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#guillotine_7_update_1">Guillotine 7 Update 1</a></li>
+<li><a href="#guillotine_7_update_1">Guillotine 7 Update 1</a>
+<ul class="sectlevel2">
 <li><a href="#release_features">Release features</a></li>
-<li><a href="#guillotine_7">Guillotine 7</a></li>
+</ul>
+</li>
+<li><a href="#guillotine_7">Guillotine 7</a>
+<ul class="sectlevel2">
 <li><a href="#release_features_2">Release features</a></li>
 <li><a href="#breaking_changes">Breaking changes</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -469,12 +475,8 @@ Guillotine 7 requires XP 7.14.0 or higher.
 <div class="sect1">
 <h2 id="guillotine_7_update_1"><a class="link" href="#guillotine_7_update_1">Guillotine 7 Update 1</a></h2>
 <div class="sectionbody">
-
-</div>
-</div>
-<div class="sect1">
-<h2 id="release_features"><a class="link" href="#release_features">Release features</a></h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="release_features"><a class="link" href="#release_features">Release features</a></h3>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">SiteKey</dt>
@@ -486,6 +488,7 @@ Guillotine 7 requires XP 7.14.0 or higher.
 <p>A new <code>graphql.extensions.modifyUnknownFields</code> configuration option allows you to control how Guillotine handles unknown fields in the GraphQL schema. By default, Guillotine will throw an error if an unknown field is requested. You can now change this behaviour to ignore unknown fields or log a warning instead of throwing an error. See <a href="configuration.ahtml">configuration</a> for more information.</p>
 </dd>
 </dl>
+</div>
 </div>
 </div>
 </div>
@@ -516,11 +519,8 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 </tr>
 </table>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="release_features_2"><a class="link" href="#release_features_2">Release features</a></h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="release_features_2"><a class="link" href="#release_features_2">Release features</a></h3>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Extensions</dt>
@@ -542,10 +542,8 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 </dl>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="breaking_changes"><a class="link" href="#breaking_changes">Breaking changes</a></h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="breaking_changes"><a class="link" href="#breaking_changes">Breaking changes</a></h3>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Subscriptions are not supported anymore</dt>
@@ -565,9 +563,10 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 </div>
 </div>
 </div>
+</div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-11 10:19:07 UTC
+Last updated 2024-03-11 10:25:29 UTC
 </div>
 </div>
 </body>
