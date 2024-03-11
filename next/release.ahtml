@@ -511,7 +511,7 @@ This release includes <a href="#breaking_changes">breaking changes</a>
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code>, <code>attachmentUrl</code> fields and in the <code>processedHtml</code> field of <a href="api.ahtml#_richtext">RichText</a> will be <code>absolute</code> (<code>server</code>) URLs generated in the context of your endpoint. If you want to use a different domain or base URL you should implement your own custom processing.
+All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code>, <code>attachmentUrl</code> fields and in the <code>processedHtml</code> field of <a href="api.ahtml#richtext">RichText</a> will be <code>absolute</code> (<code>server</code>) URLs generated in the context of your endpoint. If you want to use a different domain or base URL you should implement your own custom processing.
 </td>
 </tr>
 </table>
@@ -556,6 +556,10 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 <dd>
 <p>For such fields as <code>pageUrl</code>, <code>mediaUrl</code>, <code>imageUrl</code> and <code>attachmentUrl</code> the <code>params</code> argument has <code>Json</code> type instead of <code>String</code>.</p>
 </dd>
+<dt class="hdlist1">Site configuration</dt>
+<dd>
+<p>It is no longer possible to obtain the <code>siteConfig</code> from the <code>dataAsJson</code> and <code>site</code> fields of the <code>Content</code> type, as well as from the <code>dataAsJson</code> field of the <code>portal_Site</code> type.</p>
+</dd>
 </dl>
 </div>
 </div>
@@ -563,7 +567,7 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-11 10:04:33 UTC
+Last updated 2024-03-11 10:19:07 UTC
 </div>
 </div>
 </body>
