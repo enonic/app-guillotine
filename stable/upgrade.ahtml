@@ -445,6 +445,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#subscriptions">Subscriptions</a></li>
 <li><a href="#deprecated_fields">Deprecated fields</a></li>
 <li><a href="#url_fields">Url fields</a></li>
+<li><a href="#site_configuration">Site Configuration</a></li>
 <li><a href="#guillotine_library">Guillotine library</a>
 <ul class="sectlevel2">
 <li><a href="#migrating">Migrating</a></li>
@@ -527,13 +528,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
+<h2 id="site_configuration"><a class="link" href="#site_configuration">Site Configuration</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>It is no longer possible to obtain the <code>siteConfig</code> from the <code>dataAsJson</code> and <code>site</code> fields of the <code>Content</code> type, as well as from the <code>dataAsJson</code> field of the <code>portal_Site</code> type. If you need to retrieve the site configuration, please use the <code>getSite</code> or <code>getSiteConfig</code> functions from the <a href="https://developer.enonic.com/docs/xp/stable/api/lib-content#getsiteconfig">Content Lib</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="guillotine_library"><a class="link" href="#guillotine_library">Guillotine library</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Guillotine 7 now supports <a href="extending.ahtml">dynamically extending and augmenting of the API</a>. As a result the Guillotine library has been discontinued.</p>
 </div>
 <div class="paragraph">
-<p>If you have been using the Guillotine library, and want to keep similar funcitonality with v7, you will have to migrate to the new way of extending.</p>
+<p>If you have been using the Guillotine library, and want to keep similar functionality with v7, you will have to migrate to the new way of <a href="extending.ahtml">extending</a>.</p>
 </div>
 <div class="paragraph">
 <p>Legacy options like <code>allowPaths</code> and <code>subscriptionEventTypes</code> are no longer supported either.</p>
@@ -723,7 +732,7 @@ exports.extensions = function (graphQL) { <i class="conum" data-value="1"></i><b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-11 20:14:50 UTC
+Last updated 2024-03-12 10:14:56 UTC
 </div>
 </div>
 </body>

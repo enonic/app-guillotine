@@ -12,10 +12,6 @@
     {
       "label": "5.x",
       "checkout": "078c4cc4a5652e91b0e1f2c25f7f8a6d3d8e2f0f"
-    },
-    {
-      "label": "next",
-      "checkout": "docs-7.1"
     }
   ]
 }

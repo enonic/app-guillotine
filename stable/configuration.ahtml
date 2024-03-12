@@ -449,7 +449,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>The following configuration options are avaiable for Guillotine</p>
+<p>The following configuration options are available for Guillotine</p>
 </div>
 </div>
 </div>
@@ -462,7 +462,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="title">com.enonic.app.guillotine.cfg</div>
 <div class="content">
-<pre class="highlight"><code class="language-properties" data-lang="properties">queryplayground.ui.mode=off  <i class="conum" data-value="1"></i><b>(1)</b></code></pre>
+<pre class="highlight"><code class="language-properties" data-lang="properties">queryplayground.ui.mode=off  <i class="conum" data-value="1"></i><b>(1)</b>
+graphql.extensions.modifyUnknownField=throw  <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -477,11 +478,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-For Enonic SDK default = on, for server distributions, default = off.
+For Enonic SDK default value is <code>on</code>, for server distributions - <code>off</code>.
 </td>
 </tr>
 </table>
 </div></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Allows you to modify the default behaviour during modification of unknown fields. Possible values are: <code>throw</code>  - to throw an error if it tries to modify an unknown field, <code>ignore</code> - to ignore modification modify an unknown field, or <code>warn</code> - to log a warning on unknown field modification. Default is <code>throw</code>.</td>
 </tr>
 </table>
 </div>
@@ -490,7 +495,7 @@ For Enonic SDK default = on, for server distributions, default = off.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-11 20:14:50 UTC
+Last updated 2024-03-12 10:14:56 UTC
 </div>
 </div>
 </body>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.21">
-<title>Release Notes - Guillotine 7</title>
+<title>Release Notes</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,17 +437,107 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Release Notes - Guillotine 7</h1>
+<h1>Release Notes</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
+<li><a href="#guillotine_7_update_1">Guillotine 7 Update 1</a>
+<ul class="sectlevel2">
 <li><a href="#release_features">Release features</a></li>
+</ul>
+</li>
+<li><a href="#guillotine_7">Guillotine 7</a>
+<ul class="sectlevel2">
+<li><a href="#release_features_2">Release features</a></li>
 <li><a href="#breaking_changes">Breaking changes</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div id="preamble">
+<div class="sectionbody">
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Guillotine 7 requires XP 7.14.0 or higher.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="guillotine_7_update_1"><a class="link" href="#guillotine_7_update_1">Guillotine 7 Update 1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="release_features"><a class="link" href="#release_features">Release features</a></h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Type definitions on NPM</dt>
+<dd>
+<p>Guillotine type definitions are now <a href="https://www.npmjs.com/package/@enonic-types/guillotine" target="_blank" rel="noopener">available on NPM</a>. You can install them using the following command:</p>
+<div class="literalblock">
+<div class="content">
+<pre>npm install @enonic/guillotine-types --save-dev</pre>
+</div>
+</div>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>then use them in your code like this:</p>
+</div>
+<div class="listingblock">
+<div class="title">Import Guillotine type definitions from NPM</div>
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">import type {GraphQL, Extensions} from '@enonic-types/guillotine';
+
+import {ObjectTypeName} from '@enonic-types/guillotine';</code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">siteKey</dt>
+<dd>
+<p>A new <code>siteKey</code> argument has been added to the <code>guillotine</code> field. This argument is optional and can be used instead of the <code>X-Guillotine-SiteKey</code> header.</p>
+</dd>
+</dl>
+</div>
+<div class="listingblock">
+<div class="title">Retrieve site&#8217;s displayName and child items using <code>siteKey</code> argument.</div>
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine(siteKey: "/my-site") {
+    get(key: "${site}") {
+      displayName
+      children {
+        displayName
+        type
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">modifyUnknownFields</dt>
+<dd>
+<p>A new <code>graphql.extensions.modifyUnknownFields</code> configuration option allows you to control how Guillotine handles unknown fields in the GraphQL schema. By default, Guillotine will throw an error if an unknown field is requested. You can now change this behaviour to ignore unknown fields or log a warning instead of throwing an error. See <a href="configuration.ahtml">configuration</a> for more information.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="guillotine_7"><a class="link" href="#guillotine_7">Guillotine 7</a></h2>
 <div class="sectionbody">
 <div class="admonitionblock warning">
 <table>
@@ -461,11 +551,20 @@ This release includes <a href="#breaking_changes">breaking changes</a>
 </tr>
 </table>
 </div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code>, <code>attachmentUrl</code> fields and in the <code>processedHtml</code> field of <a href="api.ahtml#richtext">RichText</a> will be <code>absolute</code> (<code>server</code>) URLs generated in the context of your endpoint. If you want to use a different domain or base URL you should implement your own custom processing.
+</td>
+</tr>
+</table>
 </div>
-</div>
-<div class="sect1">
-<h2 id="release_features"><a class="link" href="#release_features">Release features</a></h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="release_features_2"><a class="link" href="#release_features_2">Release features</a></h3>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Extensions</dt>
@@ -487,10 +586,8 @@ This release includes <a href="#breaking_changes">breaking changes</a>
 </dl>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="breaking_changes"><a class="link" href="#breaking_changes">Breaking changes</a></h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="breaking_changes"><a class="link" href="#breaking_changes">Breaking changes</a></h3>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Subscriptions are not supported anymore</dt>
@@ -501,14 +598,19 @@ This release includes <a href="#breaking_changes">breaking changes</a>
 <dd>
 <p>For such fields as <code>pageUrl</code>, <code>mediaUrl</code>, <code>imageUrl</code> and <code>attachmentUrl</code> the <code>params</code> argument has <code>Json</code> type instead of <code>String</code>.</p>
 </dd>
+<dt class="hdlist1">Site configuration</dt>
+<dd>
+<p>It is no longer possible to obtain the <code>siteConfig</code> from the <code>dataAsJson</code> and <code>site</code> fields of the <code>Content</code> type, as well as from the <code>dataAsJson</code> field of the <code>portal_Site</code> type.</p>
+</dd>
 </dl>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-11 20:14:50 UTC
+Last updated 2024-03-12 10:14:56 UTC
 </div>
 </div>
 </body>

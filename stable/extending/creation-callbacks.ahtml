@@ -572,6 +572,18 @@ It is <strong>NOT recommended</strong> to make modification to the standard fiel
 }</code></pre>
 </div>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+By default, Guillotine will throw an error if it tries to modify an unknown field. You can customise this behaviour by setting the <code>graphql.extensions.modifyUnknownField</code> property in the <a href="../configuration.ahtml">configuration</a>.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>For example:</p>
 </div>
@@ -608,7 +620,7 @@ It is <strong>NOT recommended</strong> to make modification to the standard fiel
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-11 20:14:50 UTC
+Last updated 2024-03-12 10:14:56 UTC
 </div>
 </div>
 </body>

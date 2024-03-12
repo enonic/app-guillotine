@@ -499,7 +499,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </div>
 <div class="paragraph">
-<p>The <code>localContext</code> object supports value types such as <code>string</code>, <code>double</code>, <code>integer</code>, <code>boolean</code>, and <code>null</code>. Keys with a value equal to <code>null</code> will be ignored. If you need to provide as a value a complex object, you can use the <code>JSON.stringify</code> function to convert it to a string.</p>
+<p>The <code>localContext</code> object supports value types such as <code>string</code>, <code>double</code>, <code>integer</code>, <code>boolean</code>, and <code>null</code>. Keys with <code>null</code> values will be removed. If you need to provide a complex object as a value, you can use the <code>JSON.stringify</code> function to convert it to a string.</p>
 </div>
 <div class="paragraph">
 <p>The <code>localContext</code> object is unmodifiable, so you can&#8217;t change it. If you need to pass some data to the lower levels, then you can use <code>createDataFetcherResult</code> function. Also, the <code>localContext</code> object provides the following properties:</p>
@@ -513,7 +513,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>branch</code> - branch name, taken from the current context.</p>
 </li>
 <li>
-<p><code>siteKey</code> - site key, taken from the <code>X-Guillotine-SiteKey</code> header. If header is not provided, then it will be equal to <code>null</code>.</p>
+<p><code>siteKey</code> - site key is taken from the <code>siteKey</code> argument of the <code>guillotine</code> field. If this argument is not provided, the value will be taken from the <code>X-Guillotine-SiteKey</code> header. Otherwise, it will be equal to <code>/</code>.</p>
 </li>
 </ul>
 </div>
@@ -603,7 +603,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-11 20:14:50 UTC
+Last updated 2024-03-12 10:14:56 UTC
 </div>
 </div>
 </body>
