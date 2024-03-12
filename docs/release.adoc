@@ -1,8 +1,52 @@
-= Release Notes - Guillotine 7
+= Release Notes
+
+IMPORTANT: Guillotine 7 requires XP 7.14.0 or higher.
+
+== Guillotine 7 Update 1
+
+=== Release features
+
+Type definitions on NPM:: Guillotine type definitions are now https://www.npmjs.com/package/@enonic-types/guillotine[available on NPM^]. You can install them using the following command:
+
+  npm install @enonic/guillotine-types --save-dev
+
+then use them in your code like this:
+
+.Import Guillotine type definitions from NPM
+[source,graphql]
+----
+import type {GraphQL, Extensions} from '@enonic-types/guillotine';
+
+import {ObjectTypeName} from '@enonic-types/guillotine';
+----
+
+siteKey:: A new `siteKey` argument has been added to the `guillotine` field. This argument is optional and can be used instead of the `X-Guillotine-SiteKey` header.
+
+.Retrieve site's displayName and child items using `siteKey` argument.
+[source,graphql]
+----
+{
+  guillotine(siteKey: "/my-site") {
+    get(key: "${site}") {
+      displayName
+      children {
+        displayName
+        type
+      }
+    }
+  }
+}
+----
+
+modifyUnknownFields:: A new `graphql.extensions.modifyUnknownFields` configuration option allows you to control how Guillotine handles unknown fields in the GraphQL schema. By default, Guillotine will throw an error if an unknown field is requested. You can now change this behaviour to ignore unknown fields or log a warning instead of throwing an error. See <<configuration#,configuration>> for more information.
+
+== Guillotine 7
 
 WARNING: This release includes <<breaking_changes, breaking changes>>
 
-== Release features
+IMPORTANT: All `media` and `content` URLs in the `pageUrl`, `imageUrl`, `mediaUrl`, `attachmentUrl` fields and in the `processedHtml` field of <<api#richtext,RichText>> will be `absolute` (`server`) URLs generated in the context of your endpoint. If you want to use a different domain or base URL you should implement your own custom processing.
+
+=== Release features
 
 Extensions:: Extensions are a new way how to extend the GraphQL schema. They are more powerful and flexible than the `creationCallbacks` in the Guillotine Lib. Now you can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types. See <<extending#, extensions>> for more information.
 
@@ -12,9 +56,11 @@ LocalContext:: LocalContext allows sharing data between parent and child fields.
 
 Migrated from JS to Java:: Guillotine has been fully reimplemented from JavaScript to Java. This transition has not only improved the performance and stability of the application but also enabled the implementation of more powerful and flexible ways of <<extending#, extending and customizing>> the GraphQL schema.
 
-== Breaking changes
+=== Breaking changes
 
 Subscriptions are not supported anymore:: Due to limited use,  GraphQL subscriptions are not supported anymore. You have to implement your own solution for this without using Guillotine.
 
 Params as JSON instead of String::
 For such fields as `pageUrl`, `mediaUrl`, `imageUrl` and `attachmentUrl` the `params` argument has `Json` type instead of `String`.
+
+Site configuration:: It is no longer possible to obtain the `siteConfig` from the `dataAsJson` and `site` fields of the `Content` type, as well as from the `dataAsJson` field of the `portal_Site` type.
