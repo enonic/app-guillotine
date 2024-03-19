@@ -15,6 +15,7 @@ import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
+import com.enonic.xp.form.Form;
 
 import static com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper.getFilteredFormItems;
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newObject;
@@ -53,13 +54,13 @@ public class MacroTypesFactory
             String macroTypeName =
                 "Macro_" + StringNormalizer.create( macroDescriptor.getKey().getApplicationKey().getName() ) + "_" + descriptorName;
 
-            String macroDataConfigTypeName = macroTypeName + "_DataConfig";
+			String macroDataConfigTypeName = context.uniqueName( macroTypeName + "_DataConfig" );
 
             List<GraphQLFieldDefinition> macroDataConfigFields = new ArrayList<>();
             macroDataConfigFields.add( outputField( "body", Scalars.GraphQLString ) );
 
-            getFilteredFormItems( macroDescriptor.getForm().getFormItems() ).forEach( formItem -> {
-                String fieldName = StringNormalizer.create( formItem.getName() );
+			getFilteredFormItems( resolveForm( macroDescriptor.getForm() ).getFormItems() ).forEach( formItem -> {
+				String fieldName = StringNormalizer.create( formItem.getName() );
 
                 GraphQLOutputType formItemObject =
                     (GraphQLOutputType) formItemTypesFactory.generateFormItemObject( macroDataConfigTypeName, formItem );
@@ -73,10 +74,11 @@ public class MacroTypesFactory
                 macroDataConfigFields.add( field );
             } );
 
-            GraphQLObjectType macroDataConfigType = newObject( context.uniqueName( macroDataConfigTypeName ),
-                                                               "Macro descriptor data config for application ['" +
-                                                                   macroDescriptor.getKey().getApplicationKey() + "'] and descriptor ['" +
-                                                                   descriptorName + "']", macroDataConfigFields );
+			String description =
+				"Macro descriptor data config for application ['" + macroDescriptor.getKey().getApplicationKey() + "'] and descriptor ['" +
+					descriptorName + "']";
+
+			GraphQLObjectType macroDataConfigType = newObject( macroDataConfigTypeName, description, macroDataConfigFields );
 
             context.registerType( macroDataConfigType.getName(), macroDataConfigType );
 
@@ -112,4 +114,10 @@ public class MacroTypesFactory
 
         context.registerType( macroType.getName(), macroType );
     }
+
+	private Form resolveForm( Form originalForm )
+	{
+		Form inlineForm = serviceFacade.getMixinService().inlineFormItems( originalForm );
+		return inlineForm != null ? inlineForm : originalForm;
+	}
 }
