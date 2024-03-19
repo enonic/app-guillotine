@@ -15,7 +15,8 @@ import com.enonic.xp.inputtype.InputTypeName;
 
 public class FormItemTypesHelper
 {
-    public static List<FormItem> getFilteredFormItems( FormItems formItems )
+
+	public static List<FormItem> getFilteredFormItems( FormItems formItems )
     {
         List<FormItem> result = new ArrayList<>();
         for ( FormItem formItem : formItems )

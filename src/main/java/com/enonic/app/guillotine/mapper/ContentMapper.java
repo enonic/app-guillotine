@@ -140,6 +140,7 @@ public final class ContentMapper
             for ( final ExtraData extraData : extraDatas )
             {
                 gen.map( extraData.getName().getLocalName() );
+				gen.value( Constants.CONTENT_ID_FIELD, content.getId().toString() );
                 new PropertyTreeMapper( extraData.getData(), content.getId().toString() ).serialize( gen );
                 gen.end();
             }
