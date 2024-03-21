@@ -17,6 +17,7 @@ import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.app.guillotine.graphql.helper.NamingHelper;
 import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
 import com.enonic.xp.app.ApplicationKey;
+import com.enonic.xp.form.Form;
 import com.enonic.xp.form.FormItems;
 import com.enonic.xp.schema.xdata.XDatas;
 
@@ -40,12 +41,13 @@ public class XDataTypesFactory
 
     public void create()
     {
-        String extraDataTypeName = "ExtraData";
+		String extraDataTypeName = context.uniqueName( "ExtraData" );
 
         List<GraphQLFieldDefinition> xDataTypeFields = new ArrayList<>();
 
         getApplicationsKeys().forEach( applicationKey -> {
-            String xDataApplicationConfigTypeName = "XData_" + StringNormalizer.create( applicationKey ) + "_ApplicationConfig";
+			String xDataApplicationConfigTypeName =
+				context.uniqueName( "XData_" + StringNormalizer.create( applicationKey ) + "_ApplicationConfig" );
 
             XDatas extraData = serviceFacade.getComponentDescriptorService().getExtraData( applicationKey );
 
@@ -58,14 +60,14 @@ public class XDataTypesFactory
 
                     String xDataTypeName = "XData_" + StringNormalizer.create( applicationKey ) + "_" + descriptorName;
 
-                    String xDataConfigTypeName = xDataTypeName + "_DataConfig";
+					String xDataConfigTypeName = context.uniqueName( xDataTypeName + "_DataConfig" );
 
-                    List<GraphQLFieldDefinition> xDataConfigFields =
-                        createFormItemFields( xData.getForm().getFormItems(), xDataConfigTypeName );
+					List<GraphQLFieldDefinition> xDataConfigFields =
+						createFormItemFields( resolveForm( xData.getForm() ).getFormItems(), xDataConfigTypeName );
 
                     if ( !xDataConfigFields.isEmpty() )
                     {
-                        GraphQLObjectType xDataConfigType = newObject( context.uniqueName( xDataConfigTypeName ),
+                        GraphQLObjectType xDataConfigType = newObject( xDataConfigTypeName,
                                                                        "Extra data config for application ['" + applicationKey +
                                                                            "}'] and descriptor ['" + xData.getName().getLocalName() + "']",
                                                                        xDataConfigFields );
@@ -82,9 +84,9 @@ public class XDataTypesFactory
 
                 if ( !xDataApplicationTypeFields.isEmpty() )
                 {
-                    GraphQLObjectType applicationConfigType = newObject( context.uniqueName( xDataApplicationConfigTypeName ),
-                                                                         "XDataApplicationConfig for application ['" + applicationKey +
-                                                                             "']", xDataApplicationTypeFields );
+					GraphQLObjectType applicationConfigType =
+						newObject( xDataApplicationConfigTypeName, "XDataApplicationConfig for application ['" + applicationKey + "']",
+								   xDataApplicationTypeFields );
 
                     GraphQLFieldDefinition xDataTypeField = outputField( StringNormalizer.create( applicationKey ), applicationConfigType );
                     xDataTypeFields.add( xDataTypeField );
@@ -97,7 +99,7 @@ public class XDataTypesFactory
 
         if ( !xDataTypeFields.isEmpty() )
         {
-            GraphQLObjectType extraDataType = newObject( context.uniqueName( extraDataTypeName ), "Extra data.", xDataTypeFields );
+			GraphQLObjectType extraDataType = newObject( extraDataTypeName, "Extra data.", xDataTypeFields );
 
             context.registerType( extraDataType.getName(), extraDataType );
         }
@@ -130,4 +132,10 @@ public class XDataTypesFactory
         applicationKeys.add( ApplicationKey.MEDIA_MOD.getName() );
         return applicationKeys;
     }
+
+	private Form resolveForm( Form originalForm )
+	{
+		Form inlineForm = serviceFacade.getMixinService().inlineFormItems( originalForm );
+		return inlineForm != null ? inlineForm : originalForm;
+	}
 }
