@@ -38,6 +38,7 @@ import com.enonic.xp.resource.ResourceService;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.ContentTypes;
+import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.schema.xdata.XDatas;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.User;
@@ -113,12 +114,18 @@ public class BaseGraphQLIntegrationTest
         when( macroService.evaluateMacros( anyString(), any() ) ).thenReturn( "processedMacros" );
         when( serviceFacade.getMacroService() ).thenReturn( macroService );
 
+		MixinService mixinService = mock( MixinService.class );
+		when( mixinService.inlineFormItems( any() ) ).thenReturn( null );
+
+		when( serviceFacade.getMixinService() ).thenReturn( mixinService );
+
         addService( ServiceFacade.class, serviceFacade );
         addService( ExtensionsExtractorService.class, extensionsExtractorService );
         addService( ApplicationService.class, applicationService );
         addService( PortalUrlService.class, portalUrlService );
         addService( MacroDescriptorService.class, macroDescriptorService );
         addService( MacroService.class, macroService );
+		addService( MixinService.class, mixinService );
 
         createGraphQLApiBean();
     }

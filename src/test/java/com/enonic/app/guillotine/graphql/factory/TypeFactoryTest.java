@@ -24,6 +24,7 @@ import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.ContentTypes;
+import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.schema.xdata.XDatas;
 import com.enonic.xp.security.PrincipalKey;
 
@@ -45,6 +46,10 @@ public class TypeFactoryTest
 
         Mockito.when( serviceFacade.getComponentDescriptorService() ).thenReturn( componentDescriptorService );
         Mockito.when( serviceFacade.getContentTypeService() ).thenReturn( contentTypeService );
+
+		MixinService mixinService = Mockito.mock( MixinService.class );
+		Mockito.when( mixinService.inlineFormItems( Mockito.any() ) ).thenReturn( null );
+		Mockito.when( serviceFacade.getMixinService() ).thenReturn( mixinService );
 
         GuillotineContext context = GuillotineContext.create().addApplications( List.of( "com.enonic.app.testapp" ) ).build();
 
