@@ -1372,7 +1372,7 @@ Aggregations enable extracting statistical data from search results. Only one of
 
 === QueryDSLInput
 
-Query DSL input type. Only one field must be provided. More details about Query DSL you can find https://developer.enonic.com/docs/xp/next/storage/dsl[here].
+Query DSL input type. Only one field must be provided. More details about Query DSL you can find https://developer.enonic.com/docs/xp/stable/storage/dsl[here].
 
 ==== Fields
 
