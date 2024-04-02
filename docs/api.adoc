@@ -1473,10 +1473,10 @@ Stemmed DSL expression input type.
 |List of fields (propertyPaths) to include in the search.
 
 |query: String!
-|A query string to match field value(s). Supports the set of https://developer.enonic.com/docs/xp/next/storage/dsl#search_string_operators[operators].
+|A query string to match field value(s). Supports the set of https://developer.enonic.com/docs/xp/stable/storage/dsl#search_string_operators[operators].
 
 |language: String!
-|Content language that was used for stemming. List of https://developer.enonic.com/docs/xp/next/storage/indexing#languages[supported languages].
+|Content language that was used for stemming. List of https://developer.enonic.com/docs/xp/stable/storage/indexing#languages[supported languages].
 
 |operator: <<DslOperatorType>>
 |DSL operator. By default, `OR` (any of the words in the query matches).
