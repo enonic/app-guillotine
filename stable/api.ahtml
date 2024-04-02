@@ -2770,11 +2770,11 @@ after: String
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">query: String!</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A query string to match field value(s). Supports the set of <a href="https://developer.enonic.com/docs/xp/next/storage/dsl#search_string_operators">operators</a>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A query string to match field value(s). Supports the set of <a href="https://developer.enonic.com/docs/xp/stable/storage/dsl#search_string_operators">operators</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">language: String!</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Content language that was used for stemming. List of <a href="https://developer.enonic.com/docs/xp/next/storage/indexing#languages">supported languages</a>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content language that was used for stemming. List of <a href="https://developer.enonic.com/docs/xp/stable/storage/indexing#languages">supported languages</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">operator: <a href="#dsloperatortype">DslOperatorType</a></p></td>
@@ -3486,7 +3486,7 @@ Defaults to none - will be displayed in the same order in which fragments appear
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-03-27 14:13:47 UTC
+Last updated 2024-04-02 13:09:09 UTC
 </div>
 </div>
 </body>
