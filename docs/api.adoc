@@ -1499,7 +1499,7 @@ Fulltext DSL expression input type.
 |List of fields (propertyPaths) to include in the search.
 
 |query: String!
-|A query string to match field value(s). Supports the set of https://developer.enonic.com/docs/xp/next/storage/dsl#search_string_operators[operators].
+|A query string to match field value(s). Supports the set of https://developer.enonic.com/docs/xp/stable/storage/dsl#search_string_operators[operators].
 
 |operator: <<DslOperatorType>>
 |DSL operator. By default, `OR` (any of the words in the query matches).
