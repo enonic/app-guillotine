@@ -20,16 +20,22 @@ app {
 def defaultEncoding = 'UTF-8'
 
 compileJava {
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = sourceCompatibility
 	options.encoding = defaultEncoding
 }
 
 compileTestJava {
-    sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = sourceCompatibility
 	options.encoding = defaultEncoding
 }
+
+java {
+	withSourcesJar()
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = sourceCompatibility
 
 dependencies {
     implementation "com.enonic.xp:core-api:${xpVersion}"
