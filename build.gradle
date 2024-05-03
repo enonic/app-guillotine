@@ -20,11 +20,15 @@ app {
 def defaultEncoding = 'UTF-8'
 
 compileJava {
-    options.encoding = defaultEncoding
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = sourceCompatibility
+	options.encoding = defaultEncoding
 }
 
 compileTestJava {
-    options.encoding = defaultEncoding
+    sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = sourceCompatibility
+	options.encoding = defaultEncoding
 }
 
 dependencies {
