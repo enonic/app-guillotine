@@ -135,7 +135,7 @@ public class GuillotineApiGraphQLIntegrationTest
 
         assertEquals( 2, permissionsField.size() );
 
-        assertTrue( (boolean) permissionsField.get( "inheritsPermissions" ) );
+        assertFalse( (boolean) permissionsField.get( "inheritsPermissions" ) );
 
         List<Map<String, Object>> permissionsEntries = CastHelper.cast( permissionsField.get( "permissions" ) );
 

@@ -128,7 +128,7 @@ public class GetTypesGraphQLIntegrationTest
 
         assertEquals( 2, getPermissionsField.size() );
 
-        assertTrue( (boolean) getPermissionsField.get( "inheritsPermissions" ) );
+        assertFalse( (boolean) getPermissionsField.get( "inheritsPermissions" ) );
 
         List<Map<String, Object>> permissionsEntries = CastHelper.cast( getPermissionsField.get( "permissions" ) );
 
