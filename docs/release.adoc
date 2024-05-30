@@ -48,7 +48,7 @@ IMPORTANT: All `media` and `content` URLs in the `pageUrl`, `imageUrl`, `mediaUr
 
 === Release features
 
-Extensions:: Extensions are a new way how to extend the GraphQL schema. They are more powerful and flexible than the `creationCallbacks` in the Guillotine Lib. Now you can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types. See <<extending#, extensions>> for more information.
+Extensions:: Extensions are a new way to extend GraphQL schemas. They are more powerful and flexible than the `creationCallbacks` in the Guillotine Lib. Now you can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types. See <<extending#, extensions>> for more information.
 
 LocalContext:: LocalContext allows sharing data between parent and child fields. See <<extending/resolvers#datafetchingenvironment, here>> for more information.
 

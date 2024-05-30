@@ -4,7 +4,7 @@ The following configuration options are available for Guillotine
 
 == Config file
 
-To configure Guillotine, add a configuration file to your instance config folder.
+To configure Guillotine, add a configuration file to your XP instance's `config` folder.
 
 .com.enonic.app.guillotine.cfg
 [source,properties]
@@ -14,7 +14,9 @@ graphql.extensions.modifyUnknownField=throw  // <2>
 ----
 
 <1> Enable or disable Query playground on project root.
+
 +
 NOTE: For Enonic SDK default value is `on`, for server distributions - `off`.
++
 
 <2> Allows you to modify the default behaviour during modification of unknown fields. Possible values are: `throw`  - to throw an error if it tries to modify an unknown field, `ignore` - to ignore modification modify an unknown field, or `warn` - to log a warning on unknown field modification. Default is `throw`.

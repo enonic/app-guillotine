@@ -16,11 +16,11 @@ This file must export the `extensions` function with the following structure:
 ----
 exports.extensions = function (graphQL) {
     return {
-        inputTypes: { // <1>
-            // input type definitions ...
-        },
-        enums: { // <2>
+        enums: { // <1>
             // enum type definitions ...
+        },
+        inputTypes: { // <2>
+            // input type definitions ...
         },
         interfaces: { // <3>
             // interfaces type definitions ...
@@ -44,8 +44,8 @@ exports.extensions = function (graphQL) {
 };
 ----
 
-<1> Define <<extending/input-types#,custom input types>>.
-<2> Define <<extending/enums#,custom enums>>.
+<1> Define <<extending/enums#,custom enums>>.
+<2> Define <<extending/input-types#,custom input types>>.
 <3> Define <<extending/interfaces#,custom iterfaces>>.
 <4> Define <<extending/unions#,custom unions>>.
 <5> Define <<extending/types#,custom types>>.
@@ -53,7 +53,7 @@ exports.extensions = function (graphQL) {
 <7> Use `resolvers` to <<extending/resolvers#,set or override data fetchers for specific fields>>.
 <8> Use `typeResolvers` to <<extending/type-resolvers#,set or override the type resolver for an interface or a union>>.
 
-You can omit any of the properties, but you must return an object with the same structure. The order of the properties is not important.
+You can omit any of the properties, but you must return an object with the same structure. Order of the properties is not important.
 
 
 == Usage example
@@ -66,7 +66,7 @@ dependencies {
 }
 ----
 
-In our application we have to create a new file `src/main/resources/guillotine/guillotine.js` if it absent and add the following content:
+In our application we have to create a new file `src/main/resources/guillotine/guillotine.js` and add the following content to it:
 
 [source,javascript]
 ----
@@ -162,7 +162,7 @@ function sendRequestToBooksApi(queryString) {
 }
 ----
 
-This example is very simple and does not cover all possible cases. For example, it does not handle errors from the Google Books API, does not cache values and, etc. But it shows how to extend the GraphQL schema with a new type and a new field.
+This example is very simple and does not cover all possible cases. For example, it does not handle errors from the Google Books API, does not cache values, etc. But it shows how to extend the GraphQL schema with a new type and a new field.
 
 You can separate definitions of types, creationCallbacks, resolvers and the rest of options into different files and import them into the `guillotine.js` file, to make your code more readable and maintainable.
 

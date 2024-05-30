@@ -5,7 +5,7 @@ Recommendations from our experience of extending Guillotine
 
 == Naming conventions
 
-When extending existing schema types with custom fields or adding new schema types, take care to use unique names in order to avoid schema conflicts.
+When extending existing schema types with custom fields or adding new schema types, make sure to use unique names in order to avoid schema conflicts.
 
 We recommend using prefixes:
 
@@ -14,7 +14,7 @@ We recommend using prefixes:
 
 For fields within your custom schema types, you may safely drop the prefix.
 
-NOTE: Enonic's own apps never use prefixes. This is done in order to keep commonly used fields and the schema as easy to read as possible.
+NOTE: Apps developed by Enonic never use prefixes. This is done in order to keep commonly used fields and the schema as easy to read as possible.
 
 Remember, GraphQL fields cannot start with a number, and may not contain `-` or `.`. Use `_` as a separator instead.
 
@@ -132,7 +132,7 @@ exports.extensions = function (graphQL) {
 
 Let's take a look at the `resolvers-factory.js` file:
 
-This example below demonstrates how to split the `resolvers` property into two files: `headless-cms-resolvers-factory.js` and `query-resolvers-factory.js`, where each file contains resolvers for fields the corresponding type.
+This example below demonstrates how to split the `resolvers` property into two files: `headless-cms-resolvers-factory.js` and `query-resolvers-factory.js`, where each file contains resolvers for fields of the corresponding type.
 
 [source,javascript]
 ----

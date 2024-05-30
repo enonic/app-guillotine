@@ -6,7 +6,7 @@ TIP: Visit our https://developer.enonic.com/docs/developer-101[Developer 101 tut
 
 == Introduction
 
-The Guillotine API and GrapQL schema dynamically adapts to your content model, the examples below are based on a fictional content model and content structure.
+The Guillotine API and GraphQL schema dynamically adapt to your content model, the examples below are based on a fictional content model and content structure.
 
 TIP: Here are details on how to invoke the API from <<usage/javascript#, JavaScript>> or command line via <<usage/curl#, cURL>>
 
@@ -14,9 +14,9 @@ Below is a selection of sample GraphQL queries:
 
 == Content queries
 
-Enonic offers advanced search and aggregation queries using a query DSL (Domain Specific Language). Ranked search, aggregations and highlighting are just some of the features.
+Enonic offers advanced search and aggregation queries using https://developer.enonic.com/docs/xp/stable/storage/dsl[Query DSL] (Domain Specific Language). Ranked search, aggregations and highlighting are just some of the features.
 
-.Query DSL example: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author
+.*Query DSL example*: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author
 [source,graphql]
 ----
 {
@@ -41,14 +41,14 @@ Enonic offers advanced search and aggregation queries using a query DSL (Domain 
 
 References between content items are available via regular GraphQL fields, allowing you to traverse and extract details from referenced content.
 
-By default, each items has the following common reference fields:
+By default, each item has the following common reference fields:
 
-* parent: the parent content item
-* children: the child item(s) if any
+* `parent`: the parent content item
+* `children`: the child item(s) if any
 
 Schemas with ContentSelector, MediaSelector or ImageSelector will generate references to the target item(s).
 
-.Query example: Retrieve the display name of a specific content and the display name of its direct children
+.*Query example*: Retrieve the display name of a specific content and the display name of its direct children
 [source,graphql]
 ----
 {
@@ -65,7 +65,7 @@ Schemas with ContentSelector, MediaSelector or ImageSelector will generate refer
 
 == Accessing images
 
-Enonic XP can serve custom scaled images at runtime. Guillotine uses this functionality by using the "imageUrl" field which will generate a URL for the desired image size and crop.
+Enonic XP can serve custom scaled images at runtime. Guillotine uses this functionality by using the `imageUrl` field which will generate a URL for the desired image size and crop.
 
 .*Example: Scaled Image URL* - Retrieve the image contents and generate absolute URLs to these images cropped to 800x200px
 [source,graphql]
@@ -126,11 +126,11 @@ Rich text fields will typically include links, images and macros in the `process
 
 === Links
 
-By default, all internal links to `media` or `content` will be replaced by an absolute (`server`) link relative to the context of your endpoint. 
+By default, all internal links to `media` or `content` will be replaced by an absolute (`server`) link relative to the context of your endpoint.
 
 For each `a` tag a `data-link-ref` attribute with referenced content Id will be added. Additional content related to the `links` field is available for custom processing by your client.
 
-For instance, the processed value of a link looks like below:
+For instance, the processed value of a link looks like this:
 
 [source,html]
 ----
@@ -171,7 +171,7 @@ query {
   }
 }
 ----
-<1> Reference to link in the processedHtml field
+<1> Reference to link in the `processedHtml` field
 <2> Link URI
 <3> Related media content. This field has `null` value for non-media content
 <4> Link intent. Available values `download` and `inline`
@@ -180,9 +180,9 @@ query {
 === Images
 
 Guillotine by default provides image processing in the `processedHtml` field of the RichText GraphQL type. All internal links to resources will be replaced by an absolute (`server`) link and for each `img` tag a `data-image-ref` attribute with referenced content Id will be added.
-Using that reference you will be able to find image details in the `images` field and to do custom image processing if needed.
+Using that reference you will be able to find image details in the `images` field and implement custom image processing, if needed.
 
-For instance, the processed value of an image looks like below:
+For instance, the processed value of an image looks like this:
 
 [source,html]
 ----
@@ -238,7 +238,7 @@ fragment imageFragment on Content {
   }
 }
 ----
-<1> Reference to an image in the processedHtml field
+<1> Reference to an image in the `processedHtml` field
 <2> Image as <<api#content, Content>> type
 <3> Image style as <<api#imagestyle, ImageStyle>> type
 
@@ -275,7 +275,7 @@ The result will look as follows:
 
 === Macros
 
-Each macro will be translated to an `editor-macro` tag with `data-macro-ref` and `data-macro-name` attributes in the `processedHtml` field value. Using these references you will be able to find details of a specific macro in the `macrosAsJson` or `macros` fields and perform custom macro processing if needed.
+Each macro will be translated to an `editor-macro` tag with `data-macro-ref` and `data-macro-name` attributes in the `processedHtml` field value. Using these references you will be able to find details of a specific macro in the `macrosAsJson` or `macros` fields and implement custom macro processing if needed.
 
 [NOTE]
 ====
@@ -372,7 +372,7 @@ query {
 
 == xData
 
-Enonic XP supports dynamically extending content with fields from other schemas/applications - so-called eXtra Data.
+Enonic XP supports dynamically extending content with fields from other schemas/applications - so-called https://developer.enonic.com/docs/xp/stable/cms/x-data[eXtra Data].
 
 In the query below, we access the SoMe (SocialMedia) fields that have been used to extend the Person content type.
 
@@ -380,7 +380,7 @@ In the query below, we access the SoMe (SocialMedia) fields that have been used 
 .Example: Access xData fields
 [source,graphql]
 ----
-{ 
+{
   guillotine {
     query(key: "contentID") {
       displayName
@@ -401,7 +401,7 @@ NOTE: Notice that xData fields are grouped by application name, this ensures the
 
 == Site context
 
-When building websites, you will create root content item of type site. It is practical not having to know the exact location of the site within the project structure. 
+When building websites, you will create root content item of type `site`. It is practical not having to know the exact location of the site within the project structure.
 
 By passing a special HTTP header along the query, you get access to some useful features:
 
@@ -418,7 +418,6 @@ Using Query playground, add the following to the HTTP headers config - remember 
   }
 
 NOTE: SiteKey is either the ID of the site content item, or the path to the site within your project.
-
 
 === getSite
 
@@ -441,7 +440,7 @@ Use the `${site}` placeholder when querying for path's within the site.
 
 .Example: Accessing content within specific path of a site
 ----
-{ 
+{
   guillotine {
     getChildren(key: "${site}/persons"){
       displayName
@@ -462,11 +461,31 @@ Finally, you may retrieve site relative paths - which may be useful when generat
 
 .Example: Retrieve site relative item paths
 ----
-{ 
+{
   guillotine {
     getChildren(key: "${site}/persons"){
       displayName
       _path(type: siteRelative)
+    }
+  }
+}
+----
+
+=== siteKey
+
+Instead of passing the `X-Guillotine-SiteKey` header as described above, you can simply provide `siteKey` with the site ID or path in the query as shown in the example below:
+
+.Example: Access xData fields
+[source,graphql]
+----
+{
+  guillotine(siteKey: "/my-site") {
+    get(key: "${site}") {
+      displayName
+      children {
+        displayName
+        type
+      }
     }
   }
 }

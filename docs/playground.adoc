@@ -1,6 +1,6 @@
 = Query Playground
 
-Access and test the API via the embedded API browser
+Access and test the API via the embedded API browser.
 
 == Content Studio Extension
 

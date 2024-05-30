@@ -23,9 +23,9 @@ resolvers: {
 
 A DataFetchingEnvironment instance (env) is passed to a DataFetcher as an execution context, and it's the place where you can find information to help you resolve a data value given a GraphQL field input.
 
-Guillotine provides the following properties and function in the DataFetchingEnvironment:
+Guillotine provides the following properties in the DataFetchingEnvironment:
 
-- `source` - it is the value of the parent field. For the root query it is equal to `null`.
+- `source` - value of the parent field. For the root query it is equal to `null`.
 - `args` - the arguments provided to the field in the GraphQL query.
 - `localContext` - a context object that parent fields may have returned. This object is unmodifiable.
 
@@ -65,9 +65,9 @@ Guillotine provides `createDataFetcherResult` function via `graphQL` object. Thi
 
 The `createDataFetcherResult` function accepts an object with the following properties:
 
-- data - the data to return, must not be `null`. Object must be wrapped by `__.toScriptValue` function.
-- localContext - a key-value object that will be passed to the lower levels. This object is unmodifiable at the lowest level.
-- parentLocalContext - a context object that parent fields may have returned.
+- `data` - data to return, must not be `null`. Object must be wrapped by `__.toScriptValue` function.
+- `localContext` - a key-value object that will be passed to the lower levels. This object is unmodifiable at the lowest level.
+- `parentLocalContext` - a context object that parent fields may have returned.
 
 If `parentLocalContext` is not provided, then `localContext` will override `parentLocalContext`. Otherwise, `localContext` will be merged with `parentLocalContext` and `localContext` will override `parentLocalContext` if they have the same keys.
 

@@ -4,17 +4,19 @@ Add remove, or modify existing fields, their description, types and interfaces.
 
 == Introduction
 
-creationCallbacks are invoked during the GraphQL schema generation - every time Guillotine or an application extending Guilltine is started or stopped.
+creationCallbacks are invoked during the GraphQL schema generation - every time Guillotine or an application extending Guillotine is started or stopped.
 
 
 Important to remember:
 
 - Can only be defined for <<types#, types>> and <<interfaces#, interfaces>>.
+
 +
 NOTE: field renaming is not supported.
 +
-- May be invoked in a different order from what is defined in the `creationCallbacks` property.
-- If you add or modify some fields to an interface in the creation callback, you must also do that for all implementations. Otherwise, you will get an error during schema generation.
+
+- May be invoked in a different order than what is defined in the `creationCallbacks` property.
+- If you add or modify some fields of an interface in the creation callback, you must also do that for all implementations. Otherwise, you will get an error during schema generation.
 - If you modify some field, make sure that you implement correct data fetcher in the <<./resolvers#,resolvers>> section. Otherwise, you can get an error during query execution.
 
 WARNING: *Conflicts*. Multiple applications may define creationCallbacks. Conflicts between these may lead to schema generation errors or query errors.
@@ -35,7 +37,7 @@ creationCallbacks: {
                 type: <GraphQLType>,
                 args: {
                     <argName>: <GraphQLType>,
-                    // the rest of arguments definitions ...
+                    // the rest of argument definitions ...
                 },
             },
         });
@@ -47,9 +49,9 @@ creationCallbacks: {
              // the rest of fieldName ...
         ]);
 
-        // If you want to modify existing fields.
-        // Take aware that all arguments will be rewritten by new arguments.
-        // If type or args are not provided then will be used type and args from original field.
+        // If you want to modify existing fields,
+        // keep in mind that all arguments will be rewritten by the new arguments.
+        // If type or args are not provided then type and args of the original field will be used.
         params.modifyFields({
             <existingFieldName>: {
                 type: <GraphQLType>,
@@ -63,9 +65,9 @@ creationCallbacks: {
         // If you want to change description
         params.setDescription("New description");
 
-        // If you want to add or remove some interfaces to object.
-        // Take aware that interfaces will be rewritten by new array of interfaces.
-        // Also, developer is responseble for implmentation of interface, do not forget to add all required fields.
+        // If you want to add or remove some interfaces in an object,
+        // keep in mind that interfaces will be rewritten by the new array of interfaces.
+        // Also do not forget to add all the required fields.
         params.setInterfaces([
             <GraphQLInterfaceType or GraphQLReferenceType>
         ]);
@@ -104,4 +106,4 @@ creationCallbacks: {
 }
 ----
 
-To know how to set or override data fetcher for a field you can refer to the <<./resolvers#,resolvers>> section.
+To learn how to set or override data fetcher for a field you can refer to the <<./resolvers#,resolvers>> section.

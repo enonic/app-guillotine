@@ -20,21 +20,23 @@ NOTE: <project> must be replaced with an actual content project in your installa
 
 == Enonic Cloud / Kubernetes
 
-When using Enonic's self service hosting (or the https://developer.enonic.com/docs/kubernetes-operator-for-xp[Enonic K8s Operator]), expose the API publicly by creating an Ingress.
+When using Enonic's https://console.enonic.com/[self-service hosting^] (or the https://developer.enonic.com/docs/kubernetes-operator-for-xp[Enonic K8s Operator^]), expose the API publicly by creating an Ingress.
 
-You may expose an entire project, or just a selected branch. The following example exposes the entire project:
+You may expose an entire project, or just a selected branch.
 
-In your Ingress, specify the target as `/site/<project>` (where <project> is replaced with your actual project name).
+The following example exposes the entire project:
 
-If the Ingress is example.com/api, you will now be able to access the master and draft API's on example.com/api/master and example.com/api/draft respectively.
+In your Ingress, specify the target as `/site/<project>` (where `<project>` is replaced with your actual project name).
 
-NOTE: The draft API is access protected by default
+If the Ingress is `example.com/api`, you will now be able to access the master and draft APIs on `example.com/api/master` and `example.com/api/draft` respectively.
+
+NOTE: Access to the draft API is by default closed for unauthorised access.
 
 == Using Vhosts
 
-For other hosting options, you may explose the API on custom domains or URLs using vhosts:
+For other hosting options, you may expose the API on custom domains or URLs using vhosts:
 
-Examples for a project called `myproject`.
+Examples for a project called `myproject`:
 
 .Example - mapping  API to myapi.com
 [source,properties]
@@ -44,7 +46,7 @@ mapping.my-api.source = /
 mapping.my-api.target = /site/<project>/master
 ----
 
-.Example - mapping entire project root example.com/api
+.Example - mapping entire project root to example.com/api
 [source,properties]
 ----
 mapping.example-api.host = example.com
