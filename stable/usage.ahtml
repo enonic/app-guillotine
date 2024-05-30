@@ -459,6 +459,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#getsite">getSite</a></li>
 <li><a href="#path_placeholder">Path placeholder</a></li>
 <li><a href="#site_relative_paths">Site relative paths</a></li>
+<li><a href="#sitekey">siteKey</a></li>
 </ul>
 </li>
 </ul>
@@ -488,7 +489,7 @@ Visit our <a href="https://developer.enonic.com/docs/developer-101">Developer 10
 <h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The Guillotine API and GrapQL schema dynamically adapts to your content model, the examples below are based on a fictional content model and content structure.</p>
+<p>The Guillotine API and GraphQL schema dynamically adapt to your content model, the examples below are based on a fictional content model and content structure.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -511,10 +512,10 @@ Here are details on how to invoke the API from <a href="usage/javascript.ahtml">
 <h2 id="content_queries"><a class="link" href="#content_queries">Content queries</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Enonic offers advanced search and aggregation queries using a query DSL (Domain Specific Language). Ranked search, aggregations and highlighting are just some of the features.</p>
+<p>Enonic offers advanced search and aggregation queries using <a href="https://developer.enonic.com/docs/xp/stable/storage/dsl">Query DSL</a> (Domain Specific Language). Ranked search, aggregations and highlighting are just some of the features.</p>
 </div>
 <div class="listingblock">
-<div class="title">Query DSL example: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author</div>
+<div class="title"><strong>Query DSL example</strong>: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author</div>
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">{
   guillotine {
@@ -543,15 +544,15 @@ Here are details on how to invoke the API from <a href="usage/javascript.ahtml">
 <p>References between content items are available via regular GraphQL fields, allowing you to traverse and extract details from referenced content.</p>
 </div>
 <div class="paragraph">
-<p>By default, each items has the following common reference fields:</p>
+<p>By default, each item has the following common reference fields:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>parent: the parent content item</p>
+<p><code>parent</code>: the parent content item</p>
 </li>
 <li>
-<p>children: the child item(s) if any</p>
+<p><code>children</code>: the child item(s) if any</p>
 </li>
 </ul>
 </div>
@@ -559,7 +560,7 @@ Here are details on how to invoke the API from <a href="usage/javascript.ahtml">
 <p>Schemas with ContentSelector, MediaSelector or ImageSelector will generate references to the target item(s).</p>
 </div>
 <div class="listingblock">
-<div class="title">Query example: Retrieve the display name of a specific content and the display name of its direct children</div>
+<div class="title"><strong>Query example</strong>: Retrieve the display name of a specific content and the display name of its direct children</div>
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">{
   guillotine {
@@ -579,7 +580,7 @@ Here are details on how to invoke the API from <a href="usage/javascript.ahtml">
 <h2 id="accessing_images"><a class="link" href="#accessing_images">Accessing images</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Enonic XP can serve custom scaled images at runtime. Guillotine uses this functionality by using the "imageUrl" field which will generate a URL for the desired image size and crop.</p>
+<p>Enonic XP can serve custom scaled images at runtime. Guillotine uses this functionality by using the <code>imageUrl</code> field which will generate a URL for the desired image size and crop.</p>
 </div>
 <div class="listingblock">
 <div class="title"><strong>Example: Scaled Image URL</strong> - Retrieve the image contents and generate absolute URLs to these images cropped to 800x200px</div>
@@ -652,7 +653,7 @@ Here are details on how to invoke the API from <a href="usage/javascript.ahtml">
 <p>For each <code>a</code> tag a <code>data-link-ref</code> attribute with referenced content Id will be added. Additional content related to the <code>links</code> field is available for custom processing by your client.</p>
 </div>
 <div class="paragraph">
-<p>For instance, the processed value of a link looks like below:</p>
+<p>For instance, the processed value of a link looks like this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -699,7 +700,7 @@ Here are details on how to invoke the API from <a href="usage/javascript.ahtml">
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Reference to link in the processedHtml field</td>
+<td>Reference to link in the <code>processedHtml</code> field</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
@@ -724,10 +725,10 @@ Here are details on how to invoke the API from <a href="usage/javascript.ahtml">
 <h3 id="images"><a class="link" href="#images">Images</a></h3>
 <div class="paragraph">
 <p>Guillotine by default provides image processing in the <code>processedHtml</code> field of the RichText GraphQL type. All internal links to resources will be replaced by an absolute (<code>server</code>) link and for each <code>img</code> tag a <code>data-image-ref</code> attribute with referenced content Id will be added.
-Using that reference you will be able to find image details in the <code>images</code> field and to do custom image processing if needed.</p>
+Using that reference you will be able to find image details in the <code>images</code> field and implement custom image processing, if needed.</p>
 </div>
 <div class="paragraph">
-<p>For instance, the processed value of an image looks like below:</p>
+<p>For instance, the processed value of an image looks like this:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -788,7 +789,7 @@ fragment imageFragment on Content {
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Reference to an image in the processedHtml field</td>
+<td>Reference to an image in the <code>processedHtml</code> field</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
@@ -837,7 +838,7 @@ In this case <code>srcset</code> attribute will be added to <code>img</code> tag
 <div class="sect2">
 <h3 id="macros"><a class="link" href="#macros">Macros</a></h3>
 <div class="paragraph">
-<p>Each macro will be translated to an <code>editor-macro</code> tag with <code>data-macro-ref</code> and <code>data-macro-name</code> attributes in the <code>processedHtml</code> field value. Using these references you will be able to find details of a specific macro in the <code>macrosAsJson</code> or <code>macros</code> fields and perform custom macro processing if needed.</p>
+<p>Each macro will be translated to an <code>editor-macro</code> tag with <code>data-macro-ref</code> and <code>data-macro-name</code> attributes in the <code>processedHtml</code> field value. Using these references you will be able to find details of a specific macro in the <code>macrosAsJson</code> or <code>macros</code> fields and implement custom macro processing if needed.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -972,7 +973,7 @@ In this case <code>srcset</code> attribute will be added to <code>img</code> tag
 <h2 id="xdata"><a class="link" href="#xdata">xData</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Enonic XP supports dynamically extending content with fields from other schemas/applications - so-called eXtra Data.</p>
+<p>Enonic XP supports dynamically extending content with fields from other schemas/applications - so-called <a href="https://developer.enonic.com/docs/xp/stable/cms/x-data">eXtra Data</a>.</p>
 </div>
 <div class="paragraph">
 <p>In the query below, we access the SoMe (SocialMedia) fields that have been used to extend the Person content type.</p>
@@ -1014,7 +1015,7 @@ Notice that xData fields are grouped by application name, this ensures there wil
 <h2 id="site_context"><a class="link" href="#site_context">Site context</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When building websites, you will create root content item of type site. It is practical not having to know the exact location of the site within the project structure.</p>
+<p>When building websites, you will create root content item of type <code>site</code>. It is practical not having to know the exact location of the site within the project structure.</p>
 </div>
 <div class="paragraph">
 <p>By passing a special HTTP header along the query, you get access to some useful features:</p>
@@ -1112,12 +1113,34 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="sitekey"><a class="link" href="#sitekey">siteKey</a></h3>
+<div class="paragraph">
+<p>Instead of passing the <code>X-Guillotine-SiteKey</code> header as described above, you can simply provide <code>siteKey</code> with the site ID or path in the query as shown in the example below:</p>
+</div>
+<div class="listingblock">
+<div class="title">Example: Access xData fields</div>
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine(siteKey: "/my-site") {
+    get(key: "${site}") {
+      displayName
+      children {
+        displayName
+        type
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-03 15:41:38 UTC
+Last updated 2024-05-30 15:25:07 UTC
 </div>
 </div>
 </body>

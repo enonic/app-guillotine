@@ -457,7 +457,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="config_file"><a class="link" href="#config_file">Config file</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To configure Guillotine, add a configuration file to your instance config folder.</p>
+<p>To configure Guillotine, add a configuration file to your XP instance&#8217;s <code>config</code> folder.</p>
 </div>
 <div class="listingblock">
 <div class="title">com.enonic.app.guillotine.cfg</div>
@@ -495,7 +495,7 @@ For Enonic SDK default value is <code>on</code>, for server distributions - <cod
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-03 15:41:38 UTC
+Last updated 2024-05-30 15:25:07 UTC
 </div>
 </div>
 </body>

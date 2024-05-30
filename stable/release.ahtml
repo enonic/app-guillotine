@@ -569,7 +569,7 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 <dl>
 <dt class="hdlist1">Extensions</dt>
 <dd>
-<p>Extensions are a new way how to extend the GraphQL schema. They are more powerful and flexible than the <code>creationCallbacks</code> in the Guillotine Lib. Now you can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types. See <a href="extending.ahtml">extensions</a> for more information.</p>
+<p>Extensions are a new way to extend GraphQL schemas. They are more powerful and flexible than the <code>creationCallbacks</code> in the Guillotine Lib. Now you can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types. See <a href="extending.ahtml">extensions</a> for more information.</p>
 </dd>
 <dt class="hdlist1">LocalContext</dt>
 <dd>
@@ -610,7 +610,7 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-03 15:41:38 UTC
+Last updated 2024-05-30 15:25:07 UTC
 </div>
 </div>
 </body>

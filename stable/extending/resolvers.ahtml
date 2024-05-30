@@ -483,12 +483,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>A DataFetchingEnvironment instance (env) is passed to a DataFetcher as an execution context, and it&#8217;s the place where you can find information to help you resolve a data value given a GraphQL field input.</p>
 </div>
 <div class="paragraph">
-<p>Guillotine provides the following properties and function in the DataFetchingEnvironment:</p>
+<p>Guillotine provides the following properties in the DataFetchingEnvironment:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><code>source</code> - it is the value of the parent field. For the root query it is equal to <code>null</code>.</p>
+<p><code>source</code> - value of the parent field. For the root query it is equal to <code>null</code>.</p>
 </li>
 <li>
 <p><code>args</code> - the arguments provided to the field in the GraphQL query.</p>
@@ -554,13 +554,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>data - the data to return, must not be <code>null</code>. Object must be wrapped by <code>__.toScriptValue</code> function.</p>
+<p><code>data</code> - data to return, must not be <code>null</code>. Object must be wrapped by <code>__.toScriptValue</code> function.</p>
 </li>
 <li>
-<p>localContext - a key-value object that will be passed to the lower levels. This object is unmodifiable at the lowest level.</p>
+<p><code>localContext</code> - a key-value object that will be passed to the lower levels. This object is unmodifiable at the lowest level.</p>
 </li>
 <li>
-<p>parentLocalContext - a context object that parent fields may have returned.</p>
+<p><code>parentLocalContext</code> - a context object that parent fields may have returned.</p>
 </li>
 </ul>
 </div>
@@ -603,7 +603,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-03 15:41:38 UTC
+Last updated 2024-05-30 15:25:07 UTC
 </div>
 </div>
 </body>

@@ -473,7 +473,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
                 type: &lt;graphQLType&gt;,
                 args: {
                     &lt;argName&gt;: &lt;graphQLType&gt;,
-                    // the rest of arguments definitions ...
+                    // the rest of argument definitions ...
                 }
             },
             ...
@@ -515,7 +515,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-03 15:41:38 UTC
+Last updated 2024-05-30 15:25:07 UTC
 </div>
 </div>
 </body>

@@ -455,7 +455,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Access and test the API via the embedded API browser</p>
+<p>Access and test the API via the embedded API browser.</p>
 </div>
 </div>
 </div>
@@ -560,7 +560,7 @@ Each query is executed in a specific context, which is determined by the project
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-03 15:41:38 UTC
+Last updated 2024-05-30 15:25:07 UTC
 </div>
 </div>
 </body>

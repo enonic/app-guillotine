@@ -458,7 +458,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>creationCallbacks are invoked during the GraphQL schema generation - every time Guillotine or an application extending Guilltine is started or stopped.</p>
+<p>creationCallbacks are invoked during the GraphQL schema generation - every time Guillotine or an application extending Guillotine is started or stopped.</p>
 </div>
 <div class="paragraph">
 <p>Important to remember:</p>
@@ -481,10 +481,10 @@ field renaming is not supported.
 </div>
 </li>
 <li>
-<p>May be invoked in a different order from what is defined in the <code>creationCallbacks</code> property.</p>
+<p>May be invoked in a different order than what is defined in the <code>creationCallbacks</code> property.</p>
 </li>
 <li>
-<p>If you add or modify some fields to an interface in the creation callback, you must also do that for all implementations. Otherwise, you will get an error during schema generation.</p>
+<p>If you add or modify some fields of an interface in the creation callback, you must also do that for all implementations. Otherwise, you will get an error during schema generation.</p>
 </li>
 <li>
 <p>If you modify some field, make sure that you implement correct data fetcher in the <a href="./resolvers.ahtml">resolvers</a> section. Otherwise, you can get an error during query execution.</p>
@@ -533,7 +533,7 @@ It is <strong>NOT recommended</strong> to make modification to the standard fiel
                 type: &lt;GraphQLType&gt;,
                 args: {
                     &lt;argName&gt;: &lt;GraphQLType&gt;,
-                    // the rest of arguments definitions ...
+                    // the rest of argument definitions ...
                 },
             },
         });
@@ -545,9 +545,9 @@ It is <strong>NOT recommended</strong> to make modification to the standard fiel
              // the rest of fieldName ...
         ]);
 
-        // If you want to modify existing fields.
-        // Take aware that all arguments will be rewritten by new arguments.
-        // If type or args are not provided then will be used type and args from original field.
+        // If you want to modify existing fields,
+        // keep in mind that all arguments will be rewritten by the new arguments.
+        // If type or args are not provided then type and args of the original field will be used.
         params.modifyFields({
             &lt;existingFieldName&gt;: {
                 type: &lt;GraphQLType&gt;,
@@ -561,9 +561,9 @@ It is <strong>NOT recommended</strong> to make modification to the standard fiel
         // If you want to change description
         params.setDescription("New description");
 
-        // If you want to add or remove some interfaces to object.
-        // Take aware that interfaces will be rewritten by new array of interfaces.
-        // Also, developer is responseble for implmentation of interface, do not forget to add all required fields.
+        // If you want to add or remove some interfaces in an object,
+        // keep in mind that interfaces will be rewritten by the new array of interfaces.
+        // Also do not forget to add all the required fields.
         params.setInterfaces([
             &lt;GraphQLInterfaceType or GraphQLReferenceType&gt;
         ]);
@@ -613,14 +613,14 @@ By default, Guillotine will throw an error if it tries to modify an unknown fiel
 </div>
 </div>
 <div class="paragraph">
-<p>To know how to set or override data fetcher for a field you can refer to the <a href="./resolvers.ahtml">resolvers</a> section.</p>
+<p>To learn how to set or override data fetcher for a field you can refer to the <a href="./resolvers.ahtml">resolvers</a> section.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-03 15:41:38 UTC
+Last updated 2024-05-30 15:25:07 UTC
 </div>
 </div>
 </body>

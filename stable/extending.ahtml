@@ -478,11 +478,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="content">
 <pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.extensions = function (graphQL) {
     return {
-        inputTypes: { <i class="conum" data-value="1"></i><b>(1)</b>
-            // input type definitions ...
-        },
-        enums: { <i class="conum" data-value="2"></i><b>(2)</b>
+        enums: { <i class="conum" data-value="1"></i><b>(1)</b>
             // enum type definitions ...
+        },
+        inputTypes: { <i class="conum" data-value="2"></i><b>(2)</b>
+            // input type definitions ...
         },
         interfaces: { <i class="conum" data-value="3"></i><b>(3)</b>
             // interfaces type definitions ...
@@ -510,11 +510,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Define <a href="extending/input-types.ahtml">custom input types</a>.</td>
+<td>Define <a href="extending/enums.ahtml">custom enums</a>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Define <a href="extending/enums.ahtml">custom enums</a>.</td>
+<td>Define <a href="extending/input-types.ahtml">custom input types</a>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
@@ -543,7 +543,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </table>
 </div>
 <div class="paragraph">
-<p>You can omit any of the properties, but you must return an object with the same structure. The order of the properties is not important.</p>
+<p>You can omit any of the properties, but you must return an object with the same structure. Order of the properties is not important.</p>
 </div>
 </div>
 </div>
@@ -561,7 +561,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>In our application we have to create a new file <code>src/main/resources/guillotine/guillotine.js</code> if it absent and add the following content:</p>
+<p>In our application we have to create a new file <code>src/main/resources/guillotine/guillotine.js</code> and add the following content to it:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -658,7 +658,7 @@ function sendRequestToBooksApi(queryString) {
 </div>
 </div>
 <div class="paragraph">
-<p>This example is very simple and does not cover all possible cases. For example, it does not handle errors from the Google Books API, does not cache values and, etc. But it shows how to extend the GraphQL schema with a new type and a new field.</p>
+<p>This example is very simple and does not cover all possible cases. For example, it does not handle errors from the Google Books API, does not cache values, etc. But it shows how to extend the GraphQL schema with a new type and a new field.</p>
 </div>
 <div class="paragraph">
 <p>You can separate definitions of types, creationCallbacks, resolvers and the rest of options into different files and import them into the <code>guillotine.js</code> file, to make your code more readable and maintainable.</p>
@@ -700,7 +700,7 @@ function sendRequestToBooksApi(queryString) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-03 15:41:38 UTC
+Last updated 2024-05-30 15:25:07 UTC
 </div>
 </div>
 </body>

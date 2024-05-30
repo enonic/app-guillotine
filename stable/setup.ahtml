@@ -504,16 +504,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="enonic_cloud_kubernetes"><a class="link" href="#enonic_cloud_kubernetes">Enonic Cloud / Kubernetes</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When using Enonic&#8217;s self service hosting (or the <a href="https://developer.enonic.com/docs/kubernetes-operator-for-xp">Enonic K8s Operator</a>), expose the API publicly by creating an Ingress.</p>
+<p>When using Enonic&#8217;s <a href="https://console.enonic.com/" target="_blank" rel="noopener">self-service hosting</a> (or the <a href="https://developer.enonic.com/docs/kubernetes-operator-for-xp" target="_blank" rel="noopener">Enonic K8s Operator</a>), expose the API publicly by creating an Ingress.</p>
 </div>
 <div class="paragraph">
-<p>You may expose an entire project, or just a selected branch. The following example exposes the entire project:</p>
+<p>You may expose an entire project, or just a selected branch.</p>
 </div>
 <div class="paragraph">
-<p>In your Ingress, specify the target as <code>/site/&lt;project&gt;</code> (where &lt;project&gt; is replaced with your actual project name).</p>
+<p>The following example exposes the entire project:</p>
 </div>
 <div class="paragraph">
-<p>If the Ingress is example.com/api, you will now be able to access the master and draft API&#8217;s on example.com/api/master and example.com/api/draft respectively.</p>
+<p>In your Ingress, specify the target as <code>/site/&lt;project&gt;</code> (where <code>&lt;project&gt;</code> is replaced with your actual project name).</p>
+</div>
+<div class="paragraph">
+<p>If the Ingress is <code>example.com/api</code>, you will now be able to access the master and draft APIs on <code>example.com/api/master</code> and <code>example.com/api/draft</code> respectively.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -522,7 +525,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The draft API is access protected by default
+Access to the draft API is by default closed for unauthorised access.
 </td>
 </tr>
 </table>
@@ -533,10 +536,10 @@ The draft API is access protected by default
 <h2 id="using_vhosts"><a class="link" href="#using_vhosts">Using Vhosts</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>For other hosting options, you may explose the API on custom domains or URLs using vhosts:</p>
+<p>For other hosting options, you may expose the API on custom domains or URLs using vhosts:</p>
 </div>
 <div class="paragraph">
-<p>Examples for a project called <code>myproject</code>.</p>
+<p>Examples for a project called <code>myproject</code>:</p>
 </div>
 <div class="listingblock">
 <div class="title">Example - mapping  API to myapi.com</div>
@@ -547,7 +550,7 @@ mapping.my-api.target = /site/&lt;project&gt;/master</code></pre>
 </div>
 </div>
 <div class="listingblock">
-<div class="title">Example - mapping entire project root example.com/api</div>
+<div class="title">Example - mapping entire project root to example.com/api</div>
 <div class="content">
 <pre class="highlight"><code class="language-properties" data-lang="properties">mapping.example-api.host = example.com
 mapping.example-api.source = /api
@@ -562,7 +565,7 @@ mapping.example-api.target = /site/&lt;project&gt;</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-03 15:41:38 UTC
+Last updated 2024-05-30 15:25:07 UTC
 </div>
 </div>
 </body>

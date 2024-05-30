@@ -465,7 +465,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="naming_conventions"><a class="link" href="#naming_conventions">Naming conventions</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When extending existing schema types with custom fields or adding new schema types, take care to use unique names in order to avoid schema conflicts.</p>
+<p>When extending existing schema types with custom fields or adding new schema types, make sure to use unique names in order to avoid schema conflicts.</p>
 </div>
 <div class="paragraph">
 <p>We recommend using prefixes:</p>
@@ -486,7 +486,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Enonic&#8217;s own apps never use prefixes. This is done in order to keep commonly used fields and the schema as easy to read as possible.
+Apps developed by Enonic never use prefixes. This is done in order to keep commonly used fields and the schema as easy to read as possible.
 </td>
 </tr>
 </table>
@@ -637,7 +637,7 @@ exports.extensions = function (graphQL) {
 <p>Let&#8217;s take a look at the <code>resolvers-factory.js</code> file:</p>
 </div>
 <div class="paragraph">
-<p>This example below demonstrates how to split the <code>resolvers</code> property into two files: <code>headless-cms-resolvers-factory.js</code> and <code>query-resolvers-factory.js</code>, where each file contains resolvers for fields the corresponding type.</p>
+<p>This example below demonstrates how to split the <code>resolvers</code> property into two files: <code>headless-cms-resolvers-factory.js</code> and <code>query-resolvers-factory.js</code>, where each file contains resolvers for fields of the corresponding type.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -657,7 +657,7 @@ exports.create = function (graphQL) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-03 15:41:38 UTC
+Last updated 2024-05-30 15:25:07 UTC
 </div>
 </div>
 </body>
