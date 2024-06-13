@@ -8,13 +8,9 @@ import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import graphql.ExecutionInput;
-import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
-import com.enonic.app.guillotine.mapper.ExecutionResultMapper;
-import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
@@ -168,17 +164,7 @@ public class GuillotineApiGraphQLIntegrationTest
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
-        GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
-
-        ExecutionInput executionInput =
-            ExecutionInput.newExecutionInput().query( ResourceHelper.readGraphQLQuery( "graphql/getSiteField.graphql" ) ).build();
-
-        ExecutionResultMapper executionResultMapper = new ExecutionResultMapper( graphQL.execute( executionInput ) );
-
-        GuillotineMapGenerator generator = new GuillotineMapGenerator();
-        executionResultMapper.serialize( generator );
-
-        Map<String, Object> response = CastHelper.cast( generator.getRoot() );
+        Map<String, Object> response = executeQuery( graphQLSchema, ResourceHelper.readGraphQLQuery( "graphql/getSiteField.graphql" ) );
 
         assertFalse( response.containsKey( "errors" ) );
         assertTrue( response.containsKey( "data" ) );

@@ -33,6 +33,7 @@ import com.enonic.xp.macro.MacroService;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.script.PortalScriptService;
 import com.enonic.xp.portal.url.PortalUrlService;
+import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.resource.ResourceKey;
 import com.enonic.xp.resource.ResourceService;
 import com.enonic.xp.schema.content.ContentType;
@@ -206,7 +207,9 @@ public class BaseGraphQLIntegrationTest
 
     private Context createAdminContext()
     {
-        return ContextBuilder.copyOf( ContextAccessor.current() ).authInfo(
+        return ContextBuilder.copyOf( ContextAccessor.current() )
+			.repositoryId( RepositoryId.from( "com.enonic.cms.myproject" ) )
+			.authInfo(
             AuthenticationInfo.create().principals( RoleKeys.AUTHENTICATED, RoleKeys.ADMIN ).user( User.ANONYMOUS ).build() ).build();
     }
 
