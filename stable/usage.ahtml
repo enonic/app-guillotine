@@ -1083,7 +1083,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-<code>${site}</code> placeholder is supported for the fields <code>get</code>, <code>getChildren</code>, <code>getChildrenConnection</code>, <code>getPermissions</code> and <code>getSite</code> of the <a href="api.ahtml#headlessCms">HeadlessCms</a> type. The <code>getPermissions</code> and <code>getSite</code> fields do not have the <code>key</code> argument, and current content is determined by the <code>X-Guillotine-SiteKey</code> header or the <code>siteKey</code> argument of the <code>guillotine</code> field. The same applies to the <code>get</code>, <code>getChildren</code>, and <code>getChildrenConnection</code> fields if the <code>key</code> argument is not provided.
+<code>${site}</code> placeholder is supported for the fields <code>get</code>, <code>getChildren</code>, <code>getChildrenConnection</code>, <code>getPermissions</code> and <code>getSite</code> of the <a href="api.ahtml#headlessсms">HeadlessCms</a> type. The <code>getPermissions</code> and <code>getSite</code> fields do not have the <code>key</code> argument, and current content is determined by the <code>X-Guillotine-SiteKey</code> header or the <code>siteKey</code> argument of the <code>guillotine</code> field. The same applies to the <code>get</code>, <code>getChildren</code>, and <code>getChildrenConnection</code> fields if the <code>key</code> argument is not provided.
 </td>
 </tr>
 </table>
@@ -1152,7 +1152,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-06-27 11:56:45 UTC
+Last updated 2024-06-27 12:18:31 UTC
 </div>
 </div>
 </body>
