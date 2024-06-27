@@ -438,6 +438,8 @@ With the site context set, you may run queries to access the site content using 
 
 Use the `${site}` placeholder when querying for path's within the site.
 
+NOTE: `${site}` placeholder is supported for the fields `get`, `getChildren`, `getChildrenConnection`, `getPermissions` and `getSite` of the <<api#headlessCms, HeadlessCms>> type. The `getPermissions` and `getSite` fields do not have a `key` argument, and the current content is determined by the `X-Guillotine-SiteKey` header or the `siteKey` argument of the guillotine. The same applies to the `get`, `getChildren`, and `getChildrenConnection` fields if the `key` argument is not provided.
+
 .Example: Accessing content within specific path of a site
 ----
 {
