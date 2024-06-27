@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.22">
+<meta name="generator" content="Asciidoctor 2.0.23">
 <title>Using the Guillotine API</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -1074,7 +1074,19 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 <div class="sect2">
 <h3 id="path_placeholder"><a class="link" href="#path_placeholder">Path placeholder</a></h3>
 <div class="paragraph">
-<p>Use the <code>${site}</code> placeholder when querying for path&#8217;s within the site.</p>
+<p>Use the <code>${site}</code> placeholder when querying for paths within a site. This placeholder will be replaced with an actual path of the site upon query resolution.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<code>${site}</code> placeholder is supported for the fields <code>get</code>, <code>getChildren</code>, <code>getChildrenConnection</code>, <code>getPermissions</code> and <code>getSite</code> of the <a href="api.ahtml#headlessCms">HeadlessCms</a> type. The <code>getPermissions</code> and <code>getSite</code> fields do not have the <code>key</code> argument, and current content is determined by the <code>X-Guillotine-SiteKey</code> header or the <code>siteKey</code> argument of the <code>guillotine</code> field. The same applies to the <code>get</code>, <code>getChildren</code>, and <code>getChildrenConnection</code> fields if the <code>key</code> argument is not provided.
+</td>
+</tr>
+</table>
 </div>
 <div class="listingblock">
 <div class="title">Example: Accessing content within specific path of a site</div>
@@ -1140,7 +1152,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-05-30 15:25:07 UTC
+Last updated 2024-06-27 11:56:45 UTC
 </div>
 </div>
 </body>
