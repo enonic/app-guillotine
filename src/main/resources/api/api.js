@@ -1,10 +1,15 @@
-/* global app, log, Java */
+/* global log, Java */
 
 const eventLib = require('/lib/xp/event');
-const corsLib = require('/lib/cors');
 
 const graphQLApi = __.newBean('com.enonic.app.guillotine.graphql.GraphQLApi');
 const syncExecutor = __.newBean('com.enonic.app.guillotine.Synchronizer');
+
+const CORS_HEADERS = {
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Origin': '*'
+};
 
 let schema;
 
@@ -35,17 +40,6 @@ function getSchema() {
     return schema;
 }
 
-function getHeaders(req) {
-	return corsLib.resolveHeaders(app.config, req);
-}
-
-exports.options = function (req) {
-	return {
-		status: 204,
-		headers: getHeaders(req),
-	}
-};
-
 exports.get = function (req) {
     return {
         status: 404
@@ -57,7 +51,7 @@ exports.post = function (req) {
 
     return {
         contentType: 'application/json',
-		headers: getHeaders(req),
+        headers: CORS_HEADERS,
         body: JSON.stringify(__.toNativeObject(graphQLApi.execute(getSchema(), input.query, __.toScriptValue(input.variables))))
     };
 }

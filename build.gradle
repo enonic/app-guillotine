@@ -17,9 +17,6 @@ app {
     systemVersion = "${xpVersion}"
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = sourceCompatibility
-
 def defaultEncoding = 'UTF-8'
 
 compileJava {
