@@ -1,5 +1,7 @@
 = Configuration options
 
+:imagesdir: images
+
 The following configuration options are available for Guillotine
 
 == Config file
@@ -11,12 +13,35 @@ To configure Guillotine, add a configuration file to your XP instance's `config`
 ----
 queryplayground.ui.mode=off  // <1>
 graphql.extensions.modifyUnknownField=throw  // <2>
+
+cors.enabled=true|false // <3>
+cors.origin= // <4>
+cors.credentials=true|false // <5>
+cors.allowedHeaders=Content-Type // <6>
+cors.methods=POST, OPTIONS // <7>
+cors.maxAge= // <8>
 ----
 
-<1> Enable or disable Query playground on project root.
+<1> Enables or disables Query playground on project root.
 
 +
 NOTE: For Enonic SDK default value is `on`, for server distributions - `off`.
 +
 
 <2> Allows you to modify the default behaviour during modification of unknown fields. Possible values are: `throw`  - to throw an error if it tries to modify an unknown field, `ignore` - to ignore modification modify an unknown field, or `warn` - to log a warning on unknown field modification. Default is `throw`.
+
++
+NOTE: CORS configuration is available from version image:v-720.svg[Guillotine 7.2.0,opts=inline] and allows to set response headers for Cross-Origin Resource Sharing (CORS) requests.
++
+
+<3> Enables or disables CORS support. Default is `true`.
+
+<4> Sets the `Access-Control-Allow-Origin` header to allow CORS requests from. If not set and the Origin header is not provided, then all origins are allowed.
+
+<5> Sets the `Access-Control-Allow-Credentials` header to allow credentials in CORS requests. Default is `false`.
+
+<6> Sets the `Access-Control-Allow-Headers` header to allow headers in CORS requests. Default is `Content-Type`.
+
+<7> Sets the `Access-Control-Allow-Methods` header to allow methods in CORS requests. Guillotine handlers only `POST` and `OPTIONS`. Default is `POST, OPTIONS`.
+
+<8> Sets the `Access-Control-Max-Age` header to specify the maximum age for CORS requests.
