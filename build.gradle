@@ -73,14 +73,12 @@ jacocoTestReport {
     }
 }
 
-check.dependsOn jacocoTestReport
-
 test {
     useJUnitPlatform()
 }
 
 node {
-    version = '18.17.1'
+    version = '22.16.0'
     download = true
 }
 
@@ -91,7 +89,7 @@ tasks.register('lint', NpmTask) {
     inputs.files fileTree( dir: 'src', include: '**/*.ts' )
 }
 
-check.dependsOn( lint )
+check.dependsOn( lint, jacocoTestReport )
 
 tasks.register('webpack', NpmTask) {
     dependsOn( npmInstall )

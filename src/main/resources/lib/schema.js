@@ -35,5 +35,5 @@ function getSchema() {
 }
 
 exports.executeGraphQLQuery = function (query, variables) {
-    return JSON.stringify(__.toNativeObject(graphQLApi.execute(getSchema(), query, __.toScriptValue(variables))))
+    return JSON.stringify(__.toNativeObject(graphQLApi.execute(getSchema(), query, __.toScriptValue(variables))));
 };
