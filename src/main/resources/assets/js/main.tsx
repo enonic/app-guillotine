@@ -124,20 +124,25 @@ function settingButtonCallback() {
     }, 1);
 }
 
+function setupButtonEvent(selector: string, handler: () => void) {
+    const button: Element | null = document.querySelector(selector);
+    if (button) {
+        button.removeEventListener('click', handler);
+        button.addEventListener('click', handler);
+    }
+}
+
 function renderCallback() {
     requestAnimationFrame(() => {
-        const refreshButton: Element = document.querySelector('[aria-label="Re-fetch GraphQL schema"]');
-        refreshButton?.removeEventListener('click', rerenderGraphiQLUI);
-        refreshButton?.addEventListener('click', rerenderGraphiQLUI);
+        setupButtonEvent('[aria-label="Re-fetch GraphQL schema"]', rerenderGraphiQLUI);
 
         document.body.classList.remove('graphiql-dark');
         document.body.classList.add('graphiql-light');
 
-        const settingsButton: Element = document.querySelector('[aria-label="Open settings dialog"]');
-        settingsButton?.removeEventListener('click', settingButtonCallback);
-        settingsButton?.addEventListener('click', settingButtonCallback);
+        setupButtonEvent('[aria-label="Open settings dialog"]', settingButtonCallback);
     });
 }
+
 
 function QueryPlayground() {
     useEffect(() => {

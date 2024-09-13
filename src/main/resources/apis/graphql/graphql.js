@@ -17,10 +17,10 @@ router.route('OPTIONS', '/?', (request) => {
     return {
         status: 204,
         headers: corsLib.getHeaders(request),
-    }
+    };
 });
 
-router.get(`/_static/{path:.*}`, (request) => {
+router.get('/_static/{path:.*}', (request) => {
     return staticLib.requestHandler(
         request,
         {
@@ -36,7 +36,7 @@ router.get('/?', (req) => {
     if (!shouldBeRendered(req)) {
         return {
             status: 404,
-        }
+        };
     } else {
         const view = resolve('graphql.html');
 

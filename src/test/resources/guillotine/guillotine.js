@@ -197,12 +197,12 @@ exports.extensions = function (graphQL) {
                         author: {
                             name: 'Author 2'
                         }
-                    }]
+                    }];
                 },
                 testUnion: function (env) {
                     return {
                         title: 'Title'
-                    }
+                    };
                 },
                 testInterface: function (env) {
                     return [
@@ -215,7 +215,7 @@ exports.extensions = function (graphQL) {
                             name: 'Name 2',
                             description: 'Brief Description'
                         }
-                    ]
+                    ];
                 }
             },
             GoogleBooksAuthor: {
@@ -248,5 +248,5 @@ exports.extensions = function (graphQL) {
                 return 'GoogleBooksAuthor';
             },
         },
-    }
+    };
 };
