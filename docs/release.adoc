@@ -6,7 +6,7 @@ IMPORTANT: Guillotine 7 requires XP 7.14.0 or higher.
 
 === Release features
 
-CORS support:: Guillotine now supports Cross-Origin Resource Sharing (CORS). You can configure the allowed origins, methods, and headers in the <<configuration#, configuration>>.
+CORS support:: Guillotine now supports Cross-Origin Resource Sharing (CORS). You can configure allowed origins, methods, and headers in the <<configuration#, configuration>>. By default CORS is enabled.
 
 == Guillotine 7 Update 1
 
