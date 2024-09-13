@@ -463,14 +463,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="title">com.enonic.app.guillotine.cfg</div>
 <div class="content">
 <pre class="highlight"><code class="language-properties" data-lang="properties">queryplayground.ui.mode=off  <i class="conum" data-value="1"></i><b>(1)</b>
-graphql.extensions.modifyUnknownField=throw  <i class="conum" data-value="2"></i><b>(2)</b></code></pre>
+graphql.extensions.modifyUnknownField=throw  <i class="conum" data-value="2"></i><b>(2)</b>
+
+cors.enabled=true|false <i class="conum" data-value="3"></i><b>(3)</b>
+cors.origin= <i class="conum" data-value="4"></i><b>(4)</b>
+cors.credentials=true|false <i class="conum" data-value="5"></i><b>(5)</b>
+cors.allowedHeaders=Content-Type <i class="conum" data-value="6"></i><b>(6)</b>
+cors.methods=POST, OPTIONS <i class="conum" data-value="7"></i><b>(7)</b>
+cors.maxAge= <i class="conum" data-value="8"></i><b>(8)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Enable or disable Query playground on project root.
+<td>Enables or disables Query playground on project root.
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -486,7 +493,43 @@ For Enonic SDK default value is <code>on</code>, for server distributions - <cod
 </tr>
 <tr>
 <td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Allows you to modify the default behaviour during modification of unknown fields. Possible values are: <code>throw</code>  - to throw an error if it tries to modify an unknown field, <code>ignore</code> - to ignore modification modify an unknown field, or <code>warn</code> - to log a warning on unknown field modification. Default is <code>throw</code>.</td>
+<td>Allows you to modify the default behaviour during modification of unknown fields. Possible values are: <code>throw</code>  - to throw an error if it tries to modify an unknown field, <code>ignore</code> - to ignore modification modify an unknown field, or <code>warn</code> - to log a warning on unknown field modification. Default is <code>throw</code>.
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+CORS configuration is available from version <span class="image"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="54" height="20"><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="54" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="25" height="20" fill="#555"/><rect x="20" width="39" height="20" fill="#007ec6"/><rect width="54" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="100" y="130" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="150">v</text><text x="100" y="130" transform="scale(.1)" textLength="150">v</text><text x="365" y="140" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="290">7.2.0</text><text x="365" y="140" transform="scale(.1)" textLength="290">7.2.0</text></g></svg></span> and allows to set response headers for Cross-Origin Resource Sharing (CORS) requests.
+</td>
+</tr>
+</table>
+</div></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Enables or disables CORS support. Default is <code>true</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Sets the <code>Access-Control-Allow-Origin</code> header to allow CORS requests from. If not set and the Origin header is not provided, then all origins are allowed.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Sets the <code>Access-Control-Allow-Credentials</code> header to allow credentials in CORS requests. Default is <code>false</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Sets the <code>Access-Control-Allow-Headers</code> header to allow headers in CORS requests. Default is <code>Content-Type</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Sets the <code>Access-Control-Allow-Methods</code> header to allow methods in CORS requests. Guillotine handlers only <code>POST</code> and <code>OPTIONS</code>. Default is <code>POST, OPTIONS</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Sets the <code>Access-Control-Max-Age</code> header to specify the maximum age for CORS requests.</td>
 </tr>
 </table>
 </div>
@@ -495,7 +538,7 @@ For Enonic SDK default value is <code>on</code>, for server distributions - <cod
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-06-27 12:18:31 UTC
+Last updated 2024-09-13 08:49:31 UTC
 </div>
 </div>
 </body>

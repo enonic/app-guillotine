@@ -441,14 +441,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#guillotine_7_update_1">Guillotine 7 Update 1</a>
+<li><a href="#guillotine_7_update_2">Guillotine 7 Update 2</a>
 <ul class="sectlevel2">
 <li><a href="#release_features">Release features</a></li>
 </ul>
 </li>
-<li><a href="#guillotine_7">Guillotine 7</a>
+<li><a href="#guillotine_7_update_1">Guillotine 7 Update 1</a>
 <ul class="sectlevel2">
 <li><a href="#release_features_2">Release features</a></li>
+</ul>
+</li>
+<li><a href="#guillotine_7">Guillotine 7</a>
+<ul class="sectlevel2">
+<li><a href="#release_features_3">Release features</a></li>
 <li><a href="#breaking_changes">Breaking changes</a></li>
 </ul>
 </li>
@@ -473,10 +478,26 @@ Guillotine 7 requires XP 7.14.0 or higher.
 </div>
 </div>
 <div class="sect1">
-<h2 id="guillotine_7_update_1"><a class="link" href="#guillotine_7_update_1">Guillotine 7 Update 1</a></h2>
+<h2 id="guillotine_7_update_2"><a class="link" href="#guillotine_7_update_2">Guillotine 7 Update 2</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="release_features"><a class="link" href="#release_features">Release features</a></h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">CORS support</dt>
+<dd>
+<p>Guillotine now supports Cross-Origin Resource Sharing (CORS). You can configure allowed origins, methods, and headers in the <a href="configuration.ahtml">configuration</a>. By default CORS is enabled.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="guillotine_7_update_1"><a class="link" href="#guillotine_7_update_1">Guillotine 7 Update 1</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="release_features_2"><a class="link" href="#release_features_2">Release features</a></h3>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Type definitions on NPM</dt>
@@ -564,7 +585,7 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 </table>
 </div>
 <div class="sect2">
-<h3 id="release_features_2"><a class="link" href="#release_features_2">Release features</a></h3>
+<h3 id="release_features_3"><a class="link" href="#release_features_3">Release features</a></h3>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Extensions</dt>
@@ -610,7 +631,7 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-06-27 12:18:31 UTC
+Last updated 2024-09-13 08:49:31 UTC
 </div>
 </div>
 </body>
