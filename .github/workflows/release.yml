@@ -68,12 +68,6 @@ jobs:
       - name: Publish to Artifactory
         run: ./gradlew publish -Pcom.enonic.xp.app.production=true -PrepoKey=${{ steps.publish_vars.outputs.repo }} -PrepoUser=${{ secrets.ARTIFACTORY_USERNAME }} -PrepoPassword=${{ secrets.ARTIFACTORY_PASSWORD }}
 
-      - name: Publish to NPM
-        run: npm publish
-        working-directory: types
-        env:
-            NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
       - name: Download changelog
         uses: actions/download-artifact@v3
         with:
