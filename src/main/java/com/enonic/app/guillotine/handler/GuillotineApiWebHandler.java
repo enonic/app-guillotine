@@ -1,6 +1,6 @@
 package com.enonic.app.guillotine.handler;
 
-import java.util.regex.Matcher;
+import java.util.EnumSet;
 import java.util.regex.Pattern;
 
 import org.osgi.service.component.annotations.Activate;
@@ -37,7 +37,7 @@ public class GuillotineApiWebHandler
     @Activate
     public GuillotineApiWebHandler( final @Reference ControllerScriptFactory controllerScriptFactory )
     {
-        super( -49 );
+		super( -49, EnumSet.of( HttpMethod.GET, HttpMethod.POST, HttpMethod.OPTIONS ) );
         this.controllerScriptFactory = controllerScriptFactory;
     }
 
@@ -45,9 +45,7 @@ public class GuillotineApiWebHandler
     protected boolean canHandle( final WebRequest webRequest )
     {
         final String path = webRequest.getRawPath();
-        final Matcher matcher = URL_PATTERN.matcher( path );
-        return ( webRequest.getMethod() == HttpMethod.POST || ( webRequest.getMethod() == HttpMethod.GET && webRequest.isWebSocket() ) ) &&
-            matcher.matches();
+        return URL_PATTERN.matcher( path ).matches();
     }
 
     @Override
