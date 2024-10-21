@@ -1,5 +1,6 @@
 package com.enonic.app.guillotine.handler;
 
+import java.util.EnumSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,21 +35,18 @@ public class GuillotineApiWebHandler
 
     private final ControllerScriptFactory controllerScriptFactory;
 
-    @Activate
-    public GuillotineApiWebHandler( final @Reference ControllerScriptFactory controllerScriptFactory )
-    {
-        super( -49 );
-        this.controllerScriptFactory = controllerScriptFactory;
-    }
+	@Activate
+	public GuillotineApiWebHandler( final @Reference ControllerScriptFactory controllerScriptFactory )
+	{
+		super( -49, EnumSet.of( HttpMethod.POST, HttpMethod.GET, HttpMethod.OPTIONS ) );
+		this.controllerScriptFactory = controllerScriptFactory;
+	}
 
-    @Override
-    protected boolean canHandle( final WebRequest webRequest )
-    {
-        final String path = webRequest.getRawPath();
-        final Matcher matcher = URL_PATTERN.matcher( path );
-        return ( webRequest.getMethod() == HttpMethod.POST || ( webRequest.getMethod() == HttpMethod.GET && webRequest.isWebSocket() ) ) &&
-            matcher.matches();
-    }
+	@Override
+	protected boolean canHandle( final WebRequest webRequest )
+	{
+		return URL_PATTERN.matcher( webRequest.getRawPath() ).matches();
+	}
 
     @Override
     protected WebResponse doHandle( final WebRequest webRequest, final WebResponse webResponse, final WebHandlerChain webHandlerChain )
