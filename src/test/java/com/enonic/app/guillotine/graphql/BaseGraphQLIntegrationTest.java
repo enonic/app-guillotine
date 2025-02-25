@@ -28,6 +28,8 @@ import com.enonic.xp.config.ConfigBuilder;
 import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
+import com.enonic.xp.form.PropertyTreeMarshallerService;
+import com.enonic.xp.json.ObjectMapperHelper;
 import com.enonic.xp.macro.MacroDescriptorService;
 import com.enonic.xp.macro.MacroService;
 import com.enonic.xp.portal.PortalRequest;
@@ -120,6 +122,16 @@ public class BaseGraphQLIntegrationTest
 
 		when( serviceFacade.getMixinService() ).thenReturn( mixinService );
 
+        PropertyTreeMarshallerService propertyTreeMarshallerService = mock( PropertyTreeMarshallerService.class );
+
+		when( serviceFacade.getPropertyTreeMarshallerService() ).thenReturn( propertyTreeMarshallerService );
+
+        Mockito.when( propertyTreeMarshallerService.marshal( Mockito.any() ) )
+            .thenAnswer(
+                invocation -> {
+                    return JsonToPropertyTreeTranslator.translate( ObjectMapperHelper.create().valueToTree( invocation.getArgument( 0 ) ) );
+                } ); // in XP8 PropertyTree can be constructed from Map directly. No need to use PropertyTreeMarshallerService
+
         addService( ServiceFacade.class, serviceFacade );
         addService( ExtensionsExtractorService.class, extensionsExtractorService );
         addService( ApplicationService.class, applicationService );
@@ -127,6 +139,7 @@ public class BaseGraphQLIntegrationTest
         addService( MacroDescriptorService.class, macroDescriptorService );
         addService( MacroService.class, macroService );
 		addService( MixinService.class, mixinService );
+		addService( PropertyTreeMarshallerService.class, propertyTreeMarshallerService );
 
         createGraphQLApiBean();
     }

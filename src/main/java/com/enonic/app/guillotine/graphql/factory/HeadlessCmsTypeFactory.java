@@ -59,10 +59,12 @@ public class HeadlessCmsTypeFactory
 
         context.registerDataFetcher( headlessCms.getName(), "getSite", new GetSiteDataFetcher( serviceFacade.getContentService() ) );
 
-        context.registerDataFetcher( headlessCms.getName(), "queryDsl", new QueryDslDataFetcher( serviceFacade.getContentService() ) );
+        context.registerDataFetcher( headlessCms.getName(), "queryDsl", new QueryDslDataFetcher( serviceFacade.getContentService(),
+                                                                                                 serviceFacade.getPropertyTreeMarshallerService() ) );
 
         context.registerDataFetcher( headlessCms.getName(), "queryDslConnection",
-                                     new QueryDslConnectionDataFetcher( serviceFacade.getContentService() ) );
+                                     new QueryDslConnectionDataFetcher( serviceFacade.getContentService(),
+                                                                        serviceFacade.getPropertyTreeMarshallerService() ) );
 
         context.registerDataFetcher( headlessCms.getName(), "getType",
                                      new GetTypeDataFetcher( context, serviceFacade.getContentTypeService() ) );

@@ -1,4 +1,4 @@
-package com.enonic.app.guillotine.mapper;
+package com.enonic.app.guillotine.graphql;
 
 import java.util.Iterator;
 import java.util.Map;
