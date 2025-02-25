@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.app.guillotine.mapper.JsonToFilterMapper;
-import com.enonic.app.guillotine.mapper.JsonToPropertyTreeTranslator;
 import com.enonic.app.guillotine.mapper.QueryMapper;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentQuery;
@@ -17,6 +16,7 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
 import com.enonic.xp.content.GetContentByIdsParams;
+import com.enonic.xp.form.PropertyTreeMarshallerService;
 import com.enonic.xp.query.aggregation.AggregationQuery;
 import com.enonic.xp.query.expr.ConstraintExpr;
 import com.enonic.xp.query.expr.DslExpr;
@@ -27,7 +27,6 @@ import com.enonic.xp.query.filter.Filters;
 import com.enonic.xp.query.highlight.HighlightQuery;
 import com.enonic.xp.query.parser.QueryParser;
 import com.enonic.xp.schema.content.ContentTypeNames;
-import com.enonic.xp.util.JsonHelper;
 
 public class FindContentsCommand
 {
@@ -35,10 +34,13 @@ public class FindContentsCommand
 
     private final ContentService contentService;
 
-    public FindContentsCommand( final FindContentsParams params, final ContentService contentService )
+    private final PropertyTreeMarshallerService propertyTreeMarshallerService;
+
+    public FindContentsCommand( final FindContentsParams params, final ContentService contentService, final PropertyTreeMarshallerService propertyTreeMarshallerService )
     {
         this.params = params;
         this.contentService = contentService;
+        this.propertyTreeMarshallerService = propertyTreeMarshallerService;
     }
 
     public Map<String, Object> execute()
@@ -99,7 +101,7 @@ public class FindContentsCommand
         else if ( query instanceof Map )
         {
             Map<String, Object> settings = CastHelper.cast( query );
-            return DslExpr.from( JsonToPropertyTreeTranslator.translate( JsonHelper.from( settings ) ) );
+            return DslExpr.from( propertyTreeMarshallerService.marshal( settings ) );
         }
 
         throw new IllegalArgumentException( "query must be a String or JSON object" );
@@ -119,13 +121,13 @@ public class FindContentsCommand
         else if ( sort instanceof Map )
         {
             Map<String, Object> settings = CastHelper.cast( sort );
-            return List.of( DslOrderExpr.from( JsonToPropertyTreeTranslator.translate( JsonHelper.from( settings ) ) ) );
+            return List.of( DslOrderExpr.from( propertyTreeMarshallerService.marshal( settings ) ) );
         }
         else if ( sort instanceof Collection )
         {
             return ( (Collection<?>) sort ).stream().map( expr -> {
                 Map<String, Object> exprAsMap = CastHelper.cast( expr );
-                return DslOrderExpr.from( JsonToPropertyTreeTranslator.translate( JsonHelper.from( exprAsMap ) ) );
+                return DslOrderExpr.from( propertyTreeMarshallerService.marshal( exprAsMap ) );
             } ).collect( Collectors.toList() );
         }
 
