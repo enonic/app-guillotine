@@ -17,7 +17,7 @@ import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.macro.Macro;
 import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.macro.MacroKey;
-import com.enonic.xp.script.serializer.JsonMapGenerator;
+import com.enonic.xp.testing.serializer.JsonMapGenerator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
