@@ -37,7 +37,7 @@
     "postcss": "^8.5.3",
     "postcss-loader": "^8.1.1",
     "source-map-loader": "^5.0.0",
-    "terser-webpack-plugin": "^5.3.11",
+    "terser-webpack-plugin": "^5.3.14",
     "ts-loader": "^9.5.2",
     "typescript": "^5.7.3",
     "webpack": "^5.98.0",
