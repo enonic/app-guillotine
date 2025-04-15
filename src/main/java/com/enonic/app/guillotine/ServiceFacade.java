@@ -6,7 +6,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.enonic.app.guillotine.graphql.ComponentDescriptorService;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.form.PropertyTreeMarshallerService;
 import com.enonic.xp.macro.MacroDescriptorService;
 import com.enonic.xp.macro.MacroService;
 import com.enonic.xp.node.NodeService;
@@ -39,8 +38,6 @@ public class ServiceFacade
 
     private final StyleDescriptorService styleDescriptorService;
 
-	private final PropertyTreeMarshallerService propertyTreeMarshallerService;
-
     @Activate
     public ServiceFacade( final @Reference ContentService contentService, final @Reference ContentTypeService contentTypeService,
                           final @Reference ComponentDescriptorService componentDescriptorService,
@@ -48,8 +45,7 @@ public class ServiceFacade
                           final @Reference MixinService mixinService, final @Reference MacroService macroService,
                           final @Reference MacroDescriptorService macroDescriptorService,
                           final @Reference PageTemplateService pageTemplateService,
-                          final @Reference StyleDescriptorService styleDescriptorService,
-                          final @Reference PropertyTreeMarshallerService propertyTreeMarshallerService )
+                          final @Reference StyleDescriptorService styleDescriptorService )
     {
         this.contentService = contentService;
         this.contentTypeService = contentTypeService;
@@ -61,7 +57,6 @@ public class ServiceFacade
         this.macroDescriptorService = macroDescriptorService;
         this.pageTemplateService = pageTemplateService;
         this.styleDescriptorService = styleDescriptorService;
-        this.propertyTreeMarshallerService = propertyTreeMarshallerService;
     }
 
     public ContentService getContentService()
@@ -114,8 +109,4 @@ public class ServiceFacade
         return styleDescriptorService;
     }
 
-    public PropertyTreeMarshallerService getPropertyTreeMarshallerService()
-    {
-        return propertyTreeMarshallerService;
-    }
 }

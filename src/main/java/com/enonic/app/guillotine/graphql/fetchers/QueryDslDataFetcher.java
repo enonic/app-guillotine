@@ -8,19 +8,15 @@ import com.enonic.app.guillotine.graphql.ArgumentsValidator;
 import com.enonic.app.guillotine.graphql.commands.FindContentsCommand;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.form.PropertyTreeMarshallerService;
 
 public class QueryDslDataFetcher
     extends QueryBaseDataFetcher
 {
     private final ContentService contentService;
 
-    private final PropertyTreeMarshallerService propertyTreeMarshallerService;
-
-    public QueryDslDataFetcher( final ContentService contentService, final PropertyTreeMarshallerService propertyTreeMarshallerService )
+    public QueryDslDataFetcher( final ContentService contentService )
     {
         this.contentService = contentService;
-        this.propertyTreeMarshallerService = propertyTreeMarshallerService;
     }
 
     @Override
@@ -35,8 +31,8 @@ public class QueryDslDataFetcher
         ArgumentsValidator.validateDslQuery( environment.getArguments() );
 
         Map<String, Object> queryResult = new FindContentsCommand(
-            createQueryParams( environment.getArgument( "offset" ), environment.getArgument( "first" ), environment ), contentService,
-            propertyTreeMarshallerService ).execute();
+            createQueryParams( environment.getArgument( "offset" ), environment.getArgument( "first" ), environment ),
+            contentService ).execute();
 
         return queryResult.get( "hits" );
     }

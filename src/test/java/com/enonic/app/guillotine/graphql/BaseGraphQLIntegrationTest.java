@@ -28,8 +28,6 @@ import com.enonic.xp.config.ConfigBuilder;
 import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
-import com.enonic.xp.form.PropertyTreeMarshallerService;
-import com.enonic.xp.json.ObjectMapperHelper;
 import com.enonic.xp.macro.MacroDescriptorService;
 import com.enonic.xp.macro.MacroService;
 import com.enonic.xp.portal.PortalRequest;
@@ -117,20 +115,10 @@ public class BaseGraphQLIntegrationTest
         when( macroService.evaluateMacros( anyString(), any() ) ).thenReturn( "processedMacros" );
         when( serviceFacade.getMacroService() ).thenReturn( macroService );
 
-		MixinService mixinService = mock( MixinService.class );
-		when( mixinService.inlineFormItems( any() ) ).thenReturn( null );
+        MixinService mixinService = mock( MixinService.class );
+        when( mixinService.inlineFormItems( any() ) ).thenReturn( null );
 
-		when( serviceFacade.getMixinService() ).thenReturn( mixinService );
-
-        PropertyTreeMarshallerService propertyTreeMarshallerService = mock( PropertyTreeMarshallerService.class );
-
-		when( serviceFacade.getPropertyTreeMarshallerService() ).thenReturn( propertyTreeMarshallerService );
-
-        Mockito.when( propertyTreeMarshallerService.marshal( Mockito.any() ) )
-            .thenAnswer(
-                invocation -> {
-                    return JsonToPropertyTreeTranslator.translate( ObjectMapperHelper.create().valueToTree( invocation.getArgument( 0 ) ) );
-                } ); // in XP8 PropertyTree can be constructed from Map directly. No need to use PropertyTreeMarshallerService
+        when( serviceFacade.getMixinService() ).thenReturn( mixinService );
 
         addService( ServiceFacade.class, serviceFacade );
         addService( ExtensionsExtractorService.class, extensionsExtractorService );
@@ -138,8 +126,7 @@ public class BaseGraphQLIntegrationTest
         addService( PortalUrlService.class, portalUrlService );
         addService( MacroDescriptorService.class, macroDescriptorService );
         addService( MacroService.class, macroService );
-		addService( MixinService.class, mixinService );
-		addService( PropertyTreeMarshallerService.class, propertyTreeMarshallerService );
+        addService( MixinService.class, mixinService );
 
         createGraphQLApiBean();
     }
@@ -220,9 +207,7 @@ public class BaseGraphQLIntegrationTest
 
     private Context createAdminContext()
     {
-        return ContextBuilder.copyOf( ContextAccessor.current() )
-			.repositoryId( RepositoryId.from( "com.enonic.cms.myproject" ) )
-			.authInfo(
+        return ContextBuilder.copyOf( ContextAccessor.current() ).repositoryId( RepositoryId.from( "com.enonic.cms.myproject" ) ).authInfo(
             AuthenticationInfo.create().principals( RoleKeys.AUTHENTICATED, RoleKeys.ADMIN ).user( User.ANONYMOUS ).build() ).build();
     }
 

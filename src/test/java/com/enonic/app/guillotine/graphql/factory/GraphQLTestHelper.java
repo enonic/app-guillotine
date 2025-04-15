@@ -10,20 +10,20 @@ import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLType;
 import graphql.schema.GraphQLTypeReference;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class GraphQLTestHelper
 {
     public static String getNameForGraphQLTypeReference( GraphQLType type )
     {
-        assertTrue( type instanceof GraphQLTypeReference );
+        assertInstanceOf( GraphQLTypeReference.class, type );
         return ( (GraphQLTypeReference) type ).getName();
     }
 
     public static GraphQLType getOriginalTypeFromGraphQLList( GraphQLInputObjectType type, String fieldName )
     {
         GraphQLInputType typeOfField = type.getField( fieldName ).getType();
-        assertTrue( typeOfField instanceof GraphQLList );
+        assertInstanceOf( GraphQLList.class, typeOfField );
 
         return ( (GraphQLList) typeOfField ).getOriginalWrappedType();
     }
@@ -31,7 +31,7 @@ public class GraphQLTestHelper
     public static GraphQLType getOriginalTypeFromGraphQLList( GraphQLObjectType type, String fieldName )
     {
         GraphQLOutputType typeOfField = type.getField( fieldName ).getType();
-        assertTrue( typeOfField instanceof GraphQLList );
+        assertInstanceOf( GraphQLList.class, typeOfField );
 
         return ( (GraphQLList) typeOfField ).getOriginalWrappedType();
     }
@@ -39,7 +39,7 @@ public class GraphQLTestHelper
     public static GraphQLType getOriginalTypeFromGraphQLList( GraphQLInterfaceType type, String fieldName )
     {
         GraphQLOutputType typeOfField = type.getField( fieldName ).getType();
-        assertTrue( typeOfField instanceof GraphQLList );
+        assertInstanceOf( GraphQLList.class, typeOfField );
 
         return ( (GraphQLList) typeOfField ).getOriginalWrappedType();
     }
@@ -47,7 +47,7 @@ public class GraphQLTestHelper
     public static GraphQLType getOriginalTypeFromGraphQLNonNull( GraphQLInputObjectType type, String fieldName )
     {
         GraphQLInputType typeOfField = type.getField( fieldName ).getType();
-        assertTrue( typeOfField instanceof GraphQLNonNull );
+        assertInstanceOf( GraphQLNonNull.class, typeOfField );
 
         return ( (GraphQLNonNull) typeOfField ).getOriginalWrappedType();
     }
@@ -55,7 +55,7 @@ public class GraphQLTestHelper
     public static GraphQLType getOriginalTypeFromGraphQLNonNull( GraphQLObjectType type, String fieldName )
     {
         GraphQLOutputType typeOfField = type.getField( fieldName ).getType();
-        assertTrue( typeOfField instanceof GraphQLNonNull );
+        assertInstanceOf( GraphQLNonNull.class, typeOfField );
 
         return ( (GraphQLNonNull) typeOfField ).getOriginalWrappedType();
     }
@@ -63,7 +63,7 @@ public class GraphQLTestHelper
     public static GraphQLType getOriginalTypeFromGraphQLNonNull( GraphQLInterfaceType type, String fieldName )
     {
         GraphQLOutputType typeOfField = type.getField( fieldName ).getType();
-        assertTrue( typeOfField instanceof GraphQLNonNull );
+        assertInstanceOf( GraphQLNonNull.class, typeOfField );
 
         return ( (GraphQLNonNull) typeOfField ).getOriginalWrappedType();
     }
