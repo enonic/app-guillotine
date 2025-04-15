@@ -14,6 +14,8 @@ import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
+import com.enonic.xp.portal.url.AttachmentUrlParams;
+import com.enonic.xp.portal.url.ImageUrlParams;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.repository.RepositoryId;
 
@@ -52,7 +54,7 @@ public class UrlFieldDataFetcherTest
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        when( portalUrlService.attachmentUrl( Mockito.any() ) ).thenReturn( "attachmentUrl" );
+        when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlParams.class ) ) ).thenReturn( "attachmentUrl" );
 
         Map<String, Object> source = new HashMap<>();
         source.put( Constants.CONTENT_ID_FIELD, "contentId" );
@@ -69,7 +71,7 @@ public class UrlFieldDataFetcherTest
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        when( portalUrlService.imageUrl( Mockito.any() ) ).thenReturn( "imageUrl" );
+        when( portalUrlService.imageUrl( Mockito.any( ImageUrlParams.class ) ) ).thenReturn( "imageUrl" );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "_id", "contentId" );
@@ -92,7 +94,7 @@ public class UrlFieldDataFetcherTest
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        when( portalUrlService.attachmentUrl( Mockito.any() ) ).thenReturn( "attachmentUrl" );
+        when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlParams.class ) ) ).thenReturn( "attachmentUrl" );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "_id", "contentId" );

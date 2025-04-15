@@ -10,20 +10,15 @@ import com.enonic.app.guillotine.graphql.commands.FindContentsCommand;
 import com.enonic.app.guillotine.graphql.helper.ConnectionHelper;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.form.PropertyTreeMarshallerService;
 
 public class QueryDslConnectionDataFetcher
     extends QueryBaseDataFetcher
 {
     private final ContentService contentService;
 
-    private final PropertyTreeMarshallerService propertyTreeMarshallerService;
-
-    public QueryDslConnectionDataFetcher( final ContentService contentService,
-                                          final PropertyTreeMarshallerService propertyTreeMarshallerService )
+    public QueryDslConnectionDataFetcher( final ContentService contentService )
     {
         this.contentService = contentService;
-        this.propertyTreeMarshallerService = propertyTreeMarshallerService;
     }
 
     @Override
@@ -42,8 +37,8 @@ public class QueryDslConnectionDataFetcher
 
         int first = environment.getArgument( "first" ) != null ? environment.getArgument( "first" ) : 10;
 
-        Map<String, Object> queryResult = new FindContentsCommand( createQueryParams( offset, first, environment ), contentService,
-                                                                   propertyTreeMarshallerService ).execute();
+        Map<String, Object> queryResult =
+            new FindContentsCommand( createQueryParams( offset, first, environment ), contentService ).execute();
 
         Map<String, Object> result = new HashMap<>();
 

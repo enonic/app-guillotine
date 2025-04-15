@@ -16,7 +16,7 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
 import com.enonic.xp.content.GetContentByIdsParams;
-import com.enonic.xp.form.PropertyTreeMarshallerService;
+import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.query.aggregation.AggregationQuery;
 import com.enonic.xp.query.expr.ConstraintExpr;
 import com.enonic.xp.query.expr.DslExpr;
@@ -34,13 +34,10 @@ public class FindContentsCommand
 
     private final ContentService contentService;
 
-    private final PropertyTreeMarshallerService propertyTreeMarshallerService;
-
-    public FindContentsCommand( final FindContentsParams params, final ContentService contentService, final PropertyTreeMarshallerService propertyTreeMarshallerService )
+    public FindContentsCommand( final FindContentsParams params, final ContentService contentService )
     {
         this.params = params;
         this.contentService = contentService;
-        this.propertyTreeMarshallerService = propertyTreeMarshallerService;
     }
 
     public Map<String, Object> execute()
@@ -101,10 +98,12 @@ public class FindContentsCommand
         else if ( query instanceof Map )
         {
             Map<String, Object> settings = CastHelper.cast( query );
-            return DslExpr.from( propertyTreeMarshallerService.marshal( settings ) );
+            return DslExpr.from( PropertyTree.fromMap( settings ) );
         }
-
-        throw new IllegalArgumentException( "query must be a String or JSON object" );
+        else
+        {
+            throw new IllegalArgumentException( "query must be a String or JSON object" );
+        }
     }
 
     private List<OrderExpr> buildOrderExpr()
@@ -121,16 +120,18 @@ public class FindContentsCommand
         else if ( sort instanceof Map )
         {
             Map<String, Object> settings = CastHelper.cast( sort );
-            return List.of( DslOrderExpr.from( propertyTreeMarshallerService.marshal( settings ) ) );
+            return List.of( DslOrderExpr.from( PropertyTree.fromMap( settings ) ) );
         }
         else if ( sort instanceof Collection )
         {
             return ( (Collection<?>) sort ).stream().map( expr -> {
                 Map<String, Object> exprAsMap = CastHelper.cast( expr );
-                return DslOrderExpr.from( propertyTreeMarshallerService.marshal( exprAsMap ) );
+                return DslOrderExpr.from( PropertyTree.fromMap( exprAsMap ) );
             } ).collect( Collectors.toList() );
         }
-
-        throw new IllegalArgumentException( "sort must be a String, JSON object or array of JSON objects" );
+        else
+        {
+            throw new IllegalArgumentException( "sort must be a String, JSON object or array of JSON objects" );
+        }
     }
 }
