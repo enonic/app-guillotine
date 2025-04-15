@@ -12,6 +12,7 @@ import com.enonic.xp.branch.Branch;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.project.ProjectConstants;
+import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.repository.RepositoryId;
 
 public class GuillotineLocalContextHelper
@@ -24,12 +25,11 @@ public class GuillotineLocalContextHelper
 
         if ( localContext.get( Constants.BRANCH_ARG ) != null )
         {
-            contextBuilder.branch( localContext.get( Constants.BRANCH_ARG ).toString() );
+            contextBuilder.branch( Branch.from( localContext.get( Constants.BRANCH_ARG ).toString() ) );
         }
         if ( localContext.get( Constants.PROJECT_ARG ) != null )
         {
-            contextBuilder.repositoryId(
-                ProjectConstants.PROJECT_REPO_ID_PREFIX + localContext.get( Constants.PROJECT_ARG ).toString() );
+            contextBuilder.repositoryId( ProjectName.from( localContext.get( Constants.PROJECT_ARG ).toString() ).getRepoId() );
         }
 
         return contextBuilder.build().callWith( callable );

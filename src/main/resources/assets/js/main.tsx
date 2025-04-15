@@ -1,9 +1,7 @@
 import {GraphiQL} from 'graphiql';
 import {createGraphiQLFetcher} from '@graphiql/toolkit';
 import * as React from 'react';
-import {useState} from 'react';
 import * as ReactDOM from 'react-dom';
-import {Button, ButtonGroup} from '@graphiql/react';
 import {createClient} from 'graphql-ws';
 
 const DEFAULT_QUERY = `# Welcome to Query Playground
@@ -21,22 +19,16 @@ query {
 }
 `;
 
-let currentBranch = 'draft';
-
 function getRootContainer() {
     return document.getElementById('graphiql-container');
 }
 
 function getHandlerUrl() {
-    return `${getRootContainer().dataset.configHandlerUrl}/${getProjectValue()}/${currentBranch}`;
+    return getRootContainer().dataset.configHandlerUrl;
 }
 
 function getWsHandlerUrl() {
-    return `${getRootContainer().dataset.configWsUrl}/${getProjectValue()}/${currentBranch}`;
-}
-
-function getProjectValue(): string {
-    return window['libAdmin'].store.get('projectContext').currentProject.name;
+    return `${getRootContainer().dataset.configWsUrl}`;
 }
 
 function renderGraphiQLUI() {
@@ -83,45 +75,11 @@ function createFetcher() {
     });
 }
 
-function BranchChooser() {
-    const [branch, setBranch] = useState(currentBranch);
-
-    const handleOnClick = (event, newBranch) => {
-        currentBranch = newBranch;
-        setBranch(newBranch);
-
-        rerenderGraphiQLUI();
-    };
-
-    return (
-        <ButtonGroup>
-            <Button
-                type="button"
-                className={branch === 'draft' ? 'active' : ''}
-                onClick={(event) => handleOnClick(event, 'draft')}
-            >
-                Draft
-            </Button>
-            <Button
-                type="button"
-                className={branch === 'master' ? 'active' : ''}
-                onClick={(event) => handleOnClick(event, 'master')}
-            >
-                Master
-            </Button>
-        </ButtonGroup>
-    );
-}
-
 function QueryPlayground() {
     return (
         <GraphiQL fetcher={createFetcher()}
                   defaultQuery={DEFAULT_QUERY}
-        >
-            <GraphiQL.Logo>
-                <BranchChooser/>
-            </GraphiQL.Logo>
-        </GraphiQL>
+        />
     );
 }
 
