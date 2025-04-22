@@ -179,7 +179,7 @@ public class ContentTypesFactory
         arguments.add( newArgument( "background", Scalars.GraphQLString ) );
         arguments.add( newArgument( "format", Scalars.GraphQLString ) );
         arguments.add( newArgument( "filter", Scalars.GraphQLString ) );
-        arguments.add( newArgument( "params", Scalars.GraphQLString ) );
+        arguments.add( newArgument( "params", ExtendedScalars.Json ) );
 
         return outputField( "imageUrl", Scalars.GraphQLString, arguments );
     }

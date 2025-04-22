@@ -1,6 +1,5 @@
 package com.enonic.app.guillotine.graphql;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.stream.Collectors;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
 import graphql.Scalars;
-import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetcher;
 import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLCodeRegistry;
@@ -120,7 +118,7 @@ public class GraphQLApi
             // except when it has also been overridden for a specific implementation.
             List<GraphQLInterfaceType> interfaces =
                 typesRegister.getAdditionalTypes().stream().filter( type -> type instanceof GraphQLInterfaceType ).map(
-                    type -> (GraphQLInterfaceType) type ).collect( Collectors.toList() );
+                    type -> (GraphQLInterfaceType) type ).toList();
 
             for ( GraphQLInterfaceType interfaceType : interfaces )
             {
@@ -178,7 +176,7 @@ public class GraphQLApi
 
         typesRegister.addCreationCallback( "Query", guillotineQueryCreationCallback );
 
-        typesRegister.addResolver( "Query", "guillotine", new GuillotineDataFetcher( portalRequestSupplier ) );
+        typesRegister.addResolver( "Query", "guillotine", new GuillotineDataFetcher( portalRequestSupplier, serviceFacadeSupplier ) );
 
         typesRegister.addAdditionalType( context.getAllTypes() );
 

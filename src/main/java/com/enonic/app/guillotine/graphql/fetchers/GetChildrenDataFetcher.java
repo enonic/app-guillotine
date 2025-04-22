@@ -1,12 +1,19 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
+import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.Content;
@@ -49,7 +56,30 @@ public class GetChildrenDataFetcher
                     FindContentByParentParams.create().parentId( parent.getId() ).from( from ).size( count ).childOrder(
                         childOrder ).build() );
 
-                return children.getContents().stream().map( GuillotineSerializer::serialize ).collect( Collectors.toList() );
+                final List<Map<String, Object>> data = new ArrayList<>( (int) children.getHits() );
+
+                final ConcurrentMap<String, Content> contentsWithAttachments = new ConcurrentHashMap<>();
+
+                children.getContents().forEach( content -> {
+                    data.add( GuillotineSerializer.serialize( content ) );
+
+                    if ( !content.getAttachments().isEmpty() )
+                    {
+                        contentsWithAttachments.put( content.getId().toString(), content );
+                    }
+                } );
+
+                final Map<String, Object> parentLocalContext = environment.getLocalContext();
+
+                final Map<String, Object> newLocalContext = new HashMap<>();
+
+                if ( parentLocalContext != null )
+                {
+                    newLocalContext.putAll( parentLocalContext );
+                }
+                newLocalContext.put( Constants.CONTENTS_FIELD, contentsWithAttachments );
+
+                return DataFetcherResult.newResult().localContext( Collections.unmodifiableMap( newLocalContext ) ).data( data ).build();
             }
             catch ( final ContentNotFoundException e )
             {
