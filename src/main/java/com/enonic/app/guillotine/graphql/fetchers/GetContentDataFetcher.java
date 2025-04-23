@@ -3,7 +3,6 @@ package com.enonic.app.guillotine.graphql.fetchers;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
@@ -42,16 +41,10 @@ public class GetContentDataFetcher
             }
             else
             {
-                final Map<String, Object> parentLocalContext = environment.getLocalContext();
-
-                final ConcurrentHashMap<String, Content> contentsWithAttachments = new ConcurrentHashMap<>();
+                final Map<String, Content> contentsWithAttachments = new HashMap<>();
                 contentsWithAttachments.put( content.getId().toString(), content );
 
-                final Map<String, Object> newLocalContext = new HashMap<>();
-                if ( parentLocalContext != null )
-                {
-                    newLocalContext.putAll( parentLocalContext );
-                }
+                final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
                 newLocalContext.put( Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, contentsWithAttachments );
 
                 return DataFetcherResult.newResult().localContext( Collections.unmodifiableMap( newLocalContext ) ).data( data ).build();

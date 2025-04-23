@@ -74,8 +74,7 @@ public class RichTextDataFetcher
             return htmlDocument.getInnerHtml();
         } );
 
-        Map<String, Object> localContext = environment.getLocalContext();
-        String contentId = (String) localContext.get( Constants.CONTENT_ID_FIELD );
+        String contentId = GuillotineLocalContextHelper.getContextProperty( environment, Constants.CONTENT_ID_FIELD );
 
         String processedHtml =
             serviceFacade.getMacroService().evaluateMacros( serviceFacade.getPortalUrlService().processHtml( htmlParams ), macro -> {
