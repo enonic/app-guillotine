@@ -1,13 +1,13 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.Map;
-import java.util.Objects;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
+import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.Media;
@@ -32,68 +32,50 @@ public class GetImageUrlDataFetcher
         return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
     }
 
+    @SuppressWarnings("unchecked")
     private String doGet( final DataFetchingEnvironment environment )
     {
         final Map<String, Object> sourceAsMap = environment.getSource();
-        final String contentId = sourceAsMap.get( "_id" ).toString();
-
-        final Map<String, Object> localContext = environment.getLocalContext();
-
-        final Map<String, Content> contents = (Map<String, Content>) localContext.get( Constants.CONTENTS_FIELD );
-
-        if ( contents == null )
+        if ( sourceAsMap == null )
         {
             return null;
         }
 
-        final Content content = contents.get( contentId );
-        if ( content != null )
+        final Content content =
+            GuillotineLocalContextHelper.resolveContentWithAttachment( environment, sourceAsMap.get( "_id" ).toString() );
+
+        if ( content == null )
         {
-            final String siteBaseUrl = GuillotineLocalContextHelper.getSiteBaseUrl( environment );
-
-            final ProjectName projectName =
-                ProjectName.from( GuillotineLocalContextHelper.getContextProperty( environment, Constants.PROJECT_ARG ) );
-
-            final Branch branch = Branch.from( GuillotineLocalContextHelper.getContextProperty( environment, Constants.BRANCH_ARG ) );
-
-            final ImageUrlGeneratorParams.Builder builder = ImageUrlGeneratorParams.create();
-
-            builder.setMedia( () -> (Media) content );
-            builder.setProjectName( () -> projectName );
-            builder.setBranch( () -> branch );
-            builder.setBaseUrl( siteBaseUrl );
-            builder.setScale( environment.getArgument( "scale" ) );
-            builder.setUrlType( environment.getArgument( "type" ) );
-            builder.setQuality( environment.getArgument( "quality" ) );
-            builder.setBackground( environment.getArgument( "background" ) );
-            builder.setFormat( environment.getArgument( "format" ) );
-            builder.setFilter( environment.getArgument( "filter" ) );
-
-            final Object queryParams = environment.getArgument( "params" );
-            if ( queryParams instanceof Map )
-            {
-                for ( Map.Entry<String, Object> entry : ( (Map<String, Object>) queryParams ).entrySet() )
-                {
-                    final Object value = entry.getValue();
-                    if ( value instanceof Iterable )
-                    {
-                        ( (Iterable<?>) value ).forEach( v -> builder.addQueryParam( entry.getKey(), Objects.toString( v, null ) ) );
-                    }
-                    else
-                    {
-                        builder.addQueryParam( entry.getKey(), Objects.toString( value, null ) );
-                    }
-                }
-            }
-
-            final ImageUrlGeneratorParams params = builder.build();
-
-            return portalUrlService.imageUrl( params );
+            return null;
         }
-        else
+
+        final String siteBaseUrl = GuillotineLocalContextHelper.getSiteBaseUrl( environment );
+
+        final ProjectName projectName =
+            ProjectName.from( GuillotineLocalContextHelper.getContextProperty( environment, Constants.PROJECT_ARG ) );
+
+        final Branch branch = Branch.from( GuillotineLocalContextHelper.getContextProperty( environment, Constants.BRANCH_ARG ) );
+
+        final ImageUrlGeneratorParams.Builder builder = ImageUrlGeneratorParams.create();
+
+        builder.setMedia( () -> (Media) content );
+        builder.setProjectName( () -> projectName );
+        builder.setBranch( () -> branch );
+        builder.setBaseUrl( siteBaseUrl );
+        builder.setScale( environment.getArgument( "scale" ) );
+        builder.setUrlType( environment.getArgument( "type" ) );
+        builder.setQuality( environment.getArgument( "quality" ) );
+        builder.setBackground( environment.getArgument( "background" ) );
+        builder.setFormat( environment.getArgument( "format" ) );
+        builder.setFilter( environment.getArgument( "filter" ) );
+
+        if ( environment.getArgument( "params" ) instanceof Map queryParams )
         {
-            // TODO Remove it when migration is complete
-            throw new IllegalArgumentException( "Content is not an image" );
+            builder.addQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
         }
+
+        final ImageUrlGeneratorParams params = builder.build();
+
+        return portalUrlService.imageUrl( params );
     }
 }

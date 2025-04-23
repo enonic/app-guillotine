@@ -20,8 +20,6 @@ import com.enonic.app.guillotine.macro.MacroEditorSerializer;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.app.guillotine.mapper.HtmlEditorResultMapper;
 import com.enonic.xp.macro.MacroDescriptor;
-import com.enonic.xp.portal.PortalRequest;
-import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.html.HtmlDocument;
 import com.enonic.xp.portal.html.HtmlElement;
 import com.enonic.xp.portal.url.ProcessHtmlParams;
@@ -109,7 +107,8 @@ public class RichTextDataFetcher
 
     private ProcessHtmlParams createProcessHtmlParams( DataFetchingEnvironment environment )
     {
-        ProcessHtmlParams htmlParams = new ProcessHtmlParams().value( htmlText );
+        final ProcessHtmlParams htmlParams =
+            new ProcessHtmlParams().value( htmlText ).baseUrl( GuillotineLocalContextHelper.getSiteBaseUrl( environment ) );
 
         Map<String, Object> processHtmlParams = environment.getArgument( "processHtml" );
 

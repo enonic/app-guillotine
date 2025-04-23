@@ -6,7 +6,7 @@ public interface Constants
 {
     String CONTENT_ID_FIELD = "__contentId";
 
-    String CONTENTS_FIELD = "__contents";
+    String CONTENTS_WITH_ATTACHMENTS_FIELD = "__contentsWithAttachments";
 
     String ATTACHMENTS_FIELD = "__attachments";
 

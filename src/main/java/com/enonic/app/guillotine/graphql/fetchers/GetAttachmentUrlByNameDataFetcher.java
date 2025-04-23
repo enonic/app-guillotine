@@ -1,19 +1,15 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.Map;
-import java.util.Objects;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
-import com.enonic.xp.branch.Branch;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
-import com.enonic.xp.portal.url.AttachmentUrlParams;
 import com.enonic.xp.portal.url.PortalUrlService;
-import com.enonic.xp.project.ProjectName;
 
 public class GetAttachmentUrlByNameDataFetcher
     implements DataFetcher<String>
@@ -32,33 +28,39 @@ public class GetAttachmentUrlByNameDataFetcher
         return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
     }
 
+    @SuppressWarnings("unchecked")
     private String doGet( final DataFetchingEnvironment environment )
     {
-        final String contentId = GuillotineLocalContextHelper.getContextProperty( environment, Constants.CONTENT_ID_FIELD );
-
         final Map<String, Object> attachmentAsMap = environment.getSource();
+        if ( attachmentAsMap == null )
+        {
+            return null;
+        }
+
+        final Content content = GuillotineLocalContextHelper.resolveContentWithAttachment( environment );
+
+        if ( content == null )
+        {
+            return null;
+        }
 
         final Boolean download = environment.getArgument( "download" );
 
-        final String siteBaseUrl = GuillotineLocalContextHelper.getSiteBaseUrl( environment );
-        final ProjectName projectName =
-            ProjectName.from( GuillotineLocalContextHelper.getContextProperty( environment, Constants.PROJECT_ARG ) );
-        final Branch branch = Branch.from( GuillotineLocalContextHelper.getContextProperty( environment, Constants.BRANCH_ARG ) );
+        final AttachmentUrlGeneratorParams.Builder builder = AttachmentUrlGeneratorParams.create();
 
-//        final AttachmentUrlGeneratorParams.Builder urlParams =
-//            AttachmentUrlGeneratorParams.create().setUrlType( environment.getArgument( "type" ) ).setDownload(
-//                download != null && download ).setBaseUrl( siteBaseUrl ).setProjectName( () -> projectName ).setBranch(
-//                () -> branch ).setName( attachmentAsMap.get( "name" ).toString() ).setContent( () -> {
-//                return null;
-//            } ).setBaseUrl( siteBaseUrl );
+        builder.setUrlType( environment.getArgument( "type" ) );
+        builder.setName( attachmentAsMap.get( "name" ).toString() );
+        builder.setDownload( download != null && download );
+        builder.setProjectName( () -> GuillotineLocalContextHelper.getProjectName( environment ) );
+        builder.setBranch( () -> GuillotineLocalContextHelper.getBranch( environment ) );
+        builder.setContent( () -> content );
+        builder.setBaseUrl( GuillotineLocalContextHelper.getSiteBaseUrl( environment ) );
 
-        final AttachmentUrlParams params =
-            new AttachmentUrlParams().id( contentId ).name( attachmentAsMap.get( "name" ).toString() ).download(
-                Objects.toString( download, "false" ) ).type( environment.getArgument( "type" ) ).baseUrl(
-                GuillotineLocalContextHelper.getSiteBaseUrl( environment ) );
+        if ( environment.getArgument( "params" ) instanceof Map queryParams )
+        {
+            builder.addQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
+        }
 
-        ParamsUrHelper.resolveParams( params.getParams(), environment.getArgument( "params" ) );
-
-        return portalUrlService.attachmentUrl( params );
+        return portalUrlService.attachmentUrl( builder.build() );
     }
 }

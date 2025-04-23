@@ -9,6 +9,7 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.xp.branch.Branch;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.project.ProjectName;
@@ -18,7 +19,7 @@ public class GuillotineLocalContextHelper
 {
     public static <T> T executeInContext( final DataFetchingEnvironment environment, Callable<T> callable )
     {
-        final Map<String, Object> localContext = environment.getLocalContext();
+        final Map<String, Object> localContext = getLocalContext( environment );
 
         final Branch branch = Branch.from( localContext.get( Constants.BRANCH_ARG ).toString() );
         final RepositoryId repositoryId = ProjectName.from( localContext.get( Constants.PROJECT_ARG ).toString() ).getRepoId();
@@ -28,16 +29,14 @@ public class GuillotineLocalContextHelper
 
     public static String getSiteKey( final DataFetchingEnvironment environment )
     {
-        final Map<String, Object> localContext = environment.getLocalContext();
+        final Map<String, Object> localContext = getLocalContext( environment );
         return Objects.toString( localContext.get( Constants.SITE_ARG ), null );
     }
 
     public static Map<String, Object> applyAttachmentsInfo( final DataFetchingEnvironment environment, final String sourceId,
                                                             final Map<String, Object> attachments )
     {
-        final Map<String, Object> parentLocalContext = environment.getLocalContext();
-
-        final Map<String, Object> localContext = new HashMap<>( parentLocalContext );
+        final Map<String, Object> localContext = newLocalContext( environment );
 
         localContext.put( Constants.CONTENT_ID_FIELD, sourceId );
 
@@ -49,6 +48,30 @@ public class GuillotineLocalContextHelper
         return localContext;
     }
 
+    public static Map<String, Object> getLocalContext( final DataFetchingEnvironment environment )
+    {
+        if ( environment.getLocalContext() == null )
+        {
+            return new HashMap<>();
+        }
+        return environment.getLocalContext();
+    }
+
+    public static Map<String, Object> newLocalContext( final DataFetchingEnvironment environment )
+    {
+        return new HashMap<>( getLocalContext( environment ) );
+    }
+
+    public static ProjectName getProjectName( final DataFetchingEnvironment environment )
+    {
+        return ProjectName.from( getContextProperty( environment, Constants.PROJECT_ARG ) );
+    }
+
+    public static Branch getBranch( final DataFetchingEnvironment environment )
+    {
+        return Branch.from( getContextProperty( environment, Constants.BRANCH_ARG ) );
+    }
+
     public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )
     {
         return getContextProperty( environment, propertyName, String.class );
@@ -57,7 +80,7 @@ public class GuillotineLocalContextHelper
     @SuppressWarnings("unchecked")
     public static <T> T getContextProperty( final DataFetchingEnvironment environment, final String propertyName, final Class<T> clazz )
     {
-        final Map<String, Object> localContext = environment.getLocalContext();
+        final Map<String, Object> localContext = getLocalContext( environment );
         final Object value = localContext.get( propertyName );
         if ( value == null )
         {
@@ -73,13 +96,31 @@ public class GuillotineLocalContextHelper
         }
         else
         {
-            throw new ClassCastException(
-                "Cannot cast object of type " + ( value == null ? "null" : value.getClass().getName() ) + " to " + clazz.getName() );
+            throw new ClassCastException( "Cannot cast object of type " + value.getClass().getName() + " to " + clazz.getName() );
         }
     }
 
     public static String getSiteBaseUrl( final DataFetchingEnvironment environment )
     {
         return getContextProperty( environment, Constants.SITE_BASE_URL );
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Content resolveContentWithAttachment( final DataFetchingEnvironment environment, final String contentId )
+    {
+        final Map<String, Content> contents = getContextProperty( environment, Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, Map.class );
+
+        if ( contents == null )
+        {
+            return null;
+        }
+
+        return contents.get( contentId );
+    }
+
+    public static Content resolveContentWithAttachment( final DataFetchingEnvironment environment )
+    {
+        final String contentId = getContextProperty( environment, Constants.CONTENT_ID_FIELD );
+        return resolveContentWithAttachment( environment, contentId );
     }
 }

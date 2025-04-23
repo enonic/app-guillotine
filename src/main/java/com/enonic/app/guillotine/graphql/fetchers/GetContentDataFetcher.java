@@ -52,7 +52,7 @@ public class GetContentDataFetcher
                 {
                     newLocalContext.putAll( parentLocalContext );
                 }
-                newLocalContext.put( Constants.CONTENTS_FIELD, contentsWithAttachments );
+                newLocalContext.put( Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, contentsWithAttachments );
 
                 return DataFetcherResult.newResult().localContext( Collections.unmodifiableMap( newLocalContext ) ).data( data ).build();
             }

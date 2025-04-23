@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
@@ -17,7 +15,6 @@ import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.Content;
-import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentByParentResult;
@@ -50,42 +47,28 @@ public class GetChildrenDataFetcher
             Integer count = Objects.requireNonNullElse( environment.getArgument( "first" ), 10 );
             ChildOrder childOrder = ChildOrder.from( environment.getArgument( "sort" ) );
 
-            try
-            {
-                FindContentByParentResult children = contentService.findByParent(
-                    FindContentByParentParams.create().parentId( parent.getId() ).from( from ).size( count ).childOrder(
-                        childOrder ).build() );
+            FindContentByParentResult children = contentService.findByParent(
+                FindContentByParentParams.create().parentId( parent.getId() ).from( from ).size( count ).childOrder( childOrder ).build() );
 
-                final List<Map<String, Object>> data = new ArrayList<>( (int) children.getHits() );
+            final List<Map<String, Object>> data = new ArrayList<>( (int) children.getHits() );
 
-                final ConcurrentMap<String, Content> contentsWithAttachments = new ConcurrentHashMap<>();
+            final Map<String, Content> contentsWithAttachments = new HashMap<>();
 
-                children.getContents().forEach( content -> {
-                    data.add( GuillotineSerializer.serialize( content ) );
+            children.getContents().forEach( content -> {
+                data.add( GuillotineSerializer.serialize( content ) );
 
-                    if ( !content.getAttachments().isEmpty() )
-                    {
-                        contentsWithAttachments.put( content.getId().toString(), content );
-                    }
-                } );
-
-                final Map<String, Object> parentLocalContext = environment.getLocalContext();
-
-                final Map<String, Object> newLocalContext = new HashMap<>();
-
-                if ( parentLocalContext != null )
+                if ( !content.getAttachments().isEmpty() )
                 {
-                    newLocalContext.putAll( parentLocalContext );
+                    contentsWithAttachments.put( content.getId().toString(), content );
                 }
-                newLocalContext.put( Constants.CONTENTS_FIELD, contentsWithAttachments );
+            } );
 
-                return DataFetcherResult.newResult().localContext( Collections.unmodifiableMap( newLocalContext ) ).data( data ).build();
-            }
-            catch ( final ContentNotFoundException e )
-            {
-                // do nothing
-            }
+            final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
+            newLocalContext.put( Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, contentsWithAttachments );
+
+            return DataFetcherResult.newResult().localContext( Collections.unmodifiableMap( newLocalContext ) ).data( data ).build();
         }
+
         return Collections.emptyList();
     }
 

@@ -1,15 +1,17 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
+import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
+import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.ConnectionHelper;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
@@ -34,7 +36,7 @@ public class GetChildrenConnectionDataFetcher
         return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
     }
 
-    private Map<String, Object> doGet( final DataFetchingEnvironment environment )
+    private Object doGet( final DataFetchingEnvironment environment )
     {
         ArgumentsValidator.validateArguments( environment.getArguments() );
 
@@ -52,21 +54,36 @@ public class GetChildrenConnectionDataFetcher
                 FindContentByParentParams.create().parentId( parent.getId() ).from( offset ).size( count ).childOrder(
                     childOrder ).build() );
 
-            return map( children.getTotalHits(), offset,
-                        children.getContents().stream().map( GuillotineSerializer::serialize ).collect( Collectors.toList() ) );
+            final List<Map<String, Object>> hits = new ArrayList<>( (int) children.getHits() );
 
+            final Map<String, Content> contentsWithAttachments = new HashMap<>();
+
+            children.getContents().forEach( content -> {
+                hits.add( GuillotineSerializer.serialize( content ) );
+
+                if ( !content.getAttachments().isEmpty() )
+                {
+                    contentsWithAttachments.put( content.getId().toString(), content );
+                }
+            } );
+
+            final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
+            newLocalContext.put( Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, contentsWithAttachments );
+
+            return DataFetcherResult.newResult().localContext( Collections.unmodifiableMap( newLocalContext ) ).data(
+                map( children.getTotalHits(), offset, hits ) ).build();
         }
 
         return map( 0, offset, Collections.emptyList() );
     }
 
-    private Map<String, Object> map( long total, int offset, List<Map<String, Object>> children )
+    private Map<String, Object> map( long total, int offset, List<Map<String, Object>> hits )
     {
         Map<String, Object> result = new HashMap<>();
 
         result.put( "total", Long.valueOf( total ).intValue() );
         result.put( "start", offset );
-        result.put( "hits", children );
+        result.put( "hits", hits );
 
         return result;
     }
