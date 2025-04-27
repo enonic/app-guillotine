@@ -71,7 +71,7 @@ public class GraphQLApi
         // Generate the Guillotine types
         generateGuillotineApi( typesRegister );
 
-        ExtensionsProcessor extensionsProcessor = new ExtensionsProcessor( typesRegister );
+        ExtensionsProcessor extensionsProcessor = new ExtensionsProcessor( serviceFacadeSupplier.get().getContentService(), typesRegister );
         extensionsProcessor.process( schemaExtensions );
 
         OutputObjectCreationCallbackParams queryCreationCallback = new OutputObjectCreationCallbackParams();
@@ -136,7 +136,7 @@ public class GraphQLApi
                             interfaceDataFetchers.containsKey( fieldName ) )
                         {
                             builder.dataFetcher( FieldCoordinates.coordinates( implementation.getName(), fieldName ),
-                                                 new DynamicDataFetcher( fieldResolver ) );
+                                                 new DynamicDataFetcher( serviceFacadeSupplier.get().getContentService(), fieldResolver ) );
                         }
                     } ) );
                 }
