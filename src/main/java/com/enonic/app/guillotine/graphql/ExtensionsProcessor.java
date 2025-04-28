@@ -14,20 +14,20 @@ import com.enonic.app.guillotine.graphql.fetchers.DynamicDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.DynamicTypeResolver;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.GraphQLHelper;
+import com.enonic.app.guillotine.graphql.helper.SchemaAwareContentExtractor;
 import com.enonic.app.guillotine.graphql.transformer.ContextualFieldResolver;
 import com.enonic.app.guillotine.graphql.transformer.SchemaExtensions;
-import com.enonic.xp.content.ContentService;
 import com.enonic.xp.script.ScriptValue;
 
 public class ExtensionsProcessor
 {
-    private final ContentService contentService;
+    private final SchemaAwareContentExtractor schemaAwareContentExtractor;
 
     private final GraphQLTypesRegister typesRegister;
 
-    public ExtensionsProcessor( final ContentService contentService, final GraphQLTypesRegister typesRegister )
+    public ExtensionsProcessor( final SchemaAwareContentExtractor schemaAwareContentExtractor, final GraphQLTypesRegister typesRegister )
     {
-        this.contentService = contentService;
+        this.schemaAwareContentExtractor = schemaAwareContentExtractor;
         this.typesRegister = typesRegister;
     }
 
@@ -116,9 +116,8 @@ public class ExtensionsProcessor
     {
         resolvers.forEach( ( typeName, typeResolver ) -> {
             Map<String, ContextualFieldResolver> fieldResolvers = resolvers.get( typeName );
-            fieldResolvers.forEach( ( fieldName, fieldResolver ) -> typesRegister.addResolver( typeName, fieldName,
-                                                                                               new DynamicDataFetcher( contentService,
-                                                                                                                       fieldResolver ) ) );
+            fieldResolvers.forEach(
+                ( fieldName, fieldResolver ) -> typesRegister.addResolver( typeName, fieldName, new DynamicDataFetcher( fieldResolver ) ) );
         } );
     }
 

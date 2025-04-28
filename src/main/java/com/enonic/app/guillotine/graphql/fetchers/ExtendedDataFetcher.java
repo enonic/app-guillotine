@@ -1,5 +1,9 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
+import java.util.function.Supplier;
+
+import com.google.common.base.Suppliers;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.GraphQLOutputType;
@@ -9,10 +13,13 @@ import com.enonic.app.guillotine.graphql.helper.GraphQLTypeUnwrapper;
 public class ExtendedDataFetcher
     implements DataFetcher<Object>
 {
+    private final Supplier<Object> contentSupplier;
+
     private final DataFetcher<Object> delegate;
 
-    public ExtendedDataFetcher( final DataFetcher<Object> delegate )
+    public ExtendedDataFetcher( final Supplier<Object> contentSupplier, final DataFetcher<Object> delegate )
     {
+        this.contentSupplier = Suppliers.memoize( () -> contentSupplier );
         this.delegate = delegate;
     }
 

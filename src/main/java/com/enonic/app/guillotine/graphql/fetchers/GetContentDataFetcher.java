@@ -27,28 +27,29 @@ public class GetContentDataFetcher
     {
         return GuillotineLocalContextHelper.executeInContext( environment, () -> {
             final Content content = getContent( environment, false );
+            return GuillotineSerializer.serialize( content );
 
-            if ( content == null )
-            {
-                return null;
-            }
-
-            final Map<String, Object> data = GuillotineSerializer.serialize( content );
-
-            if ( content.getAttachments().isEmpty() )
-            {
-                return data;
-            }
-            else
-            {
-                final Map<String, Content> contentsWithAttachments = new HashMap<>();
-                contentsWithAttachments.put( content.getId().toString(), content );
-
-                final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
-                newLocalContext.put( Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, contentsWithAttachments );
-
-                return DataFetcherResult.newResult().localContext( Collections.unmodifiableMap( newLocalContext ) ).data( data ).build();
-            }
+//            if ( content == null )
+//            {
+//                return null;
+//            }
+//
+//            final Map<String, Object> data = GuillotineSerializer.serialize( content );
+//
+//            if ( content.getAttachments().isEmpty() )
+//            {
+//                return data;
+//            }
+//            else
+//            {
+//                final Map<String, Content> contentsWithAttachments = new HashMap<>();
+//                contentsWithAttachments.put( content.getId().toString(), content );
+//
+//                final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
+//                newLocalContext.put( Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, contentsWithAttachments );
+//
+//                return DataFetcherResult.newResult().localContext( Collections.unmodifiableMap( newLocalContext ) ).data( data ).build();
+//            }
         } );
     }
 }

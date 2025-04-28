@@ -7,10 +7,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
+import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.app.guillotine.mapper.JsonToFilterMapper;
+import com.enonic.app.guillotine.mapper.QueryMapper;
+import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
+import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
+import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.query.aggregation.AggregationQuery;
 import com.enonic.xp.query.expr.ConstraintExpr;
@@ -35,7 +40,7 @@ public class FindContentsCommand
         this.contentService = contentService;
     }
 
-    public FindContentIdsByQueryResult execute()
+    public Map<String, Object> execute()
     {
         HighlightQuery highlight = new QueryHighlightParams().getHighlightQuery( params.getHighlight() );
 
@@ -49,7 +54,26 @@ public class FindContentsCommand
 
         filters.forEach( queryBuilder::queryFilter );
 
-        return contentService.find( queryBuilder.build() );
+//        return contentService.find( queryBuilder.build() );
+        return map( contentService.find( queryBuilder.build() ) );
+    }
+
+    private Map<String, Object> map( final FindContentIdsByQueryResult findQueryResult )
+    {
+        final ContentIds contentIds = findQueryResult.getContentIds();
+        final Contents contents;
+        if ( contentIds.isEmpty() )
+        {
+            contents = Contents.empty();
+        }
+        else
+        {
+            contents = this.contentService.getByIds( new GetContentByIdsParams( contentIds ) );
+        }
+
+        GuillotineMapGenerator generator = new GuillotineMapGenerator();
+        new QueryMapper( contents, findQueryResult ).serialize( generator );
+        return CastHelper.cast( generator.getRoot() );
     }
 
     private ContentTypeNames getContentTypeNames()

@@ -43,39 +43,50 @@ public class QueryDslDataFetcher
     {
         ArgumentsValidator.validateDslQuery( environment.getArguments() );
 
-        final FindContentIdsByQueryResult queryResult = new FindContentsCommand(
+        Map<String, Object> queryResult = new FindContentsCommand(
             createQueryParams( environment.getArgument( "offset" ), environment.getArgument( "first" ), environment ),
             contentService ).execute();
 
-        final ContentIds contentIds = queryResult.getContentIds();
-
-        if ( contentIds.isEmpty() )
-        {
-            return List.of();
-        }
-
-        final Contents contents = this.contentService.getByIds( new GetContentByIdsParams( contentIds ) );
-
-        final List<Map<String, Object>> data = new ArrayList<>( (int) queryResult.getHits() );
-
-        final Map<String, Content> contentsWithAttachments = new HashMap<>();
-
-        contents.forEach( content -> {
-            final Float contentScore = queryResult.getScore() != null ? queryResult.getScore().get( content.getId() ) : null;
-
-            final SortValuesProperty contentSort = queryResult.getSort() != null ? queryResult.getSort().get( content.getId() ) : null;
-
-            data.add( GuillotineSerializer.serialize( content, contentSort, contentScore ) );
-
-            if ( !content.getAttachments().isEmpty() )
-            {
-                contentsWithAttachments.put( content.getId().toString(), content );
-            }
-        } );
-
-        final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
-        newLocalContext.put( Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, contentsWithAttachments );
-
-        return DataFetcherResult.newResult().localContext( Collections.unmodifiableMap( newLocalContext ) ).data( data ).build();
+        return queryResult.get( "hits" );
     }
+
+//    private Object doGet( final DataFetchingEnvironment environment )
+//    {
+//        ArgumentsValidator.validateDslQuery( environment.getArguments() );
+//
+//        final FindContentIdsByQueryResult queryResult = new FindContentsCommand(
+//            createQueryParams( environment.getArgument( "offset" ), environment.getArgument( "first" ), environment ),
+//            contentService ).execute();
+//
+//        final ContentIds contentIds = queryResult.getContentIds();
+//
+//        if ( contentIds.isEmpty() )
+//        {
+//            return List.of();
+//        }
+//
+//        final Contents contents = this.contentService.getByIds( new GetContentByIdsParams( contentIds ) );
+//
+//        final List<Map<String, Object>> data = new ArrayList<>( (int) queryResult.getHits() );
+//
+//        final Map<String, Content> contentsWithAttachments = new HashMap<>();
+//
+//        contents.forEach( content -> {
+//            final Float contentScore = queryResult.getScore() != null ? queryResult.getScore().get( content.getId() ) : null;
+//
+//            final SortValuesProperty contentSort = queryResult.getSort() != null ? queryResult.getSort().get( content.getId() ) : null;
+//
+//            data.add( GuillotineSerializer.serialize( content, contentSort, contentScore ) );
+//
+//            if ( !content.getAttachments().isEmpty() )
+//            {
+//                contentsWithAttachments.put( content.getId().toString(), content );
+//            }
+//        } );
+//
+//        final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
+//        newLocalContext.put( Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, contentsWithAttachments );
+//
+//        return DataFetcherResult.newResult().localContext( Collections.unmodifiableMap( newLocalContext ) ).data( data ).build();
+//    }
 }

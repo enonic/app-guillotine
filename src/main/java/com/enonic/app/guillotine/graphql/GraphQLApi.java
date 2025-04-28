@@ -13,17 +13,22 @@ import graphql.Scalars;
 import graphql.schema.DataFetcher;
 import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLCodeRegistry;
+import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLObjectType;
+import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.SchemaTransformer;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.factory.HeadlessCmsTypeFactory;
 import com.enonic.app.guillotine.graphql.factory.TypeFactory;
+import com.enonic.app.guillotine.graphql.fetchers.ContentAwareDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.DynamicDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GuillotineDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.GraphQLHelper;
+import com.enonic.app.guillotine.graphql.helper.GraphQLTypeChecker;
+import com.enonic.app.guillotine.graphql.helper.SchemaAwareContentExtractor;
 import com.enonic.app.guillotine.graphql.transformer.ContextualFieldResolver;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionGraphQLTypeVisitor;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionsExtractorService;
@@ -49,6 +54,8 @@ public class GraphQLApi
 
     private Supplier<PortalRequest> portalRequestSupplier;
 
+    private SchemaAwareContentExtractor contentExtractor;
+
     @Override
     public void initialize( final BeanContext context )
     {
@@ -56,6 +63,8 @@ public class GraphQLApi
         this.applicationServiceSupplier = context.getService( ApplicationService.class );
         this.extensionsExtractorServiceSupplier = context.getService( ExtensionsExtractorService.class );
         this.portalRequestSupplier = context.getBinding( PortalRequest.class );
+
+        this.contentExtractor = new SchemaAwareContentExtractor();
     }
 
     public GraphQLSchema createSchema()
@@ -71,7 +80,7 @@ public class GraphQLApi
         // Generate the Guillotine types
         generateGuillotineApi( typesRegister );
 
-        ExtensionsProcessor extensionsProcessor = new ExtensionsProcessor( serviceFacadeSupplier.get().getContentService(), typesRegister );
+        ExtensionsProcessor extensionsProcessor = new ExtensionsProcessor( contentExtractor, typesRegister );
         extensionsProcessor.process( schemaExtensions );
 
         OutputObjectCreationCallbackParams queryCreationCallback = new OutputObjectCreationCallbackParams();
@@ -90,7 +99,37 @@ public class GraphQLApi
 
         final GraphQLCodeRegistry codeRegistry = registerDataFetchers( graphQLSchema, typesRegister, schemaExtensions );
 
-        return graphQLSchema.transform( builder -> builder.codeRegistry( codeRegistry ) );
+        graphQLSchema = graphQLSchema.transform( builder -> builder.codeRegistry( codeRegistry ) );
+//        return graphQLSchema;
+
+        final GraphQLCodeRegistry.Builder newCodeRegistry = GraphQLCodeRegistry.newCodeRegistry( graphQLSchema.getCodeRegistry() );
+
+        final List<GraphQLObjectType> outputGraphQLTypes =
+            graphQLSchema.getAllTypesAsList().stream().filter( t -> t instanceof GraphQLObjectType ).map(
+                t -> (GraphQLObjectType) t ).toList();
+
+        for ( GraphQLObjectType objectType : outputGraphQLTypes )
+        {
+            for ( GraphQLFieldDefinition fieldDefinition : objectType.getFieldDefinitions() )
+            {
+                final GraphQLOutputType outputType = fieldDefinition.getType();
+
+                if ( GraphQLTypeChecker.isContentType( outputType ) )
+                {
+                    DataFetcher<?> originalFetcher = graphQLSchema.getCodeRegistry().getDataFetcher( objectType, fieldDefinition );
+
+//                    if ( !( originalFetcher instanceof DynamicDataFetcher ) )
+//                    {
+                    DataFetcher<?> wrappedFetcher = new ContentAwareDataFetcher( contentExtractor, originalFetcher );
+
+                    newCodeRegistry.dataFetcher( FieldCoordinates.coordinates( objectType.getName(), fieldDefinition.getName() ),
+                                                 wrappedFetcher );
+//                    }
+                }
+            }
+        }
+
+        return GraphQLSchema.newSchema( graphQLSchema ).codeRegistry( newCodeRegistry.build() ).build();
     }
 
     private GraphQLCodeRegistry registerTypeResolvers( GraphQLSchema graphQLSchema, GraphQLTypesRegister typesRegister )
@@ -136,7 +175,7 @@ public class GraphQLApi
                             interfaceDataFetchers.containsKey( fieldName ) )
                         {
                             builder.dataFetcher( FieldCoordinates.coordinates( implementation.getName(), fieldName ),
-                                                 new DynamicDataFetcher( serviceFacadeSupplier.get().getContentService(), fieldResolver ) );
+                                                 new DynamicDataFetcher( fieldResolver ) );
                         }
                     } ) );
                 }

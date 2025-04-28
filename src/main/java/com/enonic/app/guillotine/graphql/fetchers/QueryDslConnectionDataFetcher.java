@@ -49,35 +49,48 @@ public class QueryDslConnectionDataFetcher
 
         int first = environment.getArgument( "first" ) != null ? environment.getArgument( "first" ) : 10;
 
-        final FindContentIdsByQueryResult queryResult =
+        Map<String, Object> queryResult =
             new FindContentsCommand( createQueryParams( offset, first, environment ), contentService ).execute();
 
-        final Contents contents = queryResult.getContentIds().isEmpty()
-            ? Contents.empty()
-            : this.contentService.getByIds( new GetContentByIdsParams( queryResult.getContentIds() ) );
+        Map<String, Object> result = new HashMap<>();
 
-        final Map<String, Content> contentsWithAttachments =
-            contents.stream().filter( content -> !content.getAttachments().isEmpty() ).collect(
-                Collectors.toMap( content -> content.getId().toString(), Function.identity() ) );
+        result.put( "total", queryResult.get( "total" ) );
+        result.put( "start", offset );
+        result.put( "hits", queryResult.get( "hits" ) );
+        result.put( "aggregationsAsJson", queryResult.get( "aggregations" ) );
+        result.put( "highlightAsJson", queryResult.get( "highlight" ) );
 
-        final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
-        if ( !contentsWithAttachments.isEmpty() )
-        {
-            newLocalContext.put( Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, contentsWithAttachments );
-        }
+        return result;
 
-        final GuillotineMapGenerator generator = new GuillotineMapGenerator();
-        new QueryMapper( contents, queryResult ).serialize( generator );
-        final Map<String, Object> serialized = CastHelper.cast( generator.getRoot() );
-
-        final Map<String, Object> data = new HashMap<>();
-
-        data.put( "total", queryResult.getTotalHits() );
-        data.put( "start", offset );
-        data.put( "hits", serialized.get( "hits" ) );
-        data.put( "aggregationsAsJson", serialized.get( "aggregations" ) );
-        data.put( "highlightAsJson", serialized.get( "highlight" ) );
-
-        return DataFetcherResult.newResult().localContext( Collections.unmodifiableMap( newLocalContext ) ).data( data ).build();
+//        final FindContentIdsByQueryResult queryResult =
+//            new FindContentsCommand( createQueryParams( offset, first, environment ), contentService ).execute();
+//
+//        final Contents contents = queryResult.getContentIds().isEmpty()
+//            ? Contents.empty()
+//            : this.contentService.getByIds( new GetContentByIdsParams( queryResult.getContentIds() ) );
+//
+//        final Map<String, Content> contentsWithAttachments =
+//            contents.stream().filter( content -> !content.getAttachments().isEmpty() ).collect(
+//                Collectors.toMap( content -> content.getId().toString(), Function.identity() ) );
+//
+//        final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
+//        if ( !contentsWithAttachments.isEmpty() )
+//        {
+//            newLocalContext.put( Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, contentsWithAttachments );
+//        }
+//
+//        final GuillotineMapGenerator generator = new GuillotineMapGenerator();
+//        new QueryMapper( contents, queryResult ).serialize( generator );
+//        final Map<String, Object> serialized = CastHelper.cast( generator.getRoot() );
+//
+//        final Map<String, Object> data = new HashMap<>();
+//
+//        data.put( "total", queryResult.getTotalHits() );
+//        data.put( "start", offset );
+//        data.put( "hits", serialized.get( "hits" ) );
+//        data.put( "aggregationsAsJson", serialized.get( "aggregations" ) );
+//        data.put( "highlightAsJson", serialized.get( "highlight" ) );
+//
+//        return DataFetcherResult.newResult().localContext( Collections.unmodifiableMap( newLocalContext ) ).data( data ).build();
     }
 }
