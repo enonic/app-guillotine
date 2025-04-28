@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import graphql.execution.DataFetcherResult;
+import graphql.execution.ExecutionStepInfo;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
+import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLType;
 
 import com.enonic.app.guillotine.graphql.Constants;
@@ -52,39 +54,17 @@ public class DynamicDataFetcher
         PortalRequestAccessor.set( portalRequest );
         try
         {
-            final Object rawValue =
-                GuillotineSerializer.serialize( resolveFunction.call( new DataFetchingEnvironmentMapper( environment ) ) );
+            final GraphQLOutputType rootFieldType = resolveRootFieldType( environment );
 
-            if ( isContentType( environment.getFieldType() ) )
+            if ( isHeadlessCmsType( rootFieldType ) )
             {
-                final List<Content> contents = contentExtractor.extract( rawValue, environment );
-
-                final Map<String, Content> contentsWithAttachments = new HashMap<>();
-                contents.forEach( content -> {
-                    if ( !content.getAttachments().isEmpty() )
-                    {
-                        contentsWithAttachments.put( content.getId().toString(), content );
-                    }
-                } );
-
-                final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
-                if ( !contentsWithAttachments.isEmpty() )
-                {
-                    newLocalContext.put( Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, contentsWithAttachments );
-                }
-
-                if ( rawValue instanceof DataFetcherResult<?> dataFetcherResult )
-                {
-                    return dataFetcherResult.transform( result -> result.localContext( newLocalContext ) );
-                }
-                else
-                {
-                    return DataFetcherResult.newResult().data( rawValue ).localContext( newLocalContext ).build();
-                }
+                return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
             }
             else
             {
-                return rawValue;
+                // TODO figure out how to resolve a context if Content field is used in a non-headless CMS type
+                // Probably we should restrict the usage of Content type to Headless CMS only
+                return doGet( environment );
             }
         }
         finally
@@ -94,8 +74,62 @@ public class DynamicDataFetcher
         }
     }
 
+    private Object doGet( final DataFetchingEnvironment environment )
+    {
+        final Object rawValue = GuillotineSerializer.serialize( resolveFunction.call( new DataFetchingEnvironmentMapper( environment ) ) );
+
+        if ( isContentType( environment.getFieldType() ) )
+        {
+            final List<Content> contents = contentExtractor.extract( rawValue, environment );
+
+            final Map<String, Content> contentsWithAttachments = new HashMap<>();
+            contents.forEach( content -> {
+                if ( !content.getAttachments().isEmpty() )
+                {
+                    contentsWithAttachments.put( content.getId().toString(), content );
+                }
+            } );
+
+            final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
+            if ( !contentsWithAttachments.isEmpty() )
+            {
+                newLocalContext.put( Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, contentsWithAttachments );
+            }
+
+            if ( rawValue instanceof DataFetcherResult<?> dataFetcherResult )
+            {
+                return dataFetcherResult.transform( result -> result.localContext( newLocalContext ) );
+            }
+            else
+            {
+                return DataFetcherResult.newResult().data( rawValue ).localContext( newLocalContext ).build();
+            }
+        }
+        else
+        {
+            return rawValue;
+        }
+    }
+
+    private GraphQLOutputType resolveRootFieldType( final DataFetchingEnvironment environment )
+    {
+        ExecutionStepInfo rootStepInfo = environment.getExecutionStepInfo();
+
+        while ( rootStepInfo.getParent() != null && rootStepInfo.getParent().getFieldDefinition() != null )
+        {
+            rootStepInfo = rootStepInfo.getParent();
+        }
+
+        return rootStepInfo.getFieldDefinition().getType();
+    }
+
     private boolean isContentType( final GraphQLType type )
     {
-        return GraphQLTypeUnwrapper.unwrapType( type ).getName().endsWith( "Content" );
+        return GraphQLTypeUnwrapper.unwrapType( type ).getName().equals( "Content" );
+    }
+
+    private boolean isHeadlessCmsType( final GraphQLType type )
+    {
+        return GraphQLTypeUnwrapper.unwrapType( type ).getName().equals( "HeadlessCms" );
     }
 }
