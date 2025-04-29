@@ -48,8 +48,6 @@ public class DynamicDataFetcher
             }
             else
             {
-                // TODO figure out how to resolve a context if Content field is used in a non-headless CMS type
-                // Probably we should restrict the usage of Content type to Headless CMS only
                 return doGet( environment );
             }
         }
