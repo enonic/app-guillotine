@@ -17,7 +17,7 @@ import com.enonic.xp.security.PrincipalKey;
 public final class ContentDeserializer
 {
     @SuppressWarnings("unchecked")
-    public static Content convert( final Object jsApiResult )
+    public static Content deserialize( final Object jsApiResult )
     {
         if ( !( jsApiResult instanceof Map<?, ?> map ) )
         {

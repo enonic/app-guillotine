@@ -106,21 +106,21 @@ public class GuillotineLocalContextHelper
     }
 
     @SuppressWarnings("unchecked")
-    public static Content resolveContentWithAttachment( final DataFetchingEnvironment environment, final String contentId )
+    public static Content resolveContent( final DataFetchingEnvironment environment, final String contentId )
     {
-        final Map<String, Content> contents = getContextProperty( environment, Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, Map.class );
+        final Map<String, Object> contents = getContextProperty( environment, Constants.CONTENTS_FIELD, Map.class );
 
         if ( contents == null )
         {
             return null;
         }
 
-        return contents.get( contentId );
+        return ContentDeserializer.deserialize( contents.get( contentId ) );
     }
 
-    public static Content resolveContentWithAttachment( final DataFetchingEnvironment environment )
+    public static Content resolveContent( final DataFetchingEnvironment environment )
     {
         final String contentId = getContextProperty( environment, Constants.CONTENT_ID_FIELD );
-        return resolveContentWithAttachment( environment, contentId );
+        return resolveContent( environment, contentId );
     }
 }

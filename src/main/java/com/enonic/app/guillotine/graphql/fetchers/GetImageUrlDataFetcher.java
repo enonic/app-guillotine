@@ -42,7 +42,7 @@ public class GetImageUrlDataFetcher
         }
 
         final Content content =
-            GuillotineLocalContextHelper.resolveContentWithAttachment( environment, sourceAsMap.get( "_id" ).toString() );
+            GuillotineLocalContextHelper.resolveContent( environment, sourceAsMap.get( "_id" ).toString() );
 
         if ( content == null )
         {

@@ -101,29 +101,7 @@ public class GraphQLApi
 
         graphQLSchema = graphQLSchema.transform( builder -> builder.codeRegistry( codeRegistry ) );
 
-        final GraphQLCodeRegistry.Builder newCodeRegistry = GraphQLCodeRegistry.newCodeRegistry( graphQLSchema.getCodeRegistry() );
-
-        final List<GraphQLObjectType> outputGraphQLTypes =
-            graphQLSchema.getAllTypesAsList().stream().filter( t -> t instanceof GraphQLObjectType ).map(
-                t -> (GraphQLObjectType) t ).toList();
-
-        for ( GraphQLObjectType objectType : outputGraphQLTypes )
-        {
-            for ( GraphQLFieldDefinition fieldDefinition : objectType.getFieldDefinitions() )
-            {
-                final GraphQLOutputType outputType = fieldDefinition.getType();
-
-                if ( GraphQLTypeChecker.isContentType( outputType ) )
-                {
-                    DataFetcher<?> originalFetcher = graphQLSchema.getCodeRegistry().getDataFetcher( objectType, fieldDefinition );
-                    DataFetcher<?> wrappedFetcher = new ContentAwareDataFetcher( contentExtractor, originalFetcher );
-                    newCodeRegistry.dataFetcher( FieldCoordinates.coordinates( objectType.getName(), fieldDefinition.getName() ),
-                                                 wrappedFetcher );
-                }
-            }
-        }
-
-        return GraphQLSchema.newSchema( graphQLSchema ).codeRegistry( newCodeRegistry.build() ).build();
+        return wrapContentDataFetchers( graphQLSchema );
     }
 
     private GraphQLCodeRegistry registerTypeResolvers( GraphQLSchema graphQLSchema, GraphQLTypesRegister typesRegister )
@@ -186,6 +164,33 @@ public class GraphQLApi
         graphQLSchema.query( queryType );
 
         return graphQLSchema.build();
+    }
+
+    private GraphQLSchema wrapContentDataFetchers( final GraphQLSchema graphQLSchema )
+    {
+        final GraphQLCodeRegistry.Builder newCodeRegistry = GraphQLCodeRegistry.newCodeRegistry( graphQLSchema.getCodeRegistry() );
+
+        final List<GraphQLObjectType> outputGraphQLTypes =
+            graphQLSchema.getAllTypesAsList().stream().filter( t -> t instanceof GraphQLObjectType ).map(
+                t -> (GraphQLObjectType) t ).toList();
+
+        for ( GraphQLObjectType objectType : outputGraphQLTypes )
+        {
+            for ( GraphQLFieldDefinition fieldDefinition : objectType.getFieldDefinitions() )
+            {
+                final GraphQLOutputType outputType = fieldDefinition.getType();
+
+                if ( GraphQLTypeChecker.isContentType( outputType ) )
+                {
+                    final DataFetcher<?> originalFetcher = graphQLSchema.getCodeRegistry().getDataFetcher( objectType, fieldDefinition );
+                    final DataFetcher<?> wrappedFetcher = new ContentAwareDataFetcher( contentExtractor, originalFetcher );
+                    newCodeRegistry.dataFetcher( FieldCoordinates.coordinates( objectType.getName(), fieldDefinition.getName() ),
+                                                 wrappedFetcher );
+                }
+            }
+        }
+
+        return GraphQLSchema.newSchema( graphQLSchema ).codeRegistry( newCodeRegistry.build() ).build();
     }
 
     private void generateGuillotineApi( GraphQLTypesRegister typesRegister )

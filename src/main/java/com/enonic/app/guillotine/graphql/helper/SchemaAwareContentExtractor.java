@@ -1,6 +1,7 @@
 package com.enonic.app.guillotine.graphql.helper;
 
 import java.util.List;
+import java.util.Map;
 
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.GraphQLList;
@@ -8,11 +9,9 @@ import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLType;
 
-import com.enonic.xp.content.Content;
-
 public final class SchemaAwareContentExtractor
 {
-    public List<Content> extract( final Object jsApiResult, final DataFetchingEnvironment environment )
+    public List<Map<String, Object>> extract( final Object jsApiResult, final DataFetchingEnvironment environment )
     {
         final GraphQLOutputType type = environment.getFieldType();
 

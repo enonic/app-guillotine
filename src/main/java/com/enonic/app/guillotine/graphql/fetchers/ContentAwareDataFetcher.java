@@ -13,7 +13,6 @@ import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.helper.GraphQLTypeChecker;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.graphql.helper.SchemaAwareContentExtractor;
-import com.enonic.xp.content.Content;
 
 public final class ContentAwareDataFetcher
     implements DataFetcher<Object>
@@ -29,6 +28,7 @@ public final class ContentAwareDataFetcher
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
     {
@@ -36,20 +36,24 @@ public final class ContentAwareDataFetcher
 
         if ( GraphQLTypeChecker.isContentType( environment.getFieldType() ) )
         {
-            final List<Content> contents = contentExtractor.extract( rawValue, environment );
-
-            final Map<String, Content> contentsWithAttachments = new HashMap<>();
-            contents.forEach( content -> {
-                if ( !content.getAttachments().isEmpty() )
-                {
-                    contentsWithAttachments.put( content.getId().toString(), content );
-                }
-            } );
+            final List<Map<String, Object>> extractedContents = contentExtractor.extract( rawValue, environment );
 
             final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
-            if ( !contentsWithAttachments.isEmpty() )
+
+            final Map<String, Object> parentLocalContext = GuillotineLocalContextHelper.getLocalContext( environment );
+            if ( parentLocalContext != null )
             {
-                newLocalContext.put( Constants.CONTENTS_WITH_ATTACHMENTS_FIELD, contentsWithAttachments );
+                final Map<String, Object> newCachedContents = new HashMap<>();
+
+                final Map<String, Object> cachedContentsFromParent =
+                    (Map<String, Object>) parentLocalContext.get( Constants.CONTENTS_FIELD );
+                if ( cachedContentsFromParent != null )
+                {
+                    newCachedContents.putAll( cachedContentsFromParent );
+                }
+                extractedContents.forEach( content -> newCachedContents.put( content.get( "_id" ).toString(), content ) );
+
+                newLocalContext.put( Constants.CONTENTS_FIELD, newCachedContents );
             }
 
             if ( rawValue instanceof DataFetcherResult<?> dataFetcherResult )

@@ -37,7 +37,7 @@ public class GetAttachmentUrlByNameDataFetcher
             return null;
         }
 
-        final Content content = GuillotineLocalContextHelper.resolveContentWithAttachment( environment );
+        final Content content = GuillotineLocalContextHelper.resolveContent( environment );
 
         if ( content == null )
         {

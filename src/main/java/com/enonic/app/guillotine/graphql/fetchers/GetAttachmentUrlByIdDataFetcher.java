@@ -33,8 +33,7 @@ public class GetAttachmentUrlByIdDataFetcher
     {
         final Map<String, Object> sourceAsMap = environment.getSource();
 
-        final Content content =
-            GuillotineLocalContextHelper.resolveContentWithAttachment( environment, sourceAsMap.get( "_id" ).toString() );
+        final Content content = GuillotineLocalContextHelper.resolveContent( environment, sourceAsMap.get( "_id" ).toString() );
 
         if ( content == null )
         {
