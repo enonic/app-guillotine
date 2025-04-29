@@ -100,7 +100,6 @@ public class GraphQLApi
         final GraphQLCodeRegistry codeRegistry = registerDataFetchers( graphQLSchema, typesRegister, schemaExtensions );
 
         graphQLSchema = graphQLSchema.transform( builder -> builder.codeRegistry( codeRegistry ) );
-//        return graphQLSchema;
 
         final GraphQLCodeRegistry.Builder newCodeRegistry = GraphQLCodeRegistry.newCodeRegistry( graphQLSchema.getCodeRegistry() );
 
@@ -117,14 +116,9 @@ public class GraphQLApi
                 if ( GraphQLTypeChecker.isContentType( outputType ) )
                 {
                     DataFetcher<?> originalFetcher = graphQLSchema.getCodeRegistry().getDataFetcher( objectType, fieldDefinition );
-
-//                    if ( !( originalFetcher instanceof DynamicDataFetcher ) )
-//                    {
                     DataFetcher<?> wrappedFetcher = new ContentAwareDataFetcher( contentExtractor, originalFetcher );
-
                     newCodeRegistry.dataFetcher( FieldCoordinates.coordinates( objectType.getName(), fieldDefinition.getName() ),
                                                  wrappedFetcher );
-//                    }
                 }
             }
         }

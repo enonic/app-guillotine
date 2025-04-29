@@ -12,7 +12,6 @@ import graphql.schema.GraphQLTypeReference;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
-import com.enonic.app.guillotine.graphql.fetchers.ExtendedDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetChildrenConnectionDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetChildrenDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentDataFetcher;
@@ -46,8 +45,6 @@ public class HeadlessCmsTypeFactory
         GraphQLObjectType headlessCms = newObject( context.uniqueName( "HeadlessCms" ), "Headless CMS", fields );
 
         context.registerType( headlessCms.getName(), headlessCms );
-
-        context.registerDataFetcher( headlessCms.getName(), "get", new GetContentDataFetcher( serviceFacade.getContentService() ) );
 
         context.registerDataFetcher( headlessCms.getName(), "get", new GetContentDataFetcher( serviceFacade.getContentService() ) );
 
