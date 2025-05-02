@@ -3,7 +3,6 @@ package com.enonic.app.guillotine.graphql.fetchers;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -11,13 +10,10 @@ import org.mockito.Mockito;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
-import com.enonic.xp.branch.Branch;
-import com.enonic.xp.portal.PortalRequest;
-import com.enonic.xp.portal.PortalRequestAccessor;
-import com.enonic.xp.portal.url.AttachmentUrlParams;
-import com.enonic.xp.portal.url.ImageUrlParams;
+import com.enonic.app.guillotine.graphql.ContentFixtures;
+import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
+import com.enonic.xp.portal.url.ImageUrlGeneratorParams;
 import com.enonic.xp.portal.url.PortalUrlService;
-import com.enonic.xp.repository.RepositoryId;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -30,23 +26,15 @@ public class UrlFieldDataFetcherTest
     @BeforeEach
     public void setUp()
     {
-        final PortalRequest portalRequest = new PortalRequest();
-        portalRequest.setRepositoryId( RepositoryId.from( "myproject" ) );
-        portalRequest.setBranch( Branch.from( "draft" ) );
-        PortalRequestAccessor.set( portalRequest );
+        final Map<String, Object> localContext = new HashMap<>();
 
-        Map<String, Object> localContext = new HashMap<>();
         localContext.put( Constants.PROJECT_ARG, "myproject" );
         localContext.put( Constants.BRANCH_ARG, "draft" );
+        localContext.put( Constants.CONTENTS_FIELD, Map.of( "contentId", ContentFixtures.createContentAsMap() ) );
+        localContext.put( Constants.CONTENT_ID_FIELD, "contentId" );
 
         environment = Mockito.mock( DataFetchingEnvironment.class );
         when( environment.getLocalContext() ).thenReturn( localContext );
-    }
-
-    @AfterEach
-    public void cleanUp()
-    {
-        PortalRequestAccessor.remove();
     }
 
     @Test
@@ -54,7 +42,7 @@ public class UrlFieldDataFetcherTest
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlParams.class ) ) ).thenReturn( "attachmentUrl" );
+        when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn( "attachmentUrl" );
 
         Map<String, Object> source = new HashMap<>();
         source.put( Constants.CONTENT_ID_FIELD, "contentId" );
@@ -71,7 +59,7 @@ public class UrlFieldDataFetcherTest
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        when( portalUrlService.imageUrl( Mockito.any( ImageUrlParams.class ) ) ).thenReturn( "imageUrl" );
+        when( portalUrlService.imageUrl( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn( "imageUrl" );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "_id", "contentId" );
@@ -94,7 +82,7 @@ public class UrlFieldDataFetcherTest
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlParams.class ) ) ).thenReturn( "attachmentUrl" );
+        when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn( "attachmentUrl" );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "_id", "contentId" );

@@ -21,8 +21,12 @@ public class GuillotineLocalContextHelper
     {
         final Map<String, Object> localContext = getLocalContext( environment );
 
-        final Branch branch = Branch.from( localContext.get( Constants.BRANCH_ARG ).toString() );
-        final RepositoryId repositoryId = ProjectName.from( localContext.get( Constants.PROJECT_ARG ).toString() ).getRepoId();
+        final Branch branch = localContext.get( Constants.BRANCH_ARG ) != null
+            ? Branch.from( localContext.get( Constants.BRANCH_ARG ).toString() )
+            : ContextAccessor.current().getBranch();
+
+        final RepositoryId repositoryId = localContext.get( Constants.PROJECT_ARG ) != null ? ProjectName.from(
+            localContext.get( Constants.PROJECT_ARG ).toString() ).getRepoId() : ContextAccessor.current().getRepositoryId();
 
         return ContextBuilder.from( ContextAccessor.current() ).branch( branch ).repositoryId( repositoryId ).build().callWith( callable );
     }
@@ -64,12 +68,14 @@ public class GuillotineLocalContextHelper
 
     public static ProjectName getProjectName( final DataFetchingEnvironment environment )
     {
-        return ProjectName.from( getContextProperty( environment, Constants.PROJECT_ARG ) );
+        final String value = getContextProperty( environment, Constants.PROJECT_ARG );
+        return value != null ? ProjectName.from( value ) : ProjectName.from( ContextAccessor.current().getRepositoryId() );
     }
 
     public static Branch getBranch( final DataFetchingEnvironment environment )
     {
-        return Branch.from( getContextProperty( environment, Constants.BRANCH_ARG ) );
+        final String value = getContextProperty( environment, Constants.BRANCH_ARG );
+        return value != null ? Branch.from( value ) : ContextAccessor.current().getBranch();
     }
 
     public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )

@@ -8,7 +8,7 @@ import graphql.schema.GraphQLSchema;
 
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.xp.content.ContentId;
-import com.enonic.xp.portal.url.AttachmentUrlParams;
+import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
 
 import static com.enonic.app.guillotine.graphql.ResourceHelper.readGraphQLQuery;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,7 +30,8 @@ public class GetMediaContentGraphQLIntegrationTest
     @Test
     public void testMediaAndAttachmentUrls()
     {
-        when( serviceFacade.getPortalUrlService().attachmentUrl( any( AttachmentUrlParams.class ) ) ).thenReturn( "url?a=1&b=2&b=3&c" );
+        when( serviceFacade.getPortalUrlService().attachmentUrl( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
+            "url?a=1&b=2&b=3&c" );
         when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
@@ -47,7 +48,7 @@ public class GetMediaContentGraphQLIntegrationTest
     @Test
     public void testDownloadAttachmentUrl()
     {
-        when( serviceFacade.getPortalUrlService().attachmentUrl( any( AttachmentUrlParams.class ) ) ).thenReturn( "url?download" );
+        when( serviceFacade.getPortalUrlService().attachmentUrl( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn( "url?download" );
         when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();

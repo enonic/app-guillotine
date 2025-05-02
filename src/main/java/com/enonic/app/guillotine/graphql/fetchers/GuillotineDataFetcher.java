@@ -44,7 +44,7 @@ public class GuillotineDataFetcher
 
         final String branch = requireNonNullElseGet( environment.getArgument( Constants.BRANCH_ARG ),
                                                      () -> requireNonNull( ContextAccessor.current().getBranch(),
-                                                                           "Branch must be provided" ) ).getValue();
+                                                                           "Branch must be provided" ).getValue() );
 
         localContext.putIfAbsent( Constants.PROJECT_ARG, projectName );
         localContext.putIfAbsent( Constants.BRANCH_ARG, branch );
