@@ -4,38 +4,26 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.attachment.Attachments;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
-import com.enonic.xp.content.ContentInheritType;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ExtraData;
 import com.enonic.xp.content.Media;
-import com.enonic.xp.content.WorkflowCheckState;
-import com.enonic.xp.content.WorkflowInfo;
-import com.enonic.xp.content.WorkflowState;
 import com.enonic.xp.data.PropertySet;
 import com.enonic.xp.data.PropertyTree;
-import com.enonic.xp.form.Form;
-import com.enonic.xp.form.Input;
-import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.page.DescriptorKey;
 import com.enonic.xp.page.Page;
-import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.page.PageRegions;
-import com.enonic.xp.region.Component;
 import com.enonic.xp.region.FragmentComponent;
 import com.enonic.xp.region.ImageComponent;
 import com.enonic.xp.region.LayoutComponent;
 import com.enonic.xp.region.LayoutRegions;
 import com.enonic.xp.region.PartComponent;
 import com.enonic.xp.region.Region;
-import com.enonic.xp.region.RegionDescriptor;
-import com.enonic.xp.region.RegionDescriptors;
 import com.enonic.xp.region.TextComponent;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.xdata.XDataName;
@@ -66,7 +54,7 @@ public class ContentFixtures
         builder.data( dataMediaImage() );
         builder.publishInfo( ContentPublishInfo.create().from( Instant.parse( "2016-11-03T10:00:00Z" ) ).to(
             Instant.parse( "2016-11-23T10:00:00Z" ) ).build() );
-        builder.addExtraData( new ExtraData( XDataName.from( "media" ), xMedia() ) );
+        builder.addExtraData( new ExtraData( XDataName.from( "media:testapp" ), xMedia() ) );
         builder.page( newPage() );
         builder.attachments( mediaAttachments() );
         builder.permissions( AccessControlList.create().add(
@@ -260,83 +248,5 @@ public class ContentFixtures
         final LayoutRegions layoutRegions = LayoutRegions.create().add( region1 ).add( region2 ).build();
 
         return LayoutComponent.create().descriptor( "layoutDescriptor:name" ).regions( layoutRegions ).build();
-    }
-
-    public static Content newContent()
-    {
-        final Content.Builder<?> builder = Content.create();
-
-        builder.id( ContentId.from( "123456" ) );
-        builder.name( "mycontent" );
-        builder.displayName( "My Content" );
-        builder.parentPath( ContentPath.from( "/a/b" ) );
-        builder.creator( PrincipalKey.from( "user:system:admin" ) );
-        builder.modifier( PrincipalKey.from( "user:system:admin" ) );
-        builder.owner( PrincipalKey.from( "user:system:admin" ) );
-        builder.modifiedTime( Instant.ofEpochSecond( 0 ) );
-        builder.createdTime( Instant.ofEpochSecond( 0 ) );
-        builder.data( newPropertyTree() );
-        builder.addExtraData( new ExtraData( XDataName.from( "myapplication:myschema" ), newTinyPropertyTree() ) );
-        builder.page( newPage() );
-        builder.attachments( Attachments.from(
-            Attachment.create().name( "image.jpeg" ).label( "source" ).mimeType( "image/jpeg" ).size( 12345 ).sha512(
-                "sha512" ).build() ) );
-        builder.workflowInfo( WorkflowInfo.create().state( WorkflowState.PENDING_APPROVAL ).checks(
-            Map.of( "check1", WorkflowCheckState.APPROVED ) ).build() );
-        builder.publishInfo( ContentPublishInfo.create().from( Instant.parse( "2016-11-03T10:00:00Z" ) ).to(
-            Instant.parse( "2016-11-23T10:00:00Z" ) ).build() );
-        builder.setInherit( Set.of( ContentInheritType.CONTENT ) );
-
-        return builder.build();
-    }
-
-    public static PropertyTree newPropertyTree()
-    {
-        final PropertyTree tree = new PropertyTree();
-        tree.setLong( "a", 1L );
-        tree.setString( "b", "2" );
-        tree.setBoolean( "c.d", true );
-
-        final PropertySet set1 = tree.addSet( "c" );
-        set1.setBoolean( "d", true );
-        set1.addStrings( "e", "3", "4", "5" );
-        set1.setLong( "f", 2L );
-
-        return tree;
-    }
-
-    public static Component newPartComponent()
-    {
-        final PartComponent.Builder builder = PartComponent.create();
-        builder.config( newTinyPropertyTree() );
-        builder.descriptor( DescriptorKey.from( "myapplication:mypart" ) );
-        return builder.build();
-    }
-
-    public static LayoutComponent newLayoutComponent()
-    {
-        final LayoutComponent.Builder builder = LayoutComponent.create();
-        builder.config( newTinyPropertyTree() );
-        builder.descriptor( DescriptorKey.from( "myapplication:mylayout" ) );
-        builder.regions( newLayoutRegions() );
-        return builder.build();
-    }
-
-    public static LayoutRegions newLayoutRegions()
-    {
-        final LayoutRegions.Builder builder = LayoutRegions.create();
-        builder.add( newBottomRegion() );
-        return builder.build();
-    }
-
-    public static PageDescriptor newPageDescriptor()
-    {
-        Form pageForm =
-            Form.create().addFormItem( Input.create().name( "pause" ).label( "Pause" ).inputType( InputTypeName.DOUBLE ).build() ).build();
-
-        return PageDescriptor.create().displayName( "Landing page" ).config( pageForm ).regions(
-            RegionDescriptors.create().add( RegionDescriptor.create().name( "header" ).build() ).add(
-                RegionDescriptor.create().name( "main" ).build() ).add( RegionDescriptor.create().name( "footer" ).build() ).build() ).key(
-            DescriptorKey.from( "myapplication:landing-page" ) ).build();
     }
 }

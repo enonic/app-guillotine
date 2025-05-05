@@ -19,6 +19,7 @@ import com.enonic.xp.content.ExtraData;
 import com.enonic.xp.content.WorkflowCheckState;
 import com.enonic.xp.content.WorkflowInfo;
 import com.enonic.xp.content.WorkflowState;
+import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.page.DescriptorKey;
 import com.enonic.xp.page.Page;
 import com.enonic.xp.page.PageRegions;
@@ -78,7 +79,9 @@ public class GuillotineSerializerDeserializerTest
         builder.owner( PrincipalKey.from( "user:system:admin" ) );
         builder.modifiedTime( Instant.ofEpochSecond( 0 ) );
         builder.createdTime( Instant.ofEpochSecond( 0 ) );
-        builder.data( ContentFixtures.newPropertyTree() );
+        PropertyTree data = new PropertyTree();
+        data.setString( "key1", "value1" );
+        builder.data( data );
         builder.addExtraData( new ExtraData( XDataName.from( "myapplication:myschema" ), ContentFixtures.newTinyPropertyTree() ) );
         builder.page( newPage() );
         builder.attachments( Attachments.from(
