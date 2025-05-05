@@ -86,7 +86,7 @@ exports.get = function (req) {
             return getStatic(req);
         }
 
-        const view = resolve('api.html');
+        const view = resolve('graphql.html');
 
         const normalizedUrl = normalizeUrl(req.url);
         const params = {

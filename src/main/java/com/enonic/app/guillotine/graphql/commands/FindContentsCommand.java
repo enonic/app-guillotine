@@ -54,7 +54,6 @@ public class FindContentsCommand
 
         filters.forEach( queryBuilder::queryFilter );
 
-//        return contentService.find( queryBuilder.build() );
         return map( contentService.find( queryBuilder.build() ) );
     }
 
