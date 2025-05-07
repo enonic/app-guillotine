@@ -31,9 +31,7 @@ public class GetAttachmentUrlByIdDataFetcher
     @SuppressWarnings("unchecked")
     private String doGet( final DataFetchingEnvironment environment )
     {
-        final Map<String, Object> sourceAsMap = environment.getSource();
-
-        final Content content = GuillotineLocalContextHelper.resolveContent( environment, sourceAsMap.get( "_id" ).toString() );
+        final Content content = GuillotineLocalContextHelper.resolveContent( environment );
 
         if ( content == null )
         {

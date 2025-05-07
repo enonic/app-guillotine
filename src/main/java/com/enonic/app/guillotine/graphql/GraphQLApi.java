@@ -28,7 +28,6 @@ import com.enonic.app.guillotine.graphql.fetchers.DynamicDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GuillotineDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.GraphQLHelper;
 import com.enonic.app.guillotine.graphql.helper.GraphQLTypeChecker;
-import com.enonic.app.guillotine.graphql.helper.SchemaAwareContentExtractor;
 import com.enonic.app.guillotine.graphql.transformer.ContextualFieldResolver;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionGraphQLTypeVisitor;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionsExtractorService;
@@ -54,8 +53,6 @@ public class GraphQLApi
 
     private Supplier<PortalRequest> portalRequestSupplier;
 
-    private SchemaAwareContentExtractor contentExtractor;
-
     @Override
     public void initialize( final BeanContext context )
     {
@@ -63,8 +60,6 @@ public class GraphQLApi
         this.applicationServiceSupplier = context.getService( ApplicationService.class );
         this.extensionsExtractorServiceSupplier = context.getService( ExtensionsExtractorService.class );
         this.portalRequestSupplier = context.getBinding( PortalRequest.class );
-
-        this.contentExtractor = new SchemaAwareContentExtractor();
     }
 
     public GraphQLSchema createSchema()
@@ -80,7 +75,7 @@ public class GraphQLApi
         // Generate the Guillotine types
         generateGuillotineApi( typesRegister );
 
-        ExtensionsProcessor extensionsProcessor = new ExtensionsProcessor( contentExtractor, typesRegister );
+        ExtensionsProcessor extensionsProcessor = new ExtensionsProcessor( typesRegister );
         extensionsProcessor.process( schemaExtensions );
 
         OutputObjectCreationCallbackParams queryCreationCallback = new OutputObjectCreationCallbackParams();
@@ -183,7 +178,7 @@ public class GraphQLApi
                 if ( GraphQLTypeChecker.isContentType( outputType ) )
                 {
                     final DataFetcher<?> originalFetcher = graphQLSchema.getCodeRegistry().getDataFetcher( objectType, fieldDefinition );
-                    final DataFetcher<?> wrappedFetcher = new ContentAwareDataFetcher( contentExtractor, originalFetcher );
+                    final DataFetcher<?> wrappedFetcher = new ContentAwareDataFetcher( originalFetcher );
                     newCodeRegistry.dataFetcher( FieldCoordinates.coordinates( objectType.getName(), fieldDefinition.getName() ),
                                                  wrappedFetcher );
                 }

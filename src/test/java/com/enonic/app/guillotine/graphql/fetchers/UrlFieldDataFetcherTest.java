@@ -30,8 +30,7 @@ public class UrlFieldDataFetcherTest
 
         localContext.put( Constants.PROJECT_ARG, "myproject" );
         localContext.put( Constants.BRANCH_ARG, "draft" );
-        localContext.put( Constants.CONTENTS_FIELD, Map.of( "contentId", ContentFixtures.createContentAsMap() ) );
-        localContext.put( Constants.CONTENT_ID_FIELD, "contentId" );
+        localContext.put( Constants.CURRENT_CONTENT_FIELD, ContentFixtures.createContentAsMap() );
 
         environment = Mockito.mock( DataFetchingEnvironment.class );
         when( environment.getLocalContext() ).thenReturn( localContext );
@@ -45,7 +44,6 @@ public class UrlFieldDataFetcherTest
         when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn( "attachmentUrl" );
 
         Map<String, Object> source = new HashMap<>();
-        source.put( Constants.CONTENT_ID_FIELD, "contentId" );
         source.put( "name", "name" );
 
         when( environment.getSource() ).thenReturn( source );

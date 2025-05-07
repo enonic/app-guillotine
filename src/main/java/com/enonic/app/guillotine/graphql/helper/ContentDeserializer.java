@@ -46,7 +46,6 @@ import com.enonic.xp.site.Site;
 @SuppressWarnings("unchecked")
 public final class ContentDeserializer
 {
-    @SuppressWarnings("unchecked")
     public static Content deserialize( final Object jsApiResult )
     {
         if ( !( jsApiResult instanceof Map ) )
@@ -54,47 +53,46 @@ public final class ContentDeserializer
             return null;
         }
 
-        final SafeMap contentAsSafeMap = new SafeMap( (Map<String, Object>) jsApiResult );
+        final SafeMap source = new SafeMap( (Map<String, Object>) jsApiResult );
 
-        final ContentTypeName type =
-            contentAsSafeMap.withMapper( contentAsSafeMap.getString( "type" ), ContentTypeName::from ).orElse( null );
+        final ContentTypeName type = source.withMapper( source.getString( "type" ), ContentTypeName::from ).orElse( null );
 
         if ( type == null )
         {
             return null;
         }
 
-        final Content.Builder<?> builder =
+        final Content.Builder<?> target =
             type.getApplicationKey().getName().equals( "media" ) ? Media.create() : ( type.isSite() ? Site.create() : Content.create() );
 
-        builder.type( type );
+        target.type( type );
 
-        contentAsSafeMap.withMapper( contentAsSafeMap.getString( "_id" ), ContentId::from ).ifPresent( builder::id );
-        contentAsSafeMap.getString( "_name" ).ifPresent( builder::name );
-        contentAsSafeMap.withMapper( contentAsSafeMap.getString( "_path" ), ContentPath::from ).ifPresent( builder::path );
-        contentAsSafeMap.getString( "displayName" ).ifPresent( builder::displayName );
-        contentAsSafeMap.withMapper( contentAsSafeMap.getString( "createdTime" ), Instant::parse ).ifPresent( builder::createdTime );
-        contentAsSafeMap.withMapper( contentAsSafeMap.getString( "modifiedTime" ), Instant::parse ).ifPresent( builder::modifiedTime );
-        contentAsSafeMap.withMapper( contentAsSafeMap.getString( "owner" ), PrincipalKey::from ).ifPresent( builder::owner );
-        contentAsSafeMap.withMapper( contentAsSafeMap.getString( "creator" ), PrincipalKey::from ).ifPresent( builder::creator );
-        contentAsSafeMap.withMapper( contentAsSafeMap.getString( "modifier" ), PrincipalKey::from ).ifPresent( builder::modifier );
-        contentAsSafeMap.withMapper( contentAsSafeMap.getString( "language" ), Locale::forLanguageTag ).ifPresent( builder::language );
-        contentAsSafeMap.getBoolean( "valid" ).ifPresent( builder::valid );
-        contentAsSafeMap.getBoolean( "hasChildren" ).ifPresent( builder::hasChildren );
-        contentAsSafeMap.withMapper( contentAsSafeMap.getString( "originProject" ), ProjectName::from ).ifPresent( builder::originProject );
-        contentAsSafeMap.withMapper( contentAsSafeMap.getString( "variantOf" ), ContentId::from ).ifPresent( builder::variantOf );
-        contentAsSafeMap.withMapper( contentAsSafeMap.getString( "getChildOrder" ), ChildOrder::from ).ifPresent( builder::childOrder );
+        source.withMapper( source.getString( "_id" ), ContentId::from ).ifPresent( target::id );
+        source.getString( "_name" ).ifPresent( target::name );
+        source.withMapper( source.getString( "_path" ), ContentPath::from ).ifPresent( target::path );
+        source.getString( "displayName" ).ifPresent( target::displayName );
+        source.withMapper( source.getString( "createdTime" ), Instant::parse ).ifPresent( target::createdTime );
+        source.withMapper( source.getString( "modifiedTime" ), Instant::parse ).ifPresent( target::modifiedTime );
+        source.withMapper( source.getString( "owner" ), PrincipalKey::from ).ifPresent( target::owner );
+        source.withMapper( source.getString( "creator" ), PrincipalKey::from ).ifPresent( target::creator );
+        source.withMapper( source.getString( "modifier" ), PrincipalKey::from ).ifPresent( target::modifier );
+        source.withMapper( source.getString( "language" ), Locale::forLanguageTag ).ifPresent( target::language );
+        source.getBoolean( "valid" ).ifPresent( target::valid );
+        source.getBoolean( "hasChildren" ).ifPresent( target::hasChildren );
+        source.withMapper( source.getString( "originProject" ), ProjectName::from ).ifPresent( target::originProject );
+        source.withMapper( source.getString( "variantOf" ), ContentId::from ).ifPresent( target::variantOf );
+        source.withMapper( source.getString( "getChildOrder" ), ChildOrder::from ).ifPresent( target::childOrder );
 
-        contentAsSafeMap.withMapper( contentAsSafeMap.getMap( "data" ), PropertyTree::fromMap ).ifPresent( builder::data );
+        source.withMapper( source.getMap( "data" ), PropertyTree::fromMap ).ifPresent( target::data );
 
-        deserializeAttachment( contentAsSafeMap, builder );
-        deserializeWorkflow( contentAsSafeMap, builder );
-        deserializePublishInfo( contentAsSafeMap, builder );
-        deserializeInherit( contentAsSafeMap, builder );
-        deserializeXData( contentAsSafeMap, builder );
-        deserializePage( contentAsSafeMap, builder );
+        deserializeAttachment( source, target );
+        deserializeWorkflow( source, target );
+        deserializePublishInfo( source, target );
+        deserializeInherit( source, target );
+        deserializeXData( source, target );
+        deserializePage( source, target );
 
-        return builder.build();
+        return target.build();
     }
 
     private static void deserializeAttachment( final SafeMap contentAsMap, final Content.Builder<?> builder )

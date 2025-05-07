@@ -32,13 +32,7 @@ public class GetImageUrlDataFetcher
     @SuppressWarnings("unchecked")
     private String doGet( final DataFetchingEnvironment environment )
     {
-        final Map<String, Object> sourceAsMap = environment.getSource();
-        if ( sourceAsMap == null )
-        {
-            return null;
-        }
-
-        final Content content = GuillotineLocalContextHelper.resolveContent( environment, sourceAsMap.get( "_id" ).toString() );
+        final Content content = GuillotineLocalContextHelper.resolveContent( environment );
 
         if ( content == null )
         {

@@ -10,6 +10,8 @@ import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
+import com.enonic.app.guillotine.graphql.Constants;
+import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
@@ -36,16 +38,21 @@ public class GetComponentsDataFetcher
 
     private Object doGet( final DataFetchingEnvironment environment )
     {
-        Map<String, Object> sourceAsMap = environment.getSource();
+        final Map<String, Object> sourceAsMap = environment.getSource();
 
-        boolean resolveTemplate = Objects.requireNonNullElse( environment.getArgument( "resolveTemplate" ), false );
-        boolean resolveFragment = Objects.requireNonNullElse( environment.getArgument( "resolveFragment" ), false );
+        if ( sourceAsMap == null )
+        {
+            return null;
+        }
 
-        Map<String, Object> pageTemplate = resolveTemplate ? resolvePageTemplate( sourceAsMap, environment ) : null;
+        final boolean resolveTemplate = Objects.requireNonNullElse( environment.getArgument( "resolveTemplate" ), false );
+        final boolean resolveFragment = Objects.requireNonNullElse( environment.getArgument( "resolveFragment" ), false );
 
-        String nodeId = CastHelper.cast( pageTemplate == null ? sourceAsMap.get( "_id" ) : pageTemplate.get( "_id" ) );
+        final Map<String, Object> pageTemplate = resolveTemplate ? resolvePageTemplate( sourceAsMap, environment ) : null;
 
-        Map<String, Object> nodeAsMap = getNode( nodeId );
+        final String nodeId = CastHelper.cast( pageTemplate == null ? sourceAsMap.get( "_id" ) : pageTemplate.get( "_id" ) );
+
+        final Map<String, Object> nodeAsMap = getNode( nodeId );
 
         if ( nodeAsMap == null )
         {
@@ -53,27 +60,27 @@ public class GetComponentsDataFetcher
         }
 
         List<Map<String, Object>> components = CastHelper.cast( ArrayHelper.forceArray( nodeAsMap.get( "components" ) ) );
-        Map<String, Object> attachments = CastHelper.cast( sourceAsMap.get( "attachments" ) );
-
-        final DataFetcherResult.Builder<Object> resultBuilder = DataFetcherResult.newResult();
-        resultBuilder.localContext(
-            Collections.unmodifiableMap( GuillotineLocalContextHelper.applyAttachmentsInfo( environment, nodeId, attachments ) ) );
 
         if ( !resolveFragment )
         {
-            resultBuilder.data( components );
+            if ( nodeId.equals( sourceAsMap.get( "_id" ) ) )
+            {
+                return components;
+            }
+            else
+            {
+                return buildDataFetcherResult( pageTemplate, environment ).data( components ).build();
+            }
         }
         else
         {
-            resultBuilder.data( resolveInlineFragments( components ) );
+            return resolveInlineFragments( components, environment );
         }
-
-        return resultBuilder.build();
     }
 
-    private List<Map<String, Object>> resolveInlineFragments( List<Map<String, Object>> components )
+    private List<Object> resolveInlineFragments( final List<Map<String, Object>> components, final DataFetchingEnvironment environment )
     {
-        List<Map<String, Object>> inlinedComponents = new ArrayList<>();
+        List<Object> inlinedComponents = new ArrayList<>();
 
         components.forEach( component -> {
             if ( "fragment".equals( component.get( "type" ) ) )
@@ -85,14 +92,18 @@ public class GetComponentsDataFetcher
 
                 if ( fragmentAsMap != null )
                 {
-                    List<Map<String, Object>> fragmentComponents =
+                    final Map<String, Object> currentContent =
+                        new GetContentCommand( serviceFacade.getContentService() ).execute( fragmentId, environment );
+
+                    final List<Map<String, Object>> fragmentComponents =
                         CastHelper.cast( ArrayHelper.forceArray( fragmentAsMap.get( "components" ) ) );
+
                     fragmentComponents.forEach( fragmentComponent -> {
                         String path = "" + component.get( "path" ) +
                             ( "/".equals( fragmentComponent.get( "path" ) ) ? "" : fragmentComponent.get( "path" ) );
                         fragmentComponent.put( "path", path );
 
-                        inlinedComponents.add( fragmentComponent );
+                        inlinedComponents.add( buildDataFetcherResult( currentContent, environment ).data( fragmentComponent ).build() );
                     } );
                 }
             }
@@ -103,6 +114,15 @@ public class GetComponentsDataFetcher
         } );
 
         return inlinedComponents;
+    }
+
+    private DataFetcherResult.Builder<Object> buildDataFetcherResult( final Map<String, Object> currentContent,
+                                                                      final DataFetchingEnvironment environment )
+    {
+        final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
+        newLocalContext.put( Constants.CURRENT_CONTENT_FIELD, currentContent );
+
+        return DataFetcherResult.newResult().localContext( Collections.unmodifiableMap( newLocalContext ) );
     }
 
 

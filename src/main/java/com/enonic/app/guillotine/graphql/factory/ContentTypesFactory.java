@@ -20,7 +20,6 @@ import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.fetchers.ContentDataFieldDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.ContentTypeDataFetcher;
-import com.enonic.app.guillotine.graphql.fetchers.CreateDataFetcherResultWithAttachmentsInfo;
 import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentUrlByIdDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentsDataFetcher;
@@ -150,7 +149,6 @@ public class ContentTypesFactory
             fields.add( outputField( "data", dataObject ) );
 
             context.registerType( dataObject.getName(), dataObject );
-            context.registerDataFetcher( typeName, "data", new CreateDataFetcherResultWithAttachmentsInfo( "data" ) );
         }
 
         GraphQLObjectType contentObject = newObject( context.uniqueName( typeName ), typeDescription, List.of( contentInterface ), fields );
@@ -273,9 +271,9 @@ public class ContentTypesFactory
 
         context.registerDataFetcher( contentType, "owner", new GetContentFieldDataFetcher( "owner" ) );
 
-		context.registerDataFetcher( contentType, "dataAsJson", new ContentDataFieldDataFetcher() );
+        context.registerDataFetcher( contentType, "dataAsJson", new ContentDataFieldDataFetcher() );
 
-		context.registerDataFetcher( contentType, "xAsJson", new GetFieldAsJsonDataFetcher( "x" ) );
+        context.registerDataFetcher( contentType, "xAsJson", new GetFieldAsJsonDataFetcher( "x" ) );
 
         context.registerDataFetcher( contentType, "pageAsJson", new GetPageAsJsonDataFetcher( serviceFacade ) );
 
@@ -296,7 +294,6 @@ public class ContentTypesFactory
         context.registerDataFetcher( contentType, "_project", new GetContentProjectDataFetcher() );
 
         context.registerDataFetcher( contentType, "_branch", new GetContentBranchDataFetcher() );
-        context.registerDataFetcher( contentType, "x", new CreateDataFetcherResultWithAttachmentsInfo( "x" ) );
 
         return result;
     }

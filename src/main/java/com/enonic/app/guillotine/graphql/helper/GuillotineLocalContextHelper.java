@@ -15,6 +15,7 @@ import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.repository.RepositoryId;
 
+@SuppressWarnings("unchecked")
 public class GuillotineLocalContextHelper
 {
     public static <T> T executeInContext( final DataFetchingEnvironment environment, Callable<T> callable )
@@ -35,21 +36,6 @@ public class GuillotineLocalContextHelper
     {
         final Map<String, Object> localContext = getLocalContext( environment );
         return Objects.toString( localContext.get( Constants.SITE_ARG ), null );
-    }
-
-    public static Map<String, Object> applyAttachmentsInfo( final DataFetchingEnvironment environment, final String sourceId,
-                                                            final Map<String, Object> attachments )
-    {
-        final Map<String, Object> localContext = newLocalContext( environment );
-
-        localContext.put( Constants.CONTENT_ID_FIELD, sourceId );
-
-        if ( attachments != null && !attachments.isEmpty() )
-        {
-            localContext.put( Constants.ATTACHMENTS_FIELD, attachments );
-        }
-
-        return localContext;
     }
 
     public static Map<String, Object> getLocalContext( final DataFetchingEnvironment environment )
@@ -78,12 +64,16 @@ public class GuillotineLocalContextHelper
         return value != null ? Branch.from( value ) : ContextAccessor.current().getBranch();
     }
 
+    public static String getSiteBaseUrl( final DataFetchingEnvironment environment )
+    {
+        return getContextProperty( environment, Constants.SITE_BASE_URL );
+    }
+
     public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )
     {
         return getContextProperty( environment, propertyName, String.class );
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T getContextProperty( final DataFetchingEnvironment environment, final String propertyName, final Class<T> clazz )
     {
         final Map<String, Object> localContext = getLocalContext( environment );
@@ -106,27 +96,9 @@ public class GuillotineLocalContextHelper
         }
     }
 
-    public static String getSiteBaseUrl( final DataFetchingEnvironment environment )
-    {
-        return getContextProperty( environment, Constants.SITE_BASE_URL );
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Content resolveContent( final DataFetchingEnvironment environment, final String contentId )
-    {
-        final Map<String, Object> contents = getContextProperty( environment, Constants.CONTENTS_FIELD, Map.class );
-
-        if ( contents == null )
-        {
-            return null;
-        }
-
-        return ContentDeserializer.deserialize( contents.get( contentId ) );
-    }
-
     public static Content resolveContent( final DataFetchingEnvironment environment )
     {
-        final String contentId = getContextProperty( environment, Constants.CONTENT_ID_FIELD );
-        return resolveContent( environment, contentId );
+        final Map<String, Object> currentContent = getContextProperty( environment, Constants.CURRENT_CONTENT_FIELD, Map.class );
+        return ContentDeserializer.deserialize( currentContent );
     }
 }

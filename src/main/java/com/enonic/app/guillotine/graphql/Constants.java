@@ -4,11 +4,7 @@ import java.util.List;
 
 public interface Constants
 {
-    String CONTENT_ID_FIELD = "__contentId";
-
-    String CONTENTS_FIELD = "__contents";
-
-    String ATTACHMENTS_FIELD = "__attachments";
+    String CURRENT_CONTENT_FIELD = "__currentContent";
 
     String PROJECT_ARG = "project";
 

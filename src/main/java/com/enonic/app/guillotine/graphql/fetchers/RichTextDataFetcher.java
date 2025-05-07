@@ -74,15 +74,13 @@ public class RichTextDataFetcher
             return htmlDocument.getInnerHtml();
         } );
 
-        String contentId = GuillotineLocalContextHelper.getContextProperty( environment, Constants.CONTENT_ID_FIELD );
-
         String processedHtml =
             serviceFacade.getMacroService().evaluateMacros( serviceFacade.getPortalUrlService().processHtml( htmlParams ), macro -> {
                 if ( !registeredMacros.containsKey( macro.getName() ) )
                 {
                     return macro.toString();
                 }
-                MacroDecorator macroDecorator = MacroDecorator.from( macro, contentId );
+                MacroDecorator macroDecorator = MacroDecorator.from( macro );
                 processedMacros.add( macroDecorator );
                 return new MacroEditorSerializer( macroDecorator ).serialize();
             } );

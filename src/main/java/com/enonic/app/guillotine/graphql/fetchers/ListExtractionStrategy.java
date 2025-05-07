@@ -1,11 +1,11 @@
-package com.enonic.app.guillotine.graphql.helper;
+package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 final class ListExtractionStrategy
-    implements ExtractionStrategy
+    implements ExtractionStrategy<List<Map<String, Object>>>
 {
     @Override
     @SuppressWarnings("unchecked")

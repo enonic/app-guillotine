@@ -31,10 +31,9 @@ public class GetAttachmentUrlByNameDataFetcherTest
 
         localContext.put( Constants.PROJECT_ARG, "myproject" );
         localContext.put( Constants.BRANCH_ARG, "draft" );
-        localContext.put( Constants.CONTENTS_FIELD, Map.of( "contentId", ContentFixtures.createContentAsMap() ) );
-        localContext.put( Constants.CONTENT_ID_FIELD, "contentId" );
+        localContext.put( Constants.CURRENT_CONTENT_FIELD, ContentFixtures.createContentAsMap() );
 
-        when( environment.getSource() ).thenReturn( Map.of( "name", "Name", Constants.CONTENT_ID_FIELD, "contentId" ) );
+        when( environment.getSource() ).thenReturn( Map.of( "name", "Name" ) );
         when( environment.getLocalContext() ).thenReturn( localContext );
         when( environment.getArgument( "download" ) ).thenReturn( true );
         when( environment.getArgument( "type" ) ).thenReturn( null );

@@ -22,9 +22,4 @@ public final class GraphQLTypeChecker
     {
         return GraphQLTypeUnwrapper.unwrapType( type ).getName().equals( "HeadlessCms" );
     }
-
-    public static boolean isConnection( final GraphQLType type )
-    {
-        return GraphQLTypeUnwrapper.unwrapType( type ).getName().endsWith( "Connection" );
-    }
 }

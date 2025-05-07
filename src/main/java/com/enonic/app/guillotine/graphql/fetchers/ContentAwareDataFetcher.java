@@ -1,29 +1,27 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
+import graphql.schema.GraphQLList;
+import graphql.schema.GraphQLNonNull;
+import graphql.schema.GraphQLOutputType;
+import graphql.schema.GraphQLType;
 
 import com.enonic.app.guillotine.graphql.Constants;
-import com.enonic.app.guillotine.graphql.helper.GraphQLTypeChecker;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
-import com.enonic.app.guillotine.graphql.helper.SchemaAwareContentExtractor;
 
 public final class ContentAwareDataFetcher
     implements DataFetcher<Object>
 {
-    private final SchemaAwareContentExtractor contentExtractor;
-
     private final DataFetcher<?> delegate;
 
-    public ContentAwareDataFetcher( final SchemaAwareContentExtractor contentExtractor, final DataFetcher<?> delegate )
+    public ContentAwareDataFetcher( final DataFetcher<?> delegate )
     {
-        this.contentExtractor = contentExtractor;
         this.delegate = delegate;
     }
 
@@ -34,41 +32,48 @@ public final class ContentAwareDataFetcher
     {
         final Object rawValue = delegate.get( environment );
 
-        if ( GraphQLTypeChecker.isContentType( environment.getFieldType() ) )
+        final ExtractionStrategy<?> strategy = resolveStrategy( environment );
+
+        if ( strategy instanceof SingleExtractionStrategy )
         {
-            final List<Map<String, Object>> extractedContents = contentExtractor.extract( rawValue, environment );
-
-            final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
-
-            final Map<String, Object> parentLocalContext = GuillotineLocalContextHelper.getLocalContext( environment );
-            if ( parentLocalContext != null )
-            {
-                final Map<String, Object> newCachedContents = new HashMap<>();
-
-                final Map<String, Object> cachedContentsFromParent =
-                    (Map<String, Object>) parentLocalContext.get( Constants.CONTENTS_FIELD );
-                if ( cachedContentsFromParent != null )
-                {
-                    newCachedContents.putAll( cachedContentsFromParent );
-                }
-                extractedContents.forEach( content -> newCachedContents.put( content.get( "_id" ).toString(), content ) );
-
-                newLocalContext.put( Constants.CONTENTS_FIELD, newCachedContents );
-            }
-
-            if ( rawValue instanceof DataFetcherResult<?> dataFetcherResult )
-            {
-                return dataFetcherResult.transform( result -> result.localContext( Collections.unmodifiableMap( newLocalContext ) ) );
-            }
-            else
-            {
-                return DataFetcherResult.newResult().data( rawValue ).localContext(
-                    Collections.unmodifiableMap( newLocalContext ) ).build();
-            }
+            final Map<String, Object> contentAsMap = (Map<String, Object>) strategy.extract( rawValue );
+            return createDataFetcherResult( environment, contentAsMap );
         }
         else
         {
-            return rawValue;
+            final List<Map<String, Object>> contentsAsMap = (List<Map<String, Object>>) strategy.extract( rawValue );
+            return contentsAsMap.stream().map( contentAsMap -> createDataFetcherResult( environment, contentAsMap ) ).toList();
+        }
+    }
+
+    private DataFetcherResult<Object> createDataFetcherResult( final DataFetchingEnvironment environment,
+                                                               final Map<String, Object> contentAsMap )
+    {
+        final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
+        newLocalContext.put( Constants.CURRENT_CONTENT_FIELD, contentAsMap );
+
+        return DataFetcherResult.newResult().data( contentAsMap ).localContext( Collections.unmodifiableMap( newLocalContext ) ).build();
+    }
+
+    private ExtractionStrategy<?> resolveStrategy( final DataFetchingEnvironment environment )
+    {
+        final GraphQLOutputType type = environment.getFieldType();
+        return resolveStrategy( type );
+    }
+
+    private ExtractionStrategy<?> resolveStrategy( final GraphQLType type )
+    {
+        if ( type instanceof GraphQLNonNull )
+        {
+            return resolveStrategy( ( (GraphQLNonNull) type ).getWrappedType() );
+        }
+        else if ( type instanceof GraphQLList )
+        {
+            return new ListExtractionStrategy();
+        }
+        else
+        {
+            return new SingleExtractionStrategy();
         }
     }
 }

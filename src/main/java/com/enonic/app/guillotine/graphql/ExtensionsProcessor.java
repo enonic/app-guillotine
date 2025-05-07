@@ -14,20 +14,16 @@ import com.enonic.app.guillotine.graphql.fetchers.DynamicDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.DynamicTypeResolver;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.GraphQLHelper;
-import com.enonic.app.guillotine.graphql.helper.SchemaAwareContentExtractor;
 import com.enonic.app.guillotine.graphql.transformer.ContextualFieldResolver;
 import com.enonic.app.guillotine.graphql.transformer.SchemaExtensions;
 import com.enonic.xp.script.ScriptValue;
 
 public class ExtensionsProcessor
 {
-    private final SchemaAwareContentExtractor schemaAwareContentExtractor;
-
     private final GraphQLTypesRegister typesRegister;
 
-    public ExtensionsProcessor( final SchemaAwareContentExtractor schemaAwareContentExtractor, final GraphQLTypesRegister typesRegister )
+    public ExtensionsProcessor( final GraphQLTypesRegister typesRegister )
     {
-        this.schemaAwareContentExtractor = schemaAwareContentExtractor;
         this.typesRegister = typesRegister;
     }
 
