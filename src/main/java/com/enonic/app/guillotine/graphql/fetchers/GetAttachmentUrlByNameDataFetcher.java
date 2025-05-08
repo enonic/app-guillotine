@@ -1,17 +1,14 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.Map;
-import java.util.Objects;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
-import com.enonic.xp.portal.PortalRequest;
-import com.enonic.xp.portal.PortalRequestAccessor;
-import com.enonic.xp.portal.url.AttachmentUrlParams;
+import com.enonic.xp.content.Content;
+import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
 import com.enonic.xp.portal.url.PortalUrlService;
 
 public class GetAttachmentUrlByNameDataFetcher
@@ -31,23 +28,39 @@ public class GetAttachmentUrlByNameDataFetcher
         return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
     }
 
+    @SuppressWarnings("unchecked")
     private String doGet( final DataFetchingEnvironment environment )
     {
-        PortalRequest portalRequest = PortalRequestAccessor.get();
-        portalRequest.setRepositoryId( GuillotineLocalContextHelper.getRepositoryId( environment, portalRequest.getRepositoryId() ) );
-        portalRequest.setBranch( GuillotineLocalContextHelper.getBranch( environment, portalRequest.getBranch() ) );
+        final Map<String, Object> attachmentAsMap = environment.getSource();
+        if ( attachmentAsMap == null )
+        {
+            return null;
+        }
 
-        Map<String, Object> localContext = environment.getLocalContext();
-        String contentId = Objects.toString( localContext.get( Constants.CONTENT_ID_FIELD ), null );
+        final Content content = GuillotineLocalContextHelper.resolveContent( environment );
 
-        Map<String, Object> attachmentAsMap = environment.getSource();
+        if ( content == null )
+        {
+            return null;
+        }
 
-        AttachmentUrlParams params = new AttachmentUrlParams().id( contentId ).name(
-            attachmentAsMap.get( "name" ).toString() ).download( Objects.toString( environment.getArgument( "download" ), "false" ) ).type(
-            environment.getArgument( "type" ) ).portalRequest( portalRequest );
+        final Boolean download = environment.getArgument( "download" );
 
-        ParamsUrHelper.resolveParams( params.getParams(), environment.getArgument( "params" ) );
+        final AttachmentUrlGeneratorParams.Builder builder = AttachmentUrlGeneratorParams.create();
 
-        return portalUrlService.attachmentUrl( params );
+        builder.setUrlType( environment.getArgument( "type" ) );
+        builder.setName( attachmentAsMap.get( "name" ).toString() );
+        builder.setDownload( download != null && download );
+        builder.setProjectName( () -> GuillotineLocalContextHelper.getProjectName( environment ) );
+        builder.setBranch( () -> GuillotineLocalContextHelper.getBranch( environment ) );
+        builder.setContent( () -> content );
+        builder.setBaseUrl( GuillotineLocalContextHelper.getSiteBaseUrl( environment ) );
+
+        if ( environment.getArgument( "params" ) instanceof Map queryParams )
+        {
+            builder.addQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
+        }
+
+        return portalUrlService.attachmentUrl( builder.build() );
     }
 }

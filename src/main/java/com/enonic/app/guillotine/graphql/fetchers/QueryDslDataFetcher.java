@@ -36,4 +36,5 @@ public class QueryDslDataFetcher
 
         return queryResult.get( "hits" );
     }
+
 }

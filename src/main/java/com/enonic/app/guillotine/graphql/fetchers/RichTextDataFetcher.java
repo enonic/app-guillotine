@@ -20,8 +20,6 @@ import com.enonic.app.guillotine.macro.MacroEditorSerializer;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.app.guillotine.mapper.HtmlEditorResultMapper;
 import com.enonic.xp.macro.MacroDescriptor;
-import com.enonic.xp.portal.PortalRequest;
-import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.html.HtmlDocument;
 import com.enonic.xp.portal.html.HtmlElement;
 import com.enonic.xp.portal.url.ProcessHtmlParams;
@@ -76,16 +74,13 @@ public class RichTextDataFetcher
             return htmlDocument.getInnerHtml();
         } );
 
-        Map<String, Object> localContext = environment.getLocalContext();
-        String contentId = (String) localContext.get( Constants.CONTENT_ID_FIELD );
-
         String processedHtml =
             serviceFacade.getMacroService().evaluateMacros( serviceFacade.getPortalUrlService().processHtml( htmlParams ), macro -> {
                 if ( !registeredMacros.containsKey( macro.getName() ) )
                 {
                     return macro.toString();
                 }
-                MacroDecorator macroDecorator = MacroDecorator.from( macro, contentId );
+                MacroDecorator macroDecorator = MacroDecorator.from( macro );
                 processedMacros.add( macroDecorator );
                 return new MacroEditorSerializer( macroDecorator ).serialize();
             } );
@@ -109,9 +104,8 @@ public class RichTextDataFetcher
 
     private ProcessHtmlParams createProcessHtmlParams( DataFetchingEnvironment environment )
     {
-        final PortalRequest portalRequest = createPortalRequest( PortalRequestAccessor.get(), environment );
-
-        ProcessHtmlParams htmlParams = new ProcessHtmlParams().portalRequest( portalRequest ).value( htmlText );
+        final ProcessHtmlParams htmlParams =
+            new ProcessHtmlParams().value( htmlText ).baseUrl( GuillotineLocalContextHelper.getSiteBaseUrl( environment ) );
 
         Map<String, Object> processHtmlParams = environment.getArgument( "processHtml" );
 
@@ -132,41 +126,5 @@ public class RichTextDataFetcher
         }
 
         return htmlParams;
-    }
-
-    private PortalRequest createPortalRequest( final PortalRequest source, final DataFetchingEnvironment environment )
-    {
-        final PortalRequest result = new PortalRequest();
-
-        result.setRepositoryId( GuillotineLocalContextHelper.getRepositoryId( environment, source.getRepositoryId() ) );
-        result.setBranch( GuillotineLocalContextHelper.getBranch( environment, source.getBranch() ) );
-        result.setApplicationKey( source.getApplicationKey() );
-        result.setContentPath( source.getContentPath() );
-        result.setMode( source.getMode() );
-        result.setRawRequest( source.getRawRequest() );
-        result.setContent( source.getContent() );
-        result.setSite( source.getSite() );
-        result.setMethod( source.getMethod() );
-        result.setBaseUri( source.getBaseUri() );
-        result.setRawPath( source.getRawPath() );
-        result.setWebSocketContext( source.getWebSocketContext() );
-        result.setComponent( source.getComponent() );
-        result.setControllerScript( source.getControllerScript() );
-        result.setPageDescriptor( source.getPageDescriptor() );
-        result.setPageTemplate( source.getPageTemplate() );
-        result.setContextPath( source.getContextPath() );
-        result.setValidTicket( source.isValidTicket() );
-        result.setBody( source.getBody() );
-        result.setIdProvider( source.getIdProvider() );
-        result.setHost( source.getHost() );
-        result.setPort( source.getPort() );
-        result.setScheme( source.getScheme() );
-        result.setPath( source.getPath() );
-        result.setEndpointPath( source.getEndpointPath() );
-        result.setUrl( source.getUrl() );
-        result.setContentType( source.getContentType() );
-        result.setRemoteAddress( source.getRemoteAddress() );
-
-        return result;
     }
 }

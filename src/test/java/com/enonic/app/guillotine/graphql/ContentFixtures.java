@@ -1,7 +1,9 @@
 package com.enonic.app.guillotine.graphql;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.attachment.Attachments;
@@ -52,7 +54,7 @@ public class ContentFixtures
         builder.data( dataMediaImage() );
         builder.publishInfo( ContentPublishInfo.create().from( Instant.parse( "2016-11-03T10:00:00Z" ) ).to(
             Instant.parse( "2016-11-23T10:00:00Z" ) ).build() );
-        builder.addExtraData( new ExtraData( XDataName.from( "media" ), xMedia() ) );
+        builder.addExtraData( new ExtraData( XDataName.from( "media:testapp" ), xMedia() ) );
         builder.page( newPage() );
         builder.attachments( mediaAttachments() );
         builder.permissions( AccessControlList.create().add(
@@ -182,6 +184,37 @@ public class ContentFixtures
     {
         return Content.create().id( ContentId.from( contentId ) ).name( name ).parentPath( ContentPath.from( parentPath ) ).valid(
             false ).creator( PrincipalKey.ofAnonymous() ).createdTime( Instant.parse( "1975-01-08T00:00:00Z" ) ).build();
+    }
+
+    public static Map<String, Object> createContentAsMap()
+    {
+        final Map<String, Object> content = new HashMap<>();
+
+        content.put( "_id", "contentId" );
+        content.put( "_name", "name" );
+        content.put( "_path", "/parentPath/name" );
+        content.put( "type", "media:image" );
+
+        final Map<String, String> media = new HashMap<>();
+        media.put( "attachment", "picture.jpg" );
+
+        final Map<String, Object> data = new HashMap<>();
+        data.put( "media", media );
+
+        content.put( "data", data );
+
+        final Map<String, Object> attachment = new HashMap<>();
+        attachment.put( "name", "picture.jpg" );
+        attachment.put( "label", "source" );
+        attachment.put( "size", 196646 );
+        attachment.put( "mimeType", "image/jpeg" );
+
+        final Map<String, Object> attachments = new HashMap<>();
+        attachments.put( "picture.jpg", attachment );
+
+        content.put( "attachments", attachments );
+
+        return content;
     }
 
     private static ImageComponent createImageComponent( final String imageId, final String imageDisplayName,

@@ -9,73 +9,96 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.xp.branch.Branch;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
-import com.enonic.xp.project.ProjectConstants;
+import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.repository.RepositoryId;
 
+@SuppressWarnings("unchecked")
 public class GuillotineLocalContextHelper
 {
     public static <T> T executeInContext( final DataFetchingEnvironment environment, Callable<T> callable )
     {
-        final Map<String, Object> localContext = environment.getLocalContext();
+        final Map<String, Object> localContext = getLocalContext( environment );
 
-        final ContextBuilder contextBuilder = ContextBuilder.from( ContextAccessor.current() );
+        final Branch branch = localContext.get( Constants.BRANCH_ARG ) != null
+            ? Branch.from( localContext.get( Constants.BRANCH_ARG ).toString() )
+            : ContextAccessor.current().getBranch();
 
-        if ( localContext.get( Constants.BRANCH_ARG ) != null )
-        {
-            contextBuilder.branch( localContext.get( Constants.BRANCH_ARG ).toString() );
-        }
-        if ( localContext.get( Constants.PROJECT_ARG ) != null )
-        {
-            contextBuilder.repositoryId(
-                ProjectConstants.PROJECT_REPO_ID_PREFIX + localContext.get( Constants.PROJECT_ARG ).toString() );
-        }
+        final RepositoryId repositoryId = localContext.get( Constants.PROJECT_ARG ) != null ? ProjectName.from(
+            localContext.get( Constants.PROJECT_ARG ).toString() ).getRepoId() : ContextAccessor.current().getRepositoryId();
 
-        return contextBuilder.build().callWith( callable );
+        return ContextBuilder.from( ContextAccessor.current() ).branch( branch ).repositoryId( repositoryId ).build().callWith( callable );
     }
 
     public static String getSiteKey( final DataFetchingEnvironment environment )
     {
-        final Map<String, Object> localContext = environment.getLocalContext();
+        final Map<String, Object> localContext = getLocalContext( environment );
         return Objects.toString( localContext.get( Constants.SITE_ARG ), null );
     }
 
-    public static RepositoryId getRepositoryId( final DataFetchingEnvironment environment, final RepositoryId defaultRepoId )
+    public static Map<String, Object> getLocalContext( final DataFetchingEnvironment environment )
     {
-        final Map<String, Object> localContext = environment.getLocalContext();
-        if ( localContext.get( Constants.PROJECT_ARG ) != null )
+        if ( environment.getLocalContext() == null )
         {
-            return RepositoryId.from(
-                ProjectConstants.PROJECT_REPO_ID_PREFIX + localContext.get( Constants.PROJECT_ARG ).toString() );
+            return new HashMap<>();
         }
-        return defaultRepoId;
+        return environment.getLocalContext();
     }
 
-    public static Branch getBranch( final DataFetchingEnvironment environment, final Branch defaultBranch )
+    public static Map<String, Object> newLocalContext( final DataFetchingEnvironment environment )
     {
-        final Map<String, Object> localContext = environment.getLocalContext();
-        if ( localContext.get( Constants.BRANCH_ARG ) != null )
-        {
-            return Branch.from( localContext.get( Constants.BRANCH_ARG ).toString() );
-        }
-        return defaultBranch;
+        return new HashMap<>( getLocalContext( environment ) );
     }
 
-    public static Map<String, Object> applyAttachmentsInfo( final DataFetchingEnvironment environment, final String sourceId,
-                                                            final Map<String, Object> attachments )
+    public static ProjectName getProjectName( final DataFetchingEnvironment environment )
     {
-        final Map<String, Object> parentLocalContext = environment.getLocalContext();
+        final String value = getContextProperty( environment, Constants.PROJECT_ARG );
+        return value != null ? ProjectName.from( value ) : ProjectName.from( ContextAccessor.current().getRepositoryId() );
+    }
 
-        final Map<String, Object> localContext = new HashMap<>( parentLocalContext );
+    public static Branch getBranch( final DataFetchingEnvironment environment )
+    {
+        final String value = getContextProperty( environment, Constants.BRANCH_ARG );
+        return value != null ? Branch.from( value ) : ContextAccessor.current().getBranch();
+    }
 
-        localContext.put( Constants.CONTENT_ID_FIELD, sourceId );
+    public static String getSiteBaseUrl( final DataFetchingEnvironment environment )
+    {
+        return getContextProperty( environment, Constants.SITE_BASE_URL );
+    }
 
-        if ( attachments != null && !attachments.isEmpty() )
+    public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )
+    {
+        return getContextProperty( environment, propertyName, String.class );
+    }
+
+    public static <T> T getContextProperty( final DataFetchingEnvironment environment, final String propertyName, final Class<T> clazz )
+    {
+        final Map<String, Object> localContext = getLocalContext( environment );
+        final Object value = localContext.get( propertyName );
+        if ( value == null )
         {
-            localContext.put( Constants.ATTACHMENTS_FIELD, attachments );
+            return null;
         }
+        else if ( clazz.isInstance( value ) )
+        {
+            return (T) value;
+        }
+        else if ( clazz == String.class )
+        {
+            return (T) String.valueOf( value );
+        }
+        else
+        {
+            throw new ClassCastException( "Cannot cast object of type " + value.getClass().getName() + " to " + clazz.getName() );
+        }
+    }
 
-        return localContext;
+    public static Content resolveContent( final DataFetchingEnvironment environment )
+    {
+        final Map<String, Object> currentContent = getContextProperty( environment, Constants.CURRENT_CONTENT_FIELD, Map.class );
+        return ContentDeserializer.deserialize( currentContent );
     }
 }

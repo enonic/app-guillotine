@@ -4,6 +4,7 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentService;
 
 public class GetContentDataFetcher
@@ -18,7 +19,9 @@ public class GetContentDataFetcher
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
     {
-        return GuillotineLocalContextHelper.executeInContext( environment,
-                                                              () -> GuillotineSerializer.serialize( getContent( environment, false ) ) );
+        return GuillotineLocalContextHelper.executeInContext( environment, () -> {
+            final Content content = getContent( environment, false );
+            return GuillotineSerializer.serialize( content );
+        } );
     }
 }

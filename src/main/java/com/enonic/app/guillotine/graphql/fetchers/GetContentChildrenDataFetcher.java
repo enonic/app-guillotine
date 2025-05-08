@@ -1,6 +1,5 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -12,7 +11,6 @@ import com.enonic.app.guillotine.graphql.ArgumentsValidator;
 import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.ContentId;
-import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentByParentResult;
@@ -45,19 +43,10 @@ public class GetContentChildrenDataFetcher
         Integer count = Objects.requireNonNullElse( environment.getArgument( "first" ), 10 );
         ChildOrder childOrder = ChildOrder.from( environment.getArgument( "sort" ) );
 
-        try
-        {
-            FindContentByParentResult children = contentService.findByParent(
-                FindContentByParentParams.create().parentId( ContentId.from( sourceAsMap.get( "_id" ) ) ).from( from ).size(
-                    count ).childOrder( childOrder ).build() );
+        FindContentByParentResult children = contentService.findByParent(
+            FindContentByParentParams.create().parentId( ContentId.from( sourceAsMap.get( "_id" ) ) ).from( from ).size( count ).childOrder(
+                childOrder ).build() );
 
-            return children.getContents().stream().map( GuillotineSerializer::serialize ).collect( Collectors.toList() );
-        }
-        catch ( final ContentNotFoundException e )
-        {
-            // do nothing
-        }
-
-        return Collections.emptyList();
+        return children.getContents().stream().map( GuillotineSerializer::serialize ).collect( Collectors.toList() );
     }
 }

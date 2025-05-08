@@ -1,6 +1,5 @@
 package com.enonic.app.guillotine.graphql;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,21 +10,24 @@ import java.util.stream.Collectors;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
 import graphql.Scalars;
-import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetcher;
 import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLCodeRegistry;
+import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLObjectType;
+import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.SchemaTransformer;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.factory.HeadlessCmsTypeFactory;
 import com.enonic.app.guillotine.graphql.factory.TypeFactory;
+import com.enonic.app.guillotine.graphql.fetchers.ContentAwareDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.DynamicDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GuillotineDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.GraphQLHelper;
+import com.enonic.app.guillotine.graphql.helper.GraphQLTypeChecker;
 import com.enonic.app.guillotine.graphql.transformer.ContextualFieldResolver;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionGraphQLTypeVisitor;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionsExtractorService;
@@ -92,7 +94,9 @@ public class GraphQLApi
 
         final GraphQLCodeRegistry codeRegistry = registerDataFetchers( graphQLSchema, typesRegister, schemaExtensions );
 
-        return graphQLSchema.transform( builder -> builder.codeRegistry( codeRegistry ) );
+        graphQLSchema = graphQLSchema.transform( builder -> builder.codeRegistry( codeRegistry ) );
+
+        return wrapContentDataFetchers( graphQLSchema );
     }
 
     private GraphQLCodeRegistry registerTypeResolvers( GraphQLSchema graphQLSchema, GraphQLTypesRegister typesRegister )
@@ -120,7 +124,7 @@ public class GraphQLApi
             // except when it has also been overridden for a specific implementation.
             List<GraphQLInterfaceType> interfaces =
                 typesRegister.getAdditionalTypes().stream().filter( type -> type instanceof GraphQLInterfaceType ).map(
-                    type -> (GraphQLInterfaceType) type ).collect( Collectors.toList() );
+                    type -> (GraphQLInterfaceType) type ).toList();
 
             for ( GraphQLInterfaceType interfaceType : interfaces )
             {
@@ -157,6 +161,33 @@ public class GraphQLApi
         return graphQLSchema.build();
     }
 
+    private GraphQLSchema wrapContentDataFetchers( final GraphQLSchema graphQLSchema )
+    {
+        final GraphQLCodeRegistry.Builder newCodeRegistry = GraphQLCodeRegistry.newCodeRegistry( graphQLSchema.getCodeRegistry() );
+
+        final List<GraphQLObjectType> outputGraphQLTypes =
+            graphQLSchema.getAllTypesAsList().stream().filter( t -> t instanceof GraphQLObjectType ).map(
+                t -> (GraphQLObjectType) t ).toList();
+
+        for ( GraphQLObjectType objectType : outputGraphQLTypes )
+        {
+            for ( GraphQLFieldDefinition fieldDefinition : objectType.getFieldDefinitions() )
+            {
+                final GraphQLOutputType outputType = fieldDefinition.getType();
+
+                if ( GraphQLTypeChecker.isContentType( outputType ) )
+                {
+                    final DataFetcher<?> originalFetcher = graphQLSchema.getCodeRegistry().getDataFetcher( objectType, fieldDefinition );
+                    final DataFetcher<?> wrappedFetcher = new ContentAwareDataFetcher( originalFetcher );
+                    newCodeRegistry.dataFetcher( FieldCoordinates.coordinates( objectType.getName(), fieldDefinition.getName() ),
+                                                 wrappedFetcher );
+                }
+            }
+        }
+
+        return GraphQLSchema.newSchema( graphQLSchema ).codeRegistry( newCodeRegistry.build() ).build();
+    }
+
     private void generateGuillotineApi( GraphQLTypesRegister typesRegister )
     {
         GuillotineContext context =
@@ -178,7 +209,7 @@ public class GraphQLApi
 
         typesRegister.addCreationCallback( "Query", guillotineQueryCreationCallback );
 
-        typesRegister.addResolver( "Query", "guillotine", new GuillotineDataFetcher( portalRequestSupplier ) );
+        typesRegister.addResolver( "Query", "guillotine", new GuillotineDataFetcher( portalRequestSupplier, serviceFacadeSupplier ) );
 
         typesRegister.addAdditionalType( context.getAllTypes() );
 

@@ -1,16 +1,17 @@
 const mustache = require('/lib/mustache');
 const portalLib = require('/lib/xp/portal');
+const assetLib = require('/lib/enonic/asset');
 
 exports.get = function (req) {
     const view = resolve('guillotine.html');
-    const assetsUrl = portalLib.assetUrl({path: ""});
+    const assetsUrl = assetLib.assetUrl({path: ''});
     const baseUrl = '/admin/site/preview';
     const wsUrl = portalLib.url({
         path: baseUrl,
         type: 'websocket',
     });
-    const handlerUrl = portalLib.url({
-        path: baseUrl,
+    const handlerUrl = portalLib.apiUrl({
+        api: 'graphql',
     });
 
     const params = {

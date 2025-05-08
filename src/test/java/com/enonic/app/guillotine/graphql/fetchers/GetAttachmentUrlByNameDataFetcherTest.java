@@ -11,12 +11,9 @@ import org.mockito.Mockito;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
-import com.enonic.xp.branch.Branch;
-import com.enonic.xp.portal.PortalRequest;
-import com.enonic.xp.portal.PortalRequestAccessor;
-import com.enonic.xp.portal.url.AttachmentUrlParams;
+import com.enonic.app.guillotine.graphql.ContentFixtures;
+import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
 import com.enonic.xp.portal.url.PortalUrlService;
-import com.enonic.xp.repository.RepositoryId;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -28,17 +25,17 @@ public class GetAttachmentUrlByNameDataFetcherTest
     public void testGet()
         throws Exception
     {
-        PortalRequest portalRequest = mock( PortalRequest.class );
-        when( portalRequest.getRepositoryId() ).thenReturn( RepositoryId.from( "com.enonic.cms.default" ) );
-        when( portalRequest.getBranch() ).thenReturn( Branch.from( "master" ) );
-
-        PortalRequestAccessor.set( portalRequest );
-
         DataFetchingEnvironment environment = mock( DataFetchingEnvironment.class );
 
-        when( environment.getSource() ).thenReturn( Map.of( "name", "Name", Constants.CONTENT_ID_FIELD, "contentId" ) );
-        when( environment.getLocalContext() ).thenReturn( new HashMap<>() );
-        when( environment.getArgument( "download" ) ).thenReturn( "true" );
+        final Map<String, Object> localContext = new HashMap<>();
+
+        localContext.put( Constants.PROJECT_ARG, "myproject" );
+        localContext.put( Constants.BRANCH_ARG, "draft" );
+        localContext.put( Constants.CURRENT_CONTENT_FIELD, ContentFixtures.createContentAsMap() );
+
+        when( environment.getSource() ).thenReturn( Map.of( "name", "Name" ) );
+        when( environment.getLocalContext() ).thenReturn( localContext );
+        when( environment.getArgument( "download" ) ).thenReturn( true );
         when( environment.getArgument( "type" ) ).thenReturn( null );
 
         Map<String, Object> params = new LinkedHashMap<>();
@@ -50,7 +47,7 @@ public class GetAttachmentUrlByNameDataFetcherTest
 
         PortalUrlService portalUrlService = mock( PortalUrlService.class );
 
-        when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlParams.class ) ) ).thenReturn( "url?a=1&b=2&b=3&c" );
+        when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn( "url?a=1&b=2&b=3&c" );
 
         GetAttachmentUrlByNameDataFetcher instance = new GetAttachmentUrlByNameDataFetcher( portalUrlService );
 

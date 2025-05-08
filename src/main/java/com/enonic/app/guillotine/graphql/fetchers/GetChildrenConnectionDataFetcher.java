@@ -39,15 +39,12 @@ public class GetChildrenConnectionDataFetcher
         ArgumentsValidator.validateArguments( environment.getArguments() );
 
         Content parent = getContent( environment, true );
-
         int offset = environment.getArgument( "after" ) != null ?
             Integer.parseInt( ConnectionHelper.decodeCursor( environment.getArgument( "after" ) ) ) + 1 : 0;
-
         if ( parent != null )
         {
             Integer count = Objects.requireNonNullElse( environment.getArgument( "first" ), 10 );
             ChildOrder childOrder = ChildOrder.from( environment.getArgument( "sort" ) );
-
             FindContentByParentResult children = contentService.findByParent(
                 FindContentByParentParams.create().parentId( parent.getId() ).from( offset ).size( count ).childOrder(
                     childOrder ).build() );

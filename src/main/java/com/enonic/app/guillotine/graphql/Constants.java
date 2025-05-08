@@ -4,9 +4,7 @@ import java.util.List;
 
 public interface Constants
 {
-    String CONTENT_ID_FIELD = "__contentId";
-
-    String ATTACHMENTS_FIELD = "__attachments";
+    String CURRENT_CONTENT_FIELD = "__currentContent";
 
     String PROJECT_ARG = "project";
 
@@ -15,6 +13,8 @@ public interface Constants
     String SITE_ARG = "siteKey";
 
     String SITE_HEADER = "X-Guillotine-SiteKey";
+
+    String SITE_BASE_URL = "__siteBaseUrl";
 
     List<String> SUPPORTED_AGGREGATIONS =
         List.of( "terms", "stats", "range", "dateRange", "dateHistogram", "geoDistance", "min", "max", "count" );

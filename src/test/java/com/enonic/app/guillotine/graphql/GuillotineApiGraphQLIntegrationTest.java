@@ -119,7 +119,7 @@ public class GuillotineApiGraphQLIntegrationTest
         assertNotNull( xMedia );
         assertEquals( 1, xMedia.values().size() ); // empty application suffix
 
-        Map<String, Object> xMediaAppConfig = CastHelper.cast( xMedia.get( "" ) );
+        Map<String, Object> xMediaAppConfig = CastHelper.cast( xMedia.get( "testapp" ) );
         Map<String, Object> media = CastHelper.cast( xMediaAppConfig.get( "media" ) );
 
         final Map<String, Object> imageInfo = CastHelper.cast( media.get( "imageInfo" ) );

@@ -1,44 +1,39 @@
 package com.enonic.app.guillotine.graphql.helper;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.google.common.collect.Multimap;
-
-public class ParamsUrHelper
+public final class ParamsUrHelper
 {
     private ParamsUrHelper()
     {
     }
 
-    public static void resolveParams( final Multimap<String, String> holder, final Object originalParams )
+    public static Map<String, Collection<String>> convertToMultimap( final Map<String, ?> originalMap )
     {
-        if ( originalParams instanceof Map )
+        final Map<String, Collection<String>> result = new LinkedHashMap<>();
+
+        for ( Map.Entry<String, ?> entry : originalMap.entrySet() )
         {
-            for ( Map.Entry<String, Object> entry : ( (Map<String, Object>) originalParams ).entrySet() )
+            final List<String> values = new ArrayList<>();
+
+            final Object value = entry.getValue();
+            if ( value instanceof Iterable )
             {
-                applyParam( holder, entry.getKey(), entry.getValue() );
+                ( (Iterable<?>) value ).forEach( v -> values.add( Objects.toString( v, null ) ) );
             }
-        }
-    }
+            else
+            {
+                values.add( Objects.toString( value, null ) );
+            }
 
-    private static void applyParam( final Multimap<String, String> holder, final String key, final Object value )
-    {
-        if ( value instanceof Iterable )
-        {
-            applyParam( holder, key, (Iterable) value );
+            result.put( entry.getKey(), values );
         }
-        else
-        {
-            holder.put( key, Objects.toString( value, null ) );
-        }
-    }
 
-    private static void applyParam( final Multimap<String, String> holder, final String key, final Iterable values )
-    {
-        for ( final Object value : values )
-        {
-            holder.put( key, Objects.toString( value, null ) );
-        }
+        return result;
     }
 }

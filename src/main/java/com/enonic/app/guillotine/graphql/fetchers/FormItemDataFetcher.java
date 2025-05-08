@@ -62,7 +62,8 @@ public class FormItemDataFetcher
                 }
                 if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) )
                 {
-                    Map<String, Object> attachmentsAsMap = CastHelper.cast( localContext.get( Constants.ATTACHMENTS_FIELD ) );
+                    final Map<String, Object> currentContentAsMap = CastHelper.cast( localContext.get( Constants.CURRENT_CONTENT_FIELD ) );
+                    final Map<String, Object> attachmentsAsMap = CastHelper.cast( currentContentAsMap.get( "attachments" ) );
                     return attachmentsAsMap.get( (String) value );
                 }
                 if ( inputType.equals( InputTypeName.CONTENT_SELECTOR ) || inputType.equals( InputTypeName.MEDIA_SELECTOR ) ||
@@ -98,7 +99,8 @@ public class FormItemDataFetcher
                 }
                 if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) )
                 {
-                    Map<String, Object> attachmentsAsMap = CastHelper.cast( localContext.get( Constants.ATTACHMENTS_FIELD ) );
+                    final Map<String, Object> currentContentAsMap = CastHelper.cast( localContext.get( Constants.CURRENT_CONTENT_FIELD ) );
+                    final Map<String, Object> attachmentsAsMap = CastHelper.cast( currentContentAsMap.get( "attachments" ) );
                     return values.stream().map( value -> attachmentsAsMap.get( (String) value ) ).collect( Collectors.toList() );
                 }
                 if ( inputType.equals( InputTypeName.CONTENT_SELECTOR ) || inputType.equals( InputTypeName.MEDIA_SELECTOR ) ||
