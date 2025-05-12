@@ -1,6 +1,6 @@
 package com.enonic.app.guillotine.mapper;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 
 import com.enonic.xp.aggregation.Aggregations;
 import com.enonic.xp.content.Content;
@@ -21,11 +21,11 @@ public final class QueryMapper
 
     private final Aggregations aggregations;
 
-    private final ImmutableMap<ContentId, HighlightedProperties> highlight;
+    private final Map<ContentId, HighlightedProperties> highlight;
 
-    private final ImmutableMap<ContentId, SortValuesProperty> sortValues;
+    private final Map<ContentId, SortValuesProperty> sortValues;
 
-    private final ImmutableMap<ContentId, Float> scoreValues;
+    private final Map<ContentId, Float> scoreValues;
 
     public QueryMapper( final Contents contents, FindContentIdsByQueryResult queryResult )
     {
@@ -72,7 +72,7 @@ public final class QueryMapper
         }
     }
 
-    private void serialize( final MapGenerator gen, ImmutableMap<ContentId, HighlightedProperties> highlight )
+    private void serialize( final MapGenerator gen, Map<ContentId, HighlightedProperties> highlight )
     {
         if ( highlight != null )
         {

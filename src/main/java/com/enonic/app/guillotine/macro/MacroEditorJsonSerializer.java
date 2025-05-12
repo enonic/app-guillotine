@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ListMultimap;
 
 import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.xp.form.Occurrences;
@@ -43,11 +42,11 @@ public class MacroEditorJsonSerializer
 
         macroData.put( "body", macro.getMacro().getBody() );
 
-        final ImmutableMultimap<String, String> params = macro.getMacro().getParameters();
+        final ListMultimap<String, String> params = macro.getMacro().getParameters();
 
         for ( String key : params.keySet() )
         {
-            ImmutableList<String> values = macro.getMacro().getParameter( key );
+            List<String> values = macro.getMacro().getParameter( key );
 
             Occurrences occurrences = FormItemTypesHelper.getOccurrences( descriptor.getForm().getFormItem( key ) );
 
