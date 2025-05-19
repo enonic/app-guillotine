@@ -13,7 +13,7 @@ import graphql.schema.DataFetchingEnvironment;
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.ContentFixtures;
 import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
-import com.enonic.xp.portal.url.PortalUrlService;
+import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -45,7 +45,7 @@ public class GetAttachmentUrlByNameDataFetcherTest
 
         when( environment.getArgument( "params" ) ).thenReturn( params );
 
-        PortalUrlService portalUrlService = mock( PortalUrlService.class );
+        PortalUrlGeneratorService portalUrlService = mock( PortalUrlGeneratorService.class );
 
         when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn( "url?a=1&b=2&b=3&c" );
 

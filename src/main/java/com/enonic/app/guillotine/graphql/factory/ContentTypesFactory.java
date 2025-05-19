@@ -130,7 +130,7 @@ public class ContentTypesFactory
 
             fields.add( mediaUrlField );
             context.registerDataFetcher( typeName, mediaUrlField.getName(),
-                                         new GetAttachmentUrlByIdDataFetcher( serviceFacade.getPortalUrlService() ) );
+                                         new GetAttachmentUrlByIdDataFetcher( serviceFacade.getPortalUrlGeneratorService() ) );
 
             if ( contentType.getName().toString().equals( "media:image" ) )
             {
@@ -138,7 +138,7 @@ public class ContentTypesFactory
 
                 fields.add( imageUrlField );
                 context.registerDataFetcher( typeName, imageUrlField.getName(),
-                                             new GetImageUrlDataFetcher( serviceFacade.getPortalUrlService() ) );
+                                             new GetImageUrlDataFetcher( serviceFacade.getPortalUrlGeneratorService() ) );
             }
         }
 

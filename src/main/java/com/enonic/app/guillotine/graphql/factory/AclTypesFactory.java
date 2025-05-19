@@ -77,7 +77,6 @@ public class AclTypesFactory
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
-        fields.add( outputField( "inheritsPermissions", Scalars.GraphQLBoolean ) );
         fields.add( outputField( "permissions", new GraphQLList( GraphQLTypeReference.typeRef( "AccessControlEntry" ) ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "Permissions" ), "Permissions.", fields );

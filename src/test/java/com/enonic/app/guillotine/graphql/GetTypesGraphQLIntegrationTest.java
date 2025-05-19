@@ -126,9 +126,7 @@ public class GetTypesGraphQLIntegrationTest
 
         Map<String, Object> getPermissionsField = CastHelper.cast( getFieldFromGuillotine( result, "getPermissions" ) );
 
-        assertEquals( 2, getPermissionsField.size() );
-
-        assertFalse( (boolean) getPermissionsField.get( "inheritsPermissions" ) );
+        assertEquals( 1, getPermissionsField.size() );
 
         List<Map<String, Object>> permissionsEntries = CastHelper.cast( getPermissionsField.get( "permissions" ) );
 

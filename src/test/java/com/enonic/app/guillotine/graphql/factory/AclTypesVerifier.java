@@ -12,7 +12,7 @@ import com.enonic.app.guillotine.graphql.GuillotineContext;
 
 import static com.enonic.app.guillotine.graphql.factory.GraphQLTestHelper.getNameForGraphQLTypeReference;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class AclTypesVerifier
 {
@@ -57,11 +57,11 @@ public class AclTypesVerifier
         assertEquals( "PrincipalKey", getNameForGraphQLTypeReference( type.getFieldDefinition( "principal" ).getType() ) );
 
         GraphQLOutputType typeOfAllowField = type.getFieldDefinition( "allow" ).getType();
-        assertTrue( typeOfAllowField instanceof GraphQLList );
+        assertInstanceOf( GraphQLList.class, typeOfAllowField );
         assertEquals( "Permission", getNameForGraphQLTypeReference( ( (GraphQLList) typeOfAllowField ).getOriginalWrappedType() ) );
 
         GraphQLOutputType typeOfDenyField = type.getFieldDefinition( "allow" ).getType();
-        assertTrue( typeOfDenyField instanceof GraphQLList );
+        assertInstanceOf( GraphQLList.class, typeOfDenyField );
         assertEquals( "Permission", getNameForGraphQLTypeReference( ( (GraphQLList) typeOfDenyField ).getOriginalWrappedType() ) );
     }
 
@@ -73,11 +73,10 @@ public class AclTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 2, fields.size() );
-        assertEquals( Scalars.GraphQLBoolean, type.getFieldDefinition( "inheritsPermissions" ).getType() );
+        assertEquals( 1, fields.size() );
 
         GraphQLOutputType typeOfPermissionsField = type.getFieldDefinition( "permissions" ).getType();
-        assertTrue( typeOfPermissionsField instanceof GraphQLList );
+        assertInstanceOf( GraphQLList.class, typeOfPermissionsField );
         assertEquals( "AccessControlEntry",
                       getNameForGraphQLTypeReference( ( (GraphQLList) typeOfPermissionsField ).getOriginalWrappedType() ) );
     }

@@ -32,6 +32,7 @@ import com.enonic.xp.macro.MacroDescriptorService;
 import com.enonic.xp.macro.MacroService;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.script.PortalScriptService;
+import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.resource.ResourceKey;
@@ -100,7 +101,9 @@ public class BaseGraphQLIntegrationTest
 
         when( contentTypeService.getAll() ).thenReturn( createContentTypes() );
 
-        PortalUrlService portalUrlService = mock( PortalUrlService.class );
+        final PortalUrlService portalUrlService = mock( PortalUrlService.class );
+
+        final PortalUrlGeneratorService portalUrlGeneratorService = mock( PortalUrlGeneratorService.class );
 
         MacroDescriptorService macroDescriptorService = mock( MacroDescriptorService.class );
         MacroService macroService = mock( MacroService.class );
@@ -109,6 +112,8 @@ public class BaseGraphQLIntegrationTest
         when( serviceFacade.getContentTypeService() ).thenReturn( contentTypeService );
         when( serviceFacade.getContentService() ).thenReturn( contentService );
         when( serviceFacade.getPortalUrlService() ).thenReturn( portalUrlService );
+
+        when( serviceFacade.getPortalUrlGeneratorService() ).thenReturn( portalUrlGeneratorService );
 
         when( macroDescriptorService.getAll() ).thenReturn( BuiltinMacros.getSystemMacroDescriptors() );
         when( serviceFacade.getMacroDescriptorService() ).thenReturn( macroDescriptorService );
@@ -124,6 +129,7 @@ public class BaseGraphQLIntegrationTest
         addService( ExtensionsExtractorService.class, extensionsExtractorService );
         addService( ApplicationService.class, applicationService );
         addService( PortalUrlService.class, portalUrlService );
+        addService( PortalUrlGeneratorService.class, portalUrlGeneratorService );
         addService( MacroDescriptorService.class, macroDescriptorService );
         addService( MacroService.class, macroService );
         addService( MixinService.class, mixinService );
