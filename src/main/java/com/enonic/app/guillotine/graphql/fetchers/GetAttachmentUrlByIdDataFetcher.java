@@ -9,16 +9,16 @@ import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
-import com.enonic.xp.portal.url.PortalUrlService;
+import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 
 public class GetAttachmentUrlByIdDataFetcher
     implements DataFetcher<String>
 {
-    private final PortalUrlService portalUrlService;
+    private final PortalUrlGeneratorService portalUrlGeneratorService;
 
-    public GetAttachmentUrlByIdDataFetcher( final PortalUrlService portalUrlService )
+    public GetAttachmentUrlByIdDataFetcher( final PortalUrlGeneratorService portalUrlGeneratorService )
     {
-        this.portalUrlService = portalUrlService;
+        this.portalUrlGeneratorService = portalUrlGeneratorService;
     }
 
     @Override
@@ -54,6 +54,6 @@ public class GetAttachmentUrlByIdDataFetcher
             builder.addQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
         }
 
-        return portalUrlService.attachmentUrl( builder.build() );
+        return portalUrlGeneratorService.attachmentUrl( builder.build() );
     }
 }

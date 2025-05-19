@@ -80,7 +80,11 @@ public class ContentFixtures
 
     public static PropertyTree xMedia()
     {
-        final PropertySet imageInfo = new PropertySet();
+        final PropertyTree tree = new PropertyTree();
+
+        final PropertySet mediaSet = tree.newSet();
+
+        final PropertySet imageInfo = mediaSet.addSet( "imageInfo" );
         imageInfo.setString( "colorSpace", "sRGB" );
         imageInfo.setString( "contentType", "image/jpeg" );
         imageInfo.setLong( "pixelSize", 16036032L );
@@ -88,7 +92,7 @@ public class ContentFixtures
         imageInfo.setLong( "imageWidth", 4624L );
         imageInfo.setLong( "byteSize", 3620112L );
 
-        final PropertySet cameraInfo = new PropertySet();
+        final PropertySet cameraInfo = mediaSet.addSet( "cameraInfo" );
         cameraInfo.setString( "exposureMode", "Auto exposure" );
         cameraInfo.setString( "make", "samsung" );
         cameraInfo.setString( "exposureBias", "0 EV" );
@@ -104,12 +108,8 @@ public class ContentFixtures
         cameraInfo.setString( "exposureProgram", "Program normal" );
         cameraInfo.setString( "aperture", "f/1.8" );
 
-        final PropertySet mediaSet = new PropertySet();
-        mediaSet.setSet( "imageInfo", imageInfo );
-        mediaSet.setSet( "cameraInfo", cameraInfo );
-
-        final PropertyTree tree = new PropertyTree();
         tree.setSet( "media", mediaSet );
+
         return tree;
     }
 
@@ -126,7 +126,8 @@ public class ContentFixtures
 
     public static PropertyTree dataMediaImage()
     {
-        final PropertySet mediaSet = new PropertySet();
+        PropertyTree tree = new PropertyTree();
+        final PropertySet mediaSet = tree.newSet();
 
         final PropertySet focalPointSet = mediaSet.addSet( "focalPoint" );
         focalPointSet.setDouble( "x", 0.790625 );
@@ -139,18 +140,13 @@ public class ContentFixtures
         zoomPositionSet.setLong( "bottom", 0L );
 
         final PropertySet cropPositionSet = mediaSet.addSet( "cropPosition" );
-        zoomPositionSet.setLong( "left", 0L );
-        zoomPositionSet.setLong( "top", 0L );
-        zoomPositionSet.setLong( "right", 1L );
-        zoomPositionSet.setLong( "bottom", 1L );
-        zoomPositionSet.setLong( "zoom", 1L );
+        cropPositionSet.setLong( "left", 0L );
+        cropPositionSet.setLong( "top", 0L );
+        cropPositionSet.setLong( "right", 1L );
+        cropPositionSet.setLong( "bottom", 1L );
+        cropPositionSet.setLong( "zoom", 1L );
 
         mediaSet.setString( "attachment", "image.jpeg" );
-        mediaSet.setSet( "focalPoint", focalPointSet );
-        mediaSet.setSet( "zoomPosition", zoomPositionSet );
-        mediaSet.setSet( "cropPosition", cropPositionSet );
-
-        final PropertyTree tree = new PropertyTree();
         tree.setSet( "media", mediaSet );
         return tree;
     }

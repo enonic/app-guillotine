@@ -13,7 +13,7 @@ import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.ContentFixtures;
 import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
 import com.enonic.xp.portal.url.ImageUrlGeneratorParams;
-import com.enonic.xp.portal.url.PortalUrlService;
+import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -40,7 +40,7 @@ public class UrlFieldDataFetcherTest
     public void testAttachmentUrlByName()
         throws Exception
     {
-        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn( "attachmentUrl" );
 
         Map<String, Object> source = new HashMap<>();
@@ -56,7 +56,7 @@ public class UrlFieldDataFetcherTest
     public void testImageUrl()
         throws Exception
     {
-        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.imageUrl( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn( "imageUrl" );
 
         Map<String, Object> source = new HashMap<>();
@@ -79,7 +79,7 @@ public class UrlFieldDataFetcherTest
     public void testAttachmentUrlById()
         throws Exception
     {
-        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn( "attachmentUrl" );
 
         Map<String, Object> source = new HashMap<>();

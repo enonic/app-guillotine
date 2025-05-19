@@ -59,7 +59,6 @@ query {
                 }
             }
             permissions {
-                inheritsPermissions
                 permissions {
                     principal {
                         value

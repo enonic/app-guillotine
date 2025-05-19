@@ -129,9 +129,7 @@ public class GuillotineApiGraphQLIntegrationTest
 
         Map<String, Object> permissionsField = CastHelper.cast( getField.get( "permissions" ) );
 
-        assertEquals( 2, permissionsField.size() );
-
-        assertFalse( (boolean) permissionsField.get( "inheritsPermissions" ) );
+        assertEquals( 1, permissionsField.size() );
 
         List<Map<String, Object>> permissionsEntries = CastHelper.cast( permissionsField.get( "permissions" ) );
 
@@ -284,7 +282,7 @@ public class GuillotineApiGraphQLIntegrationTest
 	public void testGetContentDataAsJson()
 	{
 		final PropertyTree data = new PropertyTree();
-		data.addSet( "siteConfig", new PropertySet() );
+        data.addSet( "siteConfig", data.newSet() );
 		data.addString( "k", "v" );
 
 		Site site = Site.create().name( "site" ).type( ContentTypeName.site() ).path( ContentPath.from( "/sitePath" ) ).parentPath(

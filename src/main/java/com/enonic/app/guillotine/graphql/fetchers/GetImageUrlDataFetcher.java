@@ -10,16 +10,16 @@ import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.Media;
 import com.enonic.xp.portal.url.ImageUrlGeneratorParams;
-import com.enonic.xp.portal.url.PortalUrlService;
+import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 
 public class GetImageUrlDataFetcher
     implements DataFetcher<String>
 {
-    private final PortalUrlService portalUrlService;
+    private final PortalUrlGeneratorService portalUrlGeneratorService;
 
-    public GetImageUrlDataFetcher( final PortalUrlService portalUrlService )
+    public GetImageUrlDataFetcher( final PortalUrlGeneratorService portalUrlGeneratorService )
     {
-        this.portalUrlService = portalUrlService;
+        this.portalUrlGeneratorService = portalUrlGeneratorService;
     }
 
     @Override
@@ -59,6 +59,6 @@ public class GetImageUrlDataFetcher
 
         final ImageUrlGeneratorParams params = builder.build();
 
-        return portalUrlService.imageUrl( params );
+        return portalUrlGeneratorService.imageUrl( params );
     }
 }

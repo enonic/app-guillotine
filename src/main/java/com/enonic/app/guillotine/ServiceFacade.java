@@ -10,6 +10,7 @@ import com.enonic.xp.macro.MacroDescriptorService;
 import com.enonic.xp.macro.MacroService;
 import com.enonic.xp.node.NodeService;
 import com.enonic.xp.page.PageTemplateService;
+import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.mixin.MixinService;
@@ -38,6 +39,8 @@ public class ServiceFacade
 
     private final StyleDescriptorService styleDescriptorService;
 
+    private final PortalUrlGeneratorService portalUrlGeneratorService;
+
     @Activate
     public ServiceFacade( final @Reference ContentService contentService, final @Reference ContentTypeService contentTypeService,
                           final @Reference ComponentDescriptorService componentDescriptorService,
@@ -45,7 +48,8 @@ public class ServiceFacade
                           final @Reference MixinService mixinService, final @Reference MacroService macroService,
                           final @Reference MacroDescriptorService macroDescriptorService,
                           final @Reference PageTemplateService pageTemplateService,
-                          final @Reference StyleDescriptorService styleDescriptorService )
+                          final @Reference StyleDescriptorService styleDescriptorService,
+                          final @Reference PortalUrlGeneratorService portalUrlGeneratorService )
     {
         this.contentService = contentService;
         this.contentTypeService = contentTypeService;
@@ -57,6 +61,7 @@ public class ServiceFacade
         this.macroDescriptorService = macroDescriptorService;
         this.pageTemplateService = pageTemplateService;
         this.styleDescriptorService = styleDescriptorService;
+        this.portalUrlGeneratorService = portalUrlGeneratorService;
     }
 
     public ContentService getContentService()
@@ -109,4 +114,8 @@ public class ServiceFacade
         return styleDescriptorService;
     }
 
+    public PortalUrlGeneratorService getPortalUrlGeneratorService()
+    {
+        return portalUrlGeneratorService;
+    }
 }
