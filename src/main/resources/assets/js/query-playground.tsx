@@ -1,8 +1,8 @@
 import {GraphiQL} from 'graphiql';
 import {createGraphiQLFetcher} from '@graphiql/toolkit';
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import {createClient} from 'graphql-ws';
+import * as React from 'react';
+import {createRoot} from 'react-dom/client';
 
 const DEFAULT_QUERY = `# Welcome to Query Playground
 #
@@ -19,8 +19,8 @@ query {
 }
 `;
 
-function getRootContainer() {
-    return document.getElementById('graphiql-container-wrapper');
+function getRootContainer(): HTMLElement {
+    return document.getElementById('graphiql-container-wrapper')!;
 }
 
 function getDataConfig() {
@@ -37,17 +37,26 @@ function createFetcher() {
     });
 }
 
+let root: ReturnType<typeof createRoot> | null = null;
+
 function renderGraphiQLUI() {
-    ReactDOM.render(<QueryPlayground/>, getRootContainer(), function () {
-        const refreshButton = document.querySelector('[aria-label="Re-fetch GraphQL schema"]');
-        refreshButton.addEventListener('click', rerenderGraphiQLUI);
-    });
+    const container = getRootContainer();
+
+    if (!root) {
+        root = createRoot(container);
+    }
+
+    root.render(<QueryPlayground/>);
+    // ReactDOM.render(<QueryPlayground/>, getRootContainer(), function () {
+    //     const refreshButton = document.querySelector('[aria-label="Re-fetch GraphQL schema"]');
+    //     refreshButton.addEventListener('click', rerenderGraphiQLUI);
+    // });
 }
 
-function rerenderGraphiQLUI() {
-    ReactDOM.unmountComponentAtNode(getRootContainer());
-    renderGraphiQLUI();
-}
+// function rerenderGraphiQLUI() {
+//     ReactDOM.unmountComponentAtNode(getRootContainer());
+//     renderGraphiQLUI();
+// }
 
 function QueryPlayground() {
     return (

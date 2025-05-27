@@ -1,17 +1,22 @@
 const mustache = require('/lib/mustache');
 const portalLib = require('/lib/xp/portal');
 const assetLib = require('/lib/enonic/asset');
+const schemaLib = require('../../../lib/schema');
+const corsLib = require('../../../lib/cors');
 
 exports.get = function (req) {
     const view = resolve('guillotine.html');
     const assetsUrl = assetLib.assetUrl({path: ''});
-    const baseUrl = '/admin/site/preview';
-    const wsUrl = portalLib.url({
-        path: baseUrl,
+
+    const wsUrl = portalLib.apiUrl({
+        api: 'admin:widget',
+        path: ['com.enonic.app.guillotine', 'guillotine'],
         type: 'websocket',
     });
+
     const handlerUrl = portalLib.apiUrl({
-        api: 'graphql',
+        api: 'admin:widget',
+        path: ['com.enonic.app.guillotine', 'guillotine'],
     });
 
     const params = {
@@ -23,6 +28,16 @@ exports.get = function (req) {
     return {
         contentType: 'text/html',
         body: mustache.render(view, params),
+    };
+}
+
+exports.post = function (req) {
+    const input = JSON.parse(req.body);
+
+    return {
+        contentType: 'application/json',
+        headers: corsLib.getHeaders(req),
+        body: schemaLib.executeGraphQLQuery(input.query, input.variables),
     };
 }
 
