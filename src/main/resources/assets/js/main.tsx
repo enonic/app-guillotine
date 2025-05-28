@@ -2,7 +2,9 @@ import {GraphiQL} from 'graphiql';
 import {createGraphiQLFetcher} from '@graphiql/toolkit';
 import {createClient} from 'graphql-ws';
 import * as React from 'react';
+import {useState} from 'react';
 import {createRoot} from 'react-dom/client';
+import {Button, ButtonGroup} from '@graphiql/react';
 
 const DEFAULT_QUERY = `# Welcome to Query Playground
 #
@@ -19,16 +21,22 @@ query {
 }
 `;
 
+let currentBranch: string = 'draft';
+
 function getRootContainer(): HTMLElement {
     return document.getElementById('graphiql-container');
 }
 
 function getHandlerUrl(): string {
-    return getRootContainer().dataset.configHandlerUrl;
+    return `${getRootContainer().dataset.configHandlerUrl}?project=${getProjectValue()}&branch=${currentBranch}`;
 }
 
 function getWsHandlerUrl(): string {
-    return `${getRootContainer().dataset.configWsUrl}`;
+    return `${getRootContainer().dataset.configWsUrl}?project=${getProjectValue()}&branch=${currentBranch}`;
+}
+
+function getProjectValue(): string {
+    return window['libAdmin'].store.get('projectContext').currentProject.name;
 }
 
 let root: ReturnType<typeof createRoot> | null = null;
@@ -87,12 +95,46 @@ function createFetcher() {
     });
 }
 
+function BranchChooser() {
+    const [branch, setBranch] = useState<string>(currentBranch);
+
+    const handleOnClick = (event, newBranch: string) => {
+        currentBranch = newBranch;
+        setBranch(newBranch);
+
+        rerenderGraphiQLUI();
+    };
+
+    return (
+        <ButtonGroup>
+            <Button
+                type="button"
+                className={branch === 'draft' ? 'active' : ''}
+                onClick={(event) => handleOnClick(event, 'draft')}
+            >
+                Draft
+            </Button>
+            <Button
+                type="button"
+                className={branch === 'master' ? 'active' : ''}
+                onClick={(event) => handleOnClick(event, 'master')}
+            >
+                Master
+            </Button>
+        </ButtonGroup>
+    );
+}
+
 function QueryPlayground() {
     return (
         <GraphiQL
             fetcher={createFetcher()}
             defaultQuery={DEFAULT_QUERY}
-        />
+        >
+            <GraphiQL.Logo>
+                <BranchChooser/>
+            </GraphiQL.Logo>
+        </GraphiQL>
     );
 }
 

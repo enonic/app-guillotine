@@ -4,6 +4,7 @@ const corsLib = require('/lib/cors');
 const mustacheLib = require('/lib/mustache');
 const appLib = require('/lib/xp/app');
 const portalLib = require('/lib/xp/portal');
+const contextLib = require('/lib/xp/context');
 
 const helper = __.newBean('com.enonic.app.guillotine.helper.AppHelper');
 
@@ -64,6 +65,10 @@ exports.post = function (req) {
     return {
         contentType: 'application/json',
         headers: corsLib.getHeaders(req),
-        body: schemaLib.executeGraphQLQuery(input.query, input.variables),
+        body: contextLib.run({
+            branch: req.params.branch,
+        }, function () {
+            return schemaLib.executeGraphQLQuery(input.query, input.variables);
+        }),
     };
 }

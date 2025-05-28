@@ -1,5 +1,6 @@
 const mustache = require('/lib/mustache');
 const portalLib = require('/lib/xp/portal');
+const contextLib = require('/lib/xp/context');
 const schemaLib = require('../../../lib/schema');
 const corsLib = require('../../../lib/cors');
 
@@ -38,7 +39,12 @@ exports.post = function (req) {
     return {
         contentType: 'application/json',
         headers: corsLib.getHeaders(req),
-        body: schemaLib.executeGraphQLQuery(input.query, input.variables),
+        body: contextLib.run({
+            repository: `com.enonic.cms.${req.params.project}`,
+            branch: req.params.branch,
+        }, function () {
+            return schemaLib.executeGraphQLQuery(input.query, input.variables);
+        }),
     };
 }
 
