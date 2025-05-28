@@ -1,65 +1,23 @@
 /* global log, Java */
 
-const eventLib = require('/lib/xp/event');
 const corsLib = require('/lib/cors');
 const mustacheLib = require('/lib/mustache');
-const staticLib = require('/lib/enonic/static');
 const appLib = require('/lib/xp/app');
+const portalLib = require('/lib/xp/portal');
 
-const graphQLApi = __.newBean('com.enonic.app.guillotine.graphql.GraphQLApi');
-const syncExecutor = __.newBean('com.enonic.app.guillotine.Synchronizer');
 const helper = __.newBean('com.enonic.app.guillotine.helper.AppHelper');
 
-let schema;
+const schemaLib = require('/lib/schema');
 
-eventLib.listener({
-    type: 'application',
-    localOnly: false,
-    callback: function (event) {
-        let eventType = event.data.eventType;
-        if ('STOPPED' === eventType || 'STARTED' === eventType || 'UNINSTALLED' === eventType) {
-            syncExecutor.sync(__.toScriptValue(function () {
-                schema = null;
-            }));
-
-            eventLib.send({
-                type: 'com.enonic.app.guillotine-schemaChanged',
-                distributed: true
-            });
-        }
-    }
-});
-
-function getSchema() {
-    if (!schema) {
-        syncExecutor.sync(__.toScriptValue(function () {
-            schema = graphQLApi.createSchema();
-        }));
-    }
-    return schema;
-}
-
-function getHeaders(req) {
-    return corsLib.resolveHeaders(app.config, req);
-}
+const getStaticUrl = (path) => `${portalLib.serviceUrl({service: 'static'})}/${path}`;
+// const getStaticUrl = (path) => `${portalLib.apiUrl({api: 'static'})}/${path}`;
 
 exports.options = function (req) {
     return {
         status: 204,
-        headers: getHeaders(req),
+        headers: corsLib.getHeaders(req),
     }
 };
-
-const getStatic = staticLib.buildGetter(
-    {
-        root: 'assets',
-        getCleanPath: request => {
-            return request.rawPath.split('/_static/')[1];
-        },
-        cacheControl: 'no-cache',
-        etag: true,
-    }
-);
 
 function shouldBeRendered(reg) {
     const isSDK = appLib.get({
@@ -82,16 +40,14 @@ exports.get = function (req) {
             status: 404,
         }
     } else {
-        if (req.rawPath.indexOf('/_static/') !== -1) { // TODO lib router
-            return getStatic(req);
-        }
-
         const view = resolve('graphql.html');
 
         const normalizedUrl = normalizeUrl(req.url);
         const params = {
             wsUrl: normalizedUrl.replace('http', 'ws'),
-            handlerUrl: normalizedUrl
+            handlerUrl: normalizedUrl,
+            playgroundCss: getStaticUrl('styles/query-playground.css'),
+            playgroundScript: getStaticUrl('js/query-playground.js'),
         };
 
         return {
@@ -107,7 +63,7 @@ exports.post = function (req) {
 
     return {
         contentType: 'application/json',
-        headers: getHeaders(req),
-        body: JSON.stringify(__.toNativeObject(graphQLApi.execute(getSchema(), input.query, __.toScriptValue(input.variables))))
+        headers: corsLib.getHeaders(req),
+        body: schemaLib.executeGraphQLQuery(input.query, input.variables),
     };
 }

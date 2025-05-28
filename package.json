@@ -14,7 +14,7 @@
     "fix": "eslint --fix src/**/*.tsx"
   },
   "dependencies": {
-    "@graphiql/react": "0.28.2",
+    "@graphiql/react": "0.34.0",
     "@graphiql/toolkit": "^0.11.1",
     "graphiql": "^4.0.4",
     "graphql": "^16.11.0",
@@ -23,8 +23,9 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@types/core-js": "^2.5.8",
-    "@typescript-eslint/eslint-plugin": "^7.17.0",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "circular-dependency-plugin": "^5.2.2",
     "copy-webpack-plugin": "^13.0.0",
