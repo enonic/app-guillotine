@@ -20,11 +20,11 @@ query {
 `;
 
 function getRootContainer(): HTMLElement {
-    return document.getElementById('graphiql-container')!;
+    return document.getElementById('graphiql-container');
 }
 
 function getHandlerUrl(): string {
-    return getRootContainer().dataset.configHandlerUrl!;
+    return getRootContainer().dataset.configHandlerUrl;
 }
 
 function getWsHandlerUrl(): string {

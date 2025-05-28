@@ -1,12 +1,12 @@
 const mustache = require('/lib/mustache');
 const portalLib = require('/lib/xp/portal');
-const assetLib = require('/lib/enonic/asset');
 const schemaLib = require('../../../lib/schema');
 const corsLib = require('../../../lib/cors');
 
+const getStaticUrl = (path) => `${portalLib.serviceUrl({service: 'static'})}/${path}`;
+
 exports.get = function (req) {
     const view = resolve('guillotine.html');
-    const assetsUrl = assetLib.assetUrl({path: ''});
 
     const wsUrl = portalLib.apiUrl({
         api: 'admin:widget',
@@ -20,7 +20,8 @@ exports.get = function (req) {
     });
 
     const params = {
-        assetsUrl: assetsUrl,
+        playgroundCss: getStaticUrl('styles/main.css'),
+        playgroundScript: getStaticUrl('js/main.js'),
         wsUrl: wsUrl,
         handlerUrl: handlerUrl,
     };

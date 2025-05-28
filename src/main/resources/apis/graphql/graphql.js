@@ -9,8 +9,8 @@ const helper = __.newBean('com.enonic.app.guillotine.helper.AppHelper');
 
 const schemaLib = require('/lib/schema');
 
-const getStaticUrl = (path) => `${portalLib.serviceUrl({service: 'getStatic'})}/${path}`;
-// const getStaticUrl = (path) => `${portalLib.apiUrl({api: 'getStatic'})}/${path}`;
+const getStaticUrl = (path) => `${portalLib.serviceUrl({service: 'static'})}/${path}`;
+// const getStaticUrl = (path) => `${portalLib.apiUrl({api: 'static'})}/${path}`;
 
 exports.options = function (req) {
     return {

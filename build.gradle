@@ -50,7 +50,6 @@ dependencies {
     include "com.enonic.xp:lib-app:${xpVersion}"
     include "com.enonic.lib:lib-mustache:2.1.1"
     include "com.enonic.lib:lib-static:2.1.1-SNAPSHOT"
-    include "com.enonic.lib:lib-asset:1.0.3-SNAPSHOT"
     include "com.enonic.lib:lib-router:3.1.0"
 
     testImplementation(platform("org.junit:junit-bom:5.12.2"))

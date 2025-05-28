@@ -20,7 +20,7 @@ query {
 `;
 
 function getRootContainer(): HTMLElement {
-    return document.getElementById('graphiql-container-wrapper')!;
+    return document.getElementById('graphiql-container-wrapper');
 }
 
 function getDataConfig() {
@@ -47,16 +47,21 @@ function renderGraphiQLUI() {
     }
 
     root.render(<QueryPlayground/>);
-    // ReactDOM.render(<QueryPlayground/>, getRootContainer(), function () {
-    //     const refreshButton = document.querySelector('[aria-label="Re-fetch GraphQL schema"]');
-    //     refreshButton.addEventListener('click', rerenderGraphiQLUI);
-    // });
+
+    // Wait for DOM updates
+    setTimeout(() => {
+        const refreshButton: Element = document.querySelector('[aria-label="Re-fetch GraphQL schema"]');
+        refreshButton?.addEventListener('click', rerenderGraphiQLUI);
+    }, 0);
 }
 
-// function rerenderGraphiQLUI() {
-//     ReactDOM.unmountComponentAtNode(getRootContainer());
-//     renderGraphiQLUI();
-// }
+function rerenderGraphiQLUI() {
+    if (root) {
+        root.unmount();
+        root = null;
+    }
+    renderGraphiQLUI();
+}
 
 function QueryPlayground() {
     return (
