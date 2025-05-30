@@ -4,9 +4,29 @@ const contextLib = require('/lib/xp/context');
 const schemaLib = require('../../../lib/schema');
 const corsLib = require('../../../lib/cors');
 
-const getStaticUrl = (path) => `${portalLib.serviceUrl({service: 'static'})}/${path}`;
+const staticLib = require('/lib/enonic/static');
+const router = require('/lib/router')();
 
-exports.get = function (req) {
+const BASE_PATH = '/com.enonic.app.guillotine/guillotine';
+const STATIC_BASE_PATH = `${BASE_PATH}/_static`;
+
+exports.all = function (req) {
+    return router.dispatch(req);
+};
+
+router.get(`${STATIC_BASE_PATH}/{path:.*}`, (request) => {
+    return staticLib.requestHandler(
+        request,
+        {
+            cacheControl: () => staticLib.RESPONSE_CACHE_CONTROL.SAFE,
+            index: false,
+            root: '/assets',
+            relativePath: staticLib.mappedRelativePath(STATIC_BASE_PATH),
+        }
+    );
+});
+
+router.get(`${BASE_PATH}/?`, (request) => {
     const view = resolve('guillotine.html');
 
     const wsUrl = portalLib.apiUrl({
@@ -21,8 +41,8 @@ exports.get = function (req) {
     });
 
     const params = {
-        playgroundCss: getStaticUrl('styles/main.css'),
-        playgroundScript: getStaticUrl('js/main.js'),
+        playgroundCss: `${handlerUrl}/_static/styles/main.css`,
+        playgroundScript: `${handlerUrl}/_static/js/main.js`,
         wsUrl: wsUrl,
         handlerUrl: handlerUrl,
     };
@@ -31,9 +51,9 @@ exports.get = function (req) {
         contentType: 'text/html',
         body: mustache.render(view, params),
     };
-}
+});
 
-exports.post = function (req) {
+router.post(`${BASE_PATH}/?`, (req) => {
     const input = JSON.parse(req.body);
 
     return {
@@ -46,5 +66,4 @@ exports.post = function (req) {
             return schemaLib.executeGraphQLQuery(input.query, input.variables);
         }),
     };
-}
-
+});

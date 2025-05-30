@@ -3,22 +3,72 @@
 const corsLib = require('/lib/cors');
 const mustacheLib = require('/lib/mustache');
 const appLib = require('/lib/xp/app');
-const portalLib = require('/lib/xp/portal');
 const contextLib = require('/lib/xp/context');
-
 const helper = __.newBean('com.enonic.app.guillotine.helper.AppHelper');
-
 const schemaLib = require('/lib/schema');
+const staticLib = require('/lib/enonic/static');
+const router = require('/lib/router')();
 
-const getStaticUrl = (path) => `${portalLib.serviceUrl({service: 'static'})}/${path}`;
-// const getStaticUrl = (path) => `${portalLib.apiUrl({api: 'static'})}/${path}`;
+exports.all = function (req) {
+    return router.dispatch(req);
+};
 
-exports.options = function (req) {
+router.route('OPTIONS', '/?', (request) => {
     return {
         status: 204,
-        headers: corsLib.getHeaders(req),
+        headers: corsLib.getHeaders(request),
     }
-};
+});
+
+router.get(`/_static/{path:.*}`, (request) => {
+    return staticLib.requestHandler(
+        request,
+        {
+            cacheControl: () => staticLib.RESPONSE_CACHE_CONTROL.SAFE,
+            index: false,
+            root: '/assets',
+            relativePath: staticLib.mappedRelativePath('/_static/'),
+        }
+    );
+});
+
+router.get('/?', (req) => {
+    if (!shouldBeRendered(req)) {
+        return {
+            status: 404,
+        }
+    } else {
+        const view = resolve('graphql.html');
+
+        const normalizedUrl = normalizeUrl(req.url);
+        const params = {
+            wsUrl: normalizedUrl.replace('http', 'ws'),
+            handlerUrl: normalizedUrl,
+            playgroundCss: `${normalizedUrl}/_static/styles/query-playground.css`,
+            playgroundScript: `${normalizedUrl}/_static/js/query-playground.js`,
+        };
+
+        return {
+            status: 200,
+            contentType: 'text/html',
+            body: mustacheLib.render(view, params)
+        };
+    }
+});
+
+router.post('/?', (req) => {
+    const input = JSON.parse(req.body);
+
+    return {
+        contentType: 'application/json',
+        headers: corsLib.getHeaders(req),
+        body: contextLib.run({
+            branch: req.params.branch,
+        }, () => {
+            return schemaLib.executeGraphQLQuery(input.query, input.variables);
+        }),
+    };
+});
 
 function shouldBeRendered(reg) {
     const isSDK = appLib.get({
@@ -33,42 +83,4 @@ function shouldBeRendered(reg) {
 
 function normalizeUrl(url) {
     return url.replace(/\/$/, '');
-}
-
-exports.get = function (req) {
-    if (!shouldBeRendered(req)) {
-        return {
-            status: 404,
-        }
-    } else {
-        const view = resolve('graphql.html');
-
-        const normalizedUrl = normalizeUrl(req.url);
-        const params = {
-            wsUrl: normalizedUrl.replace('http', 'ws'),
-            handlerUrl: normalizedUrl,
-            playgroundCss: getStaticUrl('styles/query-playground.css'),
-            playgroundScript: getStaticUrl('js/query-playground.js'),
-        };
-
-        return {
-            status: 200,
-            contentType: 'text/html',
-            body: mustacheLib.render(view, params)
-        };
-    }
-}
-
-exports.post = function (req) {
-    const input = JSON.parse(req.body);
-
-    return {
-        contentType: 'application/json',
-        headers: corsLib.getHeaders(req),
-        body: contextLib.run({
-            branch: req.params.branch,
-        }, function () {
-            return schemaLib.executeGraphQLQuery(input.query, input.variables);
-        }),
-    };
 }
