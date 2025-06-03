@@ -3,6 +3,6 @@
     <display-name>Guillotine GraphQL API</display-name>
     <mount>true</mount>
     <allow>
-        <principal>role:cms.admin</principal>
+        <principal>role:system.everyone</principal>
     </allow>
 </api>
