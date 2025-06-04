@@ -42,7 +42,6 @@ router.get('/?', (req) => {
 
         const normalizedUrl = normalizeUrl(req.url);
         const params = {
-            wsUrl: normalizedUrl.replace('http', 'ws'),
             handlerUrl: normalizedUrl,
             playgroundCss: `${normalizedUrl}/_static/styles/query-playground.css`,
             playgroundScript: `${normalizedUrl}/_static/js/query-playground.js`,

@@ -1,8 +1,7 @@
 import {GraphiQL} from 'graphiql';
 import {createGraphiQLFetcher} from '@graphiql/toolkit';
-import {createClient} from 'graphql-ws';
 import * as React from 'react';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {Button, ButtonGroup} from '@graphiql/react';
 
@@ -31,12 +30,12 @@ function getHandlerUrl(): string {
     return `${getRootContainer().dataset.configHandlerUrl}?project=${getProjectValue()}&branch=${currentBranch}`;
 }
 
-function getWsHandlerUrl(): string {
-    return `${getRootContainer().dataset.configWsUrl}?project=${getProjectValue()}&branch=${currentBranch}`;
+function getProjectNameElement(): Element {
+    return document.querySelector('.project-viewer .xp-admin-common-sub-name');
 }
 
 function getProjectValue(): string {
-    return window['libAdmin'].store.get('projectContext').currentProject.name;
+    return getProjectNameElement().textContent;
 }
 
 let root: ReturnType<typeof createRoot> | null = null;
@@ -49,27 +48,6 @@ function renderGraphiQLUI() {
     }
 
     root.render(<QueryPlayground/>);
-
-    // Wait for DOM updates
-    setTimeout(() => {
-        const refreshButton: Element = document.querySelector('[aria-label="Re-fetch GraphQL schema"]');
-        refreshButton?.addEventListener('click', rerenderGraphiQLUI);
-
-        document.body.classList.remove('graphiql-dark');
-        document.body.classList.add('graphiql-light');
-
-        const settingsButton: Element = document.querySelector('[aria-label="Open settings dialog"]');
-        settingsButton?.addEventListener('click', () => {
-            setTimeout(() => {
-                const titleElements: NodeListOf<Element> = document.querySelectorAll('.graphiql-dialog-section-title');
-                titleElements.forEach((titleElement: Element) => {
-                    if (titleElement.textContent === 'Theme') {
-                        titleElement.closest('.graphiql-dialog-section')?.remove();
-                    }
-                });
-            }, 1);
-        });
-    }, 0);
 }
 
 function rerenderGraphiQLUI() {
@@ -81,17 +59,27 @@ function rerenderGraphiQLUI() {
 }
 
 function initEventListeners() {
-    window['libAdmin'].store.get('projectContext').onProjectChanged(() => {
-        rerenderGraphiQLUI();
+    const currentProjectName: Element = getProjectNameElement();
+
+    const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                console.debug(`Current project was changed to: ${currentProjectName.textContent}`);
+                rerenderGraphiQLUI();
+            }
+        }
+    });
+
+    observer.observe(currentProjectName, {
+        childList: true,
+        characterData: true,
+        subtree: true,
     });
 }
 
 function createFetcher() {
     return createGraphiQLFetcher({
         url: getHandlerUrl(),
-        wsClient: createClient({
-            url: getWsHandlerUrl(),
-        }),
     });
 }
 
@@ -125,7 +113,37 @@ function BranchChooser() {
     );
 }
 
+function settingButtonCallback() {
+    setTimeout(() => {
+        const titleElements: NodeListOf<Element> = document.querySelectorAll('.graphiql-dialog-section-title');
+        titleElements.forEach((titleElement: Element) => {
+            if (titleElement.textContent === 'Theme') {
+                titleElement.closest('.graphiql-dialog-section')?.remove();
+            }
+        });
+    }, 1);
+}
+
+function renderCallback() {
+    requestAnimationFrame(() => {
+        const refreshButton: Element = document.querySelector('[aria-label="Re-fetch GraphQL schema"]');
+        refreshButton?.removeEventListener('click', rerenderGraphiQLUI);
+        refreshButton?.addEventListener('click', rerenderGraphiQLUI);
+
+        document.body.classList.remove('graphiql-dark');
+        document.body.classList.add('graphiql-light');
+
+        const settingsButton: Element = document.querySelector('[aria-label="Open settings dialog"]');
+        settingsButton?.removeEventListener('click', settingButtonCallback);
+        settingsButton?.addEventListener('click', settingButtonCallback);
+    });
+}
+
 function QueryPlayground() {
+    useEffect(() => {
+        renderCallback();
+    });
+
     return (
         <GraphiQL
             fetcher={createFetcher()}

@@ -29,12 +29,6 @@ router.get(`${STATIC_BASE_PATH}/{path:.*}`, (request) => {
 router.get(`${BASE_PATH}/?`, (request) => {
     const view = resolve('guillotine.html');
 
-    const wsUrl = portalLib.apiUrl({
-        api: 'admin:widget',
-        path: ['com.enonic.app.guillotine', 'guillotine'],
-        type: 'websocket',
-    });
-
     const handlerUrl = portalLib.apiUrl({
         api: 'admin:widget',
         path: ['com.enonic.app.guillotine', 'guillotine'],
@@ -43,7 +37,6 @@ router.get(`${BASE_PATH}/?`, (request) => {
     const params = {
         playgroundCss: `${handlerUrl}/_static/styles/main.css`,
         playgroundScript: `${handlerUrl}/_static/js/main.js`,
-        wsUrl: wsUrl,
         handlerUrl: handlerUrl,
     };
 

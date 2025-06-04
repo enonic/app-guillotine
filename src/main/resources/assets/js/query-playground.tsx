@@ -1,8 +1,7 @@
 import {GraphiQL} from 'graphiql';
 import {createGraphiQLFetcher} from '@graphiql/toolkit';
-import {createClient} from 'graphql-ws';
 import * as React from 'react';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {Button, ButtonGroup} from '@graphiql/react';
 
@@ -34,10 +33,6 @@ function getDataConfig() {
 function createFetcher() {
     return createGraphiQLFetcher({
         url: `${getDataConfig().configHandlerUrl}?branch=${currentBranch}`,
-        wsClient: createClient(
-            {
-                url: `${getRootContainer().dataset.configWsUrl}?branch=${currentBranch}`,
-            }),
     });
 }
 
@@ -51,12 +46,6 @@ function renderGraphiQLUI() {
     }
 
     root.render(<QueryPlayground/>);
-
-    // Wait for DOM updates
-    setTimeout(() => {
-        const refreshButton: Element = document.querySelector('[aria-label="Re-fetch GraphQL schema"]');
-        refreshButton?.addEventListener('click', rerenderGraphiQLUI);
-    }, 0);
 }
 
 function rerenderGraphiQLUI() {
@@ -97,7 +86,19 @@ function BranchChooser() {
     );
 }
 
+function renderCallback() {
+    requestAnimationFrame(() => {
+        const refreshButton: Element = document.querySelector('[aria-label="Re-fetch GraphQL schema"]');
+        refreshButton?.removeEventListener('click', rerenderGraphiQLUI);
+        refreshButton?.addEventListener('click', rerenderGraphiQLUI);
+    });
+}
+
 function QueryPlayground() {
+    useEffect(() => {
+        renderCallback();
+    });
+
     return (
         <GraphiQL fetcher={createFetcher()}
                   defaultQuery={DEFAULT_QUERY}
