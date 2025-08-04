@@ -14,6 +14,7 @@ import graphql.schema.GraphQLSchema;
 
 import com.enonic.app.guillotine.BuiltinContentTypes;
 import com.enonic.app.guillotine.BuiltinMacros;
+import com.enonic.app.guillotine.GuillotineConfig;
 import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.ModifyUnknownFieldMode;
 import com.enonic.app.guillotine.ServiceFacade;
@@ -51,6 +52,7 @@ import com.enonic.xp.testing.mock.MockBeanContext;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class BaseGraphQLIntegrationTest
@@ -59,6 +61,8 @@ public class BaseGraphQLIntegrationTest
     private GraphQLApi bean;
 
     protected ServiceFacade serviceFacade;
+
+	protected GuillotineConfigService guillotineConfigService;
 
     @Override
     protected void initialize()
@@ -116,7 +120,8 @@ public class BaseGraphQLIntegrationTest
         when( macroService.evaluateMacros( anyString(), any() ) ).thenReturn( "processedMacros" );
         when( serviceFacade.getMacroService() ).thenReturn( macroService );
 
-		GuillotineConfigService guillotineConfigService = mock( GuillotineConfigService.class );
+		guillotineConfigService = spy( new GuillotineConfigService() );
+		guillotineConfigService.activate( mock( GuillotineConfig.class, invocation -> invocation.getMethod().getDefaultValue() ) );
 		when( guillotineConfigService.getModifyUnknownFieldMode() ).thenReturn( ModifyUnknownFieldMode.WARN );
 
 		MixinService mixinService = mock( MixinService.class );

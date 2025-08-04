@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
 import graphql.Scalars;
+import graphql.parser.Parser;
+import graphql.parser.ParserEnvironment;
+import graphql.parser.ParserOptions;
 import graphql.schema.DataFetcher;
 import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLCodeRegistry;
@@ -51,6 +54,8 @@ public class GraphQLApi
     private Supplier<PortalRequest> portalRequestSupplier;
 
 	private Supplier<GuillotineConfigService> guillotineConfigServiceSupplier;
+
+	private static final Parser PARSER = new Parser();
 
     @Override
     public void initialize( final BeanContext context )
@@ -189,14 +194,19 @@ public class GraphQLApi
         context.getTypeResolvers().forEach( typesRegister::addTypeResolver );
     }
 
-    public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
-    {
-        GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
+	public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
+	{
+		ParserOptions parserOptions =
+			ParserOptions.newParserOptions().maxTokens( guillotineConfigServiceSupplier.get().getMaxQueryTokens() ).build();
 
-        ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).build();
+		PARSER.parseDocument( ParserEnvironment.newParserEnvironment().document( query ).parserOptions( parserOptions ).build() );
 
-        return new ExecutionResultMapper( graphQL.execute( executionInput ) );
-    }
+		GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
+
+		ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).build();
+
+		return new ExecutionResultMapper( graphQL.execute( executionInput ) );
+	}
 
     private Map<String, Object> extractValue( ScriptValue scriptValue )
     {
