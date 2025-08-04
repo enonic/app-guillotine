@@ -12,12 +12,15 @@ public class GuillotineConfigService
 
 	private ModifyUnknownFieldMode modifyUnknownFieldMode;
 
+	private int maxQueryTokens;
+
 	@Activate
 	@Modified
 	public void activate( final GuillotineConfig config )
 	{
 		this.queryPlaygroundUIMode = QueryPlaygroundUIMode.from( config.queryplayground_ui_mode() );
 		this.modifyUnknownFieldMode = ModifyUnknownFieldMode.from( config.graphql_extensions_modifyUnknownField() );
+		this.maxQueryTokens = config.maxQueryTokens();
 	}
 
 	public QueryPlaygroundUIMode getQueryPlaygroundUIMode()
@@ -28,5 +31,10 @@ public class GuillotineConfigService
 	public ModifyUnknownFieldMode getModifyUnknownFieldMode()
 	{
 		return modifyUnknownFieldMode;
+	}
+
+	public int getMaxQueryTokens()
+	{
+		return maxQueryTokens;
 	}
 }

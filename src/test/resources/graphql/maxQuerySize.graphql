@@ -1,0 +1,9 @@
+query {
+	guillotine {
+		getType(name: "portal:site") {
+			name
+			displayName
+			description
+		}
+	}
+}
