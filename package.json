@@ -18,11 +18,11 @@
     "@graphiql/toolkit": "0.11.3",
     "graphiql": "^4.1.2",
     "graphql-ws": "^6.0.6",
-    "react": "^18.3.1",
+    "react": "^19.1.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@types/react": "^18.3.1",
+    "@types/react": "^19.1.9",
     "@types/react-dom": "^18.3.1",
     "@typescript-eslint/parser": "^8.37.0",
     "circular-dependency-plugin": "^5.2.2",
