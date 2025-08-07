@@ -6,7 +6,7 @@ IMPORTANT: Guillotine 7 requires XP 7.14.0 or higher.
 
 === Release features
 
-maxQueryTokens support:: You can set the maximum number of raw tokens that the parser will accept in a GraphQL query, after which an exception will be thrown. <<configuration#, configuration>>. By default `15000`.
+maxQueryTokens support:: You can <<configuration#, configure>> the maximum number of raw tokens that the parser will accept in a GraphQL query, after which an exception will be thrown. By default `15000`.
 
 == Guillotine 7 Update 2
 
