@@ -491,7 +491,7 @@ Guillotine 7 requires XP 7.14.0 or higher.
 <dl>
 <dt class="hdlist1">maxQueryTokens support</dt>
 <dd>
-<p>You can set the maximum number of raw tokens that the parser will accept in a GraphQL query, after which an exception will be thrown. <a href="configuration.ahtml">configuration</a>. By default <code>15000</code>.</p>
+<p>You can <a href="configuration.ahtml">configure</a> the maximum number of raw tokens that the parser will accept in a GraphQL query, after which an exception will be thrown. By default <code>15000</code>.</p>
 </dd>
 </dl>
 </div>
@@ -652,7 +652,7 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-08-07 12:11:39 UTC
+Last updated 2025-08-07 12:14:38 UTC
 </div>
 </div>
 </body>
