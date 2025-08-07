@@ -20,6 +20,8 @@ cors.credentials=true|false // <5>
 cors.allowedHeaders=Content-Type // <6>
 cors.methods=POST, OPTIONS // <7>
 cors.maxAge= // <8>
+
+maxQueryTokens=15000 // <9>
 ----
 
 <1> Enables or disables Query playground on project root.
@@ -45,3 +47,5 @@ NOTE: CORS configuration is available from version image:v-720.svg[Guillotine 7.
 <7> Sets the `Access-Control-Allow-Methods` header to allow methods in CORS requests. Guillotine handlers only `POST` and `OPTIONS`. Default is `POST, OPTIONS`.
 
 <8> Sets the `Access-Control-Max-Age` header to specify the maximum age for CORS requests.
+
+<9> If the number of raw tokens exceeds the specified maximum, the parser will throw an exception. Default is `15000` image:v-730.svg[Guillotine 7.3.0,opts=inline].
