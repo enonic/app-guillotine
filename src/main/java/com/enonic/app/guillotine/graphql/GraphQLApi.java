@@ -9,7 +9,13 @@ import java.util.stream.Collectors;
 
 import graphql.ExecutionInput;
 import graphql.GraphQL;
+import graphql.ParseAndValidate;
 import graphql.Scalars;
+import graphql.execution.preparsed.PreparsedDocumentEntry;
+import graphql.execution.preparsed.PreparsedDocumentProvider;
+import graphql.language.Document;
+import graphql.language.SourceLocation;
+import graphql.parser.InvalidSyntaxException;
 import graphql.parser.Parser;
 import graphql.parser.ParserEnvironment;
 import graphql.parser.ParserOptions;
@@ -20,6 +26,8 @@ import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.SchemaTransformer;
+import graphql.validation.ValidationError;
+import graphql.validation.ValidationErrorType;
 
 import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.ServiceFacade;
@@ -196,12 +204,35 @@ public class GraphQLApi
 
 	public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
 	{
-		ParserOptions parserOptions =
-			ParserOptions.newParserOptions().maxTokens( guillotineConfigServiceSupplier.get().getMaxQueryTokens() ).build();
+		PreparsedDocumentProvider preparsedProvider = ( executionInput, parseAndValidateFunction ) -> {
+			try
+			{
+				int maxQueryTokens = guillotineConfigServiceSupplier.get().getMaxQueryTokens();
 
-		PARSER.parseDocument( ParserEnvironment.newParserEnvironment().document( query ).parserOptions( parserOptions ).build() );
+				ParserOptions parserOptions =
+					ParserOptions.newParserOptions().maxTokens( maxQueryTokens ).build();
 
-		GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
+				Document doc = PARSER.parseDocument(
+					ParserEnvironment.newParserEnvironment().document( executionInput.getQuery() ).parserOptions( parserOptions ).build() );
+
+				List<ValidationError> errors = ParseAndValidate.validate( graphQLSchema, doc );
+				if ( !errors.isEmpty() )
+				{
+					return new PreparsedDocumentEntry( errors );
+				}
+
+				return new PreparsedDocumentEntry( doc );
+			}
+			catch ( InvalidSyntaxException e )
+			{
+				return new PreparsedDocumentEntry( List.of(
+					ValidationError.newValidationError().validationErrorType( ValidationErrorType.InvalidSyntax ).sourceLocations(
+						List.of( new SourceLocation( e.getLocation().getLine(), e.getLocation().getColumn() ) ) ).description(
+						e.getMessage() ).build() ) );
+			}
+		};
+
+		GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).preparsedDocumentProvider( preparsedProvider ).build();
 
 		ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).build();
 
