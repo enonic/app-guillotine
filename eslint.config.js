@@ -7,7 +7,7 @@ const config = [
             parserOptions: {
                 ecmaVersion: 2019,
                 project: './tsconfig.json',
-                tsconfigRootDir: '.',
+                tsconfigRootDir: __dirname,
             },
         },
         plugins: {
