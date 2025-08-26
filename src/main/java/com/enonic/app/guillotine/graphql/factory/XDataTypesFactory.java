@@ -18,7 +18,7 @@ import com.enonic.app.guillotine.graphql.helper.NamingHelper;
 import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.form.Form;
-import com.enonic.xp.form.FormItems;
+import com.enonic.xp.form.FormItem;
 import com.enonic.xp.schema.xdata.XDatas;
 
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newObject;
@@ -41,13 +41,13 @@ public class XDataTypesFactory
 
     public void create()
     {
-		String extraDataTypeName = context.uniqueName( "ExtraData" );
+        String extraDataTypeName = context.uniqueName( "ExtraData" );
 
         List<GraphQLFieldDefinition> xDataTypeFields = new ArrayList<>();
 
         getApplicationsKeys().forEach( applicationKey -> {
-			String xDataApplicationConfigTypeName =
-				context.uniqueName( "XData_" + StringNormalizer.create( applicationKey ) + "_ApplicationConfig" );
+            String xDataApplicationConfigTypeName =
+                context.uniqueName( "XData_" + StringNormalizer.create( applicationKey ) + "_ApplicationConfig" );
 
             XDatas extraData = serviceFacade.getComponentDescriptorService().getExtraData( applicationKey );
 
@@ -60,10 +60,10 @@ public class XDataTypesFactory
 
                     String xDataTypeName = "XData_" + StringNormalizer.create( applicationKey ) + "_" + descriptorName;
 
-					String xDataConfigTypeName = context.uniqueName( xDataTypeName + "_DataConfig" );
+                    String xDataConfigTypeName = context.uniqueName( xDataTypeName + "_DataConfig" );
 
-					List<GraphQLFieldDefinition> xDataConfigFields =
-						createFormItemFields( resolveForm( xData.getForm() ).getFormItems(), xDataConfigTypeName );
+                    List<GraphQLFieldDefinition> xDataConfigFields =
+                        createFormItemFields( resolveForm( xData.getForm() ), xDataConfigTypeName );
 
                     if ( !xDataConfigFields.isEmpty() )
                     {
@@ -84,9 +84,9 @@ public class XDataTypesFactory
 
                 if ( !xDataApplicationTypeFields.isEmpty() )
                 {
-					GraphQLObjectType applicationConfigType =
-						newObject( xDataApplicationConfigTypeName, "XDataApplicationConfig for application ['" + applicationKey + "']",
-								   xDataApplicationTypeFields );
+                    GraphQLObjectType applicationConfigType =
+                        newObject( xDataApplicationConfigTypeName, "XDataApplicationConfig for application ['" + applicationKey + "']",
+                                   xDataApplicationTypeFields );
 
                     GraphQLFieldDefinition xDataTypeField = outputField( StringNormalizer.create( applicationKey ), applicationConfigType );
                     xDataTypeFields.add( xDataTypeField );
@@ -99,13 +99,13 @@ public class XDataTypesFactory
 
         if ( !xDataTypeFields.isEmpty() )
         {
-			GraphQLObjectType extraDataType = newObject( extraDataTypeName, "Extra data.", xDataTypeFields );
+            GraphQLObjectType extraDataType = newObject( extraDataTypeName, "Extra data.", xDataTypeFields );
 
             context.registerType( extraDataType.getName(), extraDataType );
         }
     }
 
-    private List<GraphQLFieldDefinition> createFormItemFields( FormItems formItems, String typeName )
+    private List<GraphQLFieldDefinition> createFormItemFields( final Iterable<? extends FormItem> formItems, String typeName )
     {
         List<GraphQLFieldDefinition> xDataConfigFields = new ArrayList<>();
 
@@ -133,9 +133,9 @@ public class XDataTypesFactory
         return applicationKeys;
     }
 
-	private Form resolveForm( Form originalForm )
-	{
-		Form inlineForm = serviceFacade.getMixinService().inlineFormItems( originalForm );
-		return inlineForm != null ? inlineForm : originalForm;
-	}
+    private Form resolveForm( Form originalForm )
+    {
+        Form inlineForm = serviceFacade.getMixinService().inlineFormItems( originalForm );
+        return inlineForm != null ? inlineForm : originalForm;
+    }
 }

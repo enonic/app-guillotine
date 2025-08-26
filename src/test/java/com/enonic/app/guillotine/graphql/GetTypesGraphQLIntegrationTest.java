@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class GetTypesGraphQLIntegrationTest
@@ -73,7 +74,7 @@ public class GetTypesGraphQLIntegrationTest
     public void testGetTypeField()
     {
         when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( BuiltinContentTypes.getAll() ) );
-        when( contentTypeService.getByName( GetContentTypeParams.from( ContentTypeName.site() ) ) ).thenReturn(
+        when( contentTypeService.getByName( any( GetContentTypeParams.class ) ) ).thenReturn(
             BuiltinContentTypes.getContentType( ContentTypeName.site() ) );
         when( serviceFacade.getContentTypeService() ).thenReturn( contentTypeService );
 

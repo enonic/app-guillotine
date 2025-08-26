@@ -9,6 +9,7 @@ import java.util.Objects;
 import com.google.common.collect.ListMultimap;
 
 import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
+import com.enonic.xp.form.FormItemPath;
 import com.enonic.xp.form.Occurrences;
 import com.enonic.xp.macro.MacroDescriptor;
 
@@ -48,7 +49,7 @@ public class MacroEditorJsonSerializer
         {
             List<String> values = macro.getMacro().getParameter( key );
 
-            Occurrences occurrences = FormItemTypesHelper.getOccurrences( descriptor.getForm().getFormItem( key ) );
+            Occurrences occurrences = FormItemTypesHelper.getOccurrences( descriptor.getForm().getFormItem( FormItemPath.from( key ) ) );
 
             if ( occurrences != null && occurrences.isMultiple() )
             {

@@ -15,12 +15,9 @@ import com.enonic.xp.form.Input;
 import com.enonic.xp.inputtype.InputTypeConfig;
 import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.inputtype.InputTypeProperty;
-import com.enonic.xp.media.MediaInfo;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypes;
-import com.enonic.xp.schema.relationship.RelationshipTypeName;
-import com.enonic.xp.schema.xdata.XDataNames;
 
 public final class BuiltinContentTypes
 {
@@ -44,8 +41,7 @@ public final class BuiltinContentTypes
     private static final Form SHORTCUT_FORM = Form.create().addFormItem(
         Input.create().name( "target" ).label( "Target" ).labelI18nKey( "base.shortcut.target.label" ).helpText(
             "Choose shortcut target" ).helpTextI18nKey( "base.shortcut.target.helpText" ).inputType(
-            InputTypeName.CONTENT_SELECTOR ).inputTypeProperty(
-            InputTypeProperty.create( "relationshipType", RelationshipTypeName.REFERENCE.toString() ).build() ).inputTypeConfig(
+            InputTypeName.CONTENT_SELECTOR ).inputTypeConfig(
             InputTypeConfig.create().property( InputTypeProperty.create( "allowPath", "*" ).build() ).build() ).required(
             true ).build() ).addFormItem(
         FormItemSet.create().name( "parameters" ).label( "Parameters" ).labelI18nKey( "base.shortcut.parameters.label" ).helpText(
@@ -149,11 +145,9 @@ public final class BuiltinContentTypes
         createSystemType( ContentTypeName.videoMedia() ).superType( ContentTypeName.media() ).setFinal( true ).setAbstract(
             false ).allowChildContent( false ).form( MEDIA_DEFAULT_FORM ).build();
 
-    public static final ContentType MEDIA_IMAGE =
+    private static final ContentType MEDIA_IMAGE =
         createSystemType( ContentTypeName.imageMedia() ).superType( ContentTypeName.media() ).setFinal( true ).setAbstract(
-            false ).allowChildContent( false ).form( MEDIA_IMAGE_FORM ).xData(
-            XDataNames.from( MediaInfo.IMAGE_INFO_METADATA_NAME, MediaInfo.CAMERA_INFO_METADATA_NAME,
-                             MediaInfo.GPS_INFO_METADATA_NAME ) ).build();
+            false ).allowChildContent( false ).form( MEDIA_IMAGE_FORM ).build();
 
     private static final ContentType MEDIA_VECTOR =
         createSystemType( ContentTypeName.vectorMedia() ).superType( ContentTypeName.media() ).setFinal( true ).setAbstract(

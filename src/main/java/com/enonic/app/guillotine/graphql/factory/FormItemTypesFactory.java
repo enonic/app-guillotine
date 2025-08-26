@@ -84,18 +84,17 @@ public class FormItemTypesFactory
 
         String description = formItemSet.getLabel();
 
-        List<GraphQLFieldDefinition> fields =
-            FormItemTypesHelper.getFilteredFormItems( formItemSet.getFormItems() ).stream().map( formItem -> {
-                String fieldName = StringNormalizer.create( formItem.getName() );
+        List<GraphQLFieldDefinition> fields = FormItemTypesHelper.getFilteredFormItems( formItemSet ).stream().map( formItem -> {
+            String fieldName = StringNormalizer.create( formItem.getName() );
 
-                GraphQLOutputType formItemObject = (GraphQLOutputType) generateFormItemObject( parentTypeName, formItem );
+            GraphQLOutputType formItemObject = (GraphQLOutputType) generateFormItemObject( parentTypeName, formItem );
 
-                GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
+            GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
 
-                context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
+            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
 
-                return field;
-            } ).collect( Collectors.toList() );
+            return field;
+        } ).collect( Collectors.toList() );
 
         GraphQLObjectType objectType = newObject( typeName, description, fields );
         context.registerType( objectType.getName(), objectType );
@@ -243,7 +242,7 @@ public class FormItemTypesFactory
             context.uniqueName( parentTypeName + "_" + NamingHelper.camelCase( StringNormalizer.create( formOptionSet.getName() ) ) );
         String description = formOptionSet.getLabel();
 
-        List<FormItem> formItems = FormItemTypesHelper.getFilteredFormItems( formOptionSet.getFormItems() );
+        List<FormItem> formItems = FormItemTypesHelper.getFilteredFormItems( formOptionSet );
         List<GraphQLFieldDefinition> fields = formItems.stream().map( formItem -> {
             String fieldName = StringNormalizer.create( formItem.getName() );
 
@@ -263,6 +262,6 @@ public class FormItemTypesFactory
 
     private GraphQLType generateOptionObjectType( String parentTypeName, FormOptionSetOption option )
     {
-        return option.getFormItems().size() > 0 ? generateOptionSetObjectType( parentTypeName, option ) : Scalars.GraphQLString;
+        return option.iterator().hasNext() ? generateOptionSetObjectType( parentTypeName, option ) : Scalars.GraphQLString;
     }
 }
