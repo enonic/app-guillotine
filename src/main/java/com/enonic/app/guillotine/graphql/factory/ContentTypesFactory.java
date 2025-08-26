@@ -142,7 +142,7 @@ public class ContentTypesFactory
             }
         }
 
-        List<FormItem> formItems = FormItemTypesHelper.getFilteredFormItems( contentType.getForm().getFormItems() );
+        List<FormItem> formItems = FormItemTypesHelper.getFilteredFormItems( contentType.getForm() );
         if ( !formItems.isEmpty() )
         {
             GraphQLObjectType dataObject = generateContentDataType( typeName, typeDescription, formItems );

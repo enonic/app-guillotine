@@ -188,7 +188,7 @@ public class GuillotineApiGraphQLIntegrationTest
     @Override
     protected List<ContentType> getCustomContentTypes()
     {
-        FieldSet fieldSet = FieldSet.create().label( "My layout" ).name( "myLayout" ).addFormItem(
+        FieldSet fieldSet = FieldSet.create().label( "My layout" ).addFormItem(
             FormItemSet.create().name( "mySet" ).required( true ).addFormItem(
                 Input.create().name( "myInput" ).label( "Input" ).inputType( InputTypeName.TEXT_LINE ).build() ).build() ).build();
 

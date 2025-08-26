@@ -85,7 +85,6 @@ public class TypeFactoryTest
 
         FieldSet fieldSet = FieldSet.create()
             .label( "My layout" )
-            .name( "myLayout" )
             .addFormItem( FormItemSet.create()
                               .name( "mySet" )
                               .required( true )
