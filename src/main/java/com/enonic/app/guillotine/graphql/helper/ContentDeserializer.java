@@ -25,18 +25,17 @@ import com.enonic.xp.content.Media;
 import com.enonic.xp.content.WorkflowCheckState;
 import com.enonic.xp.content.WorkflowInfo;
 import com.enonic.xp.data.PropertyTree;
-import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.descriptor.DescriptorKey;
+import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.page.Page;
-import com.enonic.xp.page.PageRegions;
 import com.enonic.xp.page.PageTemplateKey;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.region.Component;
 import com.enonic.xp.region.FragmentComponent;
 import com.enonic.xp.region.LayoutComponent;
-import com.enonic.xp.region.LayoutRegions;
 import com.enonic.xp.region.PartComponent;
 import com.enonic.xp.region.Region;
+import com.enonic.xp.region.Regions;
 import com.enonic.xp.region.TextComponent;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.xdata.XDataName;
@@ -193,7 +192,7 @@ public final class ContentDeserializer
             pageMap.withMapper( pageMap.getString( "descriptor" ), DescriptorKey::from ).ifPresent( pageBuilder::descriptor );
             pageMap.withMapper( pageMap.getMap( "config" ), PropertyTree::fromMap ).ifPresent( pageBuilder::config );
 
-            final PageRegions.Builder regionsBuilder = PageRegions.create();
+            final Regions.Builder regionsBuilder = Regions.create();
             deserializeRegions( pageMap.getMap( "regions" ) ).forEach( regionsBuilder::add );
             pageBuilder.regions( regionsBuilder.build() );
         } );
@@ -263,7 +262,7 @@ public final class ContentDeserializer
                 layoutComponent::descriptor );
             componentDataMap.withMapper( componentDataMap.getMap( "config" ), PropertyTree::fromMap ).ifPresent( layoutComponent::config );
 
-            final LayoutRegions.Builder layoutRegionsbuilder = LayoutRegions.create();
+            final Regions.Builder layoutRegionsbuilder = Regions.create();
             deserializeRegions( componentDataMap.getMap( "regions" ) ).forEach( layoutRegionsbuilder::add );
             layoutComponent.regions( layoutRegionsbuilder.build() );
 

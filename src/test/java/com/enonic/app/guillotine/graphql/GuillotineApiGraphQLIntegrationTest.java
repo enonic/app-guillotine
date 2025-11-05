@@ -63,7 +63,6 @@ public class GuillotineApiGraphQLIntegrationTest
         assertEquals( "My Content", getField.get( "displayName" ) );
         assertEquals( "en", getField.get( "language" ) );
         assertEquals( "media:image", getField.get( "type" ) );
-        assertFalse( (boolean) getField.get( "hasChildren" ) );
         assertTrue( (boolean) getField.get( "valid" ) );
         assertNull( getField.get( "_score" ) );
 

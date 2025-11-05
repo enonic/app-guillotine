@@ -42,7 +42,7 @@ public class QueryDslGraphQLIntegrationTest
     public void testQueryDslField()
     {
         when( contentService.find( any( ContentQuery.class ) ) ).thenReturn(
-            FindContentIdsByQueryResult.create().contents( ContentIds.from( "contentId" ) ).hits( 100 ).totalHits( 1000 ).build() );
+            FindContentIdsByQueryResult.create().contents( ContentIds.from( "contentId" ) ).totalHits( 1000 ).build() );
 
         when( contentService.getByIds( any() ) ).thenReturn( Contents.from( ContentFixtures.createMediaContent() ) );
 
@@ -62,7 +62,7 @@ public class QueryDslGraphQLIntegrationTest
     public void testQueryDslConnectionField()
     {
         when( contentService.find( any( ContentQuery.class ) ) ).thenReturn(
-            FindContentIdsByQueryResult.create().contents( ContentIds.from( "contentId" ) ).hits( 100 ).totalHits( 1000 ).aggregations(
+            FindContentIdsByQueryResult.create().contents( ContentIds.from( "contentId" ) ).totalHits( 1000 ).aggregations(
                 Aggregations.create().add( SingleValueMetricAggregation.create( "count" ).value( 3d ).build() ).add(
                     StatsAggregation.create( "stats" ).avg( 0 ).max( 0 ).min( 0 ).sum( 0 ).count( 0 ).build() ).add(
                     BucketAggregation.bucketAggregation( "bucket1" ).buckets(
