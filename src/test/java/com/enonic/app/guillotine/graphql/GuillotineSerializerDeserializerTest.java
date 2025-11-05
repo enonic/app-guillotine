@@ -16,15 +16,16 @@ import com.enonic.xp.content.ContentInheritType;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ExtraData;
+import com.enonic.xp.content.ExtraDatas;
 import com.enonic.xp.content.WorkflowCheckState;
 import com.enonic.xp.content.WorkflowInfo;
 import com.enonic.xp.content.WorkflowState;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.page.Page;
-import com.enonic.xp.page.PageRegions;
 import com.enonic.xp.region.FragmentComponent;
 import com.enonic.xp.region.Region;
+import com.enonic.xp.region.Regions;
 import com.enonic.xp.region.TextComponent;
 import com.enonic.xp.schema.xdata.XDataName;
 import com.enonic.xp.security.PrincipalKey;
@@ -81,7 +82,8 @@ public class GuillotineSerializerDeserializerTest
         PropertyTree data = new PropertyTree();
         data.setString( "key1", "value1" );
         builder.data( data );
-        builder.addExtraData( new ExtraData( XDataName.from( "myapplication:myschema" ), ContentFixtures.newTinyPropertyTree() ) );
+        builder.extraDatas( ExtraDatas.create().add(
+            new ExtraData( XDataName.from( "myapplication:myschema" ), ContentFixtures.newTinyPropertyTree() ) ).build() );
         builder.page( newPage() );
         builder.attachments( Attachments.from(
             Attachment.create().name( "image.jpeg" ).label( "source" ).mimeType( "image/jpeg" ).size( 12345 ).sha512(
@@ -106,10 +108,10 @@ public class GuillotineSerializerDeserializerTest
         return builder.build();
     }
 
-    public static PageRegions newPageRegions()
+    public static Regions newPageRegions()
     {
         final Region region = Region.create( ContentFixtures.newTopRegion() ).add( TextComponent.create().text( "Text" ).build() ).add(
             FragmentComponent.create().fragment( ContentId.from( "contentId" ) ).build() ).build();
-        return PageRegions.create().add( region ).build();
+        return Regions.create().add( region ).build();
     }
 }

@@ -12,18 +12,18 @@ import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ExtraData;
+import com.enonic.xp.content.ExtraDatas;
 import com.enonic.xp.content.Media;
 import com.enonic.xp.data.PropertySet;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.page.Page;
-import com.enonic.xp.page.PageRegions;
 import com.enonic.xp.region.FragmentComponent;
 import com.enonic.xp.region.ImageComponent;
 import com.enonic.xp.region.LayoutComponent;
-import com.enonic.xp.region.LayoutRegions;
 import com.enonic.xp.region.PartComponent;
 import com.enonic.xp.region.Region;
+import com.enonic.xp.region.Regions;
 import com.enonic.xp.region.TextComponent;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.xdata.XDataName;
@@ -54,7 +54,7 @@ public class ContentFixtures
         builder.data( dataMediaImage() );
         builder.publishInfo( ContentPublishInfo.create().from( Instant.parse( "2016-11-03T10:00:00Z" ) ).to(
             Instant.parse( "2016-11-23T10:00:00Z" ) ).build() );
-        builder.addExtraData( new ExtraData( XDataName.from( "media:testapp" ), xMedia() ) );
+        builder.extraDatas( ExtraDatas.create().add( new ExtraData( XDataName.from( "media:testapp" ), xMedia() ) ).build() );
         builder.page( newPage() );
         builder.attachments( mediaAttachments() );
         builder.permissions( AccessControlList.create().add(
@@ -151,9 +151,9 @@ public class ContentFixtures
         return tree;
     }
 
-    public static PageRegions newPageRegions()
+    public static Regions newPageRegions()
     {
-        return PageRegions.create().add( newTopRegion() ).add( newBottomRegion() ).build();
+        return Regions.create().add( newTopRegion() ).add( newBottomRegion() ).build();
     }
 
     public static Region newTopRegion()
@@ -241,7 +241,7 @@ public class ContentFixtures
         final Region region2 = Region.create().name( "right" ).add( createImageComponent( "image-id", "Some Image", null ) ).add(
             createFragmentComponent( "213sda-ss222", "My Fragment" ) ).build();
 
-        final LayoutRegions layoutRegions = LayoutRegions.create().add( region1 ).add( region2 ).build();
+        final Regions layoutRegions = Regions.create().add( region1 ).add( region2 ).build();
 
         return LayoutComponent.create().descriptor( "layoutDescriptor:name" ).regions( layoutRegions ).build();
     }

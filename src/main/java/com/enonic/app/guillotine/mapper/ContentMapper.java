@@ -54,7 +54,6 @@ public final class ContentMapper
         gen.value( "owner", content.getOwner() );
         gen.value( "type", content.getType() );
         gen.value( "displayName", content.getDisplayName() );
-        gen.value( "hasChildren", content.hasChildren() );
         gen.value( "language", content.getLanguage() );
         gen.value( "valid", content.isValid() );
         gen.value( "originProject", content.getOriginProject() );
