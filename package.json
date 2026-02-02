@@ -19,11 +19,11 @@
     "graphiql": "^4.1.2",
     "graphql-ws": "^6.0.6",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@types/react": "^18.3.1",
-    "@types/react-dom": "^18.3.1",
+    "@types/react-dom": "^19.2.3",
     "@typescript-eslint/parser": "^8.50.0",
     "circular-dependency-plugin": "^5.2.2",
     "copy-webpack-plugin": "^13.0.1",
