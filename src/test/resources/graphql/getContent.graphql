@@ -6,7 +6,6 @@ query {
             _path
             _score
             displayName
-            hasChildren
             language
             valid
             dataAsJson

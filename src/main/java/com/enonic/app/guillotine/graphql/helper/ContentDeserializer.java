@@ -2,7 +2,6 @@ package com.enonic.app.guillotine.graphql.helper;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -22,7 +21,6 @@ import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ExtraData;
 import com.enonic.xp.content.ExtraDatas;
 import com.enonic.xp.content.Media;
-import com.enonic.xp.content.WorkflowCheckState;
 import com.enonic.xp.content.WorkflowInfo;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.descriptor.DescriptorKey;
@@ -77,7 +75,6 @@ public final class ContentDeserializer
         source.withMapper( source.getString( "modifier" ), PrincipalKey::from ).ifPresent( target::modifier );
         source.withMapper( source.getString( "language" ), Locale::forLanguageTag ).ifPresent( target::language );
         source.getBoolean( "valid" ).ifPresent( target::valid );
-        source.getBoolean( "hasChildren" ).ifPresent( target::hasChildren );
         source.withMapper( source.getString( "originProject" ), ProjectName::from ).ifPresent( target::originProject );
         source.withMapper( source.getString( "variantOf" ), ContentId::from ).ifPresent( target::variantOf );
         source.withMapper( source.getString( "getChildOrder" ), ChildOrder::from ).ifPresent( target::childOrder );
@@ -126,17 +123,6 @@ public final class ContentDeserializer
             final WorkflowInfo.Builder workflowBuilder = WorkflowInfo.create();
 
             workflowMap.getString( "state" ).ifPresent( workflowBuilder::state );
-
-            workflowMap.getMap( "checks" ).ifPresent( checksAsMap -> {
-                final Map<String, WorkflowCheckState> workflowCheckStates = new HashMap<>();
-
-                checksAsMap.forEach( ( checkName, value ) -> {
-                    final String check = value.toString();
-                    workflowCheckStates.put( checkName, WorkflowCheckState.valueOf( check ) );
-                } );
-
-                workflowBuilder.checks( workflowCheckStates );
-            } );
 
             builder.workflowInfo( workflowBuilder.build() );
         } );

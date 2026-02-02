@@ -8,7 +8,6 @@ import java.util.Map;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Version;
 
 import graphql.schema.GraphQLSchema;
 
@@ -48,6 +47,7 @@ import com.enonic.xp.security.User;
 import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.testing.ScriptTestSupport;
 import com.enonic.xp.testing.mock.MockBeanContext;
+import com.enonic.xp.util.Version;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -197,7 +197,6 @@ public class BaseGraphQLIntegrationTest
 
         when( application.getKey() ).thenReturn( ApplicationKey.from( "myapplication" ) );
         when( application.getVersion() ).thenReturn( Version.emptyVersion );
-        when( application.getBundle() ).thenReturn( bundle );
         when( application.getClassLoader() ).thenReturn( getClass().getClassLoader() );
         when( application.isStarted() ).thenReturn( true );
         when( application.getConfig() ).thenReturn( ConfigBuilder.create().build() );
@@ -216,7 +215,7 @@ public class BaseGraphQLIntegrationTest
     {
         return ContextBuilder.copyOf( ContextAccessor.current() ).repositoryId( RepositoryId.from( "com.enonic.cms.myproject" ) ).branch(
             ContentConstants.BRANCH_DRAFT ).authInfo(
-            AuthenticationInfo.create().principals( RoleKeys.AUTHENTICATED, RoleKeys.ADMIN ).user( User.ANONYMOUS ).build() ).build();
+            AuthenticationInfo.create().principals( RoleKeys.AUTHENTICATED, RoleKeys.ADMIN ).user( User.anonymous() ).build() ).build();
     }
 
 }
