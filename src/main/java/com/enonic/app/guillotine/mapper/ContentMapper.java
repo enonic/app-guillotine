@@ -1,7 +1,6 @@
 package com.enonic.app.guillotine.mapper;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -12,7 +11,6 @@ import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentInheritType;
 import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ExtraData;
-import com.enonic.xp.content.WorkflowCheckState;
 import com.enonic.xp.content.WorkflowInfo;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.page.Page;
@@ -106,12 +104,6 @@ public final class ContentMapper
         if ( info != null )
         {
             gen.value( "state", info.getState().toString() );
-            gen.map( "checks" );
-            for ( Map.Entry<String, WorkflowCheckState> e : info.getChecks().entrySet() )
-            {
-                gen.value( e.getKey(), e.getValue().toString() );
-            }
-            gen.end();
         }
         gen.end();
     }

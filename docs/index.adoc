@@ -1,4 +1,4 @@
-= Guillotine 7 - GraphQL API for Enonic XP
+= Guillotine - Headless API
 
 A bend-over-backwards flexible GraphQL API based on XP's content API
 
@@ -7,6 +7,8 @@ A bend-over-backwards flexible GraphQL API based on XP's content API
 TIP: *Quickstart!* Check out https://developer.enonic.com/docs/developer-101[the Developer 101 tutorial] for a hands-on introduction to Enonic and the GraphQL API.
 
 At its core, Guillotine is a strongly typed GraphQL version of XP's internal https://developer.enonic.com/docs/xp/stable/api/lib-content[JS Content API]. 
+
+image::images/guillotine-api.png[Cutting Edge API, 1344px]
 
 == Overview
 

@@ -17,7 +17,6 @@ import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ExtraData;
 import com.enonic.xp.content.ExtraDatas;
-import com.enonic.xp.content.WorkflowCheckState;
 import com.enonic.xp.content.WorkflowInfo;
 import com.enonic.xp.content.WorkflowState;
 import com.enonic.xp.data.PropertyTree;
@@ -88,8 +87,7 @@ public class GuillotineSerializerDeserializerTest
         builder.attachments( Attachments.from(
             Attachment.create().name( "image.jpeg" ).label( "source" ).mimeType( "image/jpeg" ).size( 12345 ).sha512(
                 "sha512" ).build() ) );
-        builder.workflowInfo( WorkflowInfo.create().state( WorkflowState.PENDING_APPROVAL ).checks(
-            Map.of( "check1", WorkflowCheckState.APPROVED ) ).build() );
+        builder.workflowInfo( WorkflowInfo.create().state( WorkflowState.PENDING_APPROVAL ).build() );
         builder.publishInfo( ContentPublishInfo.create().from( Instant.parse( "2016-11-03T10:00:00Z" ) ).to(
             Instant.parse( "2016-11-23T10:00:00Z" ) ).build() );
         builder.setInherit( Set.of( ContentInheritType.CONTENT ) );

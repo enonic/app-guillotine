@@ -231,7 +231,6 @@ public class ContentTypesFactory
         result.add( outputField( "type", Scalars.GraphQLString ) );
         result.add( outputField( "contentType", GraphQLTypeReference.typeRef( "ContentType" ) ) );
         result.add( outputField( "displayName", Scalars.GraphQLString ) );
-        result.add( outputField( "hasChildren", Scalars.GraphQLBoolean ) );
         result.add( outputField( "language", Scalars.GraphQLString ) );
         result.add( outputField( "valid", Scalars.GraphQLBoolean ) );
         result.add( outputField( "dataAsJson", ExtendedScalars.Json ) );
