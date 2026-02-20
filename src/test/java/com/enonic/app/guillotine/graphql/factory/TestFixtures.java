@@ -3,7 +3,7 @@ package com.enonic.app.guillotine.graphql.factory;
 import com.enonic.xp.form.Form;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.inputtype.InputTypeName;
-import com.enonic.xp.schema.xdata.XData;
+import com.enonic.xp.schema.mixin.MixinDescriptor;
 
 import static com.enonic.xp.media.MediaInfo.CAMERA_INFO_METADATA_NAME;
 import static com.enonic.xp.media.MediaInfo.GPS_INFO_GEO_POINT;
@@ -16,23 +16,22 @@ import static com.enonic.xp.media.MediaInfo.MEDIA_INFO_BYTE_SIZE;
 
 public class TestFixtures
 {
-    public static final XData IMAGE_METADATA =
-        XData.create().name( IMAGE_INFO_METADATA_NAME ).displayName( "Image Info" ).displayNameI18nKey(
+    public static final MixinDescriptor IMAGE_METADATA =
+        MixinDescriptor.create().name( IMAGE_INFO_METADATA_NAME ).displayName( "Image Info" ).displayNameI18nKey(
             "media.imageInfo.displayName" ).form( createImageInfoXDataForm() ).build();
 
-    public static final XData CAMERA_METADATA =
-        XData.create().name( CAMERA_INFO_METADATA_NAME ).displayName( "Photo Info" ).displayNameI18nKey(
+    public static final MixinDescriptor CAMERA_METADATA =
+        MixinDescriptor.create().name( CAMERA_INFO_METADATA_NAME ).displayName( "Photo Info" ).displayNameI18nKey(
             "media.cameraInfo.displayName" ).form( createPhotoInfoXDataForm() ).build();
 
-    public static final XData GPS_METADATA =
-        XData.create().name( GPS_INFO_METADATA_NAME ).displayName( "Gps Info" ).displayNameI18nKey( "base.gpsInfo.displayName" ).form(
-            createGpsInfoMixinForm() ).build();
+    public static final MixinDescriptor GPS_METADATA =
+        MixinDescriptor.create().name( GPS_INFO_METADATA_NAME ).displayName( "Gps Info" ).displayNameI18nKey(
+            "base.gpsInfo.displayName" ).form( createGpsInfoMixinForm() ).build();
 
     private static Form createGpsInfoMixinForm()
     {
         final Form.Builder form = Form.create();
-        form.addFormItem(
-            Input.create().inputType( InputTypeName.GEO_POINT ).label( "Geo Point" ).name( GPS_INFO_GEO_POINT ).immutable( true ).build() );
+        form.addFormItem( Input.create().inputType( InputTypeName.GEO_POINT ).label( "Geo Point" ).name( GPS_INFO_GEO_POINT ).build() );
         form.addFormItem( createTextLine( "altitude", "Altitude" ).occurrences( 0, 1 ).build() );
         form.addFormItem( createTextLine( "direction", "Direction" ).occurrences( 0, 1 ).build() );
 
@@ -41,7 +40,7 @@ public class TestFixtures
 
     private static Input.Builder createTextLine( final String name, final String label )
     {
-        return Input.create().inputType( InputTypeName.TEXT_LINE ).label( label ).name( name ).immutable( true );
+        return Input.create().inputType( InputTypeName.TEXT_LINE ).label( label ).name( name );
     }
 
     private static Form createImageInfoXDataForm()
@@ -61,7 +60,7 @@ public class TestFixtures
 
     private static Input.Builder createLong( final String name, final String label )
     {
-        return Input.create().inputType( InputTypeName.LONG ).label( label ).name( name ).immutable( true );
+        return Input.create().inputType( InputTypeName.LONG ).label( label ).name( name );
     }
 
     private static Form createPhotoInfoXDataForm()
@@ -92,6 +91,6 @@ public class TestFixtures
 
     private static Input.Builder createDate( final String name, final String label )
     {
-        return Input.create().inputType( InputTypeName.DATE_TIME ).label( label ).name( name ).immutable( true );
+        return Input.create().inputType( InputTypeName.DATE_TIME ).label( label ).name( name );
     }
 }

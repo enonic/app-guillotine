@@ -58,7 +58,7 @@ public class GetAttachmentUrlByNameDataFetcher
 
         if ( environment.getArgument( "params" ) instanceof Map queryParams )
         {
-            builder.addQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
+            builder.setQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
         }
 
         return portalUrlGeneratorService.attachmentUrl( builder.build() );

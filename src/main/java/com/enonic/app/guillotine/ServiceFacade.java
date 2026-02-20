@@ -12,8 +12,8 @@ import com.enonic.xp.node.NodeService;
 import com.enonic.xp.page.PageTemplateService;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.portal.url.PortalUrlService;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentTypeService;
-import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.style.StyleDescriptorService;
 
 @Component(immediate = true, service = ServiceFacade.class)
@@ -29,7 +29,7 @@ public class ServiceFacade
 
     private final NodeService nodeService;
 
-    private final MixinService mixinService;
+    private final CmsFormFragmentService cmsFormFragmentService;
 
     private final MacroService macroService;
 
@@ -45,7 +45,7 @@ public class ServiceFacade
     public ServiceFacade( final @Reference ContentService contentService, final @Reference ContentTypeService contentTypeService,
                           final @Reference ComponentDescriptorService componentDescriptorService,
                           final @Reference PortalUrlService portalUrlService, final @Reference NodeService nodeService,
-                          final @Reference MixinService mixinService, final @Reference MacroService macroService,
+                          final @Reference CmsFormFragmentService cmsFormFragmentService, final @Reference MacroService macroService,
                           final @Reference MacroDescriptorService macroDescriptorService,
                           final @Reference PageTemplateService pageTemplateService,
                           final @Reference StyleDescriptorService styleDescriptorService,
@@ -56,7 +56,7 @@ public class ServiceFacade
         this.componentDescriptorService = componentDescriptorService;
         this.portalUrlService = portalUrlService;
         this.nodeService = nodeService;
-        this.mixinService = mixinService;
+        this.cmsFormFragmentService = cmsFormFragmentService;
         this.macroService = macroService;
         this.macroDescriptorService = macroDescriptorService;
         this.pageTemplateService = pageTemplateService;
@@ -89,9 +89,9 @@ public class ServiceFacade
         return nodeService;
     }
 
-    public MixinService getMixinService()
+    public CmsFormFragmentService getCmsFormFragmentService()
     {
-        return mixinService;
+        return cmsFormFragmentService;
     }
 
     public MacroService getMacroService()

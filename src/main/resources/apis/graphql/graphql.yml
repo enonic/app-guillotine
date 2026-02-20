@@ -1,4 +1,5 @@
 allow:
-- "role:system.everyone"
+  - "role:system.everyone"
 displayName: "Guillotine GraphQL API"
-mount: true
+mount:
+  - "xpó"

@@ -39,7 +39,7 @@ public class TypeFactoryTest
 
         Mockito.when( componentDescriptorService.getMacroDescriptors( Mockito.anyList() ) ).thenReturn( MacroDescriptors.empty() );
 
-        Mockito.when( componentDescriptorService.getExtraData( Mockito.anyString() ) ).thenReturn(
+        Mockito.when( componentDescriptorService.getMixins( Mockito.anyString() ) ).thenReturn(
             XDatas.from( TestFixtures.GPS_METADATA ) );
 
         Mockito.when( contentTypeService.getAll() ).thenReturn( createContentTypes() );
@@ -49,7 +49,7 @@ public class TypeFactoryTest
 
 		MixinService mixinService = Mockito.mock( MixinService.class );
 		Mockito.when( mixinService.inlineFormItems( Mockito.any() ) ).thenReturn( null );
-		Mockito.when( serviceFacade.getMixinService() ).thenReturn( mixinService );
+		Mockito.when( serviceFacade.getCmsFormFragmentService() ).thenReturn( mixinService );
 
         GuillotineContext context = GuillotineContext.create().addApplications( List.of( "com.enonic.app.testapp" ) ).build();
 

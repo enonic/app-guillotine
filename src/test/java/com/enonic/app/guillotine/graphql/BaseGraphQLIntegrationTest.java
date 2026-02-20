@@ -37,11 +37,11 @@ import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.resource.ResourceKey;
 import com.enonic.xp.resource.ResourceService;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.ContentTypes;
-import com.enonic.xp.schema.mixin.MixinService;
-import com.enonic.xp.schema.xdata.XDatas;
+import com.enonic.xp.schema.mixin.MixinDescriptors;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.User;
 import com.enonic.xp.security.auth.AuthenticationInfo;
@@ -95,8 +95,8 @@ public class BaseGraphQLIntegrationTest
 
         when( componentDescriptorService.getMacroDescriptors( Mockito.anyList() ) ).thenReturn( BuiltinMacros.getSystemMacroDescriptors() );
 
-        when( componentDescriptorService.getExtraData( anyString() ) ).thenReturn(
-            XDatas.from( TestFixtures.CAMERA_METADATA, TestFixtures.IMAGE_METADATA, TestFixtures.GPS_METADATA ) );
+        when( componentDescriptorService.getMixins( anyString() ) ).thenReturn(
+            MixinDescriptors.from( TestFixtures.CAMERA_METADATA, TestFixtures.IMAGE_METADATA, TestFixtures.GPS_METADATA ) );
 
         final ContentTypeService contentTypeService = mock( ContentTypeService.class );
 
@@ -121,10 +121,10 @@ public class BaseGraphQLIntegrationTest
         when( macroService.evaluateMacros( anyString(), any() ) ).thenReturn( "processedMacros" );
         when( serviceFacade.getMacroService() ).thenReturn( macroService );
 
-        MixinService mixinService = mock( MixinService.class );
-        when( mixinService.inlineFormItems( any() ) ).thenReturn( null );
+        CmsFormFragmentService cmsFormFragmentService = mock( CmsFormFragmentService.class );
+        when( cmsFormFragmentService.inlineFormItems( any() ) ).thenReturn( null );
 
-        when( serviceFacade.getMixinService() ).thenReturn( mixinService );
+        when( serviceFacade.getCmsFormFragmentService() ).thenReturn( cmsFormFragmentService );
 
         addService( ServiceFacade.class, serviceFacade );
         addService( ExtensionsExtractorService.class, extensionsExtractorService );
@@ -133,7 +133,7 @@ public class BaseGraphQLIntegrationTest
         addService( PortalUrlGeneratorService.class, portalUrlGeneratorService );
         addService( MacroDescriptorService.class, macroDescriptorService );
         addService( MacroService.class, macroService );
-        addService( MixinService.class, mixinService );
+        addService( CmsFormFragmentService.class, cmsFormFragmentService );
 
         createGraphQLApiBean();
     }
@@ -197,6 +197,7 @@ public class BaseGraphQLIntegrationTest
 
         when( application.getKey() ).thenReturn( ApplicationKey.from( "myapplication" ) );
         when( application.getVersion() ).thenReturn( Version.emptyVersion );
+//        when( application.getBundle() ).thenReturn( bundle );
         when( application.getClassLoader() ).thenReturn( getClass().getClassLoader() );
         when( application.isStarted() ).thenReturn( true );
         when( application.getConfig() ).thenReturn( ConfigBuilder.create().build() );

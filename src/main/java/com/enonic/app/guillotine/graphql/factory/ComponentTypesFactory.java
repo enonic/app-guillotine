@@ -278,7 +278,7 @@ public class ComponentTypesFactory
 
     private Form resolveForm( Form originalForm )
     {
-        Form inlineForm = serviceFacade.getMixinService().inlineFormItems( originalForm );
+        Form inlineForm = serviceFacade.getCmsFormFragmentService().inlineFormItems( originalForm );
         return inlineForm != null ? inlineForm : originalForm;
     }
 }

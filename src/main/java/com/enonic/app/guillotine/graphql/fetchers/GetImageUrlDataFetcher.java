@@ -54,7 +54,7 @@ public class GetImageUrlDataFetcher
 
         if ( environment.getArgument( "params" ) instanceof Map queryParams )
         {
-            builder.addQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
+            builder.setQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
         }
 
         final ImageUrlGeneratorParams params = builder.build();

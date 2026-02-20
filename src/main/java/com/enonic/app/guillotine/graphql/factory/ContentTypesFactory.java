@@ -256,7 +256,7 @@ public class ContentTypesFactory
         result.add( outputField( "permissions", GraphQLTypeReference.typeRef( "Permissions" ) ) );
 
         context.registerDataFetcher( contentType, "contentType",
-                                     new ContentTypeDataFetcher( serviceFacade.getMixinService(), serviceFacade.getContentTypeService() ) );
+                                     new ContentTypeDataFetcher( serviceFacade.getCmsFormFragmentService(), serviceFacade.getContentTypeService() ) );
 
         context.registerDataFetcher( contentType, "_references", new GetContentReferencesDataFetcher( serviceFacade.getContentService() ) );
 

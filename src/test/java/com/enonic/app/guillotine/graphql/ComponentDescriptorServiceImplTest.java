@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationKeys;
+import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.form.Form;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.inputtype.InputTypeName;
@@ -15,7 +16,6 @@ import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.macro.MacroDescriptorService;
 import com.enonic.xp.macro.MacroDescriptors;
 import com.enonic.xp.macro.MacroKey;
-import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.page.PageDescriptorService;
 import com.enonic.xp.page.PageDescriptors;
@@ -26,10 +26,10 @@ import com.enonic.xp.region.PartDescriptorService;
 import com.enonic.xp.region.PartDescriptors;
 import com.enonic.xp.region.RegionDescriptor;
 import com.enonic.xp.region.RegionDescriptors;
-import com.enonic.xp.schema.xdata.XData;
-import com.enonic.xp.schema.xdata.XDataName;
-import com.enonic.xp.schema.xdata.XDataService;
-import com.enonic.xp.schema.xdata.XDatas;
+import com.enonic.xp.schema.mixin.MixinDescriptor;
+import com.enonic.xp.schema.mixin.MixinDescriptors;
+import com.enonic.xp.schema.mixin.MixinName;
+import com.enonic.xp.schema.mixin.MixinService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -45,7 +45,7 @@ public class ComponentDescriptorServiceImplTest
 
     private MacroDescriptorService macroDescriptorService;
 
-    private XDataService xDataService;
+    private MixinService mixinService;
 
     ComponentDescriptorServiceImpl instance;
 
@@ -56,10 +56,10 @@ public class ComponentDescriptorServiceImplTest
         this.partDescriptorService = Mockito.mock( PartDescriptorService.class );
         this.pageDescriptorService = Mockito.mock( PageDescriptorService.class );
         this.macroDescriptorService = Mockito.mock( MacroDescriptorService.class );
-        this.xDataService = Mockito.mock( XDataService.class );
+        this.mixinService = Mockito.mock( MixinService.class );
 
         this.instance = new ComponentDescriptorServiceImpl( partDescriptorService, layoutDescriptorService, pageDescriptorService,
-                                                            macroDescriptorService, xDataService );
+                                                            macroDescriptorService, mixinService );
     }
 
     @Test
@@ -105,13 +105,13 @@ public class ComponentDescriptorServiceImplTest
     {
         ApplicationKey applicationKey = ApplicationKey.from( "myapplication" );
 
-        XDatas xDatas = XDatas.create().add( XData.create().name( XDataName.from( applicationKey, "SoMe" ) ).form(
-            Form.create().addFormItem(
+        MixinDescriptors xDatas = MixinDescriptors.create().add(
+            MixinDescriptor.create().name( MixinName.from( applicationKey, "SoMe" ) ).form( Form.create().addFormItem(
                 Input.create().inputType( InputTypeName.TEXT_LINE ).name( "twitter" ).label( "Twitter" ).minimumOccurrences(
                     0 ).maximumOccurrences( 1 ).build() ).build() ).build() ).build();
 
-        Mockito.when( this.xDataService.getByApplication( Mockito.any( ApplicationKey.class ) ) ).thenReturn( xDatas );
+        Mockito.when( this.mixinService.getByApplication( Mockito.any( ApplicationKey.class ) ) ).thenReturn( xDatas );
 
-        assertEquals( xDatas, instance.getExtraData( "myapplication" ) );
+        assertEquals( xDatas, instance.getMixins( "myapplication" ) );
     }
 }
