@@ -15,8 +15,8 @@ import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentInheritType;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPublishInfo;
-import com.enonic.xp.content.ExtraData;
-import com.enonic.xp.content.ExtraDatas;
+import com.enonic.xp.content.Mixin;
+import com.enonic.xp.content.Mixins;
 import com.enonic.xp.content.WorkflowInfo;
 import com.enonic.xp.content.WorkflowState;
 import com.enonic.xp.data.PropertyTree;
@@ -26,7 +26,7 @@ import com.enonic.xp.region.FragmentComponent;
 import com.enonic.xp.region.Region;
 import com.enonic.xp.region.Regions;
 import com.enonic.xp.region.TextComponent;
-import com.enonic.xp.schema.xdata.XDataName;
+import com.enonic.xp.schema.mixin.MixinName;
 import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.acl.AccessControlEntry;
@@ -81,8 +81,8 @@ public class GuillotineSerializerDeserializerTest
         PropertyTree data = new PropertyTree();
         data.setString( "key1", "value1" );
         builder.data( data );
-        builder.extraDatas( ExtraDatas.create().add(
-            new ExtraData( XDataName.from( "myapplication:myschema" ), ContentFixtures.newTinyPropertyTree() ) ).build() );
+        builder.mixins(
+            Mixins.create().add( new Mixin( MixinName.from( "myapplication:myschema" ), ContentFixtures.newTinyPropertyTree() ) ).build() );
         builder.page( newPage() );
         builder.attachments( Attachments.from(
             Attachment.create().name( "image.jpeg" ).label( "source" ).mimeType( "image/jpeg" ).size( 12345 ).sha512(

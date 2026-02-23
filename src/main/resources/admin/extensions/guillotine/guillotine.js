@@ -30,7 +30,7 @@ router.get(`${BASE_PATH}/?`, (request) => {
     const view = resolve('guillotine.html');
 
     const handlerUrl = portalLib.apiUrl({
-        api: 'admin:widget',
+        api: 'admin:extension',
         path: ['com.enonic.app.guillotine', 'guillotine'],
     });
 

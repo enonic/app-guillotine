@@ -11,7 +11,7 @@ import org.osgi.framework.BundleContext;
 
 import graphql.schema.GraphQLSchema;
 
-import com.enonic.app.guillotine.BuiltinContentTypes;
+import com.enonic.app.guillotine.BuiltinContentTypesAccessor;
 import com.enonic.app.guillotine.BuiltinMacros;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.factory.TestFixtures;
@@ -207,7 +207,7 @@ public class BaseGraphQLIntegrationTest
 
     private ContentTypes createContentTypes()
     {
-        List<ContentType> types = new ArrayList<>( BuiltinContentTypes.getAll() );
+        List<ContentType> types = new ArrayList<>( BuiltinContentTypesAccessor.getAll().getList() );
         types.addAll( getCustomContentTypes() );
         return ContentTypes.from( types );
     }

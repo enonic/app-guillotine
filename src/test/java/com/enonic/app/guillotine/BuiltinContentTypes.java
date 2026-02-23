@@ -1,26 +1,28 @@
 package com.enonic.app.guillotine;
 
-import java.util.Collection;
+import java.io.InputStream;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-
-import com.google.common.collect.ImmutableMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.content.ContentPropertyNames;
 import com.enonic.xp.form.Form;
 import com.enonic.xp.form.FormItemSet;
 import com.enonic.xp.form.Input;
-import com.enonic.xp.inputtype.InputTypeConfig;
+import com.enonic.xp.icon.Icon;
 import com.enonic.xp.inputtype.InputTypeName;
-import com.enonic.xp.inputtype.InputTypeProperty;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypes;
 
 public final class BuiltinContentTypes
 {
+    private static final String CONTENT_TYPES_FOLDER = "content-types";
+
     private static final ContentType STRUCTURED =
         createSystemType( ContentTypeName.structured() ).setFinal( false ).setAbstract( true ).build();
 
@@ -41,9 +43,7 @@ public final class BuiltinContentTypes
     private static final Form SHORTCUT_FORM = Form.create().addFormItem(
         Input.create().name( "target" ).label( "Target" ).labelI18nKey( "base.shortcut.target.label" ).helpText(
             "Choose shortcut target" ).helpTextI18nKey( "base.shortcut.target.helpText" ).inputType(
-            InputTypeName.CONTENT_SELECTOR ).inputTypeConfig(
-            InputTypeConfig.create().property( InputTypeProperty.create( "allowPath", "*" ).build() ).build() ).required(
-            true ).build() ).addFormItem(
+            InputTypeName.CONTENT_SELECTOR ).inputTypeProperty( "allowPath", "*" ).required( true ).build() ).addFormItem(
         FormItemSet.create().name( "parameters" ).label( "Parameters" ).labelI18nKey( "base.shortcut.parameters.label" ).helpText(
             "HTTP Parameters" ).helpTextI18nKey( "base.shortcut.parameters.helpText" ).multiple( true ).required( false ).addFormItem(
             Input.create().name( "name" ).label( "Name" ).labelI18nKey( "base.shortcut.parameters.name.label" ).helpText(
@@ -109,7 +109,7 @@ public final class BuiltinContentTypes
             "portal.page-template.supports.helpText" ).inputType( InputTypeName.CONTENT_TYPE_FILTER ).required( true ).multiple(
             true ).build() ).build();
 
-    private static final Form FRAGMENT_FORM = Form.create().build();
+    private static final Form FRAGMENT_FORM = Form.empty();
 
     private static final ContentType PAGE_TEMPLATE =
         createSystemType( ContentTypeName.pageTemplate() ).description( "Predesigned customizable page" ).descriptionI18nKey(
@@ -120,7 +120,7 @@ public final class BuiltinContentTypes
     private static final ContentType SHORTCUT =
         createSystemType( ContentTypeName.shortcut() ).description( "Redirect to other item" ).descriptionI18nKey(
             "base.shortcut.description" ).setFinal( true ).setAbstract( false ).form( SHORTCUT_FORM ).superType(
-            ContentTypeName.shortcut() ).build();
+            ContentTypeName.structured() ).build();
 
     private static final ContentType FRAGMENT =
         createSystemType( ContentTypeName.fragment() ).allowChildContent( true ).setFinal( true ).setAbstract( false ).form(
@@ -181,10 +181,41 @@ public final class BuiltinContentTypes
         createSystemType( ContentTypeName.unknownMedia() ).superType( ContentTypeName.media() ).setFinal( true ).setAbstract(
             false ).allowChildContent( false ).form( MEDIA_DEFAULT_FORM ).build();
 
-    public static final ContentTypes CONTENT_TYPES =
-        ContentTypes.from( UNSTRUCTURED, STRUCTURED, FOLDER, SHORTCUT, MEDIA, MEDIA_TEXT, MEDIA_DATA, MEDIA_AUDIO, MEDIA_VIDEO, MEDIA_IMAGE,
-                           MEDIA_VECTOR, MEDIA_ARCHIVE, MEDIA_DOCUMENT, MEDIA_SPREADSHEET, MEDIA_PRESENTATION, MEDIA_CODE, MEDIA_EXECUTABLE,
-                           MEDIA_UNKNOWN, SITE, TEMPLATE_FOLDER, PAGE_TEMPLATE, FRAGMENT );
+    private final ContentTypes contentTypes;
+
+    private final Map<ContentTypeName, ContentType> map;
+
+    BuiltinContentTypes()
+    {
+        contentTypes =
+            Stream.of( UNSTRUCTURED, STRUCTURED, FOLDER, SHORTCUT, MEDIA, MEDIA_TEXT, MEDIA_DATA, MEDIA_AUDIO, MEDIA_VIDEO, MEDIA_IMAGE,
+                       MEDIA_VECTOR, MEDIA_ARCHIVE, MEDIA_DOCUMENT, MEDIA_SPREADSHEET, MEDIA_PRESENTATION, MEDIA_CODE, MEDIA_EXECUTABLE,
+                       MEDIA_UNKNOWN, SITE, TEMPLATE_FOLDER, PAGE_TEMPLATE, FRAGMENT ).map( this::processType )
+
+                .collect( ContentTypes.collector() );
+
+        this.map = contentTypes.stream().collect( Collectors.toUnmodifiableMap( ContentType::getName, Function.identity() ) );
+    }
+
+    private ContentType processType( final ContentType type )
+    {
+        return ContentType.create( type ).icon( loadSchemaIcon( CONTENT_TYPES_FOLDER, type.getName().getLocalName() ) ).build();
+    }
+
+    public ContentTypes getAll()
+    {
+        return contentTypes;
+    }
+
+    public ContentType getContentType( final ContentTypeName contentTypeName )
+    {
+        return this.map.get( contentTypeName );
+    }
+
+    private Icon loadSchemaIcon( final String metaInfFolderName, final String name )
+    {
+        return loadIcon( getClass(), metaInfFolderName, name );
+    }
 
     private static ContentType.Builder createSystemType( final ContentTypeName contentTypeName )
     {
@@ -195,24 +226,19 @@ public final class BuiltinContentTypes
             app + "." + localName + ".displayName" ).setBuiltIn();
     }
 
-    private static final Map<ContentTypeName, ContentType> map;
-
-    static
+    private static Icon loadIcon( final Class clz, final String mimeType, final String filePath )
     {
-        map = CONTENT_TYPES.stream().collect( ImmutableMap.toImmutableMap( ContentType::getName, Function.identity() ) );
-    }
-
-    private BuiltinContentTypes()
-    {
-    }
-
-    public static Collection<ContentType> getAll()
-    {
-        return map.values();
-    }
-
-    public static ContentType getContentType( final ContentTypeName contentTypeName )
-    {
-        return map.get( contentTypeName );
+        try (InputStream stream = clz.getResourceAsStream( filePath ))
+        {
+            if ( stream == null )
+            {
+                return null;
+            }
+            return Icon.from( stream, mimeType, Instant.now() );
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Failed to load icon file: " + filePath, e );
+        }
     }
 }

@@ -9,7 +9,7 @@ import org.mockito.Mockito;
 
 import graphql.schema.GraphQLSchema;
 
-import com.enonic.app.guillotine.BuiltinContentTypes;
+import com.enonic.app.guillotine.BuiltinContentTypesAccessor;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.schema.content.ContentTypeName;
@@ -44,7 +44,7 @@ public class GetTypesGraphQLIntegrationTest
     @Test
     public void testGetTypesField()
     {
-        when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( BuiltinContentTypes.getAll() ) );
+        when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( BuiltinContentTypesAccessor.getAll() ) );
         when( serviceFacade.getContentTypeService() ).thenReturn( contentTypeService );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
@@ -73,9 +73,9 @@ public class GetTypesGraphQLIntegrationTest
     @Test
     public void testGetTypeField()
     {
-        when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( BuiltinContentTypes.getAll() ) );
+        when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( BuiltinContentTypesAccessor.getAll() ) );
         when( contentTypeService.getByName( any( GetContentTypeParams.class ) ) ).thenReturn(
-            BuiltinContentTypes.getContentType( ContentTypeName.site() ) );
+            BuiltinContentTypesAccessor.getContentType( ContentTypeName.site() ) );
         when( serviceFacade.getContentTypeService() ).thenReturn( contentTypeService );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();

@@ -173,7 +173,7 @@ public class ContentTypesVerifier
         assertEquals( Scalars.GraphQLString, type.getField( "language" ).getType() );
         assertEquals( Scalars.GraphQLBoolean, type.getField( "valid" ).getType() );
         assertEquals( ExtendedScalars.Json, type.getField( "dataAsJson" ).getType() );
-        assertEquals( "ExtraData", getNameForGraphQLTypeReference( type.getField( "x" ).getType() ) );
+        assertEquals( "Mixin", getNameForGraphQLTypeReference( type.getField( "x" ).getType() ) );
         assertEquals( ExtendedScalars.Json, type.getField( "xAsJson" ).getType() );
 
         GraphQLFieldDefinition pageAsJsonField = type.getField( "pageAsJson" );
@@ -230,7 +230,7 @@ public class ContentTypesVerifier
         assertEquals( Scalars.GraphQLString, type.getField( "language" ).getType() );
         assertEquals( Scalars.GraphQLBoolean, type.getField( "valid" ).getType() );
         assertEquals( ExtendedScalars.Json, type.getField( "dataAsJson" ).getType() );
-        assertEquals( "ExtraData", getNameForGraphQLTypeReference( type.getField( "x" ).getType() ) );
+        assertEquals( "Mixin", getNameForGraphQLTypeReference( type.getField( "x" ).getType() ) );
         assertEquals( ExtendedScalars.Json, type.getField( "xAsJson" ).getType() );
 
         GraphQLFieldDefinition pageAsJsonField = type.getField( "pageAsJson" );
