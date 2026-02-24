@@ -18,9 +18,9 @@ import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentInheritType;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPublishInfo;
-import com.enonic.xp.content.ExtraData;
-import com.enonic.xp.content.ExtraDatas;
 import com.enonic.xp.content.Media;
+import com.enonic.xp.content.Mixin;
+import com.enonic.xp.content.Mixins;
 import com.enonic.xp.content.WorkflowInfo;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.descriptor.DescriptorKey;
@@ -36,7 +36,7 @@ import com.enonic.xp.region.Region;
 import com.enonic.xp.region.Regions;
 import com.enonic.xp.region.TextComponent;
 import com.enonic.xp.schema.content.ContentTypeName;
-import com.enonic.xp.schema.xdata.XDataName;
+import com.enonic.xp.schema.mixin.MixinName;
 import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.site.Site;
 
@@ -155,15 +155,15 @@ public final class ContentDeserializer
     private static void deserializeXData( final SafeMap contentAsMap, final Content.Builder<?> builder )
     {
         contentAsMap.getMap( "x" ).ifPresent( extraDataAsMap -> {
-            final ExtraDatas.Builder extraDataBuilder = ExtraDatas.create();
+            final Mixins.Builder mixinsBuilder = Mixins.create();
 
             extraDataAsMap.forEach( ( name, data ) -> {
-                final XDataName xDataName = XDataName.from( name );
+                final MixinName mixinName = MixinName.from( name );
                 final PropertyTree dataTree = PropertyTree.fromMap( (Map<String, Object>) data );
-                extraDataBuilder.add( new ExtraData( xDataName, dataTree ) );
+                mixinsBuilder.add( new Mixin( mixinName, dataTree ) );
             } );
 
-            builder.extraDatas( extraDataBuilder.build() );
+            builder.mixins( mixinsBuilder.build() );
         } );
     }
 

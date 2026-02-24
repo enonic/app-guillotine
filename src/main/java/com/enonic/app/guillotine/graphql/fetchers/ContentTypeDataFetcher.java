@@ -8,22 +8,22 @@ import graphql.schema.DataFetchingEnvironment;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.app.guillotine.mapper.ContentTypeMapper;
 import com.enonic.xp.form.Form;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.GetContentTypeParams;
-import com.enonic.xp.schema.mixin.MixinService;
 
 public class ContentTypeDataFetcher
     implements DataFetcher<Object>
 {
-    private final MixinService mixinService;
+    private final CmsFormFragmentService cmsFormFragmentService;
 
     private final ContentTypeService contentTypeService;
 
-    public ContentTypeDataFetcher( final MixinService mixinService, final ContentTypeService contentTypeService )
+    public ContentTypeDataFetcher( final CmsFormFragmentService cmsFormFragmentService, final ContentTypeService contentTypeService )
     {
-        this.mixinService = mixinService;
+        this.cmsFormFragmentService = cmsFormFragmentService;
         this.contentTypeService = contentTypeService;
     }
 
@@ -48,7 +48,7 @@ public class ContentTypeDataFetcher
     {
         ContentType.Builder builder = ContentType.create( contentType );
 
-        Form inlinedForm = mixinService.inlineFormItems( contentType.getForm() );
+        Form inlinedForm = cmsFormFragmentService.inlineFormItems( contentType.getForm() );
         if ( inlinedForm == null )
         {
             return contentType;

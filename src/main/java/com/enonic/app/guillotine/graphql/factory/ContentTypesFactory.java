@@ -234,7 +234,7 @@ public class ContentTypesFactory
         result.add( outputField( "language", Scalars.GraphQLString ) );
         result.add( outputField( "valid", Scalars.GraphQLBoolean ) );
         result.add( outputField( "dataAsJson", ExtendedScalars.Json ) );
-        result.add( outputField( "x", GraphQLTypeReference.typeRef( "ExtraData" ) ) );
+        result.add( outputField( "x", GraphQLTypeReference.typeRef( "Mixin" ) ) );
         result.add( outputField( "xAsJson", ExtendedScalars.Json ) );
         result.add( outputField( "pageAsJson", ExtendedScalars.Json, List.of( newArgument( "resolveTemplate", Scalars.GraphQLBoolean ),
                                                                               newArgument( "resolveFragment",
@@ -256,7 +256,7 @@ public class ContentTypesFactory
         result.add( outputField( "permissions", GraphQLTypeReference.typeRef( "Permissions" ) ) );
 
         context.registerDataFetcher( contentType, "contentType",
-                                     new ContentTypeDataFetcher( serviceFacade.getMixinService(), serviceFacade.getContentTypeService() ) );
+                                     new ContentTypeDataFetcher( serviceFacade.getCmsFormFragmentService(), serviceFacade.getContentTypeService() ) );
 
         context.registerDataFetcher( contentType, "_references", new GetContentReferencesDataFetcher( serviceFacade.getContentService() ) );
 

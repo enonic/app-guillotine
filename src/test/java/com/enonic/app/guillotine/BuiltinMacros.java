@@ -46,6 +46,6 @@ public class BuiltinMacros
     private static Input.Builder createTextAreaInput( final String name, final String label, final MacroKey macroKey )
     {
         return Input.create().inputType( InputTypeName.TEXT_AREA ).label( label ).labelI18nKey(
-            macroKey.getApplicationKey().getName() + "." + macroKey.getName() + "." + name + ".label" ).name( name ).immutable( true );
+            macroKey.getApplicationKey().getName() + "." + macroKey.getName() + "." + name + ".label" ).name( name );
     }
 }

@@ -178,10 +178,11 @@ public class GenericTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 3, fields.size() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "from" ).getType() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "to" ).getType() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "first" ).getType() );
+        assertEquals( 4, fields.size() );
+        assertEquals( ExtendedScalars.DateTime, type.getFieldDefinition( "from" ).getType() );
+        assertEquals( ExtendedScalars.DateTime, type.getFieldDefinition( "to" ).getType() );
+        assertEquals( ExtendedScalars.DateTime, type.getFieldDefinition( "first" ).getType() );
+        assertEquals( ExtendedScalars.DateTime, type.getFieldDefinition( "time" ).getType() );
     }
 
     private void verifySiteConfigurator()

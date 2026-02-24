@@ -19,7 +19,7 @@ import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.form.Form;
 import com.enonic.xp.form.FormItem;
-import com.enonic.xp.schema.xdata.XDatas;
+import com.enonic.xp.schema.mixin.MixinDescriptors;
 
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newObject;
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField;
@@ -41,65 +41,66 @@ public class XDataTypesFactory
 
     public void create()
     {
-        String extraDataTypeName = context.uniqueName( "ExtraData" );
+        String mixinTypeName = context.uniqueName( "Mixin" );
 
-        List<GraphQLFieldDefinition> xDataTypeFields = new ArrayList<>();
+        List<GraphQLFieldDefinition> mixinTypeFields = new ArrayList<>();
 
         getApplicationsKeys().forEach( applicationKey -> {
-            String xDataApplicationConfigTypeName =
-                context.uniqueName( "XData_" + StringNormalizer.create( applicationKey ) + "_ApplicationConfig" );
+            String mixinApplicationConfigTypeName =
+                context.uniqueName( "Mixin_" + StringNormalizer.create( applicationKey ) + "_ApplicationConfig" );
 
-            XDatas extraData = serviceFacade.getComponentDescriptorService().getExtraData( applicationKey );
+            MixinDescriptors mixinDescriptors = serviceFacade.getComponentDescriptorService().getMixins( applicationKey );
 
-            if ( extraData.isNotEmpty() )
+            if ( mixinDescriptors.isNotEmpty() )
             {
-                List<GraphQLFieldDefinition> xDataApplicationTypeFields = new ArrayList<>();
+                List<GraphQLFieldDefinition> mixinApplicationTypeFields = new ArrayList<>();
 
-                extraData.forEach( xData -> {
-                    String descriptorName = StringNormalizer.create( xData.getName().getLocalName() );
+                mixinDescriptors.forEach( mixinDescriptor -> {
+                    String descriptorName = StringNormalizer.create( mixinDescriptor.getName().getLocalName() );
 
-                    String xDataTypeName = "XData_" + StringNormalizer.create( applicationKey ) + "_" + descriptorName;
+                    String mixinDescriptorTypeName = "Mixin_" + StringNormalizer.create( applicationKey ) + "_" + descriptorName;
 
-                    String xDataConfigTypeName = context.uniqueName( xDataTypeName + "_DataConfig" );
+                    String mixinConfigTypeName = context.uniqueName( mixinDescriptorTypeName + "_DataConfig" );
 
-                    List<GraphQLFieldDefinition> xDataConfigFields =
-                        createFormItemFields( resolveForm( xData.getForm() ), xDataConfigTypeName );
+                    List<GraphQLFieldDefinition> mixinConfigFields =
+                        createFormItemFields( resolveForm( mixinDescriptor.getForm() ), mixinConfigTypeName );
 
-                    if ( !xDataConfigFields.isEmpty() )
+                    if ( !mixinConfigFields.isEmpty() )
                     {
-                        GraphQLObjectType xDataConfigType = newObject( xDataConfigTypeName,
-                                                                       "Extra data config for application ['" + applicationKey +
-                                                                           "}'] and descriptor ['" + xData.getName().getLocalName() + "']",
-                                                                       xDataConfigFields );
+                        GraphQLObjectType mixinConfigType = newObject( mixinConfigTypeName,
+                                                                       "Mixin data config for application ['" + applicationKey +
+                                                                           "}'] and descriptor ['" +
+                                                                           mixinDescriptor.getName().getLocalName() + "']",
+                                                                       mixinConfigFields );
 
-                        context.registerType( xDataConfigType.getName(), xDataConfigType );
+                        context.registerType( mixinConfigType.getName(), mixinConfigType );
 
-                        GraphQLFieldDefinition xDataApplicationField = outputField( descriptorName, xDataConfigType );
-                        xDataApplicationTypeFields.add( xDataApplicationField );
+                        GraphQLFieldDefinition mixinApplicationField = outputField( descriptorName, mixinConfigType );
+                        mixinApplicationTypeFields.add( mixinApplicationField );
 
-                        context.registerDataFetcher( xDataApplicationConfigTypeName, xDataApplicationField.getName(),
-                                                     new GetFieldAsJsonDataFetcher( xData.getName().getLocalName() ) );
+                        context.registerDataFetcher( mixinApplicationConfigTypeName, mixinApplicationField.getName(),
+                                                     new GetFieldAsJsonDataFetcher( mixinDescriptor.getName().getLocalName() ) );
                     }
                 } );
 
-                if ( !xDataApplicationTypeFields.isEmpty() )
+                if ( !mixinApplicationTypeFields.isEmpty() )
                 {
                     GraphQLObjectType applicationConfigType =
-                        newObject( xDataApplicationConfigTypeName, "XDataApplicationConfig for application ['" + applicationKey + "']",
-                                   xDataApplicationTypeFields );
+                        newObject( mixinApplicationConfigTypeName, "MixinApplicationConfig for application ['" + applicationKey + "']",
+                                   mixinApplicationTypeFields );
 
                     GraphQLFieldDefinition xDataTypeField = outputField( StringNormalizer.create( applicationKey ), applicationConfigType );
-                    xDataTypeFields.add( xDataTypeField );
+                    mixinTypeFields.add( xDataTypeField );
 
-                    context.registerDataFetcher( extraDataTypeName, xDataTypeField.getName(),
+                    context.registerDataFetcher( mixinTypeName, xDataTypeField.getName(),
                                                  new GetFieldAsJsonDataFetcher( NamingHelper.applicationConfigKey( applicationKey ) ) );
                 }
             }
         } );
 
-        if ( !xDataTypeFields.isEmpty() )
+        if ( !mixinTypeFields.isEmpty() )
         {
-            GraphQLObjectType extraDataType = newObject( extraDataTypeName, "Extra data.", xDataTypeFields );
+            GraphQLObjectType extraDataType = newObject( mixinTypeName, "Mixin data.", mixinTypeFields );
 
             context.registerType( extraDataType.getName(), extraDataType );
         }
@@ -107,7 +108,7 @@ public class XDataTypesFactory
 
     private List<GraphQLFieldDefinition> createFormItemFields( final Iterable<? extends FormItem> formItems, String typeName )
     {
-        List<GraphQLFieldDefinition> xDataConfigFields = new ArrayList<>();
+        List<GraphQLFieldDefinition> mixinConfigFields = new ArrayList<>();
 
         FormItemTypesHelper.getFilteredFormItems( formItems ).forEach( formItem -> {
             String fieldName = StringNormalizer.create( formItem.getName() );
@@ -119,10 +120,10 @@ public class XDataTypesFactory
 
             context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
 
-            xDataConfigFields.add( field );
+            mixinConfigFields.add( field );
         } );
 
-        return xDataConfigFields;
+        return mixinConfigFields;
     }
 
     private Set<String> getApplicationsKeys()
@@ -135,7 +136,7 @@ public class XDataTypesFactory
 
     private Form resolveForm( Form originalForm )
     {
-        Form inlineForm = serviceFacade.getMixinService().inlineFormItems( originalForm );
+        Form inlineForm = serviceFacade.getCmsFormFragmentService().inlineFormItems( originalForm );
         return inlineForm != null ? inlineForm : originalForm;
     }
 }

@@ -6,12 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.mockito.Mockito;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 import graphql.schema.GraphQLSchema;
 
-import com.enonic.app.guillotine.BuiltinContentTypes;
+import com.enonic.app.guillotine.BuiltinContentTypesAccessor;
 import com.enonic.app.guillotine.BuiltinMacros;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.factory.TestFixtures;
@@ -37,11 +35,11 @@ import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.resource.ResourceKey;
 import com.enonic.xp.resource.ResourceService;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.ContentTypes;
-import com.enonic.xp.schema.mixin.MixinService;
-import com.enonic.xp.schema.xdata.XDatas;
+import com.enonic.xp.schema.mixin.MixinDescriptors;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.User;
 import com.enonic.xp.security.auth.AuthenticationInfo;
@@ -67,12 +65,7 @@ public class BaseGraphQLIntegrationTest
     {
         super.initialize();
 
-        final BundleContext bundleContext = mock( BundleContext.class );
-
-        final Bundle bundle = mock( Bundle.class );
-        when( bundle.getBundleContext() ).thenReturn( bundleContext );
-
-        final Application application = createApplication( bundle );
+        final Application application = createApplication();
 
         final ApplicationService applicationService = mock( ApplicationService.class );
 
@@ -95,8 +88,8 @@ public class BaseGraphQLIntegrationTest
 
         when( componentDescriptorService.getMacroDescriptors( Mockito.anyList() ) ).thenReturn( BuiltinMacros.getSystemMacroDescriptors() );
 
-        when( componentDescriptorService.getExtraData( anyString() ) ).thenReturn(
-            XDatas.from( TestFixtures.CAMERA_METADATA, TestFixtures.IMAGE_METADATA, TestFixtures.GPS_METADATA ) );
+        when( componentDescriptorService.getMixins( anyString() ) ).thenReturn(
+            MixinDescriptors.from( TestFixtures.CAMERA_METADATA, TestFixtures.IMAGE_METADATA, TestFixtures.GPS_METADATA ) );
 
         final ContentTypeService contentTypeService = mock( ContentTypeService.class );
 
@@ -121,10 +114,10 @@ public class BaseGraphQLIntegrationTest
         when( macroService.evaluateMacros( anyString(), any() ) ).thenReturn( "processedMacros" );
         when( serviceFacade.getMacroService() ).thenReturn( macroService );
 
-        MixinService mixinService = mock( MixinService.class );
-        when( mixinService.inlineFormItems( any() ) ).thenReturn( null );
+        CmsFormFragmentService cmsFormFragmentService = mock( CmsFormFragmentService.class );
+        when( cmsFormFragmentService.inlineFormItems( any() ) ).thenReturn( null );
 
-        when( serviceFacade.getMixinService() ).thenReturn( mixinService );
+        when( serviceFacade.getCmsFormFragmentService() ).thenReturn( cmsFormFragmentService );
 
         addService( ServiceFacade.class, serviceFacade );
         addService( ExtensionsExtractorService.class, extensionsExtractorService );
@@ -133,7 +126,7 @@ public class BaseGraphQLIntegrationTest
         addService( PortalUrlGeneratorService.class, portalUrlGeneratorService );
         addService( MacroDescriptorService.class, macroDescriptorService );
         addService( MacroService.class, macroService );
-        addService( MixinService.class, mixinService );
+        addService( CmsFormFragmentService.class, cmsFormFragmentService );
 
         createGraphQLApiBean();
     }
@@ -191,7 +184,7 @@ public class BaseGraphQLIntegrationTest
         return (ResourceService) resourceServiceField.get( this );
     }
 
-    private Application createApplication( final Bundle bundle )
+    private Application createApplication()
     {
         final Application application = mock( Application.class );
 
@@ -206,7 +199,7 @@ public class BaseGraphQLIntegrationTest
 
     private ContentTypes createContentTypes()
     {
-        List<ContentType> types = new ArrayList<>( BuiltinContentTypes.getAll() );
+        List<ContentType> types = new ArrayList<>( BuiltinContentTypesAccessor.getAll().getList() );
         types.addAll( getCustomContentTypes() );
         return ContentTypes.from( types );
     }

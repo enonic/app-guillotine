@@ -17,8 +17,8 @@ import com.enonic.xp.page.PageDescriptorService;
 import com.enonic.xp.region.ComponentDescriptor;
 import com.enonic.xp.region.LayoutDescriptorService;
 import com.enonic.xp.region.PartDescriptorService;
-import com.enonic.xp.schema.xdata.XDataService;
-import com.enonic.xp.schema.xdata.XDatas;
+import com.enonic.xp.schema.mixin.MixinDescriptors;
+import com.enonic.xp.schema.mixin.MixinService;
 
 @Component(immediate = true, service = ComponentDescriptorService.class)
 public class ComponentDescriptorServiceImpl
@@ -32,20 +32,20 @@ public class ComponentDescriptorServiceImpl
 
     private final MacroDescriptorService macroDescriptorService;
 
-    private final XDataService xDataService;
+    private final MixinService mixinService;
 
     @Activate
     public ComponentDescriptorServiceImpl( final @Reference PartDescriptorService partDescriptorService,
                                            final @Reference LayoutDescriptorService layoutDescriptorService,
                                            final @Reference PageDescriptorService pageDescriptorService,
                                            final @Reference MacroDescriptorService macroDescriptorService,
-                                           final @Reference XDataService xDataService )
+                                           final @Reference MixinService mixinService )
     {
         this.partDescriptorService = partDescriptorService;
         this.layoutDescriptorService = layoutDescriptorService;
         this.pageDescriptorService = pageDescriptorService;
         this.macroDescriptorService = macroDescriptorService;
-        this.xDataService = xDataService;
+        this.mixinService = mixinService;
     }
 
     @Override
@@ -79,8 +79,8 @@ public class ComponentDescriptorServiceImpl
     }
 
     @Override
-    public XDatas getExtraData( final String applicationKey )
+    public MixinDescriptors getMixins( final String applicationKey )
     {
-        return xDataService.getByApplication( ApplicationKey.from( applicationKey ) );
+        return mixinService.getByApplication( ApplicationKey.from( applicationKey ) );
     }
 }

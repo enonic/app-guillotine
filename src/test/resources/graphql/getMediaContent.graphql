@@ -5,7 +5,7 @@ query {
                 mediaUrl(params: {
                     a: 1,
                     b: [2, 3],
-                    c: null
+                    c: []
                 })
             }
         }

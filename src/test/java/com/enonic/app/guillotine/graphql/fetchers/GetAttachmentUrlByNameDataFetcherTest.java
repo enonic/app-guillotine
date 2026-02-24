@@ -41,7 +41,7 @@ public class GetAttachmentUrlByNameDataFetcherTest
         Map<String, Object> params = new LinkedHashMap<>();
         params.put( "a", "1" );
         params.put( "b", List.of( 2, 3 ) );
-        params.put( "c", null );
+        params.put( "c", List.of() );
 
         when( environment.getArgument( "params" ) ).thenReturn( params );
 

@@ -31,13 +31,13 @@ import com.enonic.xp.form.FormOptionSet;
 import com.enonic.xp.form.FormOptionSetOption;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.form.Occurrences;
-import com.enonic.xp.inputtype.InputTypeConfig;
 import com.enonic.xp.inputtype.InputTypeName;
 
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newArgument;
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newEnum;
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newObject;
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField;
+import static com.enonic.xp.inputtype.InputTypeName.HTML_AREA;
 
 public class FormItemTypesFactory
 {
@@ -154,14 +154,12 @@ public class FormItemTypesFactory
         {
             return CustomScalars.LocalTime;
         }
+        if ( InputTypeName.INSTANT.equals( formItem.getInputType() ) )
+        {
+            return ExtendedScalars.DateTime;
+        }
         if ( InputTypeName.DATE_TIME.equals( formItem.getInputType() ) )
         {
-            InputTypeConfig config = formItem.getInputTypeConfig();
-            if ( config != null && config.getProperty( "timezone" ) != null &&
-                "true".equals( config.getProperty( "timezone" ).getValue() ) )
-            {
-                return ExtendedScalars.DateTime;
-            }
             return CustomScalars.LocalDateTime;
         }
         if ( InputTypeName.DOUBLE.equals( formItem.getInputType() ) )
@@ -205,7 +203,7 @@ public class FormItemTypesFactory
 
         generateFormItemOccurrencesArgument( FormItemTypesHelper.getOccurrences( formItem ), result );
 
-        if ( formItem instanceof Input && ( (Input) formItem ).getInputType().equals( InputTypeName.HTML_AREA ) )
+        if ( formItem instanceof Input && ( (Input) formItem ).getInputType().equals( HTML_AREA ) )
         {
             result.add( newArgument( "processHtml", GraphQLTypeReference.typeRef( "ProcessHtmlInput" ) ) );
         }
