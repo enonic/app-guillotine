@@ -113,9 +113,10 @@ public class GenericTypesFactory
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
-        fields.add( outputField( "from", Scalars.GraphQLString ) );
-        fields.add( outputField( "to", Scalars.GraphQLString ) );
-        fields.add( outputField( "first", Scalars.GraphQLString ) );
+        fields.add( outputField( "from", ExtendedScalars.DateTime ) );
+        fields.add( outputField( "to", ExtendedScalars.DateTime ) );
+        fields.add( outputField( "first", ExtendedScalars.DateTime ) );
+        fields.add( outputField( "time", ExtendedScalars.DateTime ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "PublishInfo" ), "Publish information.", fields );
         context.registerType( outputObject.getName(), outputObject );

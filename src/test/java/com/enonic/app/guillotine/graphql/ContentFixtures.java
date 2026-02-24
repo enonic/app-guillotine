@@ -52,8 +52,8 @@ public class ContentFixtures
         builder.createdTime( Instant.ofEpochSecond( 0 ) );
         builder.language( Locale.ENGLISH );
         builder.data( dataMediaImage() );
-        builder.publishInfo( ContentPublishInfo.create().from( Instant.parse( "2016-11-03T10:00:00Z" ) ).to(
-            Instant.parse( "2016-11-23T10:00:00Z" ) ).build() );
+        builder.publishInfo( ContentPublishInfo.create().from( Instant.parse( "2016-11-03T10:00:00.000Z" ) ).to(
+            Instant.parse( "2016-11-23T10:00:00.000Z" ) ).time( Instant.parse( "2016-11-03T10:00:00.000Z" ) ).build() );
         builder.mixins( Mixins.create().add( new Mixin( MixinName.from( "media:testapp" ), xMedia() ) ).build() );
         builder.page( newPage() );
         builder.attachments( mediaAttachments() );

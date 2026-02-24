@@ -87,8 +87,9 @@ public class GuillotineApiGraphQLIntegrationTest
 
         Map<String, Object> publishField = CastHelper.cast( getField.get( "publish" ) );
 
-        assertEquals( "2016-11-03T10:00:00Z", publishField.get( "from" ) );
-        assertEquals( "2016-11-23T10:00:00Z", publishField.get( "to" ) );
+        assertEquals( "2016-11-03T10:00:00.000Z", publishField.get( "from" ) );
+        assertEquals( "2016-11-23T10:00:00.000Z", publishField.get( "to" ) );
+        assertEquals( "2016-11-03T10:00:00.000Z", publishField.get( "time" ) );
         assertNull( publishField.get( "first" ) );
 
         assertEquals( "1970-01-01T00:00:00.000Z", getField.get( "createdTime" ) );
