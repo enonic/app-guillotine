@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.mockito.Mockito;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 import graphql.schema.GraphQLSchema;
 
@@ -67,12 +65,7 @@ public class BaseGraphQLIntegrationTest
     {
         super.initialize();
 
-        final BundleContext bundleContext = mock( BundleContext.class );
-
-        final Bundle bundle = mock( Bundle.class );
-        when( bundle.getBundleContext() ).thenReturn( bundleContext );
-
-        final Application application = createApplication( bundle );
+        final Application application = createApplication();
 
         final ApplicationService applicationService = mock( ApplicationService.class );
 
@@ -191,13 +184,12 @@ public class BaseGraphQLIntegrationTest
         return (ResourceService) resourceServiceField.get( this );
     }
 
-    private Application createApplication( final Bundle bundle )
+    private Application createApplication()
     {
         final Application application = mock( Application.class );
 
         when( application.getKey() ).thenReturn( ApplicationKey.from( "myapplication" ) );
         when( application.getVersion() ).thenReturn( Version.emptyVersion );
-//        when( application.getBundle() ).thenReturn( bundle );
         when( application.getClassLoader() ).thenReturn( getClass().getClassLoader() );
         when( application.isStarted() ).thenReturn( true );
         when( application.getConfig() ).thenReturn( ConfigBuilder.create().build() );
