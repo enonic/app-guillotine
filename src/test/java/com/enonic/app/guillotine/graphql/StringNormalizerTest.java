@@ -9,6 +9,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class StringNormalizerTest
 {
     @Test
+    public void nullOrBlankInput_returnsEmpty()
+    {
+        assertEquals( "", StringNormalizer.create( null ) );
+        assertEquals( "", StringNormalizer.create( "" ) );
+        assertEquals( "", StringNormalizer.create( "   " ) );
+    }
+
+    @Test
+    public void allCharsDroppedBySanitizer_returnsEmpty()
+    {
+        assertEquals( "", StringNormalizer.create( "??" ) );
+        assertEquals( "", StringNormalizer.create( "?&*^%" ) );
+    }
+
+    @Test
+    public void digitPrefixedName_doesNotCrashOnCamelCase()
+    {
+        assertEquals( "_123fieldName", StringNormalizer.create( "123fieldName" ) );
+    }
+
+    @Test
     public void test()
     {
         assertEquals( "field_name", StringNormalizer.create( "field+name" ) );

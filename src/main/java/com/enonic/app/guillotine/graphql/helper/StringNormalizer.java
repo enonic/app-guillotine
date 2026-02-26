@@ -12,6 +12,10 @@ public class StringNormalizer
             return "";
         }
         String sanitizedValue = sanitize( value );
+        if ( sanitizedValue.isEmpty() )
+        {
+            return "";
+        }
         if ( Character.isDigit( sanitizedValue.charAt( 0 ) ) )
         {
             sanitizedValue = "_" + sanitizedValue;
