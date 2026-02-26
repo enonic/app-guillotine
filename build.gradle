@@ -93,6 +93,17 @@ tasks.register('webpack', NpmTask) {
     outputs.dir "$buildDir/resources/main"
 }
 
+tasks.register('assembleTypes', Copy) {
+    from 'types'
+    into "$buildDir/types"
+    exclude 'node_modules'
+    exclude 'test-d'
+    exclude '.gitignore'
+    exclude 'package-lock.json'
+}
+
+publish.dependsOn assembleTypes
+
 jar {
     exclude 'assets/**/*.tsx'
     exclude 'assets/**/*.less'
