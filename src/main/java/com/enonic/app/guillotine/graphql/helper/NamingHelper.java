@@ -7,6 +7,10 @@ public class NamingHelper
         StringBuilder result = new StringBuilder();
         for ( String s : input.split( "_" ) )
         {
+            if ( s.isEmpty() )
+            {
+                continue;
+            }
             result.append( Character.toUpperCase( s.charAt( 0 ) ) );
             if ( s.length() > 1 )
             {
