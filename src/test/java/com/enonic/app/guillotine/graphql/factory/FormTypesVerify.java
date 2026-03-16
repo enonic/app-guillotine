@@ -25,7 +25,6 @@ public class FormTypesVerify
     public void verify()
     {
         verifyOccurrences();
-        verifyDefaultValue();
         verifyFormItemSet();
         verifyFormLayout();
         verifyFormOptionSetOption();
@@ -41,17 +40,13 @@ public class FormTypesVerify
 
         assertTrue( type.getInterfaces().stream().allMatch( i -> Objects.equals( "FormItem", i.getName() ) ) );
 
-        assertEquals( 11, type.getFieldDefinitions().size() );
+        assertEquals( 7, type.getFieldDefinitions().size() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "name" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "label" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "helpText" ).getType() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "customText" ).getType() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "validationRegexp" ).getType() );
-        assertEquals( Scalars.GraphQLBoolean, type.getFieldDefinition( "maximize" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "inputType" ).getType() );
         assertEquals( ExtendedScalars.Json, type.getFieldDefinition( "configAsJson" ).getType() );
         assertEquals( "FormItemType", getNameForGraphQLTypeReference( type.getFieldDefinition( "formItemType" ).getType() ) );
-        assertEquals( "DefaultValue", getNameForGraphQLTypeReference( type.getFieldDefinition( "defaultValue" ).getType() ) );
         assertEquals( "Occurrences", getNameForGraphQLTypeReference( type.getFieldDefinition( "occurrences" ).getType() ) );
     }
 
@@ -111,25 +106,13 @@ public class FormTypesVerify
 
         assertTrue( type.getInterfaces().stream().allMatch( i -> Objects.equals( "FormItem", i.getName() ) ) );
 
-        assertEquals( 7, type.getFieldDefinitions().size() );
+        assertEquals( 6, type.getFieldDefinitions().size() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "name" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "label" ).getType() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "customText" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "helpText" ).getType() );
         assertEquals( "FormItemType", getNameForGraphQLTypeReference( type.getFieldDefinition( "formItemType" ).getType() ) );
         assertEquals( "Occurrences", getNameForGraphQLTypeReference( type.getFieldDefinition( "occurrences" ).getType() ) );
         assertEquals( "FormItem", getNameForGraphQLTypeReference( getOriginalTypeFromGraphQLList( type, "items" ) ) );
-    }
-
-    private void verifyDefaultValue()
-    {
-        GraphQLObjectType type = context.getOutputType( "DefaultValue" );
-
-        assertEquals( "Default value.", type.getDescription() );
-
-        assertEquals( 2, type.getFieldDefinitions().size() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "value" ).getType() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "type" ).getType() );
     }
 
     private void verifyOccurrences()

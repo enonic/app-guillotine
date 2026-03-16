@@ -100,7 +100,7 @@ public class GuillotineSerializerDeserializerTest
         final Page.Builder builder = Page.create();
 
         builder.config( ContentFixtures.newTinyPropertyTree() );
-        builder.descriptor( DescriptorKey.from( "my-app-key:mycontroller" ) );
+        builder.descriptor( DescriptorKey.from( "my.app.key:mycontroller" ) );
         builder.regions( newPageRegions() );
 
         return builder.build();

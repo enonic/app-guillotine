@@ -157,10 +157,14 @@ public final class ContentDeserializer
         contentAsMap.getMap( "x" ).ifPresent( extraDataAsMap -> {
             final Mixins.Builder mixinsBuilder = Mixins.create();
 
-            extraDataAsMap.forEach( ( name, data ) -> {
-                final MixinName mixinName = MixinName.from( name );
-                final PropertyTree dataTree = PropertyTree.fromMap( (Map<String, Object>) data );
-                mixinsBuilder.add( new Mixin( mixinName, dataTree ) );
+            extraDataAsMap.forEach( ( appKey, appData ) -> {
+                if ( appData instanceof Map ) {
+                    ( (Map<String, Object>) appData ).forEach( ( localName, data ) -> {
+                        final MixinName mixinName = MixinName.from( appKey + ":" + localName );
+                        final PropertyTree dataTree = PropertyTree.fromMap( (Map<String, Object>) data );
+                        mixinsBuilder.add( new Mixin( mixinName, dataTree ) );
+                    } );
+                }
             } );
 
             builder.mixins( mixinsBuilder.build() );

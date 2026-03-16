@@ -118,7 +118,7 @@ public class ContentFixtures
         final Page.Builder builder = Page.create();
 
         builder.config( newTinyPropertyTree() );
-        builder.descriptor( DescriptorKey.from( "my-app-key:mycontroller" ) );
+        builder.descriptor( DescriptorKey.from( "myappkey:mycontroller" ) );
         builder.regions( newPageRegions() );
 
         return builder.build();
@@ -158,7 +158,7 @@ public class ContentFixtures
 
     public static Region newTopRegion()
     {
-        return Region.create().name( "top" ).add( createPartComponent( "app-descriptor-x:name-x", newTinyPropertyTree() ) ).add(
+        return Region.create().name( "top" ).add( createPartComponent( "app.descriptor.x:name-x", newTinyPropertyTree() ) ).add(
             createLayoutComponent() ).add( LayoutComponent.create().build() ).build();
     }
 
@@ -171,7 +171,7 @@ public class ContentFixtures
 
     public static Region newBottomRegion()
     {
-        return Region.create().name( "bottom" ).add( createPartComponent( "app-descriptor-y:name-y", newTinyPropertyTree() ) ).add(
+        return Region.create().name( "bottom" ).add( createPartComponent( "app.descriptor.y:name-y", newTinyPropertyTree() ) ).add(
             createImageComponent( "img-id-x", "Image Component", newImageComponentPropertyTree() ) ).add(
             ImageComponent.create().build() ).build();
     }
