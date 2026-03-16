@@ -12,7 +12,6 @@ import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLTypeReference;
 
 import com.enonic.app.guillotine.graphql.GuillotineContext;
-import com.enonic.app.guillotine.graphql.fetchers.FormInputDefaultValueDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetFieldAsJsonDataFetcher;
 import com.enonic.app.guillotine.graphql.typeresolvers.FormItemTypeResolver;
 
@@ -33,7 +32,6 @@ public class FormTypesFactory
     {
         createFormItemTypeInterface();
         createOccurrencesType();
-        createDefaultValueType();
         createFormItemSetType();
         createFormLayoutType();
         createFormOptionSetOptionType();
@@ -65,25 +63,12 @@ public class FormTypesFactory
         context.registerType( objectType.getName(), objectType );
     }
 
-    private void createDefaultValueType()
-    {
-        List<GraphQLFieldDefinition> fields = new ArrayList<>();
-        fields.add( outputField( "value", Scalars.GraphQLString ) );
-        fields.add( outputField( "type", Scalars.GraphQLString ) );
-
-        GraphQLObjectType objectType = newObject( context.uniqueName( "DefaultValue" ), "Default value.", fields );
-        context.registerType( objectType.getName(), objectType );
-
-        context.registerDataFetcher( objectType.getName(), "value", new FormInputDefaultValueDataFetcher() );
-    }
-
     private void createFormItemSetType()
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
         fields.add( outputField( "formItemType", GraphQLTypeReference.typeRef( "FormItemType" ) ) );
         fields.add( outputField( "name", Scalars.GraphQLString ) );
         fields.add( outputField( "label", Scalars.GraphQLString ) );
-        fields.add( outputField( "customText", Scalars.GraphQLString ) );
         fields.add( outputField( "helpText", Scalars.GraphQLString ) );
         fields.add( outputField( "occurrences", GraphQLTypeReference.typeRef( "Occurrences" ) ) );
         fields.add( outputField( "items", new GraphQLList( GraphQLTypeReference.typeRef( "FormItem" ) ) ) );
@@ -145,13 +130,9 @@ public class FormTypesFactory
         fields.add( outputField( "formItemType", GraphQLTypeReference.typeRef( "FormItemType" ) ) );
         fields.add( outputField( "name", Scalars.GraphQLString ) );
         fields.add( outputField( "label", Scalars.GraphQLString ) );
-        fields.add( outputField( "customText", Scalars.GraphQLString ) );
         fields.add( outputField( "helpText", Scalars.GraphQLString ) );
-        fields.add( outputField( "validationRegexp", Scalars.GraphQLString ) );
-        fields.add( outputField( "maximize", Scalars.GraphQLBoolean ) );
         fields.add( outputField( "inputType", Scalars.GraphQLString ) );
         fields.add( outputField( "occurrences", GraphQLTypeReference.typeRef( "Occurrences" ) ) );
-        fields.add( outputField( "defaultValue", GraphQLTypeReference.typeRef( "DefaultValue" ) ) );
         fields.add( outputField( "configAsJson", ExtendedScalars.Json ) );
 
         GraphQLObjectType objectType =
@@ -159,7 +140,6 @@ public class FormTypesFactory
         context.registerType( objectType.getName(), objectType );
 
         context.registerDataFetcher( objectType.getName(), "configAsJson", new GetFieldAsJsonDataFetcher( "config" ) );
-        context.registerDataFetcher( objectType.getName(), "defaultValue", new GetFieldAsJsonDataFetcher( "default" ) );
     }
 
 }
