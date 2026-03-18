@@ -26,6 +26,7 @@ import com.enonic.xp.query.expr.QueryExpr;
 import com.enonic.xp.query.filter.Filters;
 import com.enonic.xp.query.highlight.HighlightQuery;
 import com.enonic.xp.query.parser.QueryParser;
+import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeNames;
 
 public class FindContentsCommand
@@ -81,7 +82,7 @@ public class FindContentsCommand
         {
             return ContentTypeNames.empty();
         }
-        return ContentTypeNames.from( params.getContentTypes() );
+        return ContentTypeNames.from( params.getContentTypes().stream().map( ContentTypeName::from ).toList() );
     }
 
     private ConstraintExpr buildConstraintExpr()
