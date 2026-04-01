@@ -3,4 +3,4 @@ allow:
   - "role:system.everyone"
 title: "Guillotine GraphQL API"
 mount:
-  - "xp"
+  - "web"
