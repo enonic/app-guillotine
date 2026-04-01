@@ -37,7 +37,7 @@ public class BuiltinMacros
 
     private static MacroDescriptor create( final MacroKey macroKey, final String displayName, final String description, final Form form )
     {
-        return MacroDescriptor.create().key( macroKey ).displayName( displayName ).displayNameI18nKey(
+        return MacroDescriptor.create().key( macroKey ).title( displayName ).titleI18nKey(
             macroKey.getApplicationKey().getName() + "." + macroKey.getName() + ".displayName" ).description(
             description ).descriptionI18nKey( macroKey.getApplicationKey().getName() + "." + macroKey.getName() + ".description" ).form(
             form ).build();

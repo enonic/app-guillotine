@@ -1,0 +1,6 @@
+kind: "API"
+allow:
+  - "role:system.everyone"
+title: "Guillotine GraphQL API"
+mount:
+  - "web"

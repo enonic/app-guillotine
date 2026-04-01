@@ -1,6 +1,6 @@
 query {
     guillotine {
-        getPermissions(key: "contentId") {
+        getPermissions(key: "contentid") {
             permissions {
                 principal {
                     value

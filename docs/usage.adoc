@@ -147,7 +147,7 @@ The GraphQL query below will process links inside the field:
 ----
 query {
   guillotine {
-    get(key: "contentID") {
+    get(key: "contentid") {
       ... on com_app_example_ContentType {
         data {
           htmlAreaField {
@@ -201,7 +201,7 @@ The query below will process images inside the field:
 ----
 query {
   guillotine {
-    get(key: "contentID") {
+    get(key: "contentid") {
       ... on com_app_example_ContentType {
         data {
           richTextField {
@@ -292,7 +292,7 @@ The query below will fetch data for the `description` field:
 ----
 query {
   guillotine {
-    get(key: "contentID") {
+    get(key: "contentid") {
       ... on com_app_example_ContentType {
         data {
           description {
@@ -348,7 +348,7 @@ Executing the query below will give your value of the `defaultText` input, as de
 ----
 query {
   guillotine {
-    get(key: "contentID") {
+    get(key: "contentid") {
       ... on com_app_example_ContentType {
         data {
           description {
@@ -382,7 +382,7 @@ In the query below, we access the SoMe (SocialMedia) fields that have been used 
 ----
 {
   guillotine {
-    query(key: "contentID") {
+    query(key: "contentid") {
       displayName
       x {
       	com_example_myproject {

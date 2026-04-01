@@ -37,7 +37,7 @@ public class GetSiteBySiteHeaderTest
     {
         when( contentService.findNearestSiteByPath( any( ContentPath.class ) ) ).thenReturn(
             Site.create().name( "site" ).type( ContentTypeName.site() ).parentPath( ContentPath.ROOT ).data(
-                new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteId" ) ).build() );
+                new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteid" ) ).build() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
@@ -49,7 +49,7 @@ public class GetSiteBySiteHeaderTest
         Map<String, Object> getGetField = CastHelper.cast( getFieldFromGuillotine( response, "getSite" ) );
 
         assertNotNull( getGetField );
-        assertEquals( "siteId", getGetField.get( "_id" ) );
+        assertEquals( "siteid", getGetField.get( "_id" ) );
         assertEquals( "Site", getGetField.get( "displayName" ) );
     }
 }

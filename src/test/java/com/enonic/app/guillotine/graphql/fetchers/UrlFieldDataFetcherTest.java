@@ -60,7 +60,7 @@ public class UrlFieldDataFetcherTest
         when( portalUrlService.imageUrl( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn( "imageUrl" );
 
         Map<String, Object> source = new HashMap<>();
-        source.put( "_id", "contentId" );
+        source.put( "_id", "contentid" );
 
         when( environment.getSource() ).thenReturn( source );
 
@@ -83,7 +83,7 @@ public class UrlFieldDataFetcherTest
         when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn( "attachmentUrl" );
 
         Map<String, Object> source = new HashMap<>();
-        source.put( "_id", "contentId" );
+        source.put( "_id", "contentid" );
         source.put( "name", "name" );
 
         when( environment.getSource() ).thenReturn( source );

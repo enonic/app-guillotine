@@ -1,5 +1,0 @@
-allow:
-  - "role:system.everyone"
-displayName: "Guillotine GraphQL API"
-mount:
-  - "xp"

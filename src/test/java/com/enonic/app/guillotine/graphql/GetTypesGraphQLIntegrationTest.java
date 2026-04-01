@@ -59,7 +59,7 @@ public class GetTypesGraphQLIntegrationTest
         getTypesField.forEach( getTypeField -> {
             if ( Objects.equals( "portal:site", getTypeField.get( "name" ) ) )
             {
-                assertEquals( "Site", getTypeField.get( "displayName" ) );
+                assertEquals( "Site", getTypeField.get( "title" ) );
                 assertEquals( "Root content for sites", getTypeField.get( "description" ) );
                 assertEquals( "base:structured", getTypeField.get( "superType" ) );
                 assertEquals( false, getTypeField.get( "abstract" ) );
@@ -88,7 +88,7 @@ public class GetTypesGraphQLIntegrationTest
         Map<String, Object> getTypeField = CastHelper.cast( getFieldFromGuillotine( result, "getType" ) );
 
         assertEquals( "portal:site", getTypeField.get( "name" ) );
-        assertEquals( "Site", getTypeField.get( "displayName" ) );
+        assertEquals( "Site", getTypeField.get( "title" ) );
         assertEquals( "Root content for sites", getTypeField.get( "description" ) );
         assertEquals( "base:structured", getTypeField.get( "superType" ) );
         assertEquals( false, getTypeField.get( "abstract" ) );
@@ -116,7 +116,7 @@ public class GetTypesGraphQLIntegrationTest
     @Test
     public void testGetPermissionsField()
     {
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 

@@ -1,0 +1,5 @@
+kind: "Application"
+description: "Make your site headless"
+title: "Guillotine"
+vendorName: "Enonic AS"
+vendorUrl: "https://enonic.com"

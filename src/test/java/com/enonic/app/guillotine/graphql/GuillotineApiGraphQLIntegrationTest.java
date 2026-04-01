@@ -42,9 +42,9 @@ public class GuillotineApiGraphQLIntegrationTest
     @Test
     public void testGenericContentFields()
     {
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
-        when( contentService.getById( ContentId.from( "referenceId_1" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
-        when( contentService.getOutboundDependencies( Mockito.any( ContentId.class ) ) ).thenReturn( ContentIds.from( "referenceId_1" ) );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
+        when( contentService.getById( ContentId.from( "referenceid_1" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
+        when( contentService.getOutboundDependencies( Mockito.any( ContentId.class ) ) ).thenReturn( ContentIds.from( "referenceid_1" ) );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
@@ -55,7 +55,7 @@ public class GuillotineApiGraphQLIntegrationTest
 
         Map<String, Object> getField = CastHelper.cast( getFieldFromGuillotine( result, "get" ) );
 
-        assertEquals( "contentId", getField.get( "_id" ) );
+        assertEquals( "contentid", getField.get( "_id" ) );
         assertEquals( "mycontent", getField.get( "_name" ) );
         assertEquals( "/a/b/mycontent", getField.get( "_path" ) );
         assertEquals( "My Content", getField.get( "displayName" ) );
@@ -156,7 +156,7 @@ public class GuillotineApiGraphQLIntegrationTest
     {
         when( contentService.findNearestSiteByPath( any( ContentPath.class ) ) ).thenReturn(
             Site.create().name( "site" ).type( ContentTypeName.site() ).parentPath( ContentPath.ROOT ).data(
-                new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteId" ) ).build() );
+                new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteid" ) ).build() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
@@ -179,7 +179,7 @@ public class GuillotineApiGraphQLIntegrationTest
         Map<String, Object> getForGetSiteByKey = CastHelper.cast( getSiteByKey.get( "getSite" ) );
 
         assertNotNull( getForGetSiteByKey );
-        assertEquals( "siteId", getForGetSiteByKey.get( "_id" ) );
+        assertEquals( "siteid", getForGetSiteByKey.get( "_id" ) );
         assertEquals( "Site", getForGetSiteByKey.get( "displayName" ) );
     }
 
@@ -221,20 +221,20 @@ public class GuillotineApiGraphQLIntegrationTest
     public void testExecuteQueryInLocalContext()
     {
         Content contentInMasterBranch =
-            Content.create().id( ContentId.from( "contentId" ) ).path( ContentPath.from( "/contentPath" ) ).name( "name" ).displayName(
+            Content.create().id( ContentId.from( "contentid" ) ).path( ContentPath.from( "/contentPath" ) ).name( "name" ).displayName(
                 "Name" ).parentPath( ContentPath.ROOT ).type( ContentTypeName.unstructured() ).data( new PropertyTree() ).build();
 
         Content contentInDraftBranch =
-            Content.create().id( ContentId.from( "contentId" ) ).path( ContentPath.from( "/contentPath" ) ).displayName(
+            Content.create().id( ContentId.from( "contentid" ) ).path( ContentPath.from( "/contentPath" ) ).displayName(
                 "New Name" ).parentPath( ContentPath.ROOT ).type( ContentTypeName.unstructured() ).data( new PropertyTree() ).build();
 
         Site site = Site.create().name( "site" ).type( ContentTypeName.site() ).path( ContentPath.from( "/sitePath" ) ).parentPath(
-            ContentPath.ROOT ).data( new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteId" ) ).build();
+            ContentPath.ROOT ).data( new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteid" ) ).build();
 
         when( contentService.findNearestSiteByPath( ContentPath.from( "/sitePath" ) ) ).thenReturn( site );
-        when( contentService.getNearestSite( ContentId.from( "siteId" ) ) ).thenReturn( site );
+        when( contentService.getNearestSite( ContentId.from( "siteid" ) ) ).thenReturn( site );
 
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( contentInMasterBranch );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( contentInMasterBranch );
         when( contentService.getByPath( ContentPath.from( "/sitePath/contentPath" ) ) ).thenReturn( contentInDraftBranch );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
@@ -251,13 +251,13 @@ public class GuillotineApiGraphQLIntegrationTest
         Map<String, Object> g1 = CastHelper.cast( data.get( "g1" ) );
         Map<String, Object> getFoG1 = CastHelper.cast( g1.get( "get" ) );
         assertEquals( "Name", getFoG1.get( "displayName" ) );
-        assertEquals( "contentId", getFoG1.get( "_id" ) );
+        assertEquals( "contentid", getFoG1.get( "_id" ) );
 
         assertTrue( data.containsKey( "g2" ) );
         Map<String, Object> g2 = CastHelper.cast( data.get( "g2" ) );
         Map<String, Object> getFoG2 = CastHelper.cast( g2.get( "get" ) );
         assertEquals( "New Name", getFoG2.get( "displayName" ) );
-        assertEquals( "contentId", getFoG2.get( "_id" ) );
+        assertEquals( "contentid", getFoG2.get( "_id" ) );
     }
 
     @Test
@@ -284,9 +284,9 @@ public class GuillotineApiGraphQLIntegrationTest
         data.addString( "k", "v" );
 
         Site site = Site.create().name( "site" ).type( ContentTypeName.site() ).path( ContentPath.from( "/sitePath" ) ).parentPath(
-            ContentPath.ROOT ).data( data ).displayName( "Site" ).id( ContentId.from( "siteId" ) ).build();
+            ContentPath.ROOT ).data( data ).displayName( "Site" ).id( ContentId.from( "siteid" ) ).build();
 
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( site );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( site );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 

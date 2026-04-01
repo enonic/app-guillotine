@@ -158,7 +158,7 @@ public class GenericTypesFactory
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
         fields.add( outputField( "name", Scalars.GraphQLString ) );
-        fields.add( outputField( "displayName", Scalars.GraphQLString ) );
+        fields.add( outputField( "title", Scalars.GraphQLString ) );
         fields.add( outputField( "description", Scalars.GraphQLString ) );
         fields.add( outputField( "superType", Scalars.GraphQLString ) );
         fields.add( outputField( "abstract", Scalars.GraphQLBoolean ) );
@@ -220,7 +220,7 @@ public class GenericTypesFactory
             Map<String, Object> sourceAsMap = environment.getSource();
             if ( sourceAsMap.containsKey( "contentId" ) )
             {
-                return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "contentId" ).toString(), environment );
+                return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "contentid" ).toString(), environment );
             }
             return null;
         } );
@@ -242,9 +242,9 @@ public class GenericTypesFactory
 
         context.registerDataFetcher( outputObject.getName(), "content", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
-            if ( sourceAsMap.get( "contentId" ) != null )
+            if ( sourceAsMap.get( "contentid" ) != null )
             {
-                return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "contentId" ).toString(), environment );
+                return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "contentid" ).toString(), environment );
             }
             return null;
         } );

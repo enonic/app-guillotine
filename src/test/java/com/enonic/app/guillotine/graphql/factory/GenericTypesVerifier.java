@@ -122,7 +122,7 @@ public class GenericTypesVerifier
 
         assertEquals( 11, fields.size() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "name" ).getType() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "displayName" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "title" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "description" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "superType" ).getType() );
         assertEquals( Scalars.GraphQLBoolean, type.getFieldDefinition( "abstract" ).getType() );

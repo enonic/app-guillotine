@@ -1,6 +1,6 @@
 query {
     guillotine {
-        get(key: "contentId") {
+        get(key: "contentid") {
             _id
             ...on myapplication_News {
                 data {

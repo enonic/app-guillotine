@@ -1,6 +1,6 @@
 query {
-    g1: guillotine(project: "myproject", branch: "master", siteKey: "siteId") {
-        get(key: "contentId") {
+    g1: guillotine(project: "myproject", branch: "master", siteKey: "siteid") {
+        get(key: "contentid") {
             _id
             displayName
         }

@@ -30,7 +30,7 @@ class HtmlEditorResultMapperTest
     void serialize()
     {
         MacroDescriptor macroDescriptor = MacroDescriptor.create().
-            displayName( "TestMacro" ).
+            title( "TestMacro" ).
             key( MacroKey.from( "myapp:mymacro" ) ).
             form( Form.create().
                 addFormItem( Input.create().
