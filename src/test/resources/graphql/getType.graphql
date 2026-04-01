@@ -2,7 +2,7 @@ query {
     guillotine {
         getType(name: "portal:site") {
             name
-            displayName
+            title
             description
             superType
             abstract

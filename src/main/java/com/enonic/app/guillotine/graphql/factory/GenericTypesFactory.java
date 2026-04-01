@@ -158,7 +158,7 @@ public class GenericTypesFactory
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
         fields.add( outputField( "name", Scalars.GraphQLString ) );
-        fields.add( outputField( "displayName", Scalars.GraphQLString ) );
+        fields.add( outputField( "title", Scalars.GraphQLString ) );
         fields.add( outputField( "description", Scalars.GraphQLString ) );
         fields.add( outputField( "superType", Scalars.GraphQLString ) );
         fields.add( outputField( "abstract", Scalars.GraphQLBoolean ) );

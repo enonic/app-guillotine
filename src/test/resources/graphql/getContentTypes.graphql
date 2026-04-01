@@ -2,7 +2,7 @@ query {
     guillotine {
         getTypes {
             name
-            displayName
+            title
             description
             superType
             abstract
