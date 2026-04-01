@@ -218,7 +218,7 @@ public class GenericTypesFactory
 
         context.registerDataFetcher( outputObject.getName(), "content", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
-            if ( sourceAsMap.containsKey( "contentid" ) )
+            if ( sourceAsMap.containsKey( "contentId" ) )
             {
                 return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "contentid" ).toString(), environment );
             }
