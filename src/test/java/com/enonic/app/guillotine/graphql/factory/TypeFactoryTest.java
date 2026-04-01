@@ -75,7 +75,7 @@ public class TypeFactoryTest
             .allowChildContent(true )
             .setBuiltIn()
             .schemaConfig( GenericValue.newObject().put( "displayNameExpression", "displayNameExpression" ).build() )
-            .displayName( "displayName" )
+            .title( "displayName" )
             .description("description" )
             .modifiedTime( Instant.ofEpochSecond( 1000 ) )
             .createdTime( Instant.ofEpochSecond( 1000 ) )

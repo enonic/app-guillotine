@@ -39,7 +39,7 @@ public class ContentFixtures
     {
         final Media.Builder builder = Media.create();
 
-        builder.id( ContentId.from( "contentId" ) );
+        builder.id( ContentId.from( "contentid" ) );
         builder.name( "mycontent" );
         builder.displayName( "My Content" );
         builder.valid( true );
@@ -186,7 +186,7 @@ public class ContentFixtures
     {
         final Map<String, Object> content = new HashMap<>();
 
-        content.put( "_id", "contentId" );
+        content.put( "_id", "contentid" );
         content.put( "_name", "name" );
         content.put( "_path", "/parentPath/name" );
         content.put( "type", "media:image" );

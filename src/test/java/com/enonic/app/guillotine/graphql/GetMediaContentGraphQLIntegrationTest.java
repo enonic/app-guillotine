@@ -32,7 +32,7 @@ public class GetMediaContentGraphQLIntegrationTest
     {
         when( serviceFacade.getPortalUrlGeneratorService().attachmentUrl( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
             "url?a=1&b=2&b=3&c" );
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
@@ -50,7 +50,7 @@ public class GetMediaContentGraphQLIntegrationTest
     {
         when( serviceFacade.getPortalUrlGeneratorService().attachmentUrl( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
             "url?download" );
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 

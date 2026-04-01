@@ -17,15 +17,15 @@ import static com.enonic.xp.media.MediaInfo.MEDIA_INFO_BYTE_SIZE;
 public class TestFixtures
 {
     public static final MixinDescriptor IMAGE_METADATA =
-        MixinDescriptor.create().name( IMAGE_INFO_METADATA_NAME ).displayName( "Image Info" ).displayNameI18nKey(
+        MixinDescriptor.create().name( IMAGE_INFO_METADATA_NAME ).title( "Image Info" ).titleI18nKey(
             "media.imageInfo.displayName" ).form( createImageInfoXDataForm() ).build();
 
     public static final MixinDescriptor CAMERA_METADATA =
-        MixinDescriptor.create().name( CAMERA_INFO_METADATA_NAME ).displayName( "Photo Info" ).displayNameI18nKey(
+        MixinDescriptor.create().name( CAMERA_INFO_METADATA_NAME ).title( "Photo Info" ).titleI18nKey(
             "media.cameraInfo.displayName" ).form( createPhotoInfoXDataForm() ).build();
 
     public static final MixinDescriptor GPS_METADATA =
-        MixinDescriptor.create().name( GPS_INFO_METADATA_NAME ).displayName( "Gps Info" ).displayNameI18nKey(
+        MixinDescriptor.create().name( GPS_INFO_METADATA_NAME ).title( "Gps Info" ).titleI18nKey(
             "base.gpsInfo.displayName" ).form( createGpsInfoMixinForm() ).build();
 
     private static Form createGpsInfoMixinForm()

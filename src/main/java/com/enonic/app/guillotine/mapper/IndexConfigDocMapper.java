@@ -1,6 +1,7 @@
 package com.enonic.app.guillotine.mapper;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
 
@@ -75,7 +76,7 @@ class IndexConfigDocMapper
         serializeArray( gen, "indexValueProcessors",
                         indexValueProcessors.stream().map( IndexValueProcessor::getName ).collect( Collectors.toList() ) );
 
-        final List<String> languages = indexConfig.getLanguages();
+        final List<String> languages = indexConfig.getLanguages().stream().map( Locale::toLanguageTag ).toList();
 
         serializeArray( gen, "languages", languages );
     }

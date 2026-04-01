@@ -59,7 +59,7 @@ public class GetSiteDataFetcherTest
         ContentService contentService = Mockito.mock( ContentService.class );
         when( contentService.findNearestSiteByPath( Mockito.any() ) ).thenReturn(
             Site.create().name( "site" ).type( ContentTypeName.site() ).parentPath( ContentPath.ROOT ).data(
-                new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteId" ) ).build() );
+                new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteid" ) ).build() );
 
         GetSiteDataFetcher instance = new GetSiteDataFetcher( contentService );
         assertNotNull( instance.get( environment ) );

@@ -120,7 +120,7 @@ public class ContentTypesFactory
     private void createContentObjectType( ContentType contentType, GraphQLInterfaceType contentInterface )
     {
         String typeName = generateContentTypeName( contentType.getName() );
-        String typeDescription = contentType.getDisplayName() + " - " + contentType.getName();
+        String typeDescription = contentType.getTitle() + " - " + contentType.getName();
 
         List<GraphQLFieldDefinition> fields = new ArrayList<>( getGenericContentFields( typeName ) );
 

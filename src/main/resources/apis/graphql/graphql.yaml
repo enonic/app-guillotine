@@ -1,5 +1,6 @@
+kind: "API"
 allow:
   - "role:system.everyone"
-displayName: "Guillotine GraphQL API"
+title: "Guillotine GraphQL API"
 mount:
   - "xp"

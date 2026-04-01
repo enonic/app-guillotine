@@ -109,7 +109,7 @@ public class GuillotineSerializerDeserializerTest
     public static Regions newPageRegions()
     {
         final Region region = Region.create( ContentFixtures.newTopRegion() ).add( TextComponent.create().text( "Text" ).build() ).add(
-            FragmentComponent.create().fragment( ContentId.from( "contentId" ) ).build() ).build();
+            FragmentComponent.create().fragment( ContentId.from( "contentid" ) ).build() ).build();
         return Regions.create().add( region ).build();
     }
 }
