@@ -162,7 +162,7 @@ public final class ContentDeserializer
                 if ( appData instanceof Map ) {
                     ( (Map<String, Object>) appData ).forEach( ( localName, data ) -> {
                         final ApplicationKey normalizedAppKey = Mixin.fromApplicationPrefix( rawAppKey );
-                        final MixinName mixinName = MixinName.from( normalizedAppKey + ":" + localName );
+                        final MixinName mixinName = MixinName.from( normalizedAppKey, localName );
                         final PropertyTree dataTree = PropertyTree.fromMap( (Map<String, Object>) data );
                         mixinsBuilder.add( new Mixin( mixinName, dataTree ) );
                     } );
