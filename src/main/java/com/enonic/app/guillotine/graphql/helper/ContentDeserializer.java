@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.attachment.Attachments;
 import com.enonic.xp.content.Content;
@@ -157,10 +158,11 @@ public final class ContentDeserializer
         contentAsMap.getMap( "x" ).ifPresent( extraDataAsMap -> {
             final Mixins.Builder mixinsBuilder = Mixins.create();
 
-            extraDataAsMap.forEach( ( appKey, appData ) -> {
+            extraDataAsMap.forEach( ( rawAppKey, appData ) -> {
                 if ( appData instanceof Map ) {
                     ( (Map<String, Object>) appData ).forEach( ( localName, data ) -> {
-                        final MixinName mixinName = MixinName.from( appKey + ":" + localName );
+                        final ApplicationKey normalizedAppKey = Mixin.fromApplicationPrefix( rawAppKey );
+                        final MixinName mixinName = MixinName.from( normalizedAppKey, localName );
                         final PropertyTree dataTree = PropertyTree.fromMap( (Map<String, Object>) data );
                         mixinsBuilder.add( new Mixin( mixinName, dataTree ) );
                     } );

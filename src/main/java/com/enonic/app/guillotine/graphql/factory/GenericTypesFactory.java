@@ -220,7 +220,7 @@ public class GenericTypesFactory
             Map<String, Object> sourceAsMap = environment.getSource();
             if ( sourceAsMap.containsKey( "contentId" ) )
             {
-                return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "contentid" ).toString(), environment );
+                return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "contentId" ).toString(), environment );
             }
             return null;
         } );
@@ -242,9 +242,9 @@ public class GenericTypesFactory
 
         context.registerDataFetcher( outputObject.getName(), "content", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
-            if ( sourceAsMap.get( "contentid" ) != null )
+            if ( sourceAsMap.get( "contentId" ) != null )
             {
-                return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "contentid" ).toString(), environment );
+                return new GetContentCommand( serviceFacade.getContentService() ).execute( sourceAsMap.get( "contentId" ).toString(), environment );
             }
             return null;
         } );

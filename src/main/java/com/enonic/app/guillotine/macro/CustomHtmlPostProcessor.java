@@ -44,7 +44,7 @@ public class CustomHtmlPostProcessor
 
         String mode = properties.get( "mode" );
 
-        projection.put( "contentid", mode != null ? null : properties.get( "contentid" ) ); // only for content
+        projection.put( "contentId", mode != null ? null : properties.get( "contentId" ) ); // only for content
         projection.put( "linkRef", linkRef );
         projection.put( "uri", properties.get( "uri" ) );
 
@@ -52,7 +52,7 @@ public class CustomHtmlPostProcessor
         {
             Map<String, Object> mediaAsMap = new LinkedHashMap<>();
             mediaAsMap.put( "intent", mode );
-            mediaAsMap.put( "contentid", properties.get( "contentid" ) );
+            mediaAsMap.put( "contentId", properties.get( "contentId" ) );
             projection.put( "media", mediaAsMap ); // only for media
         }
 
@@ -63,7 +63,7 @@ public class CustomHtmlPostProcessor
     {
         final Map<String, Object> imageProjection = new LinkedHashMap<>();
 
-        imageProjection.put( "imageId", properties.get( "contentid" ) );
+        imageProjection.put( "imageId", properties.get( "contentId" ) );
         imageProjection.put( "imageRef", imgEditorRef );
 
         final Map<String, Object> styleProjection = new LinkedHashMap<>();
