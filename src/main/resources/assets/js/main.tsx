@@ -30,12 +30,8 @@ function getHandlerUrl(): string {
     return `${getRootContainer().dataset.configHandlerUrl}?project=${getProjectValue()}&branch=${currentBranch}`;
 }
 
-function getProjectNameElement(): Element {
-    return document.querySelector('.project-viewer .xp-admin-common-sub-name');
-}
-
 function getProjectValue(): string {
-    return getProjectNameElement().textContent;
+    return localStorage.getItem('contentstudio:defaultProject');
 }
 
 let root: ReturnType<typeof createRoot> | null = null;
@@ -59,22 +55,15 @@ function rerenderGraphiQLUI() {
 }
 
 function initEventListeners() {
-    const currentProjectName: Element = getProjectNameElement();
+    let currentProjectName = localStorage.getItem('contentstudio:defaultProject');
 
-    const observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-            if (mutation.type === 'childList' || mutation.type === 'characterData') {
-                console.debug(`Current project was changed to: ${currentProjectName.textContent}`);
-                rerenderGraphiQLUI();
-            }
+    setInterval(() => {
+        const newProjectName = localStorage.getItem('contentstudio:defaultProject');
+        if (newProjectName !== currentProjectName) {
+            currentProjectName = newProjectName;
+            rerenderGraphiQLUI();
         }
-    });
-
-    observer.observe(currentProjectName, {
-        childList: true,
-        characterData: true,
-        subtree: true,
-    });
+    }, 500);
 }
 
 function createFetcher() {

@@ -1,6 +1,5 @@
 const adminLib = require('/lib/xp/admin');
 const mustache = require('/lib/mustache');
-const portalLib = require('/lib/xp/portal');
 const contextLib = require('/lib/xp/context');
 const schemaLib = require('../../../lib/schema');
 const corsLib = require('../../../lib/cors');
@@ -8,8 +7,7 @@ const corsLib = require('../../../lib/cors');
 const staticLib = require('/lib/enonic/static');
 const router = require('/lib/router')();
 
-const BASE_PATH = '/com.enonic.app.guillotine:guillotine';
-const STATIC_BASE_PATH = `${BASE_PATH}/_static`;
+const STATIC_BASE_PATH = '/_static';
 
 exports.all = function (req) {
     return router.dispatch(req);
@@ -27,7 +25,7 @@ router.get(`${STATIC_BASE_PATH}/{path:.*}`, (request) => {
     );
 });
 
-router.get(`${BASE_PATH}/?`, (request) => {
+router.get('/?', (request) => {
     const view = resolve('guillotine.html');
 
     const handlerUrl = adminLib.extensionUrl({
@@ -47,7 +45,7 @@ router.get(`${BASE_PATH}/?`, (request) => {
     };
 });
 
-router.post(`${BASE_PATH}/?`, (req) => {
+router.post('/?', (req) => {
     const input = JSON.parse(req.body);
 
     return {
