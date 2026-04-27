@@ -16,15 +16,15 @@ import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLEnumType;
 import graphql.schema.GraphQLInputObjectType;
 import graphql.schema.GraphQLInterfaceType;
+import graphql.schema.GraphQLNamedType;
 import graphql.schema.GraphQLObjectType;
-import graphql.schema.GraphQLType;
 import graphql.schema.TypeResolver;
 
 import com.enonic.xp.macro.MacroDescriptor;
 
 public class GuillotineContext
 {
-    private final ConcurrentMap<String, GraphQLType> types = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, GraphQLNamedType> types = new ConcurrentHashMap<>();
 
     private final ConcurrentMap<String, String> contentTypesDictionary = new ConcurrentHashMap<>();
 
@@ -56,7 +56,7 @@ public class GuillotineContext
         return macroDecorators;
     }
 
-    public void registerType( String name, GraphQLType type )
+    public void registerType( String name, GraphQLNamedType type )
     {
         types.put( name, type );
     }
@@ -67,7 +67,7 @@ public class GuillotineContext
         contentTypesDictionary.put( rawContentType, objectType.getName() );
     }
 
-    public List<GraphQLType> getAllTypes()
+    public List<GraphQLNamedType> getAllTypes()
     {
         return new CopyOnWriteArrayList<>( types.values() );
     }

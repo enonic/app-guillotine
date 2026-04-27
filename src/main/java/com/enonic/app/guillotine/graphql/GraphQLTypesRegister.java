@@ -8,13 +8,13 @@ import java.util.Map;
 import java.util.Set;
 
 import graphql.schema.DataFetcher;
-import graphql.schema.GraphQLType;
+import graphql.schema.GraphQLNamedType;
 import graphql.schema.TypeResolver;
 
 public class GraphQLTypesRegister
 {
 
-    private final Set<GraphQLType> additionalTypes = new HashSet<>();
+    private final Set<GraphQLNamedType> additionalTypes = new HashSet<>();
 
     private final Map<String, Map<String, DataFetcher<?>>> resolvers = new LinkedHashMap<>();
 
@@ -27,12 +27,12 @@ public class GraphQLTypesRegister
         // do nothing
     }
 
-    public void addAdditionalType( final GraphQLType type )
+    public void addAdditionalType( final GraphQLNamedType type )
     {
         this.additionalTypes.add( type );
     }
 
-    public void addAdditionalType( final List<GraphQLType> types )
+    public void addAdditionalType( final List<GraphQLNamedType> types )
     {
         this.additionalTypes.addAll( types );
     }
@@ -52,7 +52,7 @@ public class GraphQLTypesRegister
         this.creationCallbacks.computeIfAbsent( type, k -> new ArrayList<>() ).add( creationCallbacks );
     }
 
-    public Set<GraphQLType> getAdditionalTypes()
+    public Set<GraphQLNamedType> getAdditionalTypes()
     {
         return additionalTypes;
     }
