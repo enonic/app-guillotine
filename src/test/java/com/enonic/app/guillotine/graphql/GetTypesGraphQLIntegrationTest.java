@@ -115,7 +115,7 @@ public class GetTypesGraphQLIntegrationTest
     @Test
     public void testGetPermissionsField()
     {
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 

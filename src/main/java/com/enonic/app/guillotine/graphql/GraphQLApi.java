@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -61,9 +63,11 @@ public class GraphQLApi
 
     private Supplier<PortalRequest> portalRequestSupplier;
 
-	private Supplier<GuillotineConfigService> guillotineConfigServiceSupplier;
+    private Supplier<GuillotineConfigService> guillotineConfigServiceSupplier;
 
-	private static final Parser PARSER = new Parser();
+    private static final Parser PARSER = new Parser();
+
+    private final Map<String, PreparsedDocumentEntry> CACHE = new ConcurrentHashMap<>();
 
     @Override
     public void initialize( final BeanContext context )
@@ -72,7 +76,7 @@ public class GraphQLApi
         this.applicationServiceSupplier = context.getService( ApplicationService.class );
         this.extensionsExtractorServiceSupplier = context.getService( ExtensionsExtractorService.class );
         this.portalRequestSupplier = context.getBinding( PortalRequest.class );
-		this.guillotineConfigServiceSupplier = context.getService( GuillotineConfigService.class );
+        this.guillotineConfigServiceSupplier = context.getService( GuillotineConfigService.class );
     }
 
     public GraphQLSchema createSchema()
@@ -102,8 +106,9 @@ public class GraphQLApi
             builder.codeRegistry( transformedCodeRegistry );
         } );
 
-        graphQLSchema =
-            SchemaTransformer.transformSchema( graphQLSchema, new ExtensionGraphQLTypeVisitor( typesRegister.getCreationCallbacks(), guillotineConfigServiceSupplier.get() ) );
+        graphQLSchema = SchemaTransformer.transformSchema( graphQLSchema,
+                                                           new ExtensionGraphQLTypeVisitor( typesRegister.getCreationCallbacks(),
+                                                                                            guillotineConfigServiceSupplier.get() ) );
 
         final GraphQLCodeRegistry codeRegistry = registerDataFetchers( graphQLSchema, typesRegister, schemaExtensions );
 
@@ -179,12 +184,12 @@ public class GraphQLApi
         new TypeFactory( context, serviceFacadeSupplier.get() ).createTypes();
         GraphQLObjectType guillotineApi = new HeadlessCmsTypeFactory( context, serviceFacadeSupplier.get() ).create();
 
-		Map<String, Object> guillotineFieldArguments = new HashMap<>();
-		guillotineFieldArguments.put( "siteKey", Scalars.GraphQLString );
+        Map<String, Object> guillotineFieldArguments = new HashMap<>();
+        guillotineFieldArguments.put( "siteKey", Scalars.GraphQLString );
 
-		Map<String, Object> guillotineFieldOptions = new HashMap<>();
-		guillotineFieldOptions.put( "type", guillotineApi );
-		guillotineFieldOptions.put( "args", guillotineFieldArguments );
+        Map<String, Object> guillotineFieldOptions = new HashMap<>();
+        guillotineFieldOptions.put( "type", guillotineApi );
+        guillotineFieldOptions.put( "args", guillotineFieldArguments );
 
         OutputObjectCreationCallbackParams guillotineQueryCreationCallback = new OutputObjectCreationCallbackParams();
         guillotineQueryCreationCallback.addFields( Map.of( "guillotine", guillotineFieldOptions ) );
@@ -202,42 +207,46 @@ public class GraphQLApi
         context.getTypeResolvers().forEach( typesRegister::addTypeResolver );
     }
 
-	public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
-	{
-		PreparsedDocumentProvider preparsedProvider = ( executionInput, parseAndValidateFunction ) -> {
-			try
-			{
-				int maxQueryTokens = guillotineConfigServiceSupplier.get().getMaxQueryTokens();
+    public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
+    {
+        final PreparsedDocumentProvider preparsedProvider = ( executionInput, parseAndValidateFunction ) -> {
+            PreparsedDocumentEntry entry = CACHE.computeIfAbsent( executionInput.getQuery(), k -> {
+                try
+                {
+                    int maxQueryTokens = guillotineConfigServiceSupplier.get().getMaxQueryTokens();
+                    ParserOptions parserOptions = ParserOptions.newParserOptions().maxTokens( maxQueryTokens ).build();
 
-				ParserOptions parserOptions =
-					ParserOptions.newParserOptions().maxTokens( maxQueryTokens ).build();
+                    Document doc = PARSER.parseDocument(
+                        ParserEnvironment.newParserEnvironment().document( k ).parserOptions( parserOptions ).build() );
 
-				Document doc = PARSER.parseDocument(
-					ParserEnvironment.newParserEnvironment().document( executionInput.getQuery() ).parserOptions( parserOptions ).build() );
+                    List<ValidationError> errors = ParseAndValidate.validate( graphQLSchema, doc );
+                    if ( !errors.isEmpty() )
+                    {
+                        return new PreparsedDocumentEntry( errors );
+                    }
 
-				List<ValidationError> errors = ParseAndValidate.validate( graphQLSchema, doc );
-				if ( !errors.isEmpty() )
-				{
-					return new PreparsedDocumentEntry( errors );
-				}
+                    return new PreparsedDocumentEntry( doc );
 
-				return new PreparsedDocumentEntry( doc );
-			}
-			catch ( InvalidSyntaxException e )
-			{
-				return new PreparsedDocumentEntry( List.of(
-					ValidationError.newValidationError().validationErrorType( ValidationErrorType.InvalidSyntax ).sourceLocations(
-						List.of( new SourceLocation( e.getLocation().getLine(), e.getLocation().getColumn() ) ) ).description(
-						e.getMessage() ).build() ) );
-			}
-		};
+                }
+                catch ( InvalidSyntaxException e )
+                {
+                    return new PreparsedDocumentEntry( List.of(
+                        ValidationError.newValidationError().validationErrorType( ValidationErrorType.InvalidSyntax ).sourceLocations(
+                            List.of( new SourceLocation( e.getLocation().getLine(), e.getLocation().getColumn() ) ) ).description(
+                            e.getMessage() ).build() ) );
+                }
+            } );
 
-		GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).preparsedDocumentProvider( preparsedProvider ).build();
+            return CompletableFuture.completedFuture( entry );
+        };
 
-		ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).build();
+        final GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).preparsedDocumentProvider( preparsedProvider ).build();
 
-		return new ExecutionResultMapper( graphQL.execute( executionInput ) );
-	}
+        final ExecutionInput executionInput =
+            ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).build();
+
+        return new ExecutionResultMapper( graphQL.execute( executionInput ) );
+    }
 
     private Map<String, Object> extractValue( ScriptValue scriptValue )
     {

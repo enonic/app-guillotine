@@ -7,9 +7,6 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
-import com.enonic.app.guillotine.graphql.helper.PortalRequestHelper;
-import com.enonic.xp.portal.PortalRequest;
-import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.url.ImageUrlParams;
 import com.enonic.xp.portal.url.PortalUrlService;
 
@@ -32,11 +29,9 @@ public class GetImageUrlDataFetcher
 
     private String doGet( final DataFetchingEnvironment environment )
     {
-        PortalRequest portalRequest = PortalRequestHelper.createPortalRequest( PortalRequestAccessor.get(), environment );
-
         Map<String, Object> sourceAsMap = environment.getSource();
 
-        ImageUrlParams params = new ImageUrlParams().portalRequest( portalRequest ).id( sourceAsMap.get( "_id" ).toString() );
+        ImageUrlParams params = new ImageUrlParams().id( sourceAsMap.get( "_id" ).toString() );
 
         if ( environment.getArgument( "scale" ) != null )
         {

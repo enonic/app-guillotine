@@ -3,9 +3,9 @@ package com.enonic.app.guillotine;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.Test;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.enonic.xp.testing.ScriptTestSupport;
 

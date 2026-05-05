@@ -8,7 +8,6 @@ import java.util.Map;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Version;
 
 import graphql.schema.GraphQLSchema;
 
@@ -38,16 +37,17 @@ import com.enonic.xp.portal.script.PortalScriptService;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.resource.ResourceKey;
 import com.enonic.xp.resource.ResourceService;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.ContentTypes;
-import com.enonic.xp.schema.mixin.MixinService;
-import com.enonic.xp.schema.xdata.XDatas;
+import com.enonic.xp.schema.mixin.MixinDescriptors;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.User;
 import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.testing.ScriptTestSupport;
 import com.enonic.xp.testing.mock.MockBeanContext;
+import com.enonic.xp.util.Version;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -62,7 +62,7 @@ public class BaseGraphQLIntegrationTest
 
     protected ServiceFacade serviceFacade;
 
-	protected GuillotineConfigService guillotineConfigService;
+    protected GuillotineConfigService guillotineConfigService;
 
     @Override
     protected void initialize()
@@ -98,8 +98,8 @@ public class BaseGraphQLIntegrationTest
 
         when( componentDescriptorService.getMacroDescriptors( Mockito.anyList() ) ).thenReturn( BuiltinMacros.getSystemMacroDescriptors() );
 
-        when( componentDescriptorService.getExtraData( anyString() ) ).thenReturn(
-            XDatas.from( TestFixtures.CAMERA_METADATA, TestFixtures.IMAGE_METADATA, TestFixtures.GPS_METADATA ) );
+        when( componentDescriptorService.getMixins( anyString() ) ).thenReturn(
+            MixinDescriptors.from( TestFixtures.CAMERA_METADATA, TestFixtures.IMAGE_METADATA, TestFixtures.GPS_METADATA ) );
 
         final ContentTypeService contentTypeService = mock( ContentTypeService.class );
 
@@ -120,14 +120,14 @@ public class BaseGraphQLIntegrationTest
         when( macroService.evaluateMacros( anyString(), any() ) ).thenReturn( "processedMacros" );
         when( serviceFacade.getMacroService() ).thenReturn( macroService );
 
-		guillotineConfigService = spy( new GuillotineConfigService() );
-		guillotineConfigService.activate( mock( GuillotineConfig.class, invocation -> invocation.getMethod().getDefaultValue() ) );
-		when( guillotineConfigService.getModifyUnknownFieldMode() ).thenReturn( ModifyUnknownFieldMode.WARN );
+        guillotineConfigService = spy( new GuillotineConfigService() );
+        guillotineConfigService.activate( mock( GuillotineConfig.class, invocation -> invocation.getMethod().getDefaultValue() ) );
+        when( guillotineConfigService.getModifyUnknownFieldMode() ).thenReturn( ModifyUnknownFieldMode.WARN );
 
-		MixinService mixinService = mock( MixinService.class );
-		when( mixinService.inlineFormItems( any() ) ).thenReturn( null );
+        CmsFormFragmentService cmsFormFragmentService = mock( CmsFormFragmentService.class );
+        when( cmsFormFragmentService.inlineFormItems( any() ) ).thenReturn( null );
 
-		when( serviceFacade.getMixinService() ).thenReturn( mixinService );
+        when( serviceFacade.getCmsFormFragmentService() ).thenReturn( cmsFormFragmentService );
 
         addService( ServiceFacade.class, serviceFacade );
         addService( ExtensionsExtractorService.class, extensionsExtractorService );
@@ -135,8 +135,8 @@ public class BaseGraphQLIntegrationTest
         addService( PortalUrlService.class, portalUrlService );
         addService( MacroDescriptorService.class, macroDescriptorService );
         addService( MacroService.class, macroService );
-		addService( GuillotineConfigService.class, guillotineConfigService );
-		addService( MixinService.class, mixinService );
+        addService( GuillotineConfigService.class, guillotineConfigService );
+        addService( CmsFormFragmentService.class, cmsFormFragmentService );
 
         createGraphQLApiBean();
     }
@@ -196,7 +196,6 @@ public class BaseGraphQLIntegrationTest
 
         when( application.getKey() ).thenReturn( ApplicationKey.from( "myapplication" ) );
         when( application.getVersion() ).thenReturn( Version.emptyVersion );
-        when( application.getBundle() ).thenReturn( bundle );
         when( application.getClassLoader() ).thenReturn( getClass().getClassLoader() );
         when( application.isStarted() ).thenReturn( true );
         when( application.getConfig() ).thenReturn( ConfigBuilder.create().build() );
@@ -214,7 +213,7 @@ public class BaseGraphQLIntegrationTest
     private Context createAdminContext()
     {
         return ContextBuilder.copyOf( ContextAccessor.current() ).authInfo(
-            AuthenticationInfo.create().principals( RoleKeys.AUTHENTICATED, RoleKeys.ADMIN ).user( User.ANONYMOUS ).build() ).build();
+            AuthenticationInfo.create().principals( RoleKeys.AUTHENTICATED, RoleKeys.ADMIN ).user( User.anonymous() ).build() ).build();
     }
 
 }

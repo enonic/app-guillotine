@@ -2,7 +2,7 @@ package com.enonic.app.guillotine.graphql.scalars;
 
 import java.time.LocalDateTime;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import graphql.language.StringValue;
 import graphql.schema.Coercing;
@@ -10,7 +10,8 @@ import graphql.schema.CoercingParseLiteralException;
 import graphql.schema.CoercingParseValueException;
 import graphql.schema.CoercingSerializeException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LocalDateTimeScalarTest
 {

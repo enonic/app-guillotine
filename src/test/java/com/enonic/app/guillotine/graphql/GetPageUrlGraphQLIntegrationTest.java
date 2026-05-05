@@ -28,7 +28,7 @@ public class GetPageUrlGraphQLIntegrationTest
     public void testMediaAndAttachmentUrls()
     {
         when( serviceFacade.getPortalUrlService().pageUrl( any( PageUrlParams.class ) ) ).thenReturn( "pageUrl" );
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
         when( contentService.getByPath( Mockito.any() ) ).thenReturn(
             Site.create().description( "Site" ).name( "test-site" ).parentPath( ContentPath.ROOT ).language( Locale.ENGLISH ).build() );
 

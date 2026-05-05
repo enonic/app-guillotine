@@ -54,13 +54,13 @@ public class MacroTypesFactory
             String macroTypeName =
                 "Macro_" + StringNormalizer.create( macroDescriptor.getKey().getApplicationKey().getName() ) + "_" + descriptorName;
 
-			String macroDataConfigTypeName = context.uniqueName( macroTypeName + "_DataConfig" );
+            String macroDataConfigTypeName = context.uniqueName( macroTypeName + "_DataConfig" );
 
             List<GraphQLFieldDefinition> macroDataConfigFields = new ArrayList<>();
             macroDataConfigFields.add( outputField( "body", Scalars.GraphQLString ) );
 
-			getFilteredFormItems( resolveForm( macroDescriptor.getForm() ).getFormItems() ).forEach( formItem -> {
-				String fieldName = StringNormalizer.create( formItem.getName() );
+            getFilteredFormItems( resolveForm( macroDescriptor.getForm() ) ).forEach( formItem -> {
+                String fieldName = StringNormalizer.create( formItem.getName() );
 
                 GraphQLOutputType formItemObject =
                     (GraphQLOutputType) formItemTypesFactory.generateFormItemObject( macroDataConfigTypeName, formItem );
@@ -74,21 +74,21 @@ public class MacroTypesFactory
                 macroDataConfigFields.add( field );
             } );
 
-			String description =
-				"Macro descriptor data config for application ['" + macroDescriptor.getKey().getApplicationKey() + "'] and descriptor ['" +
-					descriptorName + "']";
+            String description =
+                "Macro descriptor data config for application ['" + macroDescriptor.getKey().getApplicationKey() + "'] and descriptor ['" +
+                    descriptorName + "']";
 
-			GraphQLObjectType macroDataConfigType = newObject( macroDataConfigTypeName, description, macroDataConfigFields );
+            GraphQLObjectType macroDataConfigType = newObject( macroDataConfigTypeName, description, macroDataConfigFields );
 
             context.registerType( macroDataConfigType.getName(), macroDataConfigType );
 
             final GraphQLFieldDefinition macroConfigField = outputField( descriptorName, macroDataConfigType );
             macroConfigTypeFields.add( macroConfigField );
 
-            context.registerDataFetcher( macroConfigTypeName, macroConfigField.getName(), environment ->  {
+            context.registerDataFetcher( macroConfigTypeName, macroConfigField.getName(), environment -> {
                 Map<String, Object> sourceAsMap = CastHelper.cast( environment.getSource() );
                 return sourceAsMap.get( macroDescriptor.getName() );
-            }  );
+            } );
         } );
 
         if ( !macroConfigTypeFields.isEmpty() )
@@ -115,9 +115,9 @@ public class MacroTypesFactory
         context.registerType( macroType.getName(), macroType );
     }
 
-	private Form resolveForm( Form originalForm )
-	{
-		Form inlineForm = serviceFacade.getMixinService().inlineFormItems( originalForm );
-		return inlineForm != null ? inlineForm : originalForm;
-	}
+    private Form resolveForm( Form originalForm )
+    {
+        Form inlineForm = serviceFacade.getCmsFormFragmentService().inlineFormItems( originalForm );
+        return inlineForm != null ? inlineForm : originalForm;
+    }
 }

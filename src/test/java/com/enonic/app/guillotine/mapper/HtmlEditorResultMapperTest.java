@@ -17,7 +17,7 @@ import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.macro.Macro;
 import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.macro.MacroKey;
-import com.enonic.xp.script.serializer.JsonMapGenerator;
+import com.enonic.xp.testing.serializer.JsonMapGenerator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -30,18 +30,18 @@ class HtmlEditorResultMapperTest
     void serialize()
     {
         MacroDescriptor macroDescriptor = MacroDescriptor.create().
-            displayName( "TestMacro" ).
+            title( "TestMacro" ).
             key( MacroKey.from( "myapp:mymacro" ) ).
             form( Form.create().
-                addFormItem( Input.create().
-                    name( "attr1" ).
-                    label( "Label" ).
-                    inputType( InputTypeName.TEXT_LINE ).occurrences( Occurrences.create( 0, 2 ) ).build() ).
-                addFormItem( Input.create().
-                    name( "attr2" ).
-                    label( "Label" ).
-                    inputType( InputTypeName.TEXT_LINE ).build() ).
-                build() ).
+            addFormItem( Input.create().
+            name( "attr1" ).
+            label( "Label" ).
+            inputType( InputTypeName.TEXT_LINE ).occurrences( Occurrences.create( 0, 2 ) ).build() ).
+            addFormItem( Input.create().
+            name( "attr2" ).
+            label( "Label" ).
+            inputType( InputTypeName.TEXT_LINE ).build() ).
+            build() ).
             build();
 
         Map<String, Object> macroResult = new MacroEditorJsonSerializer( MacroDecorator.from( Macro.create().
@@ -53,7 +53,7 @@ class HtmlEditorResultMapperTest
 
         HtmlEditorProcessedResult input = HtmlEditorProcessedResult.create().
             setProcessedHtml(
-                "<p><editor-macro data-macro-name=\"mymacro\" data-macro-ref=\"307f02a2-7019-4012-807e-916df5779ae6\"></editor-macro></p>" ).
+            "<p><editor-macro data-macro-name=\"mymacro\" data-macro-ref=\"307f02a2-7019-4012-807e-916df5779ae6\"></editor-macro></p>" ).
             setMacrosAsJson( Collections.singletonList( macroResult ) ).
             build();
 
@@ -87,7 +87,6 @@ class HtmlEditorResultMapperTest
         assertEquals( "val2", macroConfig.path( "attr2" ).asText() );
 
         assertTrue( macroConfig.path( "body" ).asText().isEmpty() );
-        assertEquals( "nodeId", macroConfig.path( "__nodeId" ).asText() );
         assertFalse( macrosAsJson.path( "ref" ).asText().isEmpty() );
         assertEquals( "mymacro", macrosAsJson.path( "name" ).asText() );
     }

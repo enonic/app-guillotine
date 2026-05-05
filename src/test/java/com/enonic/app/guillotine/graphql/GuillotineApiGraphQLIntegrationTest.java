@@ -18,7 +18,6 @@ import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentPath;
-import com.enonic.xp.data.PropertySet;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.form.FieldSet;
 import com.enonic.xp.form.FormItemSet;
@@ -26,12 +25,11 @@ import com.enonic.xp.form.FormOptionSet;
 import com.enonic.xp.form.FormOptionSetOption;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.form.Occurrences;
-import com.enonic.xp.inputtype.InputTypeConfig;
 import com.enonic.xp.inputtype.InputTypeName;
-import com.enonic.xp.inputtype.InputTypeProperty;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.site.Site;
+import com.enonic.xp.util.GenericValue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -47,8 +45,8 @@ public class GuillotineApiGraphQLIntegrationTest
     @Test
     public void testGenericContentFields()
     {
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
-        when( contentService.getById( ContentId.from( "referenceId_1" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
+        when( contentService.getById( ContentId.from( "referenceid_1" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
         when( contentService.getOutboundDependencies( Mockito.any( ContentId.class ) ) ).thenReturn( ContentIds.from( "referenceId_1" ) );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
@@ -163,7 +161,7 @@ public class GuillotineApiGraphQLIntegrationTest
     {
         when( contentService.findNearestSiteByPath( any( ContentPath.class ) ) ).thenReturn(
             Site.create().name( "site" ).type( ContentTypeName.site() ).parentPath( ContentPath.ROOT ).data(
-                new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteId" ) ).build() );
+                new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteid" ) ).build() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
@@ -197,7 +195,7 @@ public class GuillotineApiGraphQLIntegrationTest
     @Override
     protected List<ContentType> getCustomContentTypes()
     {
-        FieldSet fieldSet = FieldSet.create().label( "My layout" ).name( "myLayout" ).addFormItem(
+        FieldSet fieldSet = FieldSet.create().label( "My layout" ).addFormItem(
             FormItemSet.create().name( "mySet" ).required( true ).addFormItem(
                 Input.create().name( "myInput" ).label( "Input" ).inputType( InputTypeName.TEXT_LINE ).build() ).build() ).build();
 
@@ -214,8 +212,8 @@ public class GuillotineApiGraphQLIntegrationTest
                             InputTypeName.ATTACHMENT_UPLOADER ).build() ).build() ).build() ).addFormItem(
                 FormItemSet.create().name( "cast" ).label( "Cast" ).occurrences( 0, 0 ).addFormItem(
                     Input.create().name( "actor" ).label( "Actor" ).occurrences( 1, 1 ).inputType(
-                        InputTypeName.CONTENT_SELECTOR ).inputTypeConfig( InputTypeConfig.create().property(
-                        InputTypeProperty.create( "allowContentType", "person" ).build() ).build() ).build() ).addFormItem(
+                        InputTypeName.CONTENT_SELECTOR ).inputTypeConfig(
+                        GenericValue.newObject().put( "allowContentType", "person" ).build() ).build() ).addFormItem(
                     Input.create().name( "abstract" ).label( "Abstract" ).occurrences( 1, 1 ).inputType(
                         InputTypeName.TEXT_AREA ).build() ).addFormItem(
                     Input.create().name( "photos" ).label( "Photos" ).occurrences( 0, 0 ).inputType(
@@ -232,13 +230,13 @@ public class GuillotineApiGraphQLIntegrationTest
     public void testGetContentDataAsJson()
     {
         final PropertyTree data = new PropertyTree();
-        data.addSet( "siteConfig", new PropertySet() );
+        data.addSet( "siteConfig", data.newSet() );
         data.addString( "k", "v" );
 
         Site site = Site.create().name( "site" ).type( ContentTypeName.site() ).path( ContentPath.from( "/sitePath" ) ).parentPath(
-            ContentPath.ROOT ).data( data ).displayName( "Site" ).id( ContentId.from( "siteId" ) ).build();
+            ContentPath.ROOT ).data( data ).displayName( "Site" ).id( ContentId.from( "siteid" ) ).build();
 
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( site );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( site );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 

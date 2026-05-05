@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.enonic.xp.macro.MacroDescriptors;
 import com.enonic.xp.region.ComponentDescriptor;
-import com.enonic.xp.schema.xdata.XDatas;
+import com.enonic.xp.schema.mixin.MixinDescriptors;
 
 public interface ComponentDescriptorService
 {
@@ -12,5 +12,5 @@ public interface ComponentDescriptorService
 
     MacroDescriptors getMacroDescriptors( List<String> applicationKeys );
 
-    XDatas getExtraData( String applicationKey );
+    MixinDescriptors getMixins( String applicationKey );
 }

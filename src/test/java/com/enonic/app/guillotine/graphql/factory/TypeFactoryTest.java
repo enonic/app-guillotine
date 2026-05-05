@@ -16,21 +16,16 @@ import com.enonic.xp.form.FormOptionSet;
 import com.enonic.xp.form.FormOptionSetOption;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.form.Occurrences;
-import com.enonic.xp.inputtype.InputTypeConfig;
 import com.enonic.xp.inputtype.InputTypeName;
-import com.enonic.xp.inputtype.InputTypeProperty;
 import com.enonic.xp.macro.MacroDescriptors;
+import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.ContentTypes;
-import com.enonic.xp.schema.mixin.MixinService;
-import com.enonic.xp.schema.xdata.XDatas;
+import com.enonic.xp.schema.mixin.MixinDescriptors;
 import com.enonic.xp.security.PrincipalKey;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.enonic.xp.util.GenericValue;
 
 public class TypeFactoryTest
 {
@@ -43,17 +38,17 @@ public class TypeFactoryTest
 
         Mockito.when( componentDescriptorService.getMacroDescriptors( Mockito.anyList() ) ).thenReturn( MacroDescriptors.empty() );
 
-        Mockito.when( componentDescriptorService.getExtraData( Mockito.anyString() ) ).thenReturn(
-            XDatas.from( TestFixtures.GPS_METADATA ) );
+        Mockito.when( componentDescriptorService.getMixins( Mockito.anyString() ) ).thenReturn(
+            MixinDescriptors.from( TestFixtures.GPS_METADATA ) );
 
         Mockito.when( contentTypeService.getAll() ).thenReturn( createContentTypes() );
 
         Mockito.when( serviceFacade.getComponentDescriptorService() ).thenReturn( componentDescriptorService );
         Mockito.when( serviceFacade.getContentTypeService() ).thenReturn( contentTypeService );
 
-		MixinService mixinService = mock( MixinService.class );
-		when( mixinService.inlineFormItems( any() ) ).thenReturn( null );
-		when( serviceFacade.getMixinService() ).thenReturn( mixinService );
+        CmsFormFragmentService cmsFormFragmentService = Mockito.mock( CmsFormFragmentService.class );
+        Mockito.when( cmsFormFragmentService.inlineFormItems( Mockito.any() ) ).thenReturn( null );
+        Mockito.when( serviceFacade.getCmsFormFragmentService() ).thenReturn( cmsFormFragmentService );
 
         GuillotineContext context = GuillotineContext.create().addApplications( List.of( "com.enonic.app.testapp" ) ).build();
 
@@ -80,7 +75,7 @@ public class TypeFactoryTest
             .allowChildContent(true )
             .setBuiltIn()
             .displayNameExpression( "displayNameExpression" )
-            .displayName( "displayName" )
+            .title( "displayName" )
             .description("description" )
             .modifiedTime( Instant.ofEpochSecond( 1000 ) )
             .createdTime( Instant.ofEpochSecond( 1000 ) )
@@ -89,7 +84,6 @@ public class TypeFactoryTest
 
         FieldSet fieldSet = FieldSet.create()
             .label( "My layout" )
-            .name( "myLayout" )
             .addFormItem( FormItemSet.create()
                               .name( "mySet" )
                               .required( true )
@@ -149,11 +143,8 @@ public class TypeFactoryTest
                                       .label( "Actor" )
                                       .occurrences( 1, 1 )
                                       .inputType( InputTypeName.CONTENT_SELECTOR )
-                                      .inputTypeConfig( InputTypeConfig.create()
-                                                            .property(
-                                                                InputTypeProperty.create("allowContentType", "person").build()
-                                                            ).build()
-                                      ).build()
+                                      .inputTypeConfig( GenericValue.newObject().put( "allowContentType", "person" ).build() )
+                                      .build()
                               )
                               .addFormItem(
                                   Input.create()

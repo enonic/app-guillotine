@@ -24,7 +24,7 @@ import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
 import com.enonic.app.guillotine.graphql.helper.NamingHelper;
 import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
 import com.enonic.xp.form.Form;
-import com.enonic.xp.form.FormItems;
+import com.enonic.xp.form.FormItem;
 import com.enonic.xp.region.ComponentDescriptor;
 
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newArgument;
@@ -195,13 +195,13 @@ public class ComponentTypesFactory
 
     private void createComponentDataConfigType( String componentType )
     {
-		String componentDataConfigTypeName = context.uniqueName( componentType + "ComponentDataConfig" );
+        String componentDataConfigTypeName = context.uniqueName( componentType + "ComponentDataConfig" );
 
         List<GraphQLFieldDefinition> componentFields = new ArrayList<>();
 
         context.getApplications().forEach( applicationKey -> {
-			String componentApplicationConfigTypeName =
-				context.uniqueName( componentType + "_" + StringNormalizer.create( applicationKey ) + "_ComponentDataApplicationConfig" );
+            String componentApplicationConfigTypeName =
+                context.uniqueName( componentType + "_" + StringNormalizer.create( applicationKey ) + "_ComponentDataApplicationConfig" );
 
             List<ComponentDescriptor> descriptors =
                 serviceFacade.getComponentDescriptorService().getComponentDescriptors( componentType, applicationKey );
@@ -211,18 +211,18 @@ public class ComponentTypesFactory
             descriptors.forEach( descriptor -> {
                 String descriptorName = StringNormalizer.create( descriptor.getName() );
 
-				String componentApplicationDescriptorTypeName =
-					context.uniqueName( componentType + "_" + StringNormalizer.create( applicationKey ) + "_" + descriptorName );
+                String componentApplicationDescriptorTypeName =
+                    context.uniqueName( componentType + "_" + StringNormalizer.create( applicationKey ) + "_" + descriptorName );
 
-				List<GraphQLFieldDefinition> descriptorConfigTypeFields =
-					createFormItemFields( resolveForm( descriptor.getConfig() ).getFormItems(), componentApplicationDescriptorTypeName );
+                List<GraphQLFieldDefinition> descriptorConfigTypeFields =
+                    createFormItemFields( resolveForm( descriptor.getConfig() ), componentApplicationDescriptorTypeName );
 
                 if ( !descriptorConfigTypeFields.isEmpty() )
                 {
-					GraphQLObjectType descriptorConfigType = newObject( componentApplicationDescriptorTypeName,
-																		componentType + " component application config for application ['" +
-																			applicationKey + "'] and descriptor ['" + descriptor.getName() +
-																			"']", descriptorConfigTypeFields );
+                    GraphQLObjectType descriptorConfigType = newObject( componentApplicationDescriptorTypeName,
+                                                                        componentType + " component application config for application ['" +
+                                                                            applicationKey + "'] and descriptor ['" + descriptor.getName() +
+                                                                            "']", descriptorConfigTypeFields );
 
                     context.registerType( descriptorConfigType.getName(), descriptorConfigType );
 
@@ -238,9 +238,9 @@ public class ComponentTypesFactory
 
             if ( !componentApplicationTypeFields.isEmpty() )
             {
-				String description = componentType + " component application config for application ['" + applicationKey + "']";
-				GraphQLObjectType componentApplicationConfigType =
-					newObject( componentApplicationConfigTypeName, description, componentApplicationTypeFields );
+                String description = componentType + " component application config for application ['" + applicationKey + "']";
+                GraphQLObjectType componentApplicationConfigType =
+                    newObject( componentApplicationConfigTypeName, description, componentApplicationTypeFields );
 
                 GraphQLFieldDefinition componentTypeField =
                     outputField( StringNormalizer.create( applicationKey ), componentApplicationConfigType );
@@ -253,18 +253,18 @@ public class ComponentTypesFactory
 
         if ( !componentFields.isEmpty() )
         {
-			GraphQLObjectType componentDataType =
-				newObject( componentDataConfigTypeName, componentType + " component config.", componentFields );
+            GraphQLObjectType componentDataType =
+                newObject( componentDataConfigTypeName, componentType + " component config.", componentFields );
 
             context.registerType( componentDataType.getName(), componentDataType );
         }
     }
 
-    private List<GraphQLFieldDefinition> createFormItemFields( FormItems formItems, String typeName )
+    private List<GraphQLFieldDefinition> createFormItemFields( Iterable<? extends FormItem> formItems, final String typeName )
     {
         List<GraphQLFieldDefinition> resultFields = new ArrayList<>();
 
-		FormItemTypesHelper.getFilteredFormItems( formItems ).forEach( formItem -> {
+        FormItemTypesHelper.getFilteredFormItems( formItems ).forEach( formItem -> {
             String fieldName = StringNormalizer.create( formItem.getName() );
 
             GraphQLOutputType formItemObject = (GraphQLOutputType) formItemTypesFactory.generateFormItemObject( typeName, formItem );
@@ -280,9 +280,9 @@ public class ComponentTypesFactory
         return resultFields;
     }
 
-	private Form resolveForm( Form originalForm )
-	{
-		Form inlineForm = serviceFacade.getMixinService().inlineFormItems( originalForm );
-		return inlineForm != null ? inlineForm : originalForm;
-	}
+    private Form resolveForm( Form originalForm )
+    {
+        Form inlineForm = serviceFacade.getCmsFormFragmentService().inlineFormItems( originalForm );
+        return inlineForm != null ? inlineForm : originalForm;
+    }
 }
