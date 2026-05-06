@@ -30,8 +30,10 @@ public class GuillotineDataFetcher
         throws Exception
     {
         Context xpContext = ContextAccessor.current();
-        String defaultProject = xpContext.getRepositoryId().toString().replace( ProjectConstants.PROJECT_REPO_ID_PREFIX, "" );
-        String defaultBranch = xpContext.getBranch().toString();
+        String defaultProject = portalRequestSupplier.get().getRepositoryId().toString().replace( ProjectConstants.PROJECT_REPO_ID_PREFIX, "" );
+        //String defaultProject =  xpContext.getRepositoryId().toString().replace( ProjectConstants.PROJECT_REPO_ID_PREFIX, "" );
+//        String defaultBranch = xpContext.getBranch().toString();
+        String defaultBranch = portalRequestSupplier.get().getBranch().toString();
 
         final HashMap<Object, Object> localContext = new HashMap<>();
 

@@ -1,55 +1,85 @@
-const portalLib = require('/lib/xp/portal');
+/* global log, Java */
+
+const corsLib = require('/lib/cors');
 const mustacheLib = require('/lib/mustache');
+const appLib = require('/lib/xp/app');
+const contextLib = require('/lib/xp/context');
+const helper = __.newBean('com.enonic.app.guillotine.handler.AppHelper');
+const schemaLib = require('/lib/schema');
 const staticLib = require('/lib/enonic/static');
-const routerLib = require('/lib/router')();
+const router = require('/lib/router')();
 
 exports.all = function (req) {
-    return routerLib.dispatch(req);
+    return router.dispatch(req);
 };
 
-const getStatic = staticLib.buildGetter(
-    {
-        root: 'assets',
-        getCleanPath: request => {
-            return request.pathParams.resourcePath;
-        },
-        cacheControl: 'no-cache',
-        etag: true,
-    }
-);
-
-routerLib.get(
-    '/site/[^/]+/_static/{resourcePath:.+}',
-    request => {
-        return getStatic(request);
-    }
-);
-
-routerLib.get('/site/[^/]+', function (req) {
-    const view = resolve('graphiql.html');
-
-    const project = req.repositoryId ? req.repositoryId.replace('com.enonic.cms.', '') : 'default';
-    const baseUrl = `/site/${project}`;
-
-    const wsUrl = portalLib.url({
-        path: baseUrl,
-        type: 'websocket',
-    });
-    const handlerUrl = portalLib.url({
-        path: baseUrl,
-    });
-
-    const staticResourceBaseUrl = handlerUrl.replace(/\/$/, '');
-
-    const params = {
-        wsUrl: wsUrl,
-        handlerUrl: handlerUrl,
-        staticResourceBaseUrl: `${staticResourceBaseUrl}/_static`,
-    };
-
+router.route('OPTIONS', '/?', (request) => {
     return {
-        status: 200,
-        contentType: 'text/html',
-        body: mustacheLib.render(view, params)
+        status: 204,
+        headers: corsLib.getHeaders(request),
     };
 });
+
+router.get('/_static/{path:.*}', (request) => {
+    return staticLib.requestHandler(
+        request,
+        {
+            cacheControl: () => staticLib.RESPONSE_CACHE_CONTROL.SAFE,
+            index: false,
+            root: '/assets',
+            relativePath: staticLib.mappedRelativePath('/_static/'),
+        }
+    );
+});
+
+router.get('/?', (req) => {
+    if (!shouldBeRendered(req)) {
+        return {
+            status: 404,
+        };
+    } else {
+        const view = resolve('graphql.html');
+
+        const normalizedUrl = normalizeUrl(req.url);
+        const params = {
+            handlerUrl: normalizedUrl,
+            playgroundCss: `${normalizedUrl}/_static/styles/query-playground.css`,
+            playgroundScript: `${normalizedUrl}/_static/js/query-playground.js`,
+        };
+
+        return {
+            status: 200,
+            contentType: 'text/html',
+            body: mustacheLib.render(view, params)
+        };
+    }
+});
+
+router.post('/?', (req) => {
+    const input = JSON.parse(req.body);
+
+    return {
+        contentType: 'application/json',
+        headers: corsLib.getHeaders(req),
+        body: contextLib.run({
+            branch: req.params.branch,
+        }, () => {
+            return schemaLib.executeGraphQLQuery(input.query, input.variables);
+        }),
+    };
+});
+
+function shouldBeRendered(reg) {
+    const isSDK = appLib.get({
+        key: 'com.enonic.xp.app.welcome',
+    }) !== null;
+    const queryPlaygroundUIMode = (app.config['queryplayground.ui.mode'] || 'auto').toLowerCase();
+    const uiCanBeRendered = isSDK || helper.isDevMode()
+                            ? (queryPlaygroundUIMode === 'on' || queryPlaygroundUIMode === 'auto')
+                            : queryPlaygroundUIMode === 'on';
+    return !reg.webSocket && uiCanBeRendered;
+}
+
+function normalizeUrl(url) {
+    return url.replace(/\/$/, '');
+}

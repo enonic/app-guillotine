@@ -297,10 +297,10 @@ export declare interface PublishInfo {
 }
 
 export declare interface Mixin_base_ApplicationConfig {
-	gpsInfo: XData_base_gpsInfo_DataConfig
+	gpsInfo: Mixin_base_gpsInfo_DataConfig
 }
 
-export declare interface XData_base_gpsInfo_DataConfig {
+export declare interface Mixin_base_gpsInfo_DataConfig {
 	geoPoint: GeoPoint
 	altitude: GraphQLString
 	direction: GraphQLString

@@ -29,7 +29,7 @@ export type {
 	PrincipalKey,
 	PublishInfo,
 	Mixin_base_ApplicationConfig,
-	XData_base_gpsInfo_DataConfig,
+	Mixin_base_gpsInfo_DataConfig,
 	Mixin_media_ApplicationConfig,
 	Mixin_media_cameraInfo_DataConfig,
 	Mixin_media_imageInfo_DataConfig,

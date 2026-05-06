@@ -1,6 +1,8 @@
 package com.enonic.app.guillotine.handler;
 
 import java.util.EnumSet;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.osgi.service.component.annotations.Activate;
@@ -8,10 +10,12 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.enonic.xp.app.ApplicationKey;
+import com.enonic.xp.branch.Branch;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.controller.ControllerScript;
 import com.enonic.xp.portal.controller.ControllerScriptFactory;
+import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.resource.ResourceKey;
 import com.enonic.xp.web.HttpMethod;
 import com.enonic.xp.web.WebRequest;
@@ -28,7 +32,7 @@ public class GuillotineApiWebHandler
     extends BaseWebHandler
 {
     private static final Pattern URL_PATTERN =
-        Pattern.compile( "^/(admin/site/preview|site)/(([a-z0-9\\-:])([a-z0-9_\\-.:])*)/(([a-z0-9\\-:])([a-z0-9_\\-.:])*)([/]*)$" );
+        Pattern.compile( "^/(admin/site/preview|site)/(?<project>[^/]+)/(?<branch>[^/]+)(/?)$" );
 
     private static final ApplicationKey APPLICATION_KEY = ApplicationKey.from( "com.enonic.app.guillotine" );
 
@@ -51,7 +55,13 @@ public class GuillotineApiWebHandler
     protected WebResponse doHandle( final WebRequest webRequest, final WebResponse webResponse, final WebHandlerChain webHandlerChain )
         throws Exception
     {
+        final Matcher matcher = URL_PATTERN.matcher( webRequest.getRawPath() );
+        matcher.matches();
+        MatchResult matchResult = matcher.toMatchResult();
+
         final PortalRequest portalRequest = castToPortalRequest( webRequest );
+        portalRequest.setRepositoryId( ProjectName.from( matchResult.group("project") ).getRepoId() );
+        portalRequest.setBranch( Branch.from( matchResult.group("branch") ) );
         portalRequest.setContextPath( portalRequest.getBaseUri() );
         portalRequest.setApplicationKey( APPLICATION_KEY );
 

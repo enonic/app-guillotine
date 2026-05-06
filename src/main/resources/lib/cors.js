@@ -28,3 +28,8 @@ exports.resolveHeaders = function (config, req) {
 
     return headers;
 };
+
+
+exports.getHeaders = function (req) {
+    return exports.resolveHeaders(app.config, req);
+};
