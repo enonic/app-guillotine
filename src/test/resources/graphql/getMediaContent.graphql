@@ -1,6 +1,6 @@
 query {
     guillotine {
-        attachmentUrl: get(key: "contentId") {
+        attachmentUrl: get(key: "contentid") {
             ... on media_Image {
                 mediaUrl(params: {
                     a: 1,
@@ -9,7 +9,7 @@ query {
                 })
             }
         }
-        downloadAttachmentUrl: get(key: "contentId") {
+        downloadAttachmentUrl: get(key: "contentid") {
             ... on media_Image {
                 mediaUrl(download: true)
             }

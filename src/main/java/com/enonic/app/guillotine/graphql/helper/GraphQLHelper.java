@@ -61,9 +61,18 @@ public class GraphQLHelper
         return outputField( name, type, List.of( argument ) );
     }
 
-    public static GraphQLFieldDefinition outputField( String name, Object type, List<GraphQLArgument> arguments )
+    public static GraphQLFieldDefinition outputField( String name, Object type, List<GraphQLArgument> arguments ) {
+        return outputField( name, type, arguments, null );
+    }
+
+    public static GraphQLFieldDefinition outputField( String name, Object type, List<GraphQLArgument> arguments, String deprecationReason )
     {
         GraphQLFieldDefinition.Builder builder = GraphQLFieldDefinition.newFieldDefinition().name( name );
+
+        if ( deprecationReason != null )
+        {
+            builder.deprecate( deprecationReason );
+        }
 
         if ( type instanceof GraphQLTypeReference )
         {

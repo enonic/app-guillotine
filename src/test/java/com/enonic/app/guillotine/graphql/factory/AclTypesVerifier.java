@@ -73,8 +73,7 @@ public class AclTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 2, fields.size() );
-        assertEquals( Scalars.GraphQLBoolean, type.getFieldDefinition( "inheritsPermissions" ).getType() );
+        assertEquals( 1, fields.size() );
 
         GraphQLOutputType typeOfPermissionsField = type.getFieldDefinition( "permissions" ).getType();
         assertTrue( typeOfPermissionsField instanceof GraphQLList );

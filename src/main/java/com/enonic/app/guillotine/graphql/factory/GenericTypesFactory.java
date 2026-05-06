@@ -158,13 +158,20 @@ public class GenericTypesFactory
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
         fields.add( outputField( "name", Scalars.GraphQLString ) );
-        fields.add( outputField( "displayName", Scalars.GraphQLString ) );
+        fields.add( outputField( "displayName", Scalars.GraphQLString, null,
+                                 "This field is deprecated. Use the \"title\" field instead." ) );
+        fields.add( outputField( "title", Scalars.GraphQLString ) );
+        fields.add( outputField( "titleI18nKey", Scalars.GraphQLString ) );
         fields.add( outputField( "description", Scalars.GraphQLString ) );
+        fields.add( outputField( "descriptionI18nKey", Scalars.GraphQLString ) );
         fields.add( outputField( "superType", Scalars.GraphQLString ) );
         fields.add( outputField( "abstract", Scalars.GraphQLBoolean ) );
         fields.add( outputField( "final", Scalars.GraphQLBoolean ) );
         fields.add( outputField( "allowChildContent", Scalars.GraphQLBoolean ) );
-        fields.add( outputField( "contentDisplayNameScript", Scalars.GraphQLString ) );
+        fields.add( outputField( "displayNameExpression", Scalars.GraphQLString ) );
+        fields.add( outputField( "displayNameListExpression", Scalars.GraphQLString ) );
+        fields.add( outputField( "displayNamePlaceholder", Scalars.GraphQLString ) );
+        fields.add( outputField( "displayNamePlaceholderI18nKey", Scalars.GraphQLString ) );
         fields.add( outputField( "icon", GraphQLTypeReference.typeRef( "Icon" ) ) );
         fields.add( outputField( "form", new GraphQLList( GraphQLTypeReference.typeRef( "FormItem" ) ) ) );
         fields.add( outputField( "formAsJson", ExtendedScalars.Json ) );
@@ -173,6 +180,7 @@ public class GenericTypesFactory
         context.registerType( outputObject.getName(), outputObject );
 
         context.registerDataFetcher( outputObject.getName(), "formAsJson", new GetAsJsonWithoutContentIdDataFetcher( "form" ) );
+        context.registerDataFetcher( outputObject.getName(), "displayName", new GetFieldAsJsonDataFetcher( "title" ) );
     }
 
     private void createImageStyleType()

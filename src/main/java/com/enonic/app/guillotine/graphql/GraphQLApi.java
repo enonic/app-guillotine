@@ -210,32 +210,36 @@ public class GraphQLApi
     public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
     {
         final PreparsedDocumentProvider preparsedProvider = ( executionInput, parseAndValidateFunction ) -> {
-            PreparsedDocumentEntry entry = CACHE.computeIfAbsent( executionInput.getQuery(), k -> {
-                try
-                {
-                    int maxQueryTokens = guillotineConfigServiceSupplier.get().getMaxQueryTokens();
-                    ParserOptions parserOptions = ParserOptions.newParserOptions().maxTokens( maxQueryTokens ).build();
+            PreparsedDocumentEntry cached = CACHE.get( executionInput.getQuery() );
+            if ( cached != null )
+            {
+                return CompletableFuture.completedFuture( cached );
+            }
 
-                    Document doc = PARSER.parseDocument(
-                        ParserEnvironment.newParserEnvironment().document( k ).parserOptions( parserOptions ).build() );
+            PreparsedDocumentEntry entry;
+            try
+            {
+                int maxQueryTokens = guillotineConfigServiceSupplier.get().getMaxQueryTokens();
+                ParserOptions parserOptions = ParserOptions.newParserOptions().maxTokens( maxQueryTokens ).build();
 
-                    List<ValidationError> errors = ParseAndValidate.validate( graphQLSchema, doc );
-                    if ( !errors.isEmpty() )
-                    {
-                        return new PreparsedDocumentEntry( errors );
-                    }
+                Document doc = PARSER.parseDocument(
+                    ParserEnvironment.newParserEnvironment().document( executionInput.getQuery() ).parserOptions( parserOptions ).build() );
 
-                    return new PreparsedDocumentEntry( doc );
+                List<ValidationError> errors = ParseAndValidate.validate( graphQLSchema, doc );
+                entry = errors.isEmpty() ? new PreparsedDocumentEntry( doc ) : new PreparsedDocumentEntry( errors );
+            }
+            catch ( InvalidSyntaxException e )
+            {
+                entry = new PreparsedDocumentEntry( List.of(
+                    ValidationError.newValidationError().validationErrorType( ValidationErrorType.InvalidSyntax ).sourceLocations(
+                        List.of( new SourceLocation( e.getLocation().getLine(), e.getLocation().getColumn() ) ) ).description(
+                        e.getMessage() ).build() ) );
+            }
 
-                }
-                catch ( InvalidSyntaxException e )
-                {
-                    return new PreparsedDocumentEntry( List.of(
-                        ValidationError.newValidationError().validationErrorType( ValidationErrorType.InvalidSyntax ).sourceLocations(
-                            List.of( new SourceLocation( e.getLocation().getLine(), e.getLocation().getColumn() ) ) ).description(
-                            e.getMessage() ).build() ) );
-                }
-            } );
+            if ( !entry.hasErrors() )
+            {
+                CACHE.putIfAbsent( executionInput.getQuery(), entry );
+            }
 
             return CompletableFuture.completedFuture( entry );
         };

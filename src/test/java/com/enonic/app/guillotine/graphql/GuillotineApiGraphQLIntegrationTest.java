@@ -47,7 +47,7 @@ public class GuillotineApiGraphQLIntegrationTest
     {
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
         when( contentService.getById( ContentId.from( "referenceid_1" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
-        when( contentService.getOutboundDependencies( Mockito.any( ContentId.class ) ) ).thenReturn( ContentIds.from( "referenceId_1" ) );
+        when( contentService.getOutboundDependencies( Mockito.any( ContentId.class ) ) ).thenReturn( ContentIds.from( "referenceid_1" ) );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
@@ -58,13 +58,12 @@ public class GuillotineApiGraphQLIntegrationTest
 
         Map<String, Object> getField = CastHelper.cast( getFieldFromGuillotine( result, "get" ) );
 
-        assertEquals( "contentId", getField.get( "_id" ) );
+        assertEquals( "contentid", getField.get( "_id" ) );
         assertEquals( "mycontent", getField.get( "_name" ) );
         assertEquals( "/a/b/mycontent", getField.get( "_path" ) );
         assertEquals( "My Content", getField.get( "displayName" ) );
         assertEquals( "en", getField.get( "language" ) );
         assertEquals( "media:image", getField.get( "type" ) );
-        assertFalse( (boolean) getField.get( "hasChildren" ) );
         assertTrue( (boolean) getField.get( "valid" ) );
         assertNull( getField.get( "_score" ) );
 
@@ -118,9 +117,9 @@ public class GuillotineApiGraphQLIntegrationTest
 
         final Map<String, Object> xMedia = CastHelper.cast( xAsJsonField.get( "media" ) );
         assertNotNull( xMedia );
-        assertEquals( 1, xMedia.values().size() ); // empty application suffix
+        assertEquals( 1, xMedia.values().size() );
 
-        Map<String, Object> xMediaAppConfig = CastHelper.cast( xMedia.get( "" ) );
+        Map<String, Object> xMediaAppConfig = CastHelper.cast( xMedia.get( "testapp" ) );
         Map<String, Object> media = CastHelper.cast( xMediaAppConfig.get( "media" ) );
 
         final Map<String, Object> imageInfo = CastHelper.cast( media.get( "imageInfo" ) );
@@ -130,9 +129,7 @@ public class GuillotineApiGraphQLIntegrationTest
 
         Map<String, Object> permissionsField = CastHelper.cast( getField.get( "permissions" ) );
 
-        assertEquals( 2, permissionsField.size() );
-
-        assertTrue( (boolean) permissionsField.get( "inheritsPermissions" ) );
+        assertEquals( 1, permissionsField.size() );
 
         List<Map<String, Object>> permissionsEntries = CastHelper.cast( permissionsField.get( "permissions" ) );
 
@@ -165,17 +162,7 @@ public class GuillotineApiGraphQLIntegrationTest
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
-        GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
-
-        ExecutionInput executionInput =
-            ExecutionInput.newExecutionInput().query( ResourceHelper.readGraphQLQuery( "graphql/getSiteField.graphql" ) ).build();
-
-        ExecutionResultMapper executionResultMapper = new ExecutionResultMapper( graphQL.execute( executionInput ) );
-
-        GuillotineMapGenerator generator = new GuillotineMapGenerator();
-        executionResultMapper.serialize( generator );
-
-        Map<String, Object> response = CastHelper.cast( generator.getRoot() );
+        Map<String, Object> response = executeQuery( graphQLSchema, ResourceHelper.readGraphQLQuery( "graphql/getSiteField.graphql" ) );
 
         assertFalse( response.containsKey( "errors" ) );
         assertTrue( response.containsKey( "data" ) );
@@ -188,7 +175,7 @@ public class GuillotineApiGraphQLIntegrationTest
         Map<String, Object> getForGetSiteByKey = CastHelper.cast( getSiteByKey.get( "getSite" ) );
 
         assertNotNull( getForGetSiteByKey );
-        assertEquals( "siteId", getForGetSiteByKey.get( "_id" ) );
+        assertEquals( "siteid", getForGetSiteByKey.get( "_id" ) );
         assertEquals( "Site", getForGetSiteByKey.get( "displayName" ) );
     }
 

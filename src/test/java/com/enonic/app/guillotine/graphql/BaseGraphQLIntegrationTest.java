@@ -27,6 +27,7 @@ import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationService;
 import com.enonic.xp.app.Applications;
 import com.enonic.xp.config.ConfigBuilder;
+import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
@@ -35,6 +36,7 @@ import com.enonic.xp.macro.MacroService;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.script.PortalScriptService;
 import com.enonic.xp.portal.url.PortalUrlService;
+import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.resource.ResourceKey;
 import com.enonic.xp.resource.ResourceService;
 import com.enonic.xp.schema.content.CmsFormFragmentService;
@@ -212,7 +214,8 @@ public class BaseGraphQLIntegrationTest
 
     private Context createAdminContext()
     {
-        return ContextBuilder.copyOf( ContextAccessor.current() ).authInfo(
+        return ContextBuilder.copyOf( ContextAccessor.current() ).repositoryId( RepositoryId.from( "com.enonic.cms.myproject" ) ).branch(
+            ContentConstants.BRANCH_DRAFT ).authInfo(
             AuthenticationInfo.create().principals( RoleKeys.AUTHENTICATED, RoleKeys.ADMIN ).user( User.anonymous() ).build() ).build();
     }
 

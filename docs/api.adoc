@@ -162,9 +162,6 @@ All types implementing `Content` share the same fields, with the exception of th
 |displayName: String
 |Content display name
 
-|hasChildren: Boolean
-|true if the content has children content
-
 |language: String
 |Content language
 

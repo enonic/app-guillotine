@@ -30,7 +30,9 @@ public final class ContentTypeMapper
     {
         gen.value( "name", contentType.getName().toString() );
         gen.value( "title", contentType.getTitle() );
+        gen.value( "titleI18nKey", contentType.getTitleI18nKey() );
         gen.value( "description", contentType.getDescription() );
+        gen.value( "descriptionI18nKey", contentType.getDescriptionI18nKey() );
         gen.value( "superType", contentType.getSuperType() == null ? null : contentType.getSuperType().toString() );
         gen.value( "abstract", contentType.isAbstract() );
         gen.value( "final", contentType.isFinal() );

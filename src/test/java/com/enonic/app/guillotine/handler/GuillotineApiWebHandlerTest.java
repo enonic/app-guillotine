@@ -7,7 +7,6 @@ import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.controller.ControllerScript;
 import com.enonic.xp.portal.controller.ControllerScriptFactory;
 import com.enonic.xp.resource.ResourceKey;
-import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.web.HttpMethod;
 import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.WebException;
@@ -57,35 +56,35 @@ public class GuillotineApiWebHandlerTest
         assertFalse( instance.canHandle( webRequest ) );
     }
 
-	@Test
-	void testHandle()
-		throws Exception
-	{
-		ControllerScript controllerScript = mock( ControllerScript.class );
-		when( controllerScript.execute( any( PortalRequest.class ) ) ).thenReturn( PortalResponse.create().build() );
+    @Test
+    void testHandle()
+        throws Exception
+    {
+        ControllerScript controllerScript = mock( ControllerScript.class );
+        when( controllerScript.execute( any( PortalRequest.class ) ) ).thenReturn( PortalResponse.create().build() );
 
-		ControllerScriptFactory scriptFactory = mock( ControllerScriptFactory.class );
-		when( scriptFactory.fromScript( any( ResourceKey.class ) ) ).thenReturn( controllerScript );
+        ControllerScriptFactory scriptFactory = mock( ControllerScriptFactory.class );
+        when( scriptFactory.fromScript( any( ResourceKey.class ) ) ).thenReturn( controllerScript );
 
-		GuillotineApiWebHandler instance = new GuillotineApiWebHandler( scriptFactory );
+        GuillotineApiWebHandler instance = new GuillotineApiWebHandler( scriptFactory );
 
-		WebRequest webRequest = mock( WebRequest.class );
-		when( webRequest.getRawPath() ).thenReturn( "/site/hmdb/draft" );
+        PortalRequest portalRequest = new PortalRequest();
+        portalRequest.setRawPath( "/site/hmdb/draft" );
 
-		when( webRequest.getMethod() ).thenReturn( HttpMethod.OPTIONS );
-		WebResponse webResponse = instance.handle( webRequest, null, null );
-		assertTrue( webResponse.getStatus().is2xxSuccessful() );
+        portalRequest.setMethod( HttpMethod.OPTIONS );
+        WebResponse webResponse = instance.handle( portalRequest, null, null );
+        assertTrue( webResponse.getStatus().is2xxSuccessful() );
 
-		when( webRequest.getMethod() ).thenReturn( HttpMethod.POST );
-		webResponse = instance.handle( webRequest, null, null );
-		assertTrue( webResponse.getStatus().is2xxSuccessful() );
+        portalRequest.setMethod( HttpMethod.POST );
+        webResponse = instance.handle( portalRequest, null, null );
+        assertTrue( webResponse.getStatus().is2xxSuccessful() );
 
-		when( webRequest.getMethod() ).thenReturn( HttpMethod.GET );
-		webResponse = instance.handle( webRequest, null, null );
-		assertTrue( webResponse.getStatus().is2xxSuccessful() );
+        portalRequest.setMethod( HttpMethod.GET );
+        webResponse = instance.handle( portalRequest, null, null );
+        assertTrue( webResponse.getStatus().is2xxSuccessful() );
 
-		when( webRequest.getMethod() ).thenReturn( HttpMethod.HEAD );
-		WebException ex = assertThrows( WebException.class, () -> instance.handle( webRequest, null, null ) );
-		assertEquals( HttpStatus.METHOD_NOT_ALLOWED, ex.getStatus() );
-	}
+        portalRequest.setMethod( HttpMethod.HEAD );
+        WebException ex = assertThrows( WebException.class, () -> instance.handle( portalRequest, null, null ) );
+        assertEquals( HttpStatus.METHOD_NOT_ALLOWED, ex.getStatus() );
+    }
 }

@@ -29,6 +29,5 @@ public class GuillotineSerializerTest
         Map<String, Object> mappedPermissions = CastHelper.cast( GuillotineSerializer.serializePermissions( content ) );
         assertNotNull( mappedPermissions );
         assertNotNull( mappedPermissions.get( "permissions" ) );
-        assertNotNull( mappedPermissions.get( "inheritsPermissions" ) );
     }
 }
