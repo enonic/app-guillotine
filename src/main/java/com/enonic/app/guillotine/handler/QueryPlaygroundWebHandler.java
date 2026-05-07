@@ -28,11 +28,11 @@ import com.enonic.xp.web.handler.WebHandlerChain;
 public class QueryPlaygroundWebHandler
     extends BaseWebHandler
 {
-    private static final Pattern URL_PATTERN = Pattern.compile( "^/site/(([a-z0-9\\-:])([a-z0-9_\\-.:])*)(:?$|/_static/.+?)" );
+    private static final Pattern URL_PATTERN = Pattern.compile( "^/site/(?<project>[^/]+)(:?$|/_static/.+?)" );
 
     private static final ApplicationKey APPLICATION_KEY = ApplicationKey.from( "com.enonic.app.guillotine" );
 
-    private static final ApplicationKey WELCOME_APP_KEY = ApplicationKey.from( "com.enonic.xp.app.welcome" );
+    private static final ApplicationKey SDK_APP_KEY = ApplicationKey.from( "com.enonic.xp.app.sdk" );
 
     private final ControllerScriptFactory controllerScriptFactory;
 
@@ -59,13 +59,12 @@ public class QueryPlaygroundWebHandler
     @Override
     protected boolean canHandle( final WebRequest webRequest )
     {
-        String path = webRequest.getRawPath();
-        boolean isSDK = applicationService.get( WELCOME_APP_KEY ) != null;
+        boolean isSDK = applicationService.get( SDK_APP_KEY ) != null;
         boolean uiCanBeRendered = isSDK
             ? ( queryPlaygroundUIMode == QueryPlaygroundUIMode.ON || queryPlaygroundUIMode == QueryPlaygroundUIMode.AUTO )
             : queryPlaygroundUIMode == QueryPlaygroundUIMode.ON;
         return webRequest.getMethod() == HttpMethod.GET && !webRequest.isWebSocket() && uiCanBeRendered &&
-            URL_PATTERN.matcher( path ).matches();
+            URL_PATTERN.matcher( webRequest.getRawPath() ).matches();
     }
 
     @Override
@@ -76,7 +75,7 @@ public class QueryPlaygroundWebHandler
         matcher.matches();
 
         final PortalRequest portalRequest = castToPortalRequest( webRequest );
-        portalRequest.setContextPath( portalRequest.getBaseUri() );
+        portalRequest.setContextPath( "/site/" + matcher.group( "project" ) );
         portalRequest.setApplicationKey( APPLICATION_KEY );
         portalRequest.setRepositoryId( RepositoryUtils.fromContentRepoName( matcher.group( 1 ) ) );
 
