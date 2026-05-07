@@ -7,6 +7,7 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.portal.url.AttachmentUrlParams;
@@ -31,9 +32,12 @@ public class GetAttachmentUrlByNameDataFetcher
 
     private String doGet( final DataFetchingEnvironment environment )
     {
-        Map<String, Object> attachmentAsMap = environment.getSource();
+        final Map<String, Object> attachmentAsMap = environment.getSource();
 
-        AttachmentUrlParams params = new AttachmentUrlParams().id( attachmentAsMap.get( Constants.CONTENT_ID_FIELD ).toString() ).name(
+        final Map<String, Object> localContext = environment.getLocalContext();
+        final Map<String, Object> currentContentAsMap = CastHelper.cast( localContext.get( Constants.CURRENT_CONTENT ) );
+
+        AttachmentUrlParams params = new AttachmentUrlParams().id( currentContentAsMap.get( "_id" ).toString() ).name(
             attachmentAsMap.get( "name" ).toString() ).download( Objects.toString( environment.getArgument( "download" ), "false" ) ).type(
             environment.getArgument( "type" ) );
 

@@ -20,12 +20,6 @@ public class NodeMapper
         this.useRawValues = false;
     }
 
-    public NodeMapper( final Node node, final boolean useRawValues )
-    {
-        this.node = node;
-        this.useRawValues = useRawValues;
-    }
-
     @Override
     public void serialize( final MapGenerator gen )
     {
@@ -43,7 +37,7 @@ public class NodeMapper
 
     private void serializeData( final MapGenerator gen, final PropertyTree value )
     {
-        new PropertyTreeMapper( this.useRawValues, value, node.id().toString() ).serialize( gen );
+        new PropertyTreeMapper( this.useRawValues, value ).serialize( gen );
     }
 
     private void serializeIndexConfigDocument( final MapGenerator gen, final IndexConfigDocument value )

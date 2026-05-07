@@ -15,6 +15,7 @@ import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalResponse;
+import com.enonic.xp.portal.RenderMode;
 import com.enonic.xp.portal.controller.ControllerScript;
 import com.enonic.xp.portal.controller.ControllerScriptFactory;
 import com.enonic.xp.project.ProjectName;
@@ -68,6 +69,7 @@ public class GuillotineApiWebHandler
         portalRequest.setBranch( branch );
         portalRequest.setContextPath( portalRequest.getBaseUri() );
         portalRequest.setApplicationKey( APPLICATION_KEY );
+        portalRequest.setMode( webRequest.getRawPath().startsWith( "/admin/site/preview" ) ? RenderMode.PREVIEW : RenderMode.LIVE );
 
         final ResourceKey script = ResourceKey.from( APPLICATION_KEY, "api/api.js" );
         final ControllerScript controllerScript = controllerScriptFactory.fromScript( script );

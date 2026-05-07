@@ -35,17 +35,14 @@ public class RichTextDataFetcher
 {
     private final String htmlText;
 
-    private final String contentId;
-
     private final ServiceFacade serviceFacade;
 
     private final GuillotineContext guillotineContext;
 
-    public RichTextDataFetcher( final String htmlText, final String contentId, final ServiceFacade serviceFacade,
+    public RichTextDataFetcher( final String htmlText, final ServiceFacade serviceFacade,
                                 final GuillotineContext guillotineContext )
     {
         this.htmlText = htmlText;
-        this.contentId = contentId;
         this.serviceFacade = serviceFacade;
         this.guillotineContext = guillotineContext;
     }
@@ -93,7 +90,7 @@ public class RichTextDataFetcher
                 {
                     return macro.toString();
                 }
-                MacroDecorator macroDecorator = MacroDecorator.from( macro, contentId );
+                MacroDecorator macroDecorator = MacroDecorator.from( macro );
                 processedMacros.add( macroDecorator );
                 return new MacroEditorSerializer( macroDecorator ).serialize();
             } );

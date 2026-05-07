@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface Constants
 {
-    String CONTENT_ID_FIELD = "__contentId";
+    String CURRENT_CONTENT = "__currentContent";
 
     String SITE_ARG = "siteKey";
 

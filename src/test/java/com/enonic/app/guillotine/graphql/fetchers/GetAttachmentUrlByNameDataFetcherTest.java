@@ -36,8 +36,8 @@ public class GetAttachmentUrlByNameDataFetcherTest
 
         DataFetchingEnvironment environment = mock( DataFetchingEnvironment.class );
 
-        when( environment.getSource() ).thenReturn( Map.of( "name", "Name", Constants.CONTENT_ID_FIELD, "contentId" ) );
-        when( environment.getLocalContext() ).thenReturn( new HashMap<>() );
+        when( environment.getSource() ).thenReturn( Map.of( "name", "Name" ) );
+        when( environment.getLocalContext() ).thenReturn( Map.of( Constants.CURRENT_CONTENT, Map.of( "_id", "contentid" ) ) );
         when( environment.getArgument( "download" ) ).thenReturn( "true" );
         when( environment.getArgument( "type" ) ).thenReturn( null );
 

@@ -4,7 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentInheritType;
 import com.enonic.xp.content.ContentPublishInfo;
@@ -81,8 +80,7 @@ public final class ContentMapper
     private void serializeData( final MapGenerator gen, final PropertyTree value )
     {
         gen.map( "data" );
-        gen.value( Constants.CONTENT_ID_FIELD, content.getId() );
-        new PropertyTreeMapper( value, content.getId().toString() ).serialize( gen );
+        new PropertyTreeMapper( value ).serialize( gen );
         gen.end();
     }
 
@@ -119,8 +117,7 @@ public final class ContentMapper
                 for ( final Mixin mixin : appMixins )
                 {
                     gen.map( mixin.getName().getLocalName() );
-                    gen.value( Constants.CONTENT_ID_FIELD, content.getId().toString() );
-                    new PropertyTreeMapper( mixin.getData(), content.getId().toString() ).serialize( gen );
+                    new PropertyTreeMapper( mixin.getData() ).serialize( gen );
                     gen.end();
                 }
                 gen.end();
@@ -132,7 +129,7 @@ public final class ContentMapper
     {
         if ( value != null )
         {
-            new PageMapper( value, content.getId() ).serialize( gen );
+            new PageMapper( value ).serialize( gen );
         }
         else
         {

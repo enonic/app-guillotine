@@ -49,7 +49,7 @@ class HtmlEditorResultMapperTest
             param( "attr1", "val11" ).
             param( "attr1", "val12" ).
             param( "attr2", "val2" ).
-            build(), "nodeId"), macroDescriptor ).serialize();
+            build()), macroDescriptor ).serialize();
 
         HtmlEditorProcessedResult input = HtmlEditorProcessedResult.create().
             setProcessedHtml(

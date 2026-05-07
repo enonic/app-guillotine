@@ -1,5 +1,6 @@
 package com.enonic.app.guillotine.graphql.helper;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -21,5 +22,19 @@ public class GuillotineLocalContextHelper
     {
         final Map<String, Object> localContext = environment.getLocalContext();
         return Objects.toString( localContext.get( Constants.SITE_ARG ), "/" );
+    }
+
+    public static Map<String, Object> newLocalContext( final DataFetchingEnvironment environment )
+    {
+        return new HashMap<>( getLocalContext( environment ) );
+    }
+
+    public static Map<String, Object> getLocalContext( final DataFetchingEnvironment environment )
+    {
+        if ( environment.getLocalContext() == null )
+        {
+            return new HashMap<>();
+        }
+        return environment.getLocalContext();
     }
 }

@@ -10,11 +10,8 @@ class MacroEditorSerializerTest
     @Test
     void testSerialize()
     {
-        final MacroDecorator macroDecorator = MacroDecorator.from( Macro.create().
-            name( "mymacro" ).
-            param( "attr1", "val1" ).
-            body( "Body" ).
-            build(), "nodeId" );
+        final MacroDecorator macroDecorator =
+            MacroDecorator.from( Macro.create().name( "mymacro" ).param( "attr1", "val1" ).body( "Body" ).build() );
         MacroEditorSerializer instance = new MacroEditorSerializer( macroDecorator );
 
         String expected = "<editor-macro data-macro-name=\"mymacro\" data-macro-ref=\"" + macroDecorator.getId() + "\">Body</editor-macro>";
