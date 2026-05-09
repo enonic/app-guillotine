@@ -5,7 +5,6 @@ import java.util.Map;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.portal.url.PageUrlParams;
 import com.enonic.xp.portal.url.PortalUrlService;
@@ -24,15 +23,14 @@ public class GetPageUrlDataFetcher
     public String get( final DataFetchingEnvironment environment )
         throws Exception
     {
-        return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
+        return doGet( environment );
     }
 
     private String doGet( final DataFetchingEnvironment environment )
     {
         Map<String, Object> sourceAsMap = environment.getSource();
 
-        PageUrlParams params =
-            new PageUrlParams().id( sourceAsMap.get( "_id" ).toString() ).type( environment.getArgument( "type" ) );
+        PageUrlParams params = new PageUrlParams().id( sourceAsMap.get( "_id" ).toString() ).type( environment.getArgument( "type" ) );
 
         ParamsUrHelper.resolveParams( params.getParams(), environment.getArgument( "params" ) );
 

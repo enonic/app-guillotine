@@ -27,9 +27,12 @@ public class GuillotineDataFetcher
         throws Exception
     {
         final HashMap<Object, Object> localContext = new HashMap<>();
+
+        final String siteKey = environment.getArgument( Constants.SITE_ARG );
         final String siteKeyHeader = portalRequestSupplier.get().getHeaders().get( Constants.SITE_HEADER );
 
-        localContext.computeIfAbsent( Constants.SITE_ARG, v -> Objects.requireNonNullElse( siteKeyHeader, "/" ) );
+        localContext.computeIfAbsent( Constants.SITE_ARG,
+                                      v -> Objects.requireNonNullElse( siteKey, Objects.requireNonNullElse( siteKeyHeader, "/" ) ) );
 
         return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
     }

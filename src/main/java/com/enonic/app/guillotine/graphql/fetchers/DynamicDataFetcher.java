@@ -6,8 +6,6 @@ import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.GraphQLOutputType;
 
 import com.enonic.app.guillotine.graphql.GuillotineSerializer;
-import com.enonic.app.guillotine.graphql.helper.GraphQLTypeChecker;
-import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.graphql.transformer.ContextualFieldResolver;
 import com.enonic.app.guillotine.mapper.DataFetchingEnvironmentMapper;
 import com.enonic.xp.app.ApplicationKey;
@@ -40,16 +38,7 @@ public class DynamicDataFetcher
         PortalRequestAccessor.set( portalRequest );
         try
         {
-            final GraphQLOutputType rootFieldType = resolveRootFieldType( environment );
-
-            if ( GraphQLTypeChecker.isHeadlessCmsType( rootFieldType ) )
-            {
-                return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
-            }
-            else
-            {
-                return doGet( environment );
-            }
+            return doGet( environment );
         }
         finally
         {

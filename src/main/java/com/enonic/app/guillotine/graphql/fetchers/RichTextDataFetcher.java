@@ -11,7 +11,6 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
-import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.macro.CustomHtmlPostProcessor;
 import com.enonic.app.guillotine.macro.HtmlEditorProcessedResult;
 import com.enonic.app.guillotine.macro.MacroDecorator;
@@ -39,8 +38,7 @@ public class RichTextDataFetcher
 
     private final GuillotineContext guillotineContext;
 
-    public RichTextDataFetcher( final String htmlText, final ServiceFacade serviceFacade,
-                                final GuillotineContext guillotineContext )
+    public RichTextDataFetcher( final String htmlText, final ServiceFacade serviceFacade, final GuillotineContext guillotineContext )
     {
         this.htmlText = htmlText;
         this.serviceFacade = serviceFacade;
@@ -51,7 +49,7 @@ public class RichTextDataFetcher
     {
         try
         {
-            return GuillotineLocalContextHelper.executeInContext( environment, () -> get( environment ) );
+            return get( environment );
         }
         catch ( Exception e )
         {

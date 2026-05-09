@@ -5,7 +5,6 @@ import java.util.Map;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.GuillotineSerializer;
-import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
@@ -23,12 +22,12 @@ public class GetContentCommand
 
     public Map<String, Object> execute( String key, DataFetchingEnvironment environment )
     {
-        return GuillotineLocalContextHelper.executeInContext( environment, () -> GuillotineSerializer.serialize( doExecute( key ) ) );
+        return GuillotineSerializer.serialize( doExecute( key ) );
     }
 
     public Content executeAndGetContent( String key, DataFetchingEnvironment environment )
     {
-        return GuillotineLocalContextHelper.executeInContext( environment, () -> doExecute( key ) );
+        return doExecute( key );
     }
 
     private Content doExecute( String key )

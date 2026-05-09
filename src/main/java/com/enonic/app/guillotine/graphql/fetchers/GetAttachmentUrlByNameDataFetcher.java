@@ -8,7 +8,6 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
-import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.portal.url.AttachmentUrlParams;
 import com.enonic.xp.portal.url.PortalUrlService;
@@ -27,7 +26,7 @@ public class GetAttachmentUrlByNameDataFetcher
     public String get( final DataFetchingEnvironment environment )
         throws Exception
     {
-        return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
+        return doGet( environment );
     }
 
     private String doGet( final DataFetchingEnvironment environment )

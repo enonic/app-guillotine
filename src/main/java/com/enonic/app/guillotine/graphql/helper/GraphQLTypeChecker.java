@@ -17,9 +17,4 @@ public final class GraphQLTypeChecker
             ( (GraphQLObjectType) type ).getInterfaces().stream().anyMatch(
                 interfaceType -> interfaceType.getName().equals( "Content" ) ) );
     }
-
-    public static boolean isHeadlessCmsType( final GraphQLType type )
-    {
-        return GraphQLTypeUnwrapper.unwrapType( type ).getName().equals( "HeadlessCms" );
-    }
 }

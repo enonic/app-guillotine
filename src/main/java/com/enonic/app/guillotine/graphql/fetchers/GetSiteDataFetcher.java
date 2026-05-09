@@ -32,7 +32,7 @@ public class GetSiteDataFetcher
     public Map<String, Object> get( final DataFetchingEnvironment environment )
         throws Exception
     {
-        return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
+        return doGet( environment );
     }
 
     private Map<String, Object> doGet( final DataFetchingEnvironment environment )
@@ -40,10 +40,10 @@ public class GetSiteDataFetcher
         Site site;
         if ( guillotineContext.isGlobalMode() )
         {
-			final String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
-			site = siteKey.startsWith( "/" )
-				? contentService.findNearestSiteByPath( ContentPath.from( siteKey ) )
-				: contentService.getNearestSite( ContentId.from( siteKey ) );
+            final String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
+            site = siteKey.startsWith( "/" )
+                ? contentService.findNearestSiteByPath( ContentPath.from( siteKey ) )
+                : contentService.getNearestSite( ContentId.from( siteKey ) );
         }
         else
         {

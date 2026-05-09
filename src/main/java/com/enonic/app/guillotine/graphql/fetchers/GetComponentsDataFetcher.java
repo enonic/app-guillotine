@@ -33,7 +33,7 @@ public class GetComponentsDataFetcher
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
     {
-        return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
+        return doGet( environment );
     }
 
     private Object doGet( final DataFetchingEnvironment environment )

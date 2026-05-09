@@ -5,7 +5,6 @@ import java.util.Map;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.portal.url.ImageUrlParams;
 import com.enonic.xp.portal.url.PortalUrlService;
@@ -24,7 +23,7 @@ public class GetImageUrlDataFetcher
     public String get( final DataFetchingEnvironment environment )
         throws Exception
     {
-        return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
+        return doGet( environment );
     }
 
     private String doGet( final DataFetchingEnvironment environment )
