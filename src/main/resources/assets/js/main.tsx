@@ -43,22 +43,6 @@ function renderGraphiQLUI() {
     ReactDOM.render(<QueryPlayground/>, getRootContainer(), function () {
         const refreshButton = document.querySelector('[aria-label="Re-fetch GraphQL schema"]');
         refreshButton.addEventListener('click', rerenderGraphiQLUI);
-
-        // const bodyElement = document.querySelector('body');
-        // bodyElement.classList.remove('graphiql-dark');
-        // bodyElement.classList.add('graphiql-light');
-        //
-        // const settingsButton = document.querySelector('[aria-label="Open settings dialog"]');
-        // settingsButton.addEventListener('click', function () {
-        //     setTimeout(function () {
-        //         const titleElements = document.querySelectorAll('.graphiql-dialog-section-title');
-        //         titleElements.forEach(function (titleElement) {
-        //             if (titleElement.innerHTML === 'Theme') {
-        //                 titleElement.closest('.graphiql-dialog-section').remove();
-        //             }
-        //         });
-        //     }, 1);
-        // });
     });
 }
 

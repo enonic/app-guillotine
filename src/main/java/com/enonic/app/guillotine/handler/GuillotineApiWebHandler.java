@@ -69,7 +69,7 @@ public class GuillotineApiWebHandler
         portalRequest.setBranch( branch );
         portalRequest.setContextPath( portalRequest.getBaseUri() );
         portalRequest.setApplicationKey( APPLICATION_KEY );
-        portalRequest.setMode( webRequest.getRawPath().startsWith( "/admin/site/preview" ) ? RenderMode.PREVIEW : RenderMode.LIVE );
+        portalRequest.setMode( !webRequest.getRawPath().startsWith( "/site/" ) ? RenderMode.LIVE : RenderMode.PREVIEW );
 
         final ResourceKey script = ResourceKey.from( APPLICATION_KEY, "api/api.js" );
         final ControllerScript controllerScript = controllerScriptFactory.fromScript( script );

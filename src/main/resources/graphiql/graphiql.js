@@ -2,12 +2,20 @@ const portalLib = require('/lib/xp/portal');
 const mustacheLib = require('/lib/mustache');
 const staticLib = require('/lib/enonic/static');
 const routerLib = require('/lib/router')();
+const corsLib = require('/lib/cors');
 
 const STATIC_BASE_PATH = '/_static';
 
 exports.all = (req) => {
     return routerLib.dispatch(req);
 };
+
+routerLib.route('OPTIONS', '/?', (request) => {
+    return {
+        status: 204,
+        headers: corsLib.getHeaders(request),
+    };
+});
 
 routerLib.get(
     `${STATIC_BASE_PATH}/{resourcePath:.+}`,
