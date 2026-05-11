@@ -1,5 +1,6 @@
 const mustache = require('/lib/mustache');
 const portalLib = require('/lib/xp/portal');
+const corsLib = require('/lib/cors');
 
 exports.get = function (req) {
     const view = resolve('guillotine.html');
@@ -21,6 +22,7 @@ exports.get = function (req) {
 
     return {
         contentType: 'text/html',
+        headers: corsLib.getHeaders(req),
         body: mustache.render(view, params),
     };
 }

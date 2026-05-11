@@ -47,6 +47,7 @@ dependencies {
     include "com.enonic.lib:lib-mustache:2.1.1"
     include "com.enonic.lib:lib-static:2.1.1"
     include "com.enonic.lib:lib-router:3.2.0"
+    include 'com.enonic.lib:lib-cors:1.0.0-B1'
 
     testImplementation(platform("org.junit:junit-bom:6.0.3"))
     testImplementation(platform("org.mockito:mockito-bom:5.23.0"))

@@ -13,7 +13,7 @@ exports.all = (req) => {
 routerLib.route('OPTIONS', '/?', (request) => {
     return {
         status: 204,
-        headers: corsLib.getHeaders(request),
+        headers: corsLib.respondOptions(request),
     };
 });
 
