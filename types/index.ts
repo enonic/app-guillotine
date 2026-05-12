@@ -1,5 +1,6 @@
-// Make sure ScriptValue type exists in global scope:
 /// <reference types="@enonic-types/global"/>
+
+import type {ScriptValue} from '@enonic-types/core'
 
 
 declare const __name: unique symbol
@@ -39,7 +40,7 @@ export declare interface GraphQL {
 	In extends LocalContextRecord = LocalContext,
 	Out extends LocalContextRecord = LocalContext
 > () => {
-		data: ScriptValue // NOTE: ScriptValue type is expected to exist in global scope
+		data: ScriptValue
 		localContext?: LocalContext<Out>
 		parentLocalContext?: LocalContext<In>
 	}
