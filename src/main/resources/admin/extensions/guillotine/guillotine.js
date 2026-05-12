@@ -1,23 +1,39 @@
+const adminLib = require('/lib/xp/admin');
 const mustache = require('/lib/mustache');
-const portalLib = require('/lib/xp/portal');
 const corsLib = require('/lib/cors');
+const staticLib = require('/lib/enonic/static');
+const routerLib = require('/lib/router')();
 
-exports.get = function (req) {
+const STATIC_BASE_PATH = '/_static';
+
+exports.all = function (req) {
+    return routerLib.dispatch(req);
+};
+
+routerLib.get(`${STATIC_BASE_PATH}/{path:.*}`, (request) => {
+    return staticLib.requestHandler(
+        request,
+        {
+            cacheControl: () => staticLib.RESPONSE_CACHE_CONTROL.SAFE,
+            index: false,
+            root: '/assets',
+            relativePath: staticLib.mappedRelativePath(STATIC_BASE_PATH),
+        }
+    );
+});
+
+routerLib.get('/?', function (req) {
     const view = resolve('guillotine.html');
-    const assetsUrl = portalLib.assetUrl({path: ""}); // TODO switch to lib-static
-    const baseUrl = '/admin/site/preview/';
-    const wsUrl = portalLib.url({
-        path: baseUrl,
-        type: 'websocket',
-    });
-    const handlerUrl = portalLib.url({
-        path: baseUrl,
+
+    const extensionUrl = adminLib.extensionUrl({
+        application: 'com.enonic.app.guillotine',
+        extension: 'guillotine'
     });
 
     const params = {
-        assetsUrl: assetsUrl,
-        wsUrl: wsUrl,
-        handlerUrl: handlerUrl,
+        playgroundCss: `${extensionUrl}${STATIC_BASE_PATH}/styles/main.css`,
+        playgroundScript: `${extensionUrl}${STATIC_BASE_PATH}/js/main.js`,
+        handlerUrl: extensionUrl,
     };
 
     return {
@@ -25,5 +41,4 @@ exports.get = function (req) {
         headers: corsLib.getHeaders(req),
         body: mustache.render(view, params),
     };
-}
-
+});

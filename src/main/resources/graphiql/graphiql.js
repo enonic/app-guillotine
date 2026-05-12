@@ -37,10 +37,6 @@ routerLib.get('/?', (req) => {
 
     const baseUrl = req.contextPath;
 
-    const wsUrl = portalLib.url({
-        path: baseUrl,
-        type: 'websocket',
-    });
     const handlerUrl = portalLib.url({
         path: baseUrl,
     });
@@ -48,7 +44,6 @@ routerLib.get('/?', (req) => {
     const staticResourceBaseUrl = handlerUrl.replace(/\/$/, '');
 
     const params = {
-        wsUrl: wsUrl,
         handlerUrl: handlerUrl,
         staticResourceBaseUrl: `${staticResourceBaseUrl}${STATIC_BASE_PATH}`,
     };

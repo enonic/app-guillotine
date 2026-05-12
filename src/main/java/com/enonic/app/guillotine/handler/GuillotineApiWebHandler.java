@@ -35,7 +35,8 @@ import com.enonic.xp.web.websocket.WebSocketEndpoint;
 public class GuillotineApiWebHandler
     extends BaseWebHandler
 {
-    private static final Pattern URL_PATTERN = Pattern.compile( "^/(admin/site/preview|site)/(?<project>[^/]+)/(?<branch>[^/]+)(/?)$" );
+    private static final Pattern URL_PATTERN = Pattern.compile(
+        "^/(admin/com.enonic.app.contentstudio/main/_/admin:extension/com.enonic.app.guillotine:guillotine|site)/(?!_static/)(?<project>[^/]+)/(?<branch>[^/]+)(/?)$" );
 
     private static final ApplicationKey APPLICATION_KEY = ApplicationKey.from( "com.enonic.app.guillotine" );
 

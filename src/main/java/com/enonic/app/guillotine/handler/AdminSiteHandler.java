@@ -40,7 +40,7 @@ import com.enonic.xp.web.handler.BaseWebHandler;
 import com.enonic.xp.web.handler.WebHandler;
 import com.enonic.xp.web.handler.WebHandlerChain;
 
-@Component(immediate = true, service = WebHandler.class)
+@Component(enabled = false, immediate = true, service = WebHandler.class)
 public class AdminSiteHandler
     extends BaseWebHandler
 {

@@ -37,14 +37,9 @@ function normalizeUrl(url) {
 
 function createFetcher() {
     const handlerBaseUrl: string = normalizeUrl(getDataConfig().configHandlerUrl);
-    const wsHandlerBaseUrl: string = normalizeUrl(getDataConfig().configWsUrl);
 
     return createGraphiQLFetcher({
-        url: `${handlerBaseUrl}/${currentBranch}`,
-        wsClient: createClient(
-            {
-                url: `${wsHandlerBaseUrl}/${currentBranch}`,
-            }),
+        url: `${handlerBaseUrl}/${currentBranch}`
     });
 }
 

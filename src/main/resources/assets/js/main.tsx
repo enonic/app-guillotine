@@ -31,10 +31,6 @@ function getHandlerUrl() {
     return `${getRootContainer().dataset.configHandlerUrl}/${getProjectValue()}/${currentBranch}`;
 }
 
-function getWsHandlerUrl() {
-    return `${getRootContainer().dataset.configWsUrl}/${getProjectValue()}/${currentBranch}`;
-}
-
 function getProjectValue(): string {
     return window['libAdmin'].store.get('projectContext').currentProject.name;
 }
@@ -59,11 +55,7 @@ function initEventListeners() {
 
 function createFetcher() {
     return createGraphiQLFetcher({
-        url: getHandlerUrl(),
-        wsClient: createClient(
-            {
-                url: getWsHandlerUrl(),
-            }),
+        url: getHandlerUrl()
     });
 }
 
