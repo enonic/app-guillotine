@@ -34,10 +34,7 @@ public class GuillotineApiWebHandlerTest
         when( webRequest.getMethod() ).thenReturn( HttpMethod.POST );
         when( webRequest.isWebSocket() ).thenReturn( false );
 
-        when( webRequest.getRawPath() ).thenReturn( "/admin/site/preview/hmdb/draft/" );
-        assertTrue( instance.canHandle( webRequest ) );
-
-        when( webRequest.getRawPath() ).thenReturn( "/admin/site/preview/hmdb/draft" );
+        when( webRequest.getRawPath() ).thenReturn( "/admin/com.enonic.app.contentstudio/main/_/admin:extension/com.enonic.app.guillotine:guillotine/hmdb/draft" );
         assertTrue( instance.canHandle( webRequest ) );
 
         when( webRequest.getRawPath() ).thenReturn( "/site/hmdb/draft" );
