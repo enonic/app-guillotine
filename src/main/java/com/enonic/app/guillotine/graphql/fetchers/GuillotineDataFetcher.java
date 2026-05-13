@@ -10,7 +10,9 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
+import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.portal.PortalRequest;
+import com.enonic.xp.project.ProjectName;
 
 public class GuillotineDataFetcher
     implements DataFetcher<Object>
@@ -33,6 +35,11 @@ public class GuillotineDataFetcher
 
         localContext.computeIfAbsent( Constants.SITE_ARG,
                                       v -> Objects.requireNonNullElse( siteKey, Objects.requireNonNullElse( siteKeyHeader, "/" ) ) );
+
+        localContext.computeIfAbsent( Constants.PROJECT_ARG,
+                                      v -> ProjectName.from( ContextAccessor.current().getRepositoryId() ).toString() );
+
+        localContext.computeIfAbsent( Constants.BRANCH_ARG, v -> ContextAccessor.current().getBranch().toString() );
 
         return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
     }

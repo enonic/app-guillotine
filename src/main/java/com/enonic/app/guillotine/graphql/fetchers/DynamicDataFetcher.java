@@ -1,9 +1,7 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
-import graphql.execution.ExecutionStepInfo;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
-import graphql.schema.GraphQLOutputType;
 
 import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.transformer.ContextualFieldResolver;
@@ -50,17 +48,5 @@ public class DynamicDataFetcher
     private Object doGet( final DataFetchingEnvironment environment )
     {
         return GuillotineSerializer.serialize( resolveFunction.call( new DataFetchingEnvironmentMapper( environment ) ) );
-    }
-
-    private GraphQLOutputType resolveRootFieldType( final DataFetchingEnvironment environment )
-    {
-        ExecutionStepInfo rootStepInfo = environment.getExecutionStepInfo();
-
-        while ( rootStepInfo.getParent() != null && rootStepInfo.getParent().getFieldDefinition() != null )
-        {
-            rootStepInfo = rootStepInfo.getParent();
-        }
-
-        return rootStepInfo.getFieldDefinition().getType();
     }
 }

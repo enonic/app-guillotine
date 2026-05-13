@@ -8,6 +8,10 @@ public interface Constants
 
     String SITE_ARG = "siteKey";
 
+    String PROJECT_ARG = "project";
+
+    String BRANCH_ARG = "branch";
+
     String SITE_HEADER = "X-Guillotine-SiteKey";
 
     List<String> SUPPORTED_AGGREGATIONS =
