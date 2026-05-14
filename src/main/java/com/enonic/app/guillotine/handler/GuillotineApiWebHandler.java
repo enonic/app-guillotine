@@ -68,9 +68,20 @@ public class GuillotineApiWebHandler
         final PortalRequest portalRequest = castToPortalRequest( webRequest );
         portalRequest.setRepositoryId( repositoryId );
         portalRequest.setBranch( branch );
-        portalRequest.setContextPath( portalRequest.getBaseUri() );
         portalRequest.setApplicationKey( APPLICATION_KEY );
-        portalRequest.setMode( !webRequest.getRawPath().startsWith( "/site/" ) ? RenderMode.LIVE : RenderMode.PREVIEW );
+
+        if ( webRequest.getRawPath().startsWith( "/site/" ) )
+        {
+            portalRequest.setContextPath( portalRequest.getBaseUri() );
+            portalRequest.setMode( RenderMode.LIVE );
+        }
+        else
+        {
+            final String baseUri = "/admin/com.enonic.app.contentstudio/site/inline";
+            portalRequest.setMode( RenderMode.INLINE );
+            portalRequest.setBaseUri( baseUri );
+            portalRequest.setContextPath( baseUri );
+        }
 
         final ResourceKey script = ResourceKey.from( APPLICATION_KEY, "api/api.js" );
         final ControllerScript controllerScript = controllerScriptFactory.fromScript( script );
