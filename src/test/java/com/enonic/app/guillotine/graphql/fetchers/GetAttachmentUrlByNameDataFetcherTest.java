@@ -1,6 +1,5 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +10,7 @@ import org.mockito.Mockito;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
+import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
@@ -37,7 +37,8 @@ public class GetAttachmentUrlByNameDataFetcherTest
         DataFetchingEnvironment environment = mock( DataFetchingEnvironment.class );
 
         when( environment.getSource() ).thenReturn( Map.of( "name", "Name" ) );
-        when( environment.getLocalContext() ).thenReturn( Map.of( Constants.CURRENT_CONTENT, Map.of( "_id", "contentid" ) ) );
+        when( environment.getLocalContext() ).thenReturn(
+            Map.of( Constants.CURRENT_CONTENT, GuillotineLocalContextHelper.mapToJson( Map.of( "_id", "contentid" ) ) ) );
         when( environment.getArgument( "download" ) ).thenReturn( "true" );
         when( environment.getArgument( "type" ) ).thenReturn( null );
 

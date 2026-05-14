@@ -40,6 +40,18 @@ public class GuillotineLocalContextHelper
         return environment.getLocalContext();
     }
 
+    public static String mapToJson( final Map<String, Object> map )
+    {
+        try
+        {
+            return MAPPER.writeValueAsString( map );
+        }
+        catch ( JsonProcessingException e )
+        {
+            throw new IllegalStateException( "Failed to serialize Map to JSON string", e );
+        }
+    }
+
     public static void putCurrentContent( final Map<String, Object> localContext, final Map<String, Object> content )
     {
         if ( content == null )
@@ -47,14 +59,7 @@ public class GuillotineLocalContextHelper
             localContext.remove( Constants.CURRENT_CONTENT );
             return;
         }
-        try
-        {
-            localContext.put( Constants.CURRENT_CONTENT, MAPPER.writeValueAsString( content ) );
-        }
-        catch ( JsonProcessingException e )
-        {
-            throw new IllegalStateException( "Failed to serialize " + Constants.CURRENT_CONTENT + " to JSON", e );
-        }
+        localContext.put( Constants.CURRENT_CONTENT, mapToJson( content ) );
     }
 
     public static Map<String, Object> getCurrentContent( final DataFetchingEnvironment environment )
