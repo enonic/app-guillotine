@@ -111,8 +111,9 @@ public final class ContentMapper
     {
         gen.map( "x" );
 
-        mixins.stream().collect( Collectors.groupingBy( this::getApplicationPrefix, LinkedHashMap::new, Collectors.toList() ) ).forEach(
-            ( appPrefix, appMixins ) -> {
+        mixins.stream()
+            .collect( Collectors.groupingBy( this::getApplicationPrefix, LinkedHashMap::new, Collectors.toList() ) )
+            .forEach( ( appPrefix, appMixins ) -> {
                 gen.map( appPrefix );
                 for ( final Mixin mixin : appMixins )
                 {

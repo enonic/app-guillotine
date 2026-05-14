@@ -12,6 +12,7 @@ import com.enonic.app.guillotine.mapper.SiteMapper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.script.ScriptValue;
 import com.enonic.xp.site.Site;
+import com.enonic.xp.sortvalues.SortValuesProperty;
 
 public final class GuillotineSerializer
 {
@@ -19,28 +20,28 @@ public final class GuillotineSerializer
     {
     }
 
-    public static Map<String, Object> serialize( Content content )
+    public static Map<String, Object> serialize( final Content content )
     {
         if ( content == null )
         {
             return null;
         }
 
-        GuillotineMapGenerator generator = new GuillotineMapGenerator();
+        final GuillotineMapGenerator generator = new GuillotineMapGenerator();
         new ContentMapper( content ).serialize( generator );
         return CastHelper.cast( generator.getRoot() );
     }
 
-    public static Object serializePermissions( Content content )
+    public static Map<String, Object> serialize( final Content content, final SortValuesProperty sort, final Float score )
     {
         if ( content == null )
         {
             return null;
         }
 
-        GuillotineMapGenerator generator = new GuillotineMapGenerator();
-        new PermissionsMapper( content ).serialize( generator );
-        return generator.getRoot();
+        final GuillotineMapGenerator generator = new GuillotineMapGenerator();
+        new ContentMapper( content, sort, score ).serialize( generator );
+        return CastHelper.cast( generator.getRoot() );
     }
 
     public static Map<String, Object> serialize( Site site )
@@ -61,6 +62,18 @@ public final class GuillotineSerializer
         }
 
         return result;
+    }
+
+    public static Object serializePermissions( Content content )
+    {
+        if ( content == null )
+        {
+            return null;
+        }
+
+        GuillotineMapGenerator generator = new GuillotineMapGenerator();
+        new PermissionsMapper( content ).serialize( generator );
+        return generator.getRoot();
     }
 
     public static Object serialize( ScriptValue scriptValue )

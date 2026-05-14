@@ -12,7 +12,6 @@ import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLType;
 
-import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 
 public final class ContentAwareDataFetcher
@@ -50,7 +49,7 @@ public final class ContentAwareDataFetcher
                                                                final Map<String, Object> contentAsMap )
     {
         final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
-        newLocalContext.put( Constants.CURRENT_CONTENT, contentAsMap );
+        GuillotineLocalContextHelper.putCurrentContent( newLocalContext, contentAsMap );
 
         return DataFetcherResult.newResult().data( contentAsMap ).localContext( Collections.unmodifiableMap( newLocalContext ) ).build();
     }

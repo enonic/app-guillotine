@@ -10,7 +10,6 @@ import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
-import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
@@ -120,7 +119,7 @@ public class GetComponentsDataFetcher
                                                                       final DataFetchingEnvironment environment )
     {
         final Map<String, Object> newLocalContext = GuillotineLocalContextHelper.newLocalContext( environment );
-        newLocalContext.put( Constants.CURRENT_CONTENT, currentContent );
+        GuillotineLocalContextHelper.putCurrentContent( newLocalContext, currentContent );
 
         return DataFetcherResult.newResult().localContext( Collections.unmodifiableMap( newLocalContext ) );
     }
