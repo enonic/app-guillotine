@@ -1,12 +1,11 @@
 query {
     guillotine {
-        get(key: "contentId") {
+        get(key: "contentid") {
             _id
             _name
             _path
             _score
             displayName
-            hasChildren
             language
             valid
             dataAsJson
@@ -60,7 +59,6 @@ query {
                 }
             }
             permissions {
-                inheritsPermissions
                 permissions {
                     principal {
                         value

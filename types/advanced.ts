@@ -112,7 +112,7 @@ export type {
 	ContentConnection,
 	ContentEdge,
 	ContentType,
-	ExtraData,
+	Mixin,
 	FormItem,
 	GeoPoint,
 	Icon,
@@ -126,11 +126,11 @@ export type {
 	portal_Site_Data,
 	PrincipalKey,
 	PublishInfo,
-	XData_base_ApplicationConfig,
-	XData_base_gpsInfo_DataConfig,
-	XData_media_ApplicationConfig,
-	XData_media_cameraInfo_DataConfig,
-	XData_media_imageInfo_DataConfig,
+	Mixin_base_ApplicationConfig,
+	Mixin_base_gpsInfo_DataConfig,
+	Mixin_media_ApplicationConfig,
+	Mixin_media_cameraInfo_DataConfig,
+	Mixin_media_imageInfo_DataConfig,
 } from './guillotine'
 
 export type {

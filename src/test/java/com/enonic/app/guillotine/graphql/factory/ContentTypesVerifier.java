@@ -43,7 +43,7 @@ public class ContentTypesVerifier
     private void verifyDynamicallyCreatedContentType()
     {
         GraphQLObjectType type = context.getOutputType( "com_enonic_app_testapp_MyType" );
-        assertEquals( 31, type.getFieldDefinitions().size() );
+        assertEquals( 30, type.getFieldDefinitions().size() );
 
         GraphQLFieldDefinition dataField = type.getFieldDefinition( "data" );
 
@@ -184,11 +184,10 @@ public class ContentTypesVerifier
         assertEquals( Scalars.GraphQLString, type.getField( "type" ).getType() );
         assertEquals( "ContentType", getNameForGraphQLTypeReference( type.getField( "contentType" ).getType() ) );
         assertEquals( Scalars.GraphQLString, type.getField( "displayName" ).getType() );
-        assertEquals( Scalars.GraphQLBoolean, type.getField( "hasChildren" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getField( "language" ).getType() );
         assertEquals( Scalars.GraphQLBoolean, type.getField( "valid" ).getType() );
         assertEquals( ExtendedScalars.Json, type.getField( "dataAsJson" ).getType() );
-        assertEquals( "ExtraData", getNameForGraphQLTypeReference( type.getField( "x" ).getType() ) );
+        assertEquals( "Mixin", getNameForGraphQLTypeReference( type.getField( "x" ).getType() ) );
         assertEquals( ExtendedScalars.Json, type.getField( "xAsJson" ).getType() );
 
         GraphQLFieldDefinition pageAsJsonField = type.getField( "pageAsJson" );
@@ -244,11 +243,10 @@ public class ContentTypesVerifier
         assertEquals( Scalars.GraphQLString, type.getField( "type" ).getType() );
         assertEquals( "ContentType", getNameForGraphQLTypeReference( type.getField( "contentType" ).getType() ) );
         assertEquals( Scalars.GraphQLString, type.getField( "displayName" ).getType() );
-        assertEquals( Scalars.GraphQLBoolean, type.getField( "hasChildren" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getField( "language" ).getType() );
         assertEquals( Scalars.GraphQLBoolean, type.getField( "valid" ).getType() );
         assertEquals( ExtendedScalars.Json, type.getField( "dataAsJson" ).getType() );
-        assertEquals( "ExtraData", getNameForGraphQLTypeReference( type.getField( "x" ).getType() ) );
+        assertEquals( "Mixin", getNameForGraphQLTypeReference( type.getField( "x" ).getType() ) );
         assertEquals( ExtendedScalars.Json, type.getField( "xAsJson" ).getType() );
 
         GraphQLFieldDefinition pageAsJsonField = type.getField( "pageAsJson" );

@@ -10,10 +10,9 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
-import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.portal.PortalRequest;
-import com.enonic.xp.project.ProjectConstants;
+import com.enonic.xp.project.ProjectName;
 
 public class GuillotineDataFetcher
     implements DataFetcher<Object>
@@ -29,22 +28,18 @@ public class GuillotineDataFetcher
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
     {
-        Context xpContext = ContextAccessor.current();
-        String defaultProject = xpContext.getRepositoryId().toString().replace( ProjectConstants.PROJECT_REPO_ID_PREFIX, "" );
-        String defaultBranch = xpContext.getBranch().toString();
-
         final HashMap<Object, Object> localContext = new HashMap<>();
 
+        final String siteKey = environment.getArgument( Constants.SITE_ARG );
+        final String siteKeyHeader = portalRequestSupplier.get().getHeaders().get( Constants.SITE_HEADER );
+
+        localContext.computeIfAbsent( Constants.SITE_ARG,
+                                      v -> Objects.requireNonNullElse( siteKey, Objects.requireNonNullElse( siteKeyHeader, "/" ) ) );
+
         localContext.computeIfAbsent( Constants.PROJECT_ARG,
-                                      v -> Objects.requireNonNullElse( environment.getArgument( Constants.PROJECT_ARG ), defaultProject ) );
-        localContext.computeIfAbsent( Constants.BRANCH_ARG,
-                                      v -> Objects.requireNonNullElse( environment.getArgument( Constants.BRANCH_ARG ), defaultBranch ) );
+                                      v -> ProjectName.from( ContextAccessor.current().getRepositoryId() ).toString() );
 
-		final String siteKey = environment.getArgument( Constants.SITE_ARG );
-		final String siteKeyHeader = portalRequestSupplier.get().getHeaders().get( Constants.SITE_HEADER );
-
-		localContext.computeIfAbsent( Constants.SITE_ARG,
-									  v -> Objects.requireNonNullElse( siteKey, Objects.requireNonNullElse( siteKeyHeader, "/" ) ) );
+        localContext.computeIfAbsent( Constants.BRANCH_ARG, v -> ContextAccessor.current().getBranch().toString() );
 
         return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
     }

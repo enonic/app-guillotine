@@ -120,15 +120,21 @@ public class GenericTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 11, fields.size() );
+        assertEquals( 17, fields.size() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "name" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "displayName" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "title" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "titleI18nKey" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "description" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "descriptionI18nKey" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "superType" ).getType() );
         assertEquals( Scalars.GraphQLBoolean, type.getFieldDefinition( "abstract" ).getType() );
         assertEquals( Scalars.GraphQLBoolean, type.getFieldDefinition( "final" ).getType() );
         assertEquals( Scalars.GraphQLBoolean, type.getFieldDefinition( "allowChildContent" ).getType() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "contentDisplayNameScript" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "displayNameExpression" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "displayNameListExpression" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "displayNamePlaceholder" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "displayNamePlaceholderI18nKey" ).getType() );
         assertEquals( "Icon", getNameForGraphQLTypeReference( type.getFieldDefinition( "icon" ).getType() ) );
         assertEquals( "FormItem", getNameForGraphQLTypeReference( getOriginalTypeFromGraphQLList( type, "form" ) ) );
         assertEquals( ExtendedScalars.Json, type.getFieldDefinition( "formAsJson" ).getType() );

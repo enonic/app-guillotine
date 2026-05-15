@@ -2,39 +2,41 @@ const portalLib = require('/lib/xp/portal');
 const mustacheLib = require('/lib/mustache');
 const staticLib = require('/lib/enonic/static');
 const routerLib = require('/lib/router')();
+const corsLib = require('/lib/enonic/cors');
 
-exports.all = function (req) {
+const STATIC_BASE_PATH = '/_static';
+
+exports.all = (req) => {
     return routerLib.dispatch(req);
 };
 
-const getStatic = staticLib.buildGetter(
-    {
-        root: 'assets',
-        getCleanPath: request => {
-            return request.pathParams.resourcePath;
-        },
-        cacheControl: 'no-cache',
-        etag: true,
-    }
-);
+routerLib.route('OPTIONS', '/?', (request) => {
+    return {
+        status: 204,
+        headers: corsLib.respondOptions(request),
+    };
+});
 
 routerLib.get(
-    '/site/[^/]+/_static/{resourcePath:.+}',
+    `${STATIC_BASE_PATH}/{resourcePath:.+}`,
     request => {
-        return getStatic(request);
+        return staticLib.requestHandler(
+            request,
+            {
+                cacheControl: () => staticLib.RESPONSE_CACHE_CONTROL.SAFE,
+                index: false,
+                root: '/assets',
+                relativePath: staticLib.mappedRelativePath(STATIC_BASE_PATH),
+            }
+        );
     }
 );
 
-routerLib.get('/site/[^/]+', function (req) {
+routerLib.get('/?', (req) => {
     const view = resolve('graphiql.html');
 
-    const project = req.repositoryId ? req.repositoryId.replace('com.enonic.cms.', '') : 'default';
-    const baseUrl = `/site/${project}`;
+    const baseUrl = req.contextPath;
 
-    const wsUrl = portalLib.url({
-        path: baseUrl,
-        type: 'websocket',
-    });
     const handlerUrl = portalLib.url({
         path: baseUrl,
     });
@@ -42,9 +44,8 @@ routerLib.get('/site/[^/]+', function (req) {
     const staticResourceBaseUrl = handlerUrl.replace(/\/$/, '');
 
     const params = {
-        wsUrl: wsUrl,
         handlerUrl: handlerUrl,
-        staticResourceBaseUrl: `${staticResourceBaseUrl}/_static`,
+        staticResourceBaseUrl: `${staticResourceBaseUrl}${STATIC_BASE_PATH}`,
     };
 
     return {

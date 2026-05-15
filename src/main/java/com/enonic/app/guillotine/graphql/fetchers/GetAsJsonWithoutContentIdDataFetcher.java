@@ -7,7 +7,6 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
-import com.enonic.app.guillotine.graphql.helper.DataFetcherHelper;
 
 public class GetAsJsonWithoutContentIdDataFetcher
     implements DataFetcher<Object>
@@ -25,8 +24,7 @@ public class GetAsJsonWithoutContentIdDataFetcher
         throws Exception
     {
         Map<String, Object> sourceAsMap = new HashMap<>( environment.getSource() );
-        Object data = CastHelper.cast( sourceAsMap.get( fieldName ) );
-        return DataFetcherHelper.removeContentIdField( data );
+        return CastHelper.cast( sourceAsMap.get( fieldName ) );
     }
 
 }

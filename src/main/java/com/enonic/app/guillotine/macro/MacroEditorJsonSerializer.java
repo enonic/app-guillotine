@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ListMultimap;
 
 import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
+import com.enonic.xp.form.FormItemPath;
 import com.enonic.xp.form.Occurrences;
 import com.enonic.xp.macro.MacroDescriptor;
 
@@ -42,15 +42,14 @@ public class MacroEditorJsonSerializer
         final Map<String, Object> macroData = new LinkedHashMap<>();
 
         macroData.put( "body", macro.getMacro().getBody() );
-        macroData.put( "__nodeId", macro.getNodeId() );
 
-        final ImmutableMultimap<String, String> params = macro.getMacro().getParameters();
+        final ListMultimap<String, String> params = macro.getMacro().getParameters();
 
         for ( String key : params.keySet() )
         {
-            ImmutableList<String> values = macro.getMacro().getParameter( key );
+            List<String> values = macro.getMacro().getParameter( key );
 
-            Occurrences occurrences = FormItemTypesHelper.getOccurrences( descriptor.getForm().getFormItem( key ) );
+            Occurrences occurrences = FormItemTypesHelper.getOccurrences( descriptor.getForm().getFormItem( FormItemPath.from( key ) ) );
 
             if ( occurrences != null && occurrences.isMultiple() )
             {

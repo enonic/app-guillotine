@@ -1,10 +1,9 @@
 package com.enonic.app.guillotine.mapper;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.SortedSet;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSortedSet;
 
 import com.enonic.xp.index.IndexConfig;
 import com.enonic.xp.index.IndexConfigDocument;
@@ -48,7 +47,7 @@ class IndexConfigDocMapper
 
         gen.array( "configs" );
 
-        final ImmutableSortedSet<PathIndexConfig> pathIndexConfigs = document.getPathIndexConfigs();
+        final SortedSet<PathIndexConfig> pathIndexConfigs = document.getPathIndexConfigs();
 
         for ( final PathIndexConfig pathIndexConfig : pathIndexConfigs )
         {
@@ -72,12 +71,12 @@ class IndexConfigDocMapper
         gen.value( "includeInAllText", indexConfig.isIncludeInAllText() );
         gen.value( "path", indexConfig.isPath() );
 
-        final ImmutableList<IndexValueProcessor> indexValueProcessors = indexConfig.getIndexValueProcessors();
+        final List<IndexValueProcessor> indexValueProcessors = indexConfig.getIndexValueProcessors();
 
         serializeArray( gen, "indexValueProcessors",
                         indexValueProcessors.stream().map( IndexValueProcessor::getName ).collect( Collectors.toList() ) );
 
-        final ImmutableList<String> languages = indexConfig.getLanguages();
+        final List<String> languages = indexConfig.getLanguages().stream().map( Locale::toLanguageTag ).toList();
 
         serializeArray( gen, "languages", languages );
     }

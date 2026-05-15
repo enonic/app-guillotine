@@ -31,7 +31,6 @@ import com.enonic.xp.form.FormOptionSet;
 import com.enonic.xp.form.FormOptionSetOption;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.form.Occurrences;
-import com.enonic.xp.inputtype.InputTypeConfig;
 import com.enonic.xp.inputtype.InputTypeName;
 
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newArgument;
@@ -84,18 +83,17 @@ public class FormItemTypesFactory
 
         String description = formItemSet.getLabel();
 
-        List<GraphQLFieldDefinition> fields =
-            FormItemTypesHelper.getFilteredFormItems( formItemSet.getFormItems() ).stream().map( formItem -> {
-                String fieldName = StringNormalizer.create( formItem.getName() );
+        List<GraphQLFieldDefinition> fields = FormItemTypesHelper.getFilteredFormItems( formItemSet ).stream().map( formItem -> {
+            String fieldName = StringNormalizer.create( formItem.getName() );
 
-                GraphQLOutputType formItemObject = (GraphQLOutputType) generateFormItemObject( parentTypeName, formItem );
+            GraphQLOutputType formItemObject = (GraphQLOutputType) generateFormItemObject( parentTypeName, formItem );
 
-                GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
+            GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
 
-                context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
+            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
 
-                return field;
-            } ).collect( Collectors.toList() );
+            return field;
+        } ).collect( Collectors.toList() );
 
         GraphQLObjectType objectType = newObject( typeName, description, fields );
         context.registerType( objectType.getName(), objectType );
@@ -155,14 +153,12 @@ public class FormItemTypesFactory
         {
             return CustomScalars.LocalTime;
         }
+        if ( InputTypeName.INSTANT.equals( formItem.getInputType() ) )
+        {
+            return ExtendedScalars.DateTime;
+        }
         if ( InputTypeName.DATE_TIME.equals( formItem.getInputType() ) )
         {
-            InputTypeConfig config = formItem.getInputTypeConfig();
-            if ( config != null && config.getProperty( "timezone" ) != null &&
-                "true".equals( config.getProperty( "timezone" ).getValue() ) )
-            {
-                return ExtendedScalars.DateTime;
-            }
             return CustomScalars.LocalDateTime;
         }
         if ( InputTypeName.DOUBLE.equals( formItem.getInputType() ) )
@@ -195,6 +191,10 @@ public class FormItemTypesFactory
         if ( InputTypeName.SITE_CONFIGURATOR.equals( formItem.getInputType() ) )
         {
             return GraphQLTypeReference.typeRef( "SiteConfigurator" );
+        }
+        if ( InputTypeName.LONG.equals( formItem.getInputType() ) )
+        {
+            return ExtendedScalars.GraphQLLong;
         }
 
         return Scalars.GraphQLString;
@@ -243,7 +243,7 @@ public class FormItemTypesFactory
             context.uniqueName( parentTypeName + "_" + NamingHelper.camelCase( StringNormalizer.create( formOptionSet.getName() ) ) );
         String description = formOptionSet.getLabel();
 
-        List<FormItem> formItems = FormItemTypesHelper.getFilteredFormItems( formOptionSet.getFormItems() );
+        List<FormItem> formItems = FormItemTypesHelper.getFilteredFormItems( formOptionSet );
         List<GraphQLFieldDefinition> fields = formItems.stream().map( formItem -> {
             String fieldName = StringNormalizer.create( formItem.getName() );
 
@@ -263,6 +263,6 @@ public class FormItemTypesFactory
 
     private GraphQLType generateOptionObjectType( String parentTypeName, FormOptionSetOption option )
     {
-        return option.getFormItems().size() > 0 ? generateOptionSetObjectType( parentTypeName, option ) : Scalars.GraphQLString;
+        return option.iterator().hasNext() ? generateOptionSetObjectType( parentTypeName, option ) : Scalars.GraphQLString;
     }
 }

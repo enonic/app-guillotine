@@ -10,12 +10,12 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
-import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
+import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.form.FormItem;
 import com.enonic.xp.form.FormItemType;
 import com.enonic.xp.form.Input;
@@ -47,8 +47,6 @@ public class FormItemDataFetcher
 
         Occurrences occurrences = FormItemTypesHelper.getOccurrences( formItem );
 
-        String contentId = Objects.toString( sourceAsMap.get( Constants.CONTENT_ID_FIELD ), null );
-
         if ( occurrences.getMaximum() == 1 )
         {
             Object value = sourceAsMap.get( formItem.getName() );
@@ -58,11 +56,12 @@ public class FormItemDataFetcher
                 InputTypeName inputType = ( (Input) formItem ).getInputType();
                 if ( inputType.equals( InputTypeName.HTML_AREA ) )
                 {
-                    return new RichTextDataFetcher( (String) value, contentId, serviceFacade, guillotineContext ).execute( environment );
+                    return new RichTextDataFetcher( (String) value, serviceFacade, guillotineContext ).execute( environment );
                 }
                 if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) )
                 {
-                    Map<String, Object> attachmentsAsMap = getAttachmentsAsMap( contentId, environment );
+                    final Map<String, Object> currentContentAsMap = GuillotineLocalContextHelper.getCurrentContent( environment );
+                    final Map<String, Object> attachmentsAsMap = CastHelper.cast( currentContentAsMap.get( "attachments" ) );
                     return attachmentsAsMap.get( (String) value );
                 }
                 if ( inputType.equals( InputTypeName.CONTENT_SELECTOR ) || inputType.equals( InputTypeName.MEDIA_SELECTOR ) ||
@@ -93,12 +92,13 @@ public class FormItemDataFetcher
                 if ( inputType.equals( InputTypeName.HTML_AREA ) )
                 {
                     return values.stream().map(
-                        value -> new RichTextDataFetcher( (String) value, contentId, serviceFacade, guillotineContext ).execute(
+                        value -> new RichTextDataFetcher( (String) value, serviceFacade, guillotineContext ).execute(
                             environment ) ).collect( Collectors.toList() );
                 }
                 if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) )
                 {
-                    Map<String, Object> attachmentsAsMap = getAttachmentsAsMap( contentId, environment );
+                    final Map<String, Object> currentContentAsMap = GuillotineLocalContextHelper.getCurrentContent( environment );
+                    final Map<String, Object> attachmentsAsMap = CastHelper.cast( currentContentAsMap.get( "attachments" ) );
                     return values.stream().map( value -> attachmentsAsMap.get( (String) value ) ).collect( Collectors.toList() );
                 }
                 if ( inputType.equals( InputTypeName.CONTENT_SELECTOR ) || inputType.equals( InputTypeName.MEDIA_SELECTOR ) ||

@@ -11,8 +11,6 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
-import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
-import com.enonic.app.guillotine.graphql.helper.PortalRequestHelper;
 import com.enonic.app.guillotine.macro.CustomHtmlPostProcessor;
 import com.enonic.app.guillotine.macro.HtmlEditorProcessedResult;
 import com.enonic.app.guillotine.macro.MacroDecorator;
@@ -29,23 +27,20 @@ import com.enonic.xp.portal.html.HtmlDocument;
 import com.enonic.xp.portal.html.HtmlElement;
 import com.enonic.xp.portal.url.ProcessHtmlParams;
 import com.enonic.xp.site.SiteConfig;
+import com.enonic.xp.site.SiteConfigs;
 
 public class RichTextDataFetcher
     implements DataFetcher<Object>
 {
     private final String htmlText;
 
-    private final String contentId;
-
     private final ServiceFacade serviceFacade;
 
     private final GuillotineContext guillotineContext;
 
-    public RichTextDataFetcher( final String htmlText, final String contentId, final ServiceFacade serviceFacade,
-                                final GuillotineContext guillotineContext )
+    public RichTextDataFetcher( final String htmlText, final ServiceFacade serviceFacade, final GuillotineContext guillotineContext )
     {
         this.htmlText = htmlText;
-        this.contentId = contentId;
         this.serviceFacade = serviceFacade;
         this.guillotineContext = guillotineContext;
     }
@@ -54,7 +49,7 @@ public class RichTextDataFetcher
     {
         try
         {
-            return GuillotineLocalContextHelper.executeInContext( environment, () -> get( environment ) );
+            return get( environment );
         }
         catch ( Exception e )
         {
@@ -93,7 +88,7 @@ public class RichTextDataFetcher
                 {
                     return macro.toString();
                 }
-                MacroDecorator macroDecorator = MacroDecorator.from( macro, contentId );
+                MacroDecorator macroDecorator = MacroDecorator.from( macro );
                 processedMacros.add( macroDecorator );
                 return new MacroEditorSerializer( macroDecorator ).serialize();
             } );
@@ -117,8 +112,7 @@ public class RichTextDataFetcher
 
     private ProcessHtmlParams createProcessHtmlParams( DataFetchingEnvironment environment )
     {
-        PortalRequest portalRequest = PortalRequestHelper.createPortalRequest( PortalRequestAccessor.get(), environment );
-        ProcessHtmlParams htmlParams = new ProcessHtmlParams().portalRequest( portalRequest ).value( htmlText );
+        ProcessHtmlParams htmlParams = new ProcessHtmlParams().value( htmlText );
 
         Map<String, Object> processHtmlParams = environment.getArgument( "processHtml" );
 
@@ -143,10 +137,13 @@ public class RichTextDataFetcher
 
     private Map<String, MacroDescriptor> getRegisteredMacrosInSystemForSite( final PortalRequest portalRequest )
     {
-        List<ApplicationKey> applicationKeys = new ArrayList<>();
+        final SiteConfigs siteConfigs = portalRequest.getSite() != null
+            ? serviceFacade.getSiteConfigService().getSiteConfigs( portalRequest.getSite().getPath() )
+            : portalRequest.getProject().getSiteConfigs();
+
+        final List<ApplicationKey> applicationKeys = new ArrayList<>();
         applicationKeys.add( ApplicationKey.SYSTEM );
-        applicationKeys.addAll(
-            portalRequest.getSite().getSiteConfigs().stream().map( SiteConfig::getApplicationKey ).collect( Collectors.toList() ) );
+        applicationKeys.addAll( siteConfigs.stream().map( SiteConfig::getApplicationKey ).toList() );
 
         Map<String, MacroDescriptor> result = new LinkedHashMap<>();
 

@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 public class GetTypesGraphQLIntegrationTest
@@ -59,12 +61,18 @@ public class GetTypesGraphQLIntegrationTest
             if ( Objects.equals( "portal:site", getTypeField.get( "name" ) ) )
             {
                 assertEquals( "Site", getTypeField.get( "displayName" ) );
+                assertEquals( "Site", getTypeField.get( "title" ) );
+                assertEquals( "portal.site.displayName", getTypeField.get( "titleI18nKey" ) ); // TODO should be portal.site.title
                 assertEquals( "Root content for sites", getTypeField.get( "description" ) );
+                assertEquals( "portal.site.description", getTypeField.get( "descriptionI18nKey" ) );
                 assertEquals( "base:structured", getTypeField.get( "superType" ) );
                 assertEquals( false, getTypeField.get( "abstract" ) );
                 assertEquals( true, getTypeField.get( "final" ) );
                 assertEquals( true, getTypeField.get( "allowChildContent" ) );
-                assertNull( getTypeField.get( "contentDisplayNameScript" ) );
+                assertNull( getTypeField.get( "displayNameExpression" ) );
+                assertNull( getTypeField.get( "displayNameListExpression" ) );
+                assertNull( getTypeField.get( "displayNamePlaceholder" ) );
+                assertNull( getTypeField.get( "displayNamePlaceholderI18nKey" ) );
             }
         } );
     }
@@ -73,7 +81,8 @@ public class GetTypesGraphQLIntegrationTest
     public void testGetTypeField()
     {
         when( contentTypeService.getAll() ).thenReturn( ContentTypes.from( BuiltinContentTypes.getAll() ) );
-        when( contentTypeService.getByName( GetContentTypeParams.from( ContentTypeName.site() ) ) ).thenReturn(
+        when( contentTypeService.getByName(
+            argThat( params -> params != null && ContentTypeName.site().equals( params.getContentTypeName() ) ) ) ).thenReturn(
             BuiltinContentTypes.getContentType( ContentTypeName.site() ) );
         when( serviceFacade.getContentTypeService() ).thenReturn( contentTypeService );
 
@@ -115,7 +124,7 @@ public class GetTypesGraphQLIntegrationTest
     @Test
     public void testGetPermissionsField()
     {
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
@@ -126,9 +135,7 @@ public class GetTypesGraphQLIntegrationTest
 
         Map<String, Object> getPermissionsField = CastHelper.cast( getFieldFromGuillotine( result, "getPermissions" ) );
 
-        assertEquals( 2, getPermissionsField.size() );
-
-        assertTrue( (boolean) getPermissionsField.get( "inheritsPermissions" ) );
+        assertEquals( 1, getPermissionsField.size() );
 
         List<Map<String, Object>> permissionsEntries = CastHelper.cast( getPermissionsField.get( "permissions" ) );
 

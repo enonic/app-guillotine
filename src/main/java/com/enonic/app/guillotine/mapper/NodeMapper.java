@@ -20,12 +20,6 @@ public class NodeMapper
         this.useRawValues = false;
     }
 
-    public NodeMapper( final Node node, final boolean useRawValues )
-    {
-        this.node = node;
-        this.useRawValues = useRawValues;
-    }
-
     @Override
     public void serialize( final MapGenerator gen )
     {
@@ -34,7 +28,6 @@ public class NodeMapper
         gen.value( "_path", node.path() );
         gen.value( "_childOrder", node.getChildOrder().toString() );
         serializeIndexConfigDocument( gen, node.getIndexConfigDocument() );
-        gen.value( "_state", node.getNodeState().toString() );
         gen.value( "_nodeType", node.getNodeType().getName() );
         gen.value( "_versionKey", node.getNodeVersionId() );
         gen.value( "_manualOrderValue", node.getManualOrderValue() );
@@ -44,7 +37,7 @@ public class NodeMapper
 
     private void serializeData( final MapGenerator gen, final PropertyTree value )
     {
-        new PropertyTreeMapper( this.useRawValues, value, node.id().toString() ).serialize( gen );
+        new PropertyTreeMapper( this.useRawValues, value ).serialize( gen );
     }
 
     private void serializeIndexConfigDocument( final MapGenerator gen, final IndexConfigDocument value )

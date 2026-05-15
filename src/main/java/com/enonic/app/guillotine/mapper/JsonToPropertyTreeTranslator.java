@@ -92,21 +92,19 @@ public final class JsonToPropertyTreeTranslator
 
     private static Value mapSet( final JsonNode value )
     {
-        PropertySet propertySet = new PropertySet();
-        value.fields().
-            forEachRemaining( ( field ) -> {
-                if ( field.getValue().isArray() )
-                {
-                    for ( final JsonNode arrayNode : field.getValue() )
-                    {
-                        propertySet.addProperty( field.getKey(), resolveCoreValue( arrayNode ) );
-                    }
-                }
-                else
-                {
-                    propertySet.addProperty( field.getKey(), resolveCoreValue( field.getValue() ) );
-                }
-            } );
+        PropertyTree propertyTree = new PropertyTree();
+        PropertySet propertySet = propertyTree.newSet();
+
+        value.properties().forEach( field -> {
+            if ( field.getValue().isArray() )
+            {
+                field.getValue().forEach( arrayNode -> propertySet.addProperty( field.getKey(), resolveCoreValue( arrayNode ) ) );
+            }
+            else
+            {
+                propertySet.addProperty( field.getKey(), resolveCoreValue( field.getValue() ) );
+            }
+        } );
 
         return ValueFactory.newPropertySet( propertySet );
     }

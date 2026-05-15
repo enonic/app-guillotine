@@ -1,19 +1,14 @@
 package com.enonic.app.guillotine.mapper;
 
-import java.util.List;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-
-import com.enonic.app.guillotine.graphql.Constants;
-import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentInheritType;
 import com.enonic.xp.content.ContentPublishInfo;
-import com.enonic.xp.content.ExtraData;
-import com.enonic.xp.content.WorkflowCheckState;
+import com.enonic.xp.content.Mixin;
+import com.enonic.xp.content.Mixins;
 import com.enonic.xp.content.WorkflowInfo;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.page.Page;
@@ -55,7 +50,6 @@ public final class ContentMapper
         gen.value( "owner", content.getOwner() );
         gen.value( "type", content.getType() );
         gen.value( "displayName", content.getDisplayName() );
-        gen.value( "hasChildren", content.hasChildren() );
         gen.value( "language", content.getLanguage() );
         gen.value( "valid", content.isValid() );
         gen.value( "originProject", content.getOriginProject() );
@@ -75,7 +69,7 @@ public final class ContentMapper
         }
 
         serializeData( gen, content.getData() );
-        serializeExtraData( gen, content.getAllExtraData() );
+        serializeMixins( gen, content.getMixins() );
         serializePage( gen, content.getPage() );
         serializeAttachments( gen, content );
         serializePublishInfo( gen, content.getPublishInfo() );
@@ -86,8 +80,7 @@ public final class ContentMapper
     private void serializeData( final MapGenerator gen, final PropertyTree value )
     {
         gen.map( "data" );
-        gen.value( Constants.CONTENT_ID_FIELD, content.getId() );
-        new PropertyTreeMapper( value, content.getId().toString() ).serialize( gen );
+        new PropertyTreeMapper( value ).serialize( gen );
         gen.end();
     }
 
@@ -96,9 +89,10 @@ public final class ContentMapper
         gen.map( "publish" );
         if ( info != null )
         {
-            gen.value( "from", info.getFrom() );
-            gen.value( "to", info.getTo() );
-            gen.value( "first", info.getFirst() );
+            gen.value( "from", info.from() );
+            gen.value( "to", info.to() );
+            gen.value( "first", info.first() );
+            gen.value( "time", info.time() );
         }
         gen.end();
     }
@@ -109,43 +103,26 @@ public final class ContentMapper
         if ( info != null )
         {
             gen.value( "state", info.getState().toString() );
-            gen.map( "checks" );
-            for ( Map.Entry<String, WorkflowCheckState> e : info.getChecks().entrySet() )
-            {
-                gen.value( e.getKey(), e.getValue().toString() );
-            }
-            gen.end();
         }
         gen.end();
     }
 
-    private void serializeExtraData( final MapGenerator gen, final Iterable<ExtraData> values )
+    private void serializeMixins( final MapGenerator gen, final Mixins mixins )
     {
         gen.map( "x" );
 
-        final ListMultimap<ApplicationKey, ExtraData> extradatasByModule = ArrayListMultimap.create();
-        for ( ExtraData extraData : values )
-        {
-            extradatasByModule.put( extraData.getName().getApplicationKey(), extraData );
-        }
-
-        for ( final ApplicationKey applicationKey : extradatasByModule.keys() )
-        {
-            final List<ExtraData> extraDatas = extradatasByModule.get( applicationKey );
-            if ( extraDatas.isEmpty() )
-            {
-                continue;
-            }
-            gen.map( extraDatas.get( 0 ).getApplicationPrefix() );
-            for ( final ExtraData extraData : extraDatas )
-            {
-                gen.map( extraData.getName().getLocalName() );
-				gen.value( Constants.CONTENT_ID_FIELD, content.getId().toString() );
-                new PropertyTreeMapper( extraData.getData(), content.getId().toString() ).serialize( gen );
+        mixins.stream()
+            .collect( Collectors.groupingBy( this::getApplicationPrefix, LinkedHashMap::new, Collectors.toList() ) )
+            .forEach( ( appPrefix, appMixins ) -> {
+                gen.map( appPrefix );
+                for ( final Mixin mixin : appMixins )
+                {
+                    gen.map( mixin.getName().getLocalName() );
+                    new PropertyTreeMapper( mixin.getData() ).serialize( gen );
+                    gen.end();
+                }
                 gen.end();
-            }
-            gen.end();
-        }
+            } );
         gen.end();
     }
 
@@ -153,7 +130,7 @@ public final class ContentMapper
     {
         if ( value != null )
         {
-            new PageMapper( value, content.getId() ).serialize( gen );
+            new PageMapper( value ).serialize( gen );
         }
         else
         {
@@ -177,6 +154,11 @@ public final class ContentMapper
             value.forEach( gen::value );
             gen.end();
         }
+    }
+
+    private String getApplicationPrefix( final Mixin mixin )
+    {
+        return mixin.getName().getApplicationKey().toString().replace( '.', '-' );
     }
 
     @Override

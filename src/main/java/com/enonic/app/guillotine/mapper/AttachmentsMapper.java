@@ -32,7 +32,6 @@ public final class AttachmentsMapper
 
     private void serializeAttachment( final MapGenerator gen, final Attachment attachment )
     {
-        gen.value( Constants.CONTENT_ID_FIELD, content.getId() );
         gen.value( "name", attachment.getName() );
         gen.value( "label", attachment.getLabel() );
         gen.value( "size", attachment.getSize() );

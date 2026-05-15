@@ -27,7 +27,7 @@ public class GetChildrenGraphQLIntegrationTest
         when( contentService.getByPath( ContentPath.from( "/hmdb" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
         when( contentService.findByParent( any( FindContentByParentParams.class ) ) ).thenReturn(
-            FindContentByParentResult.create().hits( 1 ).totalHits( 1 ).contents(
+            FindContentByParentResult.create().totalHits( 1 ).contents(
                 Contents.from( ContentFixtures.createMediaContent() ) ).build() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
@@ -46,7 +46,7 @@ public class GetChildrenGraphQLIntegrationTest
         when( contentService.getByPath( ContentPath.from( "/hmdb" ) ) ).thenReturn( null );
 
         when( contentService.findByParent( any( FindContentByParentParams.class ) ) ).thenReturn(
-            FindContentByParentResult.create().hits( 0 ).totalHits( 0 ).contents( Contents.empty() ).build() );
+            FindContentByParentResult.create().totalHits( 0 ).contents( Contents.empty() ).build() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
@@ -64,7 +64,7 @@ public class GetChildrenGraphQLIntegrationTest
         when( contentService.getByPath( ContentPath.from( "/hmdb" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
         when( contentService.findByParent( any( FindContentByParentParams.class ) ) ).thenReturn(
-            FindContentByParentResult.create().hits( 1 ).totalHits( 1 ).contents(
+            FindContentByParentResult.create().totalHits( 1 ).contents(
                 Contents.from( ContentFixtures.createMediaContent() ) ).build() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();

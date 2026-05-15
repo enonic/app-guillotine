@@ -4,13 +4,13 @@ import java.util.List;
 
 public interface Constants
 {
-    String CONTENT_ID_FIELD = "__contentId";
+    String CURRENT_CONTENT = "__currentContent";
+
+    String SITE_ARG = "siteKey";
 
     String PROJECT_ARG = "project";
 
     String BRANCH_ARG = "branch";
-
-    String SITE_ARG = "siteKey";
 
     String SITE_HEADER = "X-Guillotine-SiteKey";
 

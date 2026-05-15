@@ -63,7 +63,6 @@ const myContent: CoreContent = {
 	createdTime: 'createdTime',
 	data: {},
 	displayName: 'displayName',
-	hasChildren: true,
 	owner: 'user:system:john',
 	type: 'base:folder',
 	valid: true,

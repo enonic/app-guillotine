@@ -1,25 +1,19 @@
 package com.enonic.app.guillotine.mapper;
 
-import java.util.Map;
-
-import com.enonic.xp.data.Value;
 import com.enonic.xp.form.FieldSet;
 import com.enonic.xp.form.Form;
+import com.enonic.xp.form.FormFragment;
 import com.enonic.xp.form.FormItem;
 import com.enonic.xp.form.FormItemSet;
 import com.enonic.xp.form.FormOptionSet;
 import com.enonic.xp.form.FormOptionSetOption;
-import com.enonic.xp.form.InlineMixin;
 import com.enonic.xp.form.Input;
-import com.enonic.xp.form.Layout;
 import com.enonic.xp.form.Occurrences;
 import com.enonic.xp.icon.Icon;
-import com.enonic.xp.inputtype.InputTypeConfig;
-import com.enonic.xp.inputtype.InputTypeProperty;
-import com.enonic.xp.inputtype.InputTypes;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.script.serializer.MapGenerator;
 import com.enonic.xp.script.serializer.MapSerializable;
+import com.enonic.xp.util.GenericValue;
 
 public final class ContentTypeMapper
     implements MapSerializable
@@ -35,13 +29,18 @@ public final class ContentTypeMapper
     public void serialize( final MapGenerator gen )
     {
         gen.value( "name", contentType.getName().toString() );
-        gen.value( "displayName", contentType.getDisplayName() );
+        gen.value( "title", contentType.getTitle() );
+        gen.value( "titleI18nKey", contentType.getTitleI18nKey() );
         gen.value( "description", contentType.getDescription() );
+        gen.value( "descriptionI18nKey", contentType.getDescriptionI18nKey() );
         gen.value( "superType", contentType.getSuperType() == null ? null : contentType.getSuperType().toString() );
         gen.value( "abstract", contentType.isAbstract() );
         gen.value( "final", contentType.isFinal() );
         gen.value( "allowChildContent", contentType.allowChildContent() );
         gen.value( "displayNameExpression", contentType.getDisplayNameExpression() );
+        gen.value( "displayNameListExpression", contentType.getDisplayNameListExpression() );
+        gen.value( "displayNamePlaceholder", contentType.getDisplayNamePlaceholder() );
+        gen.value( "displayNamePlaceholderI18nKey", contentType.getDisplayNamePlaceholderI18nKey() );
         gen.value( "modifiedTime", contentType.getModifiedTime() );
         serializeIcon( gen, contentType.getIcon() );
         serializeForm( gen, contentType.getForm() );
@@ -75,7 +74,7 @@ public final class ContentTypeMapper
         {
             serializeFormItemSet( gen, (FormItemSet) item );
         }
-        else if ( item instanceof Layout )
+        else if ( item instanceof FieldSet )
         {
             serializeLayout( gen, (FieldSet) item );
         }
@@ -83,7 +82,7 @@ public final class ContentTypeMapper
         {
             serializeInput( gen, (Input) item );
         }
-        else if ( item instanceof InlineMixin )
+        else if ( item instanceof FormFragment )
         {
             // mixins have been inlined in form
         }
@@ -131,7 +130,7 @@ public final class ContentTypeMapper
         gen.value( "default", option.isDefaultOption() );
 
         gen.array( "items" );
-        for ( FormItem formItem : option.getFormItems() )
+        for ( FormItem formItem : option )
         {
             serializeItem( gen, formItem );
         }
@@ -154,63 +153,20 @@ public final class ContentTypeMapper
         gen.value( "formItemType", "Input" );
         gen.value( "name", input.getName() );
         gen.value( "label", input.getLabel() );
-        gen.value( "customText", input.getCustomText() );
         gen.value( "helpText", input.getHelpText() );
-        gen.value( "validationRegexp", input.getValidationRegexp() );
-        gen.value( "maximize", input.isMaximizeUIInputWidth() );
         gen.value( "inputType", input.getInputType().toString() );
         serializeOccurrences( gen, input.getOccurrences() );
-        serializeDefaultValue( gen, input );
         serializeConfig( gen, input.getInputTypeConfig() );
         gen.end();
     }
 
-    private void serializeConfig( final MapGenerator gen, final InputTypeConfig config )
+    private void serializeConfig( final MapGenerator gen, final GenericValue config )
     {
-        gen.map( "config" );
-        for ( String name : config.getNames() )
-        {
-            gen.array( name );
-            for ( final InputTypeProperty property : config.getProperties( name ) )
-            {
-                serializeConfigProperty( gen, property );
-            }
-            gen.end();
-        }
-        gen.end();
-    }
-
-    private void serializeConfigProperty( final MapGenerator gen, final InputTypeProperty property )
-    {
-        gen.map();
-        gen.value( "value", property.getValue() );
-        for ( final Map.Entry<String, String> attribute : property.getAttributes().entrySet() )
-        {
-            gen.value( "@" + attribute.getKey(), attribute.getValue() );
-        }
-        gen.end();
-    }
-
-    private void serializeDefaultValue( final MapGenerator gen, final Input input )
-    {
-        if ( input.getDefaultValue() != null )
-        {
-            try
-            {
-                final Value defaultValue = InputTypes.BUILTIN.resolve( input.getInputType() ).createDefaultValue( input );
-                if ( defaultValue != null )
-                {
-                    gen.map( "default" );
-                    gen.value( "value", defaultValue.getObject() );
-                    gen.value( "type", defaultValue.getType().getName() );
-                    gen.end();
-                }
-            }
-            catch ( IllegalArgumentException ex )
-            {
-                // DO NOTHING
-            }
-        }
+        config.properties().forEach( e -> {
+            final String propertyName = e.getKey();
+            final GenericValue value = e.getValue();
+            gen.value( propertyName, value.toRawJs() );
+        });
     }
 
     private void serializeLayout( final MapGenerator gen, final FieldSet fieldSet )
@@ -234,7 +190,6 @@ public final class ContentTypeMapper
         gen.value( "formItemType", "ItemSet" );
         gen.value( "name", itemSet.getName() );
         gen.value( "label", itemSet.getLabel() );
-        gen.value( "customText", itemSet.getCustomText() );
         gen.value( "helpText", itemSet.getHelpText() );
         serializeOccurrences( gen, itemSet.getOccurrences() );
 

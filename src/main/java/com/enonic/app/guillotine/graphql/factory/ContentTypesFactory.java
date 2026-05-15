@@ -133,7 +133,7 @@ public class ContentTypesFactory
     private void createContentObjectType( ContentType contentType, GraphQLInterfaceType contentInterface )
     {
         String typeName = generateContentTypeName( contentType.getName() );
-        String typeDescription = contentType.getDisplayName() + " - " + contentType.getName();
+        String typeDescription = contentType.getTitle() + " - " + contentType.getName();
 
         List<GraphQLFieldDefinition> fields = new ArrayList<>( getGenericContentFields( typeName ) );
 
@@ -155,7 +155,7 @@ public class ContentTypesFactory
             }
         }
 
-        List<FormItem> formItems = FormItemTypesHelper.getFilteredFormItems( contentType.getForm().getFormItems() );
+        List<FormItem> formItems = FormItemTypesHelper.getFilteredFormItems( contentType.getForm() );
         if ( !formItems.isEmpty() )
         {
             GraphQLObjectType dataObject = generateContentDataType( typeName, typeDescription, formItems );
@@ -244,11 +244,10 @@ public class ContentTypesFactory
         result.add( outputField( "type", Scalars.GraphQLString ) );
         result.add( outputField( "contentType", GraphQLTypeReference.typeRef( "ContentType" ) ) );
         result.add( outputField( "displayName", Scalars.GraphQLString ) );
-        result.add( outputField( "hasChildren", Scalars.GraphQLBoolean ) );
         result.add( outputField( "language", Scalars.GraphQLString ) );
         result.add( outputField( "valid", Scalars.GraphQLBoolean ) );
         result.add( outputField( "dataAsJson", ExtendedScalars.Json ) );
-        result.add( outputField( "x", GraphQLTypeReference.typeRef( "ExtraData" ) ) );
+        result.add( outputField( "x", GraphQLTypeReference.typeRef( "Mixin" ) ) );
         result.add( outputField( "xAsJson", ExtendedScalars.Json ) );
         result.add( outputField( "pageAsJson", ExtendedScalars.Json, List.of( newArgument( "resolveTemplate", Scalars.GraphQLBoolean ),
                                                                               newArgument( "resolveFragment",
@@ -274,8 +273,8 @@ public class ContentTypesFactory
 
         context.registerDataFetcher( contentType, "_path", new GetContentPathDataFetcher( context, serviceFacade.getContentService() ) );
 
-        context.registerDataFetcher( contentType, "contentType",
-                                     new ContentTypeDataFetcher( serviceFacade.getMixinService(), serviceFacade.getContentTypeService() ) );
+        context.registerDataFetcher( contentType, "contentType", new ContentTypeDataFetcher( serviceFacade.getCmsFormFragmentService(),
+                                                                                             serviceFacade.getContentTypeService() ) );
 
         context.registerDataFetcher( contentType, "_references", new GetContentReferencesDataFetcher( serviceFacade.getContentService() ) );
 

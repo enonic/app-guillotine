@@ -22,6 +22,6 @@ public class ContentDataFieldDataFetcher
         {
             data = DataFetcherHelper.removeField( data, "siteConfig" );
         }
-        return DataFetcherHelper.removeContentIdField( data );
+        return data;
     }
 }

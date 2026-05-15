@@ -1,9 +1,11 @@
 package com.enonic.app.guillotine.graphql;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -22,8 +24,10 @@ import graphql.parser.ParserOptions;
 import graphql.schema.DataFetcher;
 import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLCodeRegistry;
+import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLInterfaceType;
 import graphql.schema.GraphQLObjectType;
+import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.SchemaTransformer;
 import graphql.validation.ValidationError;
@@ -33,9 +37,11 @@ import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.factory.HeadlessCmsTypeFactory;
 import com.enonic.app.guillotine.graphql.factory.TypeFactory;
+import com.enonic.app.guillotine.graphql.fetchers.ContentAwareDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.DynamicDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GuillotineDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.GraphQLHelper;
+import com.enonic.app.guillotine.graphql.helper.GraphQLTypeChecker;
 import com.enonic.app.guillotine.graphql.transformer.ContextualFieldResolver;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionGraphQLTypeVisitor;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionsExtractorService;
@@ -61,9 +67,20 @@ public class GraphQLApi
 
     private Supplier<PortalRequest> portalRequestSupplier;
 
-	private Supplier<GuillotineConfigService> guillotineConfigServiceSupplier;
+    private Supplier<GuillotineConfigService> guillotineConfigServiceSupplier;
 
-	private static final Parser PARSER = new Parser();
+    private static final Parser PARSER = new Parser();
+
+    private static final int MAX_CACHE_SIZE = 1000;
+
+    private final Map<String, PreparsedDocumentEntry> CACHE = Collections.synchronizedMap( new LinkedHashMap<>( 16, 0.75f, true )
+    {
+        @Override
+        protected boolean removeEldestEntry( Map.Entry<String, PreparsedDocumentEntry> eldest )
+        {
+            return size() > MAX_CACHE_SIZE;
+        }
+    } );
 
     @Override
     public void initialize( final BeanContext context )
@@ -72,7 +89,12 @@ public class GraphQLApi
         this.applicationServiceSupplier = context.getService( ApplicationService.class );
         this.extensionsExtractorServiceSupplier = context.getService( ExtensionsExtractorService.class );
         this.portalRequestSupplier = context.getBinding( PortalRequest.class );
-		this.guillotineConfigServiceSupplier = context.getService( GuillotineConfigService.class );
+        this.guillotineConfigServiceSupplier = context.getService( GuillotineConfigService.class );
+    }
+
+    public void invalidateCache()
+    {
+        CACHE.clear();
     }
 
     public GraphQLSchema createSchema()
@@ -102,12 +124,15 @@ public class GraphQLApi
             builder.codeRegistry( transformedCodeRegistry );
         } );
 
-        graphQLSchema =
-            SchemaTransformer.transformSchema( graphQLSchema, new ExtensionGraphQLTypeVisitor( typesRegister.getCreationCallbacks(), guillotineConfigServiceSupplier.get() ) );
+        graphQLSchema = SchemaTransformer.transformSchema( graphQLSchema,
+                                                           new ExtensionGraphQLTypeVisitor( typesRegister.getCreationCallbacks(),
+                                                                                            guillotineConfigServiceSupplier.get() ) );
 
         final GraphQLCodeRegistry codeRegistry = registerDataFetchers( graphQLSchema, typesRegister, schemaExtensions );
 
-        return graphQLSchema.transform( builder -> builder.codeRegistry( codeRegistry ) );
+        graphQLSchema = graphQLSchema.transform( builder -> builder.codeRegistry( codeRegistry ) );
+
+        return wrapContentDataFetchers( graphQLSchema );
     }
 
     private GraphQLCodeRegistry registerTypeResolvers( GraphQLSchema graphQLSchema, GraphQLTypesRegister typesRegister )
@@ -172,6 +197,33 @@ public class GraphQLApi
         return graphQLSchema.build();
     }
 
+    private GraphQLSchema wrapContentDataFetchers( final GraphQLSchema graphQLSchema )
+    {
+        final GraphQLCodeRegistry.Builder newCodeRegistry = GraphQLCodeRegistry.newCodeRegistry( graphQLSchema.getCodeRegistry() );
+
+        final List<GraphQLObjectType> outputGraphQLTypes =
+            graphQLSchema.getAllTypesAsList().stream().filter( t -> t instanceof GraphQLObjectType ).map(
+                t -> (GraphQLObjectType) t ).toList();
+
+        for ( GraphQLObjectType objectType : outputGraphQLTypes )
+        {
+            for ( GraphQLFieldDefinition fieldDefinition : objectType.getFieldDefinitions() )
+            {
+                final GraphQLOutputType outputType = fieldDefinition.getType();
+
+                if ( GraphQLTypeChecker.isContentType( outputType ) )
+                {
+                    final DataFetcher<?> originalFetcher = graphQLSchema.getCodeRegistry().getDataFetcher( objectType, fieldDefinition );
+                    final DataFetcher<?> wrappedFetcher = new ContentAwareDataFetcher( originalFetcher );
+                    newCodeRegistry.dataFetcher( FieldCoordinates.coordinates( objectType.getName(), fieldDefinition.getName() ),
+                                                 wrappedFetcher );
+                }
+            }
+        }
+
+        return GraphQLSchema.newSchema( graphQLSchema ).codeRegistry( newCodeRegistry.build() ).build();
+    }
+
     private void generateGuillotineApi( GraphQLTypesRegister typesRegister )
     {
         GuillotineContext context =
@@ -179,12 +231,12 @@ public class GraphQLApi
         new TypeFactory( context, serviceFacadeSupplier.get() ).createTypes();
         GraphQLObjectType guillotineApi = new HeadlessCmsTypeFactory( context, serviceFacadeSupplier.get() ).create();
 
-		Map<String, Object> guillotineFieldArguments = new HashMap<>();
-		guillotineFieldArguments.put( "siteKey", Scalars.GraphQLString );
+        Map<String, Object> guillotineFieldArguments = new HashMap<>();
+        guillotineFieldArguments.put( "siteKey", Scalars.GraphQLString );
 
-		Map<String, Object> guillotineFieldOptions = new HashMap<>();
-		guillotineFieldOptions.put( "type", guillotineApi );
-		guillotineFieldOptions.put( "args", guillotineFieldArguments );
+        Map<String, Object> guillotineFieldOptions = new HashMap<>();
+        guillotineFieldOptions.put( "type", guillotineApi );
+        guillotineFieldOptions.put( "args", guillotineFieldArguments );
 
         OutputObjectCreationCallbackParams guillotineQueryCreationCallback = new OutputObjectCreationCallbackParams();
         guillotineQueryCreationCallback.addFields( Map.of( "guillotine", guillotineFieldOptions ) );
@@ -202,42 +254,50 @@ public class GraphQLApi
         context.getTypeResolvers().forEach( typesRegister::addTypeResolver );
     }
 
-	public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
-	{
-		PreparsedDocumentProvider preparsedProvider = ( executionInput, parseAndValidateFunction ) -> {
-			try
-			{
-				int maxQueryTokens = guillotineConfigServiceSupplier.get().getMaxQueryTokens();
+    public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
+    {
+        final PreparsedDocumentProvider preparsedProvider = ( executionInput, parseAndValidateFunction ) -> {
+            PreparsedDocumentEntry cached = CACHE.get( executionInput.getQuery() );
+            if ( cached != null )
+            {
+                return CompletableFuture.completedFuture( cached );
+            }
 
-				ParserOptions parserOptions =
-					ParserOptions.newParserOptions().maxTokens( maxQueryTokens ).build();
+            PreparsedDocumentEntry entry;
+            try
+            {
+                int maxQueryTokens = guillotineConfigServiceSupplier.get().getMaxQueryTokens();
+                ParserOptions parserOptions = ParserOptions.newParserOptions().maxTokens( maxQueryTokens ).build();
 
-				Document doc = PARSER.parseDocument(
-					ParserEnvironment.newParserEnvironment().document( executionInput.getQuery() ).parserOptions( parserOptions ).build() );
+                Document doc = PARSER.parseDocument(
+                    ParserEnvironment.newParserEnvironment().document( executionInput.getQuery() ).parserOptions( parserOptions ).build() );
 
-				List<ValidationError> errors = ParseAndValidate.validate( graphQLSchema, doc );
-				if ( !errors.isEmpty() )
-				{
-					return new PreparsedDocumentEntry( errors );
-				}
+                List<ValidationError> errors = ParseAndValidate.validate( graphQLSchema, doc );
+                entry = errors.isEmpty() ? new PreparsedDocumentEntry( doc ) : new PreparsedDocumentEntry( errors );
+            }
+            catch ( InvalidSyntaxException e )
+            {
+                entry = new PreparsedDocumentEntry( List.of(
+                    ValidationError.newValidationError().validationErrorType( ValidationErrorType.InvalidSyntax ).sourceLocations(
+                        List.of( new SourceLocation( e.getLocation().getLine(), e.getLocation().getColumn() ) ) ).description(
+                        e.getMessage() ).build() ) );
+            }
 
-				return new PreparsedDocumentEntry( doc );
-			}
-			catch ( InvalidSyntaxException e )
-			{
-				return new PreparsedDocumentEntry( List.of(
-					ValidationError.newValidationError().validationErrorType( ValidationErrorType.InvalidSyntax ).sourceLocations(
-						List.of( new SourceLocation( e.getLocation().getLine(), e.getLocation().getColumn() ) ) ).description(
-						e.getMessage() ).build() ) );
-			}
-		};
+            if ( !entry.hasErrors() )
+            {
+                CACHE.putIfAbsent( executionInput.getQuery(), entry );
+            }
 
-		GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).preparsedDocumentProvider( preparsedProvider ).build();
+            return CompletableFuture.completedFuture( entry );
+        };
 
-		ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).build();
+        final GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).preparsedDocumentProvider( preparsedProvider ).build();
 
-		return new ExecutionResultMapper( graphQL.execute( executionInput ) );
-	}
+        final ExecutionInput executionInput =
+            ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).build();
+
+        return new ExecutionResultMapper( graphQL.execute( executionInput ) );
+    }
 
     private Map<String, Object> extractValue( ScriptValue scriptValue )
     {

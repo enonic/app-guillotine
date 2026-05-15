@@ -1,0 +1,10 @@
+kind: "AdminExtension"
+title: "Query Playground"
+description: "Generate a dynamic GraphQL API"
+allow:
+  - "role:system.admin"
+  - "role:cms.admin"
+interfaces:
+  - "contentstudio.menuitem"
+config:
+  context: "project"

@@ -40,7 +40,7 @@ public class RichTextGraphQLIntegrationTest
     {
         when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
 
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( createContent( true ) );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
@@ -63,7 +63,7 @@ public class RichTextGraphQLIntegrationTest
     @Test
     public void testEmptyRichTextField()
     {
-        when( contentService.getById( ContentId.from( "contentId" ) ) ).thenReturn( createContent( false ) );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( false ) );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
@@ -95,7 +95,7 @@ public class RichTextGraphQLIntegrationTest
     {
         final Content.Builder<?> builder = Content.create();
 
-        builder.id( ContentId.from( "contentId" ) );
+        builder.id( ContentId.from( "contentid" ) );
         builder.name( "news" );
         builder.displayName( "Hot News" );
         builder.valid( true );

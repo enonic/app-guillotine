@@ -37,7 +37,7 @@ public class BuiltinMacros
 
     private static MacroDescriptor create( final MacroKey macroKey, final String displayName, final String description, final Form form )
     {
-        return MacroDescriptor.create().key( macroKey ).displayName( displayName ).displayNameI18nKey(
+        return MacroDescriptor.create().key( macroKey ).title( displayName ).titleI18nKey(
             macroKey.getApplicationKey().getName() + "." + macroKey.getName() + ".displayName" ).description(
             description ).descriptionI18nKey( macroKey.getApplicationKey().getName() + "." + macroKey.getName() + ".description" ).form(
             form ).build();
@@ -46,6 +46,6 @@ public class BuiltinMacros
     private static Input.Builder createTextAreaInput( final String name, final String label, final MacroKey macroKey )
     {
         return Input.create().inputType( InputTypeName.TEXT_AREA ).label( label ).labelI18nKey(
-            macroKey.getApplicationKey().getName() + "." + macroKey.getName() + "." + name + ".label" ).name( name ).immutable( true );
+            macroKey.getApplicationKey().getName() + "." + macroKey.getName() + "." + name + ".label" ).name( name );
     }
 }
