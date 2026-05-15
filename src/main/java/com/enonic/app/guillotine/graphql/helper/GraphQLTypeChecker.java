@@ -14,7 +14,7 @@ public final class GraphQLTypeChecker
     {
         final GraphQLNamedType graphQLNamedType = GraphQLTypeUnwrapper.unwrapType( type );
         return graphQLNamedType.getName().equals( "Content" ) || ( type instanceof GraphQLObjectType &&
-            ( (GraphQLObjectType) type ).getInterfaces().stream().anyMatch(
+            ( (GraphQLObjectType) graphQLNamedType ).getInterfaces().stream().anyMatch(
                 interfaceType -> interfaceType.getName().equals( "Content" ) ) );
     }
 }
