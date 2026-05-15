@@ -1,4 +1,4 @@
-const corsLib = require('/lib/cors');
+const corsLib = require('/lib/enonic/cors');
 const schemaLib = require('/lib/schema');
 
 function getHeaders(req) {

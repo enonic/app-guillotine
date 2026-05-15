@@ -2,7 +2,7 @@ const portalLib = require('/lib/xp/portal');
 const mustacheLib = require('/lib/mustache');
 const staticLib = require('/lib/enonic/static');
 const routerLib = require('/lib/router')();
-const corsLib = require('/lib/cors');
+const corsLib = require('/lib/enonic/cors');
 
 const STATIC_BASE_PATH = '/_static';
 

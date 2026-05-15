@@ -1,6 +1,6 @@
 const adminLib = require('/lib/xp/admin');
 const mustache = require('/lib/mustache');
-const corsLib = require('/lib/cors');
+const corsLib = require('/lib/enonic/cors');
 const staticLib = require('/lib/enonic/static');
 const routerLib = require('/lib/router')();
 
