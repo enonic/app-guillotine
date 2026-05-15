@@ -48,8 +48,8 @@ dependencies {
     include "com.enonic.xp:lib-app:${xpVersion}"
     include "com.enonic.xp:lib-context:${xpVersion}"
     include "com.enonic.lib:lib-mustache:2.1.1"
-    include "com.enonic.lib:lib-static:2.1.1"
-    include "com.enonic.lib:lib-router:3.2.0"
+    include "com.enonic.lib:lib-static:3.0.0-SNAPSHOT"
+    include "com.enonic.lib:lib-router:4.0.0-SNAPSHOT"
 
     testImplementation(platform("org.junit:junit-bom:6.0.3"))
     testImplementation(platform("org.mockito:mockito-bom:5.23.0"))
