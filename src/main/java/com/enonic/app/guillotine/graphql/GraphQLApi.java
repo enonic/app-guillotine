@@ -1,11 +1,11 @@
 package com.enonic.app.guillotine.graphql;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -71,7 +71,16 @@ public class GraphQLApi
 
     private static final Parser PARSER = new Parser();
 
-    private final Map<String, PreparsedDocumentEntry> CACHE = new ConcurrentHashMap<>();
+    private static final int MAX_CACHE_SIZE = 1000;
+
+    private final Map<String, PreparsedDocumentEntry> CACHE = Collections.synchronizedMap( new LinkedHashMap<>( 16, 0.75f, true )
+    {
+        @Override
+        protected boolean removeEldestEntry( Map.Entry<String, PreparsedDocumentEntry> eldest )
+        {
+            return size() > MAX_CACHE_SIZE;
+        }
+    } );
 
     @Override
     public void initialize( final BeanContext context )
@@ -81,6 +90,11 @@ public class GraphQLApi
         this.extensionsExtractorServiceSupplier = context.getService( ExtensionsExtractorService.class );
         this.portalRequestSupplier = context.getBinding( PortalRequest.class );
         this.guillotineConfigServiceSupplier = context.getService( GuillotineConfigService.class );
+    }
+
+    public void invalidateCache()
+    {
+        CACHE.clear();
     }
 
     public GraphQLSchema createSchema()
