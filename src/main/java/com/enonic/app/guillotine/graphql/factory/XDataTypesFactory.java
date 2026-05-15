@@ -69,7 +69,7 @@ public class XDataTypesFactory
                     {
                         GraphQLObjectType mixinConfigType = newObject( mixinConfigTypeName,
                                                                        "Mixin data config for application ['" + applicationKey +
-                                                                           "}'] and descriptor ['" +
+                                                                           "'] and descriptor ['" +
                                                                            mixinDescriptor.getName().getLocalName() + "']",
                                                                        mixinConfigFields );
 
