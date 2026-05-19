@@ -5,6 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLOutputType;
@@ -26,6 +29,8 @@ import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField
 
 public class XDataTypesFactory
 {
+    private static final Logger LOG = LoggerFactory.getLogger( XDataTypesFactory.class );
+
     private final GuillotineContext context;
 
     private final ServiceFacade serviceFacade;
@@ -110,16 +115,30 @@ public class XDataTypesFactory
         List<GraphQLFieldDefinition> xDataConfigFields = new ArrayList<>();
 
         FormItemTypesHelper.getFilteredFormItems( formItems ).forEach( formItem -> {
-            String fieldName = StringNormalizer.create( formItem.getName() );
+            final String rawFieldName = formItem.getName();
+            try
+            {
+                final String fieldName = StringNormalizer.create( rawFieldName );
 
-            GraphQLOutputType formItemObject = (GraphQLOutputType) formItemTypesFactory.generateFormItemObject( typeName, formItem );
+                GraphQLOutputType formItemObject = (GraphQLOutputType) formItemTypesFactory.generateFormItemObject( typeName, formItem );
 
-            GraphQLFieldDefinition field =
-                outputField( fieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
+                if ( formItemObject == null )
+                {
+                    return;
+                }
 
-            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
+                GraphQLFieldDefinition field =
+                    outputField( fieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
-            xDataConfigFields.add( field );
+                context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
+
+                xDataConfigFields.add( field );
+            }
+            catch ( Exception e )
+            {
+                LOG.warn( "Failed to generate GraphQL field for GraphQL type '{}' on formItem with raw name '{}'", typeName, rawFieldName,
+                          e );
+            }
         } );
 
         return xDataConfigFields;
@@ -133,9 +152,9 @@ public class XDataTypesFactory
         return applicationKeys;
     }
 
-	private Form resolveForm( Form originalForm )
-	{
-		Form inlineForm = serviceFacade.getMixinService().inlineFormItems( originalForm );
-		return inlineForm != null ? inlineForm : originalForm;
-	}
+    private Form resolveForm( Form originalForm )
+    {
+        Form inlineForm = serviceFacade.getMixinService().inlineFormItems( originalForm );
+        return inlineForm != null ? inlineForm : originalForm;
+    }
 }

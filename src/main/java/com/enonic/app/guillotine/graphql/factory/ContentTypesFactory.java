@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import graphql.Scalars;
 import graphql.scalars.ExtendedScalars;
 import graphql.schema.GraphQLArgument;
@@ -53,6 +56,8 @@ import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField
 
 public class ContentTypesFactory
 {
+    private static final Logger LOG = LoggerFactory.getLogger( ContentTypesFactory.class );
+
     private final GuillotineContext context;
 
     private final ServiceFacade serviceFacade;
@@ -85,7 +90,16 @@ public class ContentTypesFactory
         List<ContentType> contentTypes = serviceFacade.getContentTypeService().getAll().stream().filter(
             contentType -> allowedContentTypesPattern.matcher( contentType.getName().toString() ).find() ).collect( Collectors.toList() );
 
-        contentTypes.forEach( contentType -> createContentObjectType( contentType, contentInterface ) );
+        contentTypes.forEach( contentType -> {
+            try
+            {
+                createContentObjectType( contentType, contentInterface );
+            }
+            catch ( Exception e )
+            {
+                LOG.warn( "Failed to generate GraphQL type for content type '{}'", contentType.getName(), e );
+            }
+        } );
     }
 
     private void createQueryContentConnectionType()
@@ -159,10 +173,13 @@ public class ContentTypesFactory
         if ( !formItems.isEmpty() )
         {
             GraphQLObjectType dataObject = generateContentDataType( typeName, typeDescription, formItems );
-            fields.add( outputField( "data", dataObject ) );
+            if ( dataObject != null )
+            {
+                fields.add( outputField( "data", dataObject ) );
 
-            context.registerType( dataObject.getName(), dataObject );
-            context.registerDataFetcher( typeName, "data", new GetContentDataDataFetcher() );
+                context.registerType( dataObject.getName(), dataObject );
+                context.registerDataFetcher( typeName, "data", new GetContentDataDataFetcher() );
+            }
         }
 
         GraphQLObjectType contentObject = newObject( context.uniqueName( typeName ), typeDescription, List.of( contentInterface ), fields );
@@ -201,18 +218,40 @@ public class ContentTypesFactory
         String typeName = context.uniqueName( parentTypeName + "_Data" );
         String description = parentDescription + " data";
 
-        List<GraphQLFieldDefinition> fields = formItems.stream().map( formItem -> {
-            String fieldName = StringNormalizer.create( formItem.getName() );
+        List<GraphQLFieldDefinition> fields = new ArrayList<>();
+        for ( FormItem formItem : formItems )
+        {
+            String rawFieldName = formItem.getName();
+            try
+            {
+                String normalizedFieldName = StringNormalizer.create( rawFieldName );
 
-            GraphQLOutputType formItemObject = (GraphQLOutputType) formItemTypesFactory.generateFormItemObject( parentTypeName, formItem );
+                GraphQLOutputType formItemObject =
+                    (GraphQLOutputType) formItemTypesFactory.generateFormItemObject( parentTypeName, formItem );
 
-            GraphQLFieldDefinition field =
-                outputField( fieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
+                if ( formItemObject == null )
+                {
+                    continue;
+                }
 
-            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
+                GraphQLFieldDefinition field =
+                    outputField( normalizedFieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
-            return field;
-        } ).collect( Collectors.toList() );
+                context.registerDataFetcher( typeName, normalizedFieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
+
+                fields.add( field );
+            }
+            catch ( Exception e )
+            {
+                LOG.warn( "Failed to generate GraphQL field for GraphQL type '{}' on formItem with raw name '{}'", parentTypeName,
+                          rawFieldName, e );
+            }
+        }
+
+        if ( fields.isEmpty() )
+        {
+            return null;
+        }
 
         return newObject( typeName, description, fields );
     }
