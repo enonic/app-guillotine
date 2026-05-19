@@ -5,6 +5,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
@@ -18,6 +22,12 @@ import com.enonic.xp.repository.RepositoryId;
 @SuppressWarnings("unchecked")
 public class GuillotineLocalContextHelper
 {
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<>()
+    {
+    };
+
     public static <T> T executeInContext( final DataFetchingEnvironment environment, Callable<T> callable )
     {
         final Map<String, Object> localContext = getLocalContext( environment );
@@ -98,7 +108,51 @@ public class GuillotineLocalContextHelper
 
     public static Content resolveContent( final DataFetchingEnvironment environment )
     {
-        final Map<String, Object> currentContent = getContextProperty( environment, Constants.CURRENT_CONTENT_FIELD, Map.class );
+        final Map<String, Object> currentContent = GuillotineLocalContextHelper.getCurrentContent( environment );
         return ContentDeserializer.deserialize( currentContent );
+    }
+
+    public static String mapToJson( final Map<String, Object> map )
+    {
+        try
+        {
+            return MAPPER.writeValueAsString( map );
+        }
+        catch ( JsonProcessingException e )
+        {
+            throw new IllegalStateException( "Failed to serialize Map to JSON string", e );
+        }
+    }
+
+    public static void putCurrentContent( final Map<String, Object> localContext, final Map<String, Object> content )
+    {
+        if ( content == null )
+        {
+            localContext.remove( Constants.CURRENT_CONTENT_FIELD );
+            return;
+        }
+        localContext.put( Constants.CURRENT_CONTENT_FIELD, mapToJson( content ) );
+    }
+
+    public static Map<String, Object> getCurrentContent( final DataFetchingEnvironment environment )
+    {
+        final Object value = getLocalContext( environment ).get( Constants.CURRENT_CONTENT_FIELD );
+        if ( value == null )
+        {
+            return null;
+        }
+        if ( value instanceof String )
+        {
+            try
+            {
+                return MAPPER.readValue( (String) value, MAP_TYPE );
+            }
+            catch ( JsonProcessingException e )
+            {
+                throw new IllegalStateException( "Failed to deserialize " + Constants.CURRENT_CONTENT_FIELD + " from JSON", e );
+            }
+        }
+        throw new IllegalStateException(
+            "Unexpected type for " + Constants.CURRENT_CONTENT_FIELD + " in localContext: " + value.getClass().getName() );
     }
 }

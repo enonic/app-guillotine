@@ -102,17 +102,6 @@ function BranchChooser() {
     );
 }
 
-function settingButtonCallback() {
-    setTimeout(() => {
-        const titleElements: NodeListOf<Element> = document.querySelectorAll('.graphiql-dialog-section-title');
-        titleElements.forEach((titleElement: Element) => {
-            if (titleElement.textContent === 'Theme') {
-                titleElement.closest('.graphiql-dialog-section')?.remove();
-            }
-        });
-    }, 1);
-}
-
 function setupButtonEvent(selector: string, handler: () => void) {
     const button: Element | null = document.querySelector(selector);
     if (button) {
@@ -124,11 +113,6 @@ function setupButtonEvent(selector: string, handler: () => void) {
 function renderCallback() {
     requestAnimationFrame(() => {
         setupButtonEvent('[aria-label="Re-fetch GraphQL schema"]', rerenderGraphiQLUI);
-
-        document.body.classList.remove('graphiql-dark');
-        document.body.classList.add('graphiql-light');
-
-        setupButtonEvent('[aria-label="Open settings dialog"]', settingButtonCallback);
     });
 }
 

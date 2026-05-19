@@ -1,6 +1,6 @@
 plugins {
     id 'com.enonic.defaults' version '2.1.6'
-    id 'com.enonic.xp.app' version '4.0.0-A1'
+    id 'com.enonic.xp.app'
     id 'com.github.node-gradle.node' version '7.1.0'
     id 'maven-publish'
     id 'jacoco'
@@ -8,14 +8,6 @@ plugins {
 
 apply from: "$rootDir/gradle/env.gradle"
 apply from: "$rootDir/gradle/node.gradle"
-
-app {
-    name = project.appName
-    displayName = 'Guillotine'
-    vendorName = 'Enonic AS'
-    vendorUrl = 'https://enonic.com'
-    systemVersion = "${xpVersion}"
-}
 
 def defaultEncoding = 'UTF-8'
 
@@ -34,22 +26,23 @@ java {
 }
 
 dependencies {
-    implementation "com.enonic.xp:core-api:${xpVersion}"
-    implementation "com.enonic.xp:script-api:${xpVersion}"
-    implementation "com.enonic.xp:portal-api:${xpVersion}"
+    implementation xplibs.api.core
+    implementation xplibs.api.script
+    implementation xplibs.api.portal
     implementation libs.jackson.databind
 
     include libs.graphql.java
     include libs.graphql.java.extended.scalars
 
-    include "com.enonic.xp:lib-admin:${xpVersion}"
-    include "com.enonic.xp:lib-portal:${xpVersion}"
-    include "com.enonic.xp:lib-event:${xpVersion}"
-    include "com.enonic.xp:lib-app:${xpVersion}"
-    include "com.enonic.xp:lib-context:${xpVersion}"
+    include xplibs.admin
+    include xplibs.portal
+    include xplibs.event
+    include xplibs.app
+    include xplibs.context
     include libs.lib.mustache
     include libs.lib.static
     include libs.lib.router
+    include libs.lib.cors
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(platform(libs.mockito.bom))

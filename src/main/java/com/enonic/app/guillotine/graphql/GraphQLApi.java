@@ -1,15 +1,26 @@
 package com.enonic.app.guillotine.graphql;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import graphql.ExecutionInput;
 import graphql.GraphQL;
+import graphql.ParseAndValidate;
 import graphql.Scalars;
+import graphql.execution.preparsed.PreparsedDocumentEntry;
+import graphql.execution.preparsed.PreparsedDocumentProvider;
+import graphql.language.Document;
+import graphql.language.SourceLocation;
+import graphql.parser.InvalidSyntaxException;
+import graphql.parser.Parser;
+import graphql.parser.ParserEnvironment;
+import graphql.parser.ParserOptions;
 import graphql.schema.DataFetcher;
 import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLCodeRegistry;
@@ -19,7 +30,10 @@ import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.SchemaTransformer;
+import graphql.validation.ValidationError;
+import graphql.validation.ValidationErrorType;
 
+import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.factory.HeadlessCmsTypeFactory;
 import com.enonic.app.guillotine.graphql.factory.TypeFactory;
@@ -53,6 +67,21 @@ public class GraphQLApi
 
     private Supplier<PortalRequest> portalRequestSupplier;
 
+    private Supplier<GuillotineConfigService> guillotineConfigServiceSupplier;
+
+    private static final Parser PARSER = new Parser();
+
+    private static final int MAX_CACHE_SIZE = 1000;
+
+    private final Map<String, PreparsedDocumentEntry> CACHE = Collections.synchronizedMap( new LinkedHashMap<>( 16, 0.75f, true )
+    {
+        @Override
+        protected boolean removeEldestEntry( Map.Entry<String, PreparsedDocumentEntry> eldest )
+        {
+            return size() > MAX_CACHE_SIZE;
+        }
+    } );
+
     @Override
     public void initialize( final BeanContext context )
     {
@@ -60,6 +89,12 @@ public class GraphQLApi
         this.applicationServiceSupplier = context.getService( ApplicationService.class );
         this.extensionsExtractorServiceSupplier = context.getService( ExtensionsExtractorService.class );
         this.portalRequestSupplier = context.getBinding( PortalRequest.class );
+        this.guillotineConfigServiceSupplier = context.getService( GuillotineConfigService.class );
+    }
+
+    public void invalidateCache()
+    {
+        CACHE.clear();
     }
 
     public GraphQLSchema createSchema()
@@ -89,8 +124,9 @@ public class GraphQLApi
             builder.codeRegistry( transformedCodeRegistry );
         } );
 
-        graphQLSchema =
-            SchemaTransformer.transformSchema( graphQLSchema, new ExtensionGraphQLTypeVisitor( typesRegister.getCreationCallbacks() ) );
+        graphQLSchema = SchemaTransformer.transformSchema( graphQLSchema,
+                                                           new ExtensionGraphQLTypeVisitor( typesRegister.getCreationCallbacks(),
+                                                                                            guillotineConfigServiceSupplier.get() ) );
 
         final GraphQLCodeRegistry codeRegistry = registerDataFetchers( graphQLSchema, typesRegister, schemaExtensions );
 
@@ -222,9 +258,45 @@ public class GraphQLApi
 
     public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
     {
-        GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).build();
+        final PreparsedDocumentProvider preparsedProvider = ( executionInput, parseAndValidateFunction ) -> {
+            PreparsedDocumentEntry cached = CACHE.get( executionInput.getQuery() );
+            if ( cached != null )
+            {
+                return CompletableFuture.completedFuture( cached );
+            }
 
-        ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).build();
+            PreparsedDocumentEntry entry;
+            try
+            {
+                int maxQueryTokens = guillotineConfigServiceSupplier.get().getMaxQueryTokens();
+                ParserOptions parserOptions = ParserOptions.newParserOptions().maxTokens( maxQueryTokens ).build();
+
+                Document doc = PARSER.parseDocument(
+                    ParserEnvironment.newParserEnvironment().document( executionInput.getQuery() ).parserOptions( parserOptions ).build() );
+
+                List<ValidationError> errors = ParseAndValidate.validate( graphQLSchema, doc );
+                entry = errors.isEmpty() ? new PreparsedDocumentEntry( doc ) : new PreparsedDocumentEntry( errors );
+            }
+            catch ( InvalidSyntaxException e )
+            {
+                entry = new PreparsedDocumentEntry( List.of(
+                    ValidationError.newValidationError().validationErrorType( ValidationErrorType.InvalidSyntax ).sourceLocations(
+                        List.of( new SourceLocation( e.getLocation().getLine(), e.getLocation().getColumn() ) ) ).description(
+                        e.getMessage() ).build() ) );
+            }
+
+            if ( !entry.hasErrors() )
+            {
+                CACHE.putIfAbsent( executionInput.getQuery(), entry );
+            }
+
+            return CompletableFuture.completedFuture( entry );
+        };
+
+        final GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).preparsedDocumentProvider( preparsedProvider ).build();
+
+        final ExecutionInput executionInput =
+            ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).build();
 
         return new ExecutionResultMapper( graphQL.execute( executionInput ) );
     }

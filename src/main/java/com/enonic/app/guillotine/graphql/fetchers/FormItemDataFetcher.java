@@ -16,6 +16,7 @@ import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
+import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.form.FormItem;
 import com.enonic.xp.form.FormItemType;
 import com.enonic.xp.form.Input;
@@ -62,7 +63,7 @@ public class FormItemDataFetcher
                 }
                 if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) )
                 {
-                    final Map<String, Object> currentContentAsMap = CastHelper.cast( localContext.get( Constants.CURRENT_CONTENT_FIELD ) );
+                    final Map<String, Object> currentContentAsMap = GuillotineLocalContextHelper.getCurrentContent( environment );
                     final Map<String, Object> attachmentsAsMap = CastHelper.cast( currentContentAsMap.get( "attachments" ) );
                     return attachmentsAsMap.get( (String) value );
                 }
@@ -99,7 +100,7 @@ public class FormItemDataFetcher
                 }
                 if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) )
                 {
-                    final Map<String, Object> currentContentAsMap = CastHelper.cast( localContext.get( Constants.CURRENT_CONTENT_FIELD ) );
+                    final Map<String, Object> currentContentAsMap = GuillotineLocalContextHelper.getCurrentContent( environment );
                     final Map<String, Object> attachmentsAsMap = CastHelper.cast( currentContentAsMap.get( "attachments" ) );
                     return values.stream().map( value -> attachmentsAsMap.get( (String) value ) ).collect( Collectors.toList() );
                 }

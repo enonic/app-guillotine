@@ -2,7 +2,7 @@ const adminLib = require('/lib/xp/admin');
 const mustache = require('/lib/mustache');
 const contextLib = require('/lib/xp/context');
 const schemaLib = require('../../../lib/schema');
-const corsLib = require('../../../lib/cors');
+const corsLib = require('/lib/enonic/cors');
 
 const staticLib = require('/lib/enonic/static');
 const router = require('/lib/router')();
