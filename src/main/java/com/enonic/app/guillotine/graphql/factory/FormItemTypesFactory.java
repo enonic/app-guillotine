@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import graphql.Scalars;
 import graphql.scalars.ExtendedScalars;
@@ -40,6 +42,8 @@ import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField
 
 public class FormItemTypesFactory
 {
+    private static final Logger LOG = LoggerFactory.getLogger( FormItemTypesFactory.class );
+
     private final GuillotineContext context;
 
     private final ServiceFacade serviceFacade;
@@ -71,6 +75,11 @@ public class FormItemTypesFactory
             formItemObject = Scalars.GraphQLString;
         }
 
+        if ( formItemObject == null )
+        {
+            return null;
+        }
+
         Occurrences occurrences = FormItemTypesHelper.getOccurrences( formItem );
 
         return occurrences.getMaximum() == 1 ? formItemObject : new GraphQLList( formItemObject );
@@ -83,17 +92,37 @@ public class FormItemTypesFactory
 
         String description = formItemSet.getLabel();
 
-        List<GraphQLFieldDefinition> fields = FormItemTypesHelper.getFilteredFormItems( formItemSet ).stream().map( formItem -> {
-            String fieldName = StringNormalizer.create( formItem.getName() );
+        List<GraphQLFieldDefinition> fields = new ArrayList<>();
+        FormItemTypesHelper.getFilteredFormItems( formItemSet ).forEach( formItem -> {
+            final String rawFieldName = formItem.getName();
+            try
+            {
+                final String fieldName = StringNormalizer.create( rawFieldName );
 
-            GraphQLOutputType formItemObject = (GraphQLOutputType) generateFormItemObject( parentTypeName, formItem );
+                GraphQLOutputType formItemObject = (GraphQLOutputType) generateFormItemObject( parentTypeName, formItem );
 
-            GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
+                if ( formItemObject == null )
+                {
+                    return;
+                }
 
-            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
+                GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
 
-            return field;
-        } ).collect( Collectors.toList() );
+                context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
+
+                fields.add( field );
+            }
+            catch ( Exception e )
+            {
+                LOG.warn( "Failed to generate GraphQL field for GraphQL type '{}' on formItem with raw name '{}'", typeName, rawFieldName,
+                          e );
+            }
+        } );
+
+        if ( fields.isEmpty() )
+        {
+            return null;
+        }
 
         GraphQLObjectType objectType = newObject( typeName, description, fields );
         context.registerType( objectType.getName(), objectType );
@@ -107,6 +136,11 @@ public class FormItemTypesFactory
         String description = formOptionSet.getLabel();
 
         GraphQLEnumType enumType = generateOptionSetEnum( formOptionSet, typeName );
+
+        if ( enumType == null )
+        {
+            return null;
+        }
 
         GraphQLFieldDefinition selectedField =
             outputField( "_selected", formOptionSet.getMultiselection().getMaximum() == 1 ? enumType : new GraphQLList( enumType ) );
@@ -122,12 +156,26 @@ public class FormItemTypesFactory
         } );
 
         formOptionSet.forEach( option -> {
-            String optionName = StringNormalizer.create( option.getName() );
-            GraphQLType type = generateOptionObjectType( parentTypeName, option );
+            final String rawOptionName = option.getName();
+            try
+            {
+                String optionName = StringNormalizer.create( rawOptionName );
+                GraphQLType type = generateOptionObjectType( parentTypeName, option );
 
-            fields.add( outputField( optionName, type ) );
+                if ( type == null )
+                {
+                    return;
+                }
 
-            context.registerDataFetcher( uniqueTypeName, optionName, new FormItemDataFetcher( option, serviceFacade, context ) );
+                fields.add( outputField( optionName, type ) );
+
+                context.registerDataFetcher( uniqueTypeName, optionName, new FormItemDataFetcher( option, serviceFacade, context ) );
+            }
+            catch ( Exception e )
+            {
+                LOG.warn( "Failed to generate GraphQL field for GraphQL type '{}' on option with raw name '{}'", uniqueTypeName,
+                          rawOptionName, e );
+            }
         } );
 
         GraphQLObjectType objectType = newObject( uniqueTypeName, description, fields );
@@ -230,7 +278,23 @@ public class FormItemTypesFactory
 
         Map<String, Object> enumValues = new LinkedHashMap<>();
 
-        formOptionSet.forEach( option -> enumValues.put( StringNormalizer.create( option.getName() ), option.getName() ) );
+        formOptionSet.forEach( option -> {
+            final String rawOptionName = option.getName();
+            try
+            {
+                enumValues.put( StringNormalizer.create( rawOptionName ), rawOptionName );
+            }
+            catch ( Exception e )
+            {
+                LOG.warn( "Failed to generate GraphQL enum value for option set '{}' on option with raw name '{}'", optionSetName,
+                          rawOptionName, e );
+            }
+        } );
+
+        if ( enumValues.isEmpty() )
+        {
+            return null;
+        }
 
         GraphQLEnumType enumType = newEnum( context.uniqueName( enumName ), description, enumValues );
         context.registerType( enumType.getName(), enumType );
@@ -244,17 +308,37 @@ public class FormItemTypesFactory
         String description = formOptionSet.getLabel();
 
         List<FormItem> formItems = FormItemTypesHelper.getFilteredFormItems( formOptionSet );
-        List<GraphQLFieldDefinition> fields = formItems.stream().map( formItem -> {
-            String fieldName = StringNormalizer.create( formItem.getName() );
+        List<GraphQLFieldDefinition> fields = new ArrayList<>();
+        formItems.forEach( formItem -> {
+            final String rawFieldName = formItem.getName();
+            try
+            {
+                final String fieldName = StringNormalizer.create( rawFieldName );
 
-            GraphQLOutputType formItemObject = (GraphQLOutputType) generateFormItemObject( parentTypeName, formItem );
+                GraphQLOutputType formItemObject = (GraphQLOutputType) generateFormItemObject( parentTypeName, formItem );
 
-            GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
+                if ( formItemObject == null )
+                {
+                    return;
+                }
 
-            context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
+                GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
 
-            return field;
-        } ).collect( Collectors.toList() );
+                context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
+
+                fields.add( field );
+            }
+            catch ( Exception e )
+            {
+                LOG.warn( "Failed to generate GraphQL field for GraphQL type '{}' on formItem with raw name '{}'", typeName, rawFieldName,
+                          e );
+            }
+        } );
+
+        if ( fields.isEmpty() )
+        {
+            return null;
+        }
 
         GraphQLObjectType objectType = newObject( typeName, description, fields );
         context.registerType( objectType.getName(), objectType );
