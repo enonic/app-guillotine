@@ -2,6 +2,10 @@ name: Gradle Build
 
 on: [ push ]
 
+permissions:
+  id-token: write  # Required for npm OIDC / trusted publishing
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -13,8 +17,15 @@ jobs:
         with:
           repoUser: ci
           repoPassword: ${{ secrets.ARTIFACTORY_PASSWORD }}
-          releaseBranch: | 
+          releaseBranch: |
             8.x
+
+      - name: Upload npm package
+        if: steps.build-and-publish.outputs.release == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-package
+          path: build/types
 
   release:
     runs-on: ubuntu-latest
@@ -23,6 +34,34 @@ jobs:
     if: needs.build.outputs.release == 'true'
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Download npm package
+        uses: actions/download-artifact@v4
+        with:
+          name: npm-package
+          path: build/types
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Set npm tag
+        run: |
+          VERSION=$(grep '^version' gradle.properties | cut -d'=' -f2 | tr -d ' ')
+          if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "NPM_TAG=latest" >> $GITHUB_ENV
+          else
+            echo "NPM_TAG=beta" >> $GITHUB_ENV
+          fi
+
+      - name: Publish to npm
+        working-directory: build/types
+        run: npx -y npm@latest publish --tag $NPM_TAG --ignore-scripts
+
       - uses: enonic/release-tools/release@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
