@@ -4,9 +4,9 @@ graphql-java-extended-scalars = "24.0"
 jackson = "2.21.3"
 junit = "6.1.0"
 mockito = "5.23.0"
-mustache = "2.1.1"
-router = "4.0.0-SNAPSHOT"
-static = "3.0.0-SNAPSHOT"
+mustache = "3.0.0-B1"
+router = "4.0.0-B1"
+static = "3.0.0-B4"
 
 [libraries]
 graphql-java = { module = "com.graphql-java:graphql-java", version.ref = "graphql-java" }
