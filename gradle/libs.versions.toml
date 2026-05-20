@@ -1,0 +1,21 @@
+[versions]
+jackson-databind = "2.21.3"
+graphql-java = "26.0"
+graphql-java-extended-scalars = "24.0"
+lib-mustache = "2.1.1"
+lib-static = "2.1.1"
+lib-router = "3.2.0"
+lib-cors = "1.0.0-B2"
+junit-bom = "6.0.3"
+mockito-bom = "5.23.0"
+
+[libraries]
+jackson-databind              = { module = "com.fasterxml.jackson.core:jackson-databind",       version.ref = "jackson-databind" }
+graphql-java                  = { module = "com.graphql-java:graphql-java",                     version.ref = "graphql-java" }
+graphql-java-extended-scalars = { module = "com.graphql-java:graphql-java-extended-scalars",    version.ref = "graphql-java-extended-scalars" }
+lib-mustache                  = { module = "com.enonic.lib:lib-mustache",                       version.ref = "lib-mustache" }
+lib-static                    = { module = "com.enonic.lib:lib-static",                         version.ref = "lib-static" }
+lib-router                    = { module = "com.enonic.lib:lib-router",                         version.ref = "lib-router" }
+lib-cors                      = { module = "com.enonic.lib:lib-cors",                           version.ref = "lib-cors" }
+junit-bom                     = { module = "org.junit:junit-bom",                               version.ref = "junit-bom" }
+mockito-bom                   = { module = "org.mockito:mockito-bom",                           version.ref = "mockito-bom" }
