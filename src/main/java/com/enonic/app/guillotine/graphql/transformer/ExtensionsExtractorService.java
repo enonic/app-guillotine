@@ -217,6 +217,10 @@ public class ExtensionsExtractorService
                 }
             }
         }
+        catch ( Exception e )
+        {
+            LOG.warn( "Failed to process the guillotine/guillotine.js file", e );
+        }
         finally
         {
             PortalRequestAccessor.set( oldPortalRequest );
