@@ -1,9 +1,8 @@
 import {GraphiQL} from 'graphiql';
 import {createGraphiQLFetcher} from '@graphiql/toolkit';
 import * as React from 'react';
-import {useState} from 'react';
-import * as ReactDOM from 'react-dom';
-import {createClient} from 'graphql-ws';
+import {useEffect, useState} from 'react';
+import {createRoot} from 'react-dom/client';
 import {Button, ButtonGroup} from '@graphiql/react';
 
 const DEFAULT_QUERY = `# Welcome to Query Playground
@@ -43,22 +42,30 @@ function createFetcher() {
     });
 }
 
+let root: ReturnType<typeof createRoot> | null = null;
+
 function renderGraphiQLUI() {
-    ReactDOM.render(<QueryPlayground/>, getRootContainer(), function () {
-        const refreshButton = document.querySelector('[aria-label="Re-fetch GraphQL schema"]');
-        refreshButton.addEventListener('click', rerenderGraphiQLUI);
-    });
+    const container = getRootContainer();
+
+    if (!root) {
+        root = createRoot(container);
+    }
+
+    root.render(<QueryPlayground/>);
 }
 
 function rerenderGraphiQLUI() {
-    ReactDOM.unmountComponentAtNode(getRootContainer());
+    if (root) {
+        root.unmount();
+        root = null;
+    }
     renderGraphiQLUI();
 }
 
 function BranchChooser() {
-    const [branch, setBranch] = useState(currentBranch);
+    const [branch, setBranch] = useState<string>(currentBranch);
 
-    const handleOnClick = (event, selectedBranch) => {
+    const handleOnClick = (event, selectedBranch: string) => {
         currentBranch = selectedBranch;
         setBranch(selectedBranch);
 
@@ -85,7 +92,19 @@ function BranchChooser() {
     );
 }
 
+function renderCallback() {
+    requestAnimationFrame(() => {
+        const refreshButton: Element = document.querySelector('[aria-label="Re-fetch GraphQL schema"]');
+        refreshButton?.removeEventListener('click', rerenderGraphiQLUI);
+        refreshButton?.addEventListener('click', rerenderGraphiQLUI);
+    });
+}
+
 function QueryPlayground() {
+    useEffect(() => {
+        renderCallback();
+    });
+
     return (
         <GraphiQL fetcher={createFetcher()}
                   defaultQuery={DEFAULT_QUERY}
