@@ -1,10 +1,9 @@
 import {GraphiQL} from 'graphiql';
 import {createGraphiQLFetcher} from '@graphiql/toolkit';
 import * as React from 'react';
-import {useState} from 'react';
-import * as ReactDOM from 'react-dom';
+import {useEffect, useState} from 'react';
+import {createRoot} from 'react-dom/client';
 import {Button, ButtonGroup} from '@graphiql/react';
-import {createClient} from 'graphql-ws';
 
 const DEFAULT_QUERY = `# Welcome to Query Playground
 #
@@ -28,41 +27,52 @@ function getRootContainer() {
 }
 
 function getHandlerUrl() {
-    return `${getRootContainer().dataset.configHandlerUrl}/${getProjectValue()}/${currentBranch}`;
+    return `${getRootContainer().dataset.configHandlerUrl}/${getCurrentProjectValue()}/${currentBranch}`;
 }
 
-function getProjectValue(): string {
-    return window['libAdmin'].store.get('projectContext').currentProject.name;
+function getCurrentProjectValue(): string {
+    const key = 'enonic:cs:lastselectedprojectid';
+    const projectValue = localStorage.getItem(key);
+    if (projectValue === null) {
+        throw new Error(`Missing localStorage value for "${key}"`);
+    }
+    return JSON.parse(projectValue);
 }
+
+let root: ReturnType<typeof createRoot> | null = null;
 
 function renderGraphiQLUI() {
-    ReactDOM.render(<QueryPlayground/>, getRootContainer(), function () {
-        const refreshButton = document.querySelector('[aria-label="Re-fetch GraphQL schema"]');
-        refreshButton.addEventListener('click', rerenderGraphiQLUI);
-    });
+    const container = getRootContainer();
+
+    if (!root) {
+        root = createRoot(container);
+    }
+
+    root.render(<QueryPlayground/>);
 }
 
 function rerenderGraphiQLUI() {
-    ReactDOM.unmountComponentAtNode(getRootContainer());
+    if (root) {
+        root.unmount();
+        root = null;
+    }
     renderGraphiQLUI();
 }
 
 function initEventListeners() {
-    window['libAdmin'].store.get('projectContext').onProjectChanged(function () {
-        rerenderGraphiQLUI();
-    });
+    window.addEventListener('enonic:cs:active-project-changed', rerenderGraphiQLUI);
 }
 
 function createFetcher() {
     return createGraphiQLFetcher({
-        url: getHandlerUrl()
+        url: getHandlerUrl(),
     });
 }
 
 function BranchChooser() {
-    const [branch, setBranch] = useState(currentBranch);
+    const [branch, setBranch] = useState<string>(currentBranch);
 
-    const handleOnClick = (event, newBranch) => {
+    const handleOnClick = (event, newBranch: string) => {
         currentBranch = newBranch;
         setBranch(newBranch);
 
@@ -89,10 +99,30 @@ function BranchChooser() {
     );
 }
 
+function setupButtonEvent(selector: string, handler: () => void) {
+    const button: Element | null = document.querySelector(selector);
+    if (button) {
+        button.removeEventListener('click', handler);
+        button.addEventListener('click', handler);
+    }
+}
+
+function renderCallback() {
+    requestAnimationFrame(() => {
+        setupButtonEvent('[aria-label="Re-fetch GraphQL schema"]', rerenderGraphiQLUI);
+    });
+}
+
+
 function QueryPlayground() {
+    useEffect(() => {
+        renderCallback();
+    }, []);
+
     return (
-        <GraphiQL fetcher={createFetcher()}
-                  defaultQuery={DEFAULT_QUERY}
+        <GraphiQL
+            fetcher={createFetcher()}
+            defaultQuery={DEFAULT_QUERY}
         >
             <GraphiQL.Logo>
                 <BranchChooser/>

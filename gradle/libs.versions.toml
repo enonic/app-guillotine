@@ -5,7 +5,7 @@ graphql-java-extended-scalars = "24.0"
 lib-mustache = "3.0.0-B1"
 lib-static = "3.0.0-B4"
 lib-router = "4.0.0-B1"
-lib-cors = "1.0.0-B2"
+lib-cors = "2.0.0-B1"
 junit-bom = "6.0.3"
 mockito-bom = "5.23.0"
 
