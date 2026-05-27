@@ -27,11 +27,16 @@ function getRootContainer() {
 }
 
 function getHandlerUrl() {
-    return `${getRootContainer().dataset.configHandlerUrl}/${getProjectValue()}/${currentBranch}`;
+    return `${getRootContainer().dataset.configHandlerUrl}/${getCurrentProjectValue()}/${currentBranch}`;
 }
 
-function getProjectValue(): string {
-    return localStorage.getItem('contentstudio:defaultProject');
+function getCurrentProjectValue(): string {
+    const key = 'enonic:cs:lastselectedprojectid';
+    const projectValue = localStorage.getItem(key);
+    if (projectValue === null) {
+        throw new Error(`Missing localStorage value for "${key}"`);
+    }
+    return JSON.parse(projectValue);
 }
 
 let root: ReturnType<typeof createRoot> | null = null;
@@ -55,15 +60,7 @@ function rerenderGraphiQLUI() {
 }
 
 function initEventListeners() {
-    let currentProjectName = localStorage.getItem('contentstudio:defaultProject');
-
-    setInterval(() => {
-        const newProjectName = localStorage.getItem('contentstudio:defaultProject');
-        if (newProjectName !== currentProjectName) {
-            currentProjectName = newProjectName;
-            rerenderGraphiQLUI();
-        }
-    }, 500);
+    window.addEventListener('enonic:cs:active-project-changed', rerenderGraphiQLUI);
 }
 
 function createFetcher() {
@@ -120,7 +117,7 @@ function renderCallback() {
 function QueryPlayground() {
     useEffect(() => {
         renderCallback();
-    });
+    }, []);
 
     return (
         <GraphiQL
