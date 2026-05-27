@@ -7,7 +7,7 @@ mockito = "5.23.0"
 mustache = "3.0.0-B1"
 router = "4.0.0-B1"
 static = "3.0.0-B4"
-lib-cors = "1.0.0-B2"
+lib-cors = "2.0.0-B1"
 
 [libraries]
 graphql-java = { module = "com.graphql-java:graphql-java", version.ref = "graphql-java" }
