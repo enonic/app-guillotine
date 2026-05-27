@@ -1,6 +1,6 @@
 /* global log, Java */
 
-const corsLib = require('/lib/cors');
+const corsLib = require('/lib/enonic/cors');
 const mustacheLib = require('/lib/mustache');
 const appLib = require('/lib/xp/app');
 const contextLib = require('/lib/xp/context');
@@ -16,7 +16,7 @@ exports.all = function (req) {
 router.route('OPTIONS', '/?', (request) => {
     return {
         status: 204,
-        headers: corsLib.getHeaders(request),
+        headers: corsLib.respondOptions(request),
     };
 });
 
@@ -71,7 +71,7 @@ router.post('/?', (req) => {
 
 function shouldBeRendered(reg) {
     const isSDK = appLib.get({
-        key: 'com.enonic.xp.app.welcome',
+        key: 'com.enonic.xp.app.sdk',
     }) !== null;
     const queryPlaygroundUIMode = (app.config['queryplayground.ui.mode'] || 'auto').toLowerCase();
     const uiCanBeRendered = isSDK || helper.isDevMode()

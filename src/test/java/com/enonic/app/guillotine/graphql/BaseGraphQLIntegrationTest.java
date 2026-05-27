@@ -11,6 +11,9 @@ import graphql.schema.GraphQLSchema;
 
 import com.enonic.app.guillotine.BuiltinContentTypesAccessor;
 import com.enonic.app.guillotine.BuiltinMacros;
+import com.enonic.app.guillotine.GuillotineConfig;
+import com.enonic.app.guillotine.GuillotineConfigService;
+import com.enonic.app.guillotine.ModifyUnknownFieldMode;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.factory.TestFixtures;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
@@ -50,6 +53,7 @@ import com.enonic.xp.util.Version;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class BaseGraphQLIntegrationTest
@@ -58,6 +62,8 @@ public class BaseGraphQLIntegrationTest
     private GraphQLApi bean;
 
     protected ServiceFacade serviceFacade;
+
+    protected GuillotineConfigService guillotineConfigService;
 
     @Override
     protected void initialize()
@@ -114,6 +120,10 @@ public class BaseGraphQLIntegrationTest
         when( macroService.evaluateMacros( anyString(), any() ) ).thenReturn( "processedMacros" );
         when( serviceFacade.getMacroService() ).thenReturn( macroService );
 
+        guillotineConfigService = spy( new GuillotineConfigService() );
+        guillotineConfigService.activate( mock( GuillotineConfig.class, invocation -> invocation.getMethod().getDefaultValue() ) );
+        when( guillotineConfigService.getModifyUnknownFieldMode() ).thenReturn( ModifyUnknownFieldMode.WARN );
+
         CmsFormFragmentService cmsFormFragmentService = mock( CmsFormFragmentService.class );
         when( cmsFormFragmentService.inlineFormItems( any() ) ).thenReturn( null );
 
@@ -126,6 +136,7 @@ public class BaseGraphQLIntegrationTest
         addService( PortalUrlGeneratorService.class, portalUrlGeneratorService );
         addService( MacroDescriptorService.class, macroDescriptorService );
         addService( MacroService.class, macroService );
+        addService( GuillotineConfigService.class, guillotineConfigService );
         addService( CmsFormFragmentService.class, cmsFormFragmentService );
 
         createGraphQLApiBean();

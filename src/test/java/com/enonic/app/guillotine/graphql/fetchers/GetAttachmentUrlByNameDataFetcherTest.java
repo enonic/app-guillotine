@@ -12,6 +12,7 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.ContentFixtures;
+import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 
@@ -31,7 +32,7 @@ public class GetAttachmentUrlByNameDataFetcherTest
 
         localContext.put( Constants.PROJECT_ARG, "myproject" );
         localContext.put( Constants.BRANCH_ARG, "draft" );
-        localContext.put( Constants.CURRENT_CONTENT_FIELD, ContentFixtures.createContentAsMap() );
+        localContext.put( Constants.CURRENT_CONTENT_FIELD, GuillotineLocalContextHelper.mapToJson( ContentFixtures.createContentAsMap() ) );
 
         when( environment.getSource() ).thenReturn( Map.of( "name", "Name" ) );
         when( environment.getLocalContext() ).thenReturn( localContext );

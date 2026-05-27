@@ -27,11 +27,16 @@ function getRootContainer(): HTMLElement {
 }
 
 function getHandlerUrl(): string {
-    return `${getRootContainer().dataset.configHandlerUrl}?project=${getProjectValue()}&branch=${currentBranch}`;
+    return `${getRootContainer().dataset.configHandlerUrl}?project=${getCurrentProjectValue()}&branch=${currentBranch}`;
 }
 
-function getProjectValue(): string {
-    return localStorage.getItem('contentstudio:defaultProject');
+function getCurrentProjectValue(): string {
+    const key = 'enonic:cs:lastselectedprojectid';
+    const projectValue = localStorage.getItem(key);
+    if (projectValue === null) {
+        throw new Error(`Missing localStorage value for "${key}"`);
+    }
+    return JSON.parse(projectValue);
 }
 
 let root: ReturnType<typeof createRoot> | null = null;
@@ -55,15 +60,7 @@ function rerenderGraphiQLUI() {
 }
 
 function initEventListeners() {
-    let currentProjectName = localStorage.getItem('contentstudio:defaultProject');
-
-    setInterval(() => {
-        const newProjectName = localStorage.getItem('contentstudio:defaultProject');
-        if (newProjectName !== currentProjectName) {
-            currentProjectName = newProjectName;
-            rerenderGraphiQLUI();
-        }
-    }, 500);
+    window.addEventListener('enonic:cs:active-project-changed', rerenderGraphiQLUI);
 }
 
 function createFetcher() {
@@ -102,17 +99,6 @@ function BranchChooser() {
     );
 }
 
-function settingButtonCallback() {
-    setTimeout(() => {
-        const titleElements: NodeListOf<Element> = document.querySelectorAll('.graphiql-dialog-section-title');
-        titleElements.forEach((titleElement: Element) => {
-            if (titleElement.textContent === 'Theme') {
-                titleElement.closest('.graphiql-dialog-section')?.remove();
-            }
-        });
-    }, 1);
-}
-
 function setupButtonEvent(selector: string, handler: () => void) {
     const button: Element | null = document.querySelector(selector);
     if (button) {
@@ -124,11 +110,6 @@ function setupButtonEvent(selector: string, handler: () => void) {
 function renderCallback() {
     requestAnimationFrame(() => {
         setupButtonEvent('[aria-label="Re-fetch GraphQL schema"]', rerenderGraphiQLUI);
-
-        document.body.classList.remove('graphiql-dark');
-        document.body.classList.add('graphiql-light');
-
-        setupButtonEvent('[aria-label="Open settings dialog"]', settingButtonCallback);
     });
 }
 
@@ -136,7 +117,7 @@ function renderCallback() {
 function QueryPlayground() {
     useEffect(() => {
         renderCallback();
-    });
+    }, []);
 
     return (
         <GraphiQL

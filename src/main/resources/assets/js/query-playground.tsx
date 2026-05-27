@@ -97,7 +97,7 @@ function renderCallback() {
 function QueryPlayground() {
     useEffect(() => {
         renderCallback();
-    });
+    }, []);
 
     return (
         <GraphiQL fetcher={createFetcher()}
