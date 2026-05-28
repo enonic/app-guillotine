@@ -18,6 +18,6 @@ public class GetContentDataFetcher
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
     {
-        return GuillotineSerializer.serialize( getContent( environment, false ) );
+        return GuillotineSerializer.serialize( getContent( environment ) );
     }
 }
