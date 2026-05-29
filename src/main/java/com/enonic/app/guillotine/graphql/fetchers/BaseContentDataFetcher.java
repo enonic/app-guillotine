@@ -1,7 +1,5 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
-import java.util.regex.Pattern;
-
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
@@ -16,7 +14,7 @@ import com.enonic.xp.site.Site;
 public abstract class BaseContentDataFetcher
     implements DataFetcher<Object>
 {
-    private final static Pattern SITE_KEY_PATTERN = Pattern.compile( "\\$\\{site\\}" );
+    private final static String SITE_PATTERN = "${site}";
 
     protected final ContentService contentService;
 
@@ -25,37 +23,49 @@ public abstract class BaseContentDataFetcher
         this.contentService = contentService;
     }
 
-    protected Content getContent( DataFetchingEnvironment environment, boolean returnRootContent )
+    protected Content getContent( DataFetchingEnvironment environment )
+    {
+        final String key = resolveKeyFromArgumentOrLocalContext( environment );
+
+        if ( key == null || "/".equals( key ) )
+        {
+            return null;
+        }
+
+        final Content content = new GetContentCommand( contentService ).executeAndGetContent( key, environment );
+
+        if ( content != null && "/".equals( content.getPath().toString() ) )
+        {
+            return null;
+        }
+
+        return content;
+    }
+
+    protected String resolveKeyFromArgumentOrLocalContext( DataFetchingEnvironment environment )
     {
         String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
 
         String argumentKey = environment.getArgument( "key" );
 
-        if ( argumentKey != null )
+        if ( argumentKey == null )
         {
-            String key = argumentKey;
-            if ( siteKey != null && !siteKey.isEmpty() )
-            {
-                Site site = getSiteByKey( siteKey );
-                if ( site != null )
-                {
-                    key = argumentKey.replaceAll( SITE_KEY_PATTERN.pattern(), site.getPath().toString() );
-                }
-            }
-            return getContentByKey( key, returnRootContent, environment );
+            return siteKey;
         }
-        else
+
+        if ( argumentKey.startsWith( SITE_PATTERN ) )
         {
-            if ( siteKey != null && !siteKey.isEmpty() )
-            {
-                return getContentByKey( siteKey, returnRootContent, environment );
-            }
-            if ( returnRootContent )
-            {
-                return new GetContentCommand( contentService ).executeAndGetContent( "/", environment );
-            }
+            final Site site = getSiteByKey( siteKey );
+            final String replacement = site != null ? site.getPath().toString() : "";
+            argumentKey = replacement + argumentKey.substring( SITE_PATTERN.length() );
         }
-        return null;
+
+        if ( argumentKey.isEmpty() )
+        {
+            return null;
+        }
+
+        return argumentKey;
     }
 
     private Site getSiteByKey( String siteKey )
@@ -63,17 +73,5 @@ public abstract class BaseContentDataFetcher
         return siteKey.startsWith( "/" )
             ? contentService.findNearestSiteByPath( ContentPath.from( siteKey ) )
             : contentService.getNearestSite( ContentId.from( siteKey ) );
-    }
-
-    private Content getContentByKey( String key, boolean returnRootContent, DataFetchingEnvironment environment )
-    {
-        Content content = new GetContentCommand( contentService ).executeAndGetContent( key, environment );
-
-        if ( content != null && "/".equals( content.getPath().toString() ) && !returnRootContent )
-        {
-            return null;
-        }
-
-        return content;
     }
 }
