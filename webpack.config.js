@@ -15,7 +15,8 @@ module.exports = {
         'styles/query-playground': './styles/query-playground.less',
     },
     output: {
-        path: path.join(__dirname, '/build/resources/main/assets')
+        path: path.join(__dirname, '/build/resources/main/assets'),
+        uniqueName: 'app-guillotine',
     },
     resolve: {
         extensions: ['.ts', '.js', '.tsx', '.less', '.css']
