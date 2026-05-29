@@ -2,6 +2,12 @@
 
 IMPORTANT: Guillotine 7 requires XP 7.14.0 or higher.
 
+== Guillotine 7 Update 4
+
+=== Release fixes
+
+The GraphQL schema is now kept available even when generation of an individual content-type schema fails.
+
 == Guillotine 7 Update 3
 
 === Release features
