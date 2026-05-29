@@ -1,78 +1,47 @@
 = Release Notes
 
-IMPORTANT: Guillotine 7 requires XP 7.14.0 or higher.
+IMPORTANT: Guillotine 8 requires XP 8.0.0 or higher.
 
-== Guillotine 7 Update 3
+== Guillotine 8
 
-=== Release features
+=== Features
 
-maxQueryTokens support:: You can <<configuration#, configure>> the maximum number of raw tokens that the parser will accept in a GraphQL query, after which an exception will be thrown. By default `15000`.
+`Content`::
+Added new fields: `displayNameExpression`, `displayNameListExpression`, `displayNamePlaceholder`, `displayNamePlaceholderI18nKey`, `titleI18nKey`, `descriptionI18nKey`.
 
-== Guillotine 7 Update 2
+=== Deprecations
 
-=== Release features
-
-CORS support:: Guillotine now supports Cross-Origin Resource Sharing (CORS). You can configure allowed origins, methods, and headers in the <<configuration#, configuration>>. By default CORS is enabled.
-
-== Guillotine 7 Update 1
-
-=== Release features
-
-Type definitions on NPM:: Guillotine type definitions are now https://www.npmjs.com/package/@enonic-types/guillotine[available on NPM^]. You can install them using the following command:
-
-  npm install @enonic/guillotine-types --save-dev
-
-then use them in your code like this:
-
-.Import Guillotine type definitions from NPM
-[source,graphql]
-----
-import type {GraphQL, Extensions} from '@enonic-types/guillotine';
-
-import {ObjectTypeName} from '@enonic-types/guillotine';
-----
-
-siteKey:: A new `siteKey` argument has been added to the `guillotine` field. This argument is optional and can be used instead of the `X-Guillotine-SiteKey` header.
-
-.Retrieve site's displayName and child items using `siteKey` argument.
-[source,graphql]
-----
-{
-  guillotine(siteKey: "/my-site") {
-    get(key: "${site}") {
-      displayName
-      children {
-        displayName
-        type
-      }
-    }
-  }
-}
-----
-
-modifyUnknownFields:: A new `graphql.extensions.modifyUnknownFields` configuration option allows you to control how Guillotine handles unknown fields in the GraphQL schema. By default, Guillotine will throw an error if an unknown field is requested. You can now change this behaviour to ignore unknown fields or log a warning instead of throwing an error. See <<configuration#,configuration>> for more information.
-
-== Guillotine 7
-
-WARNING: This release includes <<breaking_changes, breaking changes>>
-
-IMPORTANT: All `media` and `content` URLs in the `pageUrl`, `imageUrl`, `mediaUrl`, `attachmentUrl` fields and in the `processedHtml` field of <<api#richtext,RichText>> will be `absolute` (`server`) URLs generated in the context of your endpoint. If you want to use a different domain or base URL you should implement your own custom processing.
-
-=== Release features
-
-Extensions:: Extensions are a new way to extend GraphQL schemas. They are more powerful and flexible than the `creationCallbacks` in the Guillotine Lib. Now you can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types. See <<extending#, extensions>> for more information.
-
-LocalContext:: LocalContext allows sharing data between parent and child fields. See <<extending/resolvers#datafetchingenvironment, here>> for more information.
-
-`createDataFetcherResult` function:: This function allows you to create a `DataFetcherResult` object with the `data` and `localContext` fields to be returned from the data fetcher. See more information <<extending/resolvers#createdatafetcherresult, here>>.
-
-Migrated from JS to Java:: Guillotine has been fully reimplemented from JavaScript to Java. This transition has not only improved the performance and stability of the application but also enabled the implementation of more powerful and flexible ways of <<extending#, extending and customizing>> the GraphQL schema.
+`ContentType.displayName`::
+The `displayName` field on `ContentType` is superseded by the new `title` field, which carries the same value. `displayName` is kept for backward compatibility and now returns whatever `title` returns. New code should query `title` instead. `displayName` will be removed in a future major release.
 
 === Breaking changes
 
-Subscriptions are not supported anymore:: Due to limited use,  GraphQL subscriptions are not supported anymore. You have to implement your own solution for this without using Guillotine.
+`Requires Enonic XP 8`::
+Minimum required XP version is `8.0.0`. Guillotine 8 will not install on XP 7.x.
 
-Params as JSON instead of String::
-For such fields as `pageUrl`, `mediaUrl`, `imageUrl` and `attachmentUrl` the `params` argument has `Json` type instead of `String`.
+`XData_base_ApplicationConfig`::
+Type `XData_base_ApplicationConfig` has been renamed to `Mixin_base_ApplicationConfig`.
 
-Site configuration:: It is no longer possible to obtain the `siteConfig` from the `dataAsJson` and `site` fields of the `Content` type, as well as from the `dataAsJson` field of the `portal_Site` type.
+`XData_base_gpsInfo_DataConfig`::
+Type `XData_base_gpsInfo_DataConfig` has been renamed to `Mixin_base_gpsInfo_DataConfig`.
+
+`XData_media_ApplicationConfig`::
+Type `XData_media_ApplicationConfig` has been renamed to `Mixin_media_ApplicationConfig`.
+
+`XData_media_cameraInfo_DataConfig`::
+Type `XData_media_cameraInfo_DataConfig` has been renamed to `Mixin_media_cameraInfo_DataConfig`.
+
+`XData_media_imageInfo_DataConfig`::
+Type `XData_media_imageInfo_DataConfig` has been renamed to `Mixin_media_imageInfo_DataConfig`.
+
+`Content.hasChildren`::
+The `hasChildren: Boolean` field has been removed from all types implementing `Content`. Use the existing `children` / `childrenConnection` fields and check whether the result is empty instead.
+
+`Permissions.inheritsPermissions`::
+The `inheritsPermissions` field has been removed from the `Permissions` type. The inheritance flag is no longer exposed through the GraphQL API.
+
+`ContentType.contentDisplayNameScript`::
+The `contentDisplayNameScript` field on `ContentType` has been removed.
+
+`Long`::
+For `Input` form item with type `Long`, the returned value type has changed from `String` to `Long`.
