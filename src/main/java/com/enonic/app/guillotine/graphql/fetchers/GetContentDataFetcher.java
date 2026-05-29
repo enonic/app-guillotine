@@ -20,7 +20,7 @@ public class GetContentDataFetcher
         throws Exception
     {
         return GuillotineLocalContextHelper.executeInContext( environment, () -> {
-            final Content content = getContent( environment, false );
+            final Content content = getContent( environment );
             return GuillotineSerializer.serialize( content );
         } );
     }

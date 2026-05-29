@@ -24,7 +24,7 @@ public class GetPermissionsDataFetcher
 
     private Object doGet( final DataFetchingEnvironment environment )
     {
-        Content content = getContent( environment, false );
+        Content content = getContent( environment );
         return GuillotineSerializer.serializePermissions( content );
     }
 }
