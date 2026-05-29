@@ -16,7 +16,7 @@ module.exports = {
     },
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
-        chunkFilename: 'js/[id].js',
+        uniqueName: 'app-guillotine',
     },
     resolve: {
         extensions: ['.ts', '.js', '.tsx', '.less', '.css']
