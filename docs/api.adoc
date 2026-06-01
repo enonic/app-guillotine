@@ -35,7 +35,7 @@ TIP: A more intuitive way to discover the API is by using the <<playground#, Que
 |===
 |Name(Arguments):Type | Description
 
-|guillotine(siteKey: String image:v-710.svg[Guillotine 7.1.0,opts=inline]): <<HeadlessCms>>
+|guillotine(siteKey: String: <<HeadlessCms>>
 |Type gathering all content retrieval requests
 |===
 
@@ -45,7 +45,7 @@ Gathers all content retrieval requests.
 
 ==== Remarks
 
-* Most requests expect a key as argument. If the key is not specified, then the matched content will be the one corresponding to the current execution context
+* Most requests expect a key as an argument. If the key is not specified, then the matched content will be the one corresponding to the current execution context
 
 ==== Fields
 
