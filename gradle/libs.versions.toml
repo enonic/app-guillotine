@@ -1,7 +1,7 @@
 [versions]
 graphql-java = "26.0"
 graphql-java-extended-scalars = "24.0"
-jackson = "2.21.3"
+jackson = "2.22.0"
 junit = "6.1.0"
 mockito = "5.23.0"
 mustache = "3.0.0-B1"
