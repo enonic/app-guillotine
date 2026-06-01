@@ -9,6 +9,12 @@ IMPORTANT: Guillotine 8 requires XP 8.0.0 or higher.
 `Content`::
 Added new fields: `displayNameExpression`, `displayNameListExpression`, `displayNamePlaceholder`, `displayNamePlaceholderI18nKey`, `titleI18nKey`, `descriptionI18nKey`.
 
+`CORS origin matching`::
+`cors.origin` now accepts multiple comma-separated values (e.g. `https://example.com, https://admin.example.com`) and supports `*` to allow all origins, literal origins, and `~`-prefixed regex patterns for dynamic matching (e.g. `~https://.*\.example\.com`). Use `~.*` to reflect any origin.
+
+`cors.exposedHeaders`::
+New `cors.exposedHeaders` option sets the `Access-Control-Expose-Headers` response header, exposing extra response headers beyond the CORS safelist (e.g. `X-Request-Id, X-Custom-Header`).
+
 === Deprecations
 
 `ContentType.displayName`::
@@ -45,3 +51,10 @@ The `contentDisplayNameScript` field on `ContentType` has been removed.
 
 `Long`::
 For `Input` form item with type `Long`, the returned value type has changed from `String` to `Long`.
+
+`CORS configuration`::
+The CORS implementation has been reworked and its configuration behaves differently:
++
+* The `cors.enabled` property has been removed. CORS is now enabled by setting `cors.origin` and disabled when `cors.origin` is omitted. Previously CORS was enabled by default and allowed all origins when none were configured; it is now disabled unless an origin is explicitly configured.
+* The default for `cors.methods` changed from `POST, OPTIONS` to `GET, HEAD, POST`.
+* When `cors.allowedHeaders` is not configured, the request's `Access-Control-Request-Headers` value is now reflected in the response instead of defaulting to `Content-Type`.
