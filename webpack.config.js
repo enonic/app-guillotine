@@ -1,7 +1,6 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const webpack = require('webpack');
 const path = require('path');
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -19,13 +18,33 @@ module.exports = {
         uniqueName: 'app-guillotine',
     },
     resolve: {
-        extensions: ['.ts', '.js', '.tsx', '.less', '.css']
+        extensions: ['.ts', '.js', '.tsx', '.less', '.css'],
+        // graphiql exposes `setup-workers/webpack` only under the `import` condition.
+        // ts-loader compiles to CommonJS, so webpack would otherwise resolve with the
+        // `require` condition and fail to find it. `'...'` keeps webpack's defaults.
+        conditionNames: ['import', '...']
     },
     module: {
+        // Monaco/monaco-graphql use many lazy `import()` calls. Without forcing them
+        // eager, webpack emits dozens of tiny on-demand chunks (5411.js, 2034.js, ...),
+        // each a separate network request. Eager folds them into the parent bundle.
+        // Web workers (`new Worker(new URL(...))`) are unaffected and stay separate.
+        parser: {
+            javascript: {
+                dynamicImportMode: 'eager'
+            }
+        },
         rules: [
             {
                 test: /\.tsx?$/,
                 use: [{loader: 'ts-loader', options: {configFile: 'tsconfig.json'}}]
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    {loader: 'style-loader'},
+                    {loader: 'css-loader', options: {sourceMap: !isProd}},
+                ]
             },
             {
                 test: /\.less$/,
@@ -64,9 +83,6 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: '[name].css',
             chunkFilename: './css/[id].css'
-        }),
-        new webpack.optimize.LimitChunkCountPlugin({
-            maxChunks: 1,
         }),
     ],
     mode: isProd ? 'production' : 'development',
