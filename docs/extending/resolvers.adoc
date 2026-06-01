@@ -1,0 +1,101 @@
+= resolvers
+
+Set or override data fetcher for a field.
+
+== Usage
+
+It must be an object with the following structure:
+
+[source,javascript]
+----
+resolvers: {
+    <GraphQLTypeName>: {
+        <fieldName>: function (env) {
+            // your code here
+        },
+        // the rest of field resolvers ...
+    },
+    // the rest of type resolvers ...
+}
+----
+
+== DataFetchingEnvironment
+
+A DataFetchingEnvironment instance (env) is passed to a DataFetcher as an execution context, and it's the place where you can find information to help you resolve a data value given a GraphQL field input.
+
+Guillotine provides the following properties in the DataFetchingEnvironment:
+
+- `source` - value of the parent field. For the root query it is equal to `null`.
+- `args` - the arguments provided to the field in the GraphQL query.
+- `localContext` - a context object that parent fields may have returned. This object is unmodifiable.
+
+The `localContext` object supports value types such as `string`, `double`, `integer`, `boolean`, and `null`. Keys with `null` values will be removed. If you need to provide a complex object as a value, you can use the `JSON.stringify` function to convert it to a string.
+
+The `localContext` object is unmodifiable, so you can't change it. If you need to pass some data to the lower levels, then you can use `createDataFetcherResult` function. Also, the `localContext` object provides the following properties:
+
+- `project` - project name, taken from the current context.
+- `branch` - branch name, taken from the current context.
+- `siteKey` - site key is taken from the `siteKey` argument of the `guillotine` field. If this argument is not provided, the value will be taken from the `X-Guillotine-SiteKey` header. Otherwise, it will be equal to `/`.
+
+Below you can find an example of how to use these properties:
+
+[source,javascript]
+----
+exports.extensions = function (graphQL) {
+    return {
+        ...
+        resolvers: {
+            MyCustomType: {
+                myCustomField: function (env) {
+                    const project = env.localContext.project;
+                    const branch = env.localContext.branch;
+                    const siteKey = env.localContext.siteKey;
+                    ...
+                }
+            }
+        },
+        ...
+   }
+}
+----
+
+== createDataFetcherResult
+
+Guillotine provides `createDataFetcherResult` function via `graphQL` object. This function will be useful when your `DataFetcher` retrieves data from multiple sources, or you want to pass extra context to lower levels.
+
+The `createDataFetcherResult` function accepts an object with the following properties:
+
+- `data` - data to return, must not be `null`. Object must be wrapped by `__.toScriptValue` function.
+- `localContext` - a key-value object that will be passed to the lower levels. This object is unmodifiable at the lowest level.
+- `parentLocalContext` - a context object that parent fields may have returned.
+
+If `parentLocalContext` is not provided, then `localContext` will override `parentLocalContext`. Otherwise, `localContext` will be merged with `parentLocalContext` and `localContext` will override `parentLocalContext` if they have the same keys.
+
+If `localContext` is not provided, then `parentLocalContext` will be used as `localContext`.
+
+Below you can find an example of how to use `createDataFetcherResult` function:
+
+[source,javascript]
+----
+exports.extensions = function (graphQL) {
+    return {
+        ...
+        resolvers: {
+            MyCustomType: {
+                myCustomField: function (env) {
+                    return graphQL.createDataFetcherResult({
+                        data: __.toScriptValue({
+                           id: "100",
+                        }),
+                        localContext: {
+                            parentId: "101",
+                        },
+                        parentLocalContext: env.localContext,
+                    });
+                }
+            }
+        },
+        ...
+   }
+}
+----

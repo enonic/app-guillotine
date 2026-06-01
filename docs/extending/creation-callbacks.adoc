@@ -1,0 +1,109 @@
+= creationCallbacks
+
+Add remove, or modify existing fields, their description, types and interfaces.
+
+== Introduction
+
+creationCallbacks are invoked during the GraphQL schema generation - every time Guillotine or an application extending Guillotine is started or stopped.
+
+
+Important to remember:
+
+- Can only be defined for <<types#, types>> and <<interfaces#, interfaces>>.
+
++
+NOTE: field renaming is not supported.
++
+
+- May be invoked in a different order than what is defined in the `creationCallbacks` property.
+- If you add or modify some fields of an interface in the creation callback, you must also do that for all implementations. Otherwise, you will get an error during schema generation.
+- If you modify some field, make sure that you implement correct data fetcher in the <<./resolvers#,resolvers>> section. Otherwise, you can get an error during query execution.
+
+WARNING: *Conflicts*. Multiple applications may define creationCallbacks. Conflicts between these may lead to schema generation errors or query errors.
+
+NOTE: It is *NOT recommended* to make modification to the standard fields of the `HeadlessCMS` type. But if you have to do it then make sure that it will not introduce conflicts and side effects.
+
+== Usage
+
+This property must be an object with the following structure:
+
+[source,javascript]
+----
+creationCallbacks: {
+    <GraphQLTypeName>: function (params) {
+        // if you want to add new fields
+        params.addFields({
+            <newFieldName>: {
+                type: <GraphQLType>,
+                args: {
+                    <argName>: <GraphQLType>,
+                    // the rest of argument definitions ...
+                },
+            },
+        });
+
+        // if you want to remove existing fields
+        params.removeFields([
+             "fieldName 1",
+             "filedName 2",
+             // the rest of fieldName ...
+        ]);
+
+        // If you want to modify existing fields,
+        // keep in mind that all arguments will be rewritten by the new arguments.
+        // If type or args are not provided then type and args of the original field will be used.
+        params.modifyFields({
+            <existingFieldName>: {
+                type: <GraphQLType>,
+                args: {
+                    <argName>: <GraphQLType>,
+                    // the rest of arguments definitions ...
+                },
+            },
+        });
+
+        // If you want to change description
+        params.setDescription("New description");
+
+        // If you want to add or remove some interfaces in an object,
+        // keep in mind that interfaces will be rewritten by the new array of interfaces.
+        // Also do not forget to add all the required fields.
+        params.setInterfaces([
+            <GraphQLInterfaceType or GraphQLReferenceType>
+        ]);
+    },
+    // the rest of creation callback definition ...
+}
+----
+
+NOTE: By default, Guillotine will throw an error if it tries to modify an unknown field. You can customise this behaviour by setting the `graphql.extensions.modifyUnknownField` property in the <<../configuration#, configuration>>.
+
+
+For example:
+
+[source,javascript]
+----
+creationCallbacks: {
+    MyCustomType: function (params) {
+        params.addFields({
+            extraField: {
+                type: graphQL.GraphQLString,
+            }
+        });
+
+        params.removeFields([
+            "fieldToRemove1",
+            "fieldToRemove2",
+        ]);
+
+        params.modifyFields({
+          fieldToModify: {
+            type: graphQL.GraphQLString,
+          }
+        });
+    },
+
+}
+----
+
+To learn how to set or override data fetcher for a field you can refer to the <<./resolvers#,resolvers>> section.
