@@ -1,43 +1,78 @@
 = Release Notes
 
-== Guillotine 6 Update 2
+IMPORTANT: Guillotine 7 requires XP 7.14.0 or higher.
+
+== Guillotine 7 Update 3
 
 === Release features
 
-- Upgrade GraphiQL to version 2.x.
-- Make Query Playground available on GET `/site/<repo>` endpoint.
+maxQueryTokens support:: You can <<configuration#, configure>> the maximum number of raw tokens that the parser will accept in a GraphQL query, after which an exception will be thrown. By default `15000`.
 
-== Guillotine 6 Update 1
+== Guillotine 7 Update 2
 
 === Release features
 
-Query DSL and Highlight::
-* Deprecated fields `query` and `queryConnection` in <<api#fields_2, Query type>> are replaced with `queryDsl` and `queryDslConnection` for DSL expressions.
-* Added new input types for <<api#query_dsl_input_types, Query DSL>> and <<api#highlight_input_types, Highlight>>
-* Added new <<api#enum_types, Enum types>> for DSL and Highlight
+CORS support:: Guillotine now supports Cross-Origin Resource Sharing (CORS). You can configure allowed origins, methods, and headers in the <<configuration#, configuration>>. By default CORS is enabled.
 
+== Guillotine 7 Update 1
 
-=== Deprecations
-`query` and `queryConnection` fields in <<api#fields_2, Query type>> are deprecated and will be removed in Guillotine 7.
+=== Release features
 
-== Guillotine 6
+Type definitions on NPM:: Guillotine type definitions are now https://www.npmjs.com/package/@enonic-types/guillotine[available on NPM^]. You can install them using the following command:
+
+  npm install @enonic/guillotine-types --save-dev
+
+then use them in your code like this:
+
+.Import Guillotine type definitions from NPM
+[source,graphql]
+----
+import type {GraphQL, Extensions} from '@enonic-types/guillotine';
+
+import {ObjectTypeName} from '@enonic-types/guillotine';
+----
+
+siteKey:: A new `siteKey` argument has been added to the `guillotine` field. This argument is optional and can be used instead of the `X-Guillotine-SiteKey` header.
+
+.Retrieve site's displayName and child items using `siteKey` argument.
+[source,graphql]
+----
+{
+  guillotine(siteKey: "/my-site") {
+    get(key: "${site}") {
+      displayName
+      children {
+        displayName
+        type
+      }
+    }
+  }
+}
+----
+
+modifyUnknownFields:: A new `graphql.extensions.modifyUnknownFields` configuration option allows you to control how Guillotine handles unknown fields in the GraphQL schema. By default, Guillotine will throw an error if an unknown field is requested. You can now change this behaviour to ignore unknown fields or log a warning instead of throwing an error. See <<configuration#,configuration>> for more information.
+
+== Guillotine 7
 
 WARNING: This release includes <<breaking_changes, breaking changes>>
 
+IMPORTANT: All `media` and `content` URLs in the `pageUrl`, `imageUrl`, `mediaUrl`, `attachmentUrl` fields and in the `processedHtml` field of <<api#richtext,RichText>> will be `absolute` (`server`) URLs generated in the context of your endpoint. If you want to use a different domain or base URL you should implement your own custom processing.
+
 === Release features
 
-Project level API:: The Guillotine app now mounts to the root of all projects - automatically provisioning an API to all project branches root i.e. `/site/<myproject>/<branch>`.
+Extensions:: Extensions are a new way to extend GraphQL schemas. They are more powerful and flexible than the `creationCallbacks` in the Guillotine Lib. Now you can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types. See <<extending#, extensions>> for more information.
 
-Dynamic site context:: With the API now being project-relative, setting the site context in a header enable you to <<usage#site_context, perform site relative queries>>.
+LocalContext:: LocalContext allows sharing data between parent and child fields. See <<extending/resolvers#datafetchingenvironment, here>> for more information.
 
-Global schema:: The GraphQL type schema is generated from all available schemas (across all installed apps) in the Enonic instance.
+`createDataFetcherResult` function:: This function allows you to create a `DataFetcherResult` object with the `data` and `localContext` fields to be returned from the data fetcher. See more information <<extending/resolvers#createdatafetcherresult, here>>.
 
-Content Studio API browser:: Guillotine also features an embedded GraphQL API browser called <<clients#query_playground, Query playground>>. Query Playground is available directly in Content Studio, in context of your projects.
-
-Typed x-data schemas:: Like for all other schemas, x-data are now also fully typed - grouped by application key. See <<usage#xdata, examples of xData usage>>
+Migrated from JS to Java:: Guillotine has been fully reimplemented from JavaScript to Java. This transition has not only improved the performance and stability of the application but also enabled the implementation of more powerful and flexible ways of <<extending#, extending and customizing>> the GraphQL schema.
 
 === Breaking changes
 
-Site deployment removed:: You may no longer add this application to a site, and get a contextual API. Use the <<usage#site_context, site context header>>, or <<embed#, embed Guillotine>> in your application to replicate this functionality.
+Subscriptions are not supported anymore:: Due to limited use,  GraphQL subscriptions are not supported anymore. You have to implement your own solution for this without using Guillotine.
 
-ItemSet and OptionSet type name fix:: Previously, their types were erroneously generated from their schema label, rather than name. Clients using these types through introspection will break if label and name are different in the schemas.
+Params as JSON instead of String::
+For such fields as `pageUrl`, `mediaUrl`, `imageUrl` and `attachmentUrl` the `params` argument has `Json` type instead of `String`.
+
+Site configuration:: It is no longer possible to obtain the `siteConfig` from the `dataAsJson` and `site` fields of the `Content` type, as well as from the `dataAsJson` field of the `portal_Site` type.
