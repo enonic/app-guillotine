@@ -10,7 +10,7 @@ IMPORTANT: Guillotine 8 requires XP 8.0.0 or higher.
 Added new fields: `displayNameExpression`, `displayNameListExpression`, `displayNamePlaceholder`, `displayNamePlaceholderI18nKey`, `titleI18nKey`, `descriptionI18nKey`.
 
 `CORS origin matching`::
-`cors.origin` now accepts multiple comma-separated values (e.g. `https://example.com, https://admin.example.com`) and supports `*` to allow all origins, literal origins, and `~`-prefixed regex patterns for dynamic matching (e.g. `~https://.*\.example\.com`). Use `~.*` to reflect any origin.
+`cors.origin` now accepts multiple comma-separated values (e.g. `\https://example.com, \https://admin.example.com`) and supports `\*` to allow all origins, literal origins, and `~`-prefixed regex patterns for dynamic matching (e.g. `~https://.*\.example\.com`). Use `~.*` to reflect any origin.
 
 `cors.exposedHeaders`::
 New `cors.exposedHeaders` option sets the `Access-Control-Expose-Headers` response header, exposing extra response headers beyond the CORS safelist (e.g. `X-Request-Id, X-Custom-Header`).
