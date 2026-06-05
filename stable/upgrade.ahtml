@@ -441,298 +441,355 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#global_schema">Global Schema</a></li>
-<li><a href="#subscriptions">Subscriptions</a></li>
-<li><a href="#deprecated_fields">Deprecated fields</a></li>
-<li><a href="#url_fields">Url fields</a></li>
-<li><a href="#site_configuration">Site Configuration</a></li>
-<li><a href="#guillotine_library">Guillotine library</a>
-<ul class="sectlevel2">
-<li><a href="#migrating">Migrating</a></li>
-<li><a href="#example_of_migration">Example of migration</a></li>
-</ul>
-</li>
+<li><a href="#renamed_x_data_types">Renamed X-data types</a></li>
+<li><a href="#removed_haschildren_field">Removed <code>hasChildren</code> field</a></li>
+<li><a href="#removed_inheritspermissions_field">Removed <code>inheritsPermissions</code> field</a></li>
+<li><a href="#removed_contentdisplaynamescript_field">Removed <code>contentDisplayNameScript</code> field</a></li>
+<li><a href="#renamed_displayname_to_title_on_contenttype">Renamed <code>displayName</code> to <code>title</code> on <code>ContentType</code></a></li>
+<li><a href="#long_input_type"><code>Long</code> input type</a></li>
+<li><a href="#cors_configuration">CORS configuration</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="global_schema"><a class="link" href="#global_schema">Global Schema</a></h2>
+<div id="preamble">
 <div class="sectionbody">
-<div class="paragraph">
-<p>The Guillotine API is now Global, meaning the schema will include types and extensions for all installed applications, regardless of the context you use to access the API.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="subscriptions"><a class="link" href="#subscriptions">Subscriptions</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Due to limited interest and use, <code>Subscriptions</code> have been removed from Guillotine 7.</p>
-</div>
-<div class="paragraph">
-<p>Guillotine 7 does not provide a way to add custom subscriptions at the moment. If you need subscriptions, this will require you to build a custom API, consider using the Guillotine 6 code as a foundation.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="deprecated_fields"><a class="link" href="#deprecated_fields">Deprecated fields</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The <code>query</code> and <code>queryConnection</code> fields are deprecated. Use <code>queryDsl</code> and <code>queryDslConnection</code> instead.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="url_fields"><a class="link" href="#url_fields">Url fields</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The <code>params</code> argument of URL field (i,e, pageUrl, imageUrl, attachmentUrl and mediaUrl) were previously of type <code>String</code>, but are now of type <code>JSON</code>.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Old way: <code>pageUrl(params: String)</code></p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
-  guillotine {
-    get(key: "/path/to/content") {
-      pageUrl(params: "{\"a\": [1, 4], \"b\": 2, \"c\": 3 }")
-    }
-  }
-}</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>New way: <code>pageUrl(params: JSON)</code></p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
-  guillotine {
-    get(key: "/path/to/content") {
-      pageUrl(params: {a: [1, 4], b: 2, c: 3})
-    }
-  }
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="site_configuration"><a class="link" href="#site_configuration">Site Configuration</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>It is no longer possible to obtain the <code>siteConfig</code> from the <code>dataAsJson</code> and <code>site</code> fields of the <code>Content</code> type, as well as from the <code>dataAsJson</code> field of the <code>portal_Site</code> type. If you need to retrieve the site configuration, please use the <code>getSite</code> or <code>getSiteConfig</code> functions from the <a href="https://developer.enonic.com/docs/xp/stable/api/lib-content#getsiteconfig">Content Lib</a>.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="guillotine_library"><a class="link" href="#guillotine_library">Guillotine library</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Guillotine 7 now supports <a href="extending.ahtml">dynamically extending and augmenting of the API</a>. As a result the Guillotine library has been discontinued.</p>
-</div>
-<div class="paragraph">
-<p>If you have been using the Guillotine library, and want to keep similar functionality with v7, you will have to migrate to the new way of <a href="extending.ahtml">extending</a>.</p>
-</div>
-<div class="paragraph">
-<p>Legacy options like <code>allowPaths</code> and <code>subscriptionEventTypes</code> are no longer supported either.</p>
-</div>
-<div class="admonitionblock note">
+<div class="admonitionblock important">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-Remember, you can still install Guillotine 7, and keep your old library-based application in the same Enonic instance.
+Guillotine 8 requires XP 8.0.0 or higher. It will not install on XP 7.x.
 </td>
 </tr>
 </table>
 </div>
-<div class="sect2">
-<h3 id="migrating"><a class="link" href="#migrating">Migrating</a></h3>
-<div class="paragraph">
-<p>In order to migrate your code, you will have to:</p>
 </div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Create a new application or use an existing one, where you should create <code>guillotine.js</code> file in the <code>src/main/resources/guillotine</code> folder of your project.</p>
-</li>
-<li>
-<p>This file must contain a function that returns an object with structure which described <a href="extending.ahtml">here</a>.</p>
-</li>
-<li>
-<p>Your schema will be available at the POST <code>/site/&lt;project-name&gt;/&lt;branch-name&gt;</code> endpoint. More information <a href="setup.ahtml#endpoints">here</a>.</p>
-</li>
-</ol>
 </div>
+<div class="sect1">
+<h2 id="renamed_x_data_types"><a class="link" href="#renamed_x_data_types">Renamed X-data types</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>Let see important changes in the new version of the Guillotine application related with <code>creationCallbacks</code>:</p>
+<p>Generated types for <code>X-data</code> configs have been renamed from <code>XData_*</code> to <code>Mixin_*</code>. Update any queries, fragments or <code>creationCallbacks</code> that reference the old names.</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>In Guillotine application you can not define <code>dataFetcher</code> directly in <code>creationCallbacks</code>, you must use <code>resolvers</code> node instead.  That done to separate model from logic.</p>
-</li>
-<li>
-<p>To add, modify or remove fields you must use <code>addFileds</code>, <code>modifyFields</code> and <code>removeFields</code> functions of the <code>params</code> object respectively.</p>
-</li>
-<li>
-<p>To set description of the type you must use <code>setDescription</code> function of the <code>params</code> object.</p>
-</li>
-<li>
-<p>To set interfaces of the type you must use <code>setInterfaces</code> function of the <code>params</code> object.</p>
-</li>
-<li>
-<p>You can not rename field anymore.</p>
+<p>Old way:</p>
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p>More information about <code>creationCallbacks</code> can be found <a href="extending/creation-callbacks.ahtml">here</a>.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="example_of_migration"><a class="link" href="#example_of_migration">Example of migration</a></h3>
-<div class="paragraph">
-<p>Now let see the example of migration from the Guillotine library to the Guillotine application.</p>
-</div>
-<div class="paragraph">
-<p>Let&#8217;s assume that we have the following <code>creationCallbacks</code> in our code when using the Guillotine library:</p>
-</div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">const authLib = require('/lib/xp/auth');
-const guillotineLib = require('/lib/guillotine');
-const graphQlLib = require('/lib/graphql');
-
-const schema = guillotineLib.createSchema({
-    creationCallbacks: {
-        'com_enonic_app_myapp_Author_Data': function(context, params){
-            params.fields.fullName = { <i class="conum" data-value="1"></i><b>(1)</b>
-                 type: graphQlLib.GraphQLString,
-                 resolve: function (env) {
-                     return env.source.firstName + ' ' + env.source.lastName;
-                 }
-            };
-
-            params.fields.email.resolve = function (env) { <i class="conum" data-value="2"></i><b>(2)</b>
-                return authLib.hasRole('system.admin') ? env.source.email : null;
-            };
-
-            delete params.fields.birthDate; <i class="conum" data-value="3"></i><b>(3)</b>
-        },
-    }
-});</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>In this example we made the following changes:</p>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Added a new <code>fullName</code> field to the <code>com_enonic_app_myapp_Author_Data</code> type. Pay attention that the declaration of the field is done by declaring a data fetcher.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Override the default data fetcher with our own data fetcher containing custom logic.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Removed the <code>birthDate</code> field from <code>com_enonic_app_myapp_Author_Data</code> type.</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>Now, let&#8217;s see how to migrate this code using <code>extensions</code> from the Guillotine application:</p>
-</div>
-<div class="paragraph">
-<p>First what we need to create a <code>guillotine.js</code> file in the <code>src/main/resources/guillotine</code> folder. Then we can make the same changes for <code>com_enonic_app_myapp_Author_Data</code> type, but in the different way.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">const authLib = require('/lib/xp/auth');
-
-exports.extensions = function (graphQL) { <i class="conum" data-value="1"></i><b>(1)</b>
-    return {
-        creationCallbacks: {
-            com_enonic_app_myapp_Author_Data: function (params) { <i class="conum" data-value="2"></i><b>(2)</b>
-                params.addFields({
-                    fullName: { <i class="conum" data-value="3"></i><b>(3)</b>
-                        type: graphQL.GraphQLString,
-                    }
-                });
-
-                params.removeFields(['birthDate']); <i class="conum" data-value="4"></i><b>(4)</b>
-            },
-        },
-        resolvers: {
-            com_enonic_app_myapp_Author_Data: { <i class="conum" data-value="5"></i><b>(5)</b>
-                fullName: function (env) {
-                    return env.source.firstName + ' ' + env.source.lastName;
-                },
-                email: function (env) {
-                    return authLib.hasRole('system.admin') ? env.source.email : null;
-                }
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+  guillotine {
+    get(key: "/path/to/content") {
+      ... on media_Image {
+        xAsJson
+        x {
+          base_gpsInfo {
+            ... on XData_base_gpsInfo_DataConfig {
+              geoPoint
             }
-        },
+          }
+        }
+      }
     }
-};</code></pre>
+  }
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>New way:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+  guillotine {
+    get(key: "/path/to/content") {
+      ... on media_Image {
+        xAsJson
+        x {
+          base_gpsInfo {
+            ... on Mixin_base_gpsInfo_DataConfig {
+              geoPoint
+            }
+          }
+        }
+      }
+    }
+  }
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This code has the following important things:</p>
+<p>The following types were renamed:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Old name</th>
+<th class="tableblock halign-left valign-top">New name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XData_base_ApplicationConfig</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Mixin_base_ApplicationConfig</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XData_base_gpsInfo_DataConfig</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Mixin_base_gpsInfo_DataConfig</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XData_media_ApplicationConfig</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Mixin_media_ApplicationConfig</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XData_media_cameraInfo_DataConfig</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Mixin_media_cameraInfo_DataConfig</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>XData_media_imageInfo_DataConfig</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Mixin_media_imageInfo_DataConfig</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="removed_haschildren_field"><a class="link" href="#removed_haschildren_field">Removed <code>hasChildren</code> field</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>hasChildren: Boolean</code> field has been removed from all types implementing <code>Content</code>. Query the <code>children</code> (or <code>childrenConnection</code>) field instead and check whether the result is empty.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Old way:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+  guillotine {
+    get(key: "/path/to/content") {
+      hasChildren
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>New way:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+  guillotine {
+    get(key: "/path/to/content") {
+      children {
+        _id
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="removed_inheritspermissions_field"><a class="link" href="#removed_inheritspermissions_field">Removed <code>inheritsPermissions</code> field</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>inheritsPermissions</code> field has been removed from the <code>Permissions</code> type. The inheritance flag is no longer exposed through the GraphQL API, so simply remove it from your queries.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+  guillotine {
+    get(key: "/path/to/content") {
+      permissions {
+        inheritsPermissions <i class="conum" data-value="1"></i><b>(1)</b>
+        permissions {
+          principal
+          allow
+          deny
+        }
+      }
+    }
+  }
+}</code></pre>
+</div>
 </div>
 <div class="colist arabic">
 <table>
 <tr>
 <td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Inside the <code>extenstions</code> function we will return object with <code>creationCallbacks</code> and <code>resolvers</code> properties.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>To make changes for <code>com_enonic_app_myapp_Author_Data</code> type in the <code>creationCallbacks</code> we need to add the property as named function <code>com_enonic_app_myapp_Author_Data</code> which has the <code>params</code> argument. Using params object we can add, modify and remove fields, set description and override interfaces for type.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Then we add the <code>fullName</code> field with <code>String</code> type and without arguments.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>Then we remove <code>birthDate</code> field. The <code>removeFields</code> function applies an arrays of string with field names which must be removed.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Then to set a data fetcher for <code>fullName</code> and <code>email</code> fields we must use the <code>resolvers</code> property of the returned object. Where in the same way, inside the <code>resolvers</code> property we must define the <code>com_enonic_app_myapp_Author_Data</code> object with respectively properties as field names and implement data fetcher functions.</td>
+<td>Remove this field — it no longer exists.</td>
 </tr>
 </table>
 </div>
-<div class="paragraph">
-<p>That it, our migration is done.</p>
 </div>
-<div class="paragraph">
-<p>Visit the <a href="extending.ahtml">extensions documentation</a> for more details.</p>
 </div>
+<div class="sect1">
+<h2 id="removed_contentdisplaynamescript_field"><a class="link" href="#removed_contentdisplaynamescript_field">Removed <code>contentDisplayNameScript</code> field</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>contentDisplayNameScript</code> field has been removed from <code>ContentType</code> (it always returned <code>null</code>). Remove it from your queries.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="renamed_displayname_to_title_on_contenttype"><a class="link" href="#renamed_displayname_to_title_on_contenttype">Renamed <code>displayName</code> to <code>title</code> on <code>ContentType</code></a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>displayName</code> field on <code>ContentType</code> is superseded by the new <code>title</code> field, which carries the same value. <code>displayName</code> is kept for backward compatibility but is deprecated and will be removed in a future major release. New code should query <code>title</code> instead.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Old way:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+  guillotine {
+    getType(name: "com.enonic.app.myapp:person") {
+      displayName
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>New way:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+  guillotine {
+    getType(name: "com.enonic.app.myapp:person") {
+      title
+    }
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="long_input_type"><a class="link" href="#long_input_type"><code>Long</code> input type</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For an <code>Input</code> form item of type <code>Long</code>, the returned value type has changed from <code>String</code> to <code>Long</code>. Update any client-side code that parsed the value as a string.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Old way: value returned as <code>String</code></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">// "42"
+const count = parseInt(data.count, 10);</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>New way: value returned as <code>Long</code></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">// 42
+const count = data.count;</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cors_configuration"><a class="link" href="#cors_configuration">CORS configuration</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The CORS implementation has been reworked. The <code>cors.enabled</code> property has been removed — CORS is now enabled by configuring <code>cors.origin</code> and disabled when <code>cors.origin</code> is omitted. Previously CORS was enabled by default and allowed all origins when none were configured.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Old way:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-properties" data-lang="properties">cors.enabled=true
+cors.origin=https://example.com
+cors.methods=POST, OPTIONS
+cors.allowedHeaders=Content-Type</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>New way:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-properties" data-lang="properties">cors.origin=https://example.com, https://admin.example.com <i class="conum" data-value="1"></i><b>(1)</b>
+cors.methods=POST, OPTIONS <i class="conum" data-value="2"></i><b>(2)</b>
+cors.allowedHeaders=Content-Type <i class="conum" data-value="3"></i><b>(3)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Setting <code>cors.origin</code> enables CORS. It now accepts multiple comma-separated values and supports <code><strong></code> (allow all), literal origins, and <code>~</code>-prefixed regex patterns (e.g. <code>~https://.</strong>\.example\.com</code>). Omit this property to disable CORS entirely.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The default for <code>cors.methods</code> changed from <code>POST, OPTIONS</code> to <code>GET, HEAD, POST</code>. Set it explicitly if you relied on the old default.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>When <code>cors.allowedHeaders</code> is not configured, the request&#8217;s <code>Access-Control-Request-Headers</code> value is now reflected instead of defaulting to <code>Content-Type</code>. Set it explicitly to keep the previous behavior.</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-04-01 12:25:29 UTC
+Last updated 2026-06-05 14:16:53 UTC
 </div>
 </div>
 </body>

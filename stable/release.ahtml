@@ -441,24 +441,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#guillotine_7_update_3">Guillotine 7 Update 3</a>
+<li><a href="#guillotine_8">Guillotine 8</a>
 <ul class="sectlevel2">
-<li><a href="#release_features">Release features</a></li>
-</ul>
-</li>
-<li><a href="#guillotine_7_update_2">Guillotine 7 Update 2</a>
-<ul class="sectlevel2">
-<li><a href="#release_features_2">Release features</a></li>
-</ul>
-</li>
-<li><a href="#guillotine_7_update_1">Guillotine 7 Update 1</a>
-<ul class="sectlevel2">
-<li><a href="#release_features_3">Release features</a></li>
-</ul>
-</li>
-<li><a href="#guillotine_7">Guillotine 7</a>
-<ul class="sectlevel2">
-<li><a href="#release_features_4">Release features</a></li>
+<li><a href="#features">Features</a></li>
+<li><a href="#deprecations">Deprecations</a></li>
 <li><a href="#breaking_changes">Breaking changes</a></li>
 </ul>
 </li>
@@ -475,7 +461,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-Guillotine 7 requires XP 7.14.0 or higher.
+Guillotine 8 requires XP 8.0.0 or higher.
 </td>
 </tr>
 </table>
@@ -483,147 +469,34 @@ Guillotine 7 requires XP 7.14.0 or higher.
 </div>
 </div>
 <div class="sect1">
-<h2 id="guillotine_7_update_3"><a class="link" href="#guillotine_7_update_3">Guillotine 7 Update 3</a></h2>
+<h2 id="guillotine_8"><a class="link" href="#guillotine_8">Guillotine 8</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="release_features"><a class="link" href="#release_features">Release features</a></h3>
+<h3 id="features"><a class="link" href="#features">Features</a></h3>
 <div class="dlist">
 <dl>
-<dt class="hdlist1">maxQueryTokens support</dt>
+<dt class="hdlist1"><code>Content</code></dt>
 <dd>
-<p>You can <a href="configuration.ahtml">configure</a> the maximum number of raw tokens that the parser will accept in a GraphQL query, after which an exception will be thrown. By default <code>15000</code>.</p>
+<p>Added new fields: <code>displayNameExpression</code>, <code>displayNameListExpression</code>, <code>displayNamePlaceholder</code>, <code>displayNamePlaceholderI18nKey</code>, <code>titleI18nKey</code>, <code>descriptionI18nKey</code>.</p>
+</dd>
+<dt class="hdlist1"><code>CORS origin matching</code></dt>
+<dd>
+<p><code>cors.origin</code> now accepts multiple comma-separated values (e.g. <code><a href="https://example.com" class="bare">https://example.com</a>, <a href="https://admin.example.com" class="bare">https://admin.example.com</a></code>) and supports <code><strong></code> to allow all origins, literal origins, and <code>~</code>-prefixed regex patterns for dynamic matching (e.g. <code>~https://.</strong>\.example\.com</code>). Use <code>~.*</code> to reflect any origin.</p>
+</dd>
+<dt class="hdlist1"><code>cors.exposedHeaders</code></dt>
+<dd>
+<p>New <code>cors.exposedHeaders</code> option sets the <code>Access-Control-Expose-Headers</code> response header, exposing extra response headers beyond the CORS safelist (e.g. <code>X-Request-Id, X-Custom-Header</code>).</p>
 </dd>
 </dl>
 </div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="guillotine_7_update_2"><a class="link" href="#guillotine_7_update_2">Guillotine 7 Update 2</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="release_features_2"><a class="link" href="#release_features_2">Release features</a></h3>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">CORS support</dt>
-<dd>
-<p>Guillotine now supports Cross-Origin Resource Sharing (CORS). You can configure allowed origins, methods, and headers in the <a href="configuration.ahtml">configuration</a>. By default CORS is enabled.</p>
-</dd>
-</dl>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="guillotine_7_update_1"><a class="link" href="#guillotine_7_update_1">Guillotine 7 Update 1</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="release_features_3"><a class="link" href="#release_features_3">Release features</a></h3>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Type definitions on NPM</dt>
-<dd>
-<p>Guillotine type definitions are now <a href="https://www.npmjs.com/package/@enonic-types/guillotine" target="_blank" rel="noopener">available on NPM</a>. You can install them using the following command:</p>
-<div class="literalblock">
-<div class="content">
-<pre>npm install @enonic/guillotine-types --save-dev</pre>
-</div>
-</div>
-</dd>
-</dl>
-</div>
-<div class="paragraph">
-<p>then use them in your code like this:</p>
-</div>
-<div class="listingblock">
-<div class="title">Import Guillotine type definitions from NPM</div>
-<div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">import type {GraphQL, Extensions} from '@enonic-types/guillotine';
-
-import {ObjectTypeName} from '@enonic-types/guillotine';</code></pre>
-</div>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">siteKey</dt>
-<dd>
-<p>A new <code>siteKey</code> argument has been added to the <code>guillotine</code> field. This argument is optional and can be used instead of the <code>X-Guillotine-SiteKey</code> header.</p>
-</dd>
-</dl>
-</div>
-<div class="listingblock">
-<div class="title">Retrieve site&#8217;s displayName and child items using <code>siteKey</code> argument.</div>
-<div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine(siteKey: "/my-site") {
-    get(key: "${site}") {
-      displayName
-      children {
-        displayName
-        type
-      }
-    }
-  }
-}</code></pre>
-</div>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">modifyUnknownFields</dt>
-<dd>
-<p>A new <code>graphql.extensions.modifyUnknownFields</code> configuration option allows you to control how Guillotine handles unknown fields in the GraphQL schema. By default, Guillotine will throw an error if an unknown field is requested. You can now change this behaviour to ignore unknown fields or log a warning instead of throwing an error. See <a href="configuration.ahtml">configuration</a> for more information.</p>
-</dd>
-</dl>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="guillotine_7"><a class="link" href="#guillotine_7">Guillotine 7</a></h2>
-<div class="sectionbody">
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-This release includes <a href="#breaking_changes">breaking changes</a>
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-important" title="Important"></i>
-</td>
-<td class="content">
-All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code>, <code>attachmentUrl</code> fields and in the <code>processedHtml</code> field of <a href="api.ahtml#richtext">RichText</a> will be <code>absolute</code> (<code>server</code>) URLs generated in the context of your endpoint. If you want to use a different domain or base URL you should implement your own custom processing.
-</td>
-</tr>
-</table>
 </div>
 <div class="sect2">
-<h3 id="release_features_4"><a class="link" href="#release_features_4">Release features</a></h3>
+<h3 id="deprecations"><a class="link" href="#deprecations">Deprecations</a></h3>
 <div class="dlist">
 <dl>
-<dt class="hdlist1">Extensions</dt>
+<dt class="hdlist1"><code>ContentType.displayName</code></dt>
 <dd>
-<p>Extensions are a new way to extend GraphQL schemas. They are more powerful and flexible than the <code>creationCallbacks</code> in the Guillotine Lib. Now you can extend the GraphQL schema with custom types, input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, modify already existing interfaces and types. See <a href="extending.ahtml">extensions</a> for more information.</p>
-</dd>
-<dt class="hdlist1">LocalContext</dt>
-<dd>
-<p>LocalContext allows sharing data between parent and child fields. See <a href="extending/resolvers.ahtml#datafetchingenvironment">here</a> for more information.</p>
-</dd>
-<dt class="hdlist1"><code>createDataFetcherResult</code> function</dt>
-<dd>
-<p>This function allows you to create a <code>DataFetcherResult</code> object with the <code>data</code> and <code>localContext</code> fields to be returned from the data fetcher. See more information <a href="extending/resolvers.ahtml#createdatafetcherresult">here</a>.</p>
-</dd>
-<dt class="hdlist1">Migrated from JS to Java</dt>
-<dd>
-<p>Guillotine has been fully reimplemented from JavaScript to Java. This transition has not only improved the performance and stability of the application but also enabled the implementation of more powerful and flexible ways of <a href="extending.ahtml">extending and customizing</a> the GraphQL schema.</p>
+<p>The <code>displayName</code> field on <code>ContentType</code> is superseded by the new <code>title</code> field, which carries the same value. <code>displayName</code> is kept for backward compatibility and now returns whatever <code>title</code> returns. New code should query <code>title</code> instead. <code>displayName</code> will be removed in a future major release.</p>
 </dd>
 </dl>
 </div>
@@ -632,17 +505,62 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 <h3 id="breaking_changes"><a class="link" href="#breaking_changes">Breaking changes</a></h3>
 <div class="dlist">
 <dl>
-<dt class="hdlist1">Subscriptions are not supported anymore</dt>
+<dt class="hdlist1"><code>Requires Enonic XP 8</code></dt>
 <dd>
-<p>Due to limited use,  GraphQL subscriptions are not supported anymore. You have to implement your own solution for this without using Guillotine.</p>
+<p>Minimum required XP version is <code>8.0.0</code>. Guillotine 8 will not install on XP 7.x.</p>
 </dd>
-<dt class="hdlist1">Params as JSON instead of String</dt>
+<dt class="hdlist1"><code>XData_base_ApplicationConfig</code></dt>
 <dd>
-<p>For such fields as <code>pageUrl</code>, <code>mediaUrl</code>, <code>imageUrl</code> and <code>attachmentUrl</code> the <code>params</code> argument has <code>Json</code> type instead of <code>String</code>.</p>
+<p>Type <code>XData_base_ApplicationConfig</code> has been renamed to <code>Mixin_base_ApplicationConfig</code>.</p>
 </dd>
-<dt class="hdlist1">Site configuration</dt>
+<dt class="hdlist1"><code>XData_base_gpsInfo_DataConfig</code></dt>
 <dd>
-<p>It is no longer possible to obtain the <code>siteConfig</code> from the <code>dataAsJson</code> and <code>site</code> fields of the <code>Content</code> type, as well as from the <code>dataAsJson</code> field of the <code>portal_Site</code> type.</p>
+<p>Type <code>XData_base_gpsInfo_DataConfig</code> has been renamed to <code>Mixin_base_gpsInfo_DataConfig</code>.</p>
+</dd>
+<dt class="hdlist1"><code>XData_media_ApplicationConfig</code></dt>
+<dd>
+<p>Type <code>XData_media_ApplicationConfig</code> has been renamed to <code>Mixin_media_ApplicationConfig</code>.</p>
+</dd>
+<dt class="hdlist1"><code>XData_media_cameraInfo_DataConfig</code></dt>
+<dd>
+<p>Type <code>XData_media_cameraInfo_DataConfig</code> has been renamed to <code>Mixin_media_cameraInfo_DataConfig</code>.</p>
+</dd>
+<dt class="hdlist1"><code>XData_media_imageInfo_DataConfig</code></dt>
+<dd>
+<p>Type <code>XData_media_imageInfo_DataConfig</code> has been renamed to <code>Mixin_media_imageInfo_DataConfig</code>.</p>
+</dd>
+<dt class="hdlist1"><code>Content.hasChildren</code></dt>
+<dd>
+<p>The <code>hasChildren: Boolean</code> field has been removed from all types implementing <code>Content</code>. Use the existing <code>children</code> / <code>childrenConnection</code> fields and check whether the result is empty instead.</p>
+</dd>
+<dt class="hdlist1"><code>Permissions.inheritsPermissions</code></dt>
+<dd>
+<p>The <code>inheritsPermissions</code> field has been removed from the <code>Permissions</code> type. The inheritance flag is no longer exposed through the GraphQL API.</p>
+</dd>
+<dt class="hdlist1"><code>ContentType.contentDisplayNameScript</code></dt>
+<dd>
+<p>The <code>contentDisplayNameScript</code> field on <code>ContentType</code> has been removed.</p>
+</dd>
+<dt class="hdlist1"><code>Long</code></dt>
+<dd>
+<p>For <code>Input</code> form item with type <code>Long</code>, the returned value type has changed from <code>String</code> to <code>Long</code>.</p>
+</dd>
+<dt class="hdlist1"><code>CORS configuration</code></dt>
+<dd>
+<p>The CORS implementation has been reworked and its configuration behaves differently:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>cors.enabled</code> property has been removed. CORS is now enabled by setting <code>cors.origin</code> and disabled when <code>cors.origin</code> is omitted. Previously CORS was enabled by default and allowed all origins when none were configured; it is now disabled unless an origin is explicitly configured.</p>
+</li>
+<li>
+<p>The default for <code>cors.methods</code> changed from <code>POST, OPTIONS</code> to <code>GET, HEAD, POST</code>.</p>
+</li>
+<li>
+<p>When <code>cors.allowedHeaders</code> is not configured, the request&#8217;s <code>Access-Control-Request-Headers</code> value is now reflected in the response instead of defaulting to <code>Content-Type</code>.</p>
+</li>
+</ul>
+</div>
 </dd>
 </dl>
 </div>
@@ -652,7 +570,7 @@ All <code>media</code> and <code>content</code> URLs in the <code>pageUrl</code>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-04-01 12:25:29 UTC
+Last updated 2026-06-05 14:16:53 UTC
 </div>
 </div>
 </body>
