@@ -481,7 +481,7 @@ Guillotine 8 requires XP 8.0.0 or higher.
 </dd>
 <dt class="hdlist1"><code>CORS origin matching</code></dt>
 <dd>
-<p><code>cors.origin</code> now accepts multiple comma-separated values (e.g. <code><a href="https://example.com" class="bare">https://example.com</a>, <a href="https://admin.example.com" class="bare">https://admin.example.com</a></code>) and supports <code><strong></code> to allow all origins, literal origins, and <code>~</code>-prefixed regex patterns for dynamic matching (e.g. <code>~https://.</strong>\.example\.com</code>). Use <code>~.*</code> to reflect any origin.</p>
+<p><code>cors.origin</code> now accepts multiple comma-separated values (e.g. <code>https://example.com, https://admin.example.com</code>) and supports <code>*</code> to allow all origins, literal origins, and <code>~</code>-prefixed regex patterns for dynamic matching (e.g. <code>~https://.*\.example\.com</code>). Use <code>~.*</code> to reflect any origin.</p>
 </dd>
 <dt class="hdlist1"><code>cors.exposedHeaders</code></dt>
 <dd>
@@ -570,7 +570,7 @@ Guillotine 8 requires XP 8.0.0 or higher.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-06-05 14:17:17 UTC
+Last updated 2026-06-05 14:32:22 UTC
 </div>
 </div>
 </body>
