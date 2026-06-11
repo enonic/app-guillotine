@@ -279,7 +279,7 @@ Each macro will be translated to an `editor-macro` tag with `data-macro-ref` and
 
 [NOTE]
 ====
-Guillotine processes macros which have a descriptor and built-in macros called `disable` and `embed`, otherwise processing will be skipped. https://developer.enonic.com/docs/xp/stable/cms/macros[More details about macros].
+Guillotine processes macros which have a descriptor and built-in macros called `disable` and `embed`, otherwise processing will be skipped. https://developer.enonic.com/docs/cms/stable/richtext/macros[More details about macros].
 ====
 
 For instance, we have an input form item called `description` of `HtmlArea` type which contains the `embed` macro as shown below:
@@ -325,7 +325,7 @@ Results of the query:
 
 image:images/embed-response-example.png[Response for embed macro]
 
-It is common to define a https://developer.enonic.com/docs/xp/stable/cms/macros#descriptor[schema for your macro]. This is located in the `/site/macros/` directory. For instance, for a macro with name `testmacro` the schema must be placed at `/site/macros/testmacro/testmacro.xml`
+It is common to define a https://developer.enonic.com/docs/cms/stable/richtext/macros#descriptor[schema for your macro]. This is located in the `/site/macros/` directory. For instance, for a macro with name `testmacro` the schema must be placed at `/site/macros/testmacro/testmacro.xml`
 
 [source,xml]
 ----
@@ -372,7 +372,7 @@ query {
 
 == xData
 
-Enonic XP supports dynamically extending content with fields from other schemas/applications - so-called https://developer.enonic.com/docs/xp/stable/cms/x-data[eXtra Data].
+Enonic XP supports dynamically extending content with fields from other schemas/applications - so-called https://developer.enonic.com/learn/intro/stable/cms#x_data_social_media[eXtra Data].
 
 In the query below, we access the SoMe (SocialMedia) fields that have been used to extend the Person content type.
 
