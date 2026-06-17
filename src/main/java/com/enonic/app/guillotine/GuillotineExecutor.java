@@ -12,7 +12,6 @@ import graphql.schema.GraphQLSchema;
 import com.enonic.app.guillotine.graphql.GraphQLApi;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionsExtractorService;
 import com.enonic.xp.app.ApplicationService;
-import com.enonic.xp.portal.PortalRequest;
 
 /**
  * Exposes Guillotine GraphQL execution as an OSGi service so other applications can run queries without going over the
@@ -38,10 +37,6 @@ public class GuillotineExecutor
 
     private final GraphQLApi graphQLApi;
 
-    // The site-header lookup in GuillotineDataFetcher dereferences the PortalRequest when no siteKey arg is supplied.
-    // Outside a portal request there is none, so we feed an empty request (empty headers -> no site resolution).
-    private final PortalRequest emptyPortalRequest = new PortalRequest();
-
     private volatile GraphQLSchema schema;
 
     @Activate
@@ -50,8 +45,9 @@ public class GuillotineExecutor
                                @Reference final GuillotineConfigService guillotineConfigService )
     {
         this.graphQLApi = new GraphQLApi();
-        this.graphQLApi.initialize( () -> serviceFacade, () -> applicationService, () -> extensionsExtractorService,
-                                    () -> emptyPortalRequest, () -> guillotineConfigService );
+        // No PortalRequest outside a portal request; GuillotineDataFetcher null-guards it (site resolution is then skipped).
+        this.graphQLApi.initialize( () -> serviceFacade, () -> applicationService, () -> extensionsExtractorService, () -> null,
+                                    () -> guillotineConfigService );
     }
 
     @Override

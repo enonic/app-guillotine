@@ -67,7 +67,15 @@ public class GuillotineDataFetcher
     private String getSiteKey( final DataFetchingEnvironment environment )
     {
         final String siteKey = environment.getArgument( Constants.SITE_ARG );
-        return siteKey != null ? siteKey : portalRequestSupplier.get().getHeaders().get( Constants.SITE_HEADER );
+        if ( siteKey != null )
+        {
+            return siteKey;
+        }
+
+        // There is no PortalRequest outside of a portal request (e.g. when invoked from a library), so the site header
+        // can only be resolved when one is present.
+        final PortalRequest portalRequest = portalRequestSupplier.get();
+        return portalRequest != null ? portalRequest.getHeaders().get( Constants.SITE_HEADER ) : null;
     }
 
     private String resolveBaseUrl( final String projectName, final String branch, final String siteKey )
