@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import graphql.ExecutionInput;
+import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.ParseAndValidate;
 import graphql.Scalars;
@@ -85,11 +86,26 @@ public class GraphQLApi
     @Override
     public void initialize( final BeanContext context )
     {
-        this.serviceFacadeSupplier = context.getService( ServiceFacade.class );
-        this.applicationServiceSupplier = context.getService( ApplicationService.class );
-        this.extensionsExtractorServiceSupplier = context.getService( ExtensionsExtractorService.class );
-        this.portalRequestSupplier = context.getBinding( PortalRequest.class );
-        this.guillotineConfigServiceSupplier = context.getService( GuillotineConfigService.class );
+        initialize( context.getService( ServiceFacade.class ), context.getService( ApplicationService.class ),
+                    context.getService( ExtensionsExtractorService.class ), context.getBinding( PortalRequest.class ),
+                    context.getService( GuillotineConfigService.class ) );
+    }
+
+    /**
+     * Initializes this engine without a script {@link BeanContext}, so it can be driven directly from an OSGi component
+     * (e.g. the {@code GuillotineExecutor} service) and reused for non-HTTP query execution.
+     */
+    public void initialize( final Supplier<ServiceFacade> serviceFacadeSupplier,
+                            final Supplier<ApplicationService> applicationServiceSupplier,
+                            final Supplier<ExtensionsExtractorService> extensionsExtractorServiceSupplier,
+                            final Supplier<PortalRequest> portalRequestSupplier,
+                            final Supplier<GuillotineConfigService> guillotineConfigServiceSupplier )
+    {
+        this.serviceFacadeSupplier = serviceFacadeSupplier;
+        this.applicationServiceSupplier = applicationServiceSupplier;
+        this.extensionsExtractorServiceSupplier = extensionsExtractorServiceSupplier;
+        this.portalRequestSupplier = portalRequestSupplier;
+        this.guillotineConfigServiceSupplier = guillotineConfigServiceSupplier;
     }
 
     public void invalidateCache()
@@ -258,6 +274,20 @@ public class GraphQLApi
 
     public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
     {
+        return new ExecutionResultMapper( executeInternal( graphQLSchema, query, extractValue( variables ) ) );
+    }
+
+    /**
+     * Executes a query and returns the result as a plain GraphQL-spec map ({@code data} / {@code errors} / {@code extensions})
+     * built from JDK types only. This is the form used across the OSGi service boundary for non-HTTP (lib) execution.
+     */
+    public Map<String, Object> executeToSpecification( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables )
+    {
+        return executeInternal( graphQLSchema, query, variables == null ? Map.of() : variables ).toSpecification();
+    }
+
+    private ExecutionResult executeInternal( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables )
+    {
         final PreparsedDocumentProvider preparsedProvider = ( executionInput, parseAndValidateFunction ) -> {
             PreparsedDocumentEntry cached = CACHE.get( executionInput.getQuery() );
             if ( cached != null )
@@ -295,10 +325,9 @@ public class GraphQLApi
 
         final GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).preparsedDocumentProvider( preparsedProvider ).build();
 
-        final ExecutionInput executionInput =
-            ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).build();
+        final ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( variables ).build();
 
-        return new ExecutionResultMapper( graphQL.execute( executionInput ) );
+        return graphQL.execute( executionInput );
     }
 
     private Map<String, Object> extractValue( ScriptValue scriptValue )
