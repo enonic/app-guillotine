@@ -49,7 +49,6 @@ import com.enonic.app.guillotine.graphql.transformer.SchemaExtensions;
 import com.enonic.app.guillotine.mapper.ExecutionResultMapper;
 import com.enonic.xp.app.ApplicationService;
 import com.enonic.xp.macro.MacroDescriptor;
-import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.script.ScriptValue;
 import com.enonic.xp.script.bean.BeanContext;
 import com.enonic.xp.script.bean.ScriptBean;
@@ -64,8 +63,6 @@ public class GraphQLApi
     private Supplier<ApplicationService> applicationServiceSupplier;
 
     private Supplier<ExtensionsExtractorService> extensionsExtractorServiceSupplier;
-
-    private Supplier<PortalRequest> portalRequestSupplier;
 
     private Supplier<GuillotineConfigService> guillotineConfigServiceSupplier;
 
@@ -88,7 +85,6 @@ public class GraphQLApi
         this.serviceFacadeSupplier = context.getService( ServiceFacade.class );
         this.applicationServiceSupplier = context.getService( ApplicationService.class );
         this.extensionsExtractorServiceSupplier = context.getService( ExtensionsExtractorService.class );
-        this.portalRequestSupplier = context.getBinding( PortalRequest.class );
         this.guillotineConfigServiceSupplier = context.getService( GuillotineConfigService.class );
     }
 
@@ -245,7 +241,7 @@ public class GraphQLApi
 
         typesRegister.addCreationCallback( "Query", guillotineQueryCreationCallback );
 
-        typesRegister.addResolver( "Query", "guillotine", new GuillotineDataFetcher( portalRequestSupplier, serviceFacadeSupplier ) );
+        typesRegister.addResolver( "Query", "guillotine", new GuillotineDataFetcher( serviceFacadeSupplier ) );
 
         typesRegister.addAdditionalType( context.getAllTypes() );
 

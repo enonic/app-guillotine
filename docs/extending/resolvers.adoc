@@ -35,7 +35,7 @@ The `localContext` object is unmodifiable, so you can't change it. If you need t
 
 - `project` - project name, taken from the current context.
 - `branch` - branch name, taken from the current context.
-- `siteKey` - site key is taken from the `siteKey` argument of the `guillotine` field. If this argument is not provided, the value will be taken from the `X-Guillotine-SiteKey` header. Otherwise, it will be equal to `/`.
+- `siteKey` - site key is taken from the `siteKey` argument of the `guillotine` field. If this argument is not provided, it will be equal to `/`.
 
 Below you can find an example of how to use these properties:
 

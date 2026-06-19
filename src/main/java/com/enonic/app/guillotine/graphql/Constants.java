@@ -12,8 +12,6 @@ public interface Constants
 
     String SITE_ARG = "siteKey";
 
-    String SITE_HEADER = "X-Guillotine-SiteKey";
-
     String SITE_BASE_URL = "__siteBaseUrl";
 
     List<String> SUPPORTED_AGGREGATIONS =
