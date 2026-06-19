@@ -403,21 +403,22 @@ NOTE: Notice that xData fields are grouped by application name, this ensures the
 
 When building websites, you will create root content item of type `site`. It is practical not having to know the exact location of the site within the project structure.
 
-By passing a special HTTP header along the query, you get access to some useful features:
+By providing the `siteKey` argument on the `guillotine` field, you get access to some useful features:
 
-=== Set header
+=== Set siteKey
 
-You need to specify the following HTTP header in your client:
+Provide the `siteKey` argument with the site ID or path on the `guillotine` field:
 
-  X-Guillotine-SiteKey: IdOrPathToYourSite
-
-Using Query playground, add the following to the HTTP headers config - remember to replace with a proper site ID:
-
-  {
-    "X-Guillotine-SiteKey": "IdOrPathToYourSite"
+[source,graphql]
+----
+{
+  guillotine(siteKey: "IdOrPathToYourSite") {
+    ...
   }
+}
+----
 
-NOTE: SiteKey is either the ID of the site content item, or the path to the site within your project.
+NOTE: `siteKey` is either the ID of the site content item, or the path to the site within your project.
 
 === getSite
 
@@ -438,7 +439,7 @@ With the site context set, you may run queries to access the site content using 
 
 Use the `${site}` placeholder when querying for paths within a site. This placeholder will be replaced with an actual path of the site upon query resolution.
 
-NOTE: `${site}` placeholder is supported for the fields `get`, `getChildren`, `getChildrenConnection`, `getPermissions` and `getSite` of the <<api#headlessсms, HeadlessCms>> type. The `getPermissions` and `getSite` fields do not have the `key` argument, and current content is determined by the `X-Guillotine-SiteKey` header or the `siteKey` argument of the `guillotine` field. The same applies to the `get`, `getChildren`, and `getChildrenConnection` fields if the `key` argument is not provided.
+NOTE: `${site}` placeholder is supported for the fields `get`, `getChildren`, `getChildrenConnection`, `getPermissions` and `getSite` of the <<api#headlessсms, HeadlessCms>> type. The `getPermissions` and `getSite` fields do not have the `key` argument, and current content is determined by the `siteKey` argument of the `guillotine` field. The same applies to the `get`, `getChildren`, and `getChildrenConnection` fields if the `key` argument is not provided.
 
 .Example: Accessing content within specific path of a site
 ----
@@ -475,7 +476,7 @@ Finally, you may retrieve site relative paths - which may be useful when generat
 
 === siteKey
 
-Instead of passing the `X-Guillotine-SiteKey` header as described above, you can simply provide `siteKey` with the site ID or path in the query as shown in the example below:
+As shown above, you provide `siteKey` with the site ID or path in the query to set the site context:
 
 .Example: Access xData fields
 [source,graphql]

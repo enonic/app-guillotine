@@ -12,7 +12,6 @@ import graphql.schema.DataFetchingEnvironment;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.xp.context.ContextAccessor;
-import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.url.BaseUrlParams;
 import com.enonic.xp.portal.url.UrlTypeConstants;
 import com.enonic.xp.project.ProjectName;
@@ -23,13 +22,10 @@ import static java.util.Objects.requireNonNullElseGet;
 public class GuillotineDataFetcher
     implements DataFetcher<Object>
 {
-    private final Supplier<PortalRequest> portalRequestSupplier;
-
     private final Supplier<ServiceFacade> serviceFacadeSupplier;
 
-    public GuillotineDataFetcher( final Supplier<PortalRequest> portalRequestSupplier, final Supplier<ServiceFacade> serviceFacadeSupplier )
+    public GuillotineDataFetcher( final Supplier<ServiceFacade> serviceFacadeSupplier )
     {
-        this.portalRequestSupplier = portalRequestSupplier;
         this.serviceFacadeSupplier = serviceFacadeSupplier;
     }
 
@@ -49,7 +45,7 @@ public class GuillotineDataFetcher
         localContext.putIfAbsent( Constants.PROJECT_ARG, projectName );
         localContext.putIfAbsent( Constants.BRANCH_ARG, branch );
 
-        final String siteKey = getSiteKey( environment );
+        final String siteKey = environment.getArgument( Constants.SITE_ARG );
         if ( siteKey != null )
         {
             localContext.putIfAbsent( Constants.SITE_ARG, siteKey );
@@ -62,12 +58,6 @@ public class GuillotineDataFetcher
         }
 
         return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
-    }
-
-    private String getSiteKey( final DataFetchingEnvironment environment )
-    {
-        final String siteKey = environment.getArgument( Constants.SITE_ARG );
-        return siteKey != null ? siteKey : portalRequestSupplier.get().getHeaders().get( Constants.SITE_HEADER );
     }
 
     private String resolveBaseUrl( final String projectName, final String branch, final String siteKey )

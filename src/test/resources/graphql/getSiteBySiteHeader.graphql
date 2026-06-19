@@ -1,8 +1,0 @@
-query {
-    guillotine {
-        getSite {
-            _id
-            displayName
-        }
-    }
-}
