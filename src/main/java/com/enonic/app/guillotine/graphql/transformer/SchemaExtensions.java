@@ -19,7 +19,7 @@ public class SchemaExtensions
 
     private final Map<String, ScriptValue> interfaces;
 
-    private final Map<String, Map<String, ContextualFieldResolver>> resolvers;
+    private final Map<String, Map<String, ScriptValue>> resolvers;
 
     private final Map<String, ScriptValue> typeResolvers;
 
@@ -62,7 +62,7 @@ public class SchemaExtensions
         return interfaces;
     }
 
-    public Map<String, Map<String, ContextualFieldResolver>> getResolvers()
+    public Map<String, Map<String, ScriptValue>> getResolvers()
     {
         return resolvers;
     }
@@ -94,7 +94,7 @@ public class SchemaExtensions
 
         private final Map<String, ScriptValue> interfaces = new LinkedHashMap<>();
 
-        private final Map<String, Map<String, ContextualFieldResolver>> resolvers = new LinkedHashMap<>();
+        private final Map<String, Map<String, ScriptValue>> resolvers = new LinkedHashMap<>();
 
         private final Map<String, ScriptValue> typeResolvers = new LinkedHashMap<>();
 
@@ -137,10 +137,10 @@ public class SchemaExtensions
             return this;
         }
 
-        public Builder addResolver( String typeName, String fieldName, ContextualFieldResolver fieldResolver )
+        public Builder addResolver( String typeName, String fieldName, ScriptValue resolverDef )
         {
             this.resolvers.computeIfAbsent( typeName, k -> new LinkedHashMap<>() );
-            this.resolvers.get( typeName ).put( fieldName, fieldResolver );
+            this.resolvers.get( typeName ).put( fieldName, resolverDef );
             return this;
         }
 

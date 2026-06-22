@@ -15,9 +15,7 @@ import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLType;
 import graphql.schema.GraphQLUnionType;
 
-import com.enonic.app.guillotine.graphql.transformer.ContextualFieldResolver;
 import com.enonic.app.guillotine.graphql.transformer.SchemaExtensions;
-import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.script.ScriptValue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -103,8 +101,7 @@ public class ExtensionsProcessorResilienceTest
     @Test
     public void testProcessSkipsBrokenFieldResolverPerField()
     {
-        ContextualFieldResolver goodResolver = new ContextualFieldResolver( ApplicationKey.from( "com.enonic.app.testapp" ),
-                                                                            mock( ScriptValue.class ) );
+        ScriptValue goodResolver = mock( ScriptValue.class );
 
         SchemaExtensions extensions = SchemaExtensions.create().addResolver( "MyType", "goodField", goodResolver ).addResolver( "MyType",
                                                                                                                                 "brokenField",

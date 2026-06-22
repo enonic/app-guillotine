@@ -42,7 +42,6 @@ import com.enonic.app.guillotine.graphql.fetchers.DynamicDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GuillotineDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.GraphQLHelper;
 import com.enonic.app.guillotine.graphql.helper.GraphQLTypeChecker;
-import com.enonic.app.guillotine.graphql.transformer.ContextualFieldResolver;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionGraphQLTypeVisitor;
 import com.enonic.app.guillotine.graphql.transformer.ExtensionsExtractorService;
 import com.enonic.app.guillotine.graphql.transformer.SchemaExtensions;
@@ -160,21 +159,21 @@ public class GraphQLApi
 
             for ( GraphQLInterfaceType interfaceType : interfaces )
             {
-                Map<String, ContextualFieldResolver> interfaceDataFetchers = schemaExtensions.getResolvers().get( interfaceType.getName() );
+                Map<String, ScriptValue> interfaceDataFetchers = schemaExtensions.getResolvers().get( interfaceType.getName() );
 
                 List<GraphQLObjectType> implementations = graphQLSchema.getImplementations( interfaceType );
 
                 if ( interfaceDataFetchers != null && implementations != null )
                 {
-                    implementations.forEach( implementation -> interfaceDataFetchers.forEach( ( fieldName, fieldResolver ) -> {
-                        Map<String, ContextualFieldResolver> implementationDataFetchers =
+                    implementations.forEach( implementation -> interfaceDataFetchers.forEach( ( fieldName, resolverDef ) -> {
+                        Map<String, ScriptValue> implementationDataFetchers =
                             schemaExtensions.getResolvers().get( implementation.getName() );
 
                         if ( ( implementationDataFetchers == null || !implementationDataFetchers.containsKey( fieldName ) ) &&
                             interfaceDataFetchers.containsKey( fieldName ) )
                         {
                             builder.dataFetcher( FieldCoordinates.coordinates( implementation.getName(), fieldName ),
-                                                 new DynamicDataFetcher( fieldResolver ) );
+                                                 new DynamicDataFetcher( resolverDef ) );
                         }
                     } ) );
                 }
