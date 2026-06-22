@@ -8,11 +8,7 @@ import graphql.schema.GraphQLOutputType;
 import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.GraphQLTypeChecker;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
-import com.enonic.app.guillotine.graphql.transformer.ContextualFieldResolver;
 import com.enonic.app.guillotine.mapper.DataFetchingEnvironmentMapper;
-import com.enonic.xp.app.ApplicationKey;
-import com.enonic.xp.portal.PortalRequest;
-import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.script.ScriptValue;
 
 public class DynamicDataFetcher
@@ -20,41 +16,24 @@ public class DynamicDataFetcher
 {
     private final ScriptValue resolveFunction;
 
-    private final ApplicationKey applicationKey;
-
-    public DynamicDataFetcher( final ContextualFieldResolver fieldResolver )
+    public DynamicDataFetcher( final ScriptValue resolveFunction )
     {
-        this.resolveFunction = fieldResolver.getResolveFunction();
-        this.applicationKey = fieldResolver.getApplicationKey();
+        this.resolveFunction = resolveFunction;
     }
 
     @Override
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
     {
-        final PortalRequest portalRequest = PortalRequestAccessor.get();
-        final ApplicationKey oldApplicationKey = portalRequest.getApplicationKey();
+        final GraphQLOutputType rootFieldType = resolveRootFieldType( environment );
 
-        portalRequest.setApplicationKey( applicationKey );
-
-        PortalRequestAccessor.set( portalRequest );
-        try
+        if ( GraphQLTypeChecker.isHeadlessCmsType( rootFieldType ) )
         {
-            final GraphQLOutputType rootFieldType = resolveRootFieldType( environment );
-
-            if ( GraphQLTypeChecker.isHeadlessCmsType( rootFieldType ) )
-            {
-                return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
-            }
-            else
-            {
-                return doGet( environment );
-            }
+            return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
         }
-        finally
+        else
         {
-            portalRequest.setApplicationKey( oldApplicationKey );
-            PortalRequestAccessor.set( portalRequest );
+            return doGet( environment );
         }
     }
 

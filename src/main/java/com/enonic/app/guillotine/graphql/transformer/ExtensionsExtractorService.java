@@ -11,8 +11,6 @@ import com.enonic.app.guillotine.mapper.GraphQLMapper;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.ApplicationService;
-import com.enonic.xp.portal.PortalRequest;
-import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.script.PortalScriptService;
 import com.enonic.xp.resource.ResourceKey;
 import com.enonic.xp.resource.ResourceService;
@@ -83,7 +81,7 @@ public class ExtensionsExtractorService
                 extractEnums( schemaExtensionsBuilder, enums );
                 extractUnions( schemaExtensionsBuilder, unions );
                 extractInterfaces( schemaExtensionsBuilder, interfaces );
-                extractResolvers( schemaExtensionsBuilder, resolvers, application.getKey() );
+                extractResolvers( schemaExtensionsBuilder, resolvers );
                 extractTypeResolvers( schemaExtensionsBuilder, typeResolvers );
                 extractCreationCallbacks( schemaExtensionsBuilder, creationCallbacks );
             }
@@ -118,8 +116,7 @@ public class ExtensionsExtractorService
         }
     }
 
-    private static void extractResolvers( final SchemaExtensions.Builder schemaExtensionsBuilder, final ScriptValue resolvers,
-                                          final ApplicationKey applicationKey )
+    private static void extractResolvers( final SchemaExtensions.Builder schemaExtensionsBuilder, final ScriptValue resolvers )
     {
         if ( resolvers != null )
         {
@@ -131,8 +128,7 @@ public class ExtensionsExtractorService
                 {
                     typeResolverDef.getKeys().forEach( fieldName -> {
                         ScriptValue resolverDef = typeResolverDef.getMember( fieldName );
-                        ContextualFieldResolver fieldResolver = new ContextualFieldResolver( applicationKey, resolverDef );
-                        schemaExtensionsBuilder.addResolver( typeName, fieldName, fieldResolver );
+                        schemaExtensionsBuilder.addResolver( typeName, fieldName, resolverDef );
                     } );
                 }
             } );
@@ -193,8 +189,6 @@ public class ExtensionsExtractorService
 
     private ScriptValue executeMethod( ApplicationKey applicationKey, Object graphQL )
     {
-        PortalRequest oldPortalRequest = PortalRequestAccessor.get();
-        PortalRequestAccessor.remove();
         try
         {
             ResourceKey resourceKey = ResourceKey.from( applicationKey, SCRIPT_PATH );
@@ -220,10 +214,6 @@ public class ExtensionsExtractorService
         catch ( Exception e )
         {
             LOG.warn( "Failed to process the guillotine/guillotine.js file", e );
-        }
-        finally
-        {
-            PortalRequestAccessor.set( oldPortalRequest );
         }
 
         return null;

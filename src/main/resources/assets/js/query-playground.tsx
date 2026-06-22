@@ -4,6 +4,7 @@ import * as React from 'react';
 import {useEffect, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {Button, ButtonGroup} from '@graphiql/react';
+import 'graphiql/setup-workers/webpack';
 
 const DEFAULT_QUERY = `# Welcome to Query Playground
 #

@@ -144,6 +144,9 @@ exports.extensions = function (graphQL) {
                     invalidLocalContext: {
                         type: graphQL.reference('ParentType'),
                     },
+                    applicationContextProbe: {
+                        type: graphQL.GraphQLString,
+                    },
                 });
             },
         },
@@ -180,6 +183,11 @@ exports.extensions = function (graphQL) {
                             a: [1, 2, 3],
                         }
                     });
+                },
+                applicationContextProbe: function (env) {
+                    var probe = __.newBean('com.enonic.app.guillotine.graphql.fetchers.ApplicationContextProbe');
+                    return 'script=' + probe.getScriptApplicationKey() + ';request=' + probe.getRequestApplicationKey() + ';app=' +
+                           app.name;
                 },
                 customField: function (env) {
                     return ['Value 1', 'Value 2'];
