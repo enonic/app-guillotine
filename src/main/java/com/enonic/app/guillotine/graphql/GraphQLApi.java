@@ -49,13 +49,10 @@ import com.enonic.app.guillotine.mapper.ExecutionResultMapper;
 import com.enonic.xp.app.ApplicationService;
 import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.script.ScriptValue;
-import com.enonic.xp.script.bean.BeanContext;
-import com.enonic.xp.script.bean.ScriptBean;
 
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField;
 
 public class GraphQLApi
-    implements ScriptBean
 {
     private Supplier<ServiceFacade> serviceFacadeSupplier;
 
@@ -66,13 +63,6 @@ public class GraphQLApi
     private Supplier<GuillotineConfigService> guillotineConfigServiceSupplier;
 
     private static final Parser PARSER = new Parser();
-
-    @Override
-    public void initialize( final BeanContext context )
-    {
-        initialize( context.getService( ServiceFacade.class ), context.getService( ApplicationService.class ),
-                    context.getService( ExtensionsExtractorService.class ), context.getService( GuillotineConfigService.class ) );
-    }
 
     public void initialize( final Supplier<ServiceFacade> serviceFacadeSupplier,
                             final Supplier<ApplicationService> applicationServiceSupplier,
@@ -244,9 +234,9 @@ public class GraphQLApi
         context.getTypeResolvers().forEach( typesRegister::addTypeResolver );
     }
 
-    public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
+    public Object execute( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables )
     {
-        return new ExecutionResultMapper( executeInternal( graphQLSchema, query, extractValue( variables ) ) );
+        return new ExecutionResultMapper( executeInternal( graphQLSchema, query, variables == null ? Map.of() : variables ) );
     }
 
     public Map<String, Object> executeToSpecification( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables )
@@ -285,11 +275,6 @@ public class GraphQLApi
         final ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( variables ).build();
 
         return graphQL.execute( executionInput );
-    }
-
-    private Map<String, Object> extractValue( ScriptValue scriptValue )
-    {
-        return scriptValue == null ? new HashMap<>() : scriptValue.getMap();
     }
 
     private List<String> getApplicationNames()

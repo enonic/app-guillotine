@@ -6,7 +6,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.enonic.app.guillotine.graphql.GraphQLApi;
 import com.enonic.app.guillotine.mapper.GraphQLMapper;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.xp.app.ApplicationKey;
@@ -20,7 +19,7 @@ import com.enonic.xp.script.ScriptValue;
 @Component(service = ExtensionsExtractorService.class)
 public class ExtensionsExtractorService
 {
-    private static final Logger LOG = LoggerFactory.getLogger( GraphQLApi.class );
+    private static final Logger LOG = LoggerFactory.getLogger( ExtensionsExtractorService.class );
 
     private static final String SCRIPT_PATH = "guillotine/guillotine.js";
 

@@ -31,7 +31,6 @@ import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.macro.MacroDescriptorService;
 import com.enonic.xp.macro.MacroService;
-import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.script.PortalScriptService;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.portal.url.PortalUrlService;
@@ -47,7 +46,6 @@ import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.User;
 import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.testing.ScriptTestSupport;
-import com.enonic.xp.testing.mock.MockBeanContext;
 import com.enonic.xp.util.Version;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -68,6 +66,8 @@ public class BaseGraphQLIntegrationTest
     protected ApplicationService applicationService;
 
     protected ExtensionsExtractorService extensionsExtractorService;
+
+    protected SchemaProvider schemaProvider;
 
     @Override
     protected void initialize()
@@ -142,6 +142,10 @@ public class BaseGraphQLIntegrationTest
         addService( GuillotineConfigService.class, guillotineConfigService );
         addService( CmsFormFragmentService.class, cmsFormFragmentService );
 
+        this.schemaProvider =
+            new SchemaProvider( serviceFacade, applicationService, extensionsExtractorService, guillotineConfigService );
+        addService( SchemaProvider.class, schemaProvider );
+
         createGraphQLApiBean();
     }
 
@@ -176,18 +180,8 @@ public class BaseGraphQLIntegrationTest
     private void createGraphQLApiBean()
     {
         this.bean = new GraphQLApi();
-
-        final MockBeanContext context = newBeanContext( ResourceKey.from( "myapplication:/test" ) );
-
-        PortalRequest request = modifyPortalRequest( new PortalRequest( portalRequest ) );
-        context.addBinding( PortalRequest.class, request );
-
-        this.bean.initialize( context );
-    }
-
-    protected PortalRequest modifyPortalRequest( final PortalRequest portalRequest )
-    {
-        return portalRequest;
+        this.bean.initialize( () -> serviceFacade, () -> applicationService, () -> extensionsExtractorService,
+                              () -> guillotineConfigService );
     }
 
     private ResourceService getResourceService()

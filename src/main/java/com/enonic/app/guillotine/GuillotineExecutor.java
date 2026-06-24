@@ -7,11 +7,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import graphql.schema.GraphQLSchema;
-
-import com.enonic.app.guillotine.graphql.GraphQLApi;
-import com.enonic.app.guillotine.graphql.transformer.ExtensionsExtractorService;
-import com.enonic.xp.app.ApplicationService;
+import com.enonic.app.guillotine.graphql.SchemaProvider;
 
 @Component(service = Function.class, property = {"function=guillotine.execute"})
 public class GuillotineExecutor
@@ -21,18 +17,12 @@ public class GuillotineExecutor
 
     private static final String VARIABLES_KEY = "variables";
 
-    private final GraphQLApi graphQLApi;
-
-    private volatile GraphQLSchema schema;
+    private final SchemaProvider schemaProvider;
 
     @Activate
-    public GuillotineExecutor( @Reference final ServiceFacade serviceFacade, @Reference final ApplicationService applicationService,
-                               @Reference final ExtensionsExtractorService extensionsExtractorService,
-                               @Reference final GuillotineConfigService guillotineConfigService )
+    public GuillotineExecutor( @Reference final SchemaProvider schemaProvider )
     {
-        this.graphQLApi = new GraphQLApi();
-        this.graphQLApi.initialize( () -> serviceFacade, () -> applicationService, () -> extensionsExtractorService,
-                                    () -> guillotineConfigService );
+        this.schemaProvider = schemaProvider;
     }
 
     @Override
@@ -47,35 +37,12 @@ public class GuillotineExecutor
         final Object variables = input.get( VARIABLES_KEY );
         final Map<String, Object> variablesMap = variables instanceof Map ? castToMap( variables ) : Map.of();
 
-        return graphQLApi.executeToSpecification( getSchema(), (String) query, variablesMap );
-    }
-
-    public void invalidate()
-    {
-        this.schema = null;
+        return schemaProvider.executeToSpecification( (String) query, variablesMap );
     }
 
     @SuppressWarnings("unchecked")
     private static Map<String, Object> castToMap( final Object value )
     {
         return (Map<String, Object>) value;
-    }
-
-    private GraphQLSchema getSchema()
-    {
-        GraphQLSchema result = this.schema;
-        if ( result == null )
-        {
-            synchronized ( this )
-            {
-                result = this.schema;
-                if ( result == null )
-                {
-                    result = this.graphQLApi.createSchema();
-                    this.schema = result;
-                }
-            }
-        }
-        return result;
     }
 }
