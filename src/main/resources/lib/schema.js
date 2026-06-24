@@ -15,7 +15,6 @@ eventLib.listener({
         if ('STOPPED' === eventType || 'STARTED' === eventType || 'UNINSTALLED' === eventType) {
             syncExecutor.sync(__.toScriptValue(function () {
                 schema = null;
-                graphQLApi.invalidateCache();
             }));
 
             eventLib.send({

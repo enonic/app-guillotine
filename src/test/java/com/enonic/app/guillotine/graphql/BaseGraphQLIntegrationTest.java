@@ -65,6 +65,10 @@ public class BaseGraphQLIntegrationTest
 
     protected GuillotineConfigService guillotineConfigService;
 
+    protected ApplicationService applicationService;
+
+    protected ExtensionsExtractorService extensionsExtractorService;
+
     @Override
     protected void initialize()
         throws Exception
@@ -73,7 +77,7 @@ public class BaseGraphQLIntegrationTest
 
         final Application application = createApplication();
 
-        final ApplicationService applicationService = mock( ApplicationService.class );
+        this.applicationService = mock( ApplicationService.class );
 
         final Applications applications = Applications.from( application );
         when( applicationService.getInstalledApplications() ).thenReturn( applications );
@@ -85,8 +89,7 @@ public class BaseGraphQLIntegrationTest
             return runScript( resourceKey );
         } );
 
-        final ExtensionsExtractorService extensionsExtractorService =
-            new ExtensionsExtractorService( applicationService, getResourceService(), scriptService );
+        this.extensionsExtractorService = new ExtensionsExtractorService( applicationService, getResourceService(), scriptService );
 
         this.serviceFacade = mock( ServiceFacade.class );
 
@@ -215,7 +218,7 @@ public class BaseGraphQLIntegrationTest
         return ContentTypes.from( types );
     }
 
-    private Context createAdminContext()
+    protected Context createAdminContext()
     {
         return ContextBuilder.copyOf( ContextAccessor.current() ).repositoryId( RepositoryId.from( "com.enonic.cms.myproject" ) ).branch(
             ContentConstants.BRANCH_DRAFT ).authInfo(
