@@ -512,7 +512,7 @@ Here are details on how to invoke the API from <a href="usage/javascript.ahtml">
 <h2 id="content_queries"><a class="link" href="#content_queries">Content queries</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Enonic offers advanced search and aggregation queries using <a href="https://developer.enonic.com/docs/xp/stable/storage/dsl">Query DSL</a> (Domain Specific Language). Ranked search, aggregations and highlighting are just some of the features.</p>
+<p>Enonic offers advanced search and aggregation queries using <a href="https://developer.enonic.com/docs/code/xp8/storage/querying">Query DSL</a> (Domain Specific Language). Ranked search, aggregations and highlighting are just some of the features.</p>
 </div>
 <div class="listingblock">
 <div class="title"><strong>Query DSL example</strong>: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author</div>
@@ -1152,7 +1152,7 @@ SiteKey is either the ID of the site content item, or the path to the site withi
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-06-24 14:47:17 UTC
+Last updated 2026-06-24 14:48:02 UTC
 </div>
 </div>
 </body>
