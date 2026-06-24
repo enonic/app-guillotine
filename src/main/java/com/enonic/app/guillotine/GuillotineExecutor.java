@@ -35,7 +35,11 @@ public class GuillotineExecutor
         }
 
         final Object variables = input.get( VARIABLES_KEY );
-        final Map<String, Object> variablesMap = variables instanceof Map ? castToMap( variables ) : Map.of();
+        if ( variables != null && !( variables instanceof Map ) )
+        {
+            throw new IllegalArgumentException( "'variables' must be a Map" );
+        }
+        final Map<String, Object> variablesMap = variables == null ? Map.of() : castToMap( variables );
 
         return schemaProvider.executeToSpecification( (String) query, variablesMap );
     }
