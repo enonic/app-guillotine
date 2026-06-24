@@ -14,7 +14,7 @@ Below is a selection of sample GraphQL queries:
 
 == Content queries
 
-Enonic offers advanced search and aggregation queries using https://developer.enonic.com/docs/xp/stable/storage/dsl[Query DSL] (Domain Specific Language). Ranked search, aggregations and highlighting are just some of the features.
+Enonic offers advanced search and aggregation queries using https://developer.enonic.com/docs/code/xp8/storage/querying[Query DSL] (Domain Specific Language). Ranked search, aggregations and highlighting are just some of the features.
 
 .*Query DSL example*: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author
 [source,graphql]
