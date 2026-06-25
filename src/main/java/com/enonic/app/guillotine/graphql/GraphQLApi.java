@@ -1,6 +1,5 @@
 package com.enonic.app.guillotine.graphql;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import graphql.ExecutionInput;
+import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.ParseAndValidate;
 import graphql.Scalars;
@@ -49,13 +49,10 @@ import com.enonic.app.guillotine.mapper.ExecutionResultMapper;
 import com.enonic.xp.app.ApplicationService;
 import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.script.ScriptValue;
-import com.enonic.xp.script.bean.BeanContext;
-import com.enonic.xp.script.bean.ScriptBean;
 
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.outputField;
 
 public class GraphQLApi
-    implements ScriptBean
 {
     private Supplier<ServiceFacade> serviceFacadeSupplier;
 
@@ -67,29 +64,15 @@ public class GraphQLApi
 
     private static final Parser PARSER = new Parser();
 
-    private static final int MAX_CACHE_SIZE = 1000;
-
-    private final Map<String, PreparsedDocumentEntry> CACHE = Collections.synchronizedMap( new LinkedHashMap<>( 16, 0.75f, true )
+    public void initialize( final Supplier<ServiceFacade> serviceFacadeSupplier,
+                            final Supplier<ApplicationService> applicationServiceSupplier,
+                            final Supplier<ExtensionsExtractorService> extensionsExtractorServiceSupplier,
+                            final Supplier<GuillotineConfigService> guillotineConfigServiceSupplier )
     {
-        @Override
-        protected boolean removeEldestEntry( Map.Entry<String, PreparsedDocumentEntry> eldest )
-        {
-            return size() > MAX_CACHE_SIZE;
-        }
-    } );
-
-    @Override
-    public void initialize( final BeanContext context )
-    {
-        this.serviceFacadeSupplier = context.getService( ServiceFacade.class );
-        this.applicationServiceSupplier = context.getService( ApplicationService.class );
-        this.extensionsExtractorServiceSupplier = context.getService( ExtensionsExtractorService.class );
-        this.guillotineConfigServiceSupplier = context.getService( GuillotineConfigService.class );
-    }
-
-    public void invalidateCache()
-    {
-        CACHE.clear();
+        this.serviceFacadeSupplier = serviceFacadeSupplier;
+        this.applicationServiceSupplier = applicationServiceSupplier;
+        this.extensionsExtractorServiceSupplier = extensionsExtractorServiceSupplier;
+        this.guillotineConfigServiceSupplier = guillotineConfigServiceSupplier;
     }
 
     public GraphQLSchema createSchema()
@@ -251,15 +234,19 @@ public class GraphQLApi
         context.getTypeResolvers().forEach( typesRegister::addTypeResolver );
     }
 
-    public Object execute( GraphQLSchema graphQLSchema, String query, ScriptValue variables )
+    public Object execute( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables )
+    {
+        return new ExecutionResultMapper( executeInternal( graphQLSchema, query, variables == null ? Map.of() : variables ) );
+    }
+
+    public Map<String, Object> executeToSpecification( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables )
+    {
+        return executeInternal( graphQLSchema, query, variables == null ? Map.of() : variables ).toSpecification();
+    }
+
+    private ExecutionResult executeInternal( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables )
     {
         final PreparsedDocumentProvider preparsedProvider = ( executionInput, parseAndValidateFunction ) -> {
-            PreparsedDocumentEntry cached = CACHE.get( executionInput.getQuery() );
-            if ( cached != null )
-            {
-                return CompletableFuture.completedFuture( cached );
-            }
-
             PreparsedDocumentEntry entry;
             try
             {
@@ -280,25 +267,14 @@ public class GraphQLApi
                         e.getMessage() ).build() ) );
             }
 
-            if ( !entry.hasErrors() )
-            {
-                CACHE.putIfAbsent( executionInput.getQuery(), entry );
-            }
-
             return CompletableFuture.completedFuture( entry );
         };
 
         final GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).preparsedDocumentProvider( preparsedProvider ).build();
 
-        final ExecutionInput executionInput =
-            ExecutionInput.newExecutionInput().query( query ).variables( extractValue( variables ) ).build();
+        final ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( variables ).build();
 
-        return new ExecutionResultMapper( graphQL.execute( executionInput ) );
-    }
-
-    private Map<String, Object> extractValue( ScriptValue scriptValue )
-    {
-        return scriptValue == null ? new HashMap<>() : scriptValue.getMap();
+        return graphQL.execute( executionInput );
     }
 
     private List<String> getApplicationNames()
