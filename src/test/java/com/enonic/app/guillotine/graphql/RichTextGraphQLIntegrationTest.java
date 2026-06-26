@@ -76,8 +76,8 @@ public class RichTextGraphQLIntegrationTest
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
-        String query = "query { guillotine { get(key: \"contentid\") { _id ...on myapplication_News { data { " +
-            "text(processHtml: { mediaBaseUrl: \"https://media.example.com/\" }) { processedHtml } } } } } }";
+        String query = "query { guillotine(mediaBaseUrl: \"https://media.example.com/\") { get(key: \"contentid\") { _id " +
+            "...on myapplication_News { data { text { processedHtml } } } } } }";
 
         Map<String, Object> response = executeQuery( graphQLSchema, query );
 

@@ -84,9 +84,9 @@ public class GuillotineLocalContextHelper
         return getContextProperty( environment, Constants.MEDIA_BASE_URL );
     }
 
-    public static String resolveMediaBaseUrl( final DataFetchingEnvironment environment, final String mediaBaseUrlArgument )
+    public static String resolveMediaBaseUrl( final DataFetchingEnvironment environment )
     {
-        final String mediaBaseUrl = mediaBaseUrlArgument != null ? mediaBaseUrlArgument : getMediaBaseUrl( environment );
+        final String mediaBaseUrl = getMediaBaseUrl( environment );
         return mediaBaseUrl != null ? mediaBaseUrl : getSiteBaseUrl( environment );
     }
 

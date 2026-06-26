@@ -70,7 +70,6 @@ public class InputTypesFactory
 
         fields.add( inputField( "imageWidths", new GraphQLList( Scalars.GraphQLInt ) ) );
         fields.add( inputField( "imageSizes", Scalars.GraphQLString ) );
-        fields.add( inputField( "mediaBaseUrl", Scalars.GraphQLString ) );
 
         GraphQLInputObjectType inputObject = newInputObject( context.uniqueName( "ProcessHtmlInput" ), "Process HTML input type", fields );
         context.registerType( inputObject.getName(), inputObject );

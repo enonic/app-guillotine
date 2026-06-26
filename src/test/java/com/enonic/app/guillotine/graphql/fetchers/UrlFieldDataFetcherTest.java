@@ -101,30 +101,6 @@ public class UrlFieldDataFetcherTest
     }
 
     @Test
-    public void testImageUrlWithMediaBaseUrlArgument()
-        throws Exception
-    {
-        PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
-        when( portalUrlService.imageUrl( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn( "imageUrl" );
-
-        Map<String, Object> source = new HashMap<>();
-        source.put( "_id", "contentid" );
-
-        when( environment.getSource() ).thenReturn( source );
-        when( environment.getArgument( "scale" ) ).thenReturn( "scale" );
-        when( environment.getArgument( "mediaBaseUrl" ) ).thenReturn( "https://media.example.com/" );
-
-        // mediaBaseUrl from config, must be overridden by the field argument
-        localContext.put( Constants.MEDIA_BASE_URL, "https://config.example.com/" );
-
-        new GetImageUrlDataFetcher( portalUrlService ).get( environment );
-
-        ArgumentCaptor<ImageUrlGeneratorParams> captor = ArgumentCaptor.forClass( ImageUrlGeneratorParams.class );
-        verify( portalUrlService ).imageUrl( captor.capture() );
-        assertEquals( "https://media.example.com/", captor.getValue().getBaseUrl() );
-    }
-
-    @Test
     public void testImageUrlWithMediaBaseUrlFromConfig()
         throws Exception
     {
@@ -189,7 +165,7 @@ public class UrlFieldDataFetcherTest
     }
 
     @Test
-    public void testAttachmentUrlByIdWithMediaBaseUrlArgument()
+    public void testAttachmentUrlByIdWithMediaBaseUrl()
         throws Exception
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
@@ -200,7 +176,7 @@ public class UrlFieldDataFetcherTest
         source.put( "name", "name" );
 
         when( environment.getSource() ).thenReturn( source );
-        when( environment.getArgument( "mediaBaseUrl" ) ).thenReturn( "https://media.example.com/" );
+        localContext.put( Constants.MEDIA_BASE_URL, "https://media.example.com/" );
 
         new GetAttachmentUrlByIdDataFetcher( portalUrlService ).get( environment );
 

@@ -46,7 +46,7 @@ public class GetAttachmentUrlByIdDataFetcher
         builder.setProjectName( () -> GuillotineLocalContextHelper.getProjectName( environment ) );
         builder.setBranch( () -> GuillotineLocalContextHelper.getBranch( environment ) );
         builder.setContent( () -> content );
-        builder.setBaseUrl( GuillotineLocalContextHelper.resolveMediaBaseUrl( environment, environment.getArgument( "mediaBaseUrl" ) ) );
+        builder.setBaseUrl( GuillotineLocalContextHelper.resolveMediaBaseUrl( environment ) );
 
         if ( environment.getArgument( "params" ) instanceof Map queryParams )
         {

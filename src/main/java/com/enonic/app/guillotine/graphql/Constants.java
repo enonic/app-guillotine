@@ -14,6 +14,8 @@ public interface Constants
 
     String PAGE_BASE_URL_ARG = "pageBaseUrl";
 
+    String MEDIA_BASE_URL_ARG = "mediaBaseUrl";
+
     String SITE_BASE_URL = "__siteBaseUrl";
 
     String MEDIA_BASE_URL = "__mediaBaseUrl";

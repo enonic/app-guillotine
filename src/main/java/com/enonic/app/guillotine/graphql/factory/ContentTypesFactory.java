@@ -180,7 +180,6 @@ public class ContentTypesFactory
 
         arguments.add( newArgument( "download", Scalars.GraphQLBoolean ) );
         arguments.add( newArgument( "params", ExtendedScalars.Json ) );
-        arguments.add( newArgument( "mediaBaseUrl", Scalars.GraphQLString ) );
 
         return outputField( "mediaUrl", Scalars.GraphQLString, arguments );
     }
@@ -195,7 +194,6 @@ public class ContentTypesFactory
         arguments.add( newArgument( "format", Scalars.GraphQLString ) );
         arguments.add( newArgument( "filter", Scalars.GraphQLString ) );
         arguments.add( newArgument( "params", ExtendedScalars.Json ) );
-        arguments.add( newArgument( "mediaBaseUrl", Scalars.GraphQLString ) );
 
         return outputField( "imageUrl", Scalars.GraphQLString, arguments );
     }

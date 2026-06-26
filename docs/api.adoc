@@ -35,7 +35,7 @@ TIP: A more intuitive way to discover the API is by using the <<playground#, Que
 |===
 |Name(Arguments):Type | Description
 
-|guillotine(siteKey: String image:v-710.svg[Guillotine 7.1.0,opts=inline], pageBaseUrl: String): <<HeadlessCms>>
+|guillotine(siteKey: String image:v-710.svg[Guillotine 7.1.0,opts=inline], pageBaseUrl: String, mediaBaseUrl: String): <<HeadlessCms>>
 |Type gathering all content retrieval requests
 |===
 
@@ -955,7 +955,7 @@ Direct Known Subtypes: FormInput
 |mimeType: String
 |Attachment mime type
 
-|attachmentUrl (download: Boolean, params: Json, mediaBaseUrl: String): String
+|attachmentUrl (download: Boolean, params: Json): String
 |Attachment URL
 
 |===
@@ -1005,9 +1005,6 @@ Direct Known Subtypes: FormInput
 
 |imageSizes: String
 |Specifies image width for a specific browser resolution in the following format: `(media-condition) width`. Multiple sizes are comma-separated.
-
-|mediaBaseUrl: String
-|Base URL prepended to media URLs (images and attachments) in the processed HTML. Has higher priority than the `mediaBaseUrl` configuration value.
 
 |===
 
