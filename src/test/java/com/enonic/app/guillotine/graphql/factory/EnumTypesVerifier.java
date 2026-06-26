@@ -17,7 +17,6 @@ public class EnumTypesVerifier
 
     public void verify()
     {
-        verifyUrlType();
         verifyMediaIntentType();
         verifyDslOperatorType();
         verifyDslSortDirectionType();
@@ -30,17 +29,6 @@ public class EnumTypesVerifier
         verifyPermission();
         verifyFormItemType();
         verifyComponentType();
-    }
-
-    private void verifyUrlType()
-    {
-        GraphQLEnumType type = context.getEnumType( "UrlType" );
-
-        assertEquals( "UrlType", type.getName() );
-        assertEquals( "URL type.", type.getDescription() );
-        assertEquals( 2, type.getValues().size() );
-        verifyTypeValue( type, "server" );
-        verifyTypeValue( type, "absolute" );
     }
 
     private void verifyMediaIntentType()

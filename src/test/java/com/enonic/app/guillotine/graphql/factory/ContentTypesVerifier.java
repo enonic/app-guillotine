@@ -42,7 +42,7 @@ public class ContentTypesVerifier
     private void verifyDynamicallyCreatedContentType()
     {
         GraphQLObjectType type = context.getOutputType( "com_enonic_app_testapp_MyType" );
-        assertEquals( 31, type.getFieldDefinitions().size() );
+        assertEquals( 32, type.getFieldDefinitions().size() );
 
         GraphQLFieldDefinition dataField = type.getFieldDefinition( "data" );
 
@@ -192,6 +192,11 @@ public class ContentTypesVerifier
         assertEquals( "PublishInfo", getNameForGraphQLTypeReference( type.getField( "publish" ).getType() ) );
 
         assertEquals( "portal_Site", getNameForGraphQLTypeReference( type.getField( "site" ).getType() ) );
+
+        GraphQLFieldDefinition pageUrlField = type.getField( "pageUrl" );
+        assertEquals( Scalars.GraphQLString, pageUrlField.getType() );
+        assertEquals( ExtendedScalars.Json, pageUrlField.getArgument( "params" ).getType() );
+
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getField( "parent" ).getType() ) );
 
         assertEquals( "Content", getNameForGraphQLTypeReference( getOriginalTypeFromGraphQLList( type, "children" ) ) );
@@ -249,6 +254,11 @@ public class ContentTypesVerifier
         assertEquals( "PublishInfo", getNameForGraphQLTypeReference( type.getField( "publish" ).getType() ) );
 
         assertEquals( "portal_Site", getNameForGraphQLTypeReference( type.getField( "site" ).getType() ) );
+
+        GraphQLFieldDefinition pageUrlField = type.getField( "pageUrl" );
+        assertEquals( Scalars.GraphQLString, pageUrlField.getType() );
+        assertEquals( ExtendedScalars.Json, pageUrlField.getArgument( "params" ).getType() );
+
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getField( "parent" ).getType() ) );
 
         assertEquals( "Content", getNameForGraphQLTypeReference( getOriginalTypeFromGraphQLList( type, "children" ) ) );

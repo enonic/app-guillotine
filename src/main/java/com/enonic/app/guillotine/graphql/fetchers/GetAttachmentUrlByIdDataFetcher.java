@@ -42,12 +42,11 @@ public class GetAttachmentUrlByIdDataFetcher
 
         final AttachmentUrlGeneratorParams.Builder builder = AttachmentUrlGeneratorParams.create();
 
-        builder.setUrlType( environment.getArgument( "type" ) );
         builder.setDownload( download != null && download );
         builder.setProjectName( () -> GuillotineLocalContextHelper.getProjectName( environment ) );
         builder.setBranch( () -> GuillotineLocalContextHelper.getBranch( environment ) );
         builder.setContent( () -> content );
-        builder.setBaseUrl( GuillotineLocalContextHelper.getSiteBaseUrl( environment ) );
+        builder.setBaseUrl( GuillotineLocalContextHelper.resolveMediaBaseUrl( environment, environment.getArgument( "mediaBaseUrl" ) ) );
 
         if ( environment.getArgument( "params" ) instanceof Map queryParams )
         {

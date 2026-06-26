@@ -9,6 +9,7 @@ import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
+import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.xp.context.ContextAccessor;
@@ -24,9 +25,13 @@ public class GuillotineDataFetcher
 {
     private final Supplier<ServiceFacade> serviceFacadeSupplier;
 
-    public GuillotineDataFetcher( final Supplier<ServiceFacade> serviceFacadeSupplier )
+    private final Supplier<GuillotineConfigService> guillotineConfigServiceSupplier;
+
+    public GuillotineDataFetcher( final Supplier<ServiceFacade> serviceFacadeSupplier,
+                                  final Supplier<GuillotineConfigService> guillotineConfigServiceSupplier )
     {
         this.serviceFacadeSupplier = serviceFacadeSupplier;
+        this.guillotineConfigServiceSupplier = guillotineConfigServiceSupplier;
     }
 
     @Override
@@ -44,6 +49,18 @@ public class GuillotineDataFetcher
 
         localContext.putIfAbsent( Constants.PROJECT_ARG, projectName );
         localContext.putIfAbsent( Constants.BRANCH_ARG, branch );
+
+        final String mediaBaseUrl = guillotineConfigServiceSupplier.get().getMediaBaseUrl();
+        if ( mediaBaseUrl != null && !mediaBaseUrl.isBlank() )
+        {
+            localContext.putIfAbsent( Constants.MEDIA_BASE_URL, mediaBaseUrl );
+        }
+
+        final String pageBaseUrl = environment.getArgument( Constants.PAGE_BASE_URL_ARG );
+        if ( pageBaseUrl != null && !pageBaseUrl.isBlank() )
+        {
+            localContext.putIfAbsent( Constants.PAGE_BASE_URL, pageBaseUrl );
+        }
 
         final String siteKey = environment.getArgument( Constants.SITE_ARG );
         if ( siteKey != null )

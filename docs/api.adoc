@@ -35,7 +35,7 @@ TIP: A more intuitive way to discover the API is by using the <<playground#, Que
 |===
 |Name(Arguments):Type | Description
 
-|guillotine(siteKey: String image:v-710.svg[Guillotine 7.1.0,opts=inline]): <<HeadlessCms>>
+|guillotine(siteKey: String image:v-710.svg[Guillotine 7.1.0,opts=inline], pageBaseUrl: String): <<HeadlessCms>>
 |Type gathering all content retrieval requests
 |===
 
@@ -197,7 +197,7 @@ All types implementing `Content` share the same fields, with the exception of th
 |publish: <<PublishInfo>>
 |Publication information
 
-|pageUrl(type: <<UrlType>>, params: Json): String
+|pageUrl(params: Json): String
 |Util field to generate a URL pointing to the content
 
 |site: portal_Site
@@ -955,7 +955,7 @@ Direct Known Subtypes: FormInput
 |mimeType: String
 |Attachment mime type
 
-|attachmentUrl (download: Boolean, type: <<UrlType>>, params: Json): String
+|attachmentUrl (download: Boolean, params: Json, mediaBaseUrl: String): String
 |Attachment URL
 
 |===
@@ -1000,14 +1000,14 @@ Direct Known Subtypes: FormInput
 |===
 |Name(Arguments):Type | Description
 
-|type: <<UrlType>>
-|URL type
-
 |imageWidths: [Int]
 |Generates image URLs for given widths which will be used in the `srcset` attribute of `img` tag.
 
 |imageSizes: String
 |Specifies image width for a specific browser resolution in the following format: `(media-condition) width`. Multiple sizes are comma-separated.
+
+|mediaBaseUrl: String
+|Base URL prepended to media URLs (images and attachments) in the processed HTML. Has higher priority than the `mediaBaseUrl` configuration value.
 
 |===
 
@@ -1850,11 +1850,6 @@ Enum values: ItemSet
 , Layout
 , Input
 , OptionSet
-
-=== UrlType
-
-Enum values: server
-, absolute
 
 === ComponentType
 

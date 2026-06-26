@@ -213,6 +213,7 @@ public class GraphQLApi
         guillotineFieldArguments.put( "project", Scalars.GraphQLString );
         guillotineFieldArguments.put( "branch", Scalars.GraphQLString );
         guillotineFieldArguments.put( "siteKey", Scalars.GraphQLString );
+        guillotineFieldArguments.put( "pageBaseUrl", Scalars.GraphQLString );
 
         Map<String, Object> guillotineFieldOptions = new HashMap<>();
         guillotineFieldOptions.put( "type", guillotineApi );
@@ -223,7 +224,8 @@ public class GraphQLApi
 
         typesRegister.addCreationCallback( "Query", guillotineQueryCreationCallback );
 
-        typesRegister.addResolver( "Query", "guillotine", new GuillotineDataFetcher( serviceFacadeSupplier ) );
+        typesRegister.addResolver( "Query", "guillotine",
+                                   new GuillotineDataFetcher( serviceFacadeSupplier, guillotineConfigServiceSupplier ) );
 
         typesRegister.addAdditionalType( context.getAllTypes() );
 

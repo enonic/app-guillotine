@@ -68,9 +68,9 @@ public class InputTypesFactory
     {
         List<GraphQLInputObjectField> fields = new ArrayList<>();
 
-        fields.add( inputField( "type", GraphQLTypeReference.typeRef( "UrlType" ) ) );
         fields.add( inputField( "imageWidths", new GraphQLList( Scalars.GraphQLInt ) ) );
         fields.add( inputField( "imageSizes", Scalars.GraphQLString ) );
+        fields.add( inputField( "mediaBaseUrl", Scalars.GraphQLString ) );
 
         GraphQLInputObjectType inputObject = newInputObject( context.uniqueName( "ProcessHtmlInput" ), "Process HTML input type", fields );
         context.registerType( inputObject.getName(), inputObject );

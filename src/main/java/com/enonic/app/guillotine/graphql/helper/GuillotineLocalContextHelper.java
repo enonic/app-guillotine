@@ -79,6 +79,33 @@ public class GuillotineLocalContextHelper
         return getContextProperty( environment, Constants.SITE_BASE_URL );
     }
 
+    public static String getMediaBaseUrl( final DataFetchingEnvironment environment )
+    {
+        return getContextProperty( environment, Constants.MEDIA_BASE_URL );
+    }
+
+    public static String resolveMediaBaseUrl( final DataFetchingEnvironment environment, final String mediaBaseUrlArgument )
+    {
+        final String mediaBaseUrl = mediaBaseUrlArgument != null ? mediaBaseUrlArgument : getMediaBaseUrl( environment );
+        return mediaBaseUrl != null ? mediaBaseUrl : getSiteBaseUrl( environment );
+    }
+
+    public static String getPageBaseUrl( final DataFetchingEnvironment environment )
+    {
+        return getContextProperty( environment, Constants.PAGE_BASE_URL );
+    }
+
+    public static String prependBaseUrl( final String baseUrl, final String url )
+    {
+        if ( baseUrl == null || baseUrl.isBlank() || url == null )
+        {
+            return url;
+        }
+        final String normalizedBaseUrl = baseUrl.endsWith( "/" ) ? baseUrl.substring( 0, baseUrl.length() - 1 ) : baseUrl;
+        final String normalizedUrl = url.startsWith( "/" ) ? url : "/" + url;
+        return normalizedBaseUrl + normalizedUrl;
+    }
+
     public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )
     {
         return getContextProperty( environment, propertyName, String.class );

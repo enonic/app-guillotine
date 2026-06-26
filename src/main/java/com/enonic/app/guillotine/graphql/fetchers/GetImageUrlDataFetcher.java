@@ -44,9 +44,8 @@ public class GetImageUrlDataFetcher
         builder.setMedia( () -> (Media) content );
         builder.setProjectName( () -> GuillotineLocalContextHelper.getProjectName( environment ) );
         builder.setBranch( () -> GuillotineLocalContextHelper.getBranch( environment ) );
-        builder.setBaseUrl( GuillotineLocalContextHelper.getSiteBaseUrl( environment ) );
+        builder.setBaseUrl( GuillotineLocalContextHelper.resolveMediaBaseUrl( environment, environment.getArgument( "mediaBaseUrl" ) ) );
         builder.setScale( environment.getArgument( "scale" ) );
-        builder.setUrlType( environment.getArgument( "type" ) );
         builder.setQuality( environment.getArgument( "quality" ) );
         builder.setBackground( environment.getArgument( "background" ) );
         builder.setFormat( environment.getArgument( "format" ) );
