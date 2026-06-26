@@ -48,19 +48,18 @@ public class GetAttachmentUrlByNameDataFetcher
 
         final AttachmentUrlGeneratorParams.Builder builder = AttachmentUrlGeneratorParams.create();
 
-        builder.setUrlType( environment.getArgument( "type" ) );
         builder.setName( attachmentAsMap.get( "name" ).toString() );
         builder.setDownload( download != null && download );
         builder.setProjectName( () -> GuillotineLocalContextHelper.getProjectName( environment ) );
         builder.setBranch( () -> GuillotineLocalContextHelper.getBranch( environment ) );
         builder.setContent( () -> content );
-        builder.setBaseUrl( GuillotineLocalContextHelper.getSiteBaseUrl( environment ) );
+        builder.setBaseUrl( GuillotineLocalContextHelper.resolveMediaBaseUrl( environment ) );
 
         if ( environment.getArgument( "params" ) instanceof Map queryParams )
         {
             builder.setQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
         }
 
-        return portalUrlGeneratorService.attachmentUrl( builder.build() );
+        return GuillotineLocalContextHelper.stripMediaEndpoint( environment, portalUrlGeneratorService.attachmentUrl( builder.build() ) );
     }
 }

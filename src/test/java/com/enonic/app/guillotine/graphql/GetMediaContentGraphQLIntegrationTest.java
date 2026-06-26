@@ -3,6 +3,7 @@ package com.enonic.app.guillotine.graphql;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import graphql.schema.GraphQLSchema;
 
@@ -15,6 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class GetMediaContentGraphQLIntegrationTest
@@ -43,6 +46,24 @@ public class GetMediaContentGraphQLIntegrationTest
 
         Map<String, Object> attachmentUrlField = CastHelper.cast( getFieldFromGuillotine( result, "attachmentUrl" ) );
         assertEquals( "url?a=1&b=2&b=3&c", attachmentUrlField.get( "mediaUrl" ) );
+    }
+
+    @Test
+    public void testMediaUrlUsesConfiguredMediaBaseUrl()
+    {
+        when( guillotineConfigService.getMediaBaseUrl() ).thenReturn( "https://config.example.com/" );
+        when( serviceFacade.getPortalUrlGeneratorService().attachmentUrl( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn( "url" );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> result = executeQuery( graphQLSchema, readGraphQLQuery( "graphql/getMediaContent.graphql" ) );
+
+        assertFalse( result.containsKey( "errors" ) );
+
+        ArgumentCaptor<AttachmentUrlGeneratorParams> captor = ArgumentCaptor.forClass( AttachmentUrlGeneratorParams.class );
+        verify( serviceFacade.getPortalUrlGeneratorService(), atLeastOnce() ).attachmentUrl( captor.capture() );
+        assertTrue( captor.getAllValues().stream().allMatch( params -> "https://config.example.com/".equals( params.getBaseUrl() ) ) );
     }
 
     @Test
