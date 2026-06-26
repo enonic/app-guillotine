@@ -165,24 +165,66 @@ public class UrlFieldDataFetcherTest
     }
 
     @Test
+    public void testImageUrlStripsEndpointSegmentWhenMediaBaseUrlSet()
+        throws Exception
+    {
+        PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
+        when( portalUrlService.imageUrl( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn(
+            "https://media.example.com/whatever/_/media:image/myproject:draft/contentid:hash/scale/name.jpg" );
+
+        Map<String, Object> source = new HashMap<>();
+        source.put( "_id", "contentid" );
+
+        when( environment.getSource() ).thenReturn( source );
+        when( environment.getArgument( "scale" ) ).thenReturn( "scale" );
+
+        localContext.put( Constants.MEDIA_BASE_URL, "https://media.example.com/whatever" );
+
+        assertEquals( "https://media.example.com/whatever/media:image/myproject:draft/contentid:hash/scale/name.jpg",
+                      new GetImageUrlDataFetcher( portalUrlService ).get( environment ) );
+    }
+
+    @Test
+    public void testImageUrlKeepsEndpointSegmentWithoutMediaBaseUrl()
+        throws Exception
+    {
+        PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
+        when( portalUrlService.imageUrl( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn(
+            "/site/repo/draft/app/_/media:image/myproject:draft/contentid:hash/scale/name.jpg" );
+
+        Map<String, Object> source = new HashMap<>();
+        source.put( "_id", "contentid" );
+
+        when( environment.getSource() ).thenReturn( source );
+        when( environment.getArgument( "scale" ) ).thenReturn( "scale" );
+
+        localContext.put( Constants.SITE_BASE_URL, "https://site.example.com/" );
+
+        assertEquals( "/site/repo/draft/app/_/media:image/myproject:draft/contentid:hash/scale/name.jpg",
+                      new GetImageUrlDataFetcher( portalUrlService ).get( environment ) );
+    }
+
+    @Test
     public void testAttachmentUrlByIdWithMediaBaseUrl()
         throws Exception
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
-        when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn( "attachmentUrl" );
+        when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
+            "https://media.example.com/whatever/_/media:attachment/myproject:draft/contentid:hash/name.jpg" );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "_id", "contentid" );
         source.put( "name", "name" );
 
         when( environment.getSource() ).thenReturn( source );
-        localContext.put( Constants.MEDIA_BASE_URL, "https://media.example.com/" );
+        localContext.put( Constants.MEDIA_BASE_URL, "https://media.example.com/whatever" );
 
-        new GetAttachmentUrlByIdDataFetcher( portalUrlService ).get( environment );
+        final String result = new GetAttachmentUrlByIdDataFetcher( portalUrlService ).get( environment );
 
         ArgumentCaptor<AttachmentUrlGeneratorParams> captor = ArgumentCaptor.forClass( AttachmentUrlGeneratorParams.class );
         verify( portalUrlService ).attachmentUrl( captor.capture() );
-        assertEquals( "https://media.example.com/", captor.getValue().getBaseUrl() );
+        assertEquals( "https://media.example.com/whatever", captor.getValue().getBaseUrl() );
+        assertEquals( "https://media.example.com/whatever/media:attachment/myproject:draft/contentid:hash/name.jpg", result );
     }
 
     @Test

@@ -141,6 +141,67 @@ public class RichTextGraphQLIntegrationTest
     }
 
     @Test
+    public void testRichTextFieldStripsMediaEndpointWhenMediaBaseUrlSet()
+    {
+        when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
+
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        String query = "query { guillotine(mediaBaseUrl: \"https://media.example.com/whatever\") { get(key: \"contentid\") { _id " +
+            "...on myapplication_News { data { text { processedHtml } } } } } }";
+
+        Map<String, Object> response = executeQuery( graphQLSchema, query );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
+        verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
+
+        // mediaBaseUrl provided -> a customHtmlProcessor must be set to strip the /_/ endpoint segment from media URLs
+        assertNotNull( captor.getValue().getCustomHtmlProcessor() );
+
+        HtmlElement image = mock( HtmlElement.class );
+        when( image.getAttribute( "src" ) ).thenReturn(
+            "https://media.example.com/whatever/_/media:image/myproject:draft/contentid:hash/scale/name.jpg" );
+
+        HtmlElement responsiveImage = mock( HtmlElement.class );
+        when( responsiveImage.getAttribute( "srcset" ) ).thenReturn(
+            "https://media.example.com/whatever/_/media:image/myproject:draft/contentid:hash/600/name.jpg 600w, " +
+                "https://media.example.com/whatever/_/media:image/myproject:draft/contentid:hash/900/name.jpg 900w" );
+
+        HtmlElement mediaLink = mock( HtmlElement.class );
+        when( mediaLink.getAttribute( "href" ) ).thenReturn(
+            "https://media.example.com/whatever/_/media:attachment/myproject:draft/contentid:hash/doc.pdf" );
+
+        HtmlDocument document = mock( HtmlDocument.class );
+        when( document.select( "[src]" ) ).thenReturn( List.of( image ) );
+        when( document.select( "[srcset]" ) ).thenReturn( List.of( responsiveImage ) );
+        when( document.select( "[href]" ) ).thenReturn( List.of( mediaLink ) );
+        when( document.select( "figcaption:empty" ) ).thenReturn( List.of() );
+        when( document.getInnerHtml() ).thenReturn( "result" );
+
+        HtmlProcessorParams processorParams = HtmlProcessorParams.create()
+            .htmlDocument( document )
+            .defaultProcessor( postProcessor -> {
+            } )
+            .defaultElementProcessor( ( element, postProcessor ) -> {
+            } )
+            .build();
+
+        captor.getValue().getCustomHtmlProcessor().apply( processorParams );
+
+        verify( image ).setAttribute( "src",
+                                      "https://media.example.com/whatever/media:image/myproject:draft/contentid:hash/scale/name.jpg" );
+        verify( responsiveImage ).setAttribute( "srcset",
+                                                "https://media.example.com/whatever/media:image/myproject:draft/contentid:hash/600/name.jpg 600w, " +
+                                                    "https://media.example.com/whatever/media:image/myproject:draft/contentid:hash/900/name.jpg 900w" );
+        verify( mediaLink ).setAttribute( "href",
+                                          "https://media.example.com/whatever/media:attachment/myproject:draft/contentid:hash/doc.pdf" );
+    }
+
+    @Test
     public void testEmptyRichTextField()
     {
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( false ) );

@@ -95,6 +95,16 @@ public class GuillotineLocalContextHelper
         return getContextProperty( environment, Constants.PAGE_BASE_URL );
     }
 
+    public static String stripMediaEndpoint( final DataFetchingEnvironment environment, final String url )
+    {
+        return getMediaBaseUrl( environment ) != null ? replaceEndpointSegment( url ) : url;
+    }
+
+    public static String replaceEndpointSegment( final String url )
+    {
+        return url == null ? null : url.replace( "/_/", "/" );
+    }
+
     public static String prependBaseUrl( final String baseUrl, final String url )
     {
         if ( baseUrl == null || baseUrl.isBlank() || url == null )

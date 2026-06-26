@@ -65,6 +65,8 @@ public class RichTextDataFetcher
 
         final String pageBaseUrl = GuillotineLocalContextHelper.getPageBaseUrl( environment );
 
+        final boolean stripMediaEndpoint = GuillotineLocalContextHelper.getMediaBaseUrl( environment ) != null;
+
         htmlParams.processMacros( false );
         htmlParams.customStyleDescriptorsCallback( () -> serviceFacade.getStyleDescriptorService().getAll() );
         htmlParams.customHtmlProcessor( processor -> {
@@ -82,6 +84,13 @@ public class RichTextDataFetcher
             contentLinks.forEach( element -> element.setAttribute( "href", GuillotineLocalContextHelper.prependBaseUrl( pageBaseUrl,
                                                                                                                        element.getAttribute(
                                                                                                                            "href" ) ) ) );
+
+            if ( stripMediaEndpoint )
+            {
+                stripMediaEndpoint( htmlDocument, "src" );
+                stripMediaEndpoint( htmlDocument, "srcset" );
+                stripMediaEndpoint( htmlDocument, "href" );
+            }
 
             htmlDocument.select( "figcaption:empty" ).forEach( HtmlElement::remove );
             return htmlDocument.getInnerHtml();
@@ -113,6 +122,13 @@ public class RichTextDataFetcher
         GuillotineMapGenerator generator = new GuillotineMapGenerator();
         new HtmlEditorResultMapper( builder.build() ).serialize( generator );
         return generator.getRoot();
+    }
+
+    private static void stripMediaEndpoint( final HtmlDocument htmlDocument, final String attributeName )
+    {
+        htmlDocument.select( "[" + attributeName + "]" )
+            .forEach( element -> element.setAttribute( attributeName, GuillotineLocalContextHelper.replaceEndpointSegment(
+                element.getAttribute( attributeName ) ) ) );
     }
 
     private ProcessHtmlParams createProcessHtmlParams( DataFetchingEnvironment environment )
