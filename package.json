@@ -33,7 +33,7 @@
     "less": "^4.6.6",
     "less-loader": "^13.0.0",
     "mini-css-extract-plugin": "^2.10.2",
-    "postcss": "^8.5.15",
+    "postcss": "^8.5.16",
     "postcss-loader": "^8.2.1",
     "source-map-loader": "^5.0.0",
     "style-loader": "^4.0.0",
