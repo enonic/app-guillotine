@@ -83,9 +83,11 @@ public class RichTextGraphQLIntegrationTest
 
         assertFalse( response.containsKey( "errors" ) );
 
+        // with mediaBaseUrl set, XP is asked for root-relative "/_/..." URLs ("/" baseUrl);
+        // mediaBaseUrl itself is prepended by the custom HTML processor afterwards
         ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
         verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
-        assertEquals( "https://media.example.com/", captor.getValue().getBaseUrl() );
+        assertEquals( "/", captor.getValue().getBaseUrl() );
     }
 
     @Test
@@ -141,7 +143,7 @@ public class RichTextGraphQLIntegrationTest
     }
 
     @Test
-    public void testRichTextFieldStripsMediaEndpointWhenMediaBaseUrlSet()
+    public void testRichTextFieldPrependsMediaBaseUrlWhenSet()
     {
         when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
 
@@ -159,26 +161,29 @@ public class RichTextGraphQLIntegrationTest
         ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
         verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
 
-        // mediaBaseUrl provided -> a customHtmlProcessor must be set to strip the /_/ endpoint segment from media URLs
+        // mediaBaseUrl provided -> XP generates root-relative "/_/..." media URLs and a customHtmlProcessor
+        // must be set to prepend mediaBaseUrl to them (dropping the "_" endpoint segment)
         assertNotNull( captor.getValue().getCustomHtmlProcessor() );
 
         HtmlElement image = mock( HtmlElement.class );
-        when( image.getAttribute( "src" ) ).thenReturn(
-            "https://media.example.com/whatever/_/media:image/myproject:draft/contentid:hash/scale/name.jpg" );
+        when( image.getAttribute( "src" ) ).thenReturn( "/_/media:image/myproject:draft/contentid:hash/scale/name.jpg" );
 
         HtmlElement responsiveImage = mock( HtmlElement.class );
         when( responsiveImage.getAttribute( "srcset" ) ).thenReturn(
-            "https://media.example.com/whatever/_/media:image/myproject:draft/contentid:hash/600/name.jpg 600w, " +
-                "https://media.example.com/whatever/_/media:image/myproject:draft/contentid:hash/900/name.jpg 900w" );
+            "/_/media:image/myproject:draft/contentid:hash/600/name.jpg 600w, " +
+                "/_/media:image/myproject:draft/contentid:hash/900/name.jpg 900w" );
 
         HtmlElement mediaLink = mock( HtmlElement.class );
-        when( mediaLink.getAttribute( "href" ) ).thenReturn(
-            "https://media.example.com/whatever/_/media:attachment/myproject:draft/contentid:hash/doc.pdf" );
+        when( mediaLink.getAttribute( "href" ) ).thenReturn( "/_/media:attachment/myproject:draft/contentid:hash/doc.pdf" );
+
+        // hand-written external link containing "/_/" must not be touched
+        HtmlElement externalLink = mock( HtmlElement.class );
+        when( externalLink.getAttribute( "href" ) ).thenReturn( "https://othersite.com/_/service/whatever" );
 
         HtmlDocument document = mock( HtmlDocument.class );
         when( document.select( "[src]" ) ).thenReturn( List.of( image ) );
         when( document.select( "[srcset]" ) ).thenReturn( List.of( responsiveImage ) );
-        when( document.select( "[href]" ) ).thenReturn( List.of( mediaLink ) );
+        when( document.select( "[href]" ) ).thenReturn( List.of( mediaLink, externalLink ) );
         when( document.select( "figcaption:empty" ) ).thenReturn( List.of() );
         when( document.getInnerHtml() ).thenReturn( "result" );
 
@@ -199,6 +204,8 @@ public class RichTextGraphQLIntegrationTest
                                                     "https://media.example.com/whatever/media:image/myproject:draft/contentid:hash/900/name.jpg 900w" );
         verify( mediaLink ).setAttribute( "href",
                                           "https://media.example.com/whatever/media:attachment/myproject:draft/contentid:hash/doc.pdf" );
+        verify( externalLink, org.mockito.Mockito.never() ).setAttribute( org.mockito.ArgumentMatchers.eq( "href" ),
+                                                                          org.mockito.ArgumentMatchers.anyString() );
     }
 
     @Test

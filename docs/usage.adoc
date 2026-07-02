@@ -89,7 +89,7 @@ Enonic XP can serve custom scaled images at runtime. Guillotine uses this functi
 }
 ----
 
-By default, the `imageUrl`, `mediaUrl` and `attachmentUrl` fields generate `server` (relative) URLs. To generate URLs against a different domain or base URL (for example, a dedicated media host), set the `mediaBaseUrl` argument on the `guillotine` field or set the `mediaBaseUrl` <<configuration#, configuration>> option. The argument takes precedence over the configuration value and applies to all media URLs resolved within the query.
+By default, the `imageUrl`, `mediaUrl` and `attachmentUrl` fields generate `server` (relative) URLs. To generate URLs against a different domain or base URL (for example, a dedicated media host), set the `mediaBaseUrl` argument on the `guillotine` field or set the `mediaBaseUrl` <<configuration#, configuration>> option. The argument takes precedence over the configuration value and applies to all media URLs resolved within the query. The value may be specified with or without a trailing slash.
 
 [source,graphql]
 ----
@@ -143,7 +143,7 @@ Rich text fields will typically include links, images and macros in the `process
 
 By default, all internal links to `media` or `content` will be replaced by a `server` (relative) link in the context of your endpoint.
 
-To generate content (page) links against a different domain or base URL, set the `pageBaseUrl` argument on the `guillotine` field. It is prepended to content links in `processedHtml` and to the value of the `pageUrl` field. There is no configuration option for `pageBaseUrl`. (Media URLs are controlled separately by `mediaBaseUrl`.)
+To generate content (page) links against a different domain or base URL, set the `pageBaseUrl` argument on the `guillotine` field. It is prepended to content links in `processedHtml` and to the value of the `pageUrl` field. The value may be specified with or without a trailing slash. There is no configuration option for `pageBaseUrl`. (Media URLs are controlled separately by `mediaBaseUrl`.)
 
 [source,graphql]
 ----

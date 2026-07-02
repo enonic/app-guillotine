@@ -53,6 +53,6 @@ public class GetAttachmentUrlByIdDataFetcher
             builder.setQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
         }
 
-        return GuillotineLocalContextHelper.stripMediaEndpoint( environment, portalUrlGeneratorService.attachmentUrl( builder.build() ) );
+        return GuillotineLocalContextHelper.applyMediaBaseUrl( environment, portalUrlGeneratorService.attachmentUrl( builder.build() ) );
     }
 }

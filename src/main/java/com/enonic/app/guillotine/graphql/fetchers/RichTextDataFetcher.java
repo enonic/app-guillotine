@@ -1,6 +1,7 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -9,6 +10,7 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
+import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.macro.CustomHtmlPostProcessor;
@@ -65,7 +67,7 @@ public class RichTextDataFetcher
 
         final String pageBaseUrl = GuillotineLocalContextHelper.getPageBaseUrl( environment );
 
-        final boolean stripMediaEndpoint = GuillotineLocalContextHelper.getMediaBaseUrl( environment ) != null;
+        final String mediaBaseUrl = GuillotineLocalContextHelper.getMediaBaseUrl( environment );
 
         htmlParams.processMacros( false );
         htmlParams.customStyleDescriptorsCallback( () -> serviceFacade.getStyleDescriptorService().getAll() );
@@ -85,11 +87,11 @@ public class RichTextDataFetcher
                                                                                                                        element.getAttribute(
                                                                                                                            "href" ) ) ) );
 
-            if ( stripMediaEndpoint )
+            if ( mediaBaseUrl != null )
             {
-                stripMediaEndpoint( htmlDocument, "src" );
-                stripMediaEndpoint( htmlDocument, "srcset" );
-                stripMediaEndpoint( htmlDocument, "href" );
+                prependMediaBaseUrl( htmlDocument, "src", mediaBaseUrl );
+                prependMediaBaseUrl( htmlDocument, "href", mediaBaseUrl );
+                prependMediaBaseUrlToSrcset( htmlDocument, mediaBaseUrl );
             }
 
             htmlDocument.select( "figcaption:empty" ).forEach( HtmlElement::remove );
@@ -124,11 +126,36 @@ public class RichTextDataFetcher
         return generator.getRoot();
     }
 
-    private static void stripMediaEndpoint( final HtmlDocument htmlDocument, final String attributeName )
+    private static void prependMediaBaseUrl( final HtmlDocument htmlDocument, final String attributeName, final String mediaBaseUrl )
     {
-        htmlDocument.select( "[" + attributeName + "]" )
-            .forEach( element -> element.setAttribute( attributeName, GuillotineLocalContextHelper.replaceEndpointSegment(
-                element.getAttribute( attributeName ) ) ) );
+        htmlDocument.select( "[" + attributeName + "]" ).forEach( element -> {
+            final String value = element.getAttribute( attributeName );
+            if ( value.startsWith( Constants.ENDPOINT_PREFIX ) )
+            {
+                element.setAttribute( attributeName,
+                                      GuillotineLocalContextHelper.prependBaseUrl( mediaBaseUrl,
+                                                                                   GuillotineLocalContextHelper.stripEndpointPrefix(
+                                                                                       value ) ) );
+            }
+        } );
+    }
+
+    private static void prependMediaBaseUrlToSrcset( final HtmlDocument htmlDocument, final String mediaBaseUrl )
+    {
+        htmlDocument.select( "[srcset]" ).forEach( element -> {
+            final String srcset = element.getAttribute( "srcset" );
+            final String processed = Arrays.stream( srcset.split( "," ) ).map( entry -> {
+                final String candidate = entry.stripLeading();
+                if ( !candidate.startsWith( Constants.ENDPOINT_PREFIX ) )
+                {
+                    return entry;
+                }
+                final String leadingWhitespace = entry.substring( 0, entry.length() - candidate.length() );
+                return leadingWhitespace +
+                    GuillotineLocalContextHelper.prependBaseUrl( mediaBaseUrl, GuillotineLocalContextHelper.stripEndpointPrefix( candidate ) );
+            } ).collect( Collectors.joining( "," ) );
+            element.setAttribute( "srcset", processed );
+        } );
     }
 
     private ProcessHtmlParams createProcessHtmlParams( DataFetchingEnvironment environment )

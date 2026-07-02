@@ -52,7 +52,8 @@ public class GetMediaContentGraphQLIntegrationTest
     public void testMediaUrlUsesConfiguredMediaBaseUrl()
     {
         when( guillotineConfigService.getMediaBaseUrl() ).thenReturn( "https://config.example.com/" );
-        when( serviceFacade.getPortalUrlGeneratorService().attachmentUrl( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn( "url" );
+        when( serviceFacade.getPortalUrlGeneratorService().attachmentUrl( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
+            "/_/media:attachment/myproject:draft/contentid:hash/name.jpg" );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
@@ -61,9 +62,15 @@ public class GetMediaContentGraphQLIntegrationTest
 
         assertFalse( result.containsKey( "errors" ) );
 
+        // with mediaBaseUrl set, the generator is asked for a root-relative URL ("/" baseUrl)
+        // and mediaBaseUrl is prepended afterwards
         ArgumentCaptor<AttachmentUrlGeneratorParams> captor = ArgumentCaptor.forClass( AttachmentUrlGeneratorParams.class );
         verify( serviceFacade.getPortalUrlGeneratorService(), atLeastOnce() ).attachmentUrl( captor.capture() );
-        assertTrue( captor.getAllValues().stream().allMatch( params -> "https://config.example.com/".equals( params.getBaseUrl() ) ) );
+        assertTrue( captor.getAllValues().stream().allMatch( params -> "/".equals( params.getBaseUrl() ) ) );
+
+        Map<String, Object> attachmentUrlField = CastHelper.cast( getFieldFromGuillotine( result, "attachmentUrl" ) );
+        assertEquals( "https://config.example.com/media:attachment/myproject:draft/contentid:hash/name.jpg",
+                      attachmentUrlField.get( "mediaUrl" ) );
     }
 
     @Test

@@ -86,8 +86,10 @@ public class GuillotineLocalContextHelper
 
     public static String resolveMediaBaseUrl( final DataFetchingEnvironment environment )
     {
-        final String mediaBaseUrl = getMediaBaseUrl( environment );
-        return mediaBaseUrl != null ? mediaBaseUrl : getSiteBaseUrl( environment );
+        // "/" makes the URL generator produce a root-relative "/_/<api>/..." URL, which is then
+        // resolved against mediaBaseUrl in applyMediaBaseUrl. Empty string would not work here:
+        // ApiUrlGeneratorParams coerces it to null, falling back to request-based rewriting.
+        return getMediaBaseUrl( environment ) != null ? Constants.ROOT_BASE_URL : getSiteBaseUrl( environment );
     }
 
     public static String getPageBaseUrl( final DataFetchingEnvironment environment )
@@ -95,14 +97,15 @@ public class GuillotineLocalContextHelper
         return getContextProperty( environment, Constants.PAGE_BASE_URL );
     }
 
-    public static String stripMediaEndpoint( final DataFetchingEnvironment environment, final String url )
+    public static String applyMediaBaseUrl( final DataFetchingEnvironment environment, final String url )
     {
-        return getMediaBaseUrl( environment ) != null ? replaceEndpointSegment( url ) : url;
+        final String mediaBaseUrl = getMediaBaseUrl( environment );
+        return mediaBaseUrl == null ? url : prependBaseUrl( mediaBaseUrl, stripEndpointPrefix( url ) );
     }
 
-    public static String replaceEndpointSegment( final String url )
+    public static String stripEndpointPrefix( final String url )
     {
-        return url == null ? null : url.replace( "/_/", "/" );
+        return url != null && url.startsWith( Constants.ENDPOINT_PREFIX ) ? url.substring( 2 ) : url;
     }
 
     public static String prependBaseUrl( final String baseUrl, final String url )
