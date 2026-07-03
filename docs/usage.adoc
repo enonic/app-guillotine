@@ -91,7 +91,7 @@ Enonic XP can serve custom scaled images at runtime. Guillotine uses this functi
 
 By default, the `imageUrl`, `mediaUrl` and `attachmentUrl` fields generate server (root-relative) URLs. To generate URLs against a different domain or base URL (for example, a dedicated media host), set the `mediaBaseUrl` argument on the `guillotine` field or set the `defaultMediaBaseUrl` <<configuration#, configuration>> option. The argument takes precedence over the configuration value and applies to all media URLs resolved within the query. A trailing slash is appended to the value if missing. An empty value is treated as unspecified.
 
-Media URLs are generated as the base URL followed directly by the XP media API path, for example `https://media.example.com/media:image/myproject/contentid:hash/block-800-200/photo.jpg` — the base URL is expected to point at XP's API root (for example, via a vhost mapping `/` to `/api/`). To target a site-mounted endpoint instead, include the `_/` segment in the base URL itself, e.g. `https://www.example.com/mysite/_/`.
+Media URLs are generated as the base URL followed directly by the XP media API path, for example `https://media.example.com/media:image/myproject/contentid:hash/block-800-200/photo.jpg`.
 
 IMPORTANT: The `mediaBaseUrl` argument is disabled by default: any value passed by a client is rejected unless it is listed in the `allowedMediaBaseUrls` <<configuration#, configuration>> option (or that option is set to `*`). The `defaultMediaBaseUrl` configuration option is not affected by this restriction.
 
