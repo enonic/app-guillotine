@@ -71,7 +71,7 @@ public class RichTextGraphQLIntegrationTest
     public void testRichTextFieldWithMediaBaseUrl()
     {
         // allowlist entry without trailing slash must match the argument with one
-        setAllowedBaseUrls( "https://media.example.com" );
+        setAllowedBaseUrls( "", "https://media.example.com" );
 
         when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
 
@@ -111,7 +111,7 @@ public class RichTextGraphQLIntegrationTest
     @Test
     public void testPageBaseUrlArgumentRejectedWhenNotInAllowlist()
     {
-        setAllowedBaseUrls( "https://www.example.com" );
+        setAllowedBaseUrls( "https://www.example.com", "" );
 
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
 
@@ -126,9 +126,27 @@ public class RichTextGraphQLIntegrationTest
     }
 
     @Test
+    public void testPageBaseUrlNotAllowedByMediaAllowlist()
+    {
+        // the allow lists are per argument: a value allowed for mediaBaseUrl does not allow pageBaseUrl
+        setAllowedBaseUrls( "", "https://www.example.com" );
+
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        String query = "query { guillotine(pageBaseUrl: \"https://www.example.com/\") { get(key: \"contentid\") { _id " +
+            "...on myapplication_News { data { text { processedHtml } } } } } }";
+
+        Map<String, Object> response = executeQuery( graphQLSchema, query );
+
+        assertTrue( response.containsKey( "errors" ) );
+    }
+
+    @Test
     public void testRichTextFieldWithPageBaseUrl()
     {
-        setAllowedBaseUrls( "*" );
+        setAllowedBaseUrls( "*", "" );
 
         when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
 

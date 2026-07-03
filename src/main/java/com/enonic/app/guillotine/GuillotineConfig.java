@@ -10,5 +10,7 @@ public @interface GuillotineConfig
 
     String defaultMediaBaseUrl() default "";
 
-    String allowedBaseUrls() default "";
+    String allowedPageBaseUrls() default "";
+
+    String allowedMediaBaseUrls() default "";
 }

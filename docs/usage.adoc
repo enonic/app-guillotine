@@ -93,7 +93,7 @@ By default, the `imageUrl`, `mediaUrl` and `attachmentUrl` fields generate serve
 
 Media URLs are generated as the base URL followed directly by the XP media API path, for example `https://media.example.com/media:image/myproject/contentid:hash/block-800-200/photo.jpg` — the base URL is expected to point at XP's API root (for example, via a vhost mapping `/` to `/api/`). To target a site-mounted endpoint instead, include the `_/` segment in the base URL itself, e.g. `https://www.example.com/mysite/_/`.
 
-IMPORTANT: The `mediaBaseUrl` argument is disabled by default: any value passed by a client is rejected unless it is listed in the `allowedBaseUrls` <<configuration#, configuration>> option (or that option is set to `*`). The `defaultMediaBaseUrl` configuration option is not affected by this restriction.
+IMPORTANT: The `mediaBaseUrl` argument is disabled by default: any value passed by a client is rejected unless it is listed in the `allowedMediaBaseUrls` <<configuration#, configuration>> option (or that option is set to `*`). The `defaultMediaBaseUrl` configuration option is not affected by this restriction.
 
 [source,graphql]
 ----
@@ -149,7 +149,7 @@ By default, all internal links to `media` or `content` will be replaced by a ser
 
 To generate content (page) links against a different domain or base URL, set the `pageBaseUrl` argument on the `guillotine` field. Content links in `processedHtml` and the value of the `pageUrl` field are then generated against this base URL, followed by the path of the content relative to its nearest site (for example, `https://www.example.com/posts/first-post`). A trailing slash is appended to the value if missing. An empty value is treated as unspecified. (Media URLs are controlled separately by `mediaBaseUrl`.)
 
-IMPORTANT: The `pageBaseUrl` argument is disabled by default: any value passed by a client is rejected unless it is listed in the `allowedBaseUrls` <<configuration#, configuration>> option (or that option is set to `*`).
+IMPORTANT: The `pageBaseUrl` argument is disabled by default: any value passed by a client is rejected unless it is listed in the `allowedPageBaseUrls` <<configuration#, configuration>> option (or that option is set to `*`).
 
 [source,graphql]
 ----

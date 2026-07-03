@@ -54,7 +54,8 @@ public class GuillotineDataFetcher
         final String mediaBaseUrl;
         if ( mediaBaseUrlArg != null && !mediaBaseUrlArg.isBlank() )
         {
-            requireAllowedBaseUrl( Constants.MEDIA_BASE_URL_ARG, mediaBaseUrlArg );
+            requireAllowedBaseUrl( Constants.MEDIA_BASE_URL_ARG, "allowedMediaBaseUrls", mediaBaseUrlArg,
+                                   guillotineConfigServiceSupplier.get().isMediaBaseUrlAllowed( mediaBaseUrlArg ) );
             mediaBaseUrl = mediaBaseUrlArg;
         }
         else
@@ -69,7 +70,8 @@ public class GuillotineDataFetcher
         final String pageBaseUrl = environment.getArgument( Constants.PAGE_BASE_URL_ARG );
         if ( pageBaseUrl != null && !pageBaseUrl.isBlank() )
         {
-            requireAllowedBaseUrl( Constants.PAGE_BASE_URL_ARG, pageBaseUrl );
+            requireAllowedBaseUrl( Constants.PAGE_BASE_URL_ARG, "allowedPageBaseUrls", pageBaseUrl,
+                                   guillotineConfigServiceSupplier.get().isPageBaseUrlAllowed( pageBaseUrl ) );
             localContext.putIfAbsent( Constants.PAGE_BASE_URL, pageBaseUrl );
         }
 
@@ -88,13 +90,14 @@ public class GuillotineDataFetcher
         return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
     }
 
-    private void requireAllowedBaseUrl( final String argumentName, final String value )
+    private static void requireAllowedBaseUrl( final String argumentName, final String configName, final String value,
+                                                final boolean allowed )
     {
-        if ( !guillotineConfigServiceSupplier.get().isBaseUrlAllowed( value ) )
+        if ( !allowed )
         {
             throw new IllegalArgumentException(
-                String.format( "Value \"%s\" of the \"%s\" argument is not allowed by the \"allowedBaseUrls\" configuration", value,
-                               argumentName ) );
+                String.format( "Value \"%s\" of the \"%s\" argument is not allowed by the \"%s\" configuration", value, argumentName,
+                               configName ) );
         }
     }
 

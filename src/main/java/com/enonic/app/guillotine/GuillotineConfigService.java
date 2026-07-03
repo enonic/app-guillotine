@@ -21,7 +21,9 @@ public class GuillotineConfigService
 
     private String defaultMediaBaseUrl;
 
-    private Set<String> allowedBaseUrls;
+    private Set<String> allowedPageBaseUrls;
+
+    private Set<String> allowedMediaBaseUrls;
 
     @Activate
     @Modified
@@ -31,11 +33,8 @@ public class GuillotineConfigService
         this.modifyUnknownFieldMode = ModifyUnknownFieldMode.from( config.graphql_extensions_modifyUnknownField() );
         this.maxQueryTokens = config.maxQueryTokens();
         this.defaultMediaBaseUrl = config.defaultMediaBaseUrl();
-        this.allowedBaseUrls = Arrays.stream( config.allowedBaseUrls().split( "," ) )
-            .map( String::trim )
-            .filter( value -> !value.isEmpty() )
-            .map( GuillotineConfigService::removeTrailingSlash )
-            .collect( Collectors.toUnmodifiableSet() );
+        this.allowedPageBaseUrls = parseAllowedBaseUrls( config.allowedPageBaseUrls() );
+        this.allowedMediaBaseUrls = parseAllowedBaseUrls( config.allowedMediaBaseUrls() );
     }
 
     public QueryPlaygroundUIMode getQueryPlaygroundUIMode()
@@ -58,7 +57,26 @@ public class GuillotineConfigService
         return defaultMediaBaseUrl;
     }
 
-    public boolean isBaseUrlAllowed( final String baseUrl )
+    public boolean isPageBaseUrlAllowed( final String baseUrl )
+    {
+        return isAllowed( allowedPageBaseUrls, baseUrl );
+    }
+
+    public boolean isMediaBaseUrlAllowed( final String baseUrl )
+    {
+        return isAllowed( allowedMediaBaseUrls, baseUrl );
+    }
+
+    private static Set<String> parseAllowedBaseUrls( final String value )
+    {
+        return Arrays.stream( value.split( "," ) )
+            .map( String::trim )
+            .filter( entry -> !entry.isEmpty() )
+            .map( GuillotineConfigService::removeTrailingSlash )
+            .collect( Collectors.toUnmodifiableSet() );
+    }
+
+    private static boolean isAllowed( final Set<String> allowedBaseUrls, final String baseUrl )
     {
         if ( baseUrl == null )
         {
