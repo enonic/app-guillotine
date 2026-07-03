@@ -51,7 +51,7 @@ public class GetMediaContentGraphQLIntegrationTest
     @Test
     public void testMediaUrlUsesConfiguredMediaBaseUrl()
     {
-        when( guillotineConfigService.getMediaBaseUrl() ).thenReturn( "https://config.example.com/" );
+        when( guillotineConfigService.getDefaultMediaBaseUrl() ).thenReturn( "https://config.example.com/" );
         when( serviceFacade.getPortalUrlGeneratorService().attachmentUrl( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
             "/_/media:attachment/myproject:draft/contentid:hash/name.jpg" );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );

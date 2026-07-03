@@ -19,7 +19,7 @@ public class GuillotineConfigService
 
     private int maxQueryTokens;
 
-    private String mediaBaseUrl;
+    private String defaultMediaBaseUrl;
 
     private Set<String> allowedBaseUrls;
 
@@ -30,7 +30,7 @@ public class GuillotineConfigService
         this.queryPlaygroundUIMode = QueryPlaygroundUIMode.from( config.queryplayground_ui_mode() );
         this.modifyUnknownFieldMode = ModifyUnknownFieldMode.from( config.graphql_extensions_modifyUnknownField() );
         this.maxQueryTokens = config.maxQueryTokens();
-        this.mediaBaseUrl = config.mediaBaseUrl();
+        this.defaultMediaBaseUrl = config.defaultMediaBaseUrl();
         this.allowedBaseUrls = Arrays.stream( config.allowedBaseUrls().split( "," ) )
             .map( String::trim )
             .filter( value -> !value.isEmpty() )
@@ -53,9 +53,9 @@ public class GuillotineConfigService
         return maxQueryTokens;
     }
 
-    public String getMediaBaseUrl()
+    public String getDefaultMediaBaseUrl()
     {
-        return mediaBaseUrl;
+        return defaultMediaBaseUrl;
     }
 
     public boolean isBaseUrlAllowed( final String baseUrl )

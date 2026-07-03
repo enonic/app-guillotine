@@ -8,7 +8,7 @@ public @interface GuillotineConfig
 
     int maxQueryTokens() default 15000;
 
-    String mediaBaseUrl() default "";
+    String defaultMediaBaseUrl() default "";
 
     String allowedBaseUrls() default "";
 }

@@ -59,7 +59,7 @@ public class GuillotineDataFetcher
         }
         else
         {
-            mediaBaseUrl = guillotineConfigServiceSupplier.get().getMediaBaseUrl();
+            mediaBaseUrl = guillotineConfigServiceSupplier.get().getDefaultMediaBaseUrl();
         }
         if ( mediaBaseUrl != null && !mediaBaseUrl.isBlank() )
         {
