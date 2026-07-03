@@ -91,6 +91,8 @@ Enonic XP can serve custom scaled images at runtime. Guillotine uses this functi
 
 By default, the `imageUrl`, `mediaUrl` and `attachmentUrl` fields generate `server` (relative) URLs. To generate URLs against a different domain or base URL (for example, a dedicated media host), set the `mediaBaseUrl` argument on the `guillotine` field or set the `mediaBaseUrl` <<configuration#, configuration>> option. The argument takes precedence over the configuration value and applies to all media URLs resolved within the query. A trailing slash is appended to the value if missing. An empty value is treated as unspecified.
 
+IMPORTANT: The `mediaBaseUrl` argument is disabled by default: any value passed by a client is rejected unless it is listed in the `allowedBaseUrls` <<configuration#, configuration>> option (or that option is set to `*`). The `mediaBaseUrl` configuration option is not affected by this restriction.
+
 [source,graphql]
 ----
 {
@@ -144,6 +146,8 @@ Rich text fields will typically include links, images and macros in the `process
 By default, all internal links to `media` or `content` will be replaced by a `server` (relative) link in the context of your endpoint.
 
 To generate content (page) links against a different domain or base URL, set the `pageBaseUrl` argument on the `guillotine` field. It is prepended to content links in `processedHtml` and to the value of the `pageUrl` field. A trailing slash is appended to the value if missing. An empty value is treated as unspecified. (Media URLs are controlled separately by `mediaBaseUrl`.)
+
+IMPORTANT: The `pageBaseUrl` argument is disabled by default: any value passed by a client is rejected unless it is listed in the `allowedBaseUrls` <<configuration#, configuration>> option (or that option is set to `*`).
 
 [source,graphql]
 ----

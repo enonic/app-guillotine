@@ -154,6 +154,14 @@ public class BaseGraphQLIntegrationTest
         return bean;
     }
 
+    protected void setAllowedBaseUrls( final String allowedBaseUrls )
+    {
+        guillotineConfigService.activate( mock( GuillotineConfig.class,
+                                                invocation -> "allowedBaseUrls".equals( invocation.getMethod().getName() )
+                                                    ? allowedBaseUrls
+                                                    : invocation.getMethod().getDefaultValue() ) );
+    }
+
     protected List<ContentType> getCustomContentTypes()
     {
         return new ArrayList<>();

@@ -70,6 +70,9 @@ public class RichTextGraphQLIntegrationTest
     @Test
     public void testRichTextFieldWithMediaBaseUrl()
     {
+        // allowlist entry without trailing slash must match the argument with one
+        setAllowedBaseUrls( "https://media.example.com" );
+
         when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
 
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
@@ -91,8 +94,42 @@ public class RichTextGraphQLIntegrationTest
     }
 
     @Test
+    public void testMediaBaseUrlArgumentRejectedByDefault()
+    {
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        String query = "query { guillotine(mediaBaseUrl: \"https://media.example.com/\") { get(key: \"contentid\") { _id " +
+            "...on myapplication_News { data { text { processedHtml } } } } } }";
+
+        Map<String, Object> response = executeQuery( graphQLSchema, query );
+
+        assertTrue( response.containsKey( "errors" ) );
+    }
+
+    @Test
+    public void testPageBaseUrlArgumentRejectedWhenNotInAllowlist()
+    {
+        setAllowedBaseUrls( "https://www.example.com" );
+
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        String query = "query { guillotine(pageBaseUrl: \"https://evil.example.com/\") { get(key: \"contentid\") { _id " +
+            "...on myapplication_News { data { text { processedHtml } } } } } }";
+
+        Map<String, Object> response = executeQuery( graphQLSchema, query );
+
+        assertTrue( response.containsKey( "errors" ) );
+    }
+
+    @Test
     public void testRichTextFieldWithPageBaseUrl()
     {
+        setAllowedBaseUrls( "*" );
+
         when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
 
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
@@ -145,6 +182,8 @@ public class RichTextGraphQLIntegrationTest
     @Test
     public void testRichTextFieldPrependsMediaBaseUrlWhenSet()
     {
+        setAllowedBaseUrls( "*" );
+
         when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
 
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );

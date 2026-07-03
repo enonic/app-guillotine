@@ -51,9 +51,16 @@ public class GuillotineDataFetcher
         localContext.putIfAbsent( Constants.BRANCH_ARG, branch );
 
         final String mediaBaseUrlArg = environment.getArgument( Constants.MEDIA_BASE_URL_ARG );
-        final String mediaBaseUrl = ( mediaBaseUrlArg != null && !mediaBaseUrlArg.isBlank() )
-            ? mediaBaseUrlArg
-            : guillotineConfigServiceSupplier.get().getMediaBaseUrl();
+        final String mediaBaseUrl;
+        if ( mediaBaseUrlArg != null && !mediaBaseUrlArg.isBlank() )
+        {
+            requireAllowedBaseUrl( Constants.MEDIA_BASE_URL_ARG, mediaBaseUrlArg );
+            mediaBaseUrl = mediaBaseUrlArg;
+        }
+        else
+        {
+            mediaBaseUrl = guillotineConfigServiceSupplier.get().getMediaBaseUrl();
+        }
         if ( mediaBaseUrl != null && !mediaBaseUrl.isBlank() )
         {
             localContext.putIfAbsent( Constants.MEDIA_BASE_URL, mediaBaseUrl );
@@ -62,6 +69,7 @@ public class GuillotineDataFetcher
         final String pageBaseUrl = environment.getArgument( Constants.PAGE_BASE_URL_ARG );
         if ( pageBaseUrl != null && !pageBaseUrl.isBlank() )
         {
+            requireAllowedBaseUrl( Constants.PAGE_BASE_URL_ARG, pageBaseUrl );
             localContext.putIfAbsent( Constants.PAGE_BASE_URL, pageBaseUrl );
         }
 
@@ -78,6 +86,16 @@ public class GuillotineDataFetcher
         }
 
         return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
+    }
+
+    private void requireAllowedBaseUrl( final String argumentName, final String value )
+    {
+        if ( !guillotineConfigServiceSupplier.get().isBaseUrlAllowed( value ) )
+        {
+            throw new IllegalArgumentException(
+                String.format( "Value \"%s\" of the \"%s\" argument is not allowed by the \"allowedBaseUrls\" configuration", value,
+                               argumentName ) );
+        }
     }
 
     private String resolveBaseUrl( final String projectName, final String branch, final String siteKey )
