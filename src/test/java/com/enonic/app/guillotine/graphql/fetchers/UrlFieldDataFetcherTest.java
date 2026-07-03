@@ -250,4 +250,28 @@ public class UrlFieldDataFetcherTest
         assertEquals( "https://pages.example.com/site/repo/branch/path",
                       new GetPageUrlDataFetcher( portalUrlService ).get( environment ) );
     }
+
+    @Test
+    public void testPageBaseUrlNotPrependedToAbsoluteUrl()
+        throws Exception
+    {
+        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        when( portalUrlService.pageUrl( Mockito.any( PageUrlParams.class ) ) ).thenReturn( "https://www.example.com/path" );
+
+        localContext.put( Constants.PAGE_BASE_URL, "https://pages.example.com/" );
+
+        assertEquals( "https://www.example.com/path", new GetPageUrlDataFetcher( portalUrlService ).get( environment ) );
+    }
+
+    @Test
+    public void testPageBaseUrlNotPrependedToSchemeRelativeUrl()
+        throws Exception
+    {
+        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        when( portalUrlService.pageUrl( Mockito.any( PageUrlParams.class ) ) ).thenReturn( "//www.example.com/path" );
+
+        localContext.put( Constants.PAGE_BASE_URL, "https://pages.example.com/" );
+
+        assertEquals( "//www.example.com/path", new GetPageUrlDataFetcher( portalUrlService ).get( environment ) );
+    }
 }

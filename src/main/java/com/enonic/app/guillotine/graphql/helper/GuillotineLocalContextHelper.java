@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,6 +24,8 @@ import com.enonic.xp.repository.RepositoryId;
 public class GuillotineLocalContextHelper
 {
     private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    private static final Pattern SCHEME_PATTERN = Pattern.compile( "^[a-zA-Z][a-zA-Z0-9+.-]*:" );
 
     private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<>()
     {
@@ -110,13 +113,18 @@ public class GuillotineLocalContextHelper
 
     public static String prependBaseUrl( final String baseUrl, final String url )
     {
-        if ( baseUrl == null || baseUrl.isBlank() || url == null )
+        if ( baseUrl == null || baseUrl.isBlank() || url == null || hasScheme( url ) )
         {
             return url;
         }
         final String normalizedBaseUrl = baseUrl.endsWith( "/" ) ? baseUrl.substring( 0, baseUrl.length() - 1 ) : baseUrl;
         final String normalizedUrl = url.startsWith( "/" ) ? url : "/" + url;
         return normalizedBaseUrl + normalizedUrl;
+    }
+
+    private static boolean hasScheme( final String url )
+    {
+        return url.startsWith( "//" ) || SCHEME_PATTERN.matcher( url ).find();
     }
 
     public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )
