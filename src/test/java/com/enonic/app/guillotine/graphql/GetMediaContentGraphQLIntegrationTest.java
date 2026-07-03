@@ -53,7 +53,7 @@ public class GetMediaContentGraphQLIntegrationTest
     {
         when( guillotineConfigService.getDefaultMediaBaseUrl() ).thenReturn( "https://config.example.com/" );
         when( serviceFacade.getPortalUrlGeneratorService().attachmentUrl( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            "https://config.example.com/_/media:attachment/myproject:draft/contentid:hash/name.jpg" );
+            "https://config.example.com/media:attachment/myproject:draft/contentid:hash/name.jpg" );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
@@ -68,7 +68,7 @@ public class GetMediaContentGraphQLIntegrationTest
         assertTrue( captor.getAllValues().stream().allMatch( params -> "https://config.example.com/".equals( params.getBaseUrl() ) ) );
 
         Map<String, Object> attachmentUrlField = CastHelper.cast( getFieldFromGuillotine( result, "attachmentUrl" ) );
-        assertEquals( "https://config.example.com/_/media:attachment/myproject:draft/contentid:hash/name.jpg",
+        assertEquals( "https://config.example.com/media:attachment/myproject:draft/contentid:hash/name.jpg",
                       attachmentUrlField.get( "mediaUrl" ) );
     }
 

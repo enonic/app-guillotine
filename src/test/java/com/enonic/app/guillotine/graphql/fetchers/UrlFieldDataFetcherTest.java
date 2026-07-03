@@ -140,9 +140,10 @@ public class UrlFieldDataFetcherTest
 
         new GetImageUrlDataFetcher( portalUrlService ).get( environment );
 
+        // the site base URL points at the site mount, so the "_" endpoint segment is appended
         ArgumentCaptor<ImageUrlGeneratorParams> captor = ArgumentCaptor.forClass( ImageUrlGeneratorParams.class );
         verify( portalUrlService ).imageUrl( captor.capture() );
-        assertEquals( "https://site.example.com/", captor.getValue().getBaseUrl() );
+        assertEquals( "https://site.example.com/_/", captor.getValue().getBaseUrl() );
     }
 
     @Test
@@ -171,7 +172,7 @@ public class UrlFieldDataFetcherTest
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.imageUrl( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn(
-            "https://media.example.com/whatever/_/media:image/myproject:draft/contentid:hash/scale/name.jpg" );
+            "https://media.example.com/whatever/media:image/myproject:draft/contentid:hash/scale/name.jpg" );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "_id", "contentid" );
@@ -181,7 +182,7 @@ public class UrlFieldDataFetcherTest
 
         localContext.put( Constants.MEDIA_BASE_URL, "https://media.example.com/whatever" );
 
-        assertEquals( "https://media.example.com/whatever/_/media:image/myproject:draft/contentid:hash/scale/name.jpg",
+        assertEquals( "https://media.example.com/whatever/media:image/myproject:draft/contentid:hash/scale/name.jpg",
                       new GetImageUrlDataFetcher( portalUrlService ).get( environment ) );
     }
 
@@ -211,7 +212,7 @@ public class UrlFieldDataFetcherTest
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            "https://media.example.com/whatever/_/media:attachment/myproject:draft/contentid:hash/name.jpg" );
+            "https://media.example.com/whatever/media:attachment/myproject:draft/contentid:hash/name.jpg" );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "_id", "contentid" );
@@ -225,7 +226,7 @@ public class UrlFieldDataFetcherTest
         ArgumentCaptor<AttachmentUrlGeneratorParams> captor = ArgumentCaptor.forClass( AttachmentUrlGeneratorParams.class );
         verify( portalUrlService ).attachmentUrl( captor.capture() );
         assertEquals( "https://media.example.com/whatever", captor.getValue().getBaseUrl() );
-        assertEquals( "https://media.example.com/whatever/_/media:attachment/myproject:draft/contentid:hash/name.jpg", result );
+        assertEquals( "https://media.example.com/whatever/media:attachment/myproject:draft/contentid:hash/name.jpg", result );
     }
 
     @Test
