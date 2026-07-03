@@ -108,7 +108,10 @@ public class GuillotineLocalContextHelper
 
     public static String stripEndpointPrefix( final String url )
     {
-        return url != null && url.startsWith( Constants.ENDPOINT_PREFIX ) ? url.substring( 2 ) : url;
+        // keep the trailing "/" of the prefix so the result stays root-relative
+        return url != null && url.startsWith( Constants.ENDPOINT_PREFIX )
+            ? url.substring( Constants.ENDPOINT_PREFIX.length() - 1 )
+            : url;
     }
 
     public static String prependBaseUrl( final String baseUrl, final String url )
