@@ -154,6 +154,7 @@ public class GuillotineApiGraphQLIntegrationTest
     @Test
     public void testGetSiteField()
     {
+        when( contentService.contentExists( ContentPath.from( "/siteKey" ) ) ).thenReturn( true );
         when( contentService.findNearestSiteByPath( any( ContentPath.class ) ) ).thenReturn(
             Site.create().name( "site" ).type( ContentTypeName.site() ).parentPath( ContentPath.ROOT ).data(
                 new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteid" ) ).build() );
@@ -181,6 +182,42 @@ public class GuillotineApiGraphQLIntegrationTest
         assertNotNull( getForGetSiteByKey );
         assertEquals( "siteid", getForGetSiteByKey.get( "_id" ) );
         assertEquals( "Site", getForGetSiteByKey.get( "displayName" ) );
+    }
+
+    @Test
+    public void testBlankSiteKeyBehavesAsNotSet()
+    {
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response =
+            executeQuery( graphQLSchema, "query { guillotine(siteKey: \"\") { getSite { _id } } }" );
+
+        assertFalse( response.containsKey( "errors" ) );
+        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.never() ).baseUrl( any() );
+    }
+
+    @Test
+    public void testUnknownSiteKeyIsRejected()
+    {
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response =
+            executeQuery( graphQLSchema, "query { guillotine(siteKey: \"unknown\") { getSite { _id } } }" );
+
+        assertTrue( response.containsKey( "errors" ) );
+        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.never() ).baseUrl( any() );
+    }
+
+    @Test
+    public void testProjectRootSiteKeyIsAllowed()
+    {
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response =
+            executeQuery( graphQLSchema, "query { guillotine(siteKey: \"/\") { getSite { _id } } }" );
+
+        assertFalse( response.containsKey( "errors" ) );
+        Mockito.verify( serviceFacade.getPortalUrlService() ).baseUrl( any() );
     }
 
     @Override
@@ -220,6 +257,9 @@ public class GuillotineApiGraphQLIntegrationTest
     @Test
     public void testExecuteQueryInLocalContext()
     {
+        when( contentService.contentExists( ContentId.from( "siteid" ) ) ).thenReturn( true );
+        when( contentService.contentExists( ContentPath.from( "/sitePath" ) ) ).thenReturn( true );
+
         Content contentInMasterBranch =
             Content.create().id( ContentId.from( "contentid" ) ).path( ContentPath.from( "/contentPath" ) ).name( "name" ).displayName(
                 "Name" ).parentPath( ContentPath.ROOT ).type( ContentTypeName.unstructured() ).data( new PropertyTree() ).build();

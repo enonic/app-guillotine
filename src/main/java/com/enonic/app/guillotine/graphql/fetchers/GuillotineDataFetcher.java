@@ -12,7 +12,11 @@ import graphql.schema.DataFetchingEnvironment;
 import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.Constants;
+import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.portal.url.BaseUrlParams;
 import com.enonic.xp.portal.url.UrlTypeConstants;
 import com.enonic.xp.project.ProjectName;
@@ -76,8 +80,10 @@ public class GuillotineDataFetcher
         }
 
         final String siteKey = environment.getArgument( Constants.SITE_ARG );
-        if ( siteKey != null )
+        if ( siteKey != null && !siteKey.isBlank() )
         {
+            requireSiteExists( projectName, branch, siteKey );
+
             localContext.putIfAbsent( Constants.SITE_ARG, siteKey );
 
             final String baseUrl = resolveBaseUrl( projectName, branch, siteKey );
@@ -98,6 +104,39 @@ public class GuillotineDataFetcher
             throw new IllegalArgumentException(
                 String.format( "Value \"%s\" of the \"%s\" argument is not allowed by the \"%s\" configuration", value, argumentName,
                                configName ) );
+        }
+    }
+
+    private void requireSiteExists( final String projectName, final String branch, final String siteKey )
+    {
+        if ( "/".equals( siteKey ) )
+        {
+            // project root: always resolvable
+            return;
+        }
+
+        final boolean exists = ContextBuilder.copyOf( ContextAccessor.current() )
+            .repositoryId( ProjectName.from( projectName ).getRepoId() )
+            .branch( branch )
+            .build()
+            .callWith( () -> {
+                final ContentService contentService = serviceFacadeSupplier.get().getContentService();
+                try
+                {
+                    return siteKey.startsWith( "/" )
+                        ? contentService.contentExists( ContentPath.from( siteKey ) )
+                        : contentService.contentExists( ContentId.from( siteKey ) );
+                }
+                catch ( IllegalArgumentException e )
+                {
+                    return false;
+                }
+            } );
+
+        if ( !exists )
+        {
+            throw new IllegalArgumentException(
+                String.format( "Content for the \"%s\" argument not found: \"%s\"", Constants.SITE_ARG, siteKey ) );
         }
     }
 
