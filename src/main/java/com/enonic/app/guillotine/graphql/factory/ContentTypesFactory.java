@@ -324,7 +324,8 @@ public class ContentTypesFactory
 
         context.registerDataFetcher( contentType, "site", new GetContentSiteDataFetcher( serviceFacade.getContentService() ) );
 
-        context.registerDataFetcher( contentType, "pageUrl", new GetPageUrlDataFetcher( serviceFacade.getPortalUrlService() ) );
+        context.registerDataFetcher( contentType, "pageUrl", new GetPageUrlDataFetcher( serviceFacade.getPortalUrlGeneratorService(),
+                                                                                    serviceFacade.getContentService() ) );
 
         context.registerDataFetcher( contentType, "children", new GetContentChildrenDataFetcher( serviceFacade.getContentService() ) );
 

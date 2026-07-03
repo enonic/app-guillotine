@@ -15,9 +15,9 @@ import com.enonic.app.guillotine.graphql.ContentFixtures;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
 import com.enonic.xp.portal.url.ImageUrlGeneratorParams;
-import com.enonic.xp.portal.url.PageUrlParams;
+import com.enonic.xp.content.ContentService;
+import com.enonic.xp.portal.url.PageUrlGeneratorParams;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
-import com.enonic.xp.portal.url.PortalUrlService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -232,23 +232,35 @@ public class UrlFieldDataFetcherTest
     public void testPageUrlWithoutPageBaseUrl()
         throws Exception
     {
-        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        when( portalUrlService.pageUrl( Mockito.any( PageUrlParams.class ) ) ).thenReturn( "/site/repo/branch/path" );
+        PortalUrlGeneratorService portalUrlGeneratorService = Mockito.mock( PortalUrlGeneratorService.class );
+        when( portalUrlGeneratorService.pageUrl( Mockito.any( PageUrlGeneratorParams.class ) ) ).thenReturn(
+            "/site/myproject/draft/mysite/path" );
 
-        assertEquals( "/site/repo/branch/path", new GetPageUrlDataFetcher( portalUrlService ).get( environment ) );
+        assertEquals( "/site/myproject/draft/mysite/path",
+                      new GetPageUrlDataFetcher( portalUrlGeneratorService, Mockito.mock( ContentService.class ) ).get( environment ) );
+
+        ArgumentCaptor<PageUrlGeneratorParams> captor = ArgumentCaptor.forClass( PageUrlGeneratorParams.class );
+        verify( portalUrlGeneratorService ).pageUrl( captor.capture() );
+        assertNull( captor.getValue().getBaseUrl() );
     }
 
     @Test
     public void testPageUrlWithPageBaseUrl()
         throws Exception
     {
-        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        when( portalUrlService.pageUrl( Mockito.any( PageUrlParams.class ) ) ).thenReturn( "/site/repo/branch/path" );
+        PortalUrlGeneratorService portalUrlGeneratorService = Mockito.mock( PortalUrlGeneratorService.class );
+        when( portalUrlGeneratorService.pageUrl( Mockito.any( PageUrlGeneratorParams.class ) ) ).thenReturn(
+            "https://pages.example.com/path" );
 
         localContext.put( Constants.PAGE_BASE_URL, "https://pages.example.com/" );
 
-        assertEquals( "https://pages.example.com/site/repo/branch/path",
-                      new GetPageUrlDataFetcher( portalUrlService ).get( environment ) );
+        assertEquals( "https://pages.example.com/path",
+                      new GetPageUrlDataFetcher( portalUrlGeneratorService, Mockito.mock( ContentService.class ) ).get( environment ) );
+
+        // pageBaseUrl is passed straight to the URL generator instead of being prepended afterwards
+        ArgumentCaptor<PageUrlGeneratorParams> captor = ArgumentCaptor.forClass( PageUrlGeneratorParams.class );
+        verify( portalUrlGeneratorService ).pageUrl( captor.capture() );
+        assertEquals( "https://pages.example.com/", captor.getValue().getBaseUrl() );
     }
 
     @Test
@@ -270,27 +282,4 @@ public class UrlFieldDataFetcherTest
         assertEquals( "/_/error/404?message=Not+Found.", new GetImageUrlDataFetcher( portalUrlService ).get( environment ) );
     }
 
-    @Test
-    public void testPageBaseUrlNotPrependedToAbsoluteUrl()
-        throws Exception
-    {
-        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        when( portalUrlService.pageUrl( Mockito.any( PageUrlParams.class ) ) ).thenReturn( "https://www.example.com/path" );
-
-        localContext.put( Constants.PAGE_BASE_URL, "https://pages.example.com/" );
-
-        assertEquals( "https://www.example.com/path", new GetPageUrlDataFetcher( portalUrlService ).get( environment ) );
-    }
-
-    @Test
-    public void testPageBaseUrlNotPrependedToSchemeRelativeUrl()
-        throws Exception
-    {
-        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        when( portalUrlService.pageUrl( Mockito.any( PageUrlParams.class ) ) ).thenReturn( "//www.example.com/path" );
-
-        localContext.put( Constants.PAGE_BASE_URL, "https://pages.example.com/" );
-
-        assertEquals( "//www.example.com/path", new GetPageUrlDataFetcher( portalUrlService ).get( environment ) );
-    }
 }

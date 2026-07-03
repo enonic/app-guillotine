@@ -145,7 +145,7 @@ Rich text fields will typically include links, images and macros in the `process
 
 By default, all internal links to `media` or `content` will be replaced by a server (root-relative) link in the context of your endpoint.
 
-To generate content (page) links against a different domain or base URL, set the `pageBaseUrl` argument on the `guillotine` field. It is prepended to content links in `processedHtml` and to the value of the `pageUrl` field. A trailing slash is appended to the value if missing. An empty value is treated as unspecified. (Media URLs are controlled separately by `mediaBaseUrl`.)
+To generate content (page) links against a different domain or base URL, set the `pageBaseUrl` argument on the `guillotine` field. Content links in `processedHtml` and the value of the `pageUrl` field are then generated against this base URL, followed by the path of the content relative to its nearest site (for example, `https://www.example.com/posts/first-post`). A trailing slash is appended to the value if missing. An empty value is treated as unspecified. (Media URLs are controlled separately by `mediaBaseUrl`.)
 
 IMPORTANT: The `pageBaseUrl` argument is disabled by default: any value passed by a client is rejected unless it is listed in the `allowedBaseUrls` <<configuration#, configuration>> option (or that option is set to `*`).
 

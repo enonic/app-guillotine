@@ -143,40 +143,10 @@ public class RichTextGraphQLIntegrationTest
 
         assertFalse( response.containsKey( "errors" ) );
 
+        // pageBaseUrl is delegated to XP: content:// links are generated against it by processHtml itself
         ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
         verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
-
-        // pageBaseUrl provided -> a customHtmlProcessor must be set to rewrite content links
-        assertNotNull( captor.getValue().getCustomHtmlProcessor() );
-
-        // Verify the custom processor prepends pageBaseUrl to content:// links after default processing.
-        // The default processing (simulated below) rewrites content:// links to server-relative page URLs.
-        final java.util.concurrent.atomic.AtomicBoolean defaultProcessed = new java.util.concurrent.atomic.AtomicBoolean( false );
-
-        HtmlElement contentLink = mock( HtmlElement.class );
-        when( contentLink.getAttribute( "href" ) ).thenAnswer(
-            invocation -> defaultProcessed.get() ? "/site/repo/branch/path" : "content://abc" );
-
-        HtmlElement mediaLink = mock( HtmlElement.class );
-        when( mediaLink.getAttribute( "href" ) ).thenReturn( "media://inline/xyz" );
-
-        HtmlDocument document = mock( HtmlDocument.class );
-        when( document.select( "[href]" ) ).thenReturn( List.of( contentLink, mediaLink ) );
-        when( document.select( "figcaption:empty" ) ).thenReturn( List.of() );
-        when( document.getInnerHtml() ).thenReturn( "result" );
-
-        HtmlProcessorParams processorParams = HtmlProcessorParams.create()
-            .htmlDocument( document )
-            .defaultProcessor( postProcessor -> defaultProcessed.set( true ) )
-            .defaultElementProcessor( ( element, postProcessor ) -> {
-            } )
-            .build();
-
-        captor.getValue().getCustomHtmlProcessor().apply( processorParams );
-
-        verify( contentLink ).setAttribute( "href", "https://pages.example.com/site/repo/branch/path" );
-        verify( mediaLink, org.mockito.Mockito.never() ).setAttribute( org.mockito.ArgumentMatchers.eq( "href" ),
-                                                                       org.mockito.ArgumentMatchers.anyString() );
+        assertEquals( "https://pages.example.com/", captor.getValue().getPageBaseUrl() );
     }
 
     @Test

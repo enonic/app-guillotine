@@ -6,18 +6,23 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
+import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.content.Content;
-import com.enonic.xp.portal.url.PageUrlParams;
-import com.enonic.xp.portal.url.PortalUrlService;
+import com.enonic.xp.content.ContentService;
+import com.enonic.xp.portal.url.PageUrlGeneratorParams;
+import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 
 public class GetPageUrlDataFetcher
     implements DataFetcher<String>
 {
-    private final PortalUrlService portalUrlService;
+    private final PortalUrlGeneratorService portalUrlGeneratorService;
 
-    public GetPageUrlDataFetcher( final PortalUrlService portalUrlService )
+    private final ContentService contentService;
+
+    public GetPageUrlDataFetcher( final PortalUrlGeneratorService portalUrlGeneratorService, final ContentService contentService )
     {
-        this.portalUrlService = portalUrlService;
+        this.portalUrlGeneratorService = portalUrlGeneratorService;
+        this.contentService = contentService;
     }
 
     @Override
@@ -27,6 +32,7 @@ public class GetPageUrlDataFetcher
         return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
     }
 
+    @SuppressWarnings("unchecked")
     private String doGet( final DataFetchingEnvironment environment )
     {
         final Content content = GuillotineLocalContextHelper.resolveContent( environment );
@@ -36,16 +42,18 @@ public class GetPageUrlDataFetcher
             return null;
         }
 
-        final PageUrlParams params = new PageUrlParams().id( content.getId().toString() )
-            .projectName( GuillotineLocalContextHelper.getProjectName( environment ).toString() )
-            .branch( GuillotineLocalContextHelper.getBranch( environment ).getValue() );
+        final PageUrlGeneratorParams.Builder builder = PageUrlGeneratorParams.create()
+            .setBaseUrl( GuillotineLocalContextHelper.getPageBaseUrl( environment ) )
+            .setProjectName( () -> GuillotineLocalContextHelper.getProjectName( environment ) )
+            .setBranch( () -> GuillotineLocalContextHelper.getBranch( environment ) )
+            .setContent( () -> content )
+            .setNearestSite( () -> contentService.getNearestSite( content.getId() ) );
 
-        if ( environment.getArgument( "params" ) instanceof Map<?, ?> queryParams )
+        if ( environment.getArgument( "params" ) instanceof Map queryParams )
         {
-            queryParams.forEach( ( key, value ) -> params.param( key.toString(), value ) );
+            builder.setQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
         }
 
-        return GuillotineLocalContextHelper.prependBaseUrl( GuillotineLocalContextHelper.getPageBaseUrl( environment ),
-                                                            portalUrlService.pageUrl( params ) );
+        return portalUrlGeneratorService.pageUrl( builder.build() );
     }
 }

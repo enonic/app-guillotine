@@ -65,8 +65,6 @@ public class RichTextDataFetcher
 
         Map<String, MacroDescriptor> registeredMacros = guillotineContext.getMacroDecorators();
 
-        final String pageBaseUrl = GuillotineLocalContextHelper.getPageBaseUrl( environment );
-
         final String mediaBaseUrl = GuillotineLocalContextHelper.getMediaBaseUrl( environment );
 
         htmlParams.processMacros( false );
@@ -74,21 +72,7 @@ public class RichTextDataFetcher
         htmlParams.customHtmlProcessor( processor -> {
             HtmlDocument htmlDocument = processor.getDocument();
 
-            final List<HtmlElement> contentLinks = pageBaseUrl == null || pageBaseUrl.isBlank()
-                ? List.of()
-                : htmlDocument.select( "[href]" )
-                    .stream()
-                    .filter( element -> {
-                        final String href = element.getAttribute( "href" );
-                        return href != null && href.startsWith( "content://" );
-                    } )
-                    .collect( Collectors.toList() );
-
             processor.processDefault( new CustomHtmlPostProcessor( links, images ) );
-
-            contentLinks.forEach( element -> element.setAttribute( "href", GuillotineLocalContextHelper.prependBaseUrl( pageBaseUrl,
-                                                                                                                       element.getAttribute(
-                                                                                                                           "href" ) ) ) );
 
             if ( mediaBaseUrl != null )
             {
@@ -170,8 +154,9 @@ public class RichTextDataFetcher
     {
         Map<String, Object> processHtmlParams = environment.getArgument( "processHtml" );
 
-        final ProcessHtmlParams htmlParams =
-            new ProcessHtmlParams().value( htmlText ).baseUrl( GuillotineLocalContextHelper.resolveMediaBaseUrl( environment ) );
+        final ProcessHtmlParams htmlParams = new ProcessHtmlParams().value( htmlText )
+            .baseUrl( GuillotineLocalContextHelper.resolveMediaBaseUrl( environment ) )
+            .pageBaseUrl( GuillotineLocalContextHelper.getPageBaseUrl( environment ) );
 
         if ( processHtmlParams != null )
         {
