@@ -17,7 +17,9 @@ import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
 import com.enonic.xp.portal.url.ImageUrlGeneratorParams;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.portal.url.PageUrlGeneratorParams;
+import com.enonic.xp.portal.url.PageUrlParams;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
+import com.enonic.xp.portal.url.PortalUrlService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -234,16 +236,21 @@ public class UrlFieldDataFetcherTest
     public void testPageUrlWithoutPageBaseUrl()
         throws Exception
     {
+        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
         PortalUrlGeneratorService portalUrlGeneratorService = Mockito.mock( PortalUrlGeneratorService.class );
-        when( portalUrlGeneratorService.pageUrl( Mockito.any( PageUrlGeneratorParams.class ) ) ).thenReturn(
-            "/site/myproject/draft/mysite/path" );
+        when( portalUrlService.pageUrl( Mockito.any( PageUrlParams.class ) ) ).thenReturn( "/site/myproject/draft/mysite/path" );
 
         assertEquals( "/site/myproject/draft/mysite/path",
-                      new GetPageUrlDataFetcher( portalUrlGeneratorService, Mockito.mock( ContentService.class ) ).get( environment ) );
+                      new GetPageUrlDataFetcher( portalUrlService, portalUrlGeneratorService, Mockito.mock( ContentService.class ) ).get(
+                          environment ) );
 
-        ArgumentCaptor<PageUrlGeneratorParams> captor = ArgumentCaptor.forClass( PageUrlGeneratorParams.class );
-        verify( portalUrlGeneratorService ).pageUrl( captor.capture() );
-        assertNull( captor.getValue().getBaseUrl() );
+        // without pageBaseUrl the field uses the same request-aware call as content links in processHtml:
+        // no project/branch on the params, so preferSiteRequest can take effect
+        ArgumentCaptor<PageUrlParams> captor = ArgumentCaptor.forClass( PageUrlParams.class );
+        verify( portalUrlService ).pageUrl( captor.capture() );
+        assertNull( captor.getValue().getProjectName() );
+        assertNull( captor.getValue().getBranch() );
+        verify( portalUrlGeneratorService, Mockito.never() ).pageUrl( Mockito.any( PageUrlGeneratorParams.class ) );
     }
 
     @Test
@@ -257,7 +264,8 @@ public class UrlFieldDataFetcherTest
         localContext.put( Constants.PAGE_BASE_URL, "https://pages.example.com/" );
 
         assertEquals( "https://pages.example.com/path",
-                      new GetPageUrlDataFetcher( portalUrlGeneratorService, Mockito.mock( ContentService.class ) ).get( environment ) );
+                      new GetPageUrlDataFetcher( Mockito.mock( PortalUrlService.class ), portalUrlGeneratorService,
+                                                 Mockito.mock( ContentService.class ) ).get( environment ) );
 
         // pageBaseUrl is passed straight to the URL generator instead of being prepended afterwards
         ArgumentCaptor<PageUrlGeneratorParams> captor = ArgumentCaptor.forClass( PageUrlGeneratorParams.class );
