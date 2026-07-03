@@ -180,10 +180,14 @@ public class RichTextGraphQLIntegrationTest
         HtmlElement externalLink = mock( HtmlElement.class );
         when( externalLink.getAttribute( "href" ) ).thenReturn( "https://othersite.com/_/service/whatever" );
 
+        // non-media XP endpoint URL under /_/ must not be moved to the media host
+        HtmlElement serviceLink = mock( HtmlElement.class );
+        when( serviceLink.getAttribute( "href" ) ).thenReturn( "/_/service/myapp/myservice" );
+
         HtmlDocument document = mock( HtmlDocument.class );
         when( document.select( "[src]" ) ).thenReturn( List.of( image ) );
         when( document.select( "[srcset]" ) ).thenReturn( List.of( responsiveImage ) );
-        when( document.select( "[href]" ) ).thenReturn( List.of( mediaLink, externalLink ) );
+        when( document.select( "[href]" ) ).thenReturn( List.of( mediaLink, externalLink, serviceLink ) );
         when( document.select( "figcaption:empty" ) ).thenReturn( List.of() );
         when( document.getInnerHtml() ).thenReturn( "result" );
 
@@ -206,6 +210,8 @@ public class RichTextGraphQLIntegrationTest
                                           "https://media.example.com/whatever/media:attachment/myproject:draft/contentid:hash/doc.pdf" );
         verify( externalLink, org.mockito.Mockito.never() ).setAttribute( org.mockito.ArgumentMatchers.eq( "href" ),
                                                                           org.mockito.ArgumentMatchers.anyString() );
+        verify( serviceLink, org.mockito.Mockito.never() ).setAttribute( org.mockito.ArgumentMatchers.eq( "href" ),
+                                                                         org.mockito.ArgumentMatchers.anyString() );
     }
 
     @Test

@@ -26,6 +26,8 @@ public interface Constants
 
     String ENDPOINT_PREFIX = "/_/";
 
+    String MEDIA_ENDPOINT_PREFIX = ENDPOINT_PREFIX + "media:";
+
     List<String> SUPPORTED_AGGREGATIONS =
         List.of( "terms", "stats", "range", "dateRange", "dateHistogram", "geoDistance", "min", "max", "count" );
 

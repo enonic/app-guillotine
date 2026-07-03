@@ -252,6 +252,25 @@ public class UrlFieldDataFetcherTest
     }
 
     @Test
+    public void testMediaBaseUrlNotAppliedToErrorUrl()
+        throws Exception
+    {
+        PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
+        when( portalUrlService.imageUrl( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn(
+            "/_/error/404?message=Not+Found." );
+
+        Map<String, Object> source = new HashMap<>();
+        source.put( "_id", "contentid" );
+
+        when( environment.getSource() ).thenReturn( source );
+        when( environment.getArgument( "scale" ) ).thenReturn( "scale" );
+
+        localContext.put( Constants.MEDIA_BASE_URL, "https://media.example.com/whatever" );
+
+        assertEquals( "/_/error/404?message=Not+Found.", new GetImageUrlDataFetcher( portalUrlService ).get( environment ) );
+    }
+
+    @Test
     public void testPageBaseUrlNotPrependedToAbsoluteUrl()
         throws Exception
     {

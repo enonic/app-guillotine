@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
-import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.macro.CustomHtmlPostProcessor;
@@ -78,7 +78,10 @@ public class RichTextDataFetcher
                 ? List.of()
                 : htmlDocument.select( "[href]" )
                     .stream()
-                    .filter( element -> element.getAttribute( "href" ).startsWith( "content://" ) )
+                    .filter( element -> {
+                        final String href = element.getAttribute( "href" );
+                        return href != null && href.startsWith( "content://" );
+                    } )
                     .collect( Collectors.toList() );
 
             processor.processDefault( new CustomHtmlPostProcessor( links, images ) );
@@ -130,12 +133,10 @@ public class RichTextDataFetcher
     {
         htmlDocument.select( "[" + attributeName + "]" ).forEach( element -> {
             final String value = element.getAttribute( attributeName );
-            if ( value.startsWith( Constants.ENDPOINT_PREFIX ) )
+            final String rewritten = GuillotineLocalContextHelper.prependMediaBaseUrl( mediaBaseUrl, value );
+            if ( !Objects.equals( value, rewritten ) )
             {
-                element.setAttribute( attributeName,
-                                      GuillotineLocalContextHelper.prependBaseUrl( mediaBaseUrl,
-                                                                                   GuillotineLocalContextHelper.stripEndpointPrefix(
-                                                                                       value ) ) );
+                element.setAttribute( attributeName, rewritten );
             }
         } );
     }
@@ -144,17 +145,24 @@ public class RichTextDataFetcher
     {
         htmlDocument.select( "[srcset]" ).forEach( element -> {
             final String srcset = element.getAttribute( "srcset" );
+            if ( srcset == null || srcset.isBlank() )
+            {
+                return;
+            }
             final String processed = Arrays.stream( srcset.split( "," ) ).map( entry -> {
                 final String candidate = entry.stripLeading();
-                if ( !candidate.startsWith( Constants.ENDPOINT_PREFIX ) )
+                final String rewritten = GuillotineLocalContextHelper.prependMediaBaseUrl( mediaBaseUrl, candidate );
+                if ( Objects.equals( candidate, rewritten ) )
                 {
                     return entry;
                 }
                 final String leadingWhitespace = entry.substring( 0, entry.length() - candidate.length() );
-                return leadingWhitespace +
-                    GuillotineLocalContextHelper.prependBaseUrl( mediaBaseUrl, GuillotineLocalContextHelper.stripEndpointPrefix( candidate ) );
+                return leadingWhitespace + rewritten;
             } ).collect( Collectors.joining( "," ) );
-            element.setAttribute( "srcset", processed );
+            if ( !srcset.equals( processed ) )
+            {
+                element.setAttribute( "srcset", processed );
+            }
         } );
     }
 

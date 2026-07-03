@@ -103,15 +103,17 @@ public class GuillotineLocalContextHelper
     public static String applyMediaBaseUrl( final DataFetchingEnvironment environment, final String url )
     {
         final String mediaBaseUrl = getMediaBaseUrl( environment );
-        return mediaBaseUrl == null ? url : prependBaseUrl( mediaBaseUrl, stripEndpointPrefix( url ) );
+        return mediaBaseUrl == null ? url : prependMediaBaseUrl( mediaBaseUrl, url );
     }
 
-    public static String stripEndpointPrefix( final String url )
+    public static String prependMediaBaseUrl( final String mediaBaseUrl, final String url )
     {
-        // keep the trailing "/" of the prefix so the result stays root-relative
-        return url != null && url.startsWith( Constants.ENDPOINT_PREFIX )
-            ? url.substring( Constants.ENDPOINT_PREFIX.length() - 1 )
-            : url;
+        if ( url == null || !url.startsWith( Constants.MEDIA_ENDPOINT_PREFIX ) )
+        {
+            return url;
+        }
+        // drop the "_" endpoint segment but keep the trailing "/" so the path stays root-relative
+        return prependBaseUrl( mediaBaseUrl, url.substring( Constants.ENDPOINT_PREFIX.length() - 1 ) );
     }
 
     public static String prependBaseUrl( final String baseUrl, final String url )
