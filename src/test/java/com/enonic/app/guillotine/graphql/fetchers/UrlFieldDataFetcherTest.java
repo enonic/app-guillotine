@@ -120,7 +120,8 @@ public class UrlFieldDataFetcherTest
         // mediaBaseUrl is passed straight to the URL generator
         ArgumentCaptor<ImageUrlGeneratorParams> captor = ArgumentCaptor.forClass( ImageUrlGeneratorParams.class );
         verify( portalUrlService ).imageUrl( captor.capture() );
-        assertEquals( "https://config.example.com/", captor.getValue().getBaseUrl() );
+        assertEquals( "https://config.example.com/", captor.getValue().getMediaBaseUrl() );
+        assertNull( captor.getValue().getBaseUrl() );
     }
 
     @Test
@@ -140,10 +141,10 @@ public class UrlFieldDataFetcherTest
 
         new GetImageUrlDataFetcher( portalUrlService ).get( environment );
 
-        // the site base URL points at the site mount, so the "_" endpoint segment is appended
         ArgumentCaptor<ImageUrlGeneratorParams> captor = ArgumentCaptor.forClass( ImageUrlGeneratorParams.class );
         verify( portalUrlService ).imageUrl( captor.capture() );
-        assertEquals( "https://site.example.com/_/", captor.getValue().getBaseUrl() );
+        assertEquals( "https://site.example.com/", captor.getValue().getBaseUrl() );
+        assertNull( captor.getValue().getMediaBaseUrl() );
     }
 
     @Test
@@ -225,7 +226,7 @@ public class UrlFieldDataFetcherTest
 
         ArgumentCaptor<AttachmentUrlGeneratorParams> captor = ArgumentCaptor.forClass( AttachmentUrlGeneratorParams.class );
         verify( portalUrlService ).attachmentUrl( captor.capture() );
-        assertEquals( "https://media.example.com/whatever", captor.getValue().getBaseUrl() );
+        assertEquals( "https://media.example.com/whatever", captor.getValue().getMediaBaseUrl() );
         assertEquals( "https://media.example.com/whatever/media:attachment/myproject:draft/contentid:hash/name.jpg", result );
     }
 

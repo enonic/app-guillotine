@@ -65,7 +65,7 @@ public class GetMediaContentGraphQLIntegrationTest
         // the media base URL is passed straight to the URL generator
         ArgumentCaptor<AttachmentUrlGeneratorParams> captor = ArgumentCaptor.forClass( AttachmentUrlGeneratorParams.class );
         verify( serviceFacade.getPortalUrlGeneratorService(), atLeastOnce() ).attachmentUrl( captor.capture() );
-        assertTrue( captor.getAllValues().stream().allMatch( params -> "https://config.example.com/".equals( params.getBaseUrl() ) ) );
+        assertTrue( captor.getAllValues().stream().allMatch( params -> "https://config.example.com/".equals( params.getMediaBaseUrl() ) ) );
 
         Map<String, Object> attachmentUrlField = CastHelper.cast( getFieldFromGuillotine( result, "attachmentUrl" ) );
         assertEquals( "https://config.example.com/media:attachment/myproject:draft/contentid:hash/name.jpg",

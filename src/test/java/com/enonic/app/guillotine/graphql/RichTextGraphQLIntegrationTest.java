@@ -89,7 +89,8 @@ public class RichTextGraphQLIntegrationTest
         // mediaBaseUrl is delegated to XP: media URLs are generated against it by processHtml itself
         ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
         verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
-        assertEquals( "https://media.example.com/", captor.getValue().getBaseUrl() );
+        assertEquals( "https://media.example.com/", captor.getValue().getMediaBaseUrl() );
+        assertNull( captor.getValue().getBaseUrl() );
     }
 
     @Test
