@@ -60,6 +60,6 @@ public class GetAttachmentUrlByNameDataFetcher
             builder.setQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
         }
 
-        return GuillotineLocalContextHelper.applyMediaBaseUrl( environment, portalUrlGeneratorService.attachmentUrl( builder.build() ) );
+        return portalUrlGeneratorService.attachmentUrl( builder.build() );
     }
 }

@@ -86,11 +86,10 @@ public class RichTextGraphQLIntegrationTest
 
         assertFalse( response.containsKey( "errors" ) );
 
-        // with mediaBaseUrl set, XP is asked for root-relative "/_/..." URLs ("/" baseUrl);
-        // mediaBaseUrl itself is prepended by the custom HTML processor afterwards
+        // mediaBaseUrl is delegated to XP: media URLs are generated against it by processHtml itself
         ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
         verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
-        assertEquals( "/", captor.getValue().getBaseUrl() );
+        assertEquals( "https://media.example.com/", captor.getValue().getBaseUrl() );
     }
 
     @Test
@@ -147,80 +146,6 @@ public class RichTextGraphQLIntegrationTest
         ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
         verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
         assertEquals( "https://pages.example.com/", captor.getValue().getPageBaseUrl() );
-    }
-
-    @Test
-    public void testRichTextFieldPrependsMediaBaseUrlWhenSet()
-    {
-        setAllowedBaseUrls( "*" );
-
-        when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
-
-        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
-
-        GraphQLSchema graphQLSchema = getBean().createSchema();
-
-        String query = "query { guillotine(mediaBaseUrl: \"https://media.example.com/whatever\") { get(key: \"contentid\") { _id " +
-            "...on myapplication_News { data { text { processedHtml } } } } } }";
-
-        Map<String, Object> response = executeQuery( graphQLSchema, query );
-
-        assertFalse( response.containsKey( "errors" ) );
-
-        ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
-        verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
-
-        // mediaBaseUrl provided -> XP generates root-relative "/_/..." media URLs and a customHtmlProcessor
-        // must be set to prepend mediaBaseUrl to them (dropping the "_" endpoint segment)
-        assertNotNull( captor.getValue().getCustomHtmlProcessor() );
-
-        HtmlElement image = mock( HtmlElement.class );
-        when( image.getAttribute( "src" ) ).thenReturn( "/_/media:image/myproject:draft/contentid:hash/scale/name.jpg" );
-
-        HtmlElement responsiveImage = mock( HtmlElement.class );
-        when( responsiveImage.getAttribute( "srcset" ) ).thenReturn(
-            "/_/media:image/myproject:draft/contentid:hash/600/name.jpg 600w, " +
-                "/_/media:image/myproject:draft/contentid:hash/900/name.jpg 900w" );
-
-        HtmlElement mediaLink = mock( HtmlElement.class );
-        when( mediaLink.getAttribute( "href" ) ).thenReturn( "/_/media:attachment/myproject:draft/contentid:hash/doc.pdf" );
-
-        // hand-written external link containing "/_/" must not be touched
-        HtmlElement externalLink = mock( HtmlElement.class );
-        when( externalLink.getAttribute( "href" ) ).thenReturn( "https://othersite.com/_/service/whatever" );
-
-        // non-media XP endpoint URL under /_/ must not be moved to the media host
-        HtmlElement serviceLink = mock( HtmlElement.class );
-        when( serviceLink.getAttribute( "href" ) ).thenReturn( "/_/service/myapp/myservice" );
-
-        HtmlDocument document = mock( HtmlDocument.class );
-        when( document.select( "[src]" ) ).thenReturn( List.of( image ) );
-        when( document.select( "[srcset]" ) ).thenReturn( List.of( responsiveImage ) );
-        when( document.select( "[href]" ) ).thenReturn( List.of( mediaLink, externalLink, serviceLink ) );
-        when( document.select( "figcaption:empty" ) ).thenReturn( List.of() );
-        when( document.getInnerHtml() ).thenReturn( "result" );
-
-        HtmlProcessorParams processorParams = HtmlProcessorParams.create()
-            .htmlDocument( document )
-            .defaultProcessor( postProcessor -> {
-            } )
-            .defaultElementProcessor( ( element, postProcessor ) -> {
-            } )
-            .build();
-
-        captor.getValue().getCustomHtmlProcessor().apply( processorParams );
-
-        verify( image ).setAttribute( "src",
-                                      "https://media.example.com/whatever/media:image/myproject:draft/contentid:hash/scale/name.jpg" );
-        verify( responsiveImage ).setAttribute( "srcset",
-                                                "https://media.example.com/whatever/media:image/myproject:draft/contentid:hash/600/name.jpg 600w, " +
-                                                    "https://media.example.com/whatever/media:image/myproject:draft/contentid:hash/900/name.jpg 900w" );
-        verify( mediaLink ).setAttribute( "href",
-                                          "https://media.example.com/whatever/media:attachment/myproject:draft/contentid:hash/doc.pdf" );
-        verify( externalLink, org.mockito.Mockito.never() ).setAttribute( org.mockito.ArgumentMatchers.eq( "href" ),
-                                                                          org.mockito.ArgumentMatchers.anyString() );
-        verify( serviceLink, org.mockito.Mockito.never() ).setAttribute( org.mockito.ArgumentMatchers.eq( "href" ),
-                                                                         org.mockito.ArgumentMatchers.anyString() );
     }
 
     @Test

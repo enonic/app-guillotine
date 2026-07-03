@@ -58,6 +58,6 @@ public class GetImageUrlDataFetcher
 
         final ImageUrlGeneratorParams params = builder.build();
 
-        return GuillotineLocalContextHelper.applyMediaBaseUrl( environment, portalUrlGeneratorService.imageUrl( params ) );
+        return portalUrlGeneratorService.imageUrl( params );
     }
 }

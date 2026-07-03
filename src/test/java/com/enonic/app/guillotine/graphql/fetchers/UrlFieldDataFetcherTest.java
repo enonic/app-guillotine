@@ -117,10 +117,10 @@ public class UrlFieldDataFetcherTest
 
         new GetImageUrlDataFetcher( portalUrlService ).get( environment );
 
-        // with mediaBaseUrl set, the generator is asked for a root-relative URL ("/" baseUrl)
+        // mediaBaseUrl is passed straight to the URL generator
         ArgumentCaptor<ImageUrlGeneratorParams> captor = ArgumentCaptor.forClass( ImageUrlGeneratorParams.class );
         verify( portalUrlService ).imageUrl( captor.capture() );
-        assertEquals( "/", captor.getValue().getBaseUrl() );
+        assertEquals( "https://config.example.com/", captor.getValue().getBaseUrl() );
     }
 
     @Test
@@ -166,12 +166,12 @@ public class UrlFieldDataFetcherTest
     }
 
     @Test
-    public void testImageUrlPrependsMediaBaseUrl()
+    public void testImageUrlWithMediaBaseUrlReturnsGeneratorOutput()
         throws Exception
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.imageUrl( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn(
-            "/_/media:image/myproject:draft/contentid:hash/scale/name.jpg" );
+            "https://media.example.com/whatever/_/media:image/myproject:draft/contentid:hash/scale/name.jpg" );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "_id", "contentid" );
@@ -181,7 +181,7 @@ public class UrlFieldDataFetcherTest
 
         localContext.put( Constants.MEDIA_BASE_URL, "https://media.example.com/whatever" );
 
-        assertEquals( "https://media.example.com/whatever/media:image/myproject:draft/contentid:hash/scale/name.jpg",
+        assertEquals( "https://media.example.com/whatever/_/media:image/myproject:draft/contentid:hash/scale/name.jpg",
                       new GetImageUrlDataFetcher( portalUrlService ).get( environment ) );
     }
 
@@ -211,7 +211,7 @@ public class UrlFieldDataFetcherTest
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            "/_/media:attachment/myproject:draft/contentid:hash/name.jpg" );
+            "https://media.example.com/whatever/_/media:attachment/myproject:draft/contentid:hash/name.jpg" );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "_id", "contentid" );
@@ -224,8 +224,8 @@ public class UrlFieldDataFetcherTest
 
         ArgumentCaptor<AttachmentUrlGeneratorParams> captor = ArgumentCaptor.forClass( AttachmentUrlGeneratorParams.class );
         verify( portalUrlService ).attachmentUrl( captor.capture() );
-        assertEquals( "/", captor.getValue().getBaseUrl() );
-        assertEquals( "https://media.example.com/whatever/media:attachment/myproject:draft/contentid:hash/name.jpg", result );
+        assertEquals( "https://media.example.com/whatever", captor.getValue().getBaseUrl() );
+        assertEquals( "https://media.example.com/whatever/_/media:attachment/myproject:draft/contentid:hash/name.jpg", result );
     }
 
     @Test
@@ -261,25 +261,6 @@ public class UrlFieldDataFetcherTest
         ArgumentCaptor<PageUrlGeneratorParams> captor = ArgumentCaptor.forClass( PageUrlGeneratorParams.class );
         verify( portalUrlGeneratorService ).pageUrl( captor.capture() );
         assertEquals( "https://pages.example.com/", captor.getValue().getBaseUrl() );
-    }
-
-    @Test
-    public void testMediaBaseUrlNotAppliedToErrorUrl()
-        throws Exception
-    {
-        PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
-        when( portalUrlService.imageUrl( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn(
-            "/_/error/404?message=Not+Found." );
-
-        Map<String, Object> source = new HashMap<>();
-        source.put( "_id", "contentid" );
-
-        when( environment.getSource() ).thenReturn( source );
-        when( environment.getArgument( "scale" ) ).thenReturn( "scale" );
-
-        localContext.put( Constants.MEDIA_BASE_URL, "https://media.example.com/whatever" );
-
-        assertEquals( "/_/error/404?message=Not+Found.", new GetImageUrlDataFetcher( portalUrlService ).get( environment ) );
     }
 
 }

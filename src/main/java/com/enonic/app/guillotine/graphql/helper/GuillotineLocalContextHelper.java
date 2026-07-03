@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -24,8 +23,6 @@ import com.enonic.xp.repository.RepositoryId;
 public class GuillotineLocalContextHelper
 {
     private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    private static final Pattern SCHEME_PATTERN = Pattern.compile( "^[a-zA-Z][a-zA-Z0-9+.-]*:" );
 
     private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<>()
     {
@@ -89,47 +86,13 @@ public class GuillotineLocalContextHelper
 
     public static String resolveMediaBaseUrl( final DataFetchingEnvironment environment )
     {
-        // "/" makes the URL generator produce a root-relative "/_/<api>/..." URL, which is then
-        // resolved against mediaBaseUrl in applyMediaBaseUrl. Empty string would not work here:
-        // ApiUrlGeneratorParams coerces it to null, falling back to request-based rewriting.
-        return getMediaBaseUrl( environment ) != null ? Constants.ROOT_BASE_URL : getSiteBaseUrl( environment );
+        final String mediaBaseUrl = getMediaBaseUrl( environment );
+        return mediaBaseUrl != null ? mediaBaseUrl : getSiteBaseUrl( environment );
     }
 
     public static String getPageBaseUrl( final DataFetchingEnvironment environment )
     {
         return getContextProperty( environment, Constants.PAGE_BASE_URL );
-    }
-
-    public static String applyMediaBaseUrl( final DataFetchingEnvironment environment, final String url )
-    {
-        final String mediaBaseUrl = getMediaBaseUrl( environment );
-        return mediaBaseUrl == null ? url : prependMediaBaseUrl( mediaBaseUrl, url );
-    }
-
-    public static String prependMediaBaseUrl( final String mediaBaseUrl, final String url )
-    {
-        if ( url == null || !url.startsWith( Constants.MEDIA_ENDPOINT_PREFIX ) )
-        {
-            return url;
-        }
-        // drop the "_" endpoint segment but keep the trailing "/" so the path stays root-relative
-        return prependBaseUrl( mediaBaseUrl, url.substring( Constants.ENDPOINT_PREFIX.length() - 1 ) );
-    }
-
-    public static String prependBaseUrl( final String baseUrl, final String url )
-    {
-        if ( baseUrl == null || baseUrl.isBlank() || url == null || hasScheme( url ) )
-        {
-            return url;
-        }
-        final String normalizedBaseUrl = baseUrl.endsWith( "/" ) ? baseUrl.substring( 0, baseUrl.length() - 1 ) : baseUrl;
-        final String normalizedUrl = url.startsWith( "/" ) ? url : "/" + url;
-        return normalizedBaseUrl + normalizedUrl;
-    }
-
-    private static boolean hasScheme( final String url )
-    {
-        return url.startsWith( "//" ) || SCHEME_PATTERN.matcher( url ).find();
     }
 
     public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )
