@@ -89,6 +89,13 @@ public class GuillotineLocalContextHelper
         return getContextProperty( environment, Constants.PAGE_BASE_URL );
     }
 
+    public static String resolvePageBaseUrl( final DataFetchingEnvironment environment )
+    {
+        // a site base URL is only present when siteKey resolved to a configured Base URL
+        final String pageBaseUrl = getPageBaseUrl( environment );
+        return pageBaseUrl != null ? pageBaseUrl : getSiteBaseUrl( environment );
+    }
+
     public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )
     {
         return getContextProperty( environment, propertyName, String.class );

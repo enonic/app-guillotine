@@ -109,7 +109,7 @@ public class RichTextDataFetcher
         final ProcessHtmlParams htmlParams = new ProcessHtmlParams().value( htmlText )
             .baseUrl( GuillotineLocalContextHelper.getSiteBaseUrl( environment ) )
             .mediaBaseUrl( GuillotineLocalContextHelper.getMediaBaseUrl( environment ) )
-            .pageBaseUrl( GuillotineLocalContextHelper.getPageBaseUrl( environment ) );
+            .pageBaseUrl( GuillotineLocalContextHelper.resolvePageBaseUrl( environment ) );
 
         if ( processHtmlParams != null )
         {

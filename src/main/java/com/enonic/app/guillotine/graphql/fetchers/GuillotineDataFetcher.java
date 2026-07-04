@@ -87,7 +87,9 @@ public class GuillotineDataFetcher
             localContext.putIfAbsent( Constants.SITE_ARG, siteKey );
 
             final String baseUrl = resolveBaseUrl( projectName, branch, siteKey );
-            if ( baseUrl != null )
+            // the bare project prefix is the fallback for a site/project without a configured Base URL:
+            // URLs then stay request-based (relativised and vhost-remapped on mounted endpoints)
+            if ( baseUrl != null && !baseUrl.equals( "/site/" + projectName + "/" + branch ) )
             {
                 localContext.putIfAbsent( Constants.SITE_BASE_URL, baseUrl );
             }

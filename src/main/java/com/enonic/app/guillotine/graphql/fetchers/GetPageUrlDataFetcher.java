@@ -48,7 +48,7 @@ public class GetPageUrlDataFetcher
             return null;
         }
 
-        final String pageBaseUrl = GuillotineLocalContextHelper.getPageBaseUrl( environment );
+        final String pageBaseUrl = GuillotineLocalContextHelper.resolvePageBaseUrl( environment );
 
         if ( pageBaseUrl == null )
         {

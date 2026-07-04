@@ -240,10 +240,6 @@ public class UrlFieldDataFetcherTest
         PortalUrlGeneratorService portalUrlGeneratorService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.pageUrl( Mockito.any( PageUrlParams.class ) ) ).thenReturn( "/site/myproject/draft/mysite/path" );
 
-        // the site base URL resolved from siteKey must not affect pageUrl:
-        // page links resolve per content/request, siteKey only anchors media URLs
-        localContext.put( Constants.SITE_BASE_URL, "https://site.example.com/" );
-
         assertEquals( "/site/myproject/draft/mysite/path",
                       new GetPageUrlDataFetcher( portalUrlService, portalUrlGeneratorService, Mockito.mock( ContentService.class ) ).get(
                           environment ) );
@@ -255,6 +251,28 @@ public class UrlFieldDataFetcherTest
         assertNull( captor.getValue().getProjectName() );
         assertNull( captor.getValue().getBranch() );
         verify( portalUrlGeneratorService, Mockito.never() ).pageUrl( Mockito.any( PageUrlGeneratorParams.class ) );
+    }
+
+    @Test
+    public void testPageUrlUsesSiteBaseUrlFromSiteKey()
+        throws Exception
+    {
+        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        PortalUrlGeneratorService portalUrlGeneratorService = Mockito.mock( PortalUrlGeneratorService.class );
+        when( portalUrlGeneratorService.pageUrl( Mockito.any( PageUrlGeneratorParams.class ) ) ).thenReturn(
+            "https://site.example.com/path" );
+
+        // present only when siteKey resolved to a configured Base URL
+        localContext.put( Constants.SITE_BASE_URL, "https://site.example.com/" );
+
+        assertEquals( "https://site.example.com/path",
+                      new GetPageUrlDataFetcher( portalUrlService, portalUrlGeneratorService, Mockito.mock( ContentService.class ) ).get(
+                          environment ) );
+
+        ArgumentCaptor<PageUrlGeneratorParams> captor = ArgumentCaptor.forClass( PageUrlGeneratorParams.class );
+        verify( portalUrlGeneratorService ).pageUrl( captor.capture() );
+        assertEquals( "https://site.example.com/", captor.getValue().getBaseUrl() );
+        verify( portalUrlService, Mockito.never() ).pageUrl( Mockito.any( PageUrlParams.class ) );
     }
 
     @Test
