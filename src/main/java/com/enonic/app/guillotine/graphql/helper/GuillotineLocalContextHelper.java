@@ -96,6 +96,18 @@ public class GuillotineLocalContextHelper
         return pageBaseUrl != null ? pageBaseUrl : getSiteBaseUrl( environment );
     }
 
+    public static String resolveMediaBaseUrl( final DataFetchingEnvironment environment )
+    {
+        final String mediaBaseUrl = getMediaBaseUrl( environment );
+        if ( mediaBaseUrl != null )
+        {
+            return mediaBaseUrl;
+        }
+        // a site base URL is a mount base: media APIs live under its "_" endpoint segment
+        final String siteBaseUrl = getSiteBaseUrl( environment );
+        return siteBaseUrl == null ? null : siteBaseUrl.endsWith( "/" ) ? siteBaseUrl + "_" : siteBaseUrl + "/_";
+    }
+
     public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )
     {
         return getContextProperty( environment, propertyName, String.class );
