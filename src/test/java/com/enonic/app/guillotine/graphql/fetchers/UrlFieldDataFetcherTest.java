@@ -145,8 +145,9 @@ public class UrlFieldDataFetcherTest
 
         ArgumentCaptor<ImageUrlGeneratorParams> captor = ArgumentCaptor.forClass( ImageUrlGeneratorParams.class );
         verify( portalUrlService ).imageUrl( captor.capture() );
-        assertEquals( "https://site.example.com/", captor.getValue().getBaseUrl() );
-        assertNull( captor.getValue().getMediaBaseUrl() );
+        // the site base URL is a mount base: media APIs live under its "_" endpoint segment
+        assertEquals( "https://site.example.com/_", captor.getValue().getMediaBaseUrl() );
+        assertNull( captor.getValue().getBaseUrl() );
     }
 
     @Test
