@@ -55,6 +55,6 @@ public class GetImageUrlPartsDataFetcher
             builder.setQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
         }
 
-        return UrlPartsHelper.toMap( portalUrlGeneratorService.imageUrlComponents( builder.build() ) );
+        return UrlPartsHelper.toMap( portalUrlGeneratorService.imageUrlParts( builder.build() ) );
     }
 }

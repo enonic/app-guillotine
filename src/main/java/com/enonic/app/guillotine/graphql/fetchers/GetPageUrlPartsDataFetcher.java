@@ -43,6 +43,6 @@ public class GetPageUrlPartsDataFetcher
             queryParams.forEach( ( key, value ) -> params.param( key.toString(), value ) );
         }
 
-        return UrlPartsHelper.toMap( portalUrlService.pageUrlComponents( params ) );
+        return UrlPartsHelper.toMap( portalUrlService.pageUrlParts( params ) );
     }
 }

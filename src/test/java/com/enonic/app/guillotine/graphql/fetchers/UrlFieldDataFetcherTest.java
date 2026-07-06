@@ -15,8 +15,8 @@ import com.enonic.app.guillotine.graphql.ContentFixtures;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
 import com.enonic.xp.portal.url.ImageUrlGeneratorParams;
-import com.enonic.xp.portal.url.MediaUrlComponents;
-import com.enonic.xp.portal.url.PageUrlComponents;
+import com.enonic.xp.portal.url.MediaUrlParts;
+import com.enonic.xp.portal.url.PageUrlParts;
 import com.enonic.xp.portal.url.PageUrlParams;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.portal.url.PortalUrlService;
@@ -174,8 +174,8 @@ public class UrlFieldDataFetcherTest
         throws Exception
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
-        when( portalUrlService.imageUrlComponents( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn(
-            MediaUrlComponents.create()
+        when( portalUrlService.imageUrlParts( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn(
+            MediaUrlParts.create()
                 .setPath( "/media:image/myproject:draft/contentid:hash/max-300/name.jpg" )
                 .setQueryString( "?quality=85" )
                 .setContext( "myproject:draft" )
@@ -207,8 +207,8 @@ public class UrlFieldDataFetcherTest
         throws Exception
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
-        when( portalUrlService.attachmentUrlComponents( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            MediaUrlComponents.create()
+        when( portalUrlService.attachmentUrlParts( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
+            MediaUrlParts.create()
                 .setPath( "/media:attachment/myproject/contentid:hash/name.jpg" )
                 .setQueryString( "" )
                 .setContext( "myproject" )
@@ -234,8 +234,8 @@ public class UrlFieldDataFetcherTest
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        when( portalUrlService.pageUrlComponents( Mockito.any( PageUrlParams.class ) ) ).thenReturn(
-            PageUrlComponents.create().setPath( "/b/mycontent" ).setQueryString( "?a=1" ).build() );
+        when( portalUrlService.pageUrlParts( Mockito.any( PageUrlParams.class ) ) ).thenReturn(
+            PageUrlParts.create().setPath( "/b/mycontent" ).setQueryString( "?a=1" ).build() );
 
         final Map<String, Object> parts = new GetPageUrlPartsDataFetcher( portalUrlService ).get( environment );
 
@@ -243,7 +243,7 @@ public class UrlFieldDataFetcherTest
         assertEquals( "?a=1", parts.get( "queryString" ) );
 
         ArgumentCaptor<PageUrlParams> captor = ArgumentCaptor.forClass( PageUrlParams.class );
-        verify( portalUrlService ).pageUrlComponents( captor.capture() );
+        verify( portalUrlService ).pageUrlParts( captor.capture() );
         // parts never carry a base URL: components are independent of siteKey and request
         assertNull( captor.getValue().getBaseUrl() );
     }
