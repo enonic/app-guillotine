@@ -83,7 +83,7 @@ public class GenericTypesVerifier
         assertEquals( 3, fields.size() );
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getFieldDefinition( "content" ).getType() ) );
         assertEquals( "MediaIntentType", getNameForGraphQLTypeReference( type.getFieldDefinition( "intent" ).getType() ) );
-        assertEquals( "MediaUrlParts", getNameForGraphQLTypeReference( type.getFieldDefinition( "mediaUrlParts" ).getType() ) );
+        assertEquals( "AttachmentUrlParts", getNameForGraphQLTypeReference( type.getFieldDefinition( "mediaUrlParts" ).getType() ) );
     }
 
     private void verifyImage()

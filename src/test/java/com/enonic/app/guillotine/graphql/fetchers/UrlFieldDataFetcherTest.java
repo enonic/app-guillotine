@@ -18,7 +18,8 @@ import com.enonic.xp.portal.url.ImageUrlGeneratorParams;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.portal.url.MediaUrlParts;
+import com.enonic.xp.portal.url.AttachmentUrlParts;
+import com.enonic.xp.portal.url.ImageUrlParts;
 import com.enonic.xp.portal.url.PageUrlParts;
 import com.enonic.xp.portal.url.PageUrlParams;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
@@ -179,15 +180,8 @@ public class UrlFieldDataFetcherTest
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.imageUrlParts( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn(
-            MediaUrlParts.create()
-                .setPath( "/media:image/myproject:draft/contentid:hash/max-300/name.jpg" )
-                .setQueryString( "?quality=85" )
-                .setContext( "myproject:draft" )
-                .setId( "contentid" )
-                .setHash( "hash" )
-                .setScale( "max-300" )
-                .setName( "name.jpg" )
-                .build() );
+            new ImageUrlParts( "/media:image/myproject:draft/contentid:hash/max-300/name.jpg", "?quality=85", "myproject:draft",
+                               "contentid", "hash", "max-300", "name.jpg" ) );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "_id", "contentid" );
@@ -204,7 +198,6 @@ public class UrlFieldDataFetcherTest
         assertEquals( "hash", parts.get( "hash" ) );
         assertEquals( "max-300", parts.get( "scale" ) );
         assertEquals( "name.jpg", parts.get( "name" ) );
-        assertNull( parts.get( "intent" ) );
     }
 
     @Test
@@ -213,14 +206,8 @@ public class UrlFieldDataFetcherTest
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.attachmentUrlParts( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            MediaUrlParts.create()
-                .setPath( "/media:attachment/myproject/contentid:hash/name.jpg" )
-                .setQueryString( "" )
-                .setContext( "myproject" )
-                .setId( "contentid" )
-                .setHash( "hash" )
-                .setName( "name.jpg" )
-                .build() );
+            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/name.jpg", "", "myproject", "contentid", "hash",
+                                    "name.jpg" ) );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "_id", "contentid" );
@@ -241,7 +228,7 @@ public class UrlFieldDataFetcherTest
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
         when( portalUrlService.pageUrlParts( Mockito.any( PageUrlParams.class ) ) ).thenReturn(
-            PageUrlParts.create().setPath( "/b/mycontent" ).setQueryString( "?a=1" ).build() );
+            new PageUrlParts( "/b/mycontent", "?a=1" ) );
 
         final Map<String, Object> parts = new GetPageUrlPartsDataFetcher( portalUrlService ).get( environment );
 
@@ -259,8 +246,7 @@ public class UrlFieldDataFetcherTest
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        when( portalUrlService.pageUrlParts( Mockito.any( PageUrlParams.class ) ) ).thenReturn(
-            PageUrlParts.create().setPath( "/b/mycontent" ).setQueryString( "" ).build() );
+        when( portalUrlService.pageUrlParts( Mockito.any( PageUrlParams.class ) ) ).thenReturn( new PageUrlParts( "/b/mycontent", "" ) );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "contentId", "linkedcontent" );
@@ -293,10 +279,8 @@ public class UrlFieldDataFetcherTest
     {
         PortalUrlGeneratorService portalUrlGeneratorService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlGeneratorService.attachmentUrlParts( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            MediaUrlParts.create()
-                .setPath( "/media:attachment/myproject/contentid:hash/name.jpg" )
-                .setQueryString( "?download" )
-                .build() );
+            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/name.jpg", "?download", "myproject", "contentid",
+                                    "hash", "name.jpg" ) );
 
         ContentService contentService = Mockito.mock( ContentService.class );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( Mockito.mock( Content.class ) );

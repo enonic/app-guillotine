@@ -490,7 +490,7 @@ Represents details for image found and processed in the <<RichText>> type.
 |intent: <<MediaIntentType>>
 |Link intent.
 
-|mediaUrlParts: <<MediaUrlParts>>
+|mediaUrlParts: <<AttachmentUrlParts>>
 |Parts of the media URL, honoring the link intent (`?download` for download links)
 
 |content: <<Content>>
@@ -536,15 +536,15 @@ Components of a page URL, for building the full URL from segments: `url = baseUr
 
 |===
 
-=== MediaUrlParts
+=== ImageUrlParts
 
-Components of a media URL, for building the full URL from segments: `url = baseUrl + path + queryString`. All values are URL-escaped as they appear in the URL.
+Parts of an image URL, for building the full URL from segments: `url = baseUrl + path + queryString`. All values are URL-escaped as they appear in the URL.
 
 |===
 |Name (Arguments): Type | Description
 
 |path: String
-|The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<hash>/<scale>/<name>` for images, `/media:attachment/<context>/<id>:<hash>/<name>` for attachments
+|The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<hash>/<scale>/<name>`
 
 |queryString: String
 |URL-escaped query string, prefixed with `?`. Empty when there are no parameters
@@ -556,16 +556,43 @@ Components of a media URL, for building the full URL from segments: `url = baseU
 |Content ID
 
 |hash: String
-|Media fingerprint, joined with the id as `<id>:<hash>` in the path. For images it is derived from the source binary and the image editing data (focal point, cropping, orientation); for attachments from the attachment binary
+|Media fingerprint, joined with the id as `<id>:<hash>` in the path. Derived from the source binary and the image editing data (focal point, cropping, orientation)
 
 |scale: String
-|Processed scale segment of image URLs (for example `max-300`). Null for attachments
+|Processed scale segment (for example `max-300`)
 
 |name: String
-|File name segment. For images the requested format extension is applied
+|File name segment, with the requested format extension applied
+
+|===
+
+=== AttachmentUrlParts
+
+Parts of an attachment URL, for building the full URL from segments: `url = baseUrl + path + queryString`. All values are URL-escaped as they appear in the URL.
+
+|===
+|Name (Arguments): Type | Description
+
+|path: String
+|The full media API path with a leading slash, ready to append to a base URL: `/media:attachment/<context>/<id>:<hash>/<name>`
+
+|queryString: String
+|URL-escaped query string, prefixed with `?`. Empty when there are no parameters
+
+|context: String
+|Project context segment: `<project>` on the master branch, `<project>:<branch>` otherwise
+
+|id: String
+|Content ID
+
+|hash: String
+|Media fingerprint derived from the attachment binary, joined with the id as `<id>:<hash>` in the path
+
+|name: String
+|Attachment file name segment
 
 |intent: <<MediaIntentType,MediaIntentType>>
-|How the media URL is meant to be consumed: `download` when the URL carries the `?download` query string, `inline` otherwise. Null for image URLs
+|How the URL is meant to be consumed: `download` when the URL carries the `?download` query string, `inline` otherwise
 
 |===
 

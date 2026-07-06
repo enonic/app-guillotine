@@ -206,7 +206,7 @@ public class ContentTypesFactory
 
     private GraphQLFieldDefinition createImageUrlPartsField()
     {
-        return outputField( "imageUrlParts", GraphQLTypeReference.typeRef( "MediaUrlParts" ), imageUrlArguments() );
+        return outputField( "imageUrlParts", GraphQLTypeReference.typeRef( "ImageUrlParts" ), imageUrlArguments() );
     }
 
     private GraphQLFieldDefinition createMediaUrlPartsField()
@@ -216,7 +216,7 @@ public class ContentTypesFactory
         arguments.add( newArgument( "download", Scalars.GraphQLBoolean ) );
         arguments.add( newArgument( "params", ExtendedScalars.Json ) );
 
-        return outputField( "mediaUrlParts", GraphQLTypeReference.typeRef( "MediaUrlParts" ), arguments );
+        return outputField( "mediaUrlParts", GraphQLTypeReference.typeRef( "AttachmentUrlParts" ), arguments );
     }
 
     private static List<GraphQLArgument> imageUrlArguments()

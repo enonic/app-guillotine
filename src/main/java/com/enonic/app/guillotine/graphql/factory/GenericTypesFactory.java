@@ -54,7 +54,8 @@ public class GenericTypesFactory
         createLinkType();
         createRichTextType();
         createPageUrlPartsType();
-        createMediaUrlPartsType();
+        createImageUrlPartsType();
+        createAttachmentUrlPartsType();
     }
 
     private void createGeoPointType()
@@ -137,7 +138,7 @@ public class GenericTypesFactory
         fields.add( outputField( "mimeType", Scalars.GraphQLString ) );
         fields.add( outputField( "attachmentUrl", Scalars.GraphQLString, List.of( newArgument( "download", Scalars.GraphQLBoolean ),
                                                                                   newArgument( "params", ExtendedScalars.Json ) ) ) );
-        fields.add( outputField( "attachmentUrlParts", GraphQLTypeReference.typeRef( "MediaUrlParts" ),
+        fields.add( outputField( "attachmentUrlParts", GraphQLTypeReference.typeRef( "AttachmentUrlParts" ),
                                  List.of( newArgument( "download", Scalars.GraphQLBoolean ),
                                           newArgument( "params", ExtendedScalars.Json ) ) ) );
 
@@ -221,7 +222,7 @@ public class GenericTypesFactory
 
         fields.add( outputField( "content", GraphQLTypeReference.typeRef( "Content" ) ) );
         fields.add( outputField( "intent", GraphQLTypeReference.typeRef( "MediaIntentType" ) ) );
-        fields.add( outputField( "mediaUrlParts", GraphQLTypeReference.typeRef( "MediaUrlParts" ) ) );
+        fields.add( outputField( "mediaUrlParts", GraphQLTypeReference.typeRef( "AttachmentUrlParts" ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "Media" ), "Media type.", fields );
         context.registerType( outputObject.getName(), outputObject );
@@ -280,7 +281,7 @@ public class GenericTypesFactory
         context.registerType( outputObject.getName(), outputObject );
     }
 
-    private void createMediaUrlPartsType()
+    private void createImageUrlPartsType()
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
@@ -291,10 +292,26 @@ public class GenericTypesFactory
         fields.add( outputField( "hash", Scalars.GraphQLString ) );
         fields.add( outputField( "scale", Scalars.GraphQLString ) );
         fields.add( outputField( "name", Scalars.GraphQLString ) );
-        fields.add( outputField( "intent", GraphQLTypeReference.typeRef( "MediaIntentType" ) ) );
 
         GraphQLObjectType outputObject =
-            newObject( context.uniqueName( "MediaUrlParts" ), "Components of a media URL: url = baseUrl + path + queryString.", fields );
+            newObject( context.uniqueName( "ImageUrlParts" ), "Parts of an image URL: url = baseUrl + path + queryString.", fields );
+        context.registerType( outputObject.getName(), outputObject );
+    }
+
+    private void createAttachmentUrlPartsType()
+    {
+        List<GraphQLFieldDefinition> fields = new ArrayList<>();
+
+        fields.add( outputField( "path", Scalars.GraphQLString ) );
+        fields.add( outputField( "queryString", Scalars.GraphQLString ) );
+        fields.add( outputField( "context", Scalars.GraphQLString ) );
+        fields.add( outputField( "id", Scalars.GraphQLString ) );
+        fields.add( outputField( "hash", Scalars.GraphQLString ) );
+        fields.add( outputField( "name", Scalars.GraphQLString ) );
+        fields.add( outputField( "intent", GraphQLTypeReference.typeRef( "MediaIntentType" ) ) );
+
+        GraphQLObjectType outputObject = newObject( context.uniqueName( "AttachmentUrlParts" ),
+                                                    "Parts of an attachment URL: url = baseUrl + path + queryString.", fields );
         context.registerType( outputObject.getName(), outputObject );
     }
 
