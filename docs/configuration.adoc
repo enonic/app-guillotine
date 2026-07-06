@@ -22,10 +22,6 @@ cors.methods=POST, OPTIONS // <7>
 cors.maxAge= // <8>
 
 maxQueryTokens=15000 // <9>
-
-allowedPageBaseUrls=https://www.example.com/ // <10>
-
-allowedMediaBaseUrls=https://media.example.com/ // <11>
 ----
 
 <1> Enables or disables Query playground on project root.
@@ -54,8 +50,4 @@ NOTE: CORS configuration allows to set response headers for Cross-Origin Resourc
 
 <9> If the number of raw tokens exceeds the specified maximum, the parser will throw an exception. Default is `15000`.
 
-<10> Comma-separated list of values accepted for the `pageBaseUrl` argument of the `guillotine` field. A query specifying a value not present in this list is rejected with an error. Values are compared exactly, ignoring a trailing slash. The special value `*` allows any value. An empty list (the default) means the argument is not allowed at all — this prevents anonymous API clients from overriding the origin of returned URLs.
-
-<11> Same as `allowedPageBaseUrls`, but for the `mediaBaseUrl` argument. The two lists are independent: a value allowed for one argument does not allow the other.
-
-TIP: A default base URL for media URLs — applied without any argument — can be configured on XP itself with the `media.defaultBaseUrl` option in `com.enonic.xp.portal.cfg`.
+TIP: A default base URL for media URLs can be configured on XP itself with the `media.defaultBaseUrl` option in `com.enonic.xp.portal.cfg`.

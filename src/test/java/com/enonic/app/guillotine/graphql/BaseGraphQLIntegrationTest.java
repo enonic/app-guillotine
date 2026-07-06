@@ -154,21 +154,6 @@ public class BaseGraphQLIntegrationTest
         return bean;
     }
 
-    protected void setAllowedBaseUrls( final String allowedPageBaseUrls, final String allowedMediaBaseUrls )
-    {
-        guillotineConfigService.activate( mock( GuillotineConfig.class, invocation -> {
-            final String name = invocation.getMethod().getName();
-            if ( "allowedPageBaseUrls".equals( name ) )
-            {
-                return allowedPageBaseUrls;
-            }
-            if ( "allowedMediaBaseUrls".equals( name ) )
-            {
-                return allowedMediaBaseUrls;
-            }
-            return invocation.getMethod().getDefaultValue();
-        } ) );
-    }
 
     protected List<ContentType> getCustomContentTypes()
     {

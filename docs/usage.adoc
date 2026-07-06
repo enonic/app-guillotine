@@ -89,24 +89,9 @@ Enonic XP can serve custom scaled images at runtime. Guillotine uses this functi
 }
 ----
 
-By default, the `imageUrl`, `mediaUrl` and `attachmentUrl` fields generate server (root-relative) URLs. To generate URLs against a different domain or base URL (for example, a dedicated media host), set the `mediaBaseUrl` argument on the `guillotine` field, or configure the instance-wide `media.defaultBaseUrl` option in `com.enonic.xp.portal.cfg`. The argument takes precedence and applies to all media URLs resolved within the query. A trailing slash is appended to the value if missing. An empty value is treated as unspecified.
+By default, the `imageUrl`, `mediaUrl` and `attachmentUrl` fields generate server (root-relative) URLs. To generate URLs against a different domain or base URL (for example, a dedicated media host), configure the instance-wide `media.defaultBaseUrl` option in `com.enonic.xp.portal.cfg`, or use the `siteKey` argument with a site that has a configured Base URL.
 
 Media URLs are generated as the base URL followed directly by the XP media API path, for example `https://media.example.com/media:image/myproject/contentid:hash/block-800-200/photo.jpg`.
-
-IMPORTANT: The `mediaBaseUrl` argument is disabled by default: any value passed by a client is rejected unless it is listed in the `allowedMediaBaseUrls` <<configuration#, configuration>> option (or that option is set to `*`). Configuration options are not affected by this restriction.
-
-[source,graphql]
-----
-{
-  guillotine(mediaBaseUrl: "https://media.example.com/") {
-    get(key: "contentid") {
-      ... on media_Image {
-        imageUrl(scale: "block(800,200)")
-      }
-    }
-  }
-}
-----
 
 == Rich text
 
@@ -147,14 +132,12 @@ Rich text fields will typically include links, images and macros in the `process
 
 By default, all internal links to `media` or `content` will be replaced by a server (root-relative) link in the context of your endpoint.
 
-To generate content (page) links against a different domain or base URL, set the `pageBaseUrl` argument on the `guillotine` field. Content links in `processedHtml` and the value of the `pageUrl` field are then generated against this base URL, followed by the path of the content relative to its nearest site (for example, `https://www.example.com/posts/first-post`). A trailing slash is appended to the value if missing. An empty value is treated as unspecified. (Media URLs are controlled separately by `mediaBaseUrl`.)
-
-IMPORTANT: The `pageBaseUrl` argument is disabled by default: any value passed by a client is rejected unless it is listed in the `allowedPageBaseUrls` <<configuration#, configuration>> option (or that option is set to `*`).
+To generate content (page) links against a different domain or base URL, use the `siteKey` argument with a site (or project) that has a configured Base URL. Content links in `processedHtml` and the value of the `pageUrl` field are then generated against that base URL, followed by the path of the content relative to the site (for example, `https://www.example.com/posts/first-post`).
 
 [source,graphql]
 ----
 {
-  guillotine(pageBaseUrl: "https://www.example.com/") {
+  guillotine(siteKey: "/mysite") {
     get(key: "contentid") {
       pageUrl
       ... on com_enonic_app_myapp_Post {
@@ -223,7 +206,7 @@ query {
 Guillotine by default provides image processing in the `processedHtml` field of the RichText GraphQL type. All internal links to resources will be replaced by a server (root-relative) link and for each `img` tag a `data-image-ref` attribute with referenced content Id will be added.
 Using that reference you will be able to find image details in the `images` field and implement custom image processing, if needed.
 
-To generate media URLs (images and attachments) in `processedHtml` against a different domain or base URL, set the `mediaBaseUrl` argument on the `guillotine` field, or configure the instance-wide `media.defaultBaseUrl` option in `com.enonic.xp.portal.cfg`. The argument takes precedence. Content (page) links are not affected by `mediaBaseUrl`.
+To generate media URLs (images and attachments) in `processedHtml` against a different domain or base URL, configure the instance-wide `media.defaultBaseUrl` option in `com.enonic.xp.portal.cfg`, or use the `siteKey` argument with a site that has a configured Base URL.
 
 For instance, the processed value of an image looks like this:
 

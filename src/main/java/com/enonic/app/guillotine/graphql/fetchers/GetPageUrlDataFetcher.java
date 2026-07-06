@@ -36,11 +36,11 @@ public class GetPageUrlDataFetcher
             return null;
         }
 
-        // same call as content link processing in processHtml: an explicit base URL when
-        // present, otherwise request/context resolution (no project/branch on the params,
+        // same call as content link processing in processHtml: the siteKey-resolved base URL
+        // when present, otherwise request/context resolution (no project/branch on the params,
         // so the URL follows the site request when there is one)
         final PageUrlParams params = new PageUrlParams().id( content.getId().toString() )
-            .baseUrl( GuillotineLocalContextHelper.resolvePageBaseUrl( environment ) );
+            .baseUrl( GuillotineLocalContextHelper.getSiteBaseUrl( environment ) );
 
         if ( environment.getArgument( "params" ) instanceof Map<?, ?> queryParams )
         {

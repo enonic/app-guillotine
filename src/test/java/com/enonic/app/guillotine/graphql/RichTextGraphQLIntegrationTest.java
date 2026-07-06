@@ -67,105 +67,10 @@ public class RichTextGraphQLIntegrationTest
         assertNotNull( textField );
     }
 
-    @Test
-    public void testRichTextFieldWithMediaBaseUrl()
-    {
-        // allowlist entry without trailing slash must match the argument with one
-        setAllowedBaseUrls( "", "https://media.example.com" );
 
-        when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
 
-        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
 
-        GraphQLSchema graphQLSchema = getBean().createSchema();
 
-        String query = "query { guillotine(mediaBaseUrl: \"https://media.example.com/\") { get(key: \"contentid\") { _id " +
-            "...on myapplication_News { data { text { processedHtml } } } } } }";
-
-        Map<String, Object> response = executeQuery( graphQLSchema, query );
-
-        assertFalse( response.containsKey( "errors" ) );
-
-        // mediaBaseUrl is delegated to XP: media URLs are generated against it by processHtml itself
-        ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
-        verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
-        assertEquals( "https://media.example.com/", captor.getValue().getMediaBaseUrl() );
-        assertNull( captor.getValue().getBaseUrl() );
-    }
-
-    @Test
-    public void testMediaBaseUrlArgumentRejectedByDefault()
-    {
-        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
-
-        GraphQLSchema graphQLSchema = getBean().createSchema();
-
-        String query = "query { guillotine(mediaBaseUrl: \"https://media.example.com/\") { get(key: \"contentid\") { _id " +
-            "...on myapplication_News { data { text { processedHtml } } } } } }";
-
-        Map<String, Object> response = executeQuery( graphQLSchema, query );
-
-        assertTrue( response.containsKey( "errors" ) );
-    }
-
-    @Test
-    public void testPageBaseUrlArgumentRejectedWhenNotInAllowlist()
-    {
-        setAllowedBaseUrls( "https://www.example.com", "" );
-
-        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
-
-        GraphQLSchema graphQLSchema = getBean().createSchema();
-
-        String query = "query { guillotine(pageBaseUrl: \"https://evil.example.com/\") { get(key: \"contentid\") { _id " +
-            "...on myapplication_News { data { text { processedHtml } } } } } }";
-
-        Map<String, Object> response = executeQuery( graphQLSchema, query );
-
-        assertTrue( response.containsKey( "errors" ) );
-    }
-
-    @Test
-    public void testPageBaseUrlNotAllowedByMediaAllowlist()
-    {
-        // the allow lists are per argument: a value allowed for mediaBaseUrl does not allow pageBaseUrl
-        setAllowedBaseUrls( "", "https://www.example.com" );
-
-        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
-
-        GraphQLSchema graphQLSchema = getBean().createSchema();
-
-        String query = "query { guillotine(pageBaseUrl: \"https://www.example.com/\") { get(key: \"contentid\") { _id " +
-            "...on myapplication_News { data { text { processedHtml } } } } } }";
-
-        Map<String, Object> response = executeQuery( graphQLSchema, query );
-
-        assertTrue( response.containsKey( "errors" ) );
-    }
-
-    @Test
-    public void testRichTextFieldWithPageBaseUrl()
-    {
-        setAllowedBaseUrls( "*", "" );
-
-        when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
-
-        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
-
-        GraphQLSchema graphQLSchema = getBean().createSchema();
-
-        String query = "query { guillotine(pageBaseUrl: \"https://pages.example.com/\") { get(key: \"contentid\") { _id " +
-            "...on myapplication_News { data { text { processedHtml } } } } } }";
-
-        Map<String, Object> response = executeQuery( graphQLSchema, query );
-
-        assertFalse( response.containsKey( "errors" ) );
-
-        // pageBaseUrl is delegated to XP: content:// links are generated against it by processHtml itself
-        ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
-        verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
-        assertEquals( "https://pages.example.com/", captor.getValue().getPageBaseUrl() );
-    }
 
     @Test
     public void testEmptyRichTextField()

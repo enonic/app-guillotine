@@ -213,8 +213,6 @@ public class GraphQLApi
         guillotineFieldArguments.put( "project", Scalars.GraphQLString );
         guillotineFieldArguments.put( "branch", Scalars.GraphQLString );
         guillotineFieldArguments.put( "siteKey", Scalars.GraphQLString );
-        guillotineFieldArguments.put( "pageBaseUrl", Scalars.GraphQLString );
-        guillotineFieldArguments.put( "mediaBaseUrl", Scalars.GraphQLString );
 
         Map<String, Object> guillotineFieldOptions = new HashMap<>();
         guillotineFieldOptions.put( "type", guillotineApi );

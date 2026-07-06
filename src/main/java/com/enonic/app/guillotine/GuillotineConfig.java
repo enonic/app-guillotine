@@ -7,8 +7,4 @@ public @interface GuillotineConfig
     String graphql_extensions_modifyUnknownField() default "throw";
 
     int maxQueryTokens() default 15000;
-
-    String allowedPageBaseUrls() default "";
-
-    String allowedMediaBaseUrls() default "";
 }

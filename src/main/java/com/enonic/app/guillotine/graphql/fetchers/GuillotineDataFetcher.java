@@ -54,22 +54,6 @@ public class GuillotineDataFetcher
         localContext.putIfAbsent( Constants.PROJECT_ARG, projectName );
         localContext.putIfAbsent( Constants.BRANCH_ARG, branch );
 
-        final String mediaBaseUrl = environment.getArgument( Constants.MEDIA_BASE_URL_ARG );
-        if ( mediaBaseUrl != null && !mediaBaseUrl.isBlank() )
-        {
-            requireAllowedBaseUrl( Constants.MEDIA_BASE_URL_ARG, "allowedMediaBaseUrls", mediaBaseUrl,
-                                   guillotineConfigServiceSupplier.get().isMediaBaseUrlAllowed( mediaBaseUrl ) );
-            localContext.putIfAbsent( Constants.MEDIA_BASE_URL, mediaBaseUrl );
-        }
-
-        final String pageBaseUrl = environment.getArgument( Constants.PAGE_BASE_URL_ARG );
-        if ( pageBaseUrl != null && !pageBaseUrl.isBlank() )
-        {
-            requireAllowedBaseUrl( Constants.PAGE_BASE_URL_ARG, "allowedPageBaseUrls", pageBaseUrl,
-                                   guillotineConfigServiceSupplier.get().isPageBaseUrlAllowed( pageBaseUrl ) );
-            localContext.putIfAbsent( Constants.PAGE_BASE_URL, pageBaseUrl );
-        }
-
         final String siteKey = environment.getArgument( Constants.SITE_ARG );
         if ( siteKey != null && !siteKey.isBlank() )
         {
@@ -89,16 +73,6 @@ public class GuillotineDataFetcher
         return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
     }
 
-    private static void requireAllowedBaseUrl( final String argumentName, final String configName, final String value,
-                                                final boolean allowed )
-    {
-        if ( !allowed )
-        {
-            throw new IllegalArgumentException(
-                String.format( "Value \"%s\" of the \"%s\" argument is not allowed by the \"%s\" configuration", value, argumentName,
-                               configName ) );
-        }
-    }
 
     private void requireSiteExists( final String projectName, final String branch, final String siteKey )
     {
