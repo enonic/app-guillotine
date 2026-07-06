@@ -16,6 +16,8 @@ import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentUrlByNameDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentUrlPartsByNameDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.GetLinkPageUrlPartsDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.GetLinkMediaUrlPartsDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetFieldAsJsonDataFetcher;
 
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newArgument;
@@ -219,6 +221,7 @@ public class GenericTypesFactory
 
         fields.add( outputField( "content", GraphQLTypeReference.typeRef( "Content" ) ) );
         fields.add( outputField( "intent", GraphQLTypeReference.typeRef( "MediaIntentType" ) ) );
+        fields.add( outputField( "mediaUrlParts", GraphQLTypeReference.typeRef( "MediaUrlParts" ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "Media" ), "Media type.", fields );
         context.registerType( outputObject.getName(), outputObject );
@@ -231,6 +234,10 @@ public class GenericTypesFactory
             }
             return null;
         } );
+
+        context.registerDataFetcher( outputObject.getName(), "mediaUrlParts",
+                                     new GetLinkMediaUrlPartsDataFetcher( serviceFacade.getPortalUrlGeneratorService(),
+                                                                          serviceFacade.getContentService() ) );
     }
 
     private void createLinkType()
@@ -241,11 +248,15 @@ public class GenericTypesFactory
         fields.add( outputField( "uri", Scalars.GraphQLString ) );
         fields.add( outputField( "media", GraphQLTypeReference.typeRef( "Media" ) ) );
         fields.add( outputField( "content", GraphQLTypeReference.typeRef( "Content" ) ) );
+        fields.add( outputField( "pageUrlParts", GraphQLTypeReference.typeRef( "PageUrlParts" ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "Link" ), "Link type.", fields );
         context.registerType( outputObject.getName(), outputObject );
 
         context.registerDataFetcher( outputObject.getName(), "ref", new GetFieldAsJsonDataFetcher( "linkRef" ) );
+
+        context.registerDataFetcher( outputObject.getName(), "pageUrlParts",
+                                     new GetLinkPageUrlPartsDataFetcher( serviceFacade.getPortalUrlService() ) );
 
         context.registerDataFetcher( outputObject.getName(), "content", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();

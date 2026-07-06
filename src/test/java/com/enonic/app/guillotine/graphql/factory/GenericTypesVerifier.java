@@ -64,11 +64,12 @@ public class GenericTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 4, fields.size() );
+        assertEquals( 5, fields.size() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "ref" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "uri" ).getType() );
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getFieldDefinition( "content" ).getType() ) );
         assertEquals( "Media", getNameForGraphQLTypeReference( type.getFieldDefinition( "media" ).getType() ) );
+        assertEquals( "PageUrlParts", getNameForGraphQLTypeReference( type.getFieldDefinition( "pageUrlParts" ).getType() ) );
     }
 
     private void verifyMedia()
@@ -79,9 +80,10 @@ public class GenericTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 2, fields.size() );
+        assertEquals( 3, fields.size() );
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getFieldDefinition( "content" ).getType() ) );
         assertEquals( "MediaIntentType", getNameForGraphQLTypeReference( type.getFieldDefinition( "intent" ).getType() ) );
+        assertEquals( "MediaUrlParts", getNameForGraphQLTypeReference( type.getFieldDefinition( "mediaUrlParts" ).getType() ) );
     }
 
     private void verifyImage()

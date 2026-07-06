@@ -490,6 +490,9 @@ Represents details for image found and processed in the <<RichText>> type.
 |intent: <<MediaIntentType>>
 |Link intent.
 
+|mediaUrlParts: <<MediaUrlParts>>
+|Parts of the media URL, honoring the link intent (`?download` for download links)
+
 |content: <<Content>>
 |Related content
 
@@ -512,6 +515,9 @@ Represents details for image found and processed in the <<RichText>> type.
 
 |content: <<Content>>
 |Related content. This field has `null` value for media content
+
+|pageUrlParts: <<PageUrlParts>>
+|Parts of the link target page URL. This field has `null` value for media links
 
 |===
 

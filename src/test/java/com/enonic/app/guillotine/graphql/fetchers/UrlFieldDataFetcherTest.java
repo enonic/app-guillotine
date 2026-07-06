@@ -15,6 +15,9 @@ import com.enonic.app.guillotine.graphql.ContentFixtures;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
 import com.enonic.xp.portal.url.ImageUrlGeneratorParams;
+import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentService;
 import com.enonic.xp.portal.url.MediaUrlParts;
 import com.enonic.xp.portal.url.PageUrlParts;
 import com.enonic.xp.portal.url.PageUrlParams;
@@ -23,6 +26,7 @@ import com.enonic.xp.portal.url.PortalUrlService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -246,6 +250,69 @@ public class UrlFieldDataFetcherTest
         verify( portalUrlService ).pageUrlParts( captor.capture() );
         // parts never carry a base URL: components are independent of siteKey and request
         assertNull( captor.getValue().getBaseUrl() );
+    }
+
+    @Test
+    public void testLinkPageUrlParts()
+        throws Exception
+    {
+        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        when( portalUrlService.pageUrlParts( Mockito.any( PageUrlParams.class ) ) ).thenReturn(
+            PageUrlParts.create().setPath( "/b/mycontent" ).setQueryString( "" ).build() );
+
+        Map<String, Object> source = new HashMap<>();
+        source.put( "contentId", "linkedcontent" );
+
+        when( environment.getSource() ).thenReturn( source );
+
+        final Map<String, Object> parts = new GetLinkPageUrlPartsDataFetcher( portalUrlService ).get( environment );
+
+        assertEquals( "/b/mycontent", parts.get( "path" ) );
+
+        ArgumentCaptor<PageUrlParams> captor = ArgumentCaptor.forClass( PageUrlParams.class );
+        verify( portalUrlService ).pageUrlParts( captor.capture() );
+        assertEquals( "linkedcontent", captor.getValue().getId() );
+    }
+
+    @Test
+    public void testLinkPageUrlPartsIsNullForMediaLinks()
+        throws Exception
+    {
+        // media link projections carry the contentId inside the media object, not on the link
+        Map<String, Object> source = new HashMap<>();
+        when( environment.getSource() ).thenReturn( source );
+
+        assertNull( new GetLinkPageUrlPartsDataFetcher( Mockito.mock( PortalUrlService.class ) ).get( environment ) );
+    }
+
+    @Test
+    public void testLinkMediaUrlPartsHonorsDownloadIntent()
+        throws Exception
+    {
+        PortalUrlGeneratorService portalUrlGeneratorService = Mockito.mock( PortalUrlGeneratorService.class );
+        when( portalUrlGeneratorService.attachmentUrlParts( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
+            MediaUrlParts.create()
+                .setPath( "/media:attachment/myproject/contentid:hash/name.jpg" )
+                .setQueryString( "?download" )
+                .build() );
+
+        ContentService contentService = Mockito.mock( ContentService.class );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( Mockito.mock( Content.class ) );
+
+        Map<String, Object> source = new HashMap<>();
+        source.put( "contentId", "contentid" );
+        source.put( "intent", "download" );
+
+        when( environment.getSource() ).thenReturn( source );
+
+        final Map<String, Object> parts =
+            new GetLinkMediaUrlPartsDataFetcher( portalUrlGeneratorService, contentService ).get( environment );
+
+        assertEquals( "?download", parts.get( "queryString" ) );
+
+        ArgumentCaptor<AttachmentUrlGeneratorParams> captor = ArgumentCaptor.forClass( AttachmentUrlGeneratorParams.class );
+        verify( portalUrlGeneratorService ).attachmentUrlParts( captor.capture() );
+        assertTrue( captor.getValue().isDownload() );
     }
 
     @Test
