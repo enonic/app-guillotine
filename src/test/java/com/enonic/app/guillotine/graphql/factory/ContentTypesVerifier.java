@@ -42,7 +42,7 @@ public class ContentTypesVerifier
     private void verifyDynamicallyCreatedContentType()
     {
         GraphQLObjectType type = context.getOutputType( "com_enonic_app_testapp_MyType" );
-        assertEquals( 32, type.getFieldDefinitions().size() );
+        assertEquals( 33, type.getFieldDefinitions().size() );
 
         GraphQLFieldDefinition dataField = type.getFieldDefinition( "data" );
 

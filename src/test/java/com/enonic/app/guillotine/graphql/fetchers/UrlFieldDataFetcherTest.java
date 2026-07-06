@@ -15,6 +15,8 @@ import com.enonic.app.guillotine.graphql.ContentFixtures;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
 import com.enonic.xp.portal.url.ImageUrlGeneratorParams;
+import com.enonic.xp.portal.url.MediaUrlComponents;
+import com.enonic.xp.portal.url.PageUrlComponents;
 import com.enonic.xp.portal.url.PageUrlParams;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.portal.url.PortalUrlService;
@@ -166,6 +168,85 @@ public class UrlFieldDataFetcherTest
                       new GetImageUrlDataFetcher( portalUrlService ).get( environment ) );
     }
 
+
+    @Test
+    public void testImageUrlParts()
+        throws Exception
+    {
+        PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
+        when( portalUrlService.imageUrlComponents( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn(
+            MediaUrlComponents.create()
+                .setPath( "/media:image/myproject:draft/contentid:hash/max-300/name.jpg" )
+                .setQueryString( "?quality=85" )
+                .setContext( "myproject:draft" )
+                .setId( "contentid" )
+                .setHash( "hash" )
+                .setScale( "max-300" )
+                .setName( "name.jpg" )
+                .build() );
+
+        Map<String, Object> source = new HashMap<>();
+        source.put( "_id", "contentid" );
+
+        when( environment.getSource() ).thenReturn( source );
+        when( environment.getArgument( "scale" ) ).thenReturn( "max(300)" );
+
+        final Map<String, Object> parts = new GetImageUrlPartsDataFetcher( portalUrlService ).get( environment );
+
+        assertEquals( "/media:image/myproject:draft/contentid:hash/max-300/name.jpg", parts.get( "path" ) );
+        assertEquals( "?quality=85", parts.get( "queryString" ) );
+        assertEquals( "myproject:draft", parts.get( "context" ) );
+        assertEquals( "contentid", parts.get( "id" ) );
+        assertEquals( "hash", parts.get( "hash" ) );
+        assertEquals( "max-300", parts.get( "scale" ) );
+        assertEquals( "name.jpg", parts.get( "name" ) );
+    }
+
+    @Test
+    public void testAttachmentUrlPartsById()
+        throws Exception
+    {
+        PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
+        when( portalUrlService.attachmentUrlComponents( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
+            MediaUrlComponents.create()
+                .setPath( "/media:attachment/myproject/contentid:hash/name.jpg" )
+                .setQueryString( "" )
+                .setContext( "myproject" )
+                .setId( "contentid" )
+                .setHash( "hash" )
+                .setName( "name.jpg" )
+                .build() );
+
+        Map<String, Object> source = new HashMap<>();
+        source.put( "_id", "contentid" );
+
+        when( environment.getSource() ).thenReturn( source );
+
+        final Map<String, Object> parts = new GetAttachmentUrlPartsByIdDataFetcher( portalUrlService ).get( environment );
+
+        assertEquals( "/media:attachment/myproject/contentid:hash/name.jpg", parts.get( "path" ) );
+        assertEquals( "", parts.get( "queryString" ) );
+        assertNull( parts.get( "scale" ) );
+    }
+
+    @Test
+    public void testPageUrlParts()
+        throws Exception
+    {
+        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        when( portalUrlService.pageUrlComponents( Mockito.any( PageUrlParams.class ) ) ).thenReturn(
+            PageUrlComponents.create().setPath( "/b/mycontent" ).setQueryString( "?a=1" ).build() );
+
+        final Map<String, Object> parts = new GetPageUrlPartsDataFetcher( portalUrlService ).get( environment );
+
+        assertEquals( "/b/mycontent", parts.get( "path" ) );
+        assertEquals( "?a=1", parts.get( "queryString" ) );
+
+        ArgumentCaptor<PageUrlParams> captor = ArgumentCaptor.forClass( PageUrlParams.class );
+        verify( portalUrlService ).pageUrlComponents( captor.capture() );
+        // parts never carry a base URL: components are independent of siteKey and request
+        assertNull( captor.getValue().getBaseUrl() );
+    }
 
     @Test
     public void testPageUrlWithoutSiteBaseUrl()

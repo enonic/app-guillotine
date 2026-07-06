@@ -200,6 +200,9 @@ All types implementing `Content` share the same fields, with the exception of th
 |pageUrl(params: Json): String
 |Util field to generate a URL pointing to the content
 
+|pageUrlParts(params: Json): <<PageUrlParts>>
+|Components of the page URL, for building the full URL from segments
+
 |site: portal_Site
 |Link to the nearest site
 
@@ -509,6 +512,51 @@ Represents details for image found and processed in the <<RichText>> type.
 
 |content: <<Content>>
 |Related content. This field has `null` value for media content
+
+|===
+
+=== PageUrlParts
+
+Components of a page URL, for building the full URL from segments: `url = baseUrl + path + queryString`.
+
+|===
+|Name (Arguments): Type | Description
+
+|path: String
+|URL-escaped path of the content relative to its nearest site (the full content path when there is no site), with a leading slash. Empty when the content is the site itself
+
+|queryString: String
+|URL-escaped query string, prefixed with `?`. Empty when there are no parameters
+
+|===
+
+=== MediaUrlParts
+
+Components of a media URL, for building the full URL from segments: `url = baseUrl + path + queryString`. All values are URL-escaped as they appear in the URL.
+
+|===
+|Name (Arguments): Type | Description
+
+|path: String
+|The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<hash>/<scale>/<name>` for images, `/media:attachment/<context>/<id>:<hash>/<name>` for attachments
+
+|queryString: String
+|URL-escaped query string, prefixed with `?`. Empty when there are no parameters
+
+|context: String
+|Project context segment: `<project>` on the master branch, `<project>:<branch>` otherwise
+
+|id: String
+|Content ID
+
+|hash: String
+|Media fingerprint, joined with the id as `<id>:<hash>` in the path. For images it is derived from the source binary and the image editing data (focal point, cropping, orientation); for attachments from the attachment binary
+
+|scale: String
+|Processed scale segment of image URLs (for example `max-300`). Null for attachments
+
+|name: String
+|File name segment. For images the requested format extension is applied
 
 |===
 

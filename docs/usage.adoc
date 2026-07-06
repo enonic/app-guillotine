@@ -93,6 +93,31 @@ By default, the `imageUrl`, `mediaUrl` and `attachmentUrl` fields generate serve
 
 Media URLs are generated as the base URL followed directly by the XP media API path, for example `https://media.example.com/media:image/myproject/contentid:hash/block-800-200/photo.jpg`.
 
+=== Building URLs from parts
+
+To build URLs on any origin yourself, use the `pageUrlParts`, `imageUrlParts`, `mediaUrlParts` and `attachmentUrlParts` fields instead of the ready-made URL fields. They return properly URL-escaped segments — including the media fingerprint, which cannot be calculated client-side — so the full URL is a simple concatenation: `url = base + path + queryString`.
+
+[source,graphql]
+----
+{
+  guillotine {
+    get(key: "contentid") {
+      pageUrlParts {
+        path         # "/posts/first-post" — escaped, relative to the nearest site
+        queryString
+      }
+      ... on media_Image {
+        imageUrlParts(scale: "block(800,200)") {
+          path       # "/media:image/myproject/contentid:hash/block-800-200/photo.jpg"
+          queryString
+          hash       # the calculated media fingerprint
+        }
+      }
+    }
+  }
+}
+----
+
 == Rich text
 
 Rich text fields provide configuration parameters that give you control over output from links, images and much more.

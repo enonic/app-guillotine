@@ -155,7 +155,7 @@ public class GenericTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 5, fields.size() );
+        assertEquals( 6, fields.size() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "name" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "label" ).getType() );
         assertEquals( Scalars.GraphQLInt, type.getFieldDefinition( "size" ).getType() );
@@ -167,6 +167,11 @@ public class GenericTypesVerifier
         assertEquals( 2, attachmentUrlField.getArguments().size() );
         assertEquals( Scalars.GraphQLBoolean, attachmentUrlField.getArgument( "download" ).getType() );
         assertEquals( ExtendedScalars.Json, attachmentUrlField.getArgument( "params" ).getType() );
+
+        GraphQLFieldDefinition attachmentUrlPartsField = type.getFieldDefinition( "attachmentUrlParts" );
+        assertEquals( 2, attachmentUrlPartsField.getArguments().size() );
+        assertEquals( Scalars.GraphQLBoolean, attachmentUrlPartsField.getArgument( "download" ).getType() );
+        assertEquals( ExtendedScalars.Json, attachmentUrlPartsField.getArgument( "params" ).getType() );
     }
 
     private void verifyPublishInfo()

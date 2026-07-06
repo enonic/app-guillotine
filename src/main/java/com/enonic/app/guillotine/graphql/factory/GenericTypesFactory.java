@@ -15,6 +15,7 @@ import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentUrlByNameDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentUrlPartsByNameDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetFieldAsJsonDataFetcher;
 
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newArgument;
@@ -50,6 +51,8 @@ public class GenericTypesFactory
         createMediaType();
         createLinkType();
         createRichTextType();
+        createPageUrlPartsType();
+        createMediaUrlPartsType();
     }
 
     private void createGeoPointType()
@@ -132,12 +135,18 @@ public class GenericTypesFactory
         fields.add( outputField( "mimeType", Scalars.GraphQLString ) );
         fields.add( outputField( "attachmentUrl", Scalars.GraphQLString, List.of( newArgument( "download", Scalars.GraphQLBoolean ),
                                                                                   newArgument( "params", ExtendedScalars.Json ) ) ) );
+        fields.add( outputField( "attachmentUrlParts", GraphQLTypeReference.typeRef( "MediaUrlParts" ),
+                                 List.of( newArgument( "download", Scalars.GraphQLBoolean ),
+                                          newArgument( "params", ExtendedScalars.Json ) ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "Attachment" ), "Attachment.", fields );
         context.registerType( outputObject.getName(), outputObject );
 
         context.registerDataFetcher( outputObject.getName(), "attachmentUrl",
                                      new GetAttachmentUrlByNameDataFetcher( serviceFacade.getPortalUrlGeneratorService() ) );
+
+        context.registerDataFetcher( outputObject.getName(), "attachmentUrlParts",
+                                     new GetAttachmentUrlPartsByNameDataFetcher( serviceFacade.getPortalUrlGeneratorService() ) );
     }
 
     private void createIconType()
@@ -246,6 +255,35 @@ public class GenericTypesFactory
             }
             return null;
         } );
+    }
+
+    private void createPageUrlPartsType()
+    {
+        List<GraphQLFieldDefinition> fields = new ArrayList<>();
+
+        fields.add( outputField( "path", Scalars.GraphQLString ) );
+        fields.add( outputField( "queryString", Scalars.GraphQLString ) );
+
+        GraphQLObjectType outputObject =
+            newObject( context.uniqueName( "PageUrlParts" ), "Components of a page URL: url = baseUrl + path + queryString.", fields );
+        context.registerType( outputObject.getName(), outputObject );
+    }
+
+    private void createMediaUrlPartsType()
+    {
+        List<GraphQLFieldDefinition> fields = new ArrayList<>();
+
+        fields.add( outputField( "path", Scalars.GraphQLString ) );
+        fields.add( outputField( "queryString", Scalars.GraphQLString ) );
+        fields.add( outputField( "context", Scalars.GraphQLString ) );
+        fields.add( outputField( "id", Scalars.GraphQLString ) );
+        fields.add( outputField( "hash", Scalars.GraphQLString ) );
+        fields.add( outputField( "scale", Scalars.GraphQLString ) );
+        fields.add( outputField( "name", Scalars.GraphQLString ) );
+
+        GraphQLObjectType outputObject =
+            newObject( context.uniqueName( "MediaUrlParts" ), "Components of a media URL: url = baseUrl + path + queryString.", fields );
+        context.registerType( outputObject.getName(), outputObject );
     }
 
     private void createRichTextType()
