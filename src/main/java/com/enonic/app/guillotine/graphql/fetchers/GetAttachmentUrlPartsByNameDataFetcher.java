@@ -59,6 +59,7 @@ public class GetAttachmentUrlPartsByNameDataFetcher
             builder.setQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
         }
 
-        return UrlPartsHelper.toMap( portalUrlGeneratorService.attachmentUrlParts( builder.build() ) );
+        return UrlPartsHelper.toMap( portalUrlGeneratorService.attachmentUrlParts( builder.build() ),
+                                     download != null && download ? "download" : "inline" );
     }
 }

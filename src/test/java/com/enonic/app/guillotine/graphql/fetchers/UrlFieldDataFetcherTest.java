@@ -204,6 +204,7 @@ public class UrlFieldDataFetcherTest
         assertEquals( "hash", parts.get( "hash" ) );
         assertEquals( "max-300", parts.get( "scale" ) );
         assertEquals( "name.jpg", parts.get( "name" ) );
+        assertNull( parts.get( "intent" ) );
     }
 
     @Test
@@ -231,6 +232,7 @@ public class UrlFieldDataFetcherTest
         assertEquals( "/media:attachment/myproject/contentid:hash/name.jpg", parts.get( "path" ) );
         assertEquals( "", parts.get( "queryString" ) );
         assertNull( parts.get( "scale" ) );
+        assertEquals( "inline", parts.get( "intent" ) );
     }
 
     @Test
@@ -309,6 +311,7 @@ public class UrlFieldDataFetcherTest
             new GetLinkMediaUrlPartsDataFetcher( portalUrlGeneratorService, contentService ).get( environment );
 
         assertEquals( "?download", parts.get( "queryString" ) );
+        assertEquals( "download", parts.get( "intent" ) );
 
         ArgumentCaptor<AttachmentUrlGeneratorParams> captor = ArgumentCaptor.forClass( AttachmentUrlGeneratorParams.class );
         verify( portalUrlGeneratorService ).attachmentUrlParts( captor.capture() );

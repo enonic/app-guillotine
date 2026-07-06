@@ -22,6 +22,11 @@ final class UrlPartsHelper
 
     static Map<String, Object> toMap( final MediaUrlParts parts )
     {
+        return toMap( parts, null );
+    }
+
+    static Map<String, Object> toMap( final MediaUrlParts parts, final String intent )
+    {
         final Map<String, Object> result = new LinkedHashMap<>();
         result.put( "path", parts.getPath() );
         result.put( "queryString", parts.getQueryString() );
@@ -30,6 +35,7 @@ final class UrlPartsHelper
         result.put( "hash", parts.getHash() );
         result.put( "scale", parts.getScale() );
         result.put( "name", parts.getName() );
+        result.put( "intent", intent );
         return result;
     }
 }

@@ -291,6 +291,7 @@ public class GenericTypesFactory
         fields.add( outputField( "hash", Scalars.GraphQLString ) );
         fields.add( outputField( "scale", Scalars.GraphQLString ) );
         fields.add( outputField( "name", Scalars.GraphQLString ) );
+        fields.add( outputField( "intent", GraphQLTypeReference.typeRef( "MediaIntentType" ) ) );
 
         GraphQLObjectType outputObject =
             newObject( context.uniqueName( "MediaUrlParts" ), "Components of a media URL: url = baseUrl + path + queryString.", fields );

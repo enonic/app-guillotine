@@ -564,6 +564,9 @@ Components of a media URL, for building the full URL from segments: `url = baseU
 |name: String
 |File name segment. For images the requested format extension is applied
 
+|intent: <<MediaIntentType,MediaIntentType>>
+|How the media URL is meant to be consumed: `download` when the URL carries the `?download` query string, `inline` otherwise. Null for image URLs
+
 |===
 
 === Permissions

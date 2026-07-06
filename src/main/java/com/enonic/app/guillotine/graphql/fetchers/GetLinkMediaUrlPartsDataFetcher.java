@@ -50,7 +50,8 @@ public class GetLinkMediaUrlPartsDataFetcher
                 .setDownload( "download".equals( intent ) )
                 .build();
 
-            return UrlPartsHelper.toMap( portalUrlGeneratorService.attachmentUrlParts( params ) );
+            return UrlPartsHelper.toMap( portalUrlGeneratorService.attachmentUrlParts( params ),
+                                         intent == null ? null : intent.toString() );
         } );
     }
 }
