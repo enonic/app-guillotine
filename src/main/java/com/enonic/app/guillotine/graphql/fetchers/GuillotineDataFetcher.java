@@ -54,20 +54,11 @@ public class GuillotineDataFetcher
         localContext.putIfAbsent( Constants.PROJECT_ARG, projectName );
         localContext.putIfAbsent( Constants.BRANCH_ARG, branch );
 
-        final String mediaBaseUrlArg = environment.getArgument( Constants.MEDIA_BASE_URL_ARG );
-        final String mediaBaseUrl;
-        if ( mediaBaseUrlArg != null && !mediaBaseUrlArg.isBlank() )
-        {
-            requireAllowedBaseUrl( Constants.MEDIA_BASE_URL_ARG, "allowedMediaBaseUrls", mediaBaseUrlArg,
-                                   guillotineConfigServiceSupplier.get().isMediaBaseUrlAllowed( mediaBaseUrlArg ) );
-            mediaBaseUrl = mediaBaseUrlArg;
-        }
-        else
-        {
-            mediaBaseUrl = guillotineConfigServiceSupplier.get().getDefaultMediaBaseUrl();
-        }
+        final String mediaBaseUrl = environment.getArgument( Constants.MEDIA_BASE_URL_ARG );
         if ( mediaBaseUrl != null && !mediaBaseUrl.isBlank() )
         {
+            requireAllowedBaseUrl( Constants.MEDIA_BASE_URL_ARG, "allowedMediaBaseUrls", mediaBaseUrl,
+                                   guillotineConfigServiceSupplier.get().isMediaBaseUrlAllowed( mediaBaseUrl ) );
             localContext.putIfAbsent( Constants.MEDIA_BASE_URL, mediaBaseUrl );
         }
 
