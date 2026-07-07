@@ -79,10 +79,16 @@ public class GuillotineLocalContextHelper
         return getContextProperty( environment, Constants.SITE_BASE_URL );
     }
 
-    public static String getMediaBaseUrl( final DataFetchingEnvironment environment )
+    public static String getImageBaseUrl( final DataFetchingEnvironment environment )
     {
-        // resolved by XP when siteKey is in use: where media APIs are served for the site
-        return getContextProperty( environment, Constants.MEDIA_BASE_URL );
+        // resolved by XP when siteKey is in use: where the image API is served for the site
+        return getContextProperty( environment, Constants.IMAGE_BASE_URL );
+    }
+
+    public static String getAttachmentBaseUrl( final DataFetchingEnvironment environment )
+    {
+        // resolved by XP when siteKey is in use: where the attachment API is served for the site
+        return getContextProperty( environment, Constants.ATTACHMENT_BASE_URL );
     }
 
     public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )

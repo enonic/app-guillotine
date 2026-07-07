@@ -109,7 +109,7 @@ public class UrlFieldDataFetcherTest
 
 
     @Test
-    public void testImageUrlUsesMediaBaseUrlFromSiteKey()
+    public void testImageUrlUsesImageBaseUrlFromSiteKey()
         throws Exception
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
@@ -122,7 +122,7 @@ public class UrlFieldDataFetcherTest
         when( environment.getArgument( "scale" ) ).thenReturn( "scale" );
 
         // resolved by XP at the guillotine field: guillotine passes it through unchanged
-        localContext.put( Constants.MEDIA_BASE_URL, "https://site.example.com/_" );
+        localContext.put( Constants.IMAGE_BASE_URL, "https://site.example.com/_" );
 
         new GetImageUrlDataFetcher( portalUrlService ).get( environment );
 
@@ -167,7 +167,7 @@ public class UrlFieldDataFetcherTest
         when( environment.getSource() ).thenReturn( source );
         when( environment.getArgument( "scale" ) ).thenReturn( "scale" );
 
-        localContext.put( Constants.MEDIA_BASE_URL, "https://site.example.com/_" );
+        localContext.put( Constants.IMAGE_BASE_URL, "https://site.example.com/_" );
 
         assertEquals( "/site/repo/draft/app/_/media:image/myproject:draft/contentid:hash/scale/name.jpg",
                       new GetImageUrlDataFetcher( portalUrlService ).get( environment ) );

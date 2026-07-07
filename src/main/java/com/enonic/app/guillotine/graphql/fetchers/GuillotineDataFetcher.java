@@ -29,6 +29,8 @@ public class GuillotineDataFetcher
 {
     private static final DescriptorKey MEDIA_IMAGE_API_DESCRIPTOR_KEY = DescriptorKey.from( ApplicationKey.MEDIA_MOD, "image" );
 
+    private static final DescriptorKey MEDIA_ATTACHMENT_API_DESCRIPTOR_KEY = DescriptorKey.from( ApplicationKey.MEDIA_MOD, "attachment" );
+
     private final Supplier<ServiceFacade> serviceFacadeSupplier;
 
     public GuillotineDataFetcher( final Supplier<ServiceFacade> serviceFacadeSupplier )
@@ -67,12 +69,19 @@ public class GuillotineDataFetcher
                 localContext.putIfAbsent( Constants.SITE_BASE_URL, baseUrl );
             }
 
-            // XP resolves where media APIs are served for the site (mounts and configuration
-            // considered); null means media URLs stay request-based
-            final String mediaBaseUrl = resolveBaseUrl( projectName, branch, siteKey, MEDIA_IMAGE_API_DESCRIPTOR_KEY );
-            if ( mediaBaseUrl != null )
+            // XP resolves where each media API is served for the site (mounts and configuration
+            // considered); the two bases can diverge when the site mounts only one of the APIs.
+            // null means the URLs stay request-based
+            final String imageBaseUrl = resolveBaseUrl( projectName, branch, siteKey, MEDIA_IMAGE_API_DESCRIPTOR_KEY );
+            if ( imageBaseUrl != null )
             {
-                localContext.putIfAbsent( Constants.MEDIA_BASE_URL, mediaBaseUrl );
+                localContext.putIfAbsent( Constants.IMAGE_BASE_URL, imageBaseUrl );
+            }
+
+            final String attachmentBaseUrl = resolveBaseUrl( projectName, branch, siteKey, MEDIA_ATTACHMENT_API_DESCRIPTOR_KEY );
+            if ( attachmentBaseUrl != null )
+            {
+                localContext.putIfAbsent( Constants.ATTACHMENT_BASE_URL, attachmentBaseUrl );
             }
         }
 
