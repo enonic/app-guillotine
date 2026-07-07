@@ -28,7 +28,7 @@ final class UrlPartsHelper
         result.put( "queryString", parts.queryString() );
         result.put( "context", parts.context() );
         result.put( "id", parts.id() );
-        result.put( "hash", parts.hash() );
+        result.put( "fingerprint", parts.fingerprint() );
         result.put( "scale", parts.scale() );
         result.put( "name", parts.name() );
         return result;
@@ -41,7 +41,7 @@ final class UrlPartsHelper
         result.put( "queryString", parts.queryString() );
         result.put( "context", parts.context() );
         result.put( "id", parts.id() );
-        result.put( "hash", parts.hash() );
+        result.put( "fingerprint", parts.fingerprint() );
         result.put( "name", parts.name() );
         result.put( "intent", intent );
         return result;

@@ -289,7 +289,7 @@ public class GenericTypesFactory
         fields.add( outputField( "queryString", Scalars.GraphQLString ) );
         fields.add( outputField( "context", Scalars.GraphQLString ) );
         fields.add( outputField( "id", Scalars.GraphQLString ) );
-        fields.add( outputField( "hash", Scalars.GraphQLString ) );
+        fields.add( outputField( "fingerprint", Scalars.GraphQLString ) );
         fields.add( outputField( "scale", Scalars.GraphQLString ) );
         fields.add( outputField( "name", Scalars.GraphQLString ) );
 
@@ -306,7 +306,7 @@ public class GenericTypesFactory
         fields.add( outputField( "queryString", Scalars.GraphQLString ) );
         fields.add( outputField( "context", Scalars.GraphQLString ) );
         fields.add( outputField( "id", Scalars.GraphQLString ) );
-        fields.add( outputField( "hash", Scalars.GraphQLString ) );
+        fields.add( outputField( "fingerprint", Scalars.GraphQLString ) );
         fields.add( outputField( "name", Scalars.GraphQLString ) );
         fields.add( outputField( "intent", GraphQLTypeReference.typeRef( "MediaIntentType" ) ) );
 

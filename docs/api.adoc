@@ -544,7 +544,7 @@ Parts of an image URL, for building the full URL from segments: `url = baseUrl +
 |Name (Arguments): Type | Description
 
 |path: String
-|The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<hash>/<scale>/<name>`
+|The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<fingerprint>/<scale>/<name>`
 
 |queryString: String
 |URL-escaped query string, prefixed with `?`. Empty when there are no parameters
@@ -555,8 +555,8 @@ Parts of an image URL, for building the full URL from segments: `url = baseUrl +
 |id: String
 |Content ID
 
-|hash: String
-|Media fingerprint, joined with the id as `<id>:<hash>` in the path. Derived from the source binary and the image editing data (focal point, cropping, orientation)
+|fingerprint: String
+|Media fingerprint, joined with the id as `<id>:<fingerprint>` in the path
 
 |scale: String
 |Processed scale segment (for example `max-300`)
@@ -574,7 +574,7 @@ Parts of an attachment URL, for building the full URL from segments: `url = base
 |Name (Arguments): Type | Description
 
 |path: String
-|The full media API path with a leading slash, ready to append to a base URL: `/media:attachment/<context>/<id>:<hash>/<name>`
+|The full media API path with a leading slash, ready to append to a base URL: `/media:attachment/<context>/<id>:<fingerprint>/<name>`
 
 |queryString: String
 |URL-escaped query string, prefixed with `?`. Empty when there are no parameters
@@ -585,8 +585,8 @@ Parts of an attachment URL, for building the full URL from segments: `url = base
 |id: String
 |Content ID
 
-|hash: String
-|Media fingerprint derived from the attachment binary, joined with the id as `<id>:<hash>` in the path
+|fingerprint: String
+|Media fingerprint, joined with the id as `<id>:<fingerprint>` in the path
 
 |name: String
 |Attachment file name segment

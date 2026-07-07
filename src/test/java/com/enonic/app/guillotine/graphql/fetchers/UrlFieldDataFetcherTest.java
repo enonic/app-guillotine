@@ -195,7 +195,7 @@ public class UrlFieldDataFetcherTest
         assertEquals( "?quality=85", parts.get( "queryString" ) );
         assertEquals( "myproject:draft", parts.get( "context" ) );
         assertEquals( "contentid", parts.get( "id" ) );
-        assertEquals( "hash", parts.get( "hash" ) );
+        assertEquals( "hash", parts.get( "fingerprint" ) );
         assertEquals( "max-300", parts.get( "scale" ) );
         assertEquals( "name.jpg", parts.get( "name" ) );
     }

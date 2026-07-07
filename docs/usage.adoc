@@ -91,7 +91,7 @@ Enonic XP can serve custom scaled images at runtime. Guillotine uses this functi
 
 By default, the `imageUrl`, `mediaUrl` and `attachmentUrl` fields generate server (root-relative) URLs. To generate URLs against a different domain or base URL (for example, a dedicated media host), configure the instance-wide `media.defaultBaseUrl` option in `com.enonic.xp.portal.cfg`, or use the `siteKey` argument with a site that has a configured Base URL.
 
-Media URLs are generated as the base URL followed directly by the XP media API path, for example `https://media.example.com/media:image/myproject/contentid:hash/block-800-200/photo.jpg`.
+Media URLs are generated as the base URL followed directly by the XP media API path, for example `https://media.example.com/media:image/myproject/contentid:fingerprint/block-800-200/photo.jpg`.
 
 NOTE: With `siteKey`, the actual base of media URLs is resolved by XP from the site's configured Base URL and the XP instance configuration.
 
@@ -110,9 +110,9 @@ To build URLs on any origin yourself, use the `pageUrlParts`, `imageUrlParts`, `
       }
       ... on media_Image {
         imageUrlParts(scale: "block(800,200)") {
-          path       # "/media:image/myproject/contentid:hash/block-800-200/photo.jpg"
+          path        # "/media:image/myproject/contentid:fingerprint/block-800-200/photo.jpg"
           queryString
-          hash       # the calculated media fingerprint
+          fingerprint # the media fingerprint
         }
       }
     }
