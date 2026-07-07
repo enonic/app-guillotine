@@ -18,7 +18,6 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.portal.url.BaseUrlParams;
-import com.enonic.xp.portal.url.UrlTypeConstants;
 import com.enonic.xp.project.ProjectName;
 
 import static java.util.Objects.requireNonNull;
@@ -109,8 +108,8 @@ public class GuillotineDataFetcher
 
     private String resolveBaseUrl( final String projectName, final String branch, final String siteKey )
     {
-        final BaseUrlParams.Builder paramsBuilder =
-            BaseUrlParams.create().setUrlType( UrlTypeConstants.ABSOLUTE ).setProjectName( projectName ).setBranch( branch );
+        // the configured Base URL is used verbatim by XP: no urlType is needed to receive it unchanged
+        final BaseUrlParams.Builder paramsBuilder = BaseUrlParams.create().setProjectName( projectName ).setBranch( branch );
 
         if ( siteKey.startsWith( "/" ) )
         {
