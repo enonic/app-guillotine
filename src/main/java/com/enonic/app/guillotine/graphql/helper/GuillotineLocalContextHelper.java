@@ -91,6 +91,15 @@ public class GuillotineLocalContextHelper
         return getContextProperty( environment, Constants.ATTACHMENT_BASE_URL );
     }
 
+    public static String getMediaBaseUrl( final DataFetchingEnvironment environment )
+    {
+        // processHtml carries one media base for both media APIs, like the media.defaultBaseUrl
+        // configuration; in the rare case the resolved bases diverge, rich text media URLs
+        // stay request-based
+        final String imageBaseUrl = getImageBaseUrl( environment );
+        return Objects.equals( imageBaseUrl, getAttachmentBaseUrl( environment ) ) ? imageBaseUrl : null;
+    }
+
     public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )
     {
         return getContextProperty( environment, propertyName, String.class );
