@@ -93,7 +93,7 @@ By default, the `imageUrl`, `mediaUrl` and `attachmentUrl` fields generate serve
 
 Media URLs are generated as the base URL followed directly by the XP media API path, for example `https://media.example.com/media:image/myproject/contentid:hash/block-800-200/photo.jpg`.
 
-NOTE: With `siteKey`, XP decides where media APIs are served for the site. By default they are implicitly available under the site's `/_` endpoint. If the `legacy.mediaApiAutoMount.enabled` option in `com.enonic.xp.portal.cfg` is disabled, each media URL is anchored to the site's Base URL only when one of the site's applications mounts the corresponding API (`media:image` for images, `media:attachment` for attachments); otherwise it falls back to `media.defaultBaseUrl`, or stays request-based.
+NOTE: With `siteKey`, the actual base of media URLs is resolved by XP from the site's configured Base URL and the XP instance configuration.
 
 === Building URLs from parts
 
