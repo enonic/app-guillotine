@@ -9,7 +9,6 @@ import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.xp.content.ContentId;
@@ -28,13 +27,9 @@ public class GuillotineDataFetcher
 {
     private final Supplier<ServiceFacade> serviceFacadeSupplier;
 
-    private final Supplier<GuillotineConfigService> guillotineConfigServiceSupplier;
-
-    public GuillotineDataFetcher( final Supplier<ServiceFacade> serviceFacadeSupplier,
-                                  final Supplier<GuillotineConfigService> guillotineConfigServiceSupplier )
+    public GuillotineDataFetcher( final Supplier<ServiceFacade> serviceFacadeSupplier )
     {
         this.serviceFacadeSupplier = serviceFacadeSupplier;
-        this.guillotineConfigServiceSupplier = guillotineConfigServiceSupplier;
     }
 
     @Override

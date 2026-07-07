@@ -224,7 +224,7 @@ public class GraphQLApi
         typesRegister.addCreationCallback( "Query", guillotineQueryCreationCallback );
 
         typesRegister.addResolver( "Query", "guillotine",
-                                   new GuillotineDataFetcher( serviceFacadeSupplier, guillotineConfigServiceSupplier ) );
+                                   new GuillotineDataFetcher( serviceFacadeSupplier ) );
 
         typesRegister.addAdditionalType( context.getAllTypes() );
 
