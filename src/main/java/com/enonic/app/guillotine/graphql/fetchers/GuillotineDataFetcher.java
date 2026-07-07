@@ -11,11 +11,13 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.Constants;
+import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
+import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.portal.url.BaseUrlParams;
 import com.enonic.xp.project.ProjectName;
 
@@ -25,6 +27,8 @@ import static java.util.Objects.requireNonNullElseGet;
 public class GuillotineDataFetcher
     implements DataFetcher<Object>
 {
+    private static final DescriptorKey MEDIA_IMAGE_API_DESCRIPTOR_KEY = DescriptorKey.from( ApplicationKey.MEDIA_MOD, "image" );
+
     private final Supplier<ServiceFacade> serviceFacadeSupplier;
 
     public GuillotineDataFetcher( final Supplier<ServiceFacade> serviceFacadeSupplier )
@@ -55,12 +59,20 @@ public class GuillotineDataFetcher
 
             localContext.putIfAbsent( Constants.SITE_ARG, siteKey );
 
-            final String baseUrl = resolveBaseUrl( projectName, branch, siteKey );
+            final String baseUrl = resolveBaseUrl( projectName, branch, siteKey, null );
             // the bare project prefix is the fallback for a site/project without a configured Base URL:
             // URLs then stay request-based (relativised and vhost-remapped on mounted endpoints)
             if ( baseUrl != null && !baseUrl.equals( "/site/" + projectName + "/" + branch ) )
             {
                 localContext.putIfAbsent( Constants.SITE_BASE_URL, baseUrl );
+            }
+
+            // XP resolves where media APIs are served for the site (mounts and configuration
+            // considered); null means media URLs stay request-based
+            final String mediaBaseUrl = resolveBaseUrl( projectName, branch, siteKey, MEDIA_IMAGE_API_DESCRIPTOR_KEY );
+            if ( mediaBaseUrl != null )
+            {
+                localContext.putIfAbsent( Constants.MEDIA_BASE_URL, mediaBaseUrl );
             }
         }
 
@@ -101,10 +113,11 @@ public class GuillotineDataFetcher
         }
     }
 
-    private String resolveBaseUrl( final String projectName, final String branch, final String siteKey )
+    private String resolveBaseUrl( final String projectName, final String branch, final String siteKey, final DescriptorKey api )
     {
         // the configured Base URL is used verbatim by XP: no urlType is needed to receive it unchanged
-        final BaseUrlParams.Builder paramsBuilder = BaseUrlParams.create().setProjectName( projectName ).setBranch( branch );
+        final BaseUrlParams.Builder paramsBuilder =
+            BaseUrlParams.create().setProjectName( projectName ).setBranch( branch ).setApi( api );
 
         if ( siteKey.startsWith( "/" ) )
         {

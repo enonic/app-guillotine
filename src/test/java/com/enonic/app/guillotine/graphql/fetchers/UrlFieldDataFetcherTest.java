@@ -109,7 +109,7 @@ public class UrlFieldDataFetcherTest
 
 
     @Test
-    public void testImageUrlFallsBackToSiteBaseUrl()
+    public void testImageUrlUsesMediaBaseUrlFromSiteKey()
         throws Exception
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
@@ -121,13 +121,13 @@ public class UrlFieldDataFetcherTest
         when( environment.getSource() ).thenReturn( source );
         when( environment.getArgument( "scale" ) ).thenReturn( "scale" );
 
-        localContext.put( Constants.SITE_BASE_URL, "https://site.example.com/" );
+        // resolved by XP at the guillotine field: guillotine passes it through unchanged
+        localContext.put( Constants.MEDIA_BASE_URL, "https://site.example.com/_" );
 
         new GetImageUrlDataFetcher( portalUrlService ).get( environment );
 
         ArgumentCaptor<ImageUrlGeneratorParams> captor = ArgumentCaptor.forClass( ImageUrlGeneratorParams.class );
         verify( portalUrlService ).imageUrl( captor.capture() );
-        // the site base URL is a mount base: media APIs live under its "_" endpoint segment
         assertEquals( "https://site.example.com/_", captor.getValue().getMediaBaseUrl() );
         assertNull( captor.getValue().getBaseUrl() );
     }
@@ -167,7 +167,7 @@ public class UrlFieldDataFetcherTest
         when( environment.getSource() ).thenReturn( source );
         when( environment.getArgument( "scale" ) ).thenReturn( "scale" );
 
-        localContext.put( Constants.SITE_BASE_URL, "https://site.example.com/" );
+        localContext.put( Constants.MEDIA_BASE_URL, "https://site.example.com/_" );
 
         assertEquals( "/site/repo/draft/app/_/media:image/myproject:draft/contentid:hash/scale/name.jpg",
                       new GetImageUrlDataFetcher( portalUrlService ).get( environment ) );

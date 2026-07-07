@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import graphql.schema.GraphQLSchema;
@@ -16,6 +17,7 @@ import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.data.PropertyTree;
+import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.form.FieldSet;
 import com.enonic.xp.form.FormItemSet;
 import com.enonic.xp.form.FormOptionSet;
@@ -23,6 +25,7 @@ import com.enonic.xp.form.FormOptionSetOption;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.form.Occurrences;
 import com.enonic.xp.inputtype.InputTypeName;
+import com.enonic.xp.portal.url.BaseUrlParams;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.site.Site;
@@ -217,7 +220,26 @@ public class GuillotineApiGraphQLIntegrationTest
             executeQuery( graphQLSchema, "query { guillotine(siteKey: \"/\") { getSite { _id } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
-        Mockito.verify( serviceFacade.getPortalUrlService() ).baseUrl( any() );
+        // resolved once for the page base and once for the media base
+        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.times( 2 ) ).baseUrl( any() );
+    }
+
+    @Test
+    public void testSiteKeyResolvesMediaBaseUrlViaApi()
+    {
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response =
+            executeQuery( graphQLSchema, "query { guillotine(siteKey: \"/\") { getSite { _id } } }" );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        // guillotine assumes nothing about where media APIs are mounted: the page base is
+        // resolved without an api, the media base with the media API descriptor
+        ArgumentCaptor<BaseUrlParams> captor = ArgumentCaptor.forClass( BaseUrlParams.class );
+        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.times( 2 ) ).baseUrl( captor.capture() );
+        assertNull( captor.getAllValues().get( 0 ).getApi() );
+        assertEquals( DescriptorKey.from( "media:image" ), captor.getAllValues().get( 1 ).getApi() );
     }
 
     @Override

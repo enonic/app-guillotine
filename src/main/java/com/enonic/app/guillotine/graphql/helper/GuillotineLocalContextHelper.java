@@ -79,12 +79,10 @@ public class GuillotineLocalContextHelper
         return getContextProperty( environment, Constants.SITE_BASE_URL );
     }
 
-    public static String resolveMediaBaseUrl( final DataFetchingEnvironment environment )
+    public static String getMediaBaseUrl( final DataFetchingEnvironment environment )
     {
-        // a site base URL is a mount base: media APIs live under its "_" endpoint segment.
-        // It is only present when siteKey resolved to a configured Base URL.
-        final String siteBaseUrl = getSiteBaseUrl( environment );
-        return siteBaseUrl == null ? null : siteBaseUrl.endsWith( "/" ) ? siteBaseUrl + "_" : siteBaseUrl + "/_";
+        // resolved by XP when siteKey is in use: where media APIs are served for the site
+        return getContextProperty( environment, Constants.MEDIA_BASE_URL );
     }
 
     public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )

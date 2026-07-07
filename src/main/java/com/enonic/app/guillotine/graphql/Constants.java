@@ -14,6 +14,8 @@ public interface Constants
 
     String SITE_BASE_URL = "__siteBaseUrl";
 
+    String MEDIA_BASE_URL = "__mediaBaseUrl";
+
     List<String> SUPPORTED_AGGREGATIONS =
         List.of( "terms", "stats", "range", "dateRange", "dateHistogram", "geoDistance", "min", "max", "count" );
 
