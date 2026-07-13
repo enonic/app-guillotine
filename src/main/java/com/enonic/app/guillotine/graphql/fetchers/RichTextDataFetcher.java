@@ -9,7 +9,6 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
-import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.macro.CustomHtmlPostProcessor;
@@ -64,12 +63,35 @@ public class RichTextDataFetcher
 
         Map<String, MacroDescriptor> registeredMacros = guillotineContext.getMacroDecorators();
 
+        final String pageBaseUrl = GuillotineLocalContextHelper.getPageBaseUrl( environment );
+
+        final boolean stripMediaEndpoint = GuillotineLocalContextHelper.getMediaBaseUrl( environment ) != null;
+
         htmlParams.processMacros( false );
         htmlParams.customStyleDescriptorsCallback( () -> serviceFacade.getStyleDescriptorService().getAll() );
         htmlParams.customHtmlProcessor( processor -> {
+            HtmlDocument htmlDocument = processor.getDocument();
+
+            final List<HtmlElement> contentLinks = pageBaseUrl == null || pageBaseUrl.isBlank()
+                ? List.of()
+                : htmlDocument.select( "[href]" )
+                    .stream()
+                    .filter( element -> element.getAttribute( "href" ).startsWith( "content://" ) )
+                    .collect( Collectors.toList() );
+
             processor.processDefault( new CustomHtmlPostProcessor( links, images ) );
 
-            HtmlDocument htmlDocument = processor.getDocument();
+            contentLinks.forEach( element -> element.setAttribute( "href", GuillotineLocalContextHelper.prependBaseUrl( pageBaseUrl,
+                                                                                                                       element.getAttribute(
+                                                                                                                           "href" ) ) ) );
+
+            if ( stripMediaEndpoint )
+            {
+                stripMediaEndpoint( htmlDocument, "src" );
+                stripMediaEndpoint( htmlDocument, "srcset" );
+                stripMediaEndpoint( htmlDocument, "href" );
+            }
+
             htmlDocument.select( "figcaption:empty" ).forEach( HtmlElement::remove );
             return htmlDocument.getInnerHtml();
         } );
@@ -102,19 +124,22 @@ public class RichTextDataFetcher
         return generator.getRoot();
     }
 
+    private static void stripMediaEndpoint( final HtmlDocument htmlDocument, final String attributeName )
+    {
+        htmlDocument.select( "[" + attributeName + "]" )
+            .forEach( element -> element.setAttribute( attributeName, GuillotineLocalContextHelper.replaceEndpointSegment(
+                element.getAttribute( attributeName ) ) ) );
+    }
+
     private ProcessHtmlParams createProcessHtmlParams( DataFetchingEnvironment environment )
     {
-        final ProcessHtmlParams htmlParams =
-            new ProcessHtmlParams().value( htmlText ).baseUrl( GuillotineLocalContextHelper.getSiteBaseUrl( environment ) );
-
         Map<String, Object> processHtmlParams = environment.getArgument( "processHtml" );
+
+        final ProcessHtmlParams htmlParams =
+            new ProcessHtmlParams().value( htmlText ).baseUrl( GuillotineLocalContextHelper.resolveMediaBaseUrl( environment ) );
 
         if ( processHtmlParams != null )
         {
-            if ( processHtmlParams.containsKey( "type" ) )
-            {
-                htmlParams.type( processHtmlParams.get( "type" ).toString() );
-            }
             if ( processHtmlParams.containsKey( "imageWidths" ) )
             {
                 htmlParams.imageWidths( (List<Integer>) processHtmlParams.get( "imageWidths" ) );

@@ -537,8 +537,7 @@ public class InputTypesVerifier
 
         assertEquals( "Process HTML input type", type.getDescription() );
 
-        assertEquals( 3, type.getFieldDefinitions().size() );
-        assertEquals( "UrlType", getNameForGraphQLTypeReference( type.getField( "type" ).getType() ) );
+        assertEquals( 2, type.getFieldDefinitions().size() );
         assertEquals( Scalars.GraphQLString, type.getField( "imageSizes" ).getType() );
 
         GraphQLInputType typeOfImageWidths = type.getField( "imageWidths" ).getType();

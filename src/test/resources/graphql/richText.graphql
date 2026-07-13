@@ -5,7 +5,6 @@ query {
             ...on myapplication_News {
                 data {
                     text(processHtml: {
-                        type: absolute
                         imageWidths: [960, 1024]
                     }) {
                         raw

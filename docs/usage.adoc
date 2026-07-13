@@ -82,8 +82,23 @@ Enonic XP can serve custom scaled images at runtime. Guillotine uses this functi
         }){
         displayName
         ... on media_Image {
-          imageUrl(scale:"block(800,200)",type:absolute)
+          imageUrl(scale:"block(800,200)")
         }
+    }
+  }
+}
+----
+
+By default, the `imageUrl`, `mediaUrl` and `attachmentUrl` fields generate `server` (relative) URLs. To generate URLs against a different domain or base URL (for example, a dedicated media host), set the `mediaBaseUrl` argument on the `guillotine` field or set the `mediaBaseUrl` <<configuration#, configuration>> option. The argument takes precedence over the configuration value and applies to all media URLs resolved within the query.
+
+[source,graphql]
+----
+{
+  guillotine(mediaBaseUrl: "https://media.example.com/") {
+    get(key: "contentid") {
+      ... on media_Image {
+        imageUrl(scale: "block(800,200)")
+      }
     }
   }
 }
@@ -112,7 +127,7 @@ Rich text fields provide configuration parameters that give you control over out
             displayName
           }
           tags
-          post(processHtml:{type:absolute}) {
+          post {
              processedHtml
           }
         }
@@ -126,7 +141,27 @@ Rich text fields will typically include links, images and macros in the `process
 
 === Links
 
-By default, all internal links to `media` or `content` will be replaced by an absolute (`server`) link relative to the context of your endpoint.
+By default, all internal links to `media` or `content` will be replaced by a `server` (relative) link in the context of your endpoint.
+
+To generate content (page) links against a different domain or base URL, set the `pageBaseUrl` argument on the `guillotine` field. It is prepended to content links in `processedHtml` and to the value of the `pageUrl` field. There is no configuration option for `pageBaseUrl`. (Media URLs are controlled separately by `mediaBaseUrl`.)
+
+[source,graphql]
+----
+{
+  guillotine(pageBaseUrl: "https://www.example.com/") {
+    get(key: "contentid") {
+      pageUrl
+      ... on com_enonic_app_myapp_Post {
+        data {
+          text {
+            processedHtml
+          }
+        }
+      }
+    }
+  }
+}
+----
 
 For each `a` tag a `data-link-ref` attribute with referenced content Id will be added. Additional content related to the `links` field is available for custom processing by your client.
 
@@ -179,8 +214,10 @@ query {
 
 === Images
 
-Guillotine by default provides image processing in the `processedHtml` field of the RichText GraphQL type. All internal links to resources will be replaced by an absolute (`server`) link and for each `img` tag a `data-image-ref` attribute with referenced content Id will be added.
+Guillotine by default provides image processing in the `processedHtml` field of the RichText GraphQL type. All internal links to resources will be replaced by a `server` (relative) link and for each `img` tag a `data-image-ref` attribute with referenced content Id will be added.
 Using that reference you will be able to find image details in the `images` field and implement custom image processing, if needed.
+
+To generate media URLs (images and attachments) in `processedHtml` against a different domain or base URL, set the `mediaBaseUrl` argument on the `guillotine` field or set the `mediaBaseUrl` <<configuration#, configuration>> option. The argument takes precedence over the configuration value. Content (page) links are not affected by `mediaBaseUrl`.
 
 For instance, the processed value of an image looks like this:
 
