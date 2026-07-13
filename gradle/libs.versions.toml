@@ -2,7 +2,7 @@
 graphql-java = "26.0"
 graphql-java-extended-scalars = "24.0"
 jackson = "2.22.1"
-junit = "6.1.1"
+junit = "6.1.2"
 mockito = "5.23.0"
 mustache = "3.0.0"
 router = "4.0.0"
