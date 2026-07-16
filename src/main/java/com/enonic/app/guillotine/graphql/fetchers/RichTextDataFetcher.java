@@ -9,7 +9,6 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
-import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.macro.CustomHtmlPostProcessor;
@@ -67,9 +66,10 @@ public class RichTextDataFetcher
         htmlParams.processMacros( false );
         htmlParams.customStyleDescriptorsCallback( () -> serviceFacade.getStyleDescriptorService().getAll() );
         htmlParams.customHtmlProcessor( processor -> {
+            HtmlDocument htmlDocument = processor.getDocument();
+
             processor.processDefault( new CustomHtmlPostProcessor( links, images ) );
 
-            HtmlDocument htmlDocument = processor.getDocument();
             htmlDocument.select( "figcaption:empty" ).forEach( HtmlElement::remove );
             return htmlDocument.getInnerHtml();
         } );
@@ -104,17 +104,15 @@ public class RichTextDataFetcher
 
     private ProcessHtmlParams createProcessHtmlParams( DataFetchingEnvironment environment )
     {
-        final ProcessHtmlParams htmlParams =
-            new ProcessHtmlParams().value( htmlText ).baseUrl( GuillotineLocalContextHelper.getSiteBaseUrl( environment ) );
-
         Map<String, Object> processHtmlParams = environment.getArgument( "processHtml" );
+
+        final ProcessHtmlParams htmlParams = new ProcessHtmlParams().value( htmlText )
+            .imageBaseUrl( GuillotineLocalContextHelper.getImageBaseUrl( environment ) )
+            .attachmentBaseUrl( GuillotineLocalContextHelper.getAttachmentBaseUrl( environment ) )
+            .pageBaseUrl( GuillotineLocalContextHelper.getSiteBaseUrl( environment ) );
 
         if ( processHtmlParams != null )
         {
-            if ( processHtmlParams.containsKey( "type" ) )
-            {
-                htmlParams.type( processHtmlParams.get( "type" ).toString() );
-            }
             if ( processHtmlParams.containsKey( "imageWidths" ) )
             {
                 htmlParams.imageWidths( (List<Integer>) processHtmlParams.get( "imageWidths" ) );

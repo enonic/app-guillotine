@@ -35,7 +35,7 @@ TIP: A more intuitive way to discover the API is by using the <<playground#, Que
 |===
 |Name(Arguments):Type | Description
 
-|guillotine(siteKey: String image:v-710.svg[Guillotine 7.1.0,opts=inline]): <<HeadlessCms>>
+|guillotine(project: String, branch: String, siteKey: String): <<HeadlessCms>>
 |Type gathering all content retrieval requests
 |===
 
@@ -197,8 +197,11 @@ All types implementing `Content` share the same fields, with the exception of th
 |publish: <<PublishInfo>>
 |Publication information
 
-|pageUrl(type: <<UrlType>>, params: Json): String
+|pageUrl(params: Json): String
 |Util field to generate a URL pointing to the content
+
+|pageUrlParts(params: Json): <<PageUrlParts>>
+|Components of the page URL, for building the full URL from segments
 
 |site: portal_Site
 |Link to the nearest site
@@ -487,6 +490,9 @@ Represents details for image found and processed in the <<RichText>> type.
 |intent: <<MediaIntentType>>
 |Link intent.
 
+|mediaUrlParts: <<AttachmentUrlParts>>
+|Parts of the media URL, honoring the link intent (`?download` for download links)
+
 |content: <<Content>>
 |Related content
 
@@ -509,6 +515,84 @@ Represents details for image found and processed in the <<RichText>> type.
 
 |content: <<Content>>
 |Related content. This field has `null` value for media content
+
+|pageUrlParts: <<PageUrlParts>>
+|Parts of the link target page URL. This field has `null` value for media links
+
+|===
+
+=== PageUrlParts
+
+Components of a page URL, for building the full URL from segments: `url = baseUrl + path + queryString`.
+
+|===
+|Name (Arguments): Type | Description
+
+|path: String
+|URL-escaped path of the content relative to its nearest site (the full content path when there is no site), with a leading slash. Empty when the content is the site itself
+
+|queryString: String
+|URL-escaped query string, prefixed with `?`. Empty when there are no parameters
+
+|===
+
+=== ImageUrlParts
+
+Parts of an image URL, for building the full URL from segments: `url = baseUrl + path + queryString`. All values are URL-escaped as they appear in the URL.
+
+|===
+|Name (Arguments): Type | Description
+
+|path: String
+|The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<fingerprint>/<scale>/<name>`
+
+|queryString: String
+|URL-escaped query string, prefixed with `?`. Empty when there are no parameters
+
+|context: String
+|Project context segment: `<project>` on the master branch, `<project>:<branch>` otherwise
+
+|id: String
+|Content ID
+
+|fingerprint: String
+|Media fingerprint, joined with the id as `<id>:<fingerprint>` in the path
+
+|scale: String
+|Processed scale segment (for example `max-300`)
+
+|name: String
+|File name segment, with the requested format extension applied
+
+|===
+
+=== AttachmentUrlParts
+
+Parts of an attachment URL, for building the full URL from segments: `url = baseUrl + path + queryString`. All values are URL-escaped as they appear in the URL.
+
+|===
+|Name (Arguments): Type | Description
+
+|path: String
+|The full media API path with a leading slash, ready to append to a base URL: `/media:attachment/<context>/<id>:<fingerprint>/<name>`
+
+|queryString: String
+|URL-escaped query string, prefixed with `?`. Empty when there are no parameters
+
+|context: String
+|Project context segment: `<project>` on the master branch, `<project>:<branch>` otherwise
+
+|id: String
+|Content ID
+
+|fingerprint: String
+|Media fingerprint, joined with the id as `<id>:<fingerprint>` in the path
+
+|name: String
+|Attachment file name segment
+
+|intent: <<MediaIntentType,MediaIntentType>>
+|How the URL is meant to be consumed: `download` when the URL carries the `?download` query string, `inline` otherwise
 
 |===
 
@@ -955,7 +1039,7 @@ Direct Known Subtypes: FormInput
 |mimeType: String
 |Attachment mime type
 
-|attachmentUrl (download: Boolean, type: <<UrlType>>, params: Json): String
+|attachmentUrl (download: Boolean, params: Json): String
 |Attachment URL
 
 |===
@@ -999,9 +1083,6 @@ Direct Known Subtypes: FormInput
 
 |===
 |Name(Arguments):Type | Description
-
-|type: <<UrlType>>
-|URL type
 
 |imageWidths: [Int]
 |Generates image URLs for given widths which will be used in the `srcset` attribute of `img` tag.
@@ -1850,11 +1931,6 @@ Enum values: ItemSet
 , Layout
 , Input
 , OptionSet
-
-=== UrlType
-
-Enum values: server
-, absolute
 
 === ComponentType
 

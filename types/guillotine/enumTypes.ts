@@ -13,7 +13,6 @@ export enum EnumTypeName {
 	MediaIntentType = 'MediaIntentType',
 	Permission = 'Permission',
 	PrincipalType = 'PrincipalType',
-	UrlType = 'UrlType',
 }
 
 export declare type EnumTypeNames = keyof typeof EnumTypeName

@@ -37,7 +37,6 @@ public class GetAttachmentUrlByNameDataFetcherTest
         when( environment.getSource() ).thenReturn( Map.of( "name", "Name" ) );
         when( environment.getLocalContext() ).thenReturn( localContext );
         when( environment.getArgument( "download" ) ).thenReturn( true );
-        when( environment.getArgument( "type" ) ).thenReturn( null );
 
         Map<String, Object> params = new LinkedHashMap<>();
         params.put( "a", "1" );

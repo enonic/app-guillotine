@@ -154,6 +154,7 @@ public class BaseGraphQLIntegrationTest
         return bean;
     }
 
+
     protected List<ContentType> getCustomContentTypes()
     {
         return new ArrayList<>();
