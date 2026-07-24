@@ -35,7 +35,7 @@ TIP: A more intuitive way to discover the API is by using the <<playground#, Que
 |===
 |Name(Arguments):Type | Description
 
-|guillotine(siteKey: String image:v-710.svg[Guillotine 7.1.0,opts=inline]): <<HeadlessCms>>
+|guillotine(siteKey: String): <<HeadlessCms>>
 |Type gathering all content retrieval requests
 |===
 
@@ -45,7 +45,7 @@ Gathers all content retrieval requests.
 
 ==== Remarks
 
-* Most requests expect a key as argument. If the key is not specified, then the matched content will be the one corresponding to the current execution context
+* Most requests expect a key as an argument. If the key is not specified, then the matched content will be the one corresponding to the current execution context
 
 ==== Fields
 
@@ -1372,7 +1372,7 @@ Aggregations enable extracting statistical data from search results. Only one of
 
 === QueryDSLInput
 
-Query DSL input type. Only one field must be provided. More details about Query DSL you can find https://developer.enonic.com/docs/code/xp8/storage/querying[here].
+Query DSL input type. Only one field must be provided. More details about Query DSL you can find https://developer.enonic.com/docs/code/stable/storage/querying[here].
 
 ==== Fields
 
@@ -1473,10 +1473,10 @@ Stemmed DSL expression input type.
 |List of fields (propertyPaths) to include in the search.
 
 |query: String!
-|A query string to match field value(s). Supports the set of https://developer.enonic.com/docs/code/xp8/storage/querying#query_operators[operators].
+|A query string to match field value(s). Supports the set of https://developer.enonic.com/docs/code/stable/storage/querying#query_operators[operators].
 
 |language: String!
-|Content language that was used for stemming. List of https://developer.enonic.com/docs/code/xp8/storage/indexing#languages[supported languages].
+|Content language that was used for stemming. List of https://developer.enonic.com/docs/code/stable/storage/indexing#languages[supported languages].
 
 |operator: <<DslOperatorType>>
 |DSL operator. By default, `OR` (any of the words in the query matches).
@@ -1499,7 +1499,7 @@ Fulltext DSL expression input type.
 |List of fields (propertyPaths) to include in the search.
 
 |query: String!
-|A query string to match field value(s). Supports the set of https://developer.enonic.com/docs/code/xp8/storage/querying#query_operators[operators].
+|A query string to match field value(s). Supports the set of https://developer.enonic.com/docs/code/stable/storage/querying#query_operators[operators].
 
 |operator: <<DslOperatorType>>
 |DSL operator. By default, `OR` (any of the words in the query matches).

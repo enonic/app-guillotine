@@ -46,7 +46,7 @@ The `params` argument of URL field (i,e, pageUrl, imageUrl, attachmentUrl and me
 
 == Site Configuration
 
-It is no longer possible to obtain the `siteConfig` from the `dataAsJson` and `site` fields of the `Content` type, as well as from the `dataAsJson` field of the `portal_Site` type. If you need to retrieve the site configuration, please use the `getSite` or `getSiteConfig` functions from the https://developer.enonic.com/docs/xp/stable/api/lib-content#getsiteconfig[Content Lib].
+It is no longer possible to obtain the `siteConfig` from the `dataAsJson` and `site` fields of the `Content` type, as well as from the `dataAsJson` field of the `portal_Site` type. If you need to retrieve the site configuration, please use the `getSite` or `getSiteConfig` functions from the https://developer.enonic.com/docs/code/stable/libraries/lib-content#getsiteconfig[Content Lib].
 
 == Guillotine library
 
