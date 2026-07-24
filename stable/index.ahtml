@@ -464,13 +464,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-<strong>Quickstart!</strong> Check out <a href="https://developer.enonic.com/docs/developer-101">the Developer 101 tutorial</a> for a hands-on introduction to Enonic and the GraphQL API.
+<strong>Quickstart!</strong> Check out <a href="https://developer.enonic.com/learn/developer-101">the Developer 101 tutorial</a> for a hands-on introduction to Enonic and the GraphQL API.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>At its core, Guillotine is a strongly typed GraphQL version of XP&#8217;s internal <a href="https://developer.enonic.com/docs/xp/stable/api/lib-content">JS Content API</a>.</p>
+<p>At its core, Guillotine is a strongly typed GraphQL version of XP&#8217;s internal <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-content">Content library</a>.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -514,7 +514,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-06-24 15:38:29 UTC
+Last updated 2026-07-24 11:46:15 UTC
 </div>
 </div>
 </body>

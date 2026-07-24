@@ -463,7 +463,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Guillotine is available as an Enonic app. Guillotine will normally be pre-installed when you create a new solution in the self-service cloud, or when setting up a new SDK Sandbox.</p>
 </div>
 <div class="paragraph">
-<p>To install it manually, follow the <a href="https://market.enonic.com/vendors/enonic/guillotine-headless-cms">instructions on Enonic Market</a>.</p>
+<p>To install it manually, follow the <a href="https://market.enonic.com/vendors/enonic/guillotine">instructions on Enonic Market</a>.</p>
 </div>
 </div>
 </div>
@@ -558,14 +558,14 @@ mapping.example-api.target = /site/&lt;project&gt;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>For more details about vhosts, check out the <a href="https://developer.enonic.com/docs/xp/stable/deployment/vhosts">XP documentation</a></p>
+<p>For more details about vhosts, check out the <a href="https://developer.enonic.com/docs/platform/stable/config/vhosts">Platform documentation</a></p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-06-24 15:38:29 UTC
+Last updated 2026-07-24 11:46:15 UTC
 </div>
 </div>
 </body>

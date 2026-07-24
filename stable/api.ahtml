@@ -631,7 +631,7 @@ A more intuitive way to discover the API is by using the <a href="playground.aht
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">guillotine(siteKey: String: <a href="#headlesscms">HeadlessCms</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">guillotine(siteKey: String): <a href="#headlesscms">HeadlessCms</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Type gathering all content retrieval requests</p></td>
 </tr>
 </tbody>
@@ -2603,7 +2603,7 @@ after: String
 <div class="sect2">
 <h3 id="querydslinput"><a class="link" href="#querydslinput">QueryDSLInput</a></h3>
 <div class="paragraph">
-<p>Query DSL input type. Only one field must be provided. More details about Query DSL you can find <a href="https://developer.enonic.com/docs/code/xp8/storage/querying">here</a>.</p>
+<p>Query DSL input type. Only one field must be provided. More details about Query DSL you can find <a href="https://developer.enonic.com/docs/code/stable/storage/querying">here</a>.</p>
 </div>
 <div class="sect3">
 <h4 id="fields_43"><a class="link" href="#fields_43">Fields</a></h4>
@@ -2770,11 +2770,11 @@ after: String
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">query: String!</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A query string to match field value(s). Supports the set of <a href="https://developer.enonic.com/docs/code/xp8/storage/querying#query_operators">operators</a>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A query string to match field value(s). Supports the set of <a href="https://developer.enonic.com/docs/code/stable/storage/querying#query_operators">operators</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">language: String!</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Content language that was used for stemming. List of <a href="https://developer.enonic.com/docs/code/xp8/storage/indexing#languages">supported languages</a>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content language that was used for stemming. List of <a href="https://developer.enonic.com/docs/code/stable/storage/indexing#languages">supported languages</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">operator: <a href="#dsloperatortype">DslOperatorType</a></p></td>
@@ -2813,7 +2813,7 @@ after: String
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">query: String!</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A query string to match field value(s). Supports the set of <a href="https://developer.enonic.com/docs/code/xp8/storage/querying#query_operators">operators</a>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A query string to match field value(s). Supports the set of <a href="https://developer.enonic.com/docs/code/stable/storage/querying#query_operators">operators</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">operator: <a href="#dsloperatortype">DslOperatorType</a></p></td>
@@ -3486,7 +3486,7 @@ Defaults to none - will be displayed in the same order in which fragments appear
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-06-24 15:38:29 UTC
+Last updated 2026-07-24 11:46:15 UTC
 </div>
 </div>
 </body>
