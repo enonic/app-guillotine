@@ -2,7 +2,7 @@
 
 Example queries when using Guillotine
 
-TIP: Visit our https://developer.enonic.com/docs/developer-101[Developer 101 tutorial] for detailed introduction to Enonic and use of the Guillotine API
+TIP: Visit our https://developer.enonic.com/learn/developer-101[Developer 101 tutorial] for detailed introduction to Enonic and use of the Guillotine API
 
 == Introduction
 
@@ -14,7 +14,7 @@ Below is a selection of sample GraphQL queries:
 
 == Content queries
 
-Enonic offers advanced search and aggregation queries using https://developer.enonic.com/docs/code/xp8/storage/querying[Query DSL] (Domain Specific Language). Ranked search, aggregations and highlighting are just some of the features.
+Enonic offers advanced search and aggregation queries using https://developer.enonic.com/docs/code/stable/storage/querying[Query DSL] (Domain Specific Language). Ranked search, aggregations and highlighting are just some of the features.
 
 .*Query DSL example*: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author
 [source,graphql]
@@ -279,7 +279,7 @@ Each macro will be translated to an `editor-macro` tag with `data-macro-ref` and
 
 [NOTE]
 ====
-Guillotine processes macros which have a descriptor and built-in macros called `disable` and `embed`, otherwise processing will be skipped. https://developer.enonic.com/docs/xp/stable/cms/macros[More details about macros].
+Guillotine processes macros which have a descriptor and built-in macros called `disable` and `embed`, otherwise processing will be skipped. https://developer.enonic.com/docs/cms/stable/richtext/macros[More details about macros].
 ====
 
 For instance, we have an input form item called `description` of `HtmlArea` type which contains the `embed` macro as shown below:
@@ -325,7 +325,7 @@ Results of the query:
 
 image:images/embed-response-example.png[Response for embed macro]
 
-It is common to define a https://developer.enonic.com/docs/xp/stable/cms/macros#descriptor[schema for your macro]. This is located in the `/site/macros/` directory. For instance, for a macro with name `testmacro` the schema must be placed at `/site/macros/testmacro/testmacro.xml`
+It is common to define a https://developer.enonic.com/docs/cms/stable/richtext/macros#descriptor[schema for your macro]. This is located in the `/site/macros/` directory. For instance, for a macro with name `testmacro` the schema must be placed at `/site/macros/testmacro/testmacro.xml`
 
 [source,xml]
 ----
@@ -370,11 +370,11 @@ query {
 }
 ----
 
-== xData
+== Mixins
 
-Enonic XP supports dynamically extending content with fields from other schemas/applications - so-called https://developer.enonic.com/docs/xp/stable/cms/x-data[eXtra Data].
+Enonic XP supports dynamically adding fields from other schemas/applications to an existing content type - so-called https://developer.enonic.com/docs/cms/stable/content/mixins[Mixins].
 
-In the query below, we access the SoMe (SocialMedia) fields that have been used to extend the Person content type.
+In the query below, we access the SoMe (SocialMedia) mixin fields that have been added to the Person content type.
 
 
 .Example: Access xData fields
