@@ -2,18 +2,9 @@
 jackson-databind = "2.21.3"
 graphql-java = "26.0"
 graphql-java-extended-scalars = "24.0"
-<<<<<<< HEAD
 lib-mustache = "3.0.0-B1"
 lib-static = "3.0.0-B4"
 lib-router = "4.0.0-B1"
-=======
-jackson = "2.21.3"
-junit = "6.1.1"
-mockito = "5.23.0"
-mustache = "3.0.0-B1"
-router = "4.0.0-B1"
-static = "3.0.0-B4"
->>>>>>> 107fc5f (Bump org.junit:junit-bom from 6.1.0 to 6.1.1)
 lib-cors = "2.0.0-B1"
 junit-bom = "6.0.3"
 mockito-bom = "5.23.0"
