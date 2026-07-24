@@ -14,12 +14,12 @@ To configure Guillotine, add a configuration file to your XP instance's `config`
 queryplayground.ui.mode=off  // <1>
 graphql.extensions.modifyUnknownField=throw  // <2>
 
-cors.enabled=true|false // <3>
-cors.origin= // <4>
-cors.credentials=true|false // <5>
-cors.allowedHeaders=Content-Type // <6>
-cors.methods=POST, OPTIONS // <7>
-cors.maxAge= // <8>
+cors.origin= https://example.com, https://admin.example.com // <3>
+cors.credentials=true|false // <4>
+cors.allowedHeaders=Content-Type // <5>
+cors.methods=POST, OPTIONS // <6>
+cors.exposedHeaders = X-Request-Id, X-Custom-Header // <7>
+cors.maxAge= 3600 // <8>
 
 maxQueryTokens=15000 // <9>
 ----
@@ -32,20 +32,16 @@ NOTE: For Enonic SDK default value is `on`, for server distributions - `off`.
 
 <2> Allows you to modify the default behaviour during modification of unknown fields. Possible values are: `throw`  - to throw an error if it tries to modify an unknown field, `ignore` - to ignore modification modify an unknown field, or `warn` - to log a warning on unknown field modification. Default is `throw`.
 
-+
-NOTE: CORS configuration is available from version image:v-720.svg[Guillotine 7.2.0,opts=inline] and allows to set response headers for Cross-Origin Resource Sharing (CORS) requests.
-+
+<3> Allowed origin(s), comma-separated. Omit this field to disable CORS. Supports `*` (allow all origins), literal origins, and `~`-prefixed regex patterns for dynamic matching (e.g. `~https://.*\.example\.com`). Can use `~.*` to reflect all.
 
-<3> Enables or disables CORS support. Default is `true`.
+<4> Sets the `Access-Control-Allow-Credentials` header to allow credentials in CORS requests. Default is `false`.
 
-<4> Sets the `Access-Control-Allow-Origin` header to allow CORS requests from. If not set and the Origin header is not provided, then all origins are allowed.
+<5> Sets the `Access-Control-Allow-Headers` header to allow headers in CORS requests. If `cors.allowedHeaders` is not configured and a request includes `Access-Control-Request-Headers`, that value is reflected in `Access-Control-Allow-Headers`.
 
-<5> Sets the `Access-Control-Allow-Credentials` header to allow credentials in CORS requests. Default is `false`.
+<6> Sets the `Access-Control-Allow-Methods` header to allow methods in CORS requests. Guillotine handlers only `POST` and `OPTIONS`. Default is `GET, HEAD, POST`.
 
-<6> Sets the `Access-Control-Allow-Headers` header to allow headers in CORS requests. Default is `Content-Type`.
+<7> Extra response headers to expose beyond the CORS safelist. If you configure `cors.exposedHeaders = *`, browsers only treat `*` as a wildcard for non-credentialed requests.
 
-<7> Sets the `Access-Control-Allow-Methods` header to allow methods in CORS requests. Guillotine handlers only `POST` and `OPTIONS`. Default is `POST, OPTIONS`.
+<8> Sets the `Access-Control-Max-Age` header to specify preflight cache duration in seconds
 
-<8> Sets the `Access-Control-Max-Age` header to specify the maximum age for CORS requests.
-
-<9> If the number of raw tokens exceeds the specified maximum, the parser will throw an exception. Default is `15000` image:v-730.svg[Guillotine 7.3.0,opts=inline].
+<9> If the number of raw tokens exceeds the specified maximum, the parser will throw an exception. Default is `15000`.
