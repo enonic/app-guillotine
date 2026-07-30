@@ -246,9 +246,33 @@ portal_Site
 , portal_PageTemplate
 , media_Unknown
 , portal_TemplateFolder
-, media_Image
+, <<media_Image>>
 , base_Unstructured
 , portal_Fragment
+
+=== media_Image
+
+In addition to the fields of the <<Content>> interface, all `media:*` content types provide the field `mediaUrl`, and contents of type `media:image` additionally provide the field `imageUrl`.
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|mediaUrl (download: Boolean, type: <<UrlType>>, params: Json): String
+|URL to the underlying media attachment. Set `download` to `true` to force download instead of inline rendering.
+
+|imageUrl (scale: String!, quality: Int, type: <<UrlType>>, background: String, format: String, filter: String, params: Json): String
+a|URL to a processed version of the image, scaled and cropped by the server at request time.
+
+* `scale` (required) - scaling function to apply: `block(width,height)`, `height(height)`, `max(size)`, `square(size)`, `wide(width,height)`, `width(width)` or `full`
+* `quality` - compression quality of JPEG images, from 0 to 100. Default is 85
+* `type` - URL type: `server` (default) or `absolute`. Use `absolute` when the URL is consumed outside the server context, for instance when rendering from an external frontend or inside Content Studio preview
+* `background` - background color to use when converting images with transparency, as a hex value, e.g. `ff0000`
+* `format` - image format of the generated URL. Supported formats are `jpg`, `png` and `gif` - other formats, such as `webp` or `avif`, are not supported and the resulting URL will fail with `400 Invalid parameters`
+* `filter` - image filters to apply, e.g. `rounded(5);sharpen()`
+* `params` - additional query parameters to append to the URL
+|===
 
 === ContentConnection
 
