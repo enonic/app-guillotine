@@ -1,4 +1,5 @@
-= Guillotine - Headless API
+include::.variables.adoc[]
+= Guillotine {version} - Headless GraphQL API
 
 A bend-over-backwards flexible GraphQL API based on XP's content API
 
