@@ -2125,6 +2125,10 @@ after: String
 <td class="tableblock halign-left valign-top"><p class="tableblock">Attachment mime type</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sha512: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attachment SHA-512 checksum</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">attachmentUrl (download: Boolean, type: <a href="#urltype">UrlType</a>, params: Json): String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Attachment URL</p></td>
 </tr>
@@ -3545,7 +3549,7 @@ Defaults to none - will be displayed in the same order in which fragments appear
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-07-30 20:51:06 UTC
+Last updated 2026-08-03 11:45:42 UTC
 </div>
 </div>
 </body>
