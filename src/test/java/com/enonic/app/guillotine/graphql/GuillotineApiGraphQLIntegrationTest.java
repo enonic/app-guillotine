@@ -114,6 +114,7 @@ public class GuillotineApiGraphQLIntegrationTest
         assertEquals( "image.jpeg", attachment.get( "name" ) );
         assertEquals( "source", attachment.get( "label" ) );
         assertEquals( "image/jpeg", attachment.get( "mimeType" ) );
+        assertEquals( "sha512", attachment.get( "sha512" ) );
 
         Map<String, Object> xAsJsonField = CastHelper.cast( getField.get( "xAsJson" ) );
         assertEquals( 1, xAsJsonField.values().size() );
