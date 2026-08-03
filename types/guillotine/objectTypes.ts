@@ -137,6 +137,7 @@ export declare interface Attachment {
 	label: GraphQLString
 	size: GraphQLInt
 	mimeType: GraphQLString
+	sha512: GraphQLString
 	attachmentUrl: GraphQLString
 }
 

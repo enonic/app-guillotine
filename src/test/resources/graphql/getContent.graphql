@@ -19,6 +19,7 @@ query {
                 name
                 label
                 mimeType
+                sha512
             }
             publish {
                 from

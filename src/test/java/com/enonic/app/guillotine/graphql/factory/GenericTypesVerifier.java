@@ -161,11 +161,12 @@ public class GenericTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 5, fields.size() );
+        assertEquals( 6, fields.size() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "name" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "label" ).getType() );
         assertEquals( Scalars.GraphQLInt, type.getFieldDefinition( "size" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "mimeType" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "sha512" ).getType() );
 
         GraphQLFieldDefinition attachmentUrlField = type.getFieldDefinition( "attachmentUrl" );
         assertEquals( Scalars.GraphQLString, attachmentUrlField.getType() );

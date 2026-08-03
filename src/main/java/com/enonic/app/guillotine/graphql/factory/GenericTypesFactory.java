@@ -130,6 +130,7 @@ public class GenericTypesFactory
         fields.add( outputField( "label", Scalars.GraphQLString ) );
         fields.add( outputField( "size", Scalars.GraphQLInt ) );
         fields.add( outputField( "mimeType", Scalars.GraphQLString ) );
+        fields.add( outputField( "sha512", Scalars.GraphQLString ) );
         fields.add( outputField( "attachmentUrl", Scalars.GraphQLString, List.of( newArgument( "download", Scalars.GraphQLBoolean ),
                                                                                   newArgument( "type",
                                                                                                GraphQLTypeReference.typeRef( "UrlType" ) ),
