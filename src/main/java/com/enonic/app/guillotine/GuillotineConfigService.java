@@ -7,7 +7,6 @@ import org.osgi.service.component.annotations.Modified;
 @Component(immediate = true, service = GuillotineConfigService.class, configurationPid = "com.enonic.app.guillotine")
 public class GuillotineConfigService
 {
-
     private QueryPlaygroundUIMode queryPlaygroundUIMode;
 
     private ModifyUnknownFieldMode modifyUnknownFieldMode;

@@ -60,6 +60,11 @@ public class RichTextGraphQLIntegrationTest
         assertNotNull( textField );
     }
 
+
+
+
+
+
     @Test
     public void testEmptyRichTextField()
     {
