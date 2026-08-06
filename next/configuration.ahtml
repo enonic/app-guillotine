@@ -527,12 +527,24 @@ For Enonic SDK default value is <code>on</code>, for server distributions - <cod
 </tr>
 </table>
 </div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+A default base URL for media URLs can be configured on XP itself with the <code>media.defaultBaseUrl</code> option in <code>com.enonic.xp.portal.cfg</code>.
+</td>
+</tr>
+</table>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-08-03 11:45:08 UTC
+Last updated 2026-08-06 09:56:40 UTC
 </div>
 </div>
 </body>

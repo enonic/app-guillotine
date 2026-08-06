@@ -461,6 +461,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#imagestyle">ImageStyle</a></li>
 <li><a href="#media">Media</a></li>
 <li><a href="#link">Link</a></li>
+<li><a href="#pageurlparts">PageUrlParts</a></li>
+<li><a href="#imageurlparts">ImageUrlParts</a></li>
+<li><a href="#attachmenturlparts">AttachmentUrlParts</a></li>
 <li><a href="#permissions">Permissions</a></li>
 <li><a href="#accesscontrolentry">AccessControlEntry</a></li>
 <li><a href="#principalkey">PrincipalKey</a></li>
@@ -535,7 +538,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#principaltype">PrincipalType</a></li>
 <li><a href="#permission">Permission</a></li>
 <li><a href="#formitemtype">FormItemType</a></li>
-<li><a href="#urltype">UrlType</a></li>
 <li><a href="#componenttype">ComponentType</a></li>
 <li><a href="#contentpathtype">ContentPathType</a></li>
 <li><a href="#mediaintenttype">MediaIntentType</a></li>
@@ -632,7 +634,7 @@ A more intuitive way to discover the API is by using the <a href="playground.aht
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">guillotine(siteKey: String): <a href="#headlesscms">HeadlessCms</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">guillotine(project: String, branch: String, siteKey: String): <a href="#headlesscms">HeadlessCms</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Type gathering all content retrieval requests</p></td>
 </tr>
 </tbody>
@@ -837,8 +839,12 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Publication information</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">pageUrl(type: <a href="#urltype">UrlType</a>, params: Json): String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pageUrl(params: Json): String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Util field to generate a URL pointing to the content</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pageUrlParts(params: Json): <a href="#pageurlparts">PageUrlParts</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the page URL, for building the full URL from segments</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">site: portal_Site</p></td>
@@ -920,11 +926,11 @@ portal_Site
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">mediaUrl (download: Boolean, type: <a href="#urltype">UrlType</a>, params: Json): String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">mediaUrl (download: Boolean, type: <a href="#UrlType">[UrlType]</a>, params: Json): String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">URL to the underlying media attachment. Set <code>download</code> to <code>true</code> to force download instead of inline rendering.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">imageUrl (scale: String!, quality: Int, type: <a href="#urltype">UrlType</a>, background: String, format: String, filter: String, params: Json): String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">imageUrl (scale: String!, quality: Int, type: <a href="#UrlType">[UrlType]</a>, background: String, format: String, filter: String, params: Json): String</p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>URL to a processed version of the image, scaled and cropped by the server at request time.</p>
 </div>
@@ -1346,6 +1352,10 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <td class="tableblock halign-left valign-top"><p class="tableblock">Link intent.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">mediaUrlParts: <a href="#attachmenturlparts">AttachmentUrlParts</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Parts of the media URL, honoring the link intent (<code>?download</code> for download links)</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">content: <a href="#content">Content</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Related content</p></td>
 </tr>
@@ -1381,6 +1391,134 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">content: <a href="#content">Content</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Related content. This field has <code>null</code> value for media content</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pageUrlParts: <a href="#pageurlparts">PageUrlParts</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Parts of the link target page URL. This field has <code>null</code> value for media links</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="pageurlparts"><a class="link" href="#pageurlparts">PageUrlParts</a></h3>
+<div class="paragraph">
+<p>Components of a page URL, for building the full URL from segments: <code>url = baseUrl + path + queryString</code>.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name (Arguments): Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL-escaped path of the content relative to its nearest site (the full content path when there is no site), with a leading slash. Empty when the content is the site itself</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">queryString: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL-escaped query string, prefixed with <code>?</code>. Empty when there are no parameters</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="imageurlparts"><a class="link" href="#imageurlparts">ImageUrlParts</a></h3>
+<div class="paragraph">
+<p>Parts of an image URL, for building the full URL from segments: <code>url = baseUrl + path + queryString</code>. All values are URL-escaped as they appear in the URL.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name (Arguments): Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The full media API path with a leading slash, ready to append to a base URL: <code>/media:image/&lt;context&gt;/&lt;id&gt;:&lt;fingerprint&gt;/&lt;scale&gt;/&lt;name&gt;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">queryString: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL-escaped query string, prefixed with <code>?</code>. Empty when there are no parameters</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">context: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Project context segment: <code>&lt;project&gt;</code> on the master branch, <code>&lt;project&gt;:&lt;branch&gt;</code> otherwise</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">id: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fingerprint: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Media fingerprint, joined with the id as <code>&lt;id&gt;:&lt;fingerprint&gt;</code> in the path</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">scale: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Processed scale segment (for example <code>max-300</code>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">name: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">File name segment, with the requested format extension applied</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="attachmenturlparts"><a class="link" href="#attachmenturlparts">AttachmentUrlParts</a></h3>
+<div class="paragraph">
+<p>Parts of an attachment URL, for building the full URL from segments: <code>url = baseUrl + path + queryString</code>. All values are URL-escaped as they appear in the URL.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name (Arguments): Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The full media API path with a leading slash, ready to append to a base URL: <code>/media:attachment/&lt;context&gt;/&lt;id&gt;:&lt;fingerprint&gt;/&lt;name&gt;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">queryString: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL-escaped query string, prefixed with <code>?</code>. Empty when there are no parameters</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">context: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Project context segment: <code>&lt;project&gt;</code> on the master branch, <code>&lt;project&gt;:&lt;branch&gt;</code> otherwise</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">id: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fingerprint: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Media fingerprint, joined with the id as <code>&lt;id&gt;:&lt;fingerprint&gt;</code> in the path</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">name: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attachment file name segment</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">intent: <a href="#mediaintenttype">MediaIntentType</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How the URL is meant to be consumed: <code>download</code> when the URL carries the <code>?download</code> query string, <code>inline</code> otherwise</p></td>
 </tr>
 </tbody>
 </table>
@@ -2125,7 +2263,7 @@ after: String
 <td class="tableblock halign-left valign-top"><p class="tableblock">Attachment mime type</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">attachmentUrl (download: Boolean, type: <a href="#urltype">UrlType</a>, params: Json): String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">attachmentUrl (download: Boolean, params: Json): String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Attachment URL</p></td>
 </tr>
 </tbody>
@@ -2211,10 +2349,6 @@ after: String
 </tr>
 </thead>
 <tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">type: <a href="#urltype">UrlType</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL type</p></td>
-</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">imageWidths: [Int]</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Generates image URLs for given widths which will be used in the <code>srcset</code> attribute of <code>img</code> tag.</p></td>
@@ -3446,13 +3580,6 @@ after: String
 </div>
 </div>
 <div class="sect2">
-<h3 id="urltype"><a class="link" href="#urltype">UrlType</a></h3>
-<div class="paragraph">
-<p>Enum values: server
-, absolute</p>
-</div>
-</div>
-<div class="sect2">
 <h3 id="componenttype"><a class="link" href="#componenttype">ComponentType</a></h3>
 <div class="paragraph">
 <p>Enum values: page
@@ -3545,7 +3672,7 @@ Defaults to none - will be displayed in the same order in which fragments appear
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-08-03 11:45:08 UTC
+Last updated 2026-08-06 09:56:40 UTC
 </div>
 </div>
 </body>
