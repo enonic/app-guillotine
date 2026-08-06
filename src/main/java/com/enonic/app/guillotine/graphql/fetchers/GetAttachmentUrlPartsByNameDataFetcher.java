@@ -11,26 +11,32 @@ import com.enonic.xp.content.Content;
 import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 
-public class GetAttachmentUrlByIdDataFetcher
-    implements DataFetcher<String>
+public class GetAttachmentUrlPartsByNameDataFetcher
+    implements DataFetcher<Map<String, Object>>
 {
     private final PortalUrlGeneratorService portalUrlGeneratorService;
 
-    public GetAttachmentUrlByIdDataFetcher( final PortalUrlGeneratorService portalUrlGeneratorService )
+    public GetAttachmentUrlPartsByNameDataFetcher( final PortalUrlGeneratorService portalUrlGeneratorService )
     {
         this.portalUrlGeneratorService = portalUrlGeneratorService;
     }
 
     @Override
-    public String get( final DataFetchingEnvironment environment )
+    public Map<String, Object> get( final DataFetchingEnvironment environment )
         throws Exception
     {
         return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
     }
 
     @SuppressWarnings("unchecked")
-    private String doGet( final DataFetchingEnvironment environment )
+    private Map<String, Object> doGet( final DataFetchingEnvironment environment )
     {
+        final Map<String, Object> attachmentAsMap = environment.getSource();
+        if ( attachmentAsMap == null )
+        {
+            return null;
+        }
+
         final Content content = GuillotineLocalContextHelper.resolveContent( environment );
 
         if ( content == null )
@@ -42,17 +48,18 @@ public class GetAttachmentUrlByIdDataFetcher
 
         final AttachmentUrlGeneratorParams.Builder builder = AttachmentUrlGeneratorParams.create();
 
+        builder.setName( attachmentAsMap.get( "name" ).toString() );
         builder.setDownload( download != null && download );
         builder.setProjectName( () -> GuillotineLocalContextHelper.getProjectName( environment ) );
         builder.setBranch( () -> GuillotineLocalContextHelper.getBranch( environment ) );
         builder.setContent( () -> content );
-        builder.setMediaBaseUrl( GuillotineLocalContextHelper.getAttachmentBaseUrl( environment ) );
 
         if ( environment.getArgument( "params" ) instanceof Map queryParams )
         {
             builder.setQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
         }
 
-        return portalUrlGeneratorService.attachmentUrl( builder.build() );
+        return UrlPartsHelper.toMap( portalUrlGeneratorService.attachmentUrlParts( builder.build() ),
+                                     download != null && download ? "download" : "inline" );
     }
 }

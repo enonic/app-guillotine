@@ -45,3 +45,5 @@ NOTE: For Enonic SDK default value is `on`, for server distributions - `off`.
 <8> Sets the `Access-Control-Max-Age` header to specify preflight cache duration in seconds
 
 <9> If the number of raw tokens exceeds the specified maximum, the parser will throw an exception. Default is `15000`.
+
+TIP: A default base URL for media URLs can be configured on XP itself with the `media.defaultBaseUrl` option in `com.enonic.xp.portal.cfg`.

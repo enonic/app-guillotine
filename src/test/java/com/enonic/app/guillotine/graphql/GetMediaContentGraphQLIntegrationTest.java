@@ -45,6 +45,7 @@ public class GetMediaContentGraphQLIntegrationTest
         assertEquals( "url?a=1&b=2&b=3&c", attachmentUrlField.get( "mediaUrl" ) );
     }
 
+
     @Test
     public void testDownloadAttachmentUrl()
     {
