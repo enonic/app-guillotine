@@ -18,11 +18,12 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.descriptor.DescriptorKey;
+import com.enonic.xp.portal.PortalRequest;
+import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.url.BaseUrlParams;
 import com.enonic.xp.project.ProjectName;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.Objects.requireNonNullElseGet;
 
 public class GuillotineDataFetcher
     implements DataFetcher<Object>
@@ -44,12 +45,15 @@ public class GuillotineDataFetcher
     {
         final Map<Object, Object> localContext = new HashMap<>();
 
-        final String projectName = requireNonNullElseGet( environment.getArgument( Constants.PROJECT_ARG ), () -> ProjectName.from(
-            requireNonNull( ContextAccessor.current().getRepositoryId(), "Project must be provided" ) ).toString() );
+        final PortalRequest portalRequest = PortalRequestAccessor.get();
+        final boolean useContextOnly = portalRequest != null && portalRequest.getMode() != null;
 
-        final String branch = requireNonNullElseGet( environment.getArgument( Constants.BRANCH_ARG ),
-                                                     () -> requireNonNull( ContextAccessor.current().getBranch(),
-                                                                           "Branch must be provided" ).getValue() );
+        final String projectName = useContextOnly || environment.getArgument( Constants.PROJECT_ARG ) == null
+            ? ProjectName.from( requireNonNull( ContextAccessor.current().getRepositoryId(), "Project must be provided" ) ).toString()
+            : environment.getArgument( Constants.PROJECT_ARG );
+
+        final String branch = useContextOnly || environment.getArgument( Constants.BRANCH_ARG ) == null ? requireNonNull(
+            ContextAccessor.current().getBranch(), "Branch must be provided" ).getValue() : environment.getArgument( Constants.BRANCH_ARG );
 
         localContext.putIfAbsent( Constants.PROJECT_ARG, projectName );
         localContext.putIfAbsent( Constants.BRANCH_ARG, branch );
