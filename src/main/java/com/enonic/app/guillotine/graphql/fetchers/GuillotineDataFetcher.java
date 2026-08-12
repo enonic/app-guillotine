@@ -61,29 +61,27 @@ public class GuillotineDataFetcher
 
             localContext.putIfAbsent( Constants.SITE_ARG, siteKey );
 
-            if (!"/".equals( siteKey ) ) {
-                final String baseUrl = resolveBaseUrl( projectName, branch, siteKey, null );
-                // the bare project prefix is the fallback for a site/project without a configured Base URL:
-                // URLs then stay request-based (relativised and vhost-remapped on mounted endpoints)
-                if ( baseUrl != null && !baseUrl.equals( "/site/" + projectName + "/" + branch ) )
-                {
-                    localContext.putIfAbsent( Constants.SITE_BASE_URL, baseUrl );
-                }
+            final String baseUrl = resolveBaseUrl( projectName, branch, siteKey, null );
+            // the bare project prefix is the fallback for a site/project without a configured Base URL:
+            // URLs then stay request-based (relativised and vhost-remapped on mounted endpoints)
+            if ( baseUrl != null && !baseUrl.equals( "/site/" + projectName + "/" + branch ) )
+            {
+                localContext.putIfAbsent( Constants.SITE_BASE_URL, baseUrl );
+            }
 
-                // XP resolves where each media API is served for the site (mounts and configuration
-                // considered); the two bases can diverge when the site mounts only one of the APIs.
-                // null means the URLs stay request-based
-                final String imageBaseUrl = resolveBaseUrl( projectName, branch, siteKey, MEDIA_IMAGE_API_DESCRIPTOR_KEY );
-                if ( imageBaseUrl != null )
-                {
-                    localContext.putIfAbsent( Constants.IMAGE_BASE_URL, imageBaseUrl );
-                }
+            // XP resolves where each media API is served for the site (mounts and configuration
+            // considered); the two bases can diverge when the site mounts only one of the APIs.
+            // null means the URLs stay request-based
+            final String imageBaseUrl = resolveBaseUrl( projectName, branch, siteKey, MEDIA_IMAGE_API_DESCRIPTOR_KEY );
+            if ( imageBaseUrl != null )
+            {
+                localContext.putIfAbsent( Constants.IMAGE_BASE_URL, imageBaseUrl );
+            }
 
-                final String attachmentBaseUrl = resolveBaseUrl( projectName, branch, siteKey, MEDIA_ATTACHMENT_API_DESCRIPTOR_KEY );
-                if ( attachmentBaseUrl != null )
-                {
-                    localContext.putIfAbsent( Constants.ATTACHMENT_BASE_URL, attachmentBaseUrl );
-                }
+            final String attachmentBaseUrl = resolveBaseUrl( projectName, branch, siteKey, MEDIA_ATTACHMENT_API_DESCRIPTOR_KEY );
+            if ( attachmentBaseUrl != null )
+            {
+                localContext.putIfAbsent( Constants.ATTACHMENT_BASE_URL, attachmentBaseUrl );
             }
         }
 

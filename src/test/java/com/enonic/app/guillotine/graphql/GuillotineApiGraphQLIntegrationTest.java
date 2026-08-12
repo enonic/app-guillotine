@@ -225,8 +225,9 @@ public class GuillotineApiGraphQLIntegrationTest
             executeQuery( graphQLSchema, "query { guillotine(siteKey: \"/\") { getSite { _id } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
-        // project root has no content anchor: base-URL resolution is skipped and URLs stay request-based
-        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.never() ).baseUrl( any() );
+        // XP anchors base URLs at the project level for the root path: resolved once for the
+        // page base and once per media API base
+        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.times( 3 ) ).baseUrl( any() );
     }
 
     @Test
@@ -275,7 +276,8 @@ public class GuillotineApiGraphQLIntegrationTest
         Mockito.verify( contentService ).findIdsByParent( captor.capture() );
         assertEquals( ContentPath.ROOT, captor.getValue().getParentPath() );
 
-        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.never() ).baseUrl( any() );
+        // base URLs are anchored at the project level by XP; unresolved bases keep URLs request-based
+        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.times( 3 ) ).baseUrl( any() );
     }
 
     @Override
