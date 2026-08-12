@@ -16,6 +16,11 @@ import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.content.Contents;
+import com.enonic.xp.content.FindContentByParentParams;
+import com.enonic.xp.content.FindContentIdsByParentResult;
+import com.enonic.xp.content.GetContentByIdsParams;
+import com.enonic.xp.content.Media;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.form.FieldSet;
@@ -220,17 +225,19 @@ public class GuillotineApiGraphQLIntegrationTest
             executeQuery( graphQLSchema, "query { guillotine(siteKey: \"/\") { getSite { _id } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
-        // resolved once for the page base and once per media API base
-        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.times( 3 ) ).baseUrl( any() );
+        // project root has no content anchor: base-URL resolution is skipped and URLs stay request-based
+        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.never() ).baseUrl( any() );
     }
 
     @Test
     public void testSiteKeyResolvesMediaBaseUrlViaApi()
     {
+        when( contentService.contentExists( ContentPath.from( "/mysite" ) ) ).thenReturn( true );
+
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
         Map<String, Object> response =
-            executeQuery( graphQLSchema, "query { guillotine(siteKey: \"/\") { getSite { _id } } }" );
+            executeQuery( graphQLSchema, "query { guillotine(siteKey: \"/mysite\") { getSite { _id } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
 
@@ -242,6 +249,33 @@ public class GuillotineApiGraphQLIntegrationTest
         assertNull( captor.getAllValues().get( 0 ).getApi() );
         assertEquals( DescriptorKey.from( "media:image" ), captor.getAllValues().get( 1 ).getApi() );
         assertEquals( DescriptorKey.from( "media:attachment" ), captor.getAllValues().get( 2 ).getApi() );
+    }
+
+    @Test
+    public void testProjectRootSiteKeyResolvesBareSitePlaceholderToRoot()
+    {
+        final Media mediaContent = ContentFixtures.createMediaContent();
+        when( contentService.findIdsByParent( any( FindContentByParentParams.class ) ) ).thenReturn(
+            FindContentIdsByParentResult.create().totalHits( 1 ).contentIds( ContentIds.from( mediaContent.getId() ) ).build() );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( Contents.from( mediaContent ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response =
+            executeQuery( graphQLSchema, "query { guillotine(siteKey: \"/\") { getChildren(key: \"${site}\") { _id } } }" );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        List<Map<String, Object>> children = CastHelper.cast( getFieldFromGuillotine( response, "getChildren" ) );
+        assertEquals( 1, children.size() );
+        assertEquals( mediaContent.getId().toString(), children.get( 0 ).get( "_id" ) );
+
+        // a bare ${site} under project-root anchoring resolves to the root path
+        ArgumentCaptor<FindContentByParentParams> captor = ArgumentCaptor.forClass( FindContentByParentParams.class );
+        Mockito.verify( contentService ).findIdsByParent( captor.capture() );
+        assertEquals( ContentPath.ROOT, captor.getValue().getParentPath() );
+
+        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.never() ).baseUrl( any() );
     }
 
     @Override
