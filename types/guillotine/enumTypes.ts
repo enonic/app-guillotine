@@ -28,6 +28,12 @@ export enum FormItemType {
 }
 
 // This is a value, do not add declare.
+export enum MediaIntentType {
+	download = 'download',
+	inline = 'inline',
+}
+
+// This is a value, do not add declare.
 export enum Permission {
 	READ = 'READ',
 	CREATE = 'CREATE',

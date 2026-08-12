@@ -5,6 +5,7 @@ import type {
 } from '../brand'
 import type {
 	FormItemType,
+	MediaIntentType,
 	Permission,
 	PrincipalType,
 } from './enumTypes'
@@ -28,6 +29,7 @@ import type {
 export enum ObjectTypeName {
 	AccessControlEntry = 'AccessControlEntry',
 	Attachment = 'Attachment',
+	AttachmentUrl = 'AttachmentUrl',
 	base_Folder = 'base_Folder',
 	base_Media = 'base_Media',
 	base_Shortcut = 'base_Shortcut',
@@ -54,6 +56,7 @@ export enum ObjectTypeName {
 	Image = 'Image',
 	ImageComponentData = 'ImageComponentData',
 	ImageStyle = 'ImageStyle',
+	ImageUrl = 'ImageUrl',
 	LayoutComponentData = 'LayoutComponentData',
 	LayoutComponentDataConfig = 'LayoutComponentDataConfig',
 	Link = 'Link',
@@ -97,6 +100,7 @@ export enum ObjectTypeName {
 	PageComponentData = 'PageComponentData',
 	PageComponentDataConfig = 'PageComponentDataConfig',
 	PageInfo = 'PageInfo',
+	PageUrl = 'PageUrl',
 	PartComponentData = 'PartComponentData',
 	PartComponentDataConfig = 'PartComponentDataConfig',
 	Permissions = 'Permissions',
@@ -137,7 +141,18 @@ export declare interface Attachment {
 	label: GraphQLString
 	size: GraphQLInt
 	mimeType: GraphQLString
-	attachmentUrl: GraphQLString
+	attachmentUrl: AttachmentUrl
+}
+
+export declare interface AttachmentUrl {
+	url: GraphQLString
+	path: GraphQLString
+	queryString: GraphQLString
+	context: GraphQLString
+	id: GraphQLString
+	fingerprint: GraphQLString
+	name: GraphQLString
+	intent: MediaIntentType
 }
 
 export declare type Content<
@@ -166,7 +181,7 @@ export declare type Content<
 		owner: PrincipalKey
 		pageAsJson: GraphQLJson
 		pageTemplate: Content
-		pageUrl: GraphQLString
+		pageUrl: PageUrl
 		parent: Content
 		permissions: Permissions
 		publish: PublishInfo
@@ -226,12 +241,23 @@ export declare interface Icon {
 	modifiedTime: GraphQLString
 }
 
+export declare interface ImageUrl {
+	url: GraphQLString
+	path: GraphQLString
+	queryString: GraphQLString
+	context: GraphQLString
+	id: GraphQLString
+	fingerprint: GraphQLString
+	scale: GraphQLString
+	name: GraphQLString
+}
+
 export declare type media_Image = BrandGraphQLObjectType<
 	'media_Image',
 	{
 		data: media_Image_Data
-		imageUrl: GraphQLString
-		mediaUrl: GraphQLString
+		imageUrl: ImageUrl
+		mediaUrl: AttachmentUrl
 	},
 	MediaImageContent
 >
@@ -259,6 +285,12 @@ export declare interface PageInfo {
 	startCursor: NonNull<GraphQLString>
 	endCursor: NonNull<GraphQLString>
 	hasNext: NonNull<GraphQLBoolean>
+}
+
+export declare interface PageUrl {
+	url: GraphQLString
+	path: GraphQLString
+	queryString: GraphQLString
 }
 
 export declare interface Permissions {

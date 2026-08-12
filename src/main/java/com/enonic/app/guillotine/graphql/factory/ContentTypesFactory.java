@@ -37,9 +37,6 @@ import com.enonic.app.guillotine.graphql.fetchers.GetContentProjectDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentReferencesDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentSiteDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetPageUrlDataFetcher;
-import com.enonic.app.guillotine.graphql.fetchers.GetPageUrlPartsDataFetcher;
-import com.enonic.app.guillotine.graphql.fetchers.GetImageUrlPartsDataFetcher;
-import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentUrlPartsByIdDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetFieldAsJsonDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetImageUrlDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetPageAsJsonDataFetcher;
@@ -150,12 +147,6 @@ public class ContentTypesFactory
             context.registerDataFetcher( typeName, mediaUrlField.getName(),
                                          new GetAttachmentUrlByIdDataFetcher( serviceFacade.getPortalUrlGeneratorService() ) );
 
-            GraphQLFieldDefinition mediaUrlPartsField = createMediaUrlPartsField();
-
-            fields.add( mediaUrlPartsField );
-            context.registerDataFetcher( typeName, mediaUrlPartsField.getName(),
-                                         new GetAttachmentUrlPartsByIdDataFetcher( serviceFacade.getPortalUrlGeneratorService() ) );
-
             if ( contentType.getName().toString().equals( "media:image" ) )
             {
                 GraphQLFieldDefinition imageUrlField = createImageUrlField();
@@ -163,12 +154,6 @@ public class ContentTypesFactory
                 fields.add( imageUrlField );
                 context.registerDataFetcher( typeName, imageUrlField.getName(),
                                              new GetImageUrlDataFetcher( serviceFacade.getPortalUrlGeneratorService() ) );
-
-                GraphQLFieldDefinition imageUrlPartsField = createImageUrlPartsField();
-
-                fields.add( imageUrlPartsField );
-                context.registerDataFetcher( typeName, imageUrlPartsField.getName(),
-                                             new GetImageUrlPartsDataFetcher( serviceFacade.getPortalUrlGeneratorService() ) );
             }
         }
 
@@ -196,27 +181,12 @@ public class ContentTypesFactory
         arguments.add( newArgument( "download", Scalars.GraphQLBoolean ) );
         arguments.add( newArgument( "params", ExtendedScalars.Json ) );
 
-        return outputField( "mediaUrl", Scalars.GraphQLString, arguments );
+        return outputField( "mediaUrl", GraphQLTypeReference.typeRef( "AttachmentUrl" ), arguments );
     }
 
     private GraphQLFieldDefinition createImageUrlField()
     {
-        return outputField( "imageUrl", Scalars.GraphQLString, imageUrlArguments() );
-    }
-
-    private GraphQLFieldDefinition createImageUrlPartsField()
-    {
-        return outputField( "imageUrlParts", GraphQLTypeReference.typeRef( "ImageUrlParts" ), imageUrlArguments() );
-    }
-
-    private GraphQLFieldDefinition createMediaUrlPartsField()
-    {
-        List<GraphQLArgument> arguments = new ArrayList<>();
-
-        arguments.add( newArgument( "download", Scalars.GraphQLBoolean ) );
-        arguments.add( newArgument( "params", ExtendedScalars.Json ) );
-
-        return outputField( "mediaUrlParts", GraphQLTypeReference.typeRef( "AttachmentUrlParts" ), arguments );
+        return outputField( "imageUrl", GraphQLTypeReference.typeRef( "ImageUrl" ), imageUrlArguments() );
     }
 
     private static List<GraphQLArgument> imageUrlArguments()
@@ -319,8 +289,7 @@ public class ContentTypesFactory
         result.add( outputField( "attachments", new GraphQLList( GraphQLTypeReference.typeRef( "Attachment" ) ) ) );
         result.add( outputField( "publish", GraphQLTypeReference.typeRef( "PublishInfo" ) ) );
         result.add( outputField( "site", GraphQLTypeReference.typeRef( "portal_Site" ) ) );
-        result.add( outputField( "pageUrl", Scalars.GraphQLString, List.of( newArgument( "params", ExtendedScalars.Json ) ) ) );
-        result.add( outputField( "pageUrlParts", GraphQLTypeReference.typeRef( "PageUrlParts" ),
+        result.add( outputField( "pageUrl", GraphQLTypeReference.typeRef( "PageUrl" ),
                                  List.of( newArgument( "params", ExtendedScalars.Json ) ) ) );
         result.add( outputField( "parent", GraphQLTypeReference.typeRef( "Content" ) ) );
         result.add( outputField( "children", new GraphQLList( GraphQLTypeReference.typeRef( "Content" ) ),
@@ -363,9 +332,6 @@ public class ContentTypesFactory
 
         context.registerDataFetcher( contentType, "pageUrl",
                                      new GetPageUrlDataFetcher( serviceFacade.getPortalUrlService() ) );
-
-        context.registerDataFetcher( contentType, "pageUrlParts",
-                                     new GetPageUrlPartsDataFetcher( serviceFacade.getPortalUrlService() ) );
 
         context.registerDataFetcher( contentType, "children", new GetContentChildrenDataFetcher( serviceFacade.getContentService() ) );
 

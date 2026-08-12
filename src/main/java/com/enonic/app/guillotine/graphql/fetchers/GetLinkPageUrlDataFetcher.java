@@ -1,5 +1,6 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import graphql.schema.DataFetcher;
@@ -9,12 +10,12 @@ import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.portal.url.PageUrlParams;
 import com.enonic.xp.portal.url.PortalUrlService;
 
-public class GetLinkPageUrlPartsDataFetcher
+public class GetLinkPageUrlDataFetcher
     implements DataFetcher<Map<String, Object>>
 {
     private final PortalUrlService portalUrlService;
 
-    public GetLinkPageUrlPartsDataFetcher( final PortalUrlService portalUrlService )
+    public GetLinkPageUrlDataFetcher( final PortalUrlService portalUrlService )
     {
         this.portalUrlService = portalUrlService;
     }
@@ -32,7 +33,18 @@ public class GetLinkPageUrlPartsDataFetcher
             return null;
         }
 
-        return GuillotineLocalContextHelper.executeInContext( environment, () -> UrlPartsHelper.toMap(
-            portalUrlService.pageUrlParts( new PageUrlParams().id( contentId.toString() ) ) ) );
+        return GuillotineLocalContextHelper.executeInContext( environment, () -> {
+            final Map<String, Object> result = UrlPartsHelper.anyPagePartSelected( environment.getSelectionSet() )
+                ? UrlPartsHelper.toMap( portalUrlService.pageUrlParts( new PageUrlParams().id( contentId.toString() ) ) )
+                : new LinkedHashMap<>();
+
+            if ( environment.getSelectionSet().contains( "url" ) )
+            {
+                result.put( "url", portalUrlService.pageUrl( new PageUrlParams().id( contentId.toString() )
+                                                                 .baseUrl( GuillotineLocalContextHelper.getSiteBaseUrl( environment ) ) ) );
+            }
+
+            return result;
+        } );
     }
 }

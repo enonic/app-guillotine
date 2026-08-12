@@ -1,5 +1,6 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import graphql.schema.DataFetcher;
@@ -13,7 +14,7 @@ import com.enonic.xp.portal.url.ImageUrlGeneratorParams;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 
 public class GetImageUrlDataFetcher
-    implements DataFetcher<String>
+    implements DataFetcher<Map<String, Object>>
 {
     private final PortalUrlGeneratorService portalUrlGeneratorService;
 
@@ -23,14 +24,13 @@ public class GetImageUrlDataFetcher
     }
 
     @Override
-    public String get( final DataFetchingEnvironment environment )
+    public Map<String, Object> get( final DataFetchingEnvironment environment )
         throws Exception
     {
         return GuillotineLocalContextHelper.executeInContext( environment, () -> doGet( environment ) );
     }
 
-    @SuppressWarnings("unchecked")
-    private String doGet( final DataFetchingEnvironment environment )
+    private Map<String, Object> doGet( final DataFetchingEnvironment environment )
     {
         final Content content = GuillotineLocalContextHelper.resolveContent( environment );
 
@@ -39,12 +39,29 @@ public class GetImageUrlDataFetcher
             return null;
         }
 
+        final Map<String, Object> result = UrlPartsHelper.anyImagePartSelected( environment.getSelectionSet() )
+            ? UrlPartsHelper.toMap( portalUrlGeneratorService.imageUrlParts( buildParams( environment, content, null ) ) )
+            : new LinkedHashMap<>();
+
+        if ( environment.getSelectionSet().contains( "url" ) )
+        {
+            result.put( "url", portalUrlGeneratorService.imageUrl(
+                buildParams( environment, content, GuillotineLocalContextHelper.getImageBaseUrl( environment ) ) ) );
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static ImageUrlGeneratorParams buildParams( final DataFetchingEnvironment environment, final Content content,
+                                                        final String mediaBaseUrl )
+    {
         final ImageUrlGeneratorParams.Builder builder = ImageUrlGeneratorParams.create();
 
         builder.setMedia( () -> (Media) content );
         builder.setProjectName( () -> GuillotineLocalContextHelper.getProjectName( environment ) );
         builder.setBranch( () -> GuillotineLocalContextHelper.getBranch( environment ) );
-        builder.setMediaBaseUrl( GuillotineLocalContextHelper.getImageBaseUrl( environment ) );
+        builder.setMediaBaseUrl( mediaBaseUrl );
         builder.setScale( environment.getArgument( "scale" ) );
         builder.setQuality( environment.getArgument( "quality" ) );
         builder.setBackground( environment.getArgument( "background" ) );
@@ -56,8 +73,6 @@ public class GetImageUrlDataFetcher
             builder.setQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
         }
 
-        final ImageUrlGeneratorParams params = builder.build();
-
-        return portalUrlGeneratorService.imageUrl( params );
+        return builder.build();
     }
 }

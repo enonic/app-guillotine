@@ -6,12 +6,20 @@ query {
                     a: 1,
                     b: [2, 3],
                     c: []
-                })
+                }) {
+                    url
+                    path
+                    queryString
+                    intent
+                }
             }
         }
         downloadAttachmentUrl: get(key: "contentid") {
             ... on media_Image {
-                mediaUrl(download: true)
+                mediaUrl(download: true) {
+                    url
+                    intent
+                }
             }
         }
     }

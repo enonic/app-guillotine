@@ -82,34 +82,34 @@ Enonic XP can serve custom scaled images at runtime. Guillotine uses this functi
         }){
         displayName
         ... on media_Image {
-          imageUrl(scale:"block(800,200)")
+          imageUrl(scale:"block(800,200)") {
+            url
+          }
         }
     }
   }
 }
 ----
 
-By default, the `imageUrl`, `mediaUrl` and `attachmentUrl` fields generate server (root-relative) URLs. To generate URLs against a different domain or base URL (for example, a dedicated media host), configure the instance-wide `media.defaultBaseUrl` option in `com.enonic.xp.portal.cfg`, or use the `siteKey` argument with a site that has a configured Base URL.
-
 Media URLs are generated as the base URL followed directly by the XP media API path, for example `https://media.example.com/media:image/myproject/contentid:fingerprint/block-800-200/photo.jpg`.
 
-NOTE: With `siteKey`, the actual base of media URLs is resolved by XP from the site's configured Base URL and the XP instance configuration.
+NOTE: With `siteKey`, the actual base of media URLs is resolved by XP from the site's configured Base URL or the XP instance configuration.
 
 === Building URLs from parts
 
-To build URLs on any origin yourself, use the `pageUrlParts`, `imageUrlParts`, `mediaUrlParts` and `attachmentUrlParts` fields instead of the ready-made URL fields. They return properly URL-escaped segments — including the media fingerprint, which cannot be calculated client-side — so the full URL is a simple concatenation: `url = base + path + queryString`.
+To build URLs on any origin yourself, select the URL components exposed by the `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields alongside the ready-made `url` subfield. They are properly URL-escaped segments — including the media fingerprint, which cannot be calculated client-side — so the full URL is a simple concatenation: `url = base + path + queryString`.
 
 [source,graphql]
 ----
 {
   guillotine {
     get(key: "contentid") {
-      pageUrlParts {
+      pageUrl {
         path         # "/posts/first-post" — escaped, relative to the nearest site
         queryString
       }
       ... on media_Image {
-        imageUrlParts(scale: "block(800,200)") {
+        imageUrl(scale: "block(800,200)") {
           path        # "/media:image/myproject/contentid:fingerprint/block-800-200/photo.jpg"
           queryString
           fingerprint # the media fingerprint
@@ -159,14 +159,16 @@ Rich text fields will typically include links, images and macros in the `process
 
 By default, all internal links to `media` or `content` will be replaced by a server (root-relative) link in the context of your endpoint.
 
-To generate content (page) links against a different domain or base URL, use the `siteKey` argument with a site (or project) that has a configured Base URL. Content links in `processedHtml` and the value of the `pageUrl` field are then generated against that base URL, followed by the path of the content relative to the site (for example, `https://www.example.com/posts/first-post`).
+To generate content (page) links against a different domain or base URL, use the `siteKey` argument with a site (or project) that has a configured Base URL. Content links in `processedHtml` and the `url` value of the `pageUrl` field are then generated against that base URL, followed by the path of the content relative to the site (for example, `https://www.example.com/posts/first-post`).
 
 [source,graphql]
 ----
 {
   guillotine(siteKey: "/mysite") {
     get(key: "contentid") {
-      pageUrl
+      pageUrl {
+        url
+      }
       ... on com_enonic_app_myapp_Post {
         data {
           text {
