@@ -62,7 +62,7 @@ public abstract class BaseContentDataFetcher
 
         if ( argumentKey.isEmpty() )
         {
-            return null;
+            return "/".equals( siteKey ) ? "/" : null;
         }
 
         return argumentKey;
