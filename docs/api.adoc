@@ -185,8 +185,8 @@ All types implementing `Content` share the same fields, with the exception of th
 |pageAsJson(resolveTemplate: Boolean, resolveFragment: Boolean): JSON
 a|Page specific information.
 
-* `resolveTemplate` - if `true`, and the content uses a page template (directly or as the site default), the page configuration is resolved from that template instead of the content itself. Default is `false`
-* `resolveFragment` - if `true`, fragment components are replaced with the actual components of the referenced fragment. Default is `false`
+* `resolveTemplate` - if `true` and the content uses a page template (directly or as the site default), the page configuration is resolved from that template instead of the content itself. Default is `false`
+* `resolveFragment` - if `true` fragment components are replaced with the actual components of the referenced fragment. Default is `false`
 
 |pageTemplate: <<Content>>
 |Related page template content
@@ -194,8 +194,8 @@ a|Page specific information.
 |components(resolveTemplate: Boolean, resolveFragment: Boolean): [<<Component>>]
 a|Flattened list of page components
 
-* `resolveTemplate` - if `true`, and the content uses a page template (directly or as the site default), the components are resolved from that template instead of the content itself. Default is `false`
-* `resolveFragment` - if `true`, fragment components are replaced with the actual components of the referenced fragment. Default is `false`
+* `resolveTemplate` - if `true` and the content uses a page template (directly or as the site default), the components are resolved from that template instead of the content itself. Default is `false`
+* `resolveFragment` - if `true` fragment components are replaced with the actual components of the referenced fragment. Default is `false`
 
 |attachments: [<<Attachment>>]
 |Content attachments
