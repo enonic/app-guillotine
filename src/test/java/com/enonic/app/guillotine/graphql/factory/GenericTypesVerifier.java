@@ -37,6 +37,61 @@ public class GenericTypesVerifier
         verifyMedia();
         verifyLink();
         verifyRichText();
+        verifyPageUrl();
+        verifyImageUrl();
+        verifyAttachmentUrl();
+    }
+
+    private void verifyPageUrl()
+    {
+        GraphQLObjectType type = context.getOutputType( "PageUrl" );
+
+        assertEquals( "Page URL and its components: url = baseUrl + path + queryString.", type.getDescription() );
+
+        List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
+
+        assertEquals( 3, fields.size() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "url" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "path" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "queryString" ).getType() );
+    }
+
+    private void verifyImageUrl()
+    {
+        GraphQLObjectType type = context.getOutputType( "ImageUrl" );
+
+        assertEquals( "Image URL and its components: url = baseUrl + path + queryString.", type.getDescription() );
+
+        List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
+
+        assertEquals( 8, fields.size() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "url" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "path" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "queryString" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "context" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "id" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "fingerprint" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "scale" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "name" ).getType() );
+    }
+
+    private void verifyAttachmentUrl()
+    {
+        GraphQLObjectType type = context.getOutputType( "AttachmentUrl" );
+
+        assertEquals( "Attachment URL and its components: url = baseUrl + path + queryString.", type.getDescription() );
+
+        List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
+
+        assertEquals( 8, fields.size() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "url" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "path" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "queryString" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "context" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "id" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "fingerprint" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "name" ).getType() );
+        assertEquals( "MediaIntentType", getNameForGraphQLTypeReference( type.getFieldDefinition( "intent" ).getType() ) );
     }
 
     private void verifyRichText()
@@ -69,7 +124,7 @@ public class GenericTypesVerifier
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "uri" ).getType() );
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getFieldDefinition( "content" ).getType() ) );
         assertEquals( "Media", getNameForGraphQLTypeReference( type.getFieldDefinition( "media" ).getType() ) );
-        assertEquals( "PageUrlParts", getNameForGraphQLTypeReference( type.getFieldDefinition( "pageUrlParts" ).getType() ) );
+        assertEquals( "PageUrl", getNameForGraphQLTypeReference( type.getFieldDefinition( "pageUrl" ).getType() ) );
     }
 
     private void verifyMedia()
@@ -83,7 +138,7 @@ public class GenericTypesVerifier
         assertEquals( 3, fields.size() );
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getFieldDefinition( "content" ).getType() ) );
         assertEquals( "MediaIntentType", getNameForGraphQLTypeReference( type.getFieldDefinition( "intent" ).getType() ) );
-        assertEquals( "AttachmentUrlParts", getNameForGraphQLTypeReference( type.getFieldDefinition( "mediaUrlParts" ).getType() ) );
+        assertEquals( "AttachmentUrl", getNameForGraphQLTypeReference( type.getFieldDefinition( "mediaUrl" ).getType() ) );
     }
 
     private void verifyImage()
@@ -157,23 +212,18 @@ public class GenericTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 6, fields.size() );
+        assertEquals( 5, fields.size() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "name" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "label" ).getType() );
         assertEquals( Scalars.GraphQLInt, type.getFieldDefinition( "size" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "mimeType" ).getType() );
 
         GraphQLFieldDefinition attachmentUrlField = type.getFieldDefinition( "attachmentUrl" );
-        assertEquals( Scalars.GraphQLString, attachmentUrlField.getType() );
+        assertEquals( "AttachmentUrl", getNameForGraphQLTypeReference( attachmentUrlField.getType() ) );
 
         assertEquals( 2, attachmentUrlField.getArguments().size() );
         assertEquals( Scalars.GraphQLBoolean, attachmentUrlField.getArgument( "download" ).getType() );
         assertEquals( ExtendedScalars.Json, attachmentUrlField.getArgument( "params" ).getType() );
-
-        GraphQLFieldDefinition attachmentUrlPartsField = type.getFieldDefinition( "attachmentUrlParts" );
-        assertEquals( 2, attachmentUrlPartsField.getArguments().size() );
-        assertEquals( Scalars.GraphQLBoolean, attachmentUrlPartsField.getArgument( "download" ).getType() );
-        assertEquals( ExtendedScalars.Json, attachmentUrlPartsField.getArgument( "params" ).getType() );
     }
 
     private void verifyPublishInfo()

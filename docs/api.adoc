@@ -197,11 +197,8 @@ All types implementing `Content` share the same fields, with the exception of th
 |publish: <<PublishInfo>>
 |Publication information
 
-|pageUrl(params: Json): String
-|Util field to generate a URL pointing to the content
-
-|pageUrlParts(params: Json): <<PageUrlParts>>
-|Components of the page URL, for building the full URL from segments
+|pageUrl(params: Json): <<PageUrl>>
+|URL pointing to the content, along with its components for building the URL from segments
 
 |site: portal_Site
 |Link to the nearest site
@@ -262,15 +259,14 @@ In addition to the fields of the <<Content>> interface, all `media:*` content ty
 |===
 |Name(Arguments):Type | Description
 
-|mediaUrl (download: Boolean, type: <<UrlType>>, params: Json): String
-|URL to the underlying media attachment. Set `download` to `true` to force download instead of inline rendering.
+|mediaUrl (download: Boolean, params: Json): <<AttachmentUrl>>
+|URL to the underlying media attachment, along with its components. Set `download` to `true` to force download instead of inline rendering.
 
-|imageUrl (scale: String!, quality: Int, type: <<UrlType>>, background: String, format: String, filter: String, params: Json): String
-a|URL to a processed version of the image, scaled and cropped by the server at request time.
+|imageUrl (scale: String!, quality: Int, background: String, format: String, filter: String, params: Json): <<ImageUrl>>
+a|URL to a processed version of the image, scaled and cropped by the server at request time, along with its components.
 
 * `scale` (required) - scaling function to apply: `block(width,height)`, `height(height)`, `max(size)`, `square(size)`, `wide(width,height)`, `width(width)` or `full`
 * `quality` - compression quality of JPEG images, from 0 to 100. Default is 85
-* `type` - URL type: `server` (default) or `absolute`. Use `absolute` when the URL is consumed outside the server context, for instance when rendering from an external frontend or inside Content Studio preview
 * `background` - background color to use when converting images with transparency, as a hex value, e.g. `ff0000`
 * `format` - image format of the generated URL. Supported formats are `jpg`, `png` and `gif` - other formats, such as `webp` or `avif`, are not supported and the resulting URL will fail with `400 Invalid parameters`
 * `filter` - image filters to apply, e.g. `rounded(5);sharpen()`
@@ -514,8 +510,8 @@ Represents details for image found and processed in the <<RichText>> type.
 |intent: <<MediaIntentType>>
 |Link intent.
 
-|mediaUrlParts: <<AttachmentUrlParts>>
-|Parts of the media URL, honoring the link intent (`?download` for download links)
+|mediaUrl: <<AttachmentUrl>>
+|Media URL and its components, honoring the link intent (`?download` for download links)
 
 |content: <<Content>>
 |Related content
@@ -540,17 +536,20 @@ Represents details for image found and processed in the <<RichText>> type.
 |content: <<Content>>
 |Related content. This field has `null` value for media content
 
-|pageUrlParts: <<PageUrlParts>>
-|Parts of the link target page URL. This field has `null` value for media links
+|pageUrl: <<PageUrl>>
+|Link target page URL and its components. This field has `null` value for media links
 
 |===
 
-=== PageUrlParts
+=== PageUrl
 
-Components of a page URL, for building the full URL from segments: `url = baseUrl + path + queryString`.
+Page URL and its components, for building the URL from segments: `url = baseUrl + path + queryString`.
 
 |===
 |Name (Arguments): Type | Description
+
+|url: String
+|The ready-made URL, with the base URL resolved by XP (siteKey-configured Base URL when present, request/context resolution otherwise)
 
 |path: String
 |URL-escaped path of the content relative to its nearest site (the full content path when there is no site), with a leading slash. Empty when the content is the site itself
@@ -560,12 +559,15 @@ Components of a page URL, for building the full URL from segments: `url = baseUr
 
 |===
 
-=== ImageUrlParts
+=== ImageUrl
 
-Parts of an image URL, for building the full URL from segments: `url = baseUrl + path + queryString`. All values are URL-escaped as they appear in the URL.
+Image URL and its components, for building the URL from segments: `url = baseUrl + path + queryString`. All component values are URL-escaped as they appear in the URL.
 
 |===
 |Name (Arguments): Type | Description
+
+|url: String
+|The ready-made URL, with the base URL resolved by XP
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<fingerprint>/<scale>/<name>`
@@ -590,12 +592,15 @@ Parts of an image URL, for building the full URL from segments: `url = baseUrl +
 
 |===
 
-=== AttachmentUrlParts
+=== AttachmentUrl
 
-Parts of an attachment URL, for building the full URL from segments: `url = baseUrl + path + queryString`. All values are URL-escaped as they appear in the URL.
+Attachment URL and its components, for building the URL from segments: `url = baseUrl + path + queryString`. All component values are URL-escaped as they appear in the URL.
 
 |===
 |Name (Arguments): Type | Description
+
+|url: String
+|The ready-made URL, with the base URL resolved by XP
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:attachment/<context>/<id>:<fingerprint>/<name>`
@@ -1063,8 +1068,8 @@ Direct Known Subtypes: FormInput
 |mimeType: String
 |Attachment mime type
 
-|attachmentUrl (download: Boolean, params: Json): String
-|Attachment URL
+|attachmentUrl (download: Boolean, params: Json): <<AttachmentUrl>>
+|Attachment URL and its components. Set `download` to `true` to force download instead of inline rendering
 
 |===
 

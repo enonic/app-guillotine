@@ -44,6 +44,7 @@ export type {
 export {
 	EnumTypeName,
 	FormItemType,
+	MediaIntentType,
 	Permission,
 	PrincipalType,
 } from './enumTypes'
