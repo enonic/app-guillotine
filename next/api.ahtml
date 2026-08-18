@@ -819,16 +819,40 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content extra data as JSON</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">pageAsJson: JSON</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Page specific information.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pageAsJson(resolveTemplate: Boolean, resolveFragment: Boolean): JSON</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Page specific information.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>resolveTemplate</code> - if <code>true</code> and the content uses a page template (directly or as the site default), the page configuration is resolved from that template instead of the content itself. Default is <code>false</code></p>
+</li>
+<li>
+<p><code>resolveFragment</code> - if <code>true</code> fragment components are replaced with the actual components of the referenced fragment. Default is <code>false</code></p>
+</li>
+</ul>
+</div></div></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">pageTemplate: <a href="#content">Content</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Related page template content</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">components: [<a href="#component">Component</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Flattened list of page components</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">components(resolveTemplate: Boolean, resolveFragment: Boolean): [<a href="#component">Component</a>]</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Flattened list of page components</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>resolveTemplate</code> - if <code>true</code> and the content uses a page template (directly or as the site default), the components are resolved from that template instead of the content itself. Default is <code>false</code></p>
+</li>
+<li>
+<p><code>resolveFragment</code> - if <code>true</code> fragment components are replaced with the actual components of the referenced fragment. Default is <code>false</code></p>
+</li>
+</ul>
+</div></div></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">attachments: [<a href="#attachment">Attachment</a>]</p></td>
@@ -3677,7 +3701,7 @@ Defaults to none - will be displayed in the same order in which fragments appear
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-08-17 11:50:16 UTC
+Last updated 2026-08-18 06:31:04 UTC
 </div>
 </div>
 </body>
