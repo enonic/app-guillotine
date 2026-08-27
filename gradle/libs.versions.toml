@@ -1,5 +1,5 @@
 [versions]
-graphql-java = "26.0"
+graphql-java = "26.1"
 graphql-java-extended-scalars = "24.0"
 jackson = "2.22.2"
 junit = "6.1.3"
