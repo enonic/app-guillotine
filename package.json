@@ -14,7 +14,7 @@
     "fix": "eslint . --fix"
   },
   "dependencies": {
-    "@graphiql/react": "0.37.7",
+    "@graphiql/react": "0.38.0",
     "@graphiql/toolkit": "0.12.1",
     "graphiql": "^5.2.4",
     "graphql-ws": "^6.2.1",
