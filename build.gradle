@@ -37,7 +37,6 @@ dependencies {
     include xplibs.admin
     include xplibs.portal
     include xplibs.event
-    include xplibs.app
     include xplibs.context
     include libs.lib.mustache
     include libs.lib.static

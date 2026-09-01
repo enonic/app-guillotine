@@ -9,9 +9,7 @@ module.exports = {
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
         'js/main': './js/main.tsx',
-        'js/query-playground': './js/query-playground.tsx',
         'styles/main': './styles/main.less',
-        'styles/query-playground': './styles/query-playground.less',
     },
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),

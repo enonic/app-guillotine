@@ -6,13 +6,6 @@ Access and test the API via the embedded API browser.
 
 Guillotine extends Content Studio with a new panel called Query Playground. It is only accessible for users with the `system.admin` or `cms.admin` roles.
 
-== Enonic SDK
-
-When using Enonic SDK, Query Playground is also available directly on the project URL: `http://localhost:8080/site/<project>`.
-
-It can also be enabled for production servers via <<configuration#, configuration>>.
-
-
 == API browser
 
 Query Playground lets you access the detailed documentation, and perform queries in context of your content:
