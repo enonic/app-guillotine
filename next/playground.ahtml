@@ -442,7 +442,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#content_studio_extension">Content Studio Extension</a></li>
-<li><a href="#enonic_sdk">Enonic SDK</a></li>
 <li><a href="#api_browser">API browser</a>
 <ul class="sectlevel2">
 <li><a href="#query_example">Query example</a></li>
@@ -464,17 +463,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="paragraph">
 <p>Guillotine extends Content Studio with a new panel called Query Playground. It is only accessible for users with the <code>system.admin</code> or <code>cms.admin</code> roles.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="enonic_sdk"><a class="link" href="#enonic_sdk">Enonic SDK</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>When using Enonic SDK, Query Playground is also available directly on the project URL: <code><a href="http://localhost:8080/site/&lt;project&gt" class="bare">http://localhost:8080/site/&lt;project&gt</a>;</code>.</p>
-</div>
-<div class="paragraph">
-<p>It can also be enabled for production servers via <a href="configuration.ahtml">configuration</a>.</p>
 </div>
 </div>
 </div>
@@ -560,7 +548,7 @@ Each query is executed in a specific context, which is determined by the project
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-08-18 06:31:04 UTC
+Last updated 2026-09-01 13:18:00 UTC
 </div>
 </div>
 </body>

@@ -481,9 +481,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li>
 <p>HTTP POST <code>:8080/site/&lt;project&gt;/master</code> - Live API</p>
 </li>
-<li>
-<p>HTTP GET <code>:8080/site/&lt;project&gt;</code> - optionally serves <a href="playground.ahtml">Query Playground</a></p>
-</li>
 </ul>
 </div>
 <div class="admonitionblock note">
@@ -565,7 +562,7 @@ mapping.example-api.target = /site/&lt;project&gt;</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-08-18 06:31:04 UTC
+Last updated 2026-09-01 13:18:00 UTC
 </div>
 </div>
 </body>
