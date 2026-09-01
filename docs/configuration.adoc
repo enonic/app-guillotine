@@ -11,39 +11,32 @@ To configure Guillotine, add a configuration file to your XP instance's `config`
 .com.enonic.app.guillotine.cfg
 [source,properties]
 ----
-queryplayground.ui.mode=off  // <1>
-graphql.extensions.modifyUnknownField=throw  // <2>
+graphql.extensions.modifyUnknownField=throw  // <1>
 
-cors.origin= https://example.com, https://admin.example.com // <3>
-cors.credentials=true|false // <4>
-cors.allowedHeaders=Content-Type // <5>
-cors.methods=POST, OPTIONS // <6>
-cors.exposedHeaders = X-Request-Id, X-Custom-Header // <7>
-cors.maxAge= 3600 // <8>
+cors.origin= https://example.com, https://admin.example.com // <2>
+cors.credentials=true|false // <3>
+cors.allowedHeaders=Content-Type // <4>
+cors.methods=POST, OPTIONS // <5>
+cors.exposedHeaders = X-Request-Id, X-Custom-Header // <6>
+cors.maxAge= 3600 // <7>
 
-maxQueryTokens=15000 // <9>
+maxQueryTokens=15000 // <8>
 ----
 
-<1> Enables or disables Query playground on project root.
+<1> Allows you to modify the default behaviour during modification of unknown fields. Possible values are: `throw`  - to throw an error if it tries to modify an unknown field, `ignore` - to ignore modification modify an unknown field, or `warn` - to log a warning on unknown field modification. Default is `throw`.
 
-+
-NOTE: For Enonic SDK default value is `on`, for server distributions - `off`.
-+
+<2> Allowed origin(s), comma-separated. Omit this field to disable CORS. Supports `*` (allow all origins), literal origins, and `~`-prefixed regex patterns for dynamic matching (e.g. `~https://.*\.example\.com`). Can use `~.*` to reflect all.
 
-<2> Allows you to modify the default behaviour during modification of unknown fields. Possible values are: `throw`  - to throw an error if it tries to modify an unknown field, `ignore` - to ignore modification modify an unknown field, or `warn` - to log a warning on unknown field modification. Default is `throw`.
+<3> Sets the `Access-Control-Allow-Credentials` header to allow credentials in CORS requests. Default is `false`.
 
-<3> Allowed origin(s), comma-separated. Omit this field to disable CORS. Supports `*` (allow all origins), literal origins, and `~`-prefixed regex patterns for dynamic matching (e.g. `~https://.*\.example\.com`). Can use `~.*` to reflect all.
+<4> Sets the `Access-Control-Allow-Headers` header to allow headers in CORS requests. If `cors.allowedHeaders` is not configured and a request includes `Access-Control-Request-Headers`, that value is reflected in `Access-Control-Allow-Headers`.
 
-<4> Sets the `Access-Control-Allow-Credentials` header to allow credentials in CORS requests. Default is `false`.
+<5> Sets the `Access-Control-Allow-Methods` header to allow methods in CORS requests. Guillotine handlers only `POST` and `OPTIONS`. Default is `GET, HEAD, POST`.
 
-<5> Sets the `Access-Control-Allow-Headers` header to allow headers in CORS requests. If `cors.allowedHeaders` is not configured and a request includes `Access-Control-Request-Headers`, that value is reflected in `Access-Control-Allow-Headers`.
+<6> Extra response headers to expose beyond the CORS safelist. If you configure `cors.exposedHeaders = *`, browsers only treat `*` as a wildcard for non-credentialed requests.
 
-<6> Sets the `Access-Control-Allow-Methods` header to allow methods in CORS requests. Guillotine handlers only `POST` and `OPTIONS`. Default is `GET, HEAD, POST`.
+<7> Sets the `Access-Control-Max-Age` header to specify preflight cache duration in seconds
 
-<7> Extra response headers to expose beyond the CORS safelist. If you configure `cors.exposedHeaders = *`, browsers only treat `*` as a wildcard for non-credentialed requests.
-
-<8> Sets the `Access-Control-Max-Age` header to specify preflight cache duration in seconds
-
-<9> If the number of raw tokens exceeds the specified maximum, the parser will throw an exception. Default is `15000`.
+<8> If the number of raw tokens exceeds the specified maximum, the parser will throw an exception. Default is `15000`.
 
 TIP: A default base URL for media URLs can be configured on XP itself with the `media.defaultBaseUrl` option in `com.enonic.xp.portal.cfg`.

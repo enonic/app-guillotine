@@ -14,7 +14,6 @@ Once installed to your Enonic environment, Guillotine exposes two endpoints per 
 
 * HTTP POST `:8080/site/<project>/draft` - Drafts API
 * HTTP POST `:8080/site/<project>/master` - Live API
-* HTTP GET `:8080/site/<project>` - optionally serves <<playground#, Query Playground>>
 
 NOTE: <project> must be replaced with an actual content project in your installation.
 
