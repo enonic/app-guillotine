@@ -182,3 +182,7 @@ Functions:: `createDataFetcherResult` - allows to return object with `data` whic
 
 The `extensions` function will automatically be invoked by Guillotine when your application (the app containing the `guillotine.js` controller) is started, or when Guillotine itself is started/restarted.
 
+The GraphQL schema is built once per node and cached. It is rebuilt when any application is started, stopped or uninstalled, so schema changes made by an extension take effect after the application is redeployed.
+
+If an extension fails to define a resolver for a field (for instance the resolver function is missing), an error is logged for that field only, and the rest of the schema is still available.
+

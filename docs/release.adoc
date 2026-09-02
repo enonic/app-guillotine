@@ -1,3 +1,63 @@
 = Release Notes
 
-Release notes for Guillotine 9 will be added here.
+IMPORTANT: Guillotine 9 requires XP 8.1.0 or higher.
+
+== Guillotine 9
+
+=== Features
+
+`Project and branch arguments`::
+The `guillotine` field accepts the `project` and `branch` arguments, so a single endpoint serves all content projects and branches. The arguments are ignored when the API runs in a site or Content Studio context, where project and branch are defined by the request.
+
+`URL fields as objects`::
+`pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` return the new `PageUrl`, `ImageUrl` and `AttachmentUrl` types. Besides the ready-made `url`, they expose URL-escaped components such as `path`, `queryString`, `context`, `id`, `fingerprint`, `scale` and `name`, so URLs can be assembled on any origin as `base + path + queryString`.
+
+`URLs in rich text`::
+`Link` in the `RichText` type has a new `pageUrl` field, and `Media` has a new `mediaUrl` field, returning the same URL objects for links and media found in processed HTML.
+
+`Base URLs resolved by XP`::
+When `siteKey` is provided, the base URL of page URLs, media URLs and links in `processedHtml` is resolved by XP from the site's configured Base URL and the `media.defaultBaseUrl` option of `com.enonic.xp.portal.cfg`. Without a base URL, URLs are server-relative.
+
+`Content._project` and `Content._branch`::
+New fields returning the project and branch a content was fetched from.
+
+`PublishInfo`::
+New `time` field with the time of the last publication. `from`, `to`, `first` and `time` are `DateTime` values.
+
+`Resolvers run in the query context`::
+Resolvers defined by extensions for fields below the `guillotine` field are executed in the XP context of the project and branch of the query.
+
+=== Breaking changes
+
+`Endpoint`::
+The API is exposed as the XP API `com.enonic.app.guillotine:graphql` at `/api/com.enonic.app.guillotine:graphql`. The `/site/<project>/<branch>` endpoints are removed. Project and branch are selected with the `project` and `branch` arguments of the `guillotine` field. The endpoint answers `POST` and `OPTIONS` requests only, and no longer supports WebSocket connections.
+
+`X-Guillotine-SiteKey header`::
+Support for the `X-Guillotine-SiteKey` HTTP header is removed. Use the `siteKey` argument of the `guillotine` field.
+
+`UrlType and the type argument`::
+The `type` argument (`server`/`absolute`) is removed from the `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields and from `ProcessHtmlInput`, and the `UrlType` enum is removed. URLs are server-relative unless a Base URL is configured on the site or in XP.
+
+`URL fields return objects`::
+`pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` return `PageUrl`, `ImageUrl` or `AttachmentUrl` objects instead of `String`. Select the `url` subfield to get the previous value.
+
+`query and queryConnection`::
+The deprecated `query` and `queryConnection` fields of `HeadlessCms`, the `QueryContentConnection` type and the filter input types `FilterInput`, `BooleanFilterInput`, `ExistsFilterInput`, `NotExistsFilterInput`, `HasValueFilterInput` and `IdsFilterInput` are removed. Use `queryDsl` and `queryDslConnection`.
+
+`_path type argument`::
+The `type` argument of the `_path` field and the `ContentPathType` enum are removed. `_path` always returns the full content path. Use the `path` component of `pageUrl` for a site-relative path.
+
+`getSite without siteKey`::
+`getSite` returns `null` when the `siteKey` argument is not provided, and the `siteKey` property of `localContext` in resolvers is absent instead of `/`.
+
+`ContentType.displayName`::
+The `displayName` field, deprecated in Guillotine 8, is removed. Use `title` instead. The `contentDisplayNameScript` field, which always returned `null`, is removed too.
+
+`FormInput`::
+The `customText`, `validationRegexp`, `maximize` and `defaultValue` fields are removed from `FormInput`, the `customText` field is removed from `FormItemSet`, and the `DefaultValue` type is removed.
+
+`PublishInfo`::
+The `from`, `to` and `first` fields are `DateTime` instead of `String`.
+
+`Query Playground`::
+The Query Playground is only available as a Content Studio extension. It is no longer served on the API endpoint, and the `queryplayground.ui.mode` configuration option is removed.

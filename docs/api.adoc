@@ -36,7 +36,13 @@ TIP: A more intuitive way to discover the API is by using the <<playground#, Que
 |Name(Arguments):Type | Description
 
 |guillotine(project: String, branch: String, siteKey: String): <<HeadlessCms>>
-|Type gathering all content retrieval requests
+a|Type gathering all content retrieval requests
+
+* `project` - name of the content project to query. Default is the project of the request context
+* `branch` - branch to query, `draft` or `master`. Default is the branch of the request context
+* `siteKey` - ID or path of a site (or `/` for the project root) used as the site context: it resolves the `${site}` placeholder in keys, the `getSite` field, and the base URL of `pageUrl`, media URLs and links in processed HTML from the site's configured Base URL. The query fails if no content matches the key
+
+NOTE: When the request already runs in a project and branch context, i.e. when the API is mounted in a site or invoked from Content Studio, the `project` and `branch` arguments are ignored.
 |===
 
 === HeadlessCms
@@ -45,7 +51,8 @@ Gathers all content retrieval requests.
 
 ==== Remarks
 
-* Most requests expect a key as an argument. If the key is not specified, then the matched content will be the one corresponding to the current execution context
+* Most requests expect a key as an argument. If the key is not specified, then the matched content will be the site given by the `siteKey` argument of the `guillotine` field
+* Keys may contain the `${site}` placeholder, which is replaced with the path of the site given by `siteKey`
 
 ==== Fields
 
@@ -75,28 +82,7 @@ Gathers all content retrieval requests.
 |Fetches the permissions on a content
 
 |getSite: portal_Site
-|Fetches the parent site of the content corresponding to the current execution context
-
-// |query(
-//  query: String,
-//  offset: Int,
-//  first: Int,
-//  sort: String,
-//  contentTypes: [String],
-//  filters: [<<FilterInput>>]
-//  ): [<<Content>>]
-// |Queries contents. *Deprecated* from version 6.1.0.
-
-// |queryConnection(
-//  query: String!,
-//  after: String,
-//  first: Int,
-//  sort: String,
-//  contentTypes: [String],
-//  aggregations: [<<AggregationInput>>],
-//  filters: [<<FilterInput>>]
-//  ): <<QueryContentConnection>>
-// |Queries contents and returns the result as a connection.  *Deprecated* from version 6.1.0.
+|Fetches the site given by the `siteKey` argument of the `guillotine` field. Returns `null` if `siteKey` is not provided
 
 |queryDsl(
 query: <<QueryDSLInput>>,
@@ -120,7 +106,7 @@ highlight: <<HighlightInputType>>
 |Retrieves the properties and icon of the specified content type
 
 |getTypes: [<<ContentType>>]
-|Retrieves the list of all content types available for the current site
+|Retrieves the list of all content types available in the project
 |===
 
 === Content
@@ -140,8 +126,14 @@ All types implementing `Content` share the same fields, with the exception of th
 |_name: String!
 |Content name
 
-|_path(type: <<ContentPathType>>): String!
-|Content path. In the site-less mode, the result will be returned in the raw value, in other words, `env.source._path`.
+|_path: String!
+|Content path. For the path of the content relative to its site, use the `path` component of the `pageUrl` field
+
+|_project: String
+|Name of the project the content was fetched from
+
+|_branch: String
+|Name of the branch the content was fetched from
 
 |_references: [<<Content>>]
 |Contents that have a reference to this content
@@ -183,10 +175,10 @@ All types implementing `Content` share the same fields, with the exception of th
 |Content data
 
 |x: <<Mixin>>
-|Content extra data.
+|Content mixin data
 
 |xAsJson: JSON
-|Content extra data as JSON
+|Content mixin data as JSON
 
 |pageAsJson(resolveTemplate: Boolean, resolveFragment: Boolean): JSON
 a|Page specific information.
@@ -309,28 +301,6 @@ It allows you to :
 |Paging information
 
 |===
-
-// === QueryContentConnection
-//
-//
-// ==== Fields
-//
-// |===
-// |Name(Arguments):Type | Description
-//
-// |totalCount: Int!
-// |Total number of related content
-//
-// |edges: [<<ContentEdge>>]
-// |Edge to the related content
-//
-// |pageInfo: <<PageInfo>>
-// |Paging information
-//
-// |aggregationAsJson: JSON
-// |Result of aggregations
-//
-// |===
 
 === QueryDSLContentConnection
 
@@ -699,9 +669,6 @@ Representation of a content type definition
 
 |name: String
 |Content type name
-
-|displayName: String
-|*Deprecated*. Use `title` instead. Returns the same value as `title`
 
 |title: String
 |Content type title
@@ -1097,14 +1064,17 @@ Direct Known Subtypes: FormInput
 |===
 |Name(Arguments):Type | Description
 
-|from: String
+|from: DateTime
 |Scheduled publication start time
 
-|to: String
+|to: DateTime
 |Scheduled publication end time
 
-|first: String
+|first: DateTime
 |First publication time
+
+|time: DateTime
+|Time of the last publication
 
 |===
 
@@ -1386,114 +1356,6 @@ Aggregations enable extracting statistical data from search results. Only one of
 |The longitude.
 
 |===
-
-// == Filter Input Types
-//
-// === FilterInput
-//
-// ==== Fields
-//
-// |===
-// |Name(Arguments):Type | Description
-//
-// |boolean: <<BooleanFilterInput>>
-// |Boolean filter
-//
-// |exists: <<ExistsFilterInput>>
-// |ExistsFilter
-//
-// |notExists: <<NotExistsFilterInput>>
-// |NotExists filter
-//
-// |hasValue: <<HasValueFilterInput>>
-// |HasValue filter
-//
-// |ids: <<IdsFilterInput>>
-// |Ids filter
-//
-// |===
-//
-// === BooleanFilterInput
-//
-// ==== Fields
-//
-// |===
-// |Name(Arguments):Type | Description
-//
-// |must: [<<FilterInput>>]
-// |All functions on the `must` array must evaluate to `true` for the filter to match
-//
-// |mustNot: [<<FilterInput>>]
-// |All functions in the `mustNot` array must evaluate to `false` for the filter to match
-//
-// |should: [<<FilterInput>>]
-// |At least one function in the `should` array must evaluate to `true for the filter to match
-//
-// |===
-//
-// === ExistsFilterInput
-//
-// ==== Fields
-//
-// |===
-// |Name(Arguments):Type | Description
-//
-// |field: String!
-// |The property path
-//
-// |===
-//
-// === NotExistsFilterInput
-//
-// ==== Fields
-//
-// |===
-// |Name(Arguments):Type | Description
-//
-// |field: String!
-// |The property path
-//
-// |===
-//
-//
-// === HasValueFilterInput
-//
-// Only one value field can be specified.
-//
-// ==== Fields
-//
-// |===
-// |Name(Arguments):Type | Description
-//
-// |field: String!
-// |The property path
-//
-// |stringValues: [String]
-// |Array of string values to find a match
-//
-// |intValues: [Int]
-// |Array of integer values to find a match
-//
-// |booleanValues: [Boolean]
-// |Array of boolean values to find a match
-//
-// |floatValues: [Float]
-// |Array of float values to find a match
-//
-// |===
-//
-//
-// === IdsFilterInput
-//
-// ==== Fields
-//
-// |===
-// |Name(Arguments):Type | Description
-//
-// |values: [String]
-// |Array of ids to match
-//
-// |===
 
 == Query DSL Input Types
 
@@ -1986,10 +1848,6 @@ Enum values: page
 , part
 , text
 , fragment
-
-=== ContentPathType
-
-Enum values: siteRelative
 
 === MediaIntentType
 
