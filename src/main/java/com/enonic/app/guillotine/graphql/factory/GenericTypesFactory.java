@@ -135,6 +135,7 @@ public class GenericTypesFactory
         fields.add( outputField( "label", Scalars.GraphQLString ) );
         fields.add( outputField( "size", Scalars.GraphQLInt ) );
         fields.add( outputField( "mimeType", Scalars.GraphQLString ) );
+        fields.add( outputField( "sha512", Scalars.GraphQLString ) );
         fields.add( outputField( "attachmentUrl", GraphQLTypeReference.typeRef( "AttachmentUrl" ),
                                  List.of( newArgument( "download", Scalars.GraphQLBoolean ),
                                           newArgument( "params", ExtendedScalars.Json ) ) ) );
@@ -163,12 +164,17 @@ public class GenericTypesFactory
 
         fields.add( outputField( "name", Scalars.GraphQLString ) );
         fields.add( outputField( "title", Scalars.GraphQLString ) );
+        fields.add( outputField( "titleI18nKey", Scalars.GraphQLString ) );
         fields.add( outputField( "description", Scalars.GraphQLString ) );
+        fields.add( outputField( "descriptionI18nKey", Scalars.GraphQLString ) );
         fields.add( outputField( "superType", Scalars.GraphQLString ) );
         fields.add( outputField( "abstract", Scalars.GraphQLBoolean ) );
         fields.add( outputField( "final", Scalars.GraphQLBoolean ) );
         fields.add( outputField( "allowChildContent", Scalars.GraphQLBoolean ) );
-        fields.add( outputField( "contentDisplayNameScript", Scalars.GraphQLString ) );
+        fields.add( outputField( "displayNameExpression", Scalars.GraphQLString ) );
+        fields.add( outputField( "displayNameListExpression", Scalars.GraphQLString ) );
+        fields.add( outputField( "displayNamePlaceholder", Scalars.GraphQLString ) );
+        fields.add( outputField( "displayNamePlaceholderI18nKey", Scalars.GraphQLString ) );
         fields.add( outputField( "icon", GraphQLTypeReference.typeRef( "Icon" ) ) );
         fields.add( outputField( "form", new GraphQLList( GraphQLTypeReference.typeRef( "FormItem" ) ) ) );
         fields.add( outputField( "formAsJson", ExtendedScalars.Json ) );
@@ -326,6 +332,6 @@ public class GenericTypesFactory
         GraphQLObjectType outputObject = newObject( context.uniqueName( "RichText" ), "RichText type.", fields );
         context.registerType( outputObject.getName(), outputObject );
 
-		context.registerDataFetcher( outputObject.getName(), "macros", new GetFieldAsJsonDataFetcher( "macrosAsJson" ) );
+        context.registerDataFetcher( outputObject.getName(), "macros", new GetFieldAsJsonDataFetcher( "macrosAsJson" ) );
     }
 }

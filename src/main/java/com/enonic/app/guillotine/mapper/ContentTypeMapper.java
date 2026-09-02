@@ -30,11 +30,17 @@ public final class ContentTypeMapper
     {
         gen.value( "name", contentType.getName().toString() );
         gen.value( "title", contentType.getTitle() );
+        gen.value( "titleI18nKey", contentType.getTitleI18nKey() );
         gen.value( "description", contentType.getDescription() );
+        gen.value( "descriptionI18nKey", contentType.getDescriptionI18nKey() );
         gen.value( "superType", contentType.getSuperType() == null ? null : contentType.getSuperType().toString() );
         gen.value( "abstract", contentType.isAbstract() );
         gen.value( "final", contentType.isFinal() );
         gen.value( "allowChildContent", contentType.allowChildContent() );
+        gen.value( "displayNameExpression", contentType.getDisplayNameExpression() );
+        gen.value( "displayNameListExpression", contentType.getDisplayNameListExpression() );
+        gen.value( "displayNamePlaceholder", contentType.getDisplayNamePlaceholder() );
+        gen.value( "displayNamePlaceholderI18nKey", contentType.getDisplayNamePlaceholderI18nKey() );
         gen.value( "modifiedTime", contentType.getModifiedTime() );
         serializeIcon( gen, contentType.getIcon() );
         serializeForm( gen, contentType.getForm() );

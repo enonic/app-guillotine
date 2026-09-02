@@ -60,12 +60,17 @@ public class GetTypesGraphQLIntegrationTest
             if ( Objects.equals( "portal:site", getTypeField.get( "name" ) ) )
             {
                 assertEquals( "Site", getTypeField.get( "title" ) );
+                assertEquals( "portal.site.displayName", getTypeField.get( "titleI18nKey" ) );
                 assertEquals( "Root content for sites", getTypeField.get( "description" ) );
+                assertEquals( "portal.site.description", getTypeField.get( "descriptionI18nKey" ) );
                 assertEquals( "base:structured", getTypeField.get( "superType" ) );
                 assertEquals( false, getTypeField.get( "abstract" ) );
                 assertEquals( true, getTypeField.get( "final" ) );
                 assertEquals( true, getTypeField.get( "allowChildContent" ) );
-                assertNull( getTypeField.get( "contentDisplayNameScript" ) );
+                assertNull( getTypeField.get( "displayNameExpression" ) );
+                assertNull( getTypeField.get( "displayNameListExpression" ) );
+                assertNull( getTypeField.get( "displayNamePlaceholder" ) );
+                assertNull( getTypeField.get( "displayNamePlaceholderI18nKey" ) );
             }
         } );
     }
@@ -94,7 +99,12 @@ public class GetTypesGraphQLIntegrationTest
         assertEquals( false, getTypeField.get( "abstract" ) );
         assertEquals( true, getTypeField.get( "final" ) );
         assertEquals( true, getTypeField.get( "allowChildContent" ) );
-        assertNull( getTypeField.get( "contentDisplayNameScript" ) );
+        assertEquals( "portal.site.displayName", getTypeField.get( "titleI18nKey" ) );
+        assertEquals( "portal.site.description", getTypeField.get( "descriptionI18nKey" ) );
+        assertNull( getTypeField.get( "displayNameExpression" ) );
+        assertNull( getTypeField.get( "displayNameListExpression" ) );
+        assertNull( getTypeField.get( "displayNamePlaceholder" ) );
+        assertNull( getTypeField.get( "displayNamePlaceholderI18nKey" ) );
         assertNotNull( getTypeField.get( "formAsJson" ) );
 
         List<Map<String, Object>> formField = CastHelper.cast( getTypeField.get( "form" ) );

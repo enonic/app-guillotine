@@ -3,12 +3,23 @@ query {
         getTypes {
             name
             title
+            titleI18nKey
             description
+            descriptionI18nKey
             superType
             abstract
             final
             allowChildContent
-            contentDisplayNameScript
+            displayNameExpression
+            displayNameListExpression
+            displayNamePlaceholder
+            displayNamePlaceholderI18nKey
+            form {
+                formItemType
+                name
+                label
+            }
+            formAsJson
         }
     }
 }
