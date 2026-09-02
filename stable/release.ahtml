@@ -475,7 +475,7 @@ Guillotine 8 requires XP 8.0.0 or higher.
 <h3 id="features"><a class="link" href="#features">Features</a></h3>
 <div class="dlist">
 <dl>
-<dt class="hdlist1"><code>Content</code></dt>
+<dt class="hdlist1"><code>ContentType</code></dt>
 <dd>
 <p>Added new fields: <code>displayNameExpression</code>, <code>displayNameListExpression</code>, <code>displayNamePlaceholder</code>, <code>displayNamePlaceholderI18nKey</code>, <code>titleI18nKey</code>, <code>descriptionI18nKey</code>.</p>
 </dd>
@@ -570,7 +570,7 @@ Guillotine 8 requires XP 8.0.0 or higher.
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-01 13:18:25 UTC
+Last updated 2026-09-02 06:26:45 UTC
 </div>
 </div>
 </body>

@@ -466,11 +466,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#principalkey">PrincipalKey</a></li>
 <li><a href="#contenttype">ContentType</a></li>
 <li><a href="#formitem">FormItem</a></li>
-<li><a href="#extradata">ExtraData</a></li>
-<li><a href="#xdata_media_applicationconfig">XData_media_ApplicationConfig</a></li>
-<li><a href="#xdata_media_imageinfo_dataconfig">XData_media_imageInfo_DataConfig</a></li>
-<li><a href="#xdata_media_camerainfo_dataconfig">XData_media_cameraInfo_DataConfig</a></li>
-<li><a href="#xdata_base_gpsinfo_dataconfig">XData_base_gpsInfo_DataConfig</a></li>
+<li><a href="#mixin">Mixin</a></li>
+<li><a href="#mixin_media_applicationconfig">Mixin_media_ApplicationConfig</a></li>
+<li><a href="#mixin_media_imageinfo_dataconfig">Mixin_media_imageInfo_DataConfig</a></li>
+<li><a href="#mixin_media_camerainfo_dataconfig">Mixin_media_cameraInfo_DataConfig</a></li>
+<li><a href="#mixin_base_applicationconfig">Mixin_base_ApplicationConfig</a></li>
+<li><a href="#mixin_base_gpsinfo_dataconfig">Mixin_base_gpsInfo_DataConfig</a></li>
 <li><a href="#component">Component</a></li>
 <li><a href="#pagecomponentdata">PageComponentData</a></li>
 <li><a href="#layoutcomponentdata">LayoutComponentData</a></li>
@@ -765,6 +766,14 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content path. In the site-less mode, the result will be returned in the raw value, in other words, <code>env.source._path</code>.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_references: [<a href="#content">Content</a>]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Contents that have a reference to this content</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_score: Float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Search relevance score</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">creator: <a href="#principalkey">PrincipalKey</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content creator</p></td>
 </tr>
@@ -773,11 +782,11 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Last content modifier</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">createdTime: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">createdTime: DateTime</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content creation time</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">modifiedTime: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">modifiedTime: DateTime</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Last content modification time</p></td>
 </tr>
 <tr>
@@ -786,15 +795,15 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">type: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Content type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content type name</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">contentType: <a href="#contenttype">ContentType</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content type definition</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">displayName: String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content display name</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">hasChildren: Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true if the content has children content</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">language: String</p></td>
@@ -809,7 +818,7 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content data</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">x: [<a href="#extradata">ExtraData</a>]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">x: <a href="#mixin">Mixin</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content extra data.</p></td>
 </tr>
 <tr>
@@ -817,16 +826,40 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content extra data as JSON</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">pageAsJson: JSON</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Page specific information.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pageAsJson(resolveTemplate: Boolean, resolveFragment: Boolean): JSON</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Page specific information.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>resolveTemplate</code> - if <code>true</code> and the content uses a page template (directly or as the site default), the page configuration is resolved from that template instead of the content itself. Default is <code>false</code></p>
+</li>
+<li>
+<p><code>resolveFragment</code> - if <code>true</code> fragment components are replaced with the actual components of the referenced fragment. Default is <code>false</code></p>
+</li>
+</ul>
+</div></div></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">pageTemplate: <a href="#content">Content</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Related page template content</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">components: [<a href="#component">Component</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Flattened list of page components</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">components(resolveTemplate: Boolean, resolveFragment: Boolean): [<a href="#component">Component</a>]</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Flattened list of page components</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>resolveTemplate</code> - if <code>true</code> and the content uses a page template (directly or as the site default), the components are resolved from that template instead of the content itself. Default is <code>false</code></p>
+</li>
+<li>
+<p><code>resolveFragment</code> - if <code>true</code> fragment components are replaced with the actual components of the referenced fragment. Default is <code>false</code></p>
+</li>
+</ul>
+</div></div></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">attachments: [<a href="#attachment">Attachment</a>]</p></td>
@@ -1402,10 +1435,6 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">inheritsPermissions: Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Inherit permissions from parent content</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">permissions: [<a href="#accesscontrolentry">AccessControlEntry</a>]</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Permissions</p></td>
 </tr>
@@ -1506,11 +1535,23 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">displayName: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Content type display name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Deprecated</strong>. Use <code>title</code> instead. Returns the same value as <code>title</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">title: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content type title</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">titleI18nKey: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i18n key of the content type title</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">description: String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content type description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">descriptionI18nKey: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i18n key of the content type description</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">superType: String</p></td>
@@ -1529,34 +1570,32 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <td class="tableblock halign-left valign-top"><p class="tableblock">true if content can be added under a content of this type</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">contentDisplayNameScript: String</p></td>
-<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">displayNameExpression: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Expression used to generate the display name of contents of this type</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">icon: Icon</p></td>
-<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">displayNameListExpression: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Expression used to generate the display name of contents of this type in list views</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">displayNamePlaceholder: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Placeholder for the display name input</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">displayNamePlaceholderI18nKey: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i18n key of the display name placeholder</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">icon: <a href="#icon">Icon</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content type icon</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">form: [<a href="#formitem">FormItem</a>]</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content type fields schema</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">getInstances(
-offset: Int
-, first: Int
-, query: String
-, sort: String
-): [<a href="#content">Content</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Util field returning the contents of this type</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">getInstanceConnection(
-after: String
-, first: Int
-, query: String
-, sort: String
-): <a href="#contentconnection">ContentConnection</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Util field returning the contents of this type as a connection</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">formAsJson: JSON</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content type fields schema as JSON</p></td>
 </tr>
 </tbody>
 </table>
@@ -1604,7 +1643,7 @@ after: String
 </div>
 </div>
 <div class="sect2">
-<h3 id="extradata"><a class="link" href="#extradata">ExtraData</a></h3>
+<h3 id="mixin"><a class="link" href="#mixin">Mixin</a></h3>
 <div class="sect3">
 <h4 id="fields_14"><a class="link" href="#fields_14">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
@@ -1620,23 +1659,23 @@ after: String
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">media: <a href="#xdata_media_applicationconfig">XData_media_ApplicationConfig</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">X-Data for <code>media</code> application</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">media: <a href="#mixin_media_applicationconfig">Mixin_media_ApplicationConfig</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mixin data for <code>media</code> application</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">base: <a href="#xdata_base_applicationconfig">XData_base_ApplicationConfig</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">X-Data for <code>base</code> application</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">base: <a href="#mixin_base_applicationconfig">Mixin_base_ApplicationConfig</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mixin data for <code>base</code> application</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;applicationKey&gt;: XData_&lt;applicationKey&gt;_ApplicationConfig</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">X-Data for <code>&lt;applicationKey&gt;</code> application</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;applicationKey&gt;: Mixin_&lt;applicationKey&gt;_ApplicationConfig</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mixin data for <code>&lt;applicationKey&gt;</code> application</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 <div class="sect2">
-<h3 id="xdata_media_applicationconfig"><a class="link" href="#xdata_media_applicationconfig">XData_media_ApplicationConfig</a></h3>
+<h3 id="mixin_media_applicationconfig"><a class="link" href="#mixin_media_applicationconfig">Mixin_media_ApplicationConfig</a></h3>
 <div class="sect3">
 <h4 id="fields_15"><a class="link" href="#fields_15">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
@@ -1652,19 +1691,19 @@ after: String
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">imageInfo: <a href="#xdata_media_imageinfo_dataconfig">XData_media_imageInfo_DataConfig</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Related X-Data config</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">imageInfo: <a href="#mixin_media_imageinfo_dataconfig">Mixin_media_imageInfo_DataConfig</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Related mixin config</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">cameraInfo: <a href="#xdata_media_camerainfo_dataconfig">XData_media_cameraInfo_DataConfig</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Related X-Data config</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cameraInfo: <a href="#mixin_media_camerainfo_dataconfig">Mixin_media_cameraInfo_DataConfig</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Related mixin config</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 <div class="sect2">
-<h3 id="xdata_media_imageinfo_dataconfig"><a class="link" href="#xdata_media_imageinfo_dataconfig">XData_media_imageInfo_DataConfig</a></h3>
+<h3 id="mixin_media_imageinfo_dataconfig"><a class="link" href="#mixin_media_imageinfo_dataconfig">Mixin_media_imageInfo_DataConfig</a></h3>
 <div class="sect3">
 <h4 id="fields_16"><a class="link" href="#fields_16">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
@@ -1712,7 +1751,7 @@ after: String
 </div>
 </div>
 <div class="sect2">
-<h3 id="xdata_media_camerainfo_dataconfig"><a class="link" href="#xdata_media_camerainfo_dataconfig">XData_media_cameraInfo_DataConfig</a></h3>
+<h3 id="mixin_media_camerainfo_dataconfig"><a class="link" href="#mixin_media_camerainfo_dataconfig">Mixin_media_cameraInfo_DataConfig</a></h3>
 <div class="sect3">
 <h4 id="fields_17"><a class="link" href="#fields_17">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
@@ -1806,10 +1845,9 @@ after: String
 </tbody>
 </table>
 </div>
-<div class="sect3">
-<h4 id="xdata_base_applicationconfig"><a class="link" href="#xdata_base_applicationconfig">XData_base_ApplicationConfig</a></h4>
-
 </div>
+<div class="sect2">
+<h3 id="mixin_base_applicationconfig"><a class="link" href="#mixin_base_applicationconfig">Mixin_base_ApplicationConfig</a></h3>
 <div class="sect3">
 <h4 id="fields_18"><a class="link" href="#fields_18">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
@@ -1825,7 +1863,7 @@ after: String
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">gpsInfo: <a href="#xdata_base_gpsinfo_dataconfig">XData_base_gpsInfo_DataConfig</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">gpsInfo: <a href="#mixin_base_gpsinfo_dataconfig">Mixin_base_gpsInfo_DataConfig</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">GPS information</p></td>
 </tr>
 </tbody>
@@ -1833,7 +1871,7 @@ after: String
 </div>
 </div>
 <div class="sect2">
-<h3 id="xdata_base_gpsinfo_dataconfig"><a class="link" href="#xdata_base_gpsinfo_dataconfig">XData_base_gpsInfo_DataConfig</a></h3>
+<h3 id="mixin_base_gpsinfo_dataconfig"><a class="link" href="#mixin_base_gpsinfo_dataconfig">Mixin_base_gpsInfo_DataConfig</a></h3>
 <div class="sect3">
 <h4 id="fields_19"><a class="link" href="#fields_19">Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
@@ -3549,7 +3587,7 @@ Defaults to none - will be displayed in the same order in which fragments appear
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-01 13:18:25 UTC
+Last updated 2026-09-02 06:26:45 UTC
 </div>
 </div>
 </body>
