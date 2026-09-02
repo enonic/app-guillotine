@@ -119,11 +119,11 @@ export enum ObjectTypeName {
 	SiteConfigurator = 'SiteConfigurator',
 	TextComponentData = 'TextComponentData',
 	UntypedContent = 'UntypedContent',
-	XData_base_ApplicationConfig = 'XData_base_ApplicationConfig',
-	XData_base_gpsInfo_DataConfig = 'XData_base_gpsInfo_DataConfig',
-	XData_media_ApplicationConfig = 'XData_media_ApplicationConfig',
-	XData_media_cameraInfo_DataConfig = 'XData_media_cameraInfo_DataConfig',
-	XData_media_imageInfo_DataConfig = 'XData_media_imageInfo_DataConfig',
+    Mixin_base_ApplicationConfig = 'Mixin_base_ApplicationConfig',
+    Mixin_base_gpsInfo_DataConfig = 'Mixin_base_gpsInfo_DataConfig',
+    Mixin_media_ApplicationConfig = 'Mixin_media_ApplicationConfig',
+    Mixin_media_cameraInfo_DataConfig = 'Mixin_media_cameraInfo_DataConfig',
+    Mixin_media_imageInfo_DataConfig = 'Mixin_media_imageInfo_DataConfig',
 }
 
 export declare type ObjectTypeNames = keyof typeof ObjectTypeName
@@ -141,6 +141,7 @@ export declare interface Attachment {
 	label: GraphQLString
 	size: GraphQLInt
 	mimeType: GraphQLString
+	sha512: GraphQLString
 	attachmentUrl: AttachmentUrl
 }
 
@@ -174,7 +175,6 @@ export declare type Content<
 		creator: PrincipalKey
 		dataAsJson: GraphQLJson
 		displayName: GraphQLString
-		hasChildren: GraphQLBoolean
 		language: GraphQLString
 		modifiedTime: GraphQLDateTime
 		modifier: PrincipalKey
@@ -188,7 +188,7 @@ export declare type Content<
 		site: portal_Site
 		type: GraphQLString
 		valid: GraphQLBoolean
-		x: ExtraData
+        x: Mixin
 		xAsJson: GraphQLJson
 	} & Extensions,
 	CoreContent
@@ -206,22 +206,28 @@ export declare interface ContentEdge {
 }
 
 export declare interface ContentType {
-	name: GraphQLString
-	displayName: GraphQLString
-	description: GraphQLString
-	superType: GraphQLString
-	abstract: GraphQLBoolean
-	final: GraphQLBoolean
-	allowChildContent: GraphQLBoolean
-	contentDisplayNameScript: GraphQLString
-	icon: Icon
-	form: FormItem[]
-	formAsJson: GraphQLJson
+    name: GraphQLString
+    title: GraphQLString
+    titleI18nKey: GraphQLString
+    displayName: GraphQLString
+    description: GraphQLString
+    descriptionI18nKey: GraphQLString
+    superType: GraphQLString
+    abstract: GraphQLBoolean
+    final: GraphQLBoolean
+    allowChildContent: GraphQLBoolean
+    displayNameExpression: GraphQLString
+    displayNameListExpression: GraphQLString
+    displayNamePlaceholder: GraphQLString
+    displayNamePlaceholderI18nKey: GraphQLString
+    icon: Icon
+    form: FormItem[]
+    formAsJson: GraphQLJson
 }
 
-export declare interface ExtraData {
-	media: XData_media_ApplicationConfig
-	base: XData_base_ApplicationConfig
+export declare interface Mixin {
+    media: Mixin_media_ApplicationConfig
+    base: Mixin_base_ApplicationConfig
 }
 
 export declare interface FormItem {
@@ -323,22 +329,22 @@ export declare interface PublishInfo {
 	first: GraphQLString
 }
 
-export declare interface XData_base_ApplicationConfig {
-	gpsInfo: XData_base_gpsInfo_DataConfig
+export declare interface Mixin_base_ApplicationConfig {
+    gpsInfo: Mixin_base_gpsInfo_DataConfig
 }
 
-export declare interface XData_base_gpsInfo_DataConfig {
-	geoPoint: GeoPoint
-	altitude: GraphQLString
-	direction: GraphQLString
+export declare interface Mixin_base_gpsInfo_DataConfig {
+    geoPoint: GeoPoint
+    altitude: GraphQLString
+    direction: GraphQLString
 }
 
-export declare interface XData_media_ApplicationConfig {
-	imageInfo: XData_media_imageInfo_DataConfig
-	cameraInfo: XData_media_cameraInfo_DataConfig
+export declare interface Mixin_media_ApplicationConfig {
+    imageInfo: Mixin_media_imageInfo_DataConfig
+    cameraInfo: Mixin_media_cameraInfo_DataConfig
 }
 
-export declare interface XData_media_cameraInfo_DataConfig {
+export declare interface Mixin_media_cameraInfo_DataConfig {
 	date: GraphQLLocalDateTime
 	make: GraphQLString
 	model: GraphQLString
@@ -360,7 +366,7 @@ export declare interface XData_media_cameraInfo_DataConfig {
 	orientation: GraphQLString
 }
 
-export declare interface XData_media_imageInfo_DataConfig {
+export declare interface Mixin_media_imageInfo_DataConfig {
 	pixelSize: GraphQLString
 	imageHeight: GraphQLString
 	imageWidth: GraphQLString

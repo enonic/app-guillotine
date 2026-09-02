@@ -143,29 +143,35 @@ All types implementing `Content` share the same fields, with the exception of th
 |_path(type: <<ContentPathType>>): String!
 |Content path. In the site-less mode, the result will be returned in the raw value, in other words, `env.source._path`.
 
+|_references: [<<Content>>]
+|Contents that have a reference to this content
+
+|_score: Float
+|Search relevance score
+
 |creator: <<PrincipalKey>>
 |Content creator
 
 |modifier: <<PrincipalKey>>
 |Last content modifier
 
-|createdTime: String
+|createdTime: DateTime
 |Content creation time
 
-|modifiedTime: String
+|modifiedTime: DateTime
 |Last content modification time
 
 |owner: <<PrincipalKey>>
 |Content owner
 
 |type: String
-|Content type
+|Content type name
+
+|contentType: <<ContentType>>
+|Content type definition
 
 |displayName: String
 |Content display name
-
-|hasChildren: Boolean
-|true if the content has children content
 
 |language: String
 |Content language
@@ -176,7 +182,7 @@ All types implementing `Content` share the same fields, with the exception of th
 |dataAsJson: JSON
 |Content data
 
-|x: [<<ExtraData>>]
+|x: <<Mixin>>
 |Content extra data.
 
 |xAsJson: JSON
@@ -638,9 +644,6 @@ Attachment URL and its components, for building the URL from segments: `url = ba
 |===
 |Name(Arguments):Type | Description
 
-|inheritsPermissions: Boolean
-|Inherit permissions from parent content
-
 |permissions: [<<AccessControlEntry>>]
 |Permissions
 
@@ -698,10 +701,19 @@ Representation of a content type definition
 |Content type name
 
 |displayName: String
-|Content type display name
+|*Deprecated*. Use `title` instead. Returns the same value as `title`
+
+|title: String
+|Content type title
+
+|titleI18nKey: String
+|i18n key of the content type title
 
 |description: String
 |Content type description
+
+|descriptionI18nKey: String
+|i18n key of the content type description
 
 |superType: String
 |Parent content type
@@ -715,30 +727,26 @@ Representation of a content type definition
 |allowChildContent: Boolean
 |true if content can be added under a content of this type
 
-|contentDisplayNameScript: String
-|
+|displayNameExpression: String
+|Expression used to generate the display name of contents of this type
 
-|icon: Icon
-|
+|displayNameListExpression: String
+|Expression used to generate the display name of contents of this type in list views
+
+|displayNamePlaceholder: String
+|Placeholder for the display name input
+
+|displayNamePlaceholderI18nKey: String
+|i18n key of the display name placeholder
+
+|icon: <<Icon>>
+|Content type icon
 
 |form: [<<FormItem>>]
 |Content type fields schema
 
-|getInstances(
-offset: Int
-, first: Int
-, query: String
-, sort: String
-): [<<Content>>]
-|Util field returning the contents of this type
-
-|getInstanceConnection(
-after: String
-, first: Int
-, query: String
-, sort: String
-): <<ContentConnection>>
-|Util field returning the contents of this type as a connection
+|formAsJson: JSON
+|Content type fields schema as JSON
 
 |===
 
@@ -767,40 +775,40 @@ Direct Known Subtypes: FormInput
 , FormLayout
 , FormItemSet
 
-=== ExtraData
+=== Mixin
 
 ==== Fields
 
 |===
 |Name(Arguments):Type | Description
 
-|media: <<XData_media_ApplicationConfig>>
-|X-Data for `media` application
+|media: <<Mixin_media_ApplicationConfig>>
+|Mixin data for `media` application
 
-|base: <<XData_base_ApplicationConfig>>
-|X-Data for `base` application
+|base: <<Mixin_base_ApplicationConfig>>
+|Mixin data for `base` application
 
-|<applicationKey>: XData_<applicationKey>_ApplicationConfig
-|X-Data for `<applicationKey>` application
+|<applicationKey>: Mixin_<applicationKey>_ApplicationConfig
+|Mixin data for `<applicationKey>` application
 
 |===
 
-=== XData_media_ApplicationConfig
+=== Mixin_media_ApplicationConfig
 
 ==== Fields
 
 |===
 |Name(Arguments):Type | Description
 
-|imageInfo: <<XData_media_imageInfo_DataConfig>>
-|Related X-Data config
+|imageInfo: <<Mixin_media_imageInfo_DataConfig>>
+|Related mixin config
 
-|cameraInfo: <<XData_media_cameraInfo_DataConfig>>
-|Related X-Data config
+|cameraInfo: <<Mixin_media_cameraInfo_DataConfig>>
+|Related mixin config
 
 |===
 
-=== XData_media_imageInfo_DataConfig
+=== Mixin_media_imageInfo_DataConfig
 
 ==== Fields
 
@@ -830,7 +838,7 @@ Direct Known Subtypes: FormInput
 
 |===
 
-=== XData_media_cameraInfo_DataConfig
+=== Mixin_media_cameraInfo_DataConfig
 
 ==== Fields
 
@@ -896,19 +904,19 @@ Direct Known Subtypes: FormInput
 
 |===
 
-==== XData_base_ApplicationConfig
+=== Mixin_base_ApplicationConfig
 
 ==== Fields
 
 |===
 |Name(Arguments):Type | Description
 
-|gpsInfo: <<XData_base_gpsInfo_DataConfig>>
+|gpsInfo: <<Mixin_base_gpsInfo_DataConfig>>
 |GPS information
 
 |===
 
-=== XData_base_gpsInfo_DataConfig
+=== Mixin_base_gpsInfo_DataConfig
 
 ==== Fields
 
@@ -1073,6 +1081,9 @@ Direct Known Subtypes: FormInput
 
 |mimeType: String
 |Attachment mime type
+
+|sha512: String
+|Attachment SHA-512 checksum
 
 |attachmentUrl (download: Boolean, params: Json): <<AttachmentUrl>>
 |Attachment URL and its components. Set `download` to `true` to force download instead of inline rendering
