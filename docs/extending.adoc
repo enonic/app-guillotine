@@ -182,3 +182,4 @@ Functions:: `createDataFetcherResult` - allows to return object with `data` whic
 
 The `extensions` function will automatically be invoked by Guillotine when your application (the app containing the `guillotine.js` controller) is started, or when Guillotine itself is started/restarted.
 
+If an extension fails to define a resolver for a field (for instance the resolver function is missing), an error is logged for that field only, and the rest of the schema is still available.

@@ -6,16 +6,18 @@ TIP: cURL must be installed on your device for the examples below to work
 
 == Query example
 
+The query selects the project and branch with the `project` and `branch` arguments of the `guillotine` field. More information about endpoints can be found <<../setup#endpoints, here>>.
+
 .Create the file req.json
 [source,json]
 ----
-{"query":"query {\n  guillotine {\n    queryDsl(query: {\n      term: {\n        field: \"type\",\n        value: {\n          string: \"com.enonic.app.moviedb:playlist\"\n        }\n      }\n    }){\n      ... on com_enonic_app_moviedb_Playlist {\n        _id\n        displayName\n      }\n    }\n  }\n}"}
+{"query":"query {\n  guillotine(project: \"moviedb\", branch: \"draft\") {\n    queryDsl(query: {\n      term: {\n        field: \"type\",\n        value: {\n          string: \"com.enonic.app.moviedb:playlist\"\n        }\n      }\n    }){\n      ... on com_enonic_app_moviedb_Playlist {\n        _id\n        displayName\n      }\n    }\n  }\n}"}
 ----
 
 .POST request using cURL
 [source,curl]
 ----
-curl -X POST -H "Content-Type: application/json" -d @req.json http://localhost:8080/site/moviedb/draft | json_pp
+curl -X POST -H "Content-Type: application/json" -d @req.json http://localhost:8080/api/com.enonic.app.guillotine:graphql | json_pp
 ----
 
 .Response

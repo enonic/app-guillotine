@@ -14,7 +14,7 @@
       "menuItems": [
         {
           "title": "cURL",
-          "document": "usage/cURL"
+          "document": "usage/curl"
         },
         {
           "title": "JavaScript",

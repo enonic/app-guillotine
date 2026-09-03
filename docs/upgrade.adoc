@@ -1,3 +1,259 @@
 = Upgrade Notes
 
-Upgrade notes for Guillotine 9 will be added here.
+IMPORTANT: Guillotine 9 requires XP 8.1.0 or higher.
+
+== Endpoint
+
+The API is served by the XP API `com.enonic.app.guillotine:graphql`. The project and branch are no longer part of the URL, they are selected with the `project` and `branch` arguments of the `guillotine` field.
+
+* Old way:
+
+[source]
+----
+POST http://localhost:8080/site/myproject/draft
+----
+
+[source,graphql]
+----
+{
+  guillotine {
+    get(key: "/path/to/content") {
+      displayName
+    }
+  }
+}
+----
+
+* New way:
+
+[source]
+----
+POST http://localhost:8080/api/com.enonic.app.guillotine:graphql
+----
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "draft") {
+    get(key: "/path/to/content") {
+      displayName
+    }
+  }
+}
+----
+
+Update vhost mappings and ingress rules that pointed to `/site/<project>` or `/site/<project>/<branch>` so that they target `/api/com.enonic.app.guillotine:graphql`. See <<setup#endpoints, Endpoints>>.
+
+== Removed `X-Guillotine-SiteKey` header
+
+The site context is set with the `siteKey` argument of the `guillotine` field only.
+
+* Old way: HTTP header `X-Guillotine-SiteKey: /my-site`
+
+* New way:
+
+[source,graphql]
+----
+{
+  guillotine(siteKey: "/my-site") {
+    getSite {
+      displayName
+    }
+  }
+}
+----
+
+Without `siteKey`, `getSite` now returns `null`, and `env.localContext.siteKey` in resolvers is `undefined` instead of `/`. Check for the property before using it.
+
+== URL fields
+
+The `type` argument is removed from `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl`, and these fields return objects. Select the `url` subfield to get the URL.
+
+* Old way:
+
+[source,graphql]
+----
+{
+  guillotine {
+    get(key: "/path/to/image") {
+      pageUrl(type: absolute)
+      ... on media_Image {
+        imageUrl(scale: "block(800,200)", type: absolute)
+      }
+    }
+  }
+}
+----
+
+* New way:
+
+[source,graphql]
+----
+{
+  guillotine(siteKey: "/my-site") {
+    get(key: "/path/to/image") {
+      pageUrl {
+        url
+      }
+      ... on media_Image {
+        imageUrl(scale: "block(800,200)") {
+          url
+        }
+      }
+    }
+  }
+}
+----
+
+URLs are server-relative by default. To get absolute URLs, configure a Base URL on the site and pass `siteKey`, or set `media.defaultBaseUrl` in `com.enonic.xp.portal.cfg` for media URLs. Alternatively, build the URL yourself from the `path` and `queryString` components, see <<usage#, Building URLs from parts>> in the Usage section.
+
+== Processed HTML
+
+The `type` field is removed from `ProcessHtmlInput`. Links and media URLs in `processedHtml` are server-relative unless a Base URL is resolved through `siteKey` or XP configuration.
+
+* Old way:
+
+[source,graphql]
+----
+htmlAreaField(processHtml: {type: absolute, imageWidths: [600, 992]}) {
+  processedHtml
+}
+----
+
+* New way:
+
+[source,graphql]
+----
+htmlAreaField(processHtml: {imageWidths: [600, 992]}) {
+  processedHtml
+}
+----
+
+== Removed `query` and `queryConnection` fields
+
+The deprecated `query` and `queryConnection` fields and the `FilterInput` family of input types are removed. Use `queryDsl` and `queryDslConnection` with https://developer.enonic.com/docs/code/stable/storage/querying[Query DSL].
+
+* Old way:
+
+[source,graphql]
+----
+{
+  guillotine {
+    query(query: "type = 'com.enonic.app.myapp:post'", first: 10) {
+      displayName
+    }
+  }
+}
+----
+
+* New way:
+
+[source,graphql]
+----
+{
+  guillotine {
+    queryDsl(query: {
+      term: {
+        field: "type",
+        value: {
+          string: "com.enonic.app.myapp:post"
+        }
+      }
+    }, first: 10) {
+      displayName
+    }
+  }
+}
+----
+
+== Removed `type` argument of `_path`
+
+`_path` always returns the full content path. Use the `path` component of `pageUrl` for the path relative to the site.
+
+* Old way:
+
+[source,graphql]
+----
+{
+  guillotine(siteKey: "/my-site") {
+    get(key: "${site}/persons/john") {
+      _path(type: siteRelative)
+    }
+  }
+}
+----
+
+* New way:
+
+[source,graphql]
+----
+{
+  guillotine(siteKey: "/my-site") {
+    get(key: "${site}/persons/john") {
+      pageUrl {
+        path
+      }
+    }
+  }
+}
+----
+
+NOTE: `pageUrl.path` is URL-escaped, while `_path(type: siteRelative)` returned the raw path.
+
+== Removed `displayName` on `ContentType`
+
+The `displayName` field of `ContentType` is removed. Use `title`, which carries the same value. The `contentDisplayNameScript` field is removed as well.
+
+* Old way:
+
+[source,graphql]
+----
+{
+  guillotine {
+    getType(name: "com.enonic.app.myapp:person") {
+      displayName
+    }
+  }
+}
+----
+
+* New way:
+
+[source,graphql]
+----
+{
+  guillotine {
+    getType(name: "com.enonic.app.myapp:person") {
+      title
+    }
+  }
+}
+----
+
+== `PublishInfo` values
+
+The `from`, `to` and `first` fields of `PublishInfo` are `DateTime` values instead of `String`. Clients parsing them as strings keep working, since `DateTime` is serialized as an ISO-8601 string, but the GraphQL type has changed.
+
+== Resolvers and the application context
+
+Resolvers defined in `guillotine.js` no longer switch the request to your application. Portal URL functions called without the `application` parameter resolve the application of the incoming request instead of your own.
+
+* Old way:
+
+[source,javascript]
+----
+portalLib.assetUrl({path: 'images/logo.png'});
+----
+
+* New way:
+
+[source,javascript]
+----
+portalLib.assetUrl({path: 'images/logo.png', application: app.name});
+----
+
+`app.name`, `app.config` and `/lib/xp/i18n` are not affected.
+
+== Query Playground
+
+The Query Playground is only available as a Content Studio extension. Remove the `queryplayground.ui.mode` option from `com.enonic.app.guillotine.cfg`.

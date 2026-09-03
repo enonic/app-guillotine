@@ -4,7 +4,7 @@ This section describes how to invoke the Guillotine API directly from a JavaScri
 
 == Example: Fetch content by type
 
-In our example, we will use the `http://localhost:8080/site/moviedb/master` endpoint to make a request to the GraphQL API. More information about endpoints can be found <<../setup#endpoints, here>>.
+In our example, we will use the `http://localhost:8080/api/com.enonic.app.guillotine:graphql` endpoint to make a request to the GraphQL API. The project and branch are selected with the `project` and `branch` arguments of the `guillotine` field. More information about endpoints can be found <<../setup#endpoints, here>>.
 
 This endpoint expects to receive an HTTP POST request with the following properties in the body of the request:
 
@@ -15,7 +15,7 @@ This endpoint expects to receive an HTTP POST request with the following propert
 [source,javascript]
 ----
 const query = `query($type:String){
-    guillotine {
+    guillotine(project: "moviedb", branch: "master") {
         queryDsl(query: {
           term: {
             field: "type",
@@ -36,7 +36,7 @@ const variables = {
     'type': 'com.enonic.app.moviedb:playlist'
 };
 
-fetch('http://localhost:8080/site/moviedb/master', {
+fetch('http://localhost:8080/api/com.enonic.app.guillotine:graphql', {
     method: 'POST',
     body: JSON.stringify({
         query: query,

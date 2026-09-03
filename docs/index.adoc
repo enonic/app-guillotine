@@ -7,7 +7,7 @@ A bend-over-backwards flexible GraphQL API based on XP's content API
 
 TIP: *Quickstart!* Check out https://developer.enonic.com/learn/developer-101[the Developer 101 tutorial] for a hands-on introduction to Enonic and the GraphQL API.
 
-At its core, Guillotine is a strongly typed GraphQL version of XP's internal https://developer.enonic.com/docs/code/stable/libraries/lib-content[Content library]. 
+At its core, Guillotine is a strongly typed GraphQL version of XP's internal https://developer.enonic.com/docs/code/stable/libraries/lib-content[Content library].
 
 image::images/guillotine-api.png[Cutting Edge API, 1344px]
 
@@ -24,3 +24,7 @@ Query examples:: A basic introduction to using the API, with hands <<usage#,exam
 Clients:: Demonstrating how to invoke the API using <<usage/curl#, cURL>> or <<usage/javascript#, JavaScript>>.
 
 Extending and augmenting::  Discover Guillotine's superpower and how to <<extending#,dynamically extend the API to match your needs>>.
+
+Configuration:: The <<configuration#, configuration options>> of the Guillotine app.
+
+Release notes:: What is new in this version, and <<upgrade#, how to upgrade>> from a previous version, see <<release#, release notes>>.
