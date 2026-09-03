@@ -12,6 +12,24 @@ TIP: Here are details on how to invoke the API from <<usage/javascript#, JavaScr
 
 Below is a selection of sample GraphQL queries:
 
+== Project and branch
+
+Every query starts with the `guillotine` field. Its `project` and `branch` arguments select the content project and the branch (`draft` or `master`) the query is executed in:
+
+.*Example*: Fetch the root items of the `draft` branch of the `myproject` project
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "draft") {
+    getChildren(key: "/") {
+      displayName
+    }
+  }
+}
+----
+
+If the arguments are omitted, the project and branch of the request context are used. When the API is invoked from a site or from Content Studio, the context is defined by the request and the arguments are ignored. See <<setup#endpoints, Endpoints>> for details. The examples below omit the arguments for brevity.
+
 == Content queries
 
 Enonic offers advanced search and aggregation queries using https://developer.enonic.com/docs/code/stable/storage/querying[Query DSL] (Domain Specific Language). Ranked search, aggregations and highlighting are just some of the features.
@@ -67,7 +85,7 @@ Schemas with ContentSelector, MediaSelector or ImageSelector will generate refer
 
 Enonic XP can serve custom scaled images at runtime. Guillotine uses this functionality by using the `imageUrl` field which will generate a URL for the desired image size and crop.
 
-.*Example: Scaled Image URL* - Retrieve the image contents and generate absolute URLs to these images cropped to 800x200px
+.*Example: Scaled Image URL* - Retrieve the image contents and generate URLs to these images cropped to 800x200px
 [source,graphql]
 ----
 {
@@ -189,7 +207,7 @@ For instance, the processed value of a link looks like this:
 ----
 <p>
     <a title="Tooltip"
-        href="/admin/site/preview/hmdb/draft/hmdb/persons/lea-seydoux"
+        href="/site/hmdb/draft/hmdb/persons/lea-seydoux"
         data-link-ref="e72f48b6-a972-4133-a300-a3ab5d132800">Link 1</a>
 </p>
 ----
@@ -243,7 +261,7 @@ For instance, the processed value of an image looks like this:
 ----
 <figure class="editor-align-justify">
     <img alt="Alt text"
-         src="/site/repo/branch/appName/_/image/contentID/width-768/imageName.jpg"
+         src="/media:image/myproject:draft/contentID:fingerprint/width-768/imageName.jpg"
          data-image-ref="4f2439ff-ecef-4470-a4b4-d8929bce6ee2" />
     <figcaption>Caption text</figcaption>
 </figure>
@@ -319,10 +337,10 @@ The result will look as follows:
 ----
 <figure class="editor-align-justify">
     <img alt="Alt text"
-         src="/site/repo/branch/appName/_/image/contentID/width-768/imageName.jpg"
+         src="/media:image/myproject:draft/contentID:fingerprint/width-768/imageName.jpg"
          data-image-ref="4f2439ff-ecef-4470-a4b4-d8929bce6ee2"
-         srcset="/site/repo/branch/appName/_/image/contentID/width-600/imageName.jpg 600w,
-                 /site/repo/branch/appName/_/image/contentID/width-992/imageName.jpg 992w"/>
+         srcset="/media:image/myproject:draft/contentID:fingerprint/width-600/imageName.jpg 600w,
+                 /media:image/myproject:draft/contentID:fingerprint/width-992/imageName.jpg 992w"/>
     <figcaption>Caption text</figcaption>
 </figure>
 ----
@@ -432,17 +450,17 @@ Enonic XP supports dynamically adding fields from other schemas/applications to 
 In the query below, we access the SoMe (SocialMedia) mixin fields that have been added to the Person content type.
 
 
-.Example: Access xData fields
+.Example: Access mixin fields
 [source,graphql]
 ----
 {
   guillotine {
-    query(key: "contentid") {
+    get(key: "contentid") {
       displayName
       x {
-      	com_example_myproject {
+        com_example_myproject {
           SoMe {
-          	imdb
+            imdb
           }
         }
       }
@@ -451,7 +469,7 @@ In the query below, we access the SoMe (SocialMedia) mixin fields that have been
 }
 ----
 
-NOTE: Notice that xData fields are grouped by application name, this ensures there will never be a conflict between field names, even when schemas come from different applications.
+NOTE: Notice that mixin fields are grouped by application name, this ensures there will never be a conflict between field names, even when schemas come from different applications.
 
 
 == Site context
@@ -473,11 +491,27 @@ Provide the `siteKey` argument with the site ID or path on the `guillotine` fiel
 }
 ----
 
-NOTE: `siteKey` is either the ID of the site content item, or the path to the site within your project.
+NOTE: `siteKey` is either the ID of the site content item, or the path to the site within your project. Use `/` to anchor queries to the project root. If no content matches the given `siteKey`, the query fails with an error.
+
+.Example: Access the site and its children
+[source,graphql]
+----
+{
+  guillotine(siteKey: "/my-site") {
+    get(key: "${site}") {
+      displayName
+      children {
+        displayName
+        type
+      }
+    }
+  }
+}
+----
 
 === getSite
 
-With the site context set, you may run queries to access the site content using getSite field
+With the site context set, you may run queries to access the site content using the `getSite` field. Without `siteKey`, `getSite` returns `null`.
 
 .Example: Accessing the displayName of the site
 ----
@@ -494,7 +528,7 @@ With the site context set, you may run queries to access the site content using 
 
 Use the `${site}` placeholder when querying for paths within a site. This placeholder will be replaced with an actual path of the site upon query resolution.
 
-NOTE: `${site}` placeholder is supported for the fields `get`, `getChildren`, `getChildrenConnection`, `getPermissions` and `getSite` of the <<api#headlessсms, HeadlessCms>> type. The `getPermissions` and `getSite` fields do not have the `key` argument, and current content is determined by the `siteKey` argument of the `guillotine` field.
+NOTE: `${site}` placeholder is supported for the fields `get`, `getChildren`, `getChildrenConnection`, `getPermissions` and `getSite` of the <<api#headlesscms, HeadlessCms>> type. The `getPermissions` and `getSite` fields do not have the `key` argument, and current content is determined by the `siteKey` argument of the `guillotine` field.
 
 .Example: Accessing content within specific path of a site
 ----
@@ -514,35 +548,18 @@ NOTE: `${site}` placeholder is supported for the fields `get`, `getChildren`, `g
 
 === Site relative paths
 
-Finally, you may retrieve site relative paths - which may be useful when generating site relative URLs for instance.
+Finally, you may retrieve site relative paths - which may be useful when generating site relative URLs for instance. The `path` component of the `pageUrl` field is the URL-escaped path of the content relative to the nearest site, and `_path` is the full content path.
 
 
 .Example: Retrieve site relative item paths
 ----
 {
-  guillotine {
+  guillotine(siteKey: "/my-site") {
     getChildren(key: "${site}/persons"){
       displayName
-      _path(type: siteRelative)
-    }
-  }
-}
-----
-
-=== siteKey
-
-As shown above, you provide `siteKey` with the site ID or path in the query to set the site context.
-
-.Example: Access xData fields
-[source,graphql]
-----
-{
-  guillotine(siteKey: "/my-site") {
-    get(key: "${site}") {
-      displayName
-      children {
-        displayName
-        type
+      _path
+      pageUrl {
+        path
       }
     }
   }
