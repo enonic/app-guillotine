@@ -33,9 +33,13 @@ The `localContext` object supports value types such as `string`, `double`, `inte
 
 The `localContext` object is unmodifiable, so you can't change it. If you need to pass some data to the lower levels, then you can use `createDataFetcherResult` function. Also, the `localContext` object provides the following properties:
 
-- `project` - project name, taken from the current context.
-- `branch` - branch name, taken from the current context.
-- `siteKey` - site key is taken from the `siteKey` argument of the `guillotine` field. If this argument is not provided, it will be equal to `/`.
+- `project` - project name, taken from the `project` argument of the `guillotine` field or from the request context.
+- `branch` - branch name, taken from the `branch` argument of the `guillotine` field or from the request context.
+- `siteKey` - site key, taken from the `siteKey` argument of the `guillotine` field. If this argument is not provided, the property is absent.
+
+Keys starting with `__` are used internally by Guillotine and are not part of the contract.
+
+Resolvers of fields below the `guillotine` field are executed in the XP context of the `project` and `branch` of the query, so content libraries such as `/lib/xp/content` operate on the right project and branch without further setup.
 
 Below you can find an example of how to use these properties:
 
@@ -58,6 +62,12 @@ exports.extensions = function (graphQL) {
    }
 }
 ----
+
+== Application context
+
+A resolver runs as a script of your application: `app.name`, `app.config`, `require` and localisation via `/lib/xp/i18n` all refer to the application that contains `guillotine.js`.
+
+The request, however, is not switched to your application. Portal URL functions such as `assetUrl`, `imageUrl`, `serviceUrl` or `apiUrl` from `/lib/xp/portal` resolve the application from the request when the `application` parameter is omitted. To reference resources of your own application, pass `application: app.name` explicitly.
 
 == createDataFetcherResult
 
