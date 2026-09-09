@@ -37,7 +37,7 @@ A single endpoint serves all content projects. The project and branch (`draft` o
 
 If the arguments are omitted, the project and branch of the request context are used. On the `/api` endpoint you should therefore always pass `project`; `branch` may alternatively be given as the `branch` request parameter, e.g. `/api/com.enonic.app.guillotine:graphql?branch=draft`.
 
-NOTE: When the API is invoked in the context of a site or from Content Studio (see below), the project and branch are defined by that context and the `project`/`branch` arguments are ignored.
+NOTE: When the API is invoked in the context of a site (see below), the project and branch are defined by the site request and the `project`/`branch` arguments are ignored.
 
 === Mounting the API in a site
 

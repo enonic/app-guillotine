@@ -28,7 +28,7 @@ Every query starts with the `guillotine` field. Its `project` and `branch` argum
 }
 ----
 
-If the arguments are omitted, the project and branch of the request context are used. When the API is invoked from a site or from Content Studio, the context is defined by the request and the arguments are ignored. See <<setup#endpoints, Endpoints>> for details. The examples below omit the arguments for brevity.
+If the arguments are omitted, the project and branch of the request context are used. When the API is invoked from a site, the context is defined by the site request and the arguments are ignored. See <<setup#endpoints, Endpoints>> for details. The examples below omit the arguments for brevity.
 
 == Content queries
 
@@ -113,9 +113,19 @@ Media URLs are generated as the base URL followed directly by the XP media API p
 
 NOTE: With `siteKey`, the actual base of media URLs is resolved by XP from the site's configured Base URL or the XP instance configuration.
 
+[#url-resolution]
+=== URL resolution
+
+The `url` subfield of `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` holds the URL exactly as the portal library functions `pageUrl`, `imageUrl` and `attachmentUrl` generate it for the current request. Its value therefore depends on how the API is invoked:
+
+* On the `/api` endpoint there is no site request. With `siteKey`, page URLs use the Base URL configured on the site, and media URLs use the Base URL of the site or the `media.defaultBaseUrl` option of `com.enonic.xp.portal.cfg`. Without a Base URL, URLs are server-relative.
+* When the API is mounted on a site, URLs are generated from the site request, and vhost mappings are applied automatically.
+* When the API is consumed through a proxy or a separate front-end, such as Next.XP, the `url` value is not suitable, since the origin and possibly the path prefix seen by the client differ from those seen by XP. Build the URL from the components instead, as described below.
+
+[#building-urls-from-parts]
 === Building URLs from parts
 
-To build URLs on any origin yourself, select the URL components exposed by the `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields alongside the ready-made `url` subfield. They are properly URL-escaped segments — including the media fingerprint, which cannot be calculated client-side — so the full URL is a simple concatenation: `url = base + path + queryString`.
+To build URLs on any origin yourself, select the URL components exposed by the `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields. They are properly URL-escaped segments — including the media fingerprint, which cannot be calculated client-side — so the full URL is a simple concatenation: `url = base + path + queryString`.
 
 [source,graphql]
 ----

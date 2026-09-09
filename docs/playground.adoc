@@ -4,9 +4,9 @@ Access and test the API via the embedded API browser.
 
 == Content Studio Extension
 
-Guillotine extends Content Studio with a new panel called Query Playground. It is only accessible for users with the `system.admin` or `cms.admin` roles.
+Guillotine provides the Query Playground as an admin extension implementing the `contentstudio.menuitem` interface. Content Studio embeds it as a panel, as can any application that follows that interface. It is only accessible for users with the `system.admin` or `cms.admin` roles.
 
-Queries are executed in the project currently selected in Content Studio and the branch selected in the playground, so the `project` and `branch` arguments of the `guillotine` field are ignored here.
+Queries are executed in the project currently selected in Content Studio and the branch selected in the playground.
 
 == API browser
 

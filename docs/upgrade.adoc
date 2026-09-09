@@ -67,7 +67,7 @@ Without `siteKey`, `getSite` now returns `null`, and `env.localContext.siteKey` 
 
 == URL fields
 
-The `type` argument is removed from `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl`, and these fields return objects. Select the `url` subfield to get the URL.
+The `type` argument is removed from `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl`, and these fields return objects. The `url` subfield is the URL as the corresponding portal library function generates it for the current request.
 
 * Old way:
 
@@ -105,7 +105,7 @@ The `type` argument is removed from `pageUrl`, `imageUrl`, `mediaUrl` and `attac
 }
 ----
 
-URLs are server-relative by default. To get absolute URLs, configure a Base URL on the site and pass `siteKey`, or set `media.defaultBaseUrl` in `com.enonic.xp.portal.cfg` for media URLs. Alternatively, build the URL yourself from the `path` and `queryString` components, see <<usage#, Building URLs from parts>> in the Usage section.
+The value of `url` depends on how the API is invoked, see <<usage#url-resolution, URL resolution>>. On the `/api` endpoint URLs are server-relative unless a Base URL is configured on the site and `siteKey` is passed, or `media.defaultBaseUrl` is set in `com.enonic.xp.portal.cfg` for media URLs. When the API is mounted on a site, URLs follow the site request with vhost mappings applied. When the API is consumed through a proxy or a separate front-end, build the URL yourself from the `path` and `queryString` components, see <<usage#building-urls-from-parts, Building URLs from parts>>.
 
 == Processed HTML
 
@@ -256,4 +256,4 @@ portalLib.assetUrl({path: 'images/logo.png', application: app.name});
 
 == Query Playground
 
-The Query Playground is only available as a Content Studio extension. Remove the `queryplayground.ui.mode` option from `com.enonic.app.guillotine.cfg`.
+The Query Playground is provided as an admin extension implementing the `contentstudio.menuitem` interface, and is no longer served on the API endpoint. Remove the `queryplayground.ui.mode` option from `com.enonic.app.guillotine.cfg`.
