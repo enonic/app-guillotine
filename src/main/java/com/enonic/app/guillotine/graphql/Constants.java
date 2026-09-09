@@ -12,8 +12,6 @@ public interface Constants
 
     String SITE_ARG = "siteKey";
 
-    String SITE_BASE_URL = "__siteBaseUrl";
-
     String IMAGE_BASE_URL = "__imageBaseUrl";
 
     String ATTACHMENT_BASE_URL = "__attachmentBaseUrl";

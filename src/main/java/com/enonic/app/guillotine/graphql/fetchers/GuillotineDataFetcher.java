@@ -63,26 +63,20 @@ public class GuillotineDataFetcher
         {
             requireSiteExists( projectName, branch, siteKey );
 
+            // page URLs are anchored at the site itself rather than at a base URL resolved here:
+            // that keeps their base and their path derived from the same site
             localContext.putIfAbsent( Constants.SITE_ARG, siteKey );
-
-            final String baseUrl = resolveBaseUrl( projectName, branch, siteKey, null );
-            // the bare project prefix is the fallback for a site/project without a configured Base URL:
-            // URLs then stay request-based (relativised and vhost-remapped on mounted endpoints)
-            if ( baseUrl != null && !baseUrl.equals( "/site/" + projectName + "/" + branch ) )
-            {
-                localContext.putIfAbsent( Constants.SITE_BASE_URL, baseUrl );
-            }
 
             // XP resolves where each media API is served for the site (mounts and configuration
             // considered); the two bases can diverge when the site mounts only one of the APIs.
             // null means the URLs stay request-based
-            final String imageBaseUrl = resolveBaseUrl( projectName, branch, siteKey, MEDIA_IMAGE_API_DESCRIPTOR_KEY );
+            final String imageBaseUrl = resolveApiBaseUrl( projectName, branch, siteKey, MEDIA_IMAGE_API_DESCRIPTOR_KEY );
             if ( imageBaseUrl != null )
             {
                 localContext.putIfAbsent( Constants.IMAGE_BASE_URL, imageBaseUrl );
             }
 
-            final String attachmentBaseUrl = resolveBaseUrl( projectName, branch, siteKey, MEDIA_ATTACHMENT_API_DESCRIPTOR_KEY );
+            final String attachmentBaseUrl = resolveApiBaseUrl( projectName, branch, siteKey, MEDIA_ATTACHMENT_API_DESCRIPTOR_KEY );
             if ( attachmentBaseUrl != null )
             {
                 localContext.putIfAbsent( Constants.ATTACHMENT_BASE_URL, attachmentBaseUrl );
@@ -126,7 +120,7 @@ public class GuillotineDataFetcher
         }
     }
 
-    private String resolveBaseUrl( final String projectName, final String branch, final String siteKey, final DescriptorKey api )
+    private String resolveApiBaseUrl( final String projectName, final String branch, final String siteKey, final DescriptorKey api )
     {
         // the configured Base URL is used verbatim by XP: no urlType is needed to receive it unchanged
         final BaseUrlParams.Builder paramsBuilder =

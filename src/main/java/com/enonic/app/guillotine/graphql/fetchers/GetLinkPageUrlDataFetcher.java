@@ -34,14 +34,17 @@ public class GetLinkPageUrlDataFetcher
         }
 
         return GuillotineLocalContextHelper.executeInContext( environment, () -> {
+            // one set of params for the whole field, so that url = baseUrl + path + queryString
+            final PageUrlParams params = new PageUrlParams().id( contentId.toString() )
+                .anchor( GuillotineLocalContextHelper.getSiteKey( environment ) );
+
             final Map<String, Object> result = UrlPartsHelper.anyPagePartSelected( environment.getSelectionSet() )
-                ? UrlPartsHelper.toMap( portalUrlService.pageUrlParts( new PageUrlParams().id( contentId.toString() ) ) )
+                ? UrlPartsHelper.toMap( portalUrlService.pageUrlParts( params ) )
                 : new LinkedHashMap<>();
 
             if ( environment.getSelectionSet().contains( "url" ) )
             {
-                result.put( "url", portalUrlService.pageUrl( new PageUrlParams().id( contentId.toString() )
-                                                                 .baseUrl( GuillotineLocalContextHelper.getSiteBaseUrl( environment ) ) ) );
+                result.put( "url", portalUrlService.pageUrl( params ) );
             }
 
             return result;

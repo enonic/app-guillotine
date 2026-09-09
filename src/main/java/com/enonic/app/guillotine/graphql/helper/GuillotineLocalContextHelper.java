@@ -74,11 +74,6 @@ public class GuillotineLocalContextHelper
         return value != null ? Branch.from( value ) : ContextAccessor.current().getBranch();
     }
 
-    public static String getSiteBaseUrl( final DataFetchingEnvironment environment )
-    {
-        return getContextProperty( environment, Constants.SITE_BASE_URL );
-    }
-
     public static String getImageBaseUrl( final DataFetchingEnvironment environment )
     {
         // resolved by XP when siteKey is in use: where the image API is served for the site

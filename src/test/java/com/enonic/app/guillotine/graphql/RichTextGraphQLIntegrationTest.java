@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import graphql.schema.GraphQLSchema;
 
@@ -25,11 +26,13 @@ import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
 
 import static com.enonic.app.guillotine.graphql.ResourceHelper.readGraphQLQuery;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RichTextGraphQLIntegrationTest
@@ -60,8 +63,29 @@ public class RichTextGraphQLIntegrationTest
         assertNotNull( textField );
     }
 
+    @Test
+    public void testContentLinksAreAnchoredAtSiteKey()
+    {
+        when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
 
+        when( contentService.contentExists( ContentPath.from( "/mysite" ) ) ).thenReturn( true );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
 
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response = executeQuery( graphQLSchema,
+                                                     "query { guillotine(siteKey: \"/mysite\") { get(key: \"contentid\") { " +
+                                                         "...on myapplication_News { data { text { processedHtml } } } } } }" );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        // content links carry the site key as their anchor: XP resolves the base URL of that site
+        // and makes the path of each link relative to it
+        ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
+        verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
+        assertEquals( "/mysite", captor.getValue().getPageAnchor() );
+        assertNull( captor.getValue().getPageBaseUrl() );
+    }
 
 
 

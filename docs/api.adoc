@@ -555,10 +555,10 @@ Page URL and its components, for building the URL from segments: `url = baseUrl 
 |Name (Arguments): Type | Description
 
 |url: String
-|The ready-made URL, with the base URL resolved by XP (siteKey-configured Base URL when present, request/context resolution otherwise)
+|The ready-made URL, with the base URL resolved by XP for the site the URL is anchored at (the site given as `siteKey` when present, the site of the content otherwise)
 
 |path: String
-|URL-escaped path of the content relative to its nearest site (the full content path when there is no site), with a leading slash. Empty when the content is the site itself
+|URL-escaped path of the content relative to the site the URL is anchored at (the full content path when it is anchored at the project), with a leading slash. Empty when the content is the anchored site itself
 
 |queryString: String
 |URL-escaped query string, prefixed with `?`. Empty when there are no parameters
