@@ -84,7 +84,6 @@ public class RichTextGraphQLIntegrationTest
         ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
         verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
         assertEquals( "/mysite", captor.getValue().getPageBase().getPath() );
-        assertNull( captor.getValue().getPageBaseUrl() );
     }
 
 

@@ -280,8 +280,8 @@ public class UrlFieldDataFetcherTest
 
         ArgumentCaptor<PageUrlParams> captor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrlParts( captor.capture() );
-        // parts never carry a base URL: components are independent of siteKey and request
-        assertNull( captor.getValue().getBaseUrl() );
+        // without a siteKey nothing is selected: the site of the content decides
+        assertNull( captor.getValue().getBase() );
 
         verify( portalUrlService, never() ).pageUrl( Mockito.any( PageUrlParams.class ) );
     }
@@ -549,7 +549,6 @@ public class UrlFieldDataFetcherTest
         ArgumentCaptor<PageUrlParams> captor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrl( captor.capture() );
         assertNull( captor.getValue().getBase() );
-        assertNull( captor.getValue().getBaseUrl() );
         assertNull( captor.getValue().getProjectName() );
         assertNull( captor.getValue().getBranch() );
     }
@@ -574,7 +573,6 @@ public class UrlFieldDataFetcherTest
         ArgumentCaptor<PageUrlParams> captor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrl( captor.capture() );
         assertEquals( "/mysite", captor.getValue().getBase().getPath() );
-        assertNull( captor.getValue().getBaseUrl() );
 
         ArgumentCaptor<PageUrlParams> partsCaptor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrlParts( partsCaptor.capture() );
