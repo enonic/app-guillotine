@@ -16,7 +16,7 @@ The `guillotine` field accepts the `project` and `branch` arguments, so a single
 `Link` in the `RichText` type has a new `pageUrl` field, and `Media` has a new `mediaUrl` field, returning the same URL objects for links and media found in processed HTML.
 
 `Base URLs resolved by XP`::
-When `siteKey` is provided, the base URL of page URLs, media URLs and links in `processedHtml` is resolved by XP from the site's configured Base URL and the `media.defaultBaseUrl` option of `com.enonic.xp.portal.cfg`. When the API is mounted on a site, URLs are generated from the site request with vhost mappings applied. Otherwise URLs are server-relative.
+`siteKey` decides which site - or project, with `/` - page URLs and content links in `processedHtml` belong to. XP resolves both the base URL and the path from that site, so `url = baseUrl + path + queryString` holds for the `pageUrl` field. The base is the Base URL configured on the site, or `/site/<project>/<branch>/<site path>` when none is configured. Media URLs use the Base URL of the site or the `media.defaultBaseUrl` option of `com.enonic.xp.portal.cfg`. A content outside the named site has no page URL, and the field reports an error. Without `siteKey`, URLs on a site mount are generated from the site request with vhost mappings applied, and the matched mapping decides the site they belong to. On the `/api` endpoint they are server-relative and each content belongs to its nearest site. See <<usage#url-resolution, URL resolution>>.
 
 `Content._project` and `Content._branch`::
 New fields returning the project and branch a content was fetched from.
@@ -36,7 +36,7 @@ The API is exposed as the XP API `com.enonic.app.guillotine:graphql` at `/api/co
 Support for the `X-Guillotine-SiteKey` HTTP header is removed. Use the `siteKey` argument of the `guillotine` field.
 
 `UrlType and the type argument`::
-The `type` argument (`server`/`absolute`) is removed from the `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields and from `ProcessHtmlInput`, and the `UrlType` enum is removed. URLs are server-relative unless a Base URL is configured on the site or in XP.
+The `type` argument (`server`/`absolute`) is removed from the `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields and from `ProcessHtmlInput`, and the `UrlType` enum is removed. URLs are server-relative unless a Base URL applies, see <<usage#url-resolution, URL resolution>>.
 
 `URL fields return objects`::
 `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` return `PageUrl`, `ImageUrl` or `AttachmentUrl` objects instead of `String`. The `url` subfield is the URL as the corresponding portal library function generates it for the current request, so its value depends on how the API is invoked, see <<usage#url-resolution, URL resolution>>. To build URLs for another origin, use the URL components.
@@ -45,7 +45,7 @@ The `type` argument (`server`/`absolute`) is removed from the `pageUrl`, `imageU
 The deprecated `query` and `queryConnection` fields of `HeadlessCms`, the `QueryContentConnection` type and the filter input types `FilterInput`, `BooleanFilterInput`, `ExistsFilterInput`, `NotExistsFilterInput`, `HasValueFilterInput` and `IdsFilterInput` are removed. Use `queryDsl` and `queryDslConnection`.
 
 `_path type argument`::
-The `type` argument of the `_path` field and the `ContentPathType` enum are removed. `_path` always returns the full content path. Use the `path` component of `pageUrl` for a site-relative path.
+The `type` argument of the `_path` field and the `ContentPathType` enum are removed. `_path` always returns the full content path. Use the `path` component of `pageUrl` for the path relative to the site given as `siteKey`.
 
 `getSite without siteKey`::
 `getSite` returns `null` when the `siteKey` argument is not provided, and the `siteKey` property of `localContext` in resolvers is absent instead of `/`.

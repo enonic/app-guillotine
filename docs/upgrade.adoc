@@ -105,11 +105,11 @@ The `type` argument is removed from `pageUrl`, `imageUrl`, `mediaUrl` and `attac
 }
 ----
 
-The value of `url` depends on how the API is invoked, see <<usage#url-resolution, URL resolution>>. On the `/api` endpoint URLs are server-relative unless a Base URL is configured on the site and `siteKey` is passed, or `media.defaultBaseUrl` is set in `com.enonic.xp.portal.cfg` for media URLs. When the API is mounted on a site, URLs follow the site request with vhost mappings applied. When the API is consumed through a proxy or a separate front-end, build the URL yourself from the `path` and `queryString` components, see <<usage#building-urls-from-parts, Building URLs from parts>>.
+The value of `url` depends on how the API is invoked, see <<usage#url-resolution, URL resolution>>. With `siteKey`, page URLs belong to the site named by it: they start with its configured Base URL, or with `/site/<project>/<branch>/<site path>` when none is configured, and `path` is relative to that site. A query that names a `siteKey` and reaches content outside that site gets an error on `pageUrl` instead of a URL. Media URLs use the Base URL of the site or `media.defaultBaseUrl` of `com.enonic.xp.portal.cfg`. Without `siteKey`, URLs are server-relative on the `/api` endpoint and follow the site request with vhost mappings applied when the API is mounted on a site. When the API is consumed through a proxy or a separate front-end, build the URL yourself from the `path` and `queryString` components, see <<usage#building-urls-from-parts, Building URLs from parts>>.
 
 == Processed HTML
 
-The `type` field is removed from `ProcessHtmlInput`. Links and media URLs in `processedHtml` are server-relative unless a Base URL is resolved through `siteKey` or XP configuration.
+The `type` field is removed from `ProcessHtmlInput`. Content links in `processedHtml` belong to the site named by `siteKey` and start with its Base URL, or with `/site/<project>/<branch>/<site path>` when none is configured. Media URLs use the Base URL of the site or `media.defaultBaseUrl` of `com.enonic.xp.portal.cfg`. Without `siteKey` or a Base URL, links and media URLs are server-relative.
 
 * Old way:
 
@@ -168,7 +168,7 @@ The deprecated `query` and `queryConnection` fields and the `FilterInput` family
 
 == Removed `type` argument of `_path`
 
-`_path` always returns the full content path. Use the `path` component of `pageUrl` for the path relative to the site.
+`_path` always returns the full content path. Use the `path` component of `pageUrl` for the path relative to the site given as `siteKey`.
 
 * Old way:
 

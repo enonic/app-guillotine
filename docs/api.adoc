@@ -204,7 +204,7 @@ a|Flattened list of page components
 |Publication information
 
 |pageUrl(params: Json): <<PageUrl>>
-|URL pointing to the content, along with its components for building the URL from segments
+|URL pointing to the content, along with its components for building the URL from segments. The URL belongs to the site given as `siteKey`, see <<PageUrl>>
 
 |site: portal_Site
 |Link to the nearest site

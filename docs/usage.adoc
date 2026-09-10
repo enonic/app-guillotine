@@ -118,8 +118,9 @@ NOTE: With `siteKey`, the actual base of media URLs is resolved by XP from the s
 
 The `url` subfield of `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` holds the URL exactly as the portal library functions `pageUrl`, `imageUrl` and `attachmentUrl` generate it for the current request. Its value therefore depends on how the API is invoked:
 
-* On the `/api` endpoint there is no site request. With `siteKey`, page URLs use the Base URL configured on the site, and media URLs use the Base URL of the site or the `media.defaultBaseUrl` option of `com.enonic.xp.portal.cfg`. Without a Base URL, URLs are server-relative.
-* When the API is mounted on a site, URLs are generated from the site request, and vhost mappings are applied automatically.
+* With `siteKey`, page URLs and content links in `processedHtml` belong to the site - or project - named by it, on the `/api` endpoint as well as on a site mount. Their base is the Base URL configured on that site; without one, the address the site engine serves the site at, `/site/<project>/<branch>/<site path>`. Media URLs use the Base URL of the site or the `media.defaultBaseUrl` option of `com.enonic.xp.portal.cfg`, and stay server-relative without either. A content outside the named site has no page URL and the field reports an error. See <<links, Links>> for what the choice of site means for the path.
+* On the `/api` endpoint without `siteKey` there is no site request to follow. URLs are server-relative and each content belongs to its own nearest site.
+* When the API is mounted on a site and `siteKey` is not given, URLs are generated from the site request, and vhost mappings are applied automatically. The matched mapping also decides the site the URLs belong to.
 * When the API is consumed through a proxy or a separate front-end, such as Next.XP, the `url` value is not suitable, since the origin and possibly the path prefix seen by the client differ from those seen by XP. Build the URL from the components instead, as described below.
 
 [#building-urls-from-parts]
@@ -183,6 +184,7 @@ Rich text fields provide configuration parameters that give you control over out
 
 Rich text fields will typically include links, images and macros in the `processedHtml` field of the <<api#richtext, RichText>> type. Below are further details how to handle this:
 
+[#links]
 === Links
 
 By default, all internal links to `media` or `content` will be replaced by a server (root-relative) link in the context of your endpoint.
@@ -505,7 +507,7 @@ Provide the `siteKey` argument with the site ID or path on the `guillotine` fiel
 }
 ----
 
-NOTE: `siteKey` is either the ID of the site content item, or the path to the site within your project. Use `/` to anchor queries to the project root. If no content matches the given `siteKey`, the query fails with an error.
+NOTE: `siteKey` is either the ID of the site content item, or the path to the site within your project. Use `/` to select the project itself. If no content matches the given `siteKey`, the query fails with an error.
 
 .Example: Access the site and its children
 [source,graphql]
@@ -562,7 +564,7 @@ NOTE: `${site}` placeholder is supported for the fields `get`, `getChildren`, `g
 
 === Site relative paths
 
-Finally, you may retrieve site relative paths - which may be useful when generating site relative URLs for instance. The `path` component of the `pageUrl` field is the URL-escaped path of the content relative to the nearest site, and `_path` is the full content path.
+Finally, you may retrieve site relative paths - which may be useful when generating site relative URLs for instance. The `path` component of the `pageUrl` field is the URL-escaped path of the content relative to the site given as `siteKey`, and `_path` is the full content path.
 
 
 .Example: Retrieve site relative item paths
