@@ -204,7 +204,7 @@ a|Flattened list of page components
 |Publication information
 
 |pageUrl(params: Json): <<PageUrl>>
-|URL pointing to the content, along with its components for building the URL from segments
+|URL pointing to the content, along with its components for building the URL from segments. The URL belongs to the site given as `siteKey`, see <<PageUrl>>
 
 |site: portal_Site
 |Link to the nearest site
@@ -575,7 +575,7 @@ Image URL and its components, for building the URL from segments: `url = baseUrl
 |Name (Arguments): Type | Description
 
 |url: String
-|The ready-made URL, with the base URL resolved by XP
+|The URL as the portal library generates it for the current request: the site's configured Base URL or `media.defaultBaseUrl` when `siteKey` is given, the site request with vhost mapping applied when the API is mounted on a site, otherwise server-relative
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<fingerprint>/<scale>/<name>`
@@ -608,7 +608,7 @@ Attachment URL and its components, for building the URL from segments: `url = ba
 |Name (Arguments): Type | Description
 
 |url: String
-|The ready-made URL, with the base URL resolved by XP
+|The URL as the portal library generates it for the current request: the site's configured Base URL or `media.defaultBaseUrl` when `siteKey` is given, the site request with vhost mapping applied when the API is mounted on a site, otherwise server-relative
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:attachment/<context>/<id>:<fingerprint>/<name>`
@@ -1088,14 +1088,17 @@ Direct Known Subtypes: FormInput
 |===
 |Name(Arguments):Type | Description
 
-|from: String
+|from: DateTime
 |Scheduled publication start time
 
-|to: String
+|to: DateTime
 |Scheduled publication end time
 
-|first: String
+|first: DateTime
 |First publication time
+
+|time: DateTime
+|Marker of the `publish.time` property. When present, the draft matches the published version. When absent, the draft has unpublished changes. The value itself carries no meaning
 
 |===
 
