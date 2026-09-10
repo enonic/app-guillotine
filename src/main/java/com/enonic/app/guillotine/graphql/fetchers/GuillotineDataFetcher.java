@@ -63,8 +63,8 @@ public class GuillotineDataFetcher
         {
             requireSiteExists( projectName, branch, siteKey );
 
-            // page URLs are anchored at the site itself rather than at a base URL resolved here:
-            // that keeps their base and their path derived from the same site
+            // page URLs carry the site key itself rather than a base URL resolved here: that
+            // keeps their base and their path derived from the same site
             localContext.putIfAbsent( Constants.SITE_ARG, siteKey );
 
             // XP resolves where each media API is served for the site (mounts and configuration

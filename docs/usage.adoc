@@ -163,6 +163,8 @@ To generate content (page) links against a different domain or base URL, use the
 
 Which site a URL belongs to is what `siteKey` decides, so it also decides the `path` value of the `pageUrl` field. A site nested inside another site is a case worth noting: `siteKey: "/mysite"` keeps the intermediate site in the path (`/subsite/posts/first-post`), while `siteKey: "/mysite/subsite"` makes the path relative to the nested site (`/posts/first-post`). Since the configuration of a site is never inherited from a parent site, the site given as `siteKey` also decides on its own which Base URL applies - a Base URL configured on the nested site has no effect on URLs belonging to its parent. A project contains sites and a site can contain further sites, so `siteKey` picks a level of that containment - `"/"` names the project itself. When the named level has no Base URL configured, URLs fall back to the address the site engine serves it at, `/site/<project>/<branch>/<site path>`.
 
+Without `siteKey` the level is decided for you. A query served from a site endpoint - Guillotine mounted on a site - belongs to whatever the matched virtual host mapping points at, since that mapping states which part of the content tree the address stands for; with no mapping narrowing it, that is the project. A query served from `/api` has no such request to follow, so each content belongs to its own nearest site.
+
 [source,graphql]
 ----
 {
