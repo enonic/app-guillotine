@@ -225,8 +225,8 @@ public class GuillotineApiGraphQLIntegrationTest
             executeQuery( graphQLSchema, "query { guillotine(siteKey: \"/\") { getSite { _id } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
-        // XP anchors base URLs at the project level for the root path: resolved once per media
-        // API base. Page URLs need no base URL resolved here - they are anchored at the site key
+        // XP resolves base URLs at the project level for the root path: once per media
+        // API base. Page URLs need no base URL resolved here - they carry the site key itself
         Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.times( 2 ) ).baseUrl( any() );
     }
 
@@ -244,7 +244,7 @@ public class GuillotineApiGraphQLIntegrationTest
 
         // guillotine assumes nothing about where media APIs are mounted: each media API base is
         // resolved with its own descriptor - the two can diverge when the site mounts only one
-        // of the APIs. No base URL is resolved for page URLs: those are anchored at the site key
+        // of the APIs. No base URL is resolved for page URLs: those carry the site key itself
         ArgumentCaptor<BaseUrlParams> captor = ArgumentCaptor.forClass( BaseUrlParams.class );
         Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.times( 2 ) ).baseUrl( captor.capture() );
         assertEquals( DescriptorKey.from( "media:image" ), captor.getAllValues().get( 0 ).getApi() );
@@ -270,12 +270,12 @@ public class GuillotineApiGraphQLIntegrationTest
         assertEquals( 1, children.size() );
         assertEquals( mediaContent.getId().toString(), children.get( 0 ).get( "_id" ) );
 
-        // a bare ${site} under project-root anchoring resolves to the root path
+        // a bare ${site} when the project itself is selected resolves to the root path
         ArgumentCaptor<FindContentByParentParams> captor = ArgumentCaptor.forClass( FindContentByParentParams.class );
         Mockito.verify( contentService ).findIdsByParent( captor.capture() );
         assertEquals( ContentPath.ROOT, captor.getValue().getParentPath() );
 
-        // media API bases are anchored at the project level by XP; unresolved bases keep URLs
+        // media API bases resolve at the project level in XP; unresolved bases keep URLs
         // request-based
         Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.times( 2 ) ).baseUrl( any() );
     }

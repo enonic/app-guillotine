@@ -64,7 +64,7 @@ public class RichTextGraphQLIntegrationTest
     }
 
     @Test
-    public void testContentLinksAreAnchoredAtSiteKey()
+    public void testContentLinksBelongToSiteKey()
     {
         when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
 
@@ -79,11 +79,11 @@ public class RichTextGraphQLIntegrationTest
 
         assertFalse( response.containsKey( "errors" ) );
 
-        // content links carry the site key as their anchor: XP resolves the base URL of that site
-        // and makes the path of each link relative to it
+        // content links carry the site key as their selection: XP resolves the base URL of that
+        // site and makes the path of each link relative to it
         ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
         verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
-        assertEquals( "/mysite", captor.getValue().getPageAnchor() );
+        assertEquals( "/mysite", captor.getValue().getPageBase().getPath() );
         assertNull( captor.getValue().getPageBaseUrl() );
     }
 

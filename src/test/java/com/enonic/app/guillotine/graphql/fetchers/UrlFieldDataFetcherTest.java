@@ -331,12 +331,12 @@ public class UrlFieldDataFetcherTest
         ArgumentCaptor<PageUrlParams> captor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrl( captor.capture() );
         assertEquals( "linkedcontent", captor.getValue().getId() );
-        assertEquals( "/mysite", captor.getValue().getAnchor() );
+        assertEquals( "/mysite", captor.getValue().getBase().getPath() );
 
-        // url and parts are resolved from the same anchor
+        // url and parts are resolved from the same selection
         ArgumentCaptor<PageUrlParams> partsCaptor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrlParts( partsCaptor.capture() );
-        assertEquals( "/mysite", partsCaptor.getValue().getAnchor() );
+        assertEquals( "/mysite", partsCaptor.getValue().getBase().getPath() );
     }
 
     @Test
@@ -544,18 +544,18 @@ public class UrlFieldDataFetcherTest
                       new GetPageUrlDataFetcher( portalUrlService ).get( environment ).get( "url" ) );
 
         // without a siteKey the field uses the same request-aware call as content links in
-        // processHtml: no anchor and no project/branch on the params, so preferSiteRequest can
-        // take effect and the site of the content decides
+        // processHtml: nothing selected and no project/branch on the params, so preferSiteRequest
+        // can take effect and the site of the content decides
         ArgumentCaptor<PageUrlParams> captor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrl( captor.capture() );
-        assertNull( captor.getValue().getAnchor() );
+        assertNull( captor.getValue().getBase() );
         assertNull( captor.getValue().getBaseUrl() );
         assertNull( captor.getValue().getProjectName() );
         assertNull( captor.getValue().getBranch() );
     }
 
     @Test
-    public void testPageUrlAnchoredAtSiteKey()
+    public void testPageUrlBelongsToSiteKey()
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
@@ -570,14 +570,14 @@ public class UrlFieldDataFetcherTest
         assertEquals( "https://site.example.com/subsite/path", result.get( "url" ) );
         assertEquals( "/subsite/path", result.get( "path" ) );
 
-        // url and parts are resolved from the same anchor, so url = baseUrl + path + queryString
+        // url and parts are resolved from the same selection, so url = baseUrl + path + queryString
         ArgumentCaptor<PageUrlParams> captor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrl( captor.capture() );
-        assertEquals( "/mysite", captor.getValue().getAnchor() );
+        assertEquals( "/mysite", captor.getValue().getBase().getPath() );
         assertNull( captor.getValue().getBaseUrl() );
 
         ArgumentCaptor<PageUrlParams> partsCaptor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrlParts( partsCaptor.capture() );
-        assertEquals( "/mysite", partsCaptor.getValue().getAnchor() );
+        assertEquals( "/mysite", partsCaptor.getValue().getBase().getPath() );
     }
 }

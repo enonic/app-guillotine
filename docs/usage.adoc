@@ -105,7 +105,7 @@ To build URLs on any origin yourself, select the URL components exposed by the `
   guillotine {
     get(key: "contentid") {
       pageUrl {
-        path         # "/posts/first-post" — escaped, relative to the nearest site
+        path         # "/posts/first-post" — escaped, relative to the site it belongs to
         queryString
       }
       ... on media_Image {
@@ -159,9 +159,9 @@ Rich text fields will typically include links, images and macros in the `process
 
 By default, all internal links to `media` or `content` will be replaced by a server (root-relative) link in the context of your endpoint.
 
-To generate content (page) links against a different domain or base URL, use the `siteKey` argument with a site (or project) that has a configured Base URL. Content links in `processedHtml` and the `url` value of the `pageUrl` field are then anchored at that site: they start with its Base URL, followed by the path of the content relative to it (for example, `https://www.example.com/posts/first-post`).
+To generate content (page) links against a different domain or base URL, use the `siteKey` argument with a site (or project) that has a configured Base URL. Content links in `processedHtml` and the `url` value of the `pageUrl` field then belong to that site: they start with its Base URL, followed by the path of the content relative to it (for example, `https://www.example.com/posts/first-post`).
 
-Anchoring is what `siteKey` decides, so it also decides the `path` value of the `pageUrl` field. A site nested inside another site is a case worth noting: `siteKey: "/mysite"` keeps the intermediate site in the path (`/subsite/posts/first-post`), while `siteKey: "/mysite/subsite"` makes the path relative to the nested site (`/posts/first-post`). Since the configuration of a site is never inherited from a parent site, the site given as `siteKey` also decides on its own which Base URL applies - a Base URL configured on the nested site has no effect on URLs anchored at its parent. When the anchored site has no Base URL configured, URLs fall back to the address the site engine serves it at, `/site/<project>/<branch>/<site path>`.
+Which site a URL belongs to is what `siteKey` decides, so it also decides the `path` value of the `pageUrl` field. A site nested inside another site is a case worth noting: `siteKey: "/mysite"` keeps the intermediate site in the path (`/subsite/posts/first-post`), while `siteKey: "/mysite/subsite"` makes the path relative to the nested site (`/posts/first-post`). Since the configuration of a site is never inherited from a parent site, the site given as `siteKey` also decides on its own which Base URL applies - a Base URL configured on the nested site has no effect on URLs belonging to its parent. A project contains sites and a site can contain further sites, so `siteKey` picks a level of that containment - `"/"` names the project itself. When the named level has no Base URL configured, URLs fall back to the address the site engine serves it at, `/site/<project>/<branch>/<site path>`.
 
 [source,graphql]
 ----

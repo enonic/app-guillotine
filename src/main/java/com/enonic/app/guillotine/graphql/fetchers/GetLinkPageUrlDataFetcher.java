@@ -36,7 +36,7 @@ public class GetLinkPageUrlDataFetcher
         return GuillotineLocalContextHelper.executeInContext( environment, () -> {
             // one set of params for the whole field, so that url = baseUrl + path + queryString
             final PageUrlParams params = new PageUrlParams().id( contentId.toString() )
-                .anchor( GuillotineLocalContextHelper.getSiteKey( environment ) );
+                .base( GuillotineLocalContextHelper.getSiteBase( environment ) );
 
             final Map<String, Object> result = UrlPartsHelper.anyPagePartSelected( environment.getSelectionSet() )
                 ? UrlPartsHelper.toMap( portalUrlService.pageUrlParts( params ) )

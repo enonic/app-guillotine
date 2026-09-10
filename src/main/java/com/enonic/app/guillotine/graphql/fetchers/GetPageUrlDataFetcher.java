@@ -38,8 +38,8 @@ public class GetPageUrlDataFetcher
         }
 
         // one set of params for the whole field, so that url = baseUrl + path + queryString:
-        // the URL is anchored at the site named by siteKey when there is one, and at the site of
-        // the content otherwise
+        // the URL belongs to the site named by siteKey when there is one, and to the site of the
+        // content otherwise
         final PageUrlParams params = buildParams( environment, content );
 
         final Map<String, Object> result = UrlPartsHelper.anyPagePartSelected( environment.getSelectionSet() )
@@ -57,7 +57,7 @@ public class GetPageUrlDataFetcher
     private static PageUrlParams buildParams( final DataFetchingEnvironment environment, final Content content )
     {
         final PageUrlParams params = new PageUrlParams().id( content.getId().toString() )
-            .anchor( GuillotineLocalContextHelper.getSiteKey( environment ) );
+            .base( GuillotineLocalContextHelper.getSiteBase( environment ) );
 
         if ( environment.getArgument( "params" ) instanceof Map<?, ?> queryParams )
         {
