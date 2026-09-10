@@ -16,6 +16,7 @@ import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
+import com.enonic.xp.portal.url.BaseUrlParams;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.repository.RepositoryId;
 
@@ -74,9 +75,28 @@ public class GuillotineLocalContextHelper
         return value != null ? Branch.from( value ) : ContextAccessor.current().getBranch();
     }
 
-    public static String getSiteBaseUrl( final DataFetchingEnvironment environment )
+    /**
+     * @return the level of the content tree URLs belong to - the site or project named by
+     * siteKey - or {@code null} when no siteKey is in use and the content decides on its own
+     */
+    public static BaseUrlParams getSiteBase( final DataFetchingEnvironment environment )
     {
-        return getContextProperty( environment, Constants.SITE_BASE_URL );
+        final String siteKey = getSiteKey( environment );
+        if ( siteKey == null )
+        {
+            return null;
+        }
+
+        final BaseUrlParams.Builder builder = BaseUrlParams.create();
+        if ( siteKey.startsWith( "/" ) )
+        {
+            builder.setPath( siteKey );
+        }
+        else
+        {
+            builder.setId( siteKey );
+        }
+        return builder.build();
     }
 
     public static String getImageBaseUrl( final DataFetchingEnvironment environment )

@@ -280,8 +280,8 @@ public class UrlFieldDataFetcherTest
 
         ArgumentCaptor<PageUrlParams> captor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrlParts( captor.capture() );
-        // parts never carry a base URL: components are independent of siteKey and request
-        assertNull( captor.getValue().getBaseUrl() );
+        // without a siteKey nothing is selected: the site of the content decides
+        assertNull( captor.getValue().getBase() );
 
         verify( portalUrlService, never() ).pageUrl( Mockito.any( PageUrlParams.class ) );
     }
@@ -317,7 +317,7 @@ public class UrlFieldDataFetcherTest
         when( portalUrlService.pageUrlParts( Mockito.any( PageUrlParams.class ) ) ).thenReturn( new PageUrlParts( "/b/mycontent", "" ) );
         when( portalUrlService.pageUrl( Mockito.any( PageUrlParams.class ) ) ).thenReturn( "https://site.example.com/b/mycontent" );
 
-        localContext.put( Constants.SITE_BASE_URL, "https://site.example.com/" );
+        localContext.put( Constants.SITE_ARG, "/mysite" );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "contentId", "linkedcontent" );
@@ -331,11 +331,12 @@ public class UrlFieldDataFetcherTest
         ArgumentCaptor<PageUrlParams> captor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrl( captor.capture() );
         assertEquals( "linkedcontent", captor.getValue().getId() );
-        assertEquals( "https://site.example.com/", captor.getValue().getBaseUrl() );
+        assertEquals( "/mysite", captor.getValue().getBase().getPath() );
 
+        // url and parts are resolved from the same selection
         ArgumentCaptor<PageUrlParams> partsCaptor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrlParts( partsCaptor.capture() );
-        assertNull( partsCaptor.getValue().getBaseUrl() );
+        assertEquals( "/mysite", partsCaptor.getValue().getBase().getPath() );
     }
 
     @Test
@@ -532,48 +533,49 @@ public class UrlFieldDataFetcherTest
     }
 
     @Test
-    public void testPageUrlWithoutSiteBaseUrl()
+    public void testPageUrlWithoutSiteKey()
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
         when( portalUrlService.pageUrl( Mockito.any( PageUrlParams.class ) ) ).thenReturn( "/site/myproject/draft/mysite/path" );
-        when( portalUrlService.pageUrlParts( Mockito.any( PageUrlParams.class ) ) ).thenReturn( new PageUrlParts( "/mysite/path", "" ) );
+        when( portalUrlService.pageUrlParts( Mockito.any( PageUrlParams.class ) ) ).thenReturn( new PageUrlParts( "/path", "" ) );
 
         assertEquals( "/site/myproject/draft/mysite/path",
                       new GetPageUrlDataFetcher( portalUrlService ).get( environment ).get( "url" ) );
 
-        // without a siteKey-resolved base URL the field uses the same request-aware call as content links in processHtml:
-        // no baseUrl and no project/branch on the params, so preferSiteRequest can take effect
+        // without a siteKey the field uses the same request-aware call as content links in
+        // processHtml: nothing selected and no project/branch on the params, so preferSiteRequest
+        // can take effect and the site of the content decides
         ArgumentCaptor<PageUrlParams> captor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrl( captor.capture() );
-        assertNull( captor.getValue().getBaseUrl() );
+        assertNull( captor.getValue().getBase() );
         assertNull( captor.getValue().getProjectName() );
         assertNull( captor.getValue().getBranch() );
     }
 
     @Test
-    public void testPageUrlUsesSiteBaseUrlFromSiteKey()
+    public void testPageUrlBelongsToSiteKey()
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        when( portalUrlService.pageUrl( Mockito.any( PageUrlParams.class ) ) ).thenReturn( "https://site.example.com/path" );
-        when( portalUrlService.pageUrlParts( Mockito.any( PageUrlParams.class ) ) ).thenReturn( new PageUrlParts( "/path", "" ) );
+        when( portalUrlService.pageUrl( Mockito.any( PageUrlParams.class ) ) ).thenReturn( "https://site.example.com/subsite/path" );
+        when( portalUrlService.pageUrlParts( Mockito.any( PageUrlParams.class ) ) ).thenReturn(
+            new PageUrlParts( "/subsite/path", "" ) );
 
-        // present only when siteKey resolved to a configured Base URL
-        localContext.put( Constants.SITE_BASE_URL, "https://site.example.com/" );
+        localContext.put( Constants.SITE_ARG, "/mysite" );
 
-        assertEquals( "https://site.example.com/path",
-                      new GetPageUrlDataFetcher( portalUrlService ).get( environment ).get( "url" ) );
+        final Map<String, Object> result = new GetPageUrlDataFetcher( portalUrlService ).get( environment );
 
+        assertEquals( "https://site.example.com/subsite/path", result.get( "url" ) );
+        assertEquals( "/subsite/path", result.get( "path" ) );
+
+        // url and parts are resolved from the same selection, so url = baseUrl + path + queryString
         ArgumentCaptor<PageUrlParams> captor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrl( captor.capture() );
-        assertEquals( "https://site.example.com/", captor.getValue().getBaseUrl() );
+        assertEquals( "/mysite", captor.getValue().getBase().getPath() );
 
-        // parts never carry a base URL: components are independent of siteKey and request
         ArgumentCaptor<PageUrlParams> partsCaptor = ArgumentCaptor.forClass( PageUrlParams.class );
         verify( portalUrlService ).pageUrlParts( partsCaptor.capture() );
-        assertNull( partsCaptor.getValue().getBaseUrl() );
+        assertEquals( "/mysite", partsCaptor.getValue().getBase().getPath() );
     }
-
-
 }
