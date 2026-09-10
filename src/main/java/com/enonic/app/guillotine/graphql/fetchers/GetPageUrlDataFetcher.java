@@ -37,25 +37,27 @@ public class GetPageUrlDataFetcher
             return null;
         }
 
+        // one set of params for the whole field, so that url = baseUrl + path + queryString:
+        // the URL belongs to the site named by siteKey when there is one, and to the site of the
+        // content otherwise
+        final PageUrlParams params = buildParams( environment, content );
+
         final Map<String, Object> result = UrlPartsHelper.anyPagePartSelected( environment.getSelectionSet() )
-            ? UrlPartsHelper.toMap( portalUrlService.pageUrlParts( buildParams( environment, content, null ) ) )
+            ? UrlPartsHelper.toMap( portalUrlService.pageUrlParts( params ) )
             : new LinkedHashMap<>();
 
         if ( environment.getSelectionSet().contains( "url" ) )
         {
-            // same call as content link processing in processHtml: the siteKey-resolved base URL
-            // when present, otherwise request/context resolution (no project/branch on the params,
-            // so the URL follows the site request when there is one)
-            result.put( "url", portalUrlService.pageUrl(
-                buildParams( environment, content, GuillotineLocalContextHelper.getSiteBaseUrl( environment ) ) ) );
+            result.put( "url", portalUrlService.pageUrl( params ) );
         }
 
         return result;
     }
 
-    private static PageUrlParams buildParams( final DataFetchingEnvironment environment, final Content content, final String baseUrl )
+    private static PageUrlParams buildParams( final DataFetchingEnvironment environment, final Content content )
     {
-        final PageUrlParams params = new PageUrlParams().id( content.getId().toString() ).baseUrl( baseUrl );
+        final PageUrlParams params = new PageUrlParams().id( content.getId().toString() )
+            .base( GuillotineLocalContextHelper.getSiteBase( environment ) );
 
         if ( environment.getArgument( "params" ) instanceof Map<?, ?> queryParams )
         {
