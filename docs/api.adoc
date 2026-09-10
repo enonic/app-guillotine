@@ -557,6 +557,8 @@ Page URL and its components, for building the URL from segments: `url = baseUrl 
 |url: String
 |The ready-made URL, with the base URL resolved by XP for the site the URL belongs to: the one given as `siteKey`, or - without it - the one the matched virtual host points at when served from a site endpoint, and the nearest site of the content otherwise
 
+A content outside the site the URL belongs to has no such URL - the site's Base URL does not lead to it - so the field reports an error rather than a URL that resolves to nothing. This can happen when `siteKey` names a site and the query reaches content elsewhere in the project.
+
 |path: String
 |URL-escaped path of the content relative to the site - or project - the URL belongs to, with a leading slash. Empty when the content is that site itself
 
