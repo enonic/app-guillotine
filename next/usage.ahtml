@@ -636,7 +636,7 @@ With <code>siteKey</code>, the actual base of media URLs is resolved by XP from 
   guillotine {
     get(key: "contentid") {
       pageUrl {
-        path         # "/posts/first-post" — escaped, relative to the nearest site
+        path         # "/posts/first-post" — escaped, relative to the site it belongs to
         queryString
       }
       ... on media_Image {
@@ -698,7 +698,13 @@ With <code>siteKey</code>, the actual base of media URLs is resolved by XP from 
 <p>By default, all internal links to <code>media</code> or <code>content</code> will be replaced by a server (root-relative) link in the context of your endpoint.</p>
 </div>
 <div class="paragraph">
-<p>To generate content (page) links against a different domain or base URL, use the <code>siteKey</code> argument with a site (or project) that has a configured Base URL. Content links in <code>processedHtml</code> and the <code>url</code> value of the <code>pageUrl</code> field are then generated against that base URL, followed by the path of the content relative to the site (for example, <code><a href="https://www.example.com/posts/first-post" class="bare">https://www.example.com/posts/first-post</a></code>).</p>
+<p>To generate content (page) links against a different domain or base URL, use the <code>siteKey</code> argument with a site (or project) that has a configured Base URL. Content links in <code>processedHtml</code> and the <code>url</code> value of the <code>pageUrl</code> field then belong to that site: they start with its Base URL, followed by the path of the content relative to it (for example, <code><a href="https://www.example.com/posts/first-post" class="bare">https://www.example.com/posts/first-post</a></code>).</p>
+</div>
+<div class="paragraph">
+<p>Which site a URL belongs to is what <code>siteKey</code> decides, so it also decides the <code>path</code> value of the <code>pageUrl</code> field. A site nested inside another site is a case worth noting: <code>siteKey: "/mysite"</code> keeps the intermediate site in the path (<code>/subsite/posts/first-post</code>), while <code>siteKey: "/mysite/subsite"</code> makes the path relative to the nested site (<code>/posts/first-post</code>). Since the configuration of a site is never inherited from a parent site, the site given as <code>siteKey</code> also decides on its own which Base URL applies - a Base URL configured on the nested site has no effect on URLs belonging to its parent. A project contains sites and a site can contain further sites, so <code>siteKey</code> picks a level of that containment - <code>"/"</code> names the project itself. When the named level has no Base URL configured, URLs fall back to the address the site engine serves it at, <code>/site/&lt;project&gt;/&lt;branch&gt;/&lt;site path&gt;</code>.</p>
+</div>
+<div class="paragraph">
+<p>Without <code>siteKey</code> the level is decided for you. A query served from a site endpoint - Guillotine mounted on a site - belongs to whatever the matched virtual host mapping points at, since that mapping states which part of the content tree the address stands for; with no mapping narrowing it, that is the project. A query served from <code>/api</code> has no such request to follow, so each content belongs to its own nearest site.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1220,7 +1226,7 @@ Notice that xData fields are grouped by application name, this ensures there wil
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-10 10:31:09 UTC
+Last updated 2026-09-11 13:24:40 UTC
 </div>
 </div>
 </body>
