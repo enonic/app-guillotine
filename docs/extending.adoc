@@ -6,15 +6,30 @@ Extend, augment and customize the Guillotine API
 
 One of Guillotine's super-powers is the ability to customize the GraphQL schema with your own input types, enums, unions, and interfaces, set or override data fetcher and type resolvers, and even modify existing interfaces, types and fields.
 
-== Guillotine.js
+== Get started
 
-To extend the Guillotine application you need to create a file named `guillotine.js` in the `src/main/resources/guillotine` folder of your application.
+Add the files in this chapter to an existing Enonic app with TypeScript support, or use https://github.com/enonic/starter-ts[starter-ts] to get going with a new app. See the https://developer.enonic.com/docs/typescript-starter/stable/build[TypeScript setup guide] if your existing app does not yet compile TypeScript.
+
+Install Guillotine's type definitions in your app project:
+
+[source,shell]
+----
+npm install --save-dev @enonic-types/guillotine
+----
+
+Guillotine must also be <<setup#, installed>> in the Enonic instance where you deploy your app.
+
+== Extension file
+
+Create `src/main/resources/guillotine/guillotine.ts` in your app. The build must compile it to `/guillotine/guillotine.js` in the application resources, which is the path Guillotine loads at runtime. The TypeScript starter handles this compilation.
 
 This file must export the `extensions` function with the following structure:
 
-[source,javascript]
+[source,typescript]
 ----
-exports.extensions = function (graphQL) {
+import type {Extensions, GraphQL} from '@enonic-types/guillotine';
+
+export const extensions = (graphQL: GraphQL): Extensions => {
     return {
         enums: { // <1>
             // enum type definitions ...
@@ -46,35 +61,67 @@ exports.extensions = function (graphQL) {
 
 <1> Define <<extending/enums#,custom enums>>.
 <2> Define <<extending/input-types#,custom input types>>.
-<3> Define <<extending/interfaces#,custom iterfaces>>.
+<3> Define <<extending/interfaces#,custom interfaces>>.
 <4> Define <<extending/unions#,custom unions>>.
 <5> Define <<extending/types#,custom types>>.
 <6> Use `creationCallbacks` to <<extending/creation-callbacks#,add, remove or augment existing fields and interfaces.>>.
 <7> Use `resolvers` to <<extending/resolvers#,set or override data fetchers for specific fields>>.
 <8> Use `typeResolvers` to <<extending/type-resolvers#,set or override the type resolver for an interface or a union>>.
 
-You can omit any of the properties, but you must return an object with the same structure. Order of the properties is not important.
+You can omit any of the properties, but you must return an object with the same structure. Order of the properties is not important. The following subpages show individual extension properties; merge the ones you need into the object returned by your app's single `extensions` function.
 
 
 == Usage example
 
 Let's imagine that we have to extend the GraphQL schema with a new type `GoogleBooks` and add a new field `findBooks` to the `Query` type to be able to find books by query string. To execute requests to Google Books API we will use `lib-http-client` library.
 
+[source,groovy]
 ----
 dependencies {
     include 'com.enonic.lib:lib-http-client:3.2.2'
 }
 ----
 
-In our application we have to create a new file `src/main/resources/guillotine/guillotine.js` and add the following content to it:
+In our application we have to create a new file `src/main/resources/guillotine/guillotine.ts` and add the following content to it:
 
-[source,javascript]
+[source,typescript]
 ----
-const httpClient = require('/lib/http-client');
+import type {DataFetchingEnvironment, Extensions, GraphQL} from '@enonic-types/guillotine';
+
+const httpClient = require('/lib/http-client') as HttpClient;
+
+interface VolumeInfo {
+    title?: string;
+    authors?: string[];
+    publisher?: string;
+    publishedDate?: string;
+    description?: string;
+    pageCount?: number;
+    language?: string;
+    averageRating?: number;
+}
+
+interface BooksResponse {
+    items?: Array<{id: string; volumeInfo: VolumeInfo}>;
+}
+
+interface HttpResponse {
+    status: number;
+    body?: string;
+}
+
+interface HttpClient {
+    request(params: {
+        url: string;
+        method: 'GET';
+        contentType: string;
+        queryParams: Record<string, string>;
+    }): HttpResponse;
+}
 
 const GOOGLE_BOOKS_API_KEY = app.config.googleBooksApiKey;
 
-exports.extensions = function (graphQL) {
+export const extensions = (graphQL: GraphQL): Extensions => {
     return {
         types: {
             GoogleBooks: {
@@ -116,7 +163,7 @@ exports.extensions = function (graphQL) {
                     findBooks: {
                         type: graphQL.list(graphQL.reference('GoogleBooks')),
                         args: {
-                            queryString: graphQL.GraphQLString,
+                            queryString: graphQL.nonNull(graphQL.GraphQLString),
                         }
                     }
                 });
@@ -124,10 +171,10 @@ exports.extensions = function (graphQL) {
         },
         resolvers: {
             Query: {
-                findBooks: function (env) {
+                findBooks: (env: DataFetchingEnvironment<{queryString: string}>) => {
                     const response = sendRequestToBooksApi(env.args.queryString);
 
-                    return response.items.map(function (item) {
+                    return (response.items ?? []).map((item) => {
                         const volumeInfo = item.volumeInfo;
 
                         return {
@@ -148,8 +195,11 @@ exports.extensions = function (graphQL) {
     }
 };
 
-function sendRequestToBooksApi(queryString) {
-    const response = httpClient.request({
+function sendRequestToBooksApi(queryString: string): BooksResponse {
+    if (!GOOGLE_BOOKS_API_KEY) {
+        throw new Error("Configure googleBooksApiKey in your app configuration");
+    }
+    const response: HttpResponse = httpClient.request({
         url: 'https://www.googleapis.com/books/v1/volumes',
         method: 'GET',
         contentType: 'application/json',
@@ -158,18 +208,21 @@ function sendRequestToBooksApi(queryString) {
             key: GOOGLE_BOOKS_API_KEY,
         }
     });
-    return JSON.parse(response.body);
+    if (response.status !== 200 || !response.body) {
+        throw new Error(`Google Books request failed: HTTP ${response.status}`);
+    }
+    return JSON.parse(response.body) as BooksResponse;
 }
 ----
 
-This example is very simple and does not cover all possible cases. For example, it does not handle errors from the Google Books API, does not cache values, etc. But it shows how to extend the GraphQL schema with a new type and a new field.
+Set `googleBooksApiKey` in your app configuration before running the example. `HttpClient` describes the subset of the HTTP client API used here. The response interfaces describe the fields used from the Google Books API; they do not validate the response at runtime. This example checks the HTTP status but omits caching and detailed response validation.
 
-You can separate definitions of types, creationCallbacks, resolvers and the rest of options into different files and import them into the `guillotine.js` file, to make your code more readable and maintainable.
+You can separate definitions of types, creationCallbacks, resolvers and the rest of options into different files and import them into the `guillotine.ts` file, to make your code more readable and maintainable.
 
 
 == Arguments
 
-When Guillotine invokes the extensions function, it will pass a utility object as an argument, giving your extension acccess to standard scalars, types, type modifiers and functions:
+When Guillotine invokes the extensions function, it will pass a utility object as an argument, giving your extension access to standard scalars, types, type modifiers and functions:
 
 Scalars and Types:: `GraphQLString`, `GraphQLInt`, `GraphQLID`, `GraphQLBoolean`, `GraphQLFloat`, `Json`, `DateTime`, `Date`, `LocalTime` `LocalDateTime` and `reference` type.
 
@@ -178,7 +231,30 @@ Type modifiers:: The `list` and `nonNull` type modifiers allow applies additiona
 Functions:: `createDataFetcherResult` - allows to return object with `data` which will be as a source for children fields and provide a `localContext` to share unmodifiable data available in a child field using `env.localContext`.
 
 
-== Lifecycle
+[#lifecycle]
+== Lifecycle and execution
 
-The `extensions` function will automatically be invoked by Guillotine when your application (the app containing the `guillotine.js` controller) is started, or when Guillotine itself is started/restarted.
+Guillotine loads your extension automatically and executes its functions on the server through XP's script runtime. Your app supplies the schema definitions and resolver functions; Guillotine connects them to the GraphQL engine.
 
+=== Building the schema
+
+The schema is built lazily: the first query that needs it triggers these steps:
+
+. Guillotine checks installed apps for `/guillotine/guillotine.js`, the compiled output of your `guillotine.ts` file.
+. For each extension it can load, Guillotine calls the exported `extensions(graphQL)` function with the utility object described above and collects the returned definitions and functions.
+. Guillotine combines these extensions with its generated schema. It adds custom types, invokes `creationCallbacks` to collect and apply schema changes, and registers field resolvers and type resolvers.
+. The completed schema is cached and used to execute the query. Subsequent queries reuse it.
+
+Keep schema setup in `extensions` and `creationCallbacks`, and put request-specific work, such as fetching content or calling an external API, inside resolvers. In the Google Books example, schema building registers `findBooks`; the HTTP request happens when a query requests that field.
+
+=== Executing a query
+
+When a query requests a field with a custom resolver, the GraphQL engine calls that resolver with `env.source`, `env.args` and `env.localContext`. The returned value becomes the field's result and supplies the source for any selected child fields. See <<extending/resolvers#, Resolvers>> for passing additional context to child resolvers.
+
+For a value returned through an interface or union, the engine calls its registered `typeResolver` to determine the concrete GraphQL object type. See <<extending/type-resolvers#, Type resolvers>>.
+
+Custom field resolvers beneath `guillotine` execute with the project repository and branch selected for that query, so XP library calls such as `content.get()` use that content context. Custom fields directly on `Query` use the current request context. See <<extending/best-practices#, Best practices>> for choosing where to add fields.
+
+=== Rebuilding the schema
+
+Application start, stop and uninstall events invalidate the cached schema. The next query rebuilds it, discovering extensions and invoking their setup functions again. Restarting Guillotine also clears its schema cache, so setup functions should support repeated invocation.

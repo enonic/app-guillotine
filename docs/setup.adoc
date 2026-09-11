@@ -4,55 +4,119 @@ This section describes how to install and access the Guillotine API
 
 == Installation
 
-Guillotine is available as an Enonic app. Guillotine will normally be pre-installed when you create a new solution in the self-service cloud, or when setting up a new SDK Sandbox.
+Guillotine is available as an Enonic app. It is often installed automatically when you create an Enonic Cloud instance or set up a local SDK sandbox, depending on the template you choose. Templates provide a predefined set of apps to install and are offered during setup in both Enonic Cloud and the Enonic CLI.
 
-To install it manually, follow the https://market.enonic.com/vendors/enonic/guillotine[instructions on Enonic Market].
+If Guillotine is not already installed, follow the https://market.enonic.com/vendors/enonic/guillotine[instructions on Enonic Market] to install it manually.
 
+[#endpoints]
 == Endpoints
 
-Once installed to your Enonic environment, Guillotine exposes two endpoints per content project:
+[#api-base-url]
+=== API base URL
 
-* HTTP POST `:8080/site/<project>/draft` - Drafts API
-* HTTP POST `:8080/site/<project>/master` - Live API
+Guillotine exposes the Universal API `com.enonic.app.guillotine:graphql`. In XP 8, a common production setup exposes the native `/api` endpoint through a virtual host or ingress. This provides a shared *API base URL* for APIs mounted on the Web endpoint, including Guillotine and XP's media APIs.
 
-NOTE: <project> must be replaced with an actual content project in your installation.
+Append the API name to that base URL. For example, with `https://example.com/api` as the API base URL:
+
+[%header,cols="1,3"]
+|===
+|API |Public URL
+|Guillotine |`https://example.com/api/com.enonic.app.guillotine:graphql`
+|Images |`https://example.com/api/media:image/<context>/<id>:<fingerprint>/<scale>/<name>`
+|Attachments |`https://example.com/api/media:attachment/<context>/<id>:<fingerprint>/<name>`
+|===
+
+The public base can use a different host or path, such as `https://api.example.com`, depending on your routing. Media can also use a separate base, for example through a CDN; see <<usage/images-and-urls#base-urls, Base URLs>>.
+
+With a local Enonic sandbox running on the default port `8080`, the API base URL is `http://localhost:8080/api`. With Guillotine installed, send GraphQL requests to:
+
+[source,text]
+----
+POST http://localhost:8080/api/com.enonic.app.guillotine:graphql
+----
+
+For other environments, use `<apiBaseUrl>/com.enonic.app.guillotine:graphql`, with no trailing slash on `apiBaseUrl`. If your deployment maps an individual API to a custom URL, use that full URL instead. Specify `project` and `branch` on the `guillotine` field to select the content context. See <<usage#, Usage>> for complete requests in cURL and JavaScript.
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master") {
+    getChildren(key: "/", first: 10) {
+      displayName
+    }
+  }
+}
+----
+
+Use `master` for published content and `draft` for work in progress. Content permissions still apply to the caller, and draft access normally requires authentication. Exposing the endpoint does not grant access to the project's content.
+
+=== Mounting on a site
+
+A site application can also expose Guillotine through its site descriptor:
+
+./cms/site.yaml, relative to the app resource root
+[source,yaml]
+----
+kind: Site
+apis:
+  - "com.enonic.app.guillotine:graphql"
+----
+
+In a Gradle project, this descriptor is located at `src/main/resources/cms/site.yaml`. Add the API to the descriptor's existing `apis` list, and configure the application on the site in Content Studio.
+
+The API is then available at the site root:
+
+[source,text]
+----
+POST http://localhost:8080/site/<project>/<branch>/<site-path>/_/com.enonic.app.guillotine:graphql
+----
+
+For example, a site at `/my-site` in `myproject` exposes its published content at:
+
+[source,text]
+----
+http://localhost:8080/site/myproject/master/my-site/_/com.enonic.app.guillotine:graphql
+----
+
+At this endpoint, the site request supplies the project and branch; arguments on the `guillotine` field cannot override them. The `siteKey` argument can separately select the <<usage/site-context#, site context>> used by queries and URLs.
+
+See the https://developer.enonic.com/docs/code/stable/web/apis#contextual-apis[Universal API reference] for mounting APIs in sites and other services.
 
 == Enonic Cloud / Kubernetes
 
-When using Enonic's https://console.enonic.com/[self-service hosting^] (or the https://developer.enonic.com/docs/kubernetes-operator-for-xp[Enonic K8s Operator^]), expose the API publicly by creating an Ingress.
+When using Enonic's https://console.enonic.com/[self-service hosting] or the https://developer.enonic.com/docs/kubernetes-operator-for-xp[Enonic K8s Operator], expose the API publicly by creating an Ingress.
 
-You may expose an entire project, or just a selected branch.
+To expose the shared API base, route the public base path and its subpaths to XP's `/api` endpoint. For example, routing `https://example.com/api` to `/api` exposes Guillotine at `https://example.com/api/com.enonic.app.guillotine:graphql` and media under the same base.
 
-The following example exposes the entire project:
+You can also expose Guillotine individually by targeting `/api/com.enonic.app.guillotine:graphql`. If the public address is `https://example.com/graphql`, clients send their POST requests there. In that setup, provide a public route for media as well, or use a <<configuration#media-base-url, separate media base URL>>. Clients select project and branch in the query.
 
-In your Ingress, specify the target as `/site/<project>` (where `<project>` is replaced with your actual project name).
-
-If the Ingress is `example.com/api`, you will now be able to access the master and draft APIs on `example.com/api/master` and `example.com/api/draft` respectively.
-
-NOTE: Access to the draft API is by default closed for unauthorised access.
+To expose a site-mounted API instead, target its full contextual path, such as `/site/myproject/master/my-site/_/com.enonic.app.guillotine:graphql`. That target fixes the project and branch for requests through the public address.
 
 == Using Vhosts
 
-For other hosting options, you may expose the API on custom domains or URLs using vhosts:
+For other hosting options, expose the API base using virtual hosts. A common baseline is to map the public `/api` path to XP's native `/api` endpoint:
 
-Examples for a project called `myproject`:
-
-.Example - mapping  API to myapi.com
+.com.enonic.xp.web.vhost.cfg
 [source,properties]
 ----
-mapping.my-api.host = myapi.com
-mapping.my-api.source = /
-mapping.my-api.target = /site/<project>/master
+enabled = true
+mapping.apis.host = example.com
+mapping.apis.source = /api
+mapping.apis.target = /api
 ----
 
-.Example - mapping entire project root to example.com/api
+With HTTPS provided by your deployment, the API base URL is `https://example.com/api`. The mapping exposes all APIs mounted on XP's Web endpoint, including the default image and attachment APIs; each API's access rules still apply.
+
+For a dedicated API host such as `api.example.com`, use that host with `source = /` and `target = /api`. The public API base URL is then `https://api.example.com`.
+
+You can also map a single contextual API to its own URL:
+
+.Map a site's published API to example.com/graphql
 [source,properties]
 ----
 mapping.example-api.host = example.com
-mapping.example-api.source = /api
-mapping.example-api.target = /site/<project>
+mapping.example-api.source = /graphql
+mapping.example-api.target = /site/myproject/master/my-site/_/com.enonic.app.guillotine:graphql
 ----
 
-For more details about vhosts, check out the https://developer.enonic.com/docs/platform/stable/config/vhosts[Platform documentation]
-
-
+For more details, see the https://developer.enonic.com/docs/platform/stable/config/vhosts[Platform virtual host reference].

@@ -549,15 +549,10 @@ Represents details for image found and processed in the <<RichText>> type.
 
 === PageUrl
 
-Page URL and its components, for building the URL from segments: `url = baseUrl + path + queryString`.
+Page link components. Adapt `path` to your frontend's routing and append `queryString`. If your deployment preserves the path, use `frontendBaseUrl + path + queryString`.
 
 |===
 |Name (Arguments): Type | Description
-
-|url: String
-|The ready-made URL, with the base URL resolved by XP for the site the URL belongs to: the one given as `siteKey`, or - without it - the one the matched virtual host points at when served from a site endpoint, and the nearest site of the content otherwise
-
-A content outside the site the URL belongs to has no such URL - the site's Base URL does not lead to it - so the field reports an error. This can happen when `siteKey` names a site and the query reaches content elsewhere in the project.
 
 |path: String
 |URL-escaped path of the content relative to the site - or project - the URL belongs to, with a leading slash. Empty when the content is that site itself
@@ -569,13 +564,10 @@ A content outside the site the URL belongs to has no such URL - the site's Base 
 
 === ImageUrl
 
-Image URL and its components, for building the URL from segments: `url = baseUrl + path + queryString`. All component values are URL-escaped as they appear in the URL.
+Image link components. Build the address as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped.
 
 |===
 |Name (Arguments): Type | Description
-
-|url: String
-|The ready-made URL, with the base URL resolved by XP
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<fingerprint>/<scale>/<name>`
@@ -602,13 +594,10 @@ Image URL and its components, for building the URL from segments: `url = baseUrl
 
 === AttachmentUrl
 
-Attachment URL and its components, for building the URL from segments: `url = baseUrl + path + queryString`. All component values are URL-escaped as they appear in the URL.
+Attachment link components. Build the address as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped.
 
 |===
 |Name (Arguments): Type | Description
-
-|url: String
-|The ready-made URL, with the base URL resolved by XP
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:attachment/<context>/<id>:<fingerprint>/<name>`

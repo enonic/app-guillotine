@@ -1,26 +1,36 @@
 include::.variables.adoc[]
 = Guillotine {version} - Headless GraphQL API
 
-A bend-over-backwards flexible GraphQL API based on XP's content API
+A GraphQL API generated from your Enonic content model
 
 == Introduction
 
-TIP: *Quickstart!* Check out https://developer.enonic.com/learn/developer-101[the Developer 101 tutorial] for a hands-on introduction to Enonic and the GraphQL API.
+Guillotine is an Enonic app that exposes content through a headless GraphQL API. It generates a typed schema from your content model, letting websites, apps and other clients request the content and fields they need.
 
-At its core, Guillotine is a strongly typed GraphQL version of XP's internal https://developer.enonic.com/docs/code/stable/libraries/lib-content[Content library]. 
+Built-in queries provide access to content, references, images and rich text. Queries respect content permissions and support both published and draft content.
+
+You can extend the generated API with custom types, fields and resolvers written in TypeScript, including data from external services.
+
+To get started, <<setup#, install Guillotine>>, explore your schema in <<playground#, Query Playground>>, and <<usage#, send a query>> from your client.
+
+TIP: For a hands-on introduction to Enonic and its GraphQL API, follow https://developer.enonic.com/learn/developer-101[the Developer 101 tutorial].
 
 image::images/guillotine-api.png[Cutting Edge API, 1344px]
 
-== Overview
+== Documentation guide
 
 What you will find in this documentation:
 
-Installation:: How to <<setup#, install and deploy Guillotine>>
+Setup:: <<setup#, Install Guillotine and expose its API>> in your environment.
 
-Query playground:: Content Studio extension, allowing privileged users to <<playground#, query the API in context of the content>>.
+Query Playground:: <<playground#, Explore your schema and try queries>> in Content Studio.
 
-Query examples:: A basic introduction to using the API, with hands <<usage#,examples on how to use the API>>.
+Usage:: How to <<usage#, send queries and handle responses>>, with cURL and JavaScript examples.
 
-Clients:: Demonstrating how to invoke the API using <<usage/curl#, cURL>> or <<usage/javascript#, JavaScript>>.
+Query examples:: Reference examples for <<usage/content-queries#, content queries>>, <<usage/references-and-mixins#, references and mixins>>, <<usage/images-and-urls#, images and URLs>>, <<usage/rich-text#, rich text>> and <<usage/site-context#, site context>>.
 
-Extending and augmenting::  Discover Guillotine's superpower and how to <<extending#,dynamically extend the API to match your needs>>.
+Extending:: <<extending#, Customize the schema and add resolvers>> in TypeScript, and learn how Guillotine executes your extensions.
+
+API reference:: <<api#, Look up built-in GraphQL fields, arguments and types>>.
+
+Configuration:: <<configuration#, Configure Guillotine>>, including CORS and schema extension behavior.

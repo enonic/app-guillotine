@@ -1,0 +1,76 @@
+= References and mixins
+
+Guillotine lets you traverse related content and select fields contributed by mixin schemas in the same query. These examples use published content in `myproject`; send them using the request format on the <<../usage#, Usage>> page.
+
+== Parents and children
+
+Content items expose `parent` and `children` fields for navigating the content tree:
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master") {
+    get(key: "/my-site/posts/first-post") {
+      displayName
+      parent {
+        displayName
+      }
+      children {
+        displayName
+      }
+    }
+  }
+}
+----
+
+== References from form fields
+
+ContentSelector, MediaSelector and ImageSelector fields expose references to their target content. Select fields on the referenced item directly, without sending a separate request for its ID.
+
+This example assumes a `com.example.myapp:post` content type with an `author` ContentSelector field:
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master") {
+    get(key: "/my-site/posts/first-post") {
+      ... on com_example_myapp_Post {
+        data {
+          author {
+            _id
+            displayName
+          }
+        }
+      }
+    }
+  }
+}
+----
+
+The selector's occurrence settings determine whether the field returns one item or a list. Inspect the generated field in <<../playground#, Playground>> for your model's shape.
+
+== Mixins
+
+https://developer.enonic.com/docs/cms/stable/content/mixins[Mixins] add fields from other schemas or applications to content. Guillotine exposes this extra data through the `x` field, grouped by application namespace and then mixin name.
+
+The following example assumes a `social` mixin contributed by `com.example.myapp`, with an `imdb` field:
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master") {
+    get(key: "/my-site/persons/jane") {
+      displayName
+      x {
+        com_example_myapp {
+          social {
+            imdb
+          }
+        }
+      }
+    }
+  }
+}
+----
+
+Replace the application, mixin and field names with those in your generated schema. Grouping by application keeps fields from different applications separate.

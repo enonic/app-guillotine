@@ -39,4 +39,21 @@ maxQueryTokens=15000 // <8>
 
 <8> If the number of raw tokens exceeds the specified maximum, the parser will throw an exception. Default is `15000`.
 
-TIP: A default base URL for media URLs can be configured on XP itself with the `media.defaultBaseUrl` option in `com.enonic.xp.portal.cfg`.
+[#media-base-url]
+== Media base URL
+
+When exposing XP's shared <<setup#api-base-url, API base URL>>, GraphQL, images and attachments are reachable under the same public base by default. Clients can use this base, or a separate CDN base, when <<usage/images-and-urls#url-parts, building media links from `path` and `queryString`>>. Configure the public route to serve those paths.
+
+XP also generates media links inside <<usage/rich-text#, processed rich text>>. On XP 8.1 and later, configure their default media base in the XP portal configuration:
+
+.com.enonic.xp.portal.cfg
+[source,properties]
+----
+media.defaultBaseUrl = https://cdn.example.com/api
+----
+
+This produces media URLs under `https://cdn.example.com/api/media:image/...` and `https://cdn.example.com/api/media:attachment/...` where a more specific API location or a contextual media mount does not take precedence. Configure the CDN to forward those paths to XP's corresponding `/api/media:image/...` and `/api/media:attachment/...` endpoints. This setting changes URL generation; the CDN route must be configured separately.
+
+Sites that mount the media APIs keep URLs under their own endpoints. To move their media to the default media base, also set `legacy.mediaApiAutoMount.enabled = false` and omit the relevant media APIs from the site's descriptor. See the https://developer.enonic.com/docs/platform/xp8/config/cms#media_base_url[XP media configuration] for mount precedence and preview behavior.
+
+Virtual-host context can also declare a shared API location or individual API locations. See the https://developer.enonic.com/docs/platform/xp8/config/vhosts#api-locations[API locations reference] for dedicated hosts and paths.

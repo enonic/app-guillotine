@@ -4,43 +4,27 @@ Add custom GraphQL interfaces
 
 == Usage
 
-It must be an object with the following structure:
+Add definitions to the `interfaces` property returned by your <<../extending#, extension function>>. Each key is the name of a GraphQL type. This example references `CustomFilterInput` from <<input-types#, Input types>>; include that definition in the same extension.
 
-[source,javascript]
+[source,typescript]
 ----
-interfaces: {
-    <InterfaceTypeName>: {
-        description: <description>
-        fields: {
-            <fieldName>: {
-               type: <graphQLType>,
-               args: {
-                 <argName>: <graphQLType>,
-                 // the rest of arguments ...
-               }
-            },
-            // the rest of field definitions ...
-        },
-    },
-    // the rest of interface definitions ...
-}
-----
+import type {Extensions, GraphQL} from '@enonic-types/guillotine';
 
-For example:
-
-[source,javascript]
-----
-interfaces: {
-    CustomInterface: {
-        description: "Custom Interface",
-        fields: {
-            query: {
-                type: graphQL.list(graphQL.GraphQLString),
-                args: {
-                    filter: graphQL.reference('CustomFilterInput')
-                }
+export const extensions = (graphQL: GraphQL): Extensions => {
+    return {
+        interfaces: {
+            CustomInterface: {
+                description: "Custom Interface",
+                fields: {
+                    query: {
+                        type: graphQL.list(graphQL.GraphQLString),
+                        args: {
+                            filter: graphQL.reference('CustomFilterInput')
+                        }
+                    }
+                },
             }
-        },
-    }
-}
+        }
+    };
+};
 ----
