@@ -34,3 +34,5 @@ Extending:: <<extending#, Customize the schema and add resolvers>> in TypeScript
 API reference:: <<api#, Look up built-in GraphQL fields, arguments and types>>.
 
 Configuration:: <<configuration#, Configure Guillotine>>, including CORS and schema extension behavior.
+
+Release notes:: <<release#, What's new in Guillotine 9>> and <<upgrade#, how to upgrade>> from Guillotine 8.

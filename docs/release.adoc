@@ -1,3 +1,51 @@
 = Release Notes
 
-Release notes for Guillotine 9 will be added here.
+Guillotine 9 requires Enonic XP 8.1.0 or higher. See <<upgrade#, Upgrade notes>> for migration steps and examples.
+
+== Guillotine 9
+
+=== Features
+
+One endpoint for content projects::
+The `guillotine` field accepts `project` and `branch` arguments, so a single Web API endpoint can serve multiple projects and branches. Content permissions apply to every request. See <<setup#api-base-url, API base URL>>.
+
+URL components::
+`pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` return objects exposing `path` and `queryString`. Media fields also provide components such as the project context, content ID and fingerprint. Clients can prepend an API or CDN base to media paths and adapt page paths to their frontend routes. See <<usage/images-and-urls#url-parts, Building URLs from parts>>.
+
+Structured rich-text links::
+The `Link.pageUrl` and `Media.mediaUrl` fields expose the same URL components for references found in rich text. Clients can use these fields when rendering links for their own deployment. See <<usage/rich-text#, Rich text>>.
+
+Content context fields::
+`Content._project` and `Content._branch` expose the project and branch used to resolve a content item. See <<api#content, Content>>.
+
+Publication marker::
+The new `PublishInfo.time` field exposes the `publish.time` marker. On draft content, its presence indicates that the draft matches the published version; its absence indicates unpublished changes. See <<api#publishinfo, PublishInfo>>.
+
+Resolvers in the query context::
+Custom resolvers beneath `guillotine` run in the selected project's repository and branch, so XP content-library calls use that context automatically. See <<extending#lifecycle, Lifecycle and execution>>.
+
+Query Playground admin extension::
+Query Playground implements the `contentstudio.menuitem` interface. Content Studio and other applications supporting that interface can embed it. See <<playground#, Query Playground>>.
+
+=== Breaking changes
+
+Endpoint and project selection::
+The native Web API endpoint is now `/api/com.enonic.app.guillotine:graphql`, replacing `/site/<project>/<branch>`. Select project and branch in the query and update public routing as needed. See <<upgrade#endpoint-migration, API endpoint>>.
+
+URL fields and arguments::
+URL fields return objects instead of strings. The `type` argument and `UrlType` enum are removed, including `ProcessHtmlInput.type`. Update selections and build links from their components. See <<upgrade#url-migration, Page, image and attachment URLs>>.
+
+Search queries::
+The deprecated `query` and `queryConnection` fields, `QueryContentConnection` and legacy filter input types are removed. Use `queryDsl` and `queryDslConnection`. See <<upgrade#search-migration, Search queries>>.
+
+Site context and paths::
+The `X-Guillotine-SiteKey` header and `_path`'s `type` argument are removed. Select `siteKey` explicitly when needed; without it, `getSite` returns `null`. Use `pageUrl.path` for site-relative paths. See <<upgrade#site-context-migration, Site context and paths>>.
+
+Schema metadata::
+`ContentType.displayName` and several form metadata fields are removed. `PublishInfo.from`, `to` and `first` change from `String` to `DateTime`. See <<upgrade#metadata-migration, Schema metadata and publication timestamps>>.
+
+Extension behavior and types::
+Resolver request context, macro discovery and TypeScript definitions have changed. See <<upgrade#extension-migration, Custom extensions>>.
+
+Embedded playground::
+The query editor previously served by GET requests to the GraphQL endpoint is removed, along with the `queryplayground.ui.mode` option. Use the Content Studio <<playground#, Query Playground>> or a <<usage#third-party-clients, third-party GraphQL client>>.

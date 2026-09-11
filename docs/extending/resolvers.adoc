@@ -20,9 +20,13 @@ The `localContext` object supports value types such as `string`, `double`, `inte
 
 The `localContext` object is unmodifiable, so you can't change it. If you need to pass some data to the lower levels, then you can use `createDataFetcherResult` function. Also, the `localContext` object provides the following properties:
 
-- `project` - project name, taken from the current context.
-- `branch` - branch name, taken from the current context.
+- `project` - project name, selected by the `guillotine` field's argument or supplied by the request context.
+- `branch` - branch name, selected by the `guillotine` field's argument or supplied by the request context.
 - `siteKey` - the selected site key, when present. Treat this property as optional; see <<../usage/site-context#, Site context>>.
+
+Keys starting with `__` are internal to Guillotine and are not part of the extension contract.
+
+Resolvers beneath `guillotine` run in the selected project's repository and branch. Calls to XP libraries such as `/lib/xp/content` use that context automatically. See <<../extending#lifecycle, Lifecycle and execution>> for fields added directly to `Query`.
 
 Below you can find an example of how to use these properties:
 
@@ -47,6 +51,12 @@ export const extensions = (): Extensions => ({
 ----
 
 This example assumes `MyCustomType` has a string field named `myCustomField`, and that its parent resolver supplies an object with an `_id` property. The generic parameters describe the field arguments and source value respectively.
+
+== Application context
+
+A resolver runs as a script of the app containing the extension: `app.name`, `app.config`, `require` and localization through `/lib/xp/i18n` refer to that app.
+
+The portal request keeps its own application context. When calling a portal URL helper that accepts an `application` parameter, pass `application: app.name` to reference your extension app's resources explicitly.
 
 == createDataFetcherResult
 

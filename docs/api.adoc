@@ -140,6 +140,12 @@ All types implementing `Content` share the same fields, with the exception of th
 |_name: String!
 |Content name
 
+|_project: String
+|Name of the content project used to resolve this item
+
+|_branch: String
+|Branch used to resolve this item
+
 |_path(type: <<ContentPathType>>): String!
 |Content path. In the site-less mode, the result will be returned in the raw value, in other words, `env.source._path`.
 
@@ -204,7 +210,7 @@ a|Flattened list of page components
 |Publication information
 
 |pageUrl(params: Json): <<PageUrl>>
-|URL pointing to the content, along with its components for building the URL from segments
+|Page link components. Use `siteKey` to select the site or project that the path is relative to; see <<PageUrl>> and <<usage/images-and-urls#base-urls, Base URLs>>
 
 |site: portal_Site
 |Link to the nearest site
@@ -1077,14 +1083,17 @@ Direct Known Subtypes: FormInput
 |===
 |Name(Arguments):Type | Description
 
-|from: String
+|from: DateTime
 |Scheduled publication start time
 
-|to: String
+|to: DateTime
 |Scheduled publication end time
 
-|first: String
+|first: DateTime
 |First publication time
+
+|time: DateTime
+|Publication marker. On draft content, its presence indicates that the draft matches the published version; its absence indicates unpublished changes. Use its presence rather than interpreting the timestamp as a publication date
 
 |===
 

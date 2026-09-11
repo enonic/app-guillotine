@@ -4,7 +4,7 @@ Explore your schema and test queries in Content Studio.
 
 == Content Studio Extension
 
-Guillotine extends Content Studio with a new panel called Query Playground. It is only accessible for users with the `system.admin` or `cms.admin` roles.
+Guillotine provides Query Playground as an admin extension implementing the `contentstudio.menuitem` interface. Content Studio displays it as a panel; other applications supporting that interface can also embed it. It is only accessible for users with the `system.admin` or `cms.admin` roles.
 
 NOTE: Guillotine 9 removes the playground previously served by GET requests to the GraphQL endpoint. The Content Studio extension described here remains available. To explore the API outside Content Studio, use a <<usage#third-party-clients, third-party GraphQL client such as Altair>>.
 
@@ -20,7 +20,7 @@ Center panel:: Edit your GraphQL query
 Right panel:: Displays query results
 Branch selector:: Toggle between querying Draft and Master branches
 +
-NOTE: Each query is executed in a specific context, which is determined by the project and the branch.
+NOTE: Queries use the project currently selected in Content Studio and the branch selected in Query Playground.
 
 === Query example
 

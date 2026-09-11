@@ -245,6 +245,8 @@ The schema is built lazily: the first query that needs it triggers these steps:
 . Guillotine combines these extensions with its generated schema. It adds custom types, invokes `creationCallbacks` to collect and apply schema changes, and registers field resolvers and type resolvers.
 . The completed schema is cached and used to execute the query. Subsequent queries reuse it.
 
+If registration of an individual field resolver fails, Guillotine logs a warning with its type and field name and continues registering the remaining resolvers. Check the XP logs when a custom resolver is not applied.
+
 Keep schema setup in `extensions` and `creationCallbacks`, and put request-specific work, such as fetching content or calling an external API, inside resolvers. In the Google Books example, schema building registers `findBooks`; the HTTP request happens when a query requests that field.
 
 === Executing a query

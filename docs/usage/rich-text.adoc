@@ -78,9 +78,17 @@ query {
                  _id
                 }
                 intent     # <4>
+                mediaUrl {
+                  path
+                  queryString
+                }
               }
               content {    # <5>
                 _id
+              }
+              pageUrl {    # <6>
+                path
+                queryString
               }
             }
           }
@@ -92,9 +100,10 @@ query {
 ----
 <1> Reference to link in the `processedHtml` field
 <2> Link URI
-<3> Related media content. This field has `null` value for non-media content
+<3> Related media content and attachment link components. This field has `null` value for non-media content
 <4> Link intent. Available values `download` and `inline`
 <5> Related content. This field has `null` value for media content
+<6> Page link components for your frontend routing. This field has `null` value for media links
 
 == Images
 

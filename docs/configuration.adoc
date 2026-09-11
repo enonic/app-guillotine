@@ -31,7 +31,7 @@ maxQueryTokens=15000 // <8>
 
 <4> Sets the `Access-Control-Allow-Headers` header to allow headers in CORS requests. If `cors.allowedHeaders` is not configured and a request includes `Access-Control-Request-Headers`, that value is reflected in `Access-Control-Allow-Headers`.
 
-<5> Sets the `Access-Control-Allow-Methods` header to allow methods in CORS requests. Guillotine handlers only `POST` and `OPTIONS`. Default is `GET, HEAD, POST`.
+<5> Sets the `Access-Control-Allow-Methods` header to allow methods in CORS requests. The Guillotine endpoint answers `POST` and `OPTIONS` requests only. Default is `GET, HEAD, POST`.
 
 <6> Extra response headers to expose beyond the CORS safelist. If you configure `cors.exposedHeaders = *`, browsers only treat `*` as a wildcard for non-credentialed requests.
 

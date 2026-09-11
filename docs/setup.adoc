@@ -2,6 +2,10 @@
 
 This section describes how to install and access the Guillotine API
 
+== Requirements
+
+Guillotine 9 requires Enonic XP 8.1.0 or higher.
+
 == Installation
 
 Guillotine is available as an Enonic app. It is often installed automatically when you create an Enonic Cloud instance or set up a local SDK sandbox, depending on the template you choose. Templates provide a predefined set of apps to install and are offered during setup in both Enonic Cloud and the Enonic CLI.

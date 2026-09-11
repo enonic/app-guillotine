@@ -2,6 +2,8 @@
 
 == Upgrading from Guillotine 8 to 9
 
+Guillotine 9 requires Enonic XP 8.1.0 or higher.
+
 Guillotine 9 changes the API endpoint and several GraphQL fields. Start with the endpoint and URL changes below, then review the sections for features your clients use. Regenerate client types from the new schema after updating your queries.
 
 Versions 8 and 9 use the same application key, so installing version 9 replaces version 8. If clients need to migrate at different times, see <<#gradual-migration, Migrating clients gradually>>.
