@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.26">
-<title>Using cURL</title>
+<title>References and mixins</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,11 +437,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Using cURL</h1>
+<h1>References and mixins</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#query_example">Query example</a></li>
+<li><a href="#parents_and_children">Parents and children</a></li>
+<li><a href="#references_from_form_fields">References from form fields</a></li>
+<li><a href="#mixins">Mixins</a></li>
 </ul>
 </div>
 </div>
@@ -449,49 +451,28 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Below is an example of how to invoke the API from command line using cURL</p>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-cURL must be installed on your device for the examples below to work
-</td>
-</tr>
-</table>
+<p>Guillotine lets you traverse related content and select fields contributed by mixin schemas in the same query. These examples use published content in <code>myproject</code>; send them using the request format on the <a href="../usage.ahtml">Usage</a> page.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="query_example"><a class="link" href="#query_example">Query example</a></h2>
+<h2 id="parents_and_children"><a class="link" href="#parents_and_children">Parents and children</a></h2>
 <div class="sectionbody">
-<div class="listingblock">
-<div class="title">Create the file req.json</div>
-<div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{"query":"query {\n  guillotine {\n    queryDsl(query: {\n      term: {\n        field: \"type\",\n        value: {\n          string: \"com.enonic.app.moviedb:playlist\"\n        }\n      }\n    }){\n      ... on com_enonic_app_moviedb_Playlist {\n        _id\n        displayName\n      }\n    }\n  }\n}"}</code></pre>
-</div>
+<div class="paragraph">
+<p>Content items expose <code>parent</code> and <code>children</code> fields for navigating the content tree:</p>
 </div>
 <div class="listingblock">
-<div class="title">POST request using cURL</div>
 <div class="content">
-<pre class="highlight"><code class="language-curl" data-lang="curl">curl -X POST -H "Content-Type: application/json" -d @req.json http://localhost:8080/site/moviedb/draft | json_pp</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Response</div>
-<div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{
-  "data": {
-    "guillotine": {
-      "queryDsl": [
-        {
-          "_id": "531e40c9-6e5b-4259-b9e0-0d3144b2382a",
-          "displayName": "CTO's favorite movies"
-        }
-      ]
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine(project: "myproject", branch: "master") {
+    get(key: "/my-site/posts/first-post") {
+      displayName
+      parent {
+        displayName
+      }
+      children {
+        displayName
+      }
     }
   }
 }</code></pre>
@@ -499,10 +480,74 @@ cURL must be installed on your device for the examples below to work
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="references_from_form_fields"><a class="link" href="#references_from_form_fields">References from form fields</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>ContentSelector, MediaSelector and ImageSelector fields expose references to their target content. Select fields on the referenced item directly, without sending a separate request for its ID.</p>
+</div>
+<div class="paragraph">
+<p>This example assumes a <code>com.example.myapp:post</code> content type with an <code>author</code> ContentSelector field:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine(project: "myproject", branch: "master") {
+    get(key: "/my-site/posts/first-post") {
+      ... on com_example_myapp_Post {
+        data {
+          author {
+            _id
+            displayName
+          }
+        }
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The selector&#8217;s occurrence settings determine whether the field returns one item or a list. Inspect the generated field in <a href="../playground.ahtml">Playground</a> for your model&#8217;s shape.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="mixins"><a class="link" href="#mixins">Mixins</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://developer.enonic.com/docs/cms/stable/content/mixins">Mixins</a> add fields from other schemas or applications to content. Guillotine exposes this extra data through the <code>x</code> field, grouped by application namespace and then mixin name.</p>
+</div>
+<div class="paragraph">
+<p>The following example assumes a <code>social</code> mixin contributed by <code>com.example.myapp</code>, with an <code>imdb</code> field:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine(project: "myproject", branch: "master") {
+    get(key: "/my-site/persons/jane") {
+      displayName
+      x {
+        com_example_myapp {
+          social {
+            imdb
+          }
+        }
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Replace the application, mixin and field names with those in your generated schema. Grouping by application keeps fields from different applications separate.</p>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-11 14:57:15 UTC
+Last updated 2026-09-11 17:42:18 UTC
 </div>
 </div>
 </body>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.26">
-<title>Clients</title>
+<title>Images and URLs</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,27 +437,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Clients</h1>
+<h1>Images and URLs</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#query_playground">Query Playground</a>
+<li><a href="#scaled_images">Scaled images</a></li>
+<li><a href="#media_and_attachments">Media and attachments</a></li>
+<li><a href="#page_urls">Page URLs</a></li>
+<li><a href="#base-urls">Base URLs</a>
 <ul class="sectlevel2">
-<li><a href="#query_example">Query example</a></li>
-<li><a href="#subscription_example">Subscription example</a></li>
+<li><a href="#page_links">Page links</a></li>
+<li><a href="#media_links">Media links</a></li>
 </ul>
 </li>
-<li><a href="#curl">cURL</a>
-<ul class="sectlevel2">
-<li><a href="#query_example_2">Query example</a></li>
-<li><a href="#subscription_example_2">Subscription example</a></li>
-</ul>
-</li>
-<li><a href="#javascript">JavaScript</a>
-<ul class="sectlevel2">
-<li><a href="#example_fetch_content_by_path">Example: Fetch content by path</a></li>
-</ul>
-</li>
+<li><a href="#url-parts">Building URLs from parts</a></li>
 </ul>
 </div>
 </div>
@@ -465,273 +458,232 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>There are GraphQL clients for virtually any programming language and platform. This section describes the most common ways of accessing the API</p>
+<p>Guillotine provides URL components for pages, scaled images, media and attachments. Select <code>path</code> and <code>queryString</code>, then build links using your client&#8217;s media base URL or frontend routing.</p>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-The examples below assume you have installed the <a href="https://market.enonic.com/vendors/enonic/headless-movie-db">Headless Movie Database</a> demo app running on your local machine.
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>These examples query published content in <code>myproject</code>. Replace the project and content paths with your own, and send the queries using the request format on the <a href="../usage.ahtml">Usage</a> page.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="query_playground"><a class="link" href="#query_playground">Query Playground</a></h2>
+<h2 id="scaled_images"><a class="link" href="#scaled_images">Scaled images</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The Guillotine app extends Content Studio with a new panel called Query Playground. This is only accessible for users with <code>system.admin</code> or <code>cms.admin</code> roles.</p>
-</div>
-<div class="paragraph">
-<p>Query Playground lets you run queries in context of your content. You may choose to query either the draft items (draft branch), or the published items (master branch).</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>The left panel is used to display documentation generated from the GraphQL API</p>
-</li>
-<li>
-<p>The center panel allows you to edit your GraphQL query</p>
-</li>
-<li>
-<p>The right panel displays the result of the query execution</p>
-</li>
-<li>
-<p>Branch selector (Draft/Master) can be found in the top right corner</p>
-</li>
-<li>
-<p>Each query is executed in a specific context, which is determined by the project and the branch</p>
-</li>
-</ul>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/graphiql2-ide.png" alt="Query playground interface">
-</div>
-</div>
-<div class="sect2">
-<h3 id="query_example"><a class="link" href="#query_example">Query example</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Paste the query below inside the left panel.</p>
-<div class="paragraph">
-<p>This query can be read as: Retrieve the display name and type of the root items.</p>
-</div>
-</li>
-<li>
-<p>Click on the query play button above</p>
-</li>
-<li>
-<p>The service response is displayed in the center panel</p>
-</li>
-</ul>
+<p>On <code>media_Image</code> content, <code>imageUrl</code> provides the path for a requested size and crop. This query finds up to ten images and requests an 800 by 200 pixel crop for each:</p>
 </div>
 <div class="listingblock">
-<div class="title">getSite</div>
 <div class="content">
-<pre class="highlight"><code class="language-graphQL" data-lang="graphQL">{
-  guillotine{
- 		getChildren(key:"/") {
- 		displayName
- 		}
- 	}
-}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="subscription_example"><a class="link" href="#subscription_example">Subscription example</a></h3>
-<div class="paragraph">
-<p>Guillotine also enables you to use GraphQL subscription in order to listen to events from the server.</p>
-</div>
-<div class="paragraph">
-<p>The subscriptions are implemented using Websockets, providing instant and high performance streaming of events over HTTP.</p>
-</div>
-<div class="listingblock">
-<div class="title">Listen to server events for the specific site</div>
-<div class="content">
-<pre class="highlight"><code class="language-graphQL" data-lang="graphQL">subscription {
-  event {
-    type
-    dataAsJson
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine(project: "myproject", branch: "master") {
+    queryDsl(
+      query: {
+        term: {
+          field: "type"
+          value: { string: "media:image" }
+        }
+      }
+      first: 10
+    ) {
+      displayName
+      ... on media_Image {
+        imageUrl(scale: "block(800,200)") {
+          path
+          queryString
+        }
+      }
+    }
   }
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Just like for regular queries, Guillotine listens to events only for the contextual repository and branch</p>
+<p>Prefix the returned <code>path</code> with your media base URL and append <code>queryString</code>. With the shared <a href="../setup.ahtml#api-base-url">API base URL</a> <code><a href="https://example.com/api" class="bare">https://example.com/api</a></code>, the resulting image address can be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">https://example.com/api/media:image/myproject/contentid:fingerprint/block-800-200/photo.jpg</code></pre>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="curl"><a class="link" href="#curl">cURL</a></h2>
+<h2 id="media_and_attachments"><a class="link" href="#media_and_attachments">Media and attachments</a></h2>
 <div class="sectionbody">
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-cURL must be installed on your device for the examples below to work
-</td>
-</tr>
-</table>
-</div>
-<div class="sect2">
-<h3 id="query_example_2"><a class="link" href="#query_example_2">Query example</a></h3>
-<div class="listingblock">
-<div class="title">Create the file req.json</div>
-<div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{
-  "query": "query getPlaylist {\n guillotine {\n query(query: \"type='com.enonic.app.hmdb:playlist'\") {\n ... on com_enonic_app_hmdb_Playlist {\n  _id\n }\n }\n }\n}",
-  "variables": null,
-  "operationName": "getPlaylist"
-}</code></pre>
-</div>
+<div class="paragraph">
+<p>Media content exposes <code>mediaUrl</code> for its binary attachment. Other attachments are available through the content item&#8217;s <code>attachments</code> field. Select <code>path</code> and <code>queryString</code> on <code>attachmentUrl</code> to build an attachment link:</p>
 </div>
 <div class="listingblock">
-<div class="title">POST request using cURL</div>
 <div class="content">
-<pre class="highlight"><code class="language-curl" data-lang="curl">curl -X POST -H "Content-Type: application/json" -d @req.json http://localhost:8080/site/hmdb/draft | json_pp</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Response</div>
-<div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{
-   "data" : {
-      "guillotine" : {
-         "query" : [
-            {
-               "_id" : "531e40c9-6e5b-4259-b9e0-0d3144b2382a"
-            }
-         ]
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine(project: "myproject", branch: "master") {
+    get(key: "/my-site/downloads/report") {
+      attachments {
+        name
+        attachmentUrl(download: true) {
+          path
+          queryString
+        }
       }
-   }
+      ... on media_Document {
+        mediaUrl(download: true) {
+          path
+          queryString
+        }
+      }
+    }
+  }
 }</code></pre>
 </div>
 </div>
-</div>
-<div class="sect2">
-<h3 id="subscription_example_2"><a class="link" href="#subscription_example_2">Subscription example</a></h3>
-<div class="listingblock">
-<div class="title">Handshake request</div>
-<div class="content">
-<pre class="highlight"><code class="language-curl" data-lang="curl">curl -X GET -i -N -H "Connection: Upgrade" \
-                  -H "Upgrade: websocket" \
-                  -H "Host: localhost:8080" \
-                  -H "Origin: http://localhost:8080" \
-                  -H "Sec-WebSocket-Protocol: graphql-transport-ws" \
-                  -H "Sec-WebSocket-Key: c29tZWtleQ==" \
-                  -H "Sec-WebSocket-Version: 13" \
-                  --http1.1 \
-                 http://localhost:8080/site/hmdb/draft</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Handshake response</div>
-<div class="content">
-<pre class="highlight"><code class="language-curl" data-lang="curl">HTTP/1.1 101 Switching Protocols
-Date: Fri, 24 Jun 2022 15:09:08 GMT
-X-Frame-Options: DENY
-X-XSS-Protection: 1; mode=block
-X-Content-Type-Options: nosniff
-Sec-WebSocket-Protocol: graphql-transport-ws
-Connection: Upgrade
-Sec-WebSocket-Accept: eXT5yQBZ/TOhFBUi6nLY8cfzs1s=
-Upgrade: WebSocket</code></pre>
-</div>
-</div>
 <div class="paragraph">
-<p>To send a message to the WS server in the terminal let&#8217;s use <a href="https://www.npmjs.com/package/wscat">wscat</a>, if WebSocket Cat is not installed, please use the following command:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>npm install -g wscat</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Then run the following command in the terminal:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-curl" data-lang="curl">&gt; wscat -c ws://localhost:8080/site/hmdb/draft
-Connected (press CTRL+C to quit)
-&gt; {"id":"myid","type":"subscribe","payload":{"query":"subscription {\n  event {\n    type\n    dataAsJson\n  }\n}","variables":null}}
-&lt; {"type":"next","id":"myid","payload":{"data":{"event":{"type":"node.updated","dataAsJson":{"nodes":{"0":{"id":"b028f04b-b020-4ef1-92eb-d4e657359dae","path":"/content/hmdb/dir","branch":"draft","repo":"com.enonic.cms.hmdb"}}}}}}}
-&lt; {"type":"next","id":"myid","payload":{"data":{"event":{"type":"node.renamed","dataAsJson":{"nodes":{"0":{"id":"b028f04b-b020-4ef1-92eb-d4e657359dae","path":"/content/hmdb/dir-renamed","branch":"draft","repo":"com.enonic.cms.hmdb","newPath":"/content/hmdb/dir-renamed"}}}}}}}</code></pre>
-</div>
-</div>
+<p>This example assumes a document media item. The <code>download</code> argument adds the download instruction to <code>queryString</code>, so retain it when building the link. See <a href="../api.ahtml#attachmenturl">AttachmentUrl</a> for the returned fields.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="javascript"><a class="link" href="#javascript">JavaScript</a></h2>
+<h2 id="page_urls"><a class="link" href="#page_urls">Page URLs</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section describes how to access the Guillotine API directly from a JavaScript client.</p>
+<p>Select <code>pageUrl.path</code> and <code>pageUrl.queryString</code> to build a content item&#8217;s page link. Use <code>siteKey</code> to request paths relative to a specific site:</p>
 </div>
-<div class="sect2">
-<h3 id="example_fetch_content_by_path"><a class="link" href="#example_fetch_content_by_path">Example: Fetch content by path</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+    get(key: "/my-site/posts/first-post") {
+      pageUrl {
+        path
+        queryString
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
 <div class="paragraph">
-<p>To use your GraphQL service, your client will send all its requests to the same service. The endpoint is expecting to receive a POST request with the following body:</p>
+<p>The returned <code>path</code> is <code>/posts/first-post</code>. Adapt it to your frontend&#8217;s routes: a frontend serving the site at <code>/news</code> could use <code>/news/posts/first-post</code>, while one on a dedicated host could use <code><a href="https://www.example.com/posts/first-post" class="bare">https://www.example.com/posts/first-post</a></code>. Append <code>queryString</code> to preserve any parameters.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="base-urls"><a class="link" href="#base-urls">Base URLs</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="page_links"><a class="link" href="#page_links">Page links</a></h3>
+<div class="paragraph">
+<p>Your frontend controls the public host and routing for page links. Use <code>siteKey</code> to select the site or project that <code>pageUrl.path</code> is relative to, then map that path to your deployment.</p>
+</div>
+<div class="paragraph">
+<p>For nested sites, the selected level determines the path. Given a post at <code>/my-site/subsite/posts/first-post</code>:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">siteKey</th>
+<th class="tableblock halign-left valign-top">Page URL path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/my-site</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/subsite/posts/first-post</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/my-site/subsite</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/posts/first-post</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/my-site/subsite/posts/first-post</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>siteKey: "/"</code> selects the project itself. Selecting the parent site retains the nested site&#8217;s path segment; selecting the nested site removes it.</p>
+</div>
+<div class="paragraph">
+<p>Without <code>siteKey</code>, the context depends on the endpoint:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>A mandatory "query" String</p>
+<p>At the Web endpoint under <code>/api</code>, each content item&#8217;s nearest site determines the relative page path.</p>
 </li>
 <li>
-<p>An optional "variables" Object</p>
-</li>
-<li>
-<p>An optional "operationName" String</p>
+<p>At a site endpoint, the matched virtual host mapping determines which level of the content tree the address represents. Without a mapping narrowing that context, it is the project.</p>
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>When following references across sites, choose the appropriate site context and frontend route for each target.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="media_links"><a class="link" href="#media_links">Media links</a></h3>
+<div class="paragraph">
+<p>XP serves images and attachments at <code>/api/media:image/&#8230;&#8203;</code> and <code>/api/media:attachment/&#8230;&#8203;</code> by default. When your deployment exposes the shared <a href="../setup.ahtml#api-base-url">API base URL</a>, it provides routes for both Guillotine and these media APIs. For example, an API base of <code><a href="https://example.com/api" class="bare">https://example.com/api</a></code> serves GraphQL at <code>/com.enonic.app.guillotine:graphql</code> and images at <code>/media:image/&#8230;&#8203;</code> beneath that base.</p>
+</div>
+<div class="paragraph">
+<p>Configure a media base URL in your client and prefix it to the returned media paths. Use the shared API base, or a separate CDN base such as <code><a href="https://cdn.example.com/api" class="bare">https://cdn.example.com/api</a></code>. The CDN must route those paths to the corresponding XP media endpoints. If images and attachments use different hosts, configure a base for each.</p>
+</div>
+<div class="paragraph">
+<p>XP also embeds links in <a href="rich-text.ahtml">processed rich text</a>. Those links follow XP&#8217;s site and media configuration; see <a href="../configuration.ahtml#media-base-url">Media base URL</a>. Client-side URL assembly uses the base you supply.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="url-parts"><a class="link" href="#url-parts">Building URLs from parts</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code> and <code>attachmentUrl</code> fields expose <code>path</code> and <code>queryString</code>. These components are already URL-escaped, so do not encode them again. For a deployment that preserves the returned paths, assemble links as <code>baseUrl + path + queryString</code>.</p>
+</div>
+<div class="paragraph">
+<p>Choose a base without a trailing slash. A media path already includes <code>/media:image</code> or <code>/media:attachment</code>, so use the API or CDN base that serves those paths. For pages, supply your frontend&#8217;s host or route prefix, or adapt the path to your routing scheme. The query string includes its leading <code>?</code> when non-empty.</p>
+</div>
 <div class="listingblock">
-<div class="title">Example: Fetch data from a javascript client</div>
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">const query = `query($path:ID!){
-    guillotine {
-        get(key:$path) {
-            displayName
-            type
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">const mediaBaseUrl = 'https://example.com/api';
+const imageSrc = mediaBaseUrl + image.imageUrl.path + image.imageUrl.queryString;
+
+// This frontend serves the selected site's pages under /news.
+const pageBasePath = '/news';
+const pageHref = pageBasePath + content.pageUrl.path + content.pageUrl.queryString;</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine(project: "myproject", branch: "master") {
+    get(key: "/my-site/images/photo") {
+      ... on media_Image {
+        imageUrl(scale: "block(800,200)") {
+          path
+          queryString
+          fingerprint
         }
+      }
     }
-}`;
-
-const variables = {
-    'path': '/mysite/mycontentpath'
-};
-
-fetch('{{graphqlServiceUrl}}', {
-    method: 'POST',
-    body: JSON.stringify({
-        query: query,
-        variables: variables
-    }),
-    credentials: 'same-origin'
-})
-    .then(response =&gt; response.json())
-    .then(console.log);</code></pre>
+  }
+}</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>For example, <code>path</code> can be <code>/media:image/myproject/contentid:fingerprint/block-800-200/photo.jpg</code>. On a non-master branch, the context segment includes the branch, such as <code>myproject:draft</code>.</p>
+</div>
+<div class="paragraph">
+<p>Use the returned media fingerprint; it cannot be calculated by the client. See <a href="../api.ahtml#pageurl">PageUrl</a>, <a href="../api.ahtml#imageurl">ImageUrl</a> and <a href="../api.ahtml#attachmenturl">AttachmentUrl</a> for the available components.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-11 17:42:45 UTC
+Last updated 2026-09-11 17:42:18 UTC
 </div>
 </div>
 </body>

@@ -441,31 +441,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#introduction">Introduction</a></li>
-<li><a href="#content_queries">Content queries</a></li>
-<li><a href="#follow_references">Follow references</a></li>
-<li><a href="#accessing_images">Accessing images</a>
-<ul class="sectlevel2">
-<li><a href="#building_urls_from_parts">Building URLs from parts</a></li>
-</ul>
-</li>
-<li><a href="#rich_text">Rich text</a>
-<ul class="sectlevel2">
-<li><a href="#links">Links</a></li>
-<li><a href="#images">Images</a></li>
-<li><a href="#macros">Macros</a></li>
-</ul>
-</li>
-<li><a href="#mixins">Mixins</a></li>
-<li><a href="#site_context">Site context</a>
-<ul class="sectlevel2">
-<li><a href="#set_sitekey">Set siteKey</a></li>
-<li><a href="#getsite">getSite</a></li>
-<li><a href="#path_placeholder">Path placeholder</a></li>
-<li><a href="#site_relative_paths">Site relative paths</a></li>
-<li><a href="#sitekey">siteKey</a></li>
-</ul>
-</li>
+<li><a href="#endpoint">Endpoint</a></li>
+<li><a href="#content-context">Project and branch</a></li>
+<li><a href="#request-format">Request format</a></li>
+<li><a href="#third-party-clients">Third-party GraphQL clients</a></li>
+<li><a href="#curl">cURL</a></li>
+<li><a href="#javascript">JavaScript</a></li>
+<li><a href="#response">Response</a></li>
+<li><a href="#query_examples">Query examples</a></li>
 </ul>
 </div>
 </div>
@@ -473,106 +456,86 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Example queries when using Guillotine</p>
+<p>Guillotine exposes content through a GraphQL schema generated from the content types and other schemas in your Enonic installation. Common fields such as <code>displayName</code> are available across content types; fields from your content model are exposed through generated types.</p>
 </div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-Visit our <a href="https://developer.enonic.com/learn/developer-101">Developer 101 tutorial</a> for detailed introduction to Enonic and use of the Guillotine API
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>Use the <a href="playground.ahtml">Query Playground in Content Studio</a> or a <a href="#third-party-clients">third-party GraphQL client</a> to inspect the schema and try queries against a project and branch. The <a href="api.ahtml">API reference</a> describes the built-in fields and types.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
+<h2 id="endpoint"><a class="link" href="#endpoint">Endpoint</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The Guillotine API and GraphQL schema dynamically adapt to your content model, the examples below are based on a fictional content model and content structure.</p>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-Here are details on how to invoke the API from <a href="usage/javascript.ahtml">JavaScript</a> or command line via <a href="usage/curl.ahtml">cURL</a>
-</td>
-</tr>
-</table>
+<p>For a deployment exposing XP&#8217;s shared <a href="setup.ahtml#api-base-url">API base URL</a>, append <code>/com.enonic.app.guillotine:graphql</code> to that base to form the GraphQL endpoint.</p>
 </div>
 <div class="paragraph">
-<p>Below is a selection of sample GraphQL queries:</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="content_queries"><a class="link" href="#content_queries">Content queries</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Enonic offers advanced search and aggregation queries using <a href="https://developer.enonic.com/docs/code/stable/storage/querying">Query DSL</a> (Domain Specific Language). Ranked search, aggregations and highlighting are just some of the features.</p>
+<p>With a local Enonic sandbox running on the default port <code>8080</code>, the API base URL is <code><a href="http://localhost:8080/api" class="bare">http://localhost:8080/api</a></code>. With Guillotine installed, its endpoint is:</p>
 </div>
 <div class="listingblock">
-<div class="title"><strong>Query DSL example</strong>: Simple query to fetch blog posts from the app "com.enonic.app.myapp". For each post, return its display name and the display name of the referenced author</div>
 <div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine {
-    queryDsl(query: {
-          term: {
-            field: "type",
-            value: {
-              string: "com.enonic.app.myapp:Post"
-            }
-          }
-        }){
-      ... on com_enonic_app_myapp_Post {
-        displayName
-      }
-    }
-  }
-}</code></pre>
+<pre class="highlight"><code class="language-text" data-lang="text">http://localhost:8080/api/com.enonic.app.guillotine:graphql</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Production URLs depend on your deployment. See <a href="setup.ahtml#endpoints">Setup</a> for shared API bases, custom routes and site mounting.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="follow_references"><a class="link" href="#follow_references">Follow references</a></h2>
+<h2 id="content-context"><a class="link" href="#content-context">Project and branch</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>References between content items are available via regular GraphQL fields, allowing you to traverse and extract details from referenced content.</p>
+<p>At the Web endpoint, specify <code>project</code> and <code>branch</code> on the <code>guillotine</code> field, as shown in the query below. Use <code>master</code> for published content or <code>draft</code> for work in progress. Content permissions apply to the caller; querying <code>draft</code> normally requires authentication.</p>
 </div>
 <div class="paragraph">
-<p>By default, each item has the following common reference fields:</p>
+<p>When Guillotine is mounted on a site, the endpoint supplies the project and branch, and query arguments cannot override them. See <a href="usage/site-context.ahtml">Site context</a> for selecting a site within a project.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>parent</code>: the parent content item</p>
-</li>
-<li>
-<p><code>children</code>: the child item(s) if any</p>
-</li>
-</ul>
 </div>
+</div>
+<div class="sect1">
+<h2 id="request-format"><a class="link" href="#request-format">Request format</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>Schemas with ContentSelector, MediaSelector or ImageSelector will generate references to the target item(s).</p>
+<p>Send an HTTP POST request with <code>Content-Type: application/json</code> and a JSON body containing:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 66.6668%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Property</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">query</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The GraphQL query to execute.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">variables</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Object</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional. Values for variables declared by the query.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The examples below use this local sandbox API base and retrieve up to ten root content items. For other environments, set the API base URL to the one exposed by your deployment. If Guillotine has an individual custom route, use that full endpoint URL. The queries use only built-in fields, so no custom content type is needed. Replace <code>myproject</code> with your project name. The project must contain published content readable by the caller to return a non-empty list.</p>
 </div>
 <div class="listingblock">
-<div class="title"><strong>Query example</strong>: Retrieve the display name of a specific content and the display name of its direct children</div>
 <div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine {
-    get(key: "/path/to/item") {
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">query RootItems($project: String!, $branch: String!) {
+  guillotine(project: $project, branch: $branch) {
+    getChildren(key: "/", first: 10) {
+      _id
       displayName
-      children {
-        displayName
-      }
+      type
     }
   }
 }</code></pre>
@@ -581,652 +544,193 @@ Here are details on how to invoke the API from <a href="usage/javascript.ahtml">
 </div>
 </div>
 <div class="sect1">
-<h2 id="accessing_images"><a class="link" href="#accessing_images">Accessing images</a></h2>
+<h2 id="third-party-clients"><a class="link" href="#third-party-clients">Third-party GraphQL clients</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Enonic XP can serve custom scaled images at runtime. Guillotine uses this functionality by using the <code>imageUrl</code> field which will generate a URL for the desired image size and crop.</p>
+<p>You can connect <a href="https://altairgraphql.dev/docs/">Altair</a> or another GraphQL client to Guillotine. Guillotine 9 serves the API without a query editor at its endpoint; the <a href="playground.ahtml">Query Playground</a> is available in Content Studio.</p>
+</div>
+<div class="paragraph">
+<p>To try the query above in Altair:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Enter the full GraphQL endpoint URL: <code>&lt;apiBaseUrl&gt;/com.enonic.app.guillotine:graphql</code>. For a local sandbox running on port <code>8080</code> with Guillotine installed, use <code><a href="http://localhost:8080/api/com.enonic.app.guillotine:graphql" class="bare">http://localhost:8080/api/com.enonic.app.guillotine:graphql</a></code>.</p>
+</li>
+<li>
+<p>Use HTTP POST and <code>Content-Type: application/json</code>.</p>
+</li>
+<li>
+<p>Paste the <code>RootItems</code> query above into the query editor.</p>
+</li>
+<li>
+<p>Open the <a href="https://altairgraphql.dev/docs/features/variables">Variables</a> section and enter the JSON below, replacing <code>myproject</code> with your project name.</p>
+</li>
+<li>
+<p>Configure any authentication required by your deployment, then send the request.</p>
+</li>
+</ol>
 </div>
 <div class="listingblock">
-<div class="title"><strong>Example: Scaled Image URL</strong> - Retrieve the image contents and generate absolute URLs to these images cropped to 800x200px</div>
 <div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine {
-    queryDsl(query: {
-          term: {
-            field: "type",
-            value: {
-              string: "media:image"
-            }
-          }
-        }){
-        displayName
-        ... on media_Image {
-          imageUrl(scale:"block(800,200)") {
-            url
-          }
-        }
-    }
+<pre class="highlight"><code class="language-json" data-lang="json">{
+  "project": "myproject",
+  "branch": "master"
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The client sends the query and variables together in the <a href="#request-format">request format</a> described above. Use <code>draft</code> to query work in progress; content permissions apply, and draft access normally requires authentication. At a site-mounted endpoint, the endpoint determines project and branch.</p>
+</div>
+<div class="paragraph">
+<p>Use Altair&#8217;s <a href="https://altairgraphql.dev/docs/features/auth">authorization settings</a> or <a href="https://altairgraphql.dev/docs/features/headers">request headers</a> for the authentication mechanism supported by your deployment. A separate client needs its own authentication configuration to access protected content.</p>
+</div>
+<div class="paragraph">
+<p>For a client running in a web page on another origin, configure <a href="configuration.ahtml#config_file">CORS</a> to allow that origin. If authentication uses cookies across origins, enable credentials in both the client and the CORS configuration.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="curl"><a class="link" href="#curl">cURL</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Save the query and variables as <code>request.json</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+  "query": "query RootItems($project: String!, $branch: String!) { guillotine(project: $project, branch: $branch) { getChildren(key: \"/\", first: 10) { _id displayName type } } }",
+  "variables": {
+    "project": "myproject",
+    "branch": "master"
   }
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Media URLs are generated as the base URL followed directly by the XP media API path, for example <code><a href="https://media.example.com/media:image/myproject/contentid:fingerprint/block-800-200/photo.jpg" class="bare">https://media.example.com/media:image/myproject/contentid:fingerprint/block-800-200/photo.jpg</a></code>.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-With <code>siteKey</code>, the actual base of media URLs is resolved by XP from the site&#8217;s configured Base URL or the XP instance configuration.
-</td>
-</tr>
-</table>
-</div>
-<div class="sect2">
-<h3 id="building_urls_from_parts"><a class="link" href="#building_urls_from_parts">Building URLs from parts</a></h3>
-<div class="paragraph">
-<p>To build URLs on any origin yourself, select the URL components exposed by the <code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code> and <code>attachmentUrl</code> fields alongside the ready-made <code>url</code> subfield. They are properly URL-escaped segments — including the media fingerprint, which cannot be calculated client-side — so the full URL is a simple concatenation: <code>url = base + path + queryString</code>.</p>
+<p>Send the request:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine {
-    get(key: "contentid") {
-      pageUrl {
-        path         # "/posts/first-post" — escaped, relative to the site it belongs to
-        queryString
-      }
-      ... on media_Image {
-        imageUrl(scale: "block(800,200)") {
-          path        # "/media:image/myproject/contentid:fingerprint/block-800-200/photo.jpg"
-          queryString
-          fingerprint # the media fingerprint
-        }
-      }
-    }
-  }
-}</code></pre>
-</div>
+<pre class="highlight"><code class="language-shell" data-lang="shell">API_BASE_URL='http://localhost:8080/api'
+curl "${API_BASE_URL}/com.enonic.app.guillotine:graphql" \
+  -H 'Content-Type: application/json' \
+  --data-binary @request.json</code></pre>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="rich_text"><a class="link" href="#rich_text">Rich text</a></h2>
+<h2 id="javascript"><a class="link" href="#javascript">JavaScript</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Rich text fields provide configuration parameters that give you control over output from links, images and much more.</p>
-</div>
-<div class="listingblock">
-<div class="title"><strong>Example: Process HTML</strong> - Retrieve the blog posts. For each post, return its author display name, tags and processed content.</div>
-<div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine {
-    queryDsl(query: {
-          term: {
-            field: "type",
-            value: {
-              string: "com.enonic.app.myapp:post"
-            }
-          }
-        }){
-      ... on com_enonic_app_myapp_Post {
-        data {
-          author {
-            displayName
-          }
-          tags
-          post {
-             processedHtml
-          }
-        }
-      }
-    }
-  }
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Rich text fields will typically include links, images and macros in the <code>processedHtml</code> field of the <a href="api.ahtml#richtext">RichText</a> type. Below are further details how to handle this:</p>
-</div>
-<div class="sect2">
-<h3 id="links"><a class="link" href="#links">Links</a></h3>
-<div class="paragraph">
-<p>By default, all internal links to <code>media</code> or <code>content</code> will be replaced by a server (root-relative) link in the context of your endpoint.</p>
-</div>
-<div class="paragraph">
-<p>To generate content (page) links against a different domain or base URL, use the <code>siteKey</code> argument with a site (or project) that has a configured Base URL. Content links in <code>processedHtml</code> and the <code>url</code> value of the <code>pageUrl</code> field then belong to that site: they start with its Base URL, followed by the path of the content relative to it (for example, <code><a href="https://www.example.com/posts/first-post" class="bare">https://www.example.com/posts/first-post</a></code>).</p>
-</div>
-<div class="paragraph">
-<p>Which site a URL belongs to is what <code>siteKey</code> decides, so it also decides the <code>path</code> value of the <code>pageUrl</code> field. A site nested inside another site is a case worth noting: <code>siteKey: "/mysite"</code> keeps the intermediate site in the path (<code>/subsite/posts/first-post</code>), while <code>siteKey: "/mysite/subsite"</code> makes the path relative to the nested site (<code>/posts/first-post</code>). Since the configuration of a site is never inherited from a parent site, the site given as <code>siteKey</code> also decides on its own which Base URL applies - a Base URL configured on the nested site has no effect on URLs belonging to its parent. A project contains sites and a site can contain further sites, so <code>siteKey</code> picks a level of that containment - <code>"/"</code> names the project itself. When the named level has no Base URL configured, URLs fall back to the address the site engine serves it at, <code>/site/&lt;project&gt;/&lt;branch&gt;/&lt;site path&gt;</code>.</p>
-</div>
-<div class="paragraph">
-<p>Without <code>siteKey</code> the level is decided for you. A query served from a site endpoint - Guillotine mounted on a site - belongs to whatever the matched virtual host mapping points at, since that mapping states which part of the content tree the address stands for; with no mapping narrowing it, that is the project. A query served from <code>/api</code> has no such request to follow, so each content belongs to its own nearest site.</p>
+<p>The same request can be sent with <code>fetch()</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine(siteKey: "/mysite") {
-    get(key: "contentid") {
-      pageUrl {
-        url
-      }
-      ... on com_enonic_app_myapp_Post {
-        data {
-          text {
-            processedHtml
-          }
-        }
-      }
-    }
-  }
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>For each <code>a</code> tag a <code>data-link-ref</code> attribute with referenced content Id will be added. Additional content related to the <code>links</code> field is available for custom processing by your client.</p>
-</div>
-<div class="paragraph">
-<p>For instance, the processed value of a link looks like this:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-html" data-lang="html">&lt;p&gt;
-    &lt;a title="Tooltip"
-        href="/admin/site/preview/hmdb/draft/hmdb/persons/lea-seydoux"
-        data-link-ref="e72f48b6-a972-4133-a300-a3ab5d132800"&gt;Link 1&lt;/a&gt;
-&lt;/p&gt;</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The GraphQL query below will process links inside the field:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">query {
-  guillotine {
-    get(key: "contentid") {
-      ... on com_app_example_ContentType {
-        data {
-          htmlAreaField {
-            links {
-              ref          <i class="conum" data-value="1"></i><b>(1)</b>
-              uri          <i class="conum" data-value="2"></i><b>(2)</b>
-              media {      <i class="conum" data-value="3"></i><b>(3)</b>
-                content {
-                 _id
-                }
-                intent     <i class="conum" data-value="4"></i><b>(4)</b>
-              }
-              content {    <i class="conum" data-value="5"></i><b>(5)</b>
-                _id
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}</code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Reference to link in the <code>processedHtml</code> field</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Link URI</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Related media content. This field has <code>null</code> value for non-media content</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>Link intent. Available values <code>download</code> and <code>inline</code></td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Related content. This field has <code>null</code> value for media content</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="images"><a class="link" href="#images">Images</a></h3>
-<div class="paragraph">
-<p>Guillotine by default provides image processing in the <code>processedHtml</code> field of the RichText GraphQL type. All internal links to resources will be replaced by a server (root-relative) link and for each <code>img</code> tag a <code>data-image-ref</code> attribute with referenced content Id will be added.
-Using that reference you will be able to find image details in the <code>images</code> field and implement custom image processing, if needed.</p>
-</div>
-<div class="paragraph">
-<p>To generate media URLs (images and attachments) in <code>processedHtml</code> against a different domain or base URL, configure the instance-wide <code>media.defaultBaseUrl</code> option in <code>com.enonic.xp.portal.cfg</code>, or use the <code>siteKey</code> argument with a site that has a configured Base URL.</p>
-</div>
-<div class="paragraph">
-<p>For instance, the processed value of an image looks like this:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-html" data-lang="html">&lt;figure class="editor-align-justify"&gt;
-    &lt;img alt="Alt text"
-         src="/site/repo/branch/appName/_/image/contentID/width-768/imageName.jpg"
-         data-image-ref="4f2439ff-ecef-4470-a4b4-d8929bce6ee2" /&gt;
-    &lt;figcaption&gt;Caption text&lt;/figcaption&gt;
-&lt;/figure&gt;</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The query below will process images inside the field:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">query {
-  guillotine {
-    get(key: "contentid") {
-      ... on com_app_example_ContentType {
-        data {
-          richTextField {
-            images {
-              ref                           <i class="conum" data-value="1"></i><b>(1)</b>
-              image {                       <i class="conum" data-value="2"></i><b>(2)</b>
-                ... imageFragment
-              }
-              style {                       <i class="conum" data-value="3"></i><b>(3)</b>
-                name
-                aspectRatio
-                filter
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">const apiBaseUrl = 'http://localhost:8080/api';
 
-fragment imageFragment on Content {
-  _id
-  type
-  ... on media_Image {
-    data {
-      caption
-    }
-  }
-  ... on media_Vector {
-    data {
-      caption
-    }
-  }
-}</code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Reference to an image in the <code>processedHtml</code> field</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Image as <a href="api.ahtml#content">Content</a> type</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Image style as <a href="api.ahtml#imagestyle">ImageStyle</a> type</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>Using the <code>processHtml</code> argument which has <a href="api.ahtml#processhtmlinput">ProcessHtmlInput</a> type for a form item of type <code>HtmlArea</code> or for
-<code>TextComponent</code> field you can specify <code>imageWidths</code> to generate relevant links for specific widths of an image.
-In this case <code>srcset</code> attribute will be added to <code>img</code> tags.</p>
-</div>
-<div class="paragraph">
-<p>For instance, when using the following fragment of query:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">htmlAreaField(processHtml: { imageWidths: [600, 992] }){
-    processedHtml
-    images {
-      ref
-    }
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The result will look as follows:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-html" data-lang="html">&lt;figure class="editor-align-justify"&gt;
-    &lt;img alt="Alt text"
-         src="/site/repo/branch/appName/_/image/contentID/width-768/imageName.jpg"
-         data-image-ref="4f2439ff-ecef-4470-a4b4-d8929bce6ee2"
-         srcset="/site/repo/branch/appName/_/image/contentID/width-600/imageName.jpg 600w,
-                 /site/repo/branch/appName/_/image/contentID/width-992/imageName.jpg 992w"/&gt;
-    &lt;figcaption&gt;Caption text&lt;/figcaption&gt;
-&lt;/figure&gt;</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="macros"><a class="link" href="#macros">Macros</a></h3>
-<div class="paragraph">
-<p>Each macro will be translated to an <code>editor-macro</code> tag with <code>data-macro-ref</code> and <code>data-macro-name</code> attributes in the <code>processedHtml</code> field value. Using these references you will be able to find details of a specific macro in the <code>macrosAsJson</code> or <code>macros</code> fields and implement custom macro processing if needed.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Guillotine processes macros which have a descriptor and built-in macros called <code>disable</code> and <code>embed</code>, otherwise processing will be skipped. <a href="https://developer.enonic.com/docs/cms/stable/richtext/macros">More details about macros</a>.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>For instance, we have an input form item called <code>description</code> of <code>HtmlArea</code> type which contains the <code>embed</code> macro as shown below:</p>
-</div>
-<div class="paragraph">
-<p><span class="image"><img src="images/embed-macro.png" alt="Embed Macro"></span></p>
-</div>
-<div class="paragraph">
-<p>The query below will fetch data for the <code>description</code> field:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">query {
-  guillotine {
-    get(key: "contentid") {
-      ... on com_app_example_ContentType {
-        data {
-          description {
-            raw            <i class="conum" data-value="1"></i><b>(1)</b>
-            processedHtml  <i class="conum" data-value="2"></i><b>(2)</b>
-            macrosAsJson   <i class="conum" data-value="3"></i><b>(3)</b>
-            macros {       <i class="conum" data-value="4"></i><b>(4)</b>
-              ref
-              name
-              descriptor
-              config {
-                embed {
-                  body
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}</code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Non-processed value of the <code>description</code> field</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Processed value of the <code>description</code> field</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Array of processed macros in JSON format. The order of macros will be the same as in the <code>raw</code> and <code>processedHtml</code> fields.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td><a href="api.ahtml#macro">Macro</a> allows to specify necessary fields. That field is an alternative for <code>macroAsJson</code> field</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>Results of the query:</p>
-</div>
-<div class="paragraph">
-<p><span class="image"><img src="images/embed-response-example.png" alt="Response for embed macro"></span></p>
-</div>
-<div class="paragraph">
-<p>It is common to define a <a href="https://developer.enonic.com/docs/cms/stable/richtext/macros#descriptor">schema for your macro</a>. This is located in the <code>/site/macros/</code> directory. For instance, for a macro with name <code>testmacro</code> the schema must be placed at <code>/site/macros/testmacro/testmacro.xml</code></p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;macro&gt;
-  &lt;display-name&gt;Current user&lt;/display-name&gt;
-  &lt;description&gt;Shows currently logged user&lt;/description&gt;
-  &lt;form&gt;
-    &lt;input name="defaulttext" type="TextLine"&gt;
-      &lt;label&gt;Text to show if no user logged in&lt;/label&gt;
-    &lt;/input&gt;
-  &lt;/form&gt;
-&lt;/macro&gt;</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><span class="image"><img src="images/custom-macro.png" alt="Custom Macro"></span></p>
-</div>
-<div class="paragraph">
-<p>Executing the query below will give your value of the <code>defaultText</code> input, as defined in the above schema.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">query {
-  guillotine {
-    get(key: "contentid") {
-      ... on com_app_example_ContentType {
-        data {
-          description {
-            macros {
-              ref
-              name
-              descriptor
-              config {
-                testmacro {
-                  defaultText
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="mixins"><a class="link" href="#mixins">Mixins</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Enonic XP supports dynamically adding fields from other schemas/applications to an existing content type - so-called <a href="https://developer.enonic.com/docs/cms/stable/content/mixins">Mixins</a>.</p>
-</div>
-<div class="paragraph">
-<p>In the query below, we access the SoMe (SocialMedia) mixin fields that have been added to the Person content type.</p>
-</div>
-<div class="listingblock">
-<div class="title">Example: Access xData fields</div>
-<div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine {
-    query(key: "contentid") {
-      displayName
-      x {
-      	com_example_myproject {
-          SoMe {
-          	imdb
-          }
-        }
-      }
-    }
-  }
-}</code></pre>
-</div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Notice that xData fields are grouped by application name, this ensures there will never be a conflict between field names, even when schemas come from different applications.
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="site_context"><a class="link" href="#site_context">Site context</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>When building websites, you will create root content item of type <code>site</code>. It is practical not having to know the exact location of the site within the project structure.</p>
-</div>
-<div class="paragraph">
-<p>By providing the <code>siteKey</code> argument on the <code>guillotine</code> field, you get access to some useful features:</p>
-</div>
-<div class="sect2">
-<h3 id="set_sitekey"><a class="link" href="#set_sitekey">Set siteKey</a></h3>
-<div class="paragraph">
-<p>Provide the <code>siteKey</code> argument with the site ID or path on the <code>guillotine</code> field:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine(siteKey: "IdOrPathToYourSite") {
-    ...
-  }
-}</code></pre>
-</div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<code>siteKey</code> is either the ID of the site content item, or the path to the site within your project.
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="getsite"><a class="link" href="#getsite">getSite</a></h3>
-<div class="paragraph">
-<p>With the site context set, you may run queries to access the site content using getSite field</p>
-</div>
-<div class="listingblock">
-<div class="title">Example: Accessing the displayName of the site</div>
-<div class="content">
-<pre>{
-  guillotine {
-    getSite{
-        displayName
-    }
-  }
-}</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="path_placeholder"><a class="link" href="#path_placeholder">Path placeholder</a></h3>
-<div class="paragraph">
-<p>Use the <code>${site}</code> placeholder when querying for paths within a site. This placeholder will be replaced with an actual path of the site upon query resolution.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<code>${site}</code> placeholder is supported for the fields <code>get</code>, <code>getChildren</code>, <code>getChildrenConnection</code>, <code>getPermissions</code> and <code>getSite</code> of the <a href="api.ahtml#headlessсms">HeadlessCms</a> type. The <code>getPermissions</code> and <code>getSite</code> fields do not have the <code>key</code> argument, and current content is determined by the <code>siteKey</code> argument of the <code>guillotine</code> field.
-</td>
-</tr>
-</table>
-</div>
-<div class="listingblock">
-<div class="title">Example: Accessing content within specific path of a site</div>
-<div class="content">
-<pre>{
-  guillotine {
-    getChildren(key: "${site}/persons"){
-      displayName
-      ... on com_example_myproject_Person {
-        data {
-          dateofbirth
-        }
-      }
-    }
-  }
-}</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="site_relative_paths"><a class="link" href="#site_relative_paths">Site relative paths</a></h3>
-<div class="paragraph">
-<p>Finally, you may retrieve site relative paths - which may be useful when generating site relative URLs for instance.</p>
-</div>
-<div class="listingblock">
-<div class="title">Example: Retrieve site relative item paths</div>
-<div class="content">
-<pre>{
-  guillotine {
-    getChildren(key: "${site}/persons"){
-      displayName
-      _path(type: siteRelative)
-    }
-  }
-}</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="sitekey"><a class="link" href="#sitekey">siteKey</a></h3>
-<div class="paragraph">
-<p>As shown above, you provide <code>siteKey</code> with the site ID or path in the query to set the site context.</p>
-</div>
-<div class="listingblock">
-<div class="title">Example: Access xData fields</div>
-<div class="content">
-<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine(siteKey: "/my-site") {
-    get(key: "${site}") {
-      displayName
-      children {
+const query = `
+  query RootItems($project: String!, $branch: String!) {
+    guillotine(project: $project, branch: $branch) {
+      getChildren(key: "/", first: 10) {
+        _id
         displayName
         type
       }
     }
   }
+`;
+
+async function getRootItems() {
+  const response = await fetch(
+    `${apiBaseUrl}/com.enonic.app.guillotine:graphql`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query,
+        variables: { project: 'myproject', branch: 'master' }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const result = await response.json();
+  if (result.errors?.length) {
+    throw new Error(result.errors.map(error =&gt; error.message).join('\n'));
+  }
+
+  return result.data.guillotine.getChildren;
+}
+
+getRootItems().then(console.log).catch(console.error);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For browser requests from another origin, configure <a href="configuration.ahtml#config_file">CORS</a> to allow the frontend origin. If your deployment uses cookie authentication across origins, the request also needs <code>credentials: 'include'</code> and the corresponding CORS credentials configuration.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="response"><a class="link" href="#response">Response</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Both requests return the same JSON structure. The items depend on your project&#8217;s content and permissions:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+  "data": {
+    "guillotine": {
+      "getChildren": [
+        {
+          "_id": "531e40c9-6e5b-4259-b9e0-0d3144b2382a",
+          "displayName": "My site",
+          "type": "portal:site"
+        }
+      ]
+    }
+  }
 }</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>GraphQL errors appear in an <code>errors</code> array and can accompany partial <code>data</code>, even when the HTTP status is successful. Check both the HTTP response and the GraphQL result. The JavaScript example treats any GraphQL error as a failed request; a client that supports partial results can handle the returned data separately.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="query_examples"><a class="link" href="#query_examples">Query examples</a></h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="usage/content-queries.ahtml">Content queries</a> — retrieve items by ID or path, search by type, and paginate results.</p>
+</li>
+<li>
+<p><a href="usage/references-and-mixins.ahtml">References and mixins</a> — traverse related content and access fields contributed by other schemas.</p>
+</li>
+<li>
+<p><a href="usage/images-and-urls.ahtml">Images and URLs</a> — generate image, attachment and page URLs, or build URLs from their parts.</p>
+</li>
+<li>
+<p><a href="usage/rich-text.ahtml">Rich text</a> — work with processed HTML, links, images and macros.</p>
+</li>
+<li>
+<p><a href="usage/site-context.ahtml">Site context</a> — select a site, use path placeholders and retrieve site-relative paths.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-11 14:57:15 UTC
+Last updated 2026-09-11 17:42:18 UTC
 </div>
 </div>
 </body>

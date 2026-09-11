@@ -525,7 +525,9 @@ Apps developed by Enonic never use prefixes. This is done in order to keep commo
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.extensions = function (graphQL) {
+<pre class="highlight"><code class="language-typescript" data-lang="typescript">import type {Extensions, GraphQL} from '@enonic-types/guillotine';
+
+export const extensions = (graphQL: GraphQL): Extensions =&gt; {
     return {
         types: {},
         creationCallbacks: {
@@ -539,9 +541,7 @@ Apps developed by Enonic never use prefixes. This is done in order to keep commo
         },
         resolvers: {
             Query: {
-                myapp_serverTime: function (env) {
-                    // return current server time
-                }
+                myapp_serverTime: (): string =&gt; new Date().toISOString()
             }
         }
     }
@@ -569,12 +569,17 @@ Apps developed by Enonic never use prefixes. This is done in order to keep commo
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-JavaScript" data-lang="JavaScript">exports.extensions = function (graphQL) {
+<pre class="highlight"><code class="language-typescript" data-lang="typescript">import {get} from '/lib/xp/content';
+import type {DataFetchingEnvironment, Extensions, GraphQL} from '@enonic-types/guillotine';
+
+export const extensions = (graphQL: GraphQL): Extensions =&gt; {
     return {
         types: {
             MyApp_Menu: {
+                description: 'A menu entry for a content item',
                 fields: {
-                    // add fields here
+                    title: {type: graphQL.GraphQLString},
+                    content: {type: graphQL.reference('Content')},
                 }
             }
         },
@@ -584,9 +589,7 @@ Apps developed by Enonic never use prefixes. This is done in order to keep commo
                     myapp_menu: {
                         type: graphQL.reference('MyApp_Menu'),
                         args: {
-                            contentKey: {
-                                type: graphQL.nonNull(graphQL.GraphQLString)
-                            }
+                            contentKey: graphQL.nonNull(graphQL.GraphQLString)
                         }
                     }
                 });
@@ -594,8 +597,9 @@ Apps developed by Enonic never use prefixes. This is done in order to keep commo
         },
         resolvers: {
             HeadlessCms: {
-                myapp_menu: function (env) {
-                    // return menu for specified Content instance
+                myapp_menu: (env: DataFetchingEnvironment&lt;{contentKey: string}&gt;) =&gt; {
+                    const content = get({key: env.args.contentKey});
+                    return content ? {title: content.displayName, content} : null;
                 }
             }
         }
@@ -616,48 +620,58 @@ Apps developed by Enonic never use prefixes. This is done in order to keep commo
 <h2 id="coding_guidelines"><a class="link" href="#coding_guidelines">Coding guidelines</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>extensions</code> function can get huge, so we recommend to split it into several files. For example, you can create a file for each property such as <code>types</code>, <code>creationCallbacks</code>, <code>resolvers</code> and others. If needed, you can split them into several files too.</p>
+<p>Split larger extensions into typed factory functions. Keep <code>guillotine.ts</code> as the entry point and import the factories it needs. For example, these three files define the server-time field from above:</p>
 </div>
 <div class="listingblock">
+<div class="title">src/main/resources/guillotine/guillotine.ts</div>
 <div class="content">
-<pre class="highlight"><code class="language-JavaScript" data-lang="JavaScript">const typesFactory = require('./types-factory');
-const creationCallbacksFactory = require('./creation-callbacks-factory');
-const resolversFactory = require('./resolvers-factory');
+<pre class="highlight"><code class="language-typescript" data-lang="typescript">import type {Extensions, GraphQL} from '@enonic-types/guillotine';
+import {create as createCallbacks} from './creation-callbacks-factory';
+import {create as createResolvers} from './resolvers-factory';
 
-exports.extensions = function (graphQL) {
-    return {
-        types: typesFactory.create(graphQL),
-        creationCallbacks: creationCallbacksFactory.create(graphQL),
-        resolvers: resolversFactory.create(graphQL)
-    }
-};</code></pre>
+export const extensions = (graphQL: GraphQL): Extensions =&gt; ({
+    creationCallbacks: createCallbacks(graphQL),
+    resolvers: createResolvers(),
+});</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">src/main/resources/guillotine/creation-callbacks-factory.ts</div>
+<div class="content">
+<pre class="highlight"><code class="language-typescript" data-lang="typescript">import type {Extensions, GraphQL} from '@enonic-types/guillotine';
+
+export const create = (graphQL: GraphQL): NonNullable&lt;Extensions['creationCallbacks']&gt; =&gt; ({
+    Query: (params) =&gt; {
+        params.addFields({
+            myapp_serverTime: {
+                type: graphQL.DateTime,
+            },
+        });
+    },
+});</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">src/main/resources/guillotine/resolvers-factory.ts</div>
+<div class="content">
+<pre class="highlight"><code class="language-typescript" data-lang="typescript">import type {Extensions} from '@enonic-types/guillotine';
+
+export const create = (): NonNullable&lt;Extensions['resolvers']&gt; =&gt; ({
+    Query: {
+        myapp_serverTime: (): string =&gt; new Date().toISOString(),
+    },
+});</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Let&#8217;s take a look at the <code>resolvers-factory.js</code> file:</p>
-</div>
-<div class="paragraph">
-<p>This example below demonstrates how to split the <code>resolvers</code> property into two files: <code>headless-cms-resolvers-factory.js</code> and <code>query-resolvers-factory.js</code>, where each file contains resolvers for fields of the corresponding type.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">const headlessCmsResolversFactory = require('./headless-cms-resolvers-factory');
-const queryResolversFactory = require('./query-resolvers-factory');
-
-exports.create = function (graphQL) {
-    return {
-        Query: queryResolversFactory.create(graphQL),
-        HeadlessCms: headlessCmsResolversFactory.create(graphQL)
-    }
-};</code></pre>
-</div>
+<p>Use the same pattern for <code>types</code>, <code>inputTypes</code> and other extension properties. You can also split resolver factories by GraphQL type as the extension grows.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-11 14:57:15 UTC
+Last updated 2026-09-11 17:42:18 UTC
 </div>
 </div>
 </body>

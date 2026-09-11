@@ -454,7 +454,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Access and test the API via the embedded API browser.</p>
+<p>Explore your schema and test queries in Content Studio.</p>
 </div>
 </div>
 </div>
@@ -462,7 +462,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="content_studio_extension"><a class="link" href="#content_studio_extension">Content Studio Extension</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Guillotine extends Content Studio with a new panel called Query Playground. It is only accessible for users with the <code>system.admin</code> or <code>cms.admin</code> roles.</p>
+<p>Guillotine provides Query Playground as an admin extension implementing the <code>contentstudio.menuitem</code> interface. Content Studio displays it as a panel; other applications supporting that interface can also embed it. It is only accessible for users with the <code>system.admin</code> or <code>cms.admin</code> roles.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Guillotine 9 removes the playground previously served by GET requests to the GraphQL endpoint. The Content Studio extension described here remains available. To explore the API outside Content Studio, use a <a href="usage.ahtml#third-party-clients">third-party GraphQL client such as Altair</a>.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -501,7 +513,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Each query is executed in a specific context, which is determined by the project and the branch.
+Queries use the project currently selected in Content Studio and the branch selected in Query Playground.
 </td>
 </tr>
 </table>
@@ -517,13 +529,13 @@ Each query is executed in a specific context, which is determined by the project
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Paste the query below inside the left panel.</p>
+<p>Paste the query below inside the center panel.</p>
 </li>
 <li>
 <p>Click on the query play button above</p>
 </li>
 <li>
-<p>The service response is displayed in the center panel</p>
+<p>The service response is displayed in the right panel</p>
 </li>
 </ol>
 </div>
@@ -531,16 +543,17 @@ Each query is executed in a specific context, which is determined by the project
 <div class="title">Retrieve the displayName and type of the root items.</div>
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine{
- 	getChildren(key:"/") {
- 	  displayName
- 	}
+  guillotine {
+    getChildren(key: "/", first: 10) {
+      displayName
+      type
+    }
   }
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>There are more examples available in the <a href="usage.ahtml">Usage section</a>.</p>
+<p>See <a href="usage/content-queries.ahtml">Content queries</a> for more query examples, or <a href="usage.ahtml">Usage</a> to send queries from your own client.</p>
 </div>
 </div>
 </div>
@@ -548,7 +561,7 @@ Each query is executed in a specific context, which is determined by the project
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-11 14:57:15 UTC
+Last updated 2026-09-11 17:42:18 UTC
 </div>
 </div>
 </body>

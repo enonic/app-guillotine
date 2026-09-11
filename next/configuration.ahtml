@@ -442,6 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#config_file">Config file</a></li>
+<li><a href="#media-base-url">Media base URL</a></li>
 </ul>
 </div>
 </div>
@@ -494,7 +495,7 @@ maxQueryTokens=15000 <i class="conum" data-value="8"></i><b>(8)</b></code></pre>
 </tr>
 <tr>
 <td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Sets the <code>Access-Control-Allow-Methods</code> header to allow methods in CORS requests. Guillotine handlers only <code>POST</code> and <code>OPTIONS</code>. Default is <code>GET, HEAD, POST</code>.</td>
+<td>Sets the <code>Access-Control-Allow-Methods</code> header to allow methods in CORS requests. The Guillotine endpoint answers <code>POST</code> and <code>OPTIONS</code> requests only. Default is <code>GET, HEAD, POST</code>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="6"></i><b>6</b></td>
@@ -510,24 +511,38 @@ maxQueryTokens=15000 <i class="conum" data-value="8"></i><b>(8)</b></code></pre>
 </tr>
 </table>
 </div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-A default base URL for media URLs can be configured on XP itself with the <code>media.defaultBaseUrl</code> option in <code>com.enonic.xp.portal.cfg</code>.
-</td>
-</tr>
-</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="media-base-url"><a class="link" href="#media-base-url">Media base URL</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When exposing XP&#8217;s shared <a href="setup.ahtml#api-base-url">API base URL</a>, GraphQL, images and attachments are reachable under the same public base by default. Clients can use this base, or a separate CDN base, when <a href="usage/images-and-urls.ahtml#url-parts">building media links from <code>path</code> and <code>queryString</code></a>. Configure the public route to serve those paths.</p>
+</div>
+<div class="paragraph">
+<p>XP also generates media links inside <a href="usage/rich-text.ahtml">processed rich text</a>. On XP 8.1 and later, configure their default media base in the XP portal configuration:</p>
+</div>
+<div class="listingblock">
+<div class="title">com.enonic.xp.portal.cfg</div>
+<div class="content">
+<pre class="highlight"><code class="language-properties" data-lang="properties">media.defaultBaseUrl = https://cdn.example.com/api</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This produces media URLs under <code><a href="https://cdn.example.com/api/media:image/&#8230;&#8203" class="bare">https://cdn.example.com/api/media:image/&#8230;&#8203</a>;</code> and <code><a href="https://cdn.example.com/api/media:attachment/&#8230;&#8203" class="bare">https://cdn.example.com/api/media:attachment/&#8230;&#8203</a>;</code> where a more specific API location or a contextual media mount does not take precedence. Configure the CDN to forward those paths to XP&#8217;s corresponding <code>/api/media:image/&#8230;&#8203;</code> and <code>/api/media:attachment/&#8230;&#8203;</code> endpoints. This setting changes URL generation; the CDN route must be configured separately.</p>
+</div>
+<div class="paragraph">
+<p>Sites that mount the media APIs keep URLs under their own endpoints. To move their media to the default media base, also set <code>legacy.mediaApiAutoMount.enabled = false</code> and omit the relevant media APIs from the site&#8217;s descriptor. See the <a href="https://developer.enonic.com/docs/platform/xp8/config/cms#media_base_url">XP media configuration</a> for mount precedence and preview behavior.</p>
+</div>
+<div class="paragraph">
+<p>Virtual-host context can also declare a shared API location or individual API locations. See the <a href="https://developer.enonic.com/docs/platform/xp8/config/vhosts#api-locations">API locations reference</a> for dedicated hosts and paths.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-11 14:57:15 UTC
+Last updated 2026-09-11 17:42:18 UTC
 </div>
 </div>
 </body>

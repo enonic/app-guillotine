@@ -458,7 +458,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>creationCallbacks are invoked during the GraphQL schema generation - every time Guillotine or an application extending Guillotine is started or stopped.</p>
+<p><code>creationCallbacks</code> are invoked when Guillotine builds the GraphQL schema. Application start, stop and uninstall events invalidate the cached schema; the callbacks run again when the next query triggers a rebuild. See <a href="../extending.ahtml#lifecycle">Lifecycle and execution</a> for the full execution flow.</p>
 </div>
 <div class="paragraph">
 <p>Important to remember:</p>
@@ -521,56 +521,26 @@ It is <strong>NOT recommended</strong> to make modification to the standard fiel
 <h2 id="usage"><a class="link" href="#usage">Usage</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This property must be an object with the following structure:</p>
+<p>Add functions to the <code>creationCallbacks</code> property returned by your <a href="../extending.ahtml">extension function</a>. Each key names the type or interface to modify. Callback parameters provide these methods:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">creationCallbacks: {
-    &lt;GraphQLTypeName&gt;: function (params) {
-        // if you want to add new fields
-        params.addFields({
-            &lt;newFieldName&gt;: {
-                type: &lt;GraphQLType&gt;,
-                args: {
-                    &lt;argName&gt;: &lt;GraphQLType&gt;,
-                    // the rest of argument definitions ...
-                },
-            },
-        });
-
-        // if you want to remove existing fields
-        params.removeFields([
-             "fieldName 1",
-             "filedName 2",
-             // the rest of fieldName ...
-        ]);
-
-        // If you want to modify existing fields,
-        // keep in mind that all arguments will be rewritten by the new arguments.
-        // If type or args are not provided then type and args of the original field will be used.
-        params.modifyFields({
-            &lt;existingFieldName&gt;: {
-                type: &lt;GraphQLType&gt;,
-                args: {
-                    &lt;argName&gt;: &lt;GraphQLType&gt;,
-                    // the rest of arguments definitions ...
-                },
-            },
-        });
-
-        // If you want to change description
-        params.setDescription("New description");
-
-        // If you want to add or remove some interfaces in an object,
-        // keep in mind that interfaces will be rewritten by the new array of interfaces.
-        // Also do not forget to add all the required fields.
-        params.setInterfaces([
-            &lt;GraphQLInterfaceType or GraphQLReferenceType&gt;
-        ]);
-    },
-    // the rest of creation callback definition ...
-}</code></pre>
-</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>addFields</code> adds named fields with a <code>type</code> and optional <code>args</code> map.</p>
+</li>
+<li>
+<p><code>removeFields</code> removes fields by name.</p>
+</li>
+<li>
+<p><code>modifyFields</code> changes a field&#8217;s type or arguments. Supplying <code>args</code> replaces all existing arguments; omitted properties retain their original values.</p>
+</li>
+<li>
+<p><code>setDescription</code> changes the type&#8217;s description.</p>
+</li>
+<li>
+<p><code>setInterfaces</code> replaces the interfaces implemented by an object type. Include all fields required by those interfaces.</p>
+</li>
+</ul>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -585,31 +555,34 @@ By default, Guillotine will throw an error if it tries to modify an unknown fiel
 </table>
 </div>
 <div class="paragraph">
-<p>For example:</p>
+<p>For example, given an existing <code>MyCustomType</code> with the named fields:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">creationCallbacks: {
-    MyCustomType: function (params) {
-        params.addFields({
-            extraField: {
-                type: graphQL.GraphQLString,
-            }
-        });
+<pre class="highlight"><code class="language-typescript" data-lang="typescript">import type {Extensions, GraphQL} from '@enonic-types/guillotine';
 
-        params.removeFields([
-            "fieldToRemove1",
-            "fieldToRemove2",
-        ]);
+export const extensions = (graphQL: GraphQL): Extensions =&gt; ({
+    creationCallbacks: {
+        MyCustomType: (params) =&gt; {
+            params.addFields({
+                extraField: {
+                    type: graphQL.GraphQLString,
+                },
+            });
 
-        params.modifyFields({
-          fieldToModify: {
-            type: graphQL.GraphQLString,
-          }
-        });
+            params.removeFields([
+                'fieldToRemove1',
+                'fieldToRemove2',
+            ]);
+
+            params.modifyFields({
+                fieldToModify: {
+                    type: graphQL.GraphQLString,
+                },
+            });
+        },
     },
-
-}</code></pre>
+});</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -620,7 +593,7 @@ By default, Guillotine will throw an error if it tries to modify an unknown fiel
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-11 14:57:15 UTC
+Last updated 2026-09-11 17:42:18 UTC
 </div>
 </div>
 </body>

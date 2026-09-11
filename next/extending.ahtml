@@ -442,10 +442,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#introduction">Introduction</a></li>
-<li><a href="#guillotine_js">Guillotine.js</a></li>
+<li><a href="#get_started">Get started</a></li>
+<li><a href="#extension_file">Extension file</a></li>
 <li><a href="#usage_example">Usage example</a></li>
 <li><a href="#arguments">Arguments</a></li>
-<li><a href="#lifecycle">Lifecycle</a></li>
+<li><a href="#lifecycle">Lifecycle and execution</a>
+<ul class="sectlevel2">
+<li><a href="#building_the_schema">Building the schema</a></li>
+<li><a href="#executing_a_query">Executing a query</a></li>
+<li><a href="#rebuilding_the_schema">Rebuilding the schema</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -466,17 +473,38 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="guillotine_js"><a class="link" href="#guillotine_js">Guillotine.js</a></h2>
+<h2 id="get_started"><a class="link" href="#get_started">Get started</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To extend the Guillotine application you need to create a file named <code>guillotine.js</code> in the <code>src/main/resources/guillotine</code> folder of your application.</p>
+<p>Add the files in this chapter to an existing Enonic app with TypeScript support, or use <a href="https://github.com/enonic/starter-ts">starter-ts</a> to get going with a new app. See the <a href="https://developer.enonic.com/docs/typescript-starter/stable/build">TypeScript setup guide</a> if your existing app does not yet compile TypeScript.</p>
+</div>
+<div class="paragraph">
+<p>Install Guillotine&#8217;s type definitions in your app project:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell">npm install --save-dev @enonic-types/guillotine</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Guillotine must also be <a href="setup.ahtml">installed</a> in the Enonic instance where you deploy your app.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="extension_file"><a class="link" href="#extension_file">Extension file</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Create <code>src/main/resources/guillotine/guillotine.ts</code> in your app. The build must compile it to <code>/guillotine/guillotine.js</code> in the application resources, which is the path Guillotine loads at runtime. The TypeScript starter handles this compilation.</p>
 </div>
 <div class="paragraph">
 <p>This file must export the <code>extensions</code> function with the following structure:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.extensions = function (graphQL) {
+<pre class="highlight"><code class="language-typescript" data-lang="typescript">import type {Extensions, GraphQL} from '@enonic-types/guillotine';
+
+export const extensions = (graphQL: GraphQL): Extensions =&gt; {
     return {
         enums: { <i class="conum" data-value="1"></i><b>(1)</b>
             // enum type definitions ...
@@ -518,7 +546,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Define <a href="extending/interfaces.ahtml">custom iterfaces</a>.</td>
+<td>Define <a href="extending/interfaces.ahtml">custom interfaces</a>.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="4"></i><b>4</b></td>
@@ -543,7 +571,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </table>
 </div>
 <div class="paragraph">
-<p>You can omit any of the properties, but you must return an object with the same structure. Order of the properties is not important.</p>
+<p>You can omit any of the properties, but you must return an object with the same structure. Order of the properties is not important. The following subpages show individual extension properties; merge the ones you need into the object returned by your app&#8217;s single <code>extensions</code> function.</p>
 </div>
 </div>
 </div>
@@ -555,21 +583,52 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>dependencies {
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">dependencies {
     include 'com.enonic.lib:lib-http-client:3.2.2'
-}</pre>
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>In our application we have to create a new file <code>src/main/resources/guillotine/guillotine.js</code> and add the following content to it:</p>
+<p>In our application we have to create a new file <code>src/main/resources/guillotine/guillotine.ts</code> and add the following content to it:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">const httpClient = require('/lib/http-client');
+<pre class="highlight"><code class="language-typescript" data-lang="typescript">import type {DataFetchingEnvironment, Extensions, GraphQL} from '@enonic-types/guillotine';
+
+const httpClient = require('/lib/http-client') as HttpClient;
+
+interface VolumeInfo {
+    title?: string;
+    authors?: string[];
+    publisher?: string;
+    publishedDate?: string;
+    description?: string;
+    pageCount?: number;
+    language?: string;
+    averageRating?: number;
+}
+
+interface BooksResponse {
+    items?: Array&lt;{id: string; volumeInfo: VolumeInfo}&gt;;
+}
+
+interface HttpResponse {
+    status: number;
+    body?: string;
+}
+
+interface HttpClient {
+    request(params: {
+        url: string;
+        method: 'GET';
+        contentType: string;
+        queryParams: Record&lt;string, string&gt;;
+    }): HttpResponse;
+}
 
 const GOOGLE_BOOKS_API_KEY = app.config.googleBooksApiKey;
 
-exports.extensions = function (graphQL) {
+export const extensions = (graphQL: GraphQL): Extensions =&gt; {
     return {
         types: {
             GoogleBooks: {
@@ -611,7 +670,7 @@ exports.extensions = function (graphQL) {
                     findBooks: {
                         type: graphQL.list(graphQL.reference('GoogleBooks')),
                         args: {
-                            queryString: graphQL.GraphQLString,
+                            queryString: graphQL.nonNull(graphQL.GraphQLString),
                         }
                     }
                 });
@@ -619,10 +678,10 @@ exports.extensions = function (graphQL) {
         },
         resolvers: {
             Query: {
-                findBooks: function (env) {
+                findBooks: (env: DataFetchingEnvironment&lt;{queryString: string}&gt;) =&gt; {
                     const response = sendRequestToBooksApi(env.args.queryString);
 
-                    return response.items.map(function (item) {
+                    return (response.items ?? []).map((item) =&gt; {
                         const volumeInfo = item.volumeInfo;
 
                         return {
@@ -643,8 +702,11 @@ exports.extensions = function (graphQL) {
     }
 };
 
-function sendRequestToBooksApi(queryString) {
-    const response = httpClient.request({
+function sendRequestToBooksApi(queryString: string): BooksResponse {
+    if (!GOOGLE_BOOKS_API_KEY) {
+        throw new Error("Configure googleBooksApiKey in your app configuration");
+    }
+    const response: HttpResponse = httpClient.request({
         url: 'https://www.googleapis.com/books/v1/volumes',
         method: 'GET',
         contentType: 'application/json',
@@ -653,15 +715,18 @@ function sendRequestToBooksApi(queryString) {
             key: GOOGLE_BOOKS_API_KEY,
         }
     });
-    return JSON.parse(response.body);
+    if (response.status !== 200 || !response.body) {
+        throw new Error(`Google Books request failed: HTTP ${response.status}`);
+    }
+    return JSON.parse(response.body) as BooksResponse;
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This example is very simple and does not cover all possible cases. For example, it does not handle errors from the Google Books API, does not cache values, etc. But it shows how to extend the GraphQL schema with a new type and a new field.</p>
+<p>Set <code>googleBooksApiKey</code> in your app configuration before running the example. <code>HttpClient</code> describes the subset of the HTTP client API used here. The response interfaces describe the fields used from the Google Books API; they do not validate the response at runtime. This example checks the HTTP status but omits caching and detailed response validation.</p>
 </div>
 <div class="paragraph">
-<p>You can separate definitions of types, creationCallbacks, resolvers and the rest of options into different files and import them into the <code>guillotine.js</code> file, to make your code more readable and maintainable.</p>
+<p>You can separate definitions of types, creationCallbacks, resolvers and the rest of options into different files and import them into the <code>guillotine.ts</code> file, to make your code more readable and maintainable.</p>
 </div>
 </div>
 </div>
@@ -669,7 +734,7 @@ function sendRequestToBooksApi(queryString) {
 <h2 id="arguments"><a class="link" href="#arguments">Arguments</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When Guillotine invokes the extensions function, it will pass a utility object as an argument, giving your extension acccess to standard scalars, types, type modifiers and functions:</p>
+<p>When Guillotine invokes the extensions function, it will pass a utility object as an argument, giving your extension access to standard scalars, types, type modifiers and functions:</p>
 </div>
 <div class="dlist">
 <dl>
@@ -690,17 +755,63 @@ function sendRequestToBooksApi(queryString) {
 </div>
 </div>
 <div class="sect1">
-<h2 id="lifecycle"><a class="link" href="#lifecycle">Lifecycle</a></h2>
+<h2 id="lifecycle"><a class="link" href="#lifecycle">Lifecycle and execution</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>extensions</code> function will automatically be invoked by Guillotine when your application (the app containing the <code>guillotine.js</code> controller) is started, or when Guillotine itself is started/restarted.</p>
+<p>Guillotine loads your extension automatically and executes its functions on the server through XP&#8217;s script runtime. Your app supplies the schema definitions and resolver functions; Guillotine connects them to the GraphQL engine.</p>
+</div>
+<div class="sect2">
+<h3 id="building_the_schema"><a class="link" href="#building_the_schema">Building the schema</a></h3>
+<div class="paragraph">
+<p>The schema is built lazily: the first query that needs it triggers these steps:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Guillotine checks installed apps for <code>/guillotine/guillotine.js</code>, the compiled output of your <code>guillotine.ts</code> file.</p>
+</li>
+<li>
+<p>For each extension it can load, Guillotine calls the exported <code>extensions(graphQL)</code> function with the utility object described above and collects the returned definitions and functions.</p>
+</li>
+<li>
+<p>Guillotine combines these extensions with its generated schema. It adds custom types, invokes <code>creationCallbacks</code> to collect and apply schema changes, and registers field resolvers and type resolvers.</p>
+</li>
+<li>
+<p>The completed schema is cached and used to execute the query. Subsequent queries reuse it.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>If registration of an individual field resolver fails, Guillotine logs a warning with its type and field name and continues registering the remaining resolvers. Check the XP logs when a custom resolver is not applied.</p>
+</div>
+<div class="paragraph">
+<p>Keep schema setup in <code>extensions</code> and <code>creationCallbacks</code>, and put request-specific work, such as fetching content or calling an external API, inside resolvers. In the Google Books example, schema building registers <code>findBooks</code>; the HTTP request happens when a query requests that field.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="executing_a_query"><a class="link" href="#executing_a_query">Executing a query</a></h3>
+<div class="paragraph">
+<p>When a query requests a field with a custom resolver, the GraphQL engine calls that resolver with <code>env.source</code>, <code>env.args</code> and <code>env.localContext</code>. The returned value becomes the field&#8217;s result and supplies the source for any selected child fields. See <a href="extending/resolvers.ahtml">Resolvers</a> for passing additional context to child resolvers.</p>
+</div>
+<div class="paragraph">
+<p>For a value returned through an interface or union, the engine calls its registered <code>typeResolver</code> to determine the concrete GraphQL object type. See <a href="extending/type-resolvers.ahtml">Type resolvers</a>.</p>
+</div>
+<div class="paragraph">
+<p>Custom field resolvers beneath <code>guillotine</code> execute with the project repository and branch selected for that query, so XP library calls such as <code>content.get()</code> use that content context. Custom fields directly on <code>Query</code> use the current request context. See <a href="extending/best-practices.ahtml">Best practices</a> for choosing where to add fields.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="rebuilding_the_schema"><a class="link" href="#rebuilding_the_schema">Rebuilding the schema</a></h3>
+<div class="paragraph">
+<p>Application start, stop and uninstall events invalidate the cached schema. The next query rebuilds it, discovering extensions and invoking their setup functions again. Restarting Guillotine also clears its schema cache, so setup functions should support repeated invocation.</p>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-11 14:57:15 UTC
+Last updated 2026-09-11 17:42:18 UTC
 </div>
 </div>
 </body>

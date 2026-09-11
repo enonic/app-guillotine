@@ -435,18 +435,108 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body class="article toc2 toc-right">
 <div id="header">
 <h1>Release Notes</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#guillotine_9">Guillotine 9</a>
+<ul class="sectlevel2">
+<li><a href="#features">Features</a></li>
+<li><a href="#breaking_changes">Breaking changes</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
 <div class="paragraph">
-<p>Release notes for Guillotine 9 will be added here.</p>
+<p>Guillotine 9 requires Enonic XP 8.1.0 or higher. See <a href="upgrade.ahtml">Upgrade notes</a> for migration steps and examples.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="guillotine_9"><a class="link" href="#guillotine_9">Guillotine 9</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="features"><a class="link" href="#features">Features</a></h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">One endpoint for content projects</dt>
+<dd>
+<p>The <code>guillotine</code> field accepts <code>project</code> and <code>branch</code> arguments, so a single Web API endpoint can serve multiple projects and branches. Content permissions apply to every request. See <a href="setup.ahtml#api-base-url">API base URL</a>.</p>
+</dd>
+<dt class="hdlist1">URL components</dt>
+<dd>
+<p><code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code> and <code>attachmentUrl</code> return objects exposing <code>path</code> and <code>queryString</code>. Media fields also provide components such as the project context, content ID and fingerprint. Clients can prepend an API or CDN base to media paths and adapt page paths to their frontend routes. See <a href="usage/images-and-urls.ahtml#url-parts">Building URLs from parts</a>.</p>
+</dd>
+<dt class="hdlist1">Structured rich-text links</dt>
+<dd>
+<p>The <code>Link.pageUrl</code> and <code>Media.mediaUrl</code> fields expose the same URL components for references found in rich text. Clients can use these fields when rendering links for their own deployment. See <a href="usage/rich-text.ahtml">Rich text</a>.</p>
+</dd>
+<dt class="hdlist1">Content context fields</dt>
+<dd>
+<p><code>Content._project</code> and <code>Content._branch</code> expose the project and branch used to resolve a content item. See <a href="api.ahtml#content">Content</a>.</p>
+</dd>
+<dt class="hdlist1">Publication marker</dt>
+<dd>
+<p>The new <code>PublishInfo.time</code> field exposes the <code>publish.time</code> marker. On draft content, its presence indicates that the draft matches the published version; its absence indicates unpublished changes. See <a href="api.ahtml#publishinfo">PublishInfo</a>.</p>
+</dd>
+<dt class="hdlist1">Resolvers in the query context</dt>
+<dd>
+<p>Custom resolvers beneath <code>guillotine</code> run in the selected project&#8217;s repository and branch, so XP content-library calls use that context automatically. See <a href="extending.ahtml#lifecycle">Lifecycle and execution</a>.</p>
+</dd>
+<dt class="hdlist1">Query Playground admin extension</dt>
+<dd>
+<p>Query Playground implements the <code>contentstudio.menuitem</code> interface. Content Studio and other applications supporting that interface can embed it. See <a href="playground.ahtml">Query Playground</a>.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="breaking_changes"><a class="link" href="#breaking_changes">Breaking changes</a></h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Endpoint and project selection</dt>
+<dd>
+<p>The native Web API endpoint is now <code>/api/com.enonic.app.guillotine:graphql</code>, replacing <code>/site/&lt;project&gt;/&lt;branch&gt;</code>. Select project and branch in the query and update public routing as needed. See <a href="upgrade.ahtml#endpoint-migration">API endpoint</a>.</p>
+</dd>
+<dt class="hdlist1">URL fields and arguments</dt>
+<dd>
+<p>URL fields return objects instead of strings. The <code>type</code> argument and <code>UrlType</code> enum are removed, including <code>ProcessHtmlInput.type</code>. Update selections and build links from their components. See <a href="upgrade.ahtml#url-migration">Page, image and attachment URLs</a>.</p>
+</dd>
+<dt class="hdlist1">Search queries</dt>
+<dd>
+<p>The deprecated <code>query</code> and <code>queryConnection</code> fields, <code>QueryContentConnection</code> and legacy filter input types are removed. Use <code>queryDsl</code> and <code>queryDslConnection</code>. See <a href="upgrade.ahtml#search-migration">Search queries</a>.</p>
+</dd>
+<dt class="hdlist1">Site context and paths</dt>
+<dd>
+<p>The <code>X-Guillotine-SiteKey</code> header and <code>_path&#8217;s `type</code> argument are removed. Select <code>siteKey</code> explicitly when needed; without it, <code>getSite</code> returns <code>null</code>. Use <code>pageUrl.path</code> for site-relative paths. See <a href="upgrade.ahtml#site-context-migration">Site context and paths</a>.</p>
+</dd>
+<dt class="hdlist1">Schema metadata</dt>
+<dd>
+<p><code>ContentType.displayName</code> and several form metadata fields are removed. <code>PublishInfo.from</code>, <code>to</code> and <code>first</code> change from <code>String</code> to <code>DateTime</code>. See <a href="upgrade.ahtml#metadata-migration">Schema metadata and publication timestamps</a>.</p>
+</dd>
+<dt class="hdlist1">Extension behavior and types</dt>
+<dd>
+<p>Resolver request context, macro discovery and TypeScript definitions have changed. See <a href="upgrade.ahtml#extension-migration">Custom extensions</a>.</p>
+</dd>
+<dt class="hdlist1">Embedded playground</dt>
+<dd>
+<p>The query editor previously served by GET requests to the GraphQL endpoint is removed, along with the <code>queryplayground.ui.mode</code> option. Use the Content Studio <a href="playground.ahtml">Query Playground</a> or a <a href="usage.ahtml#third-party-clients">third-party GraphQL client</a>.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-11 14:57:15 UTC
+Last updated 2026-09-11 17:42:18 UTC
 </div>
 </div>
 </body>

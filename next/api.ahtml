@@ -763,6 +763,14 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content name</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_project: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the content project used to resolve this item</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_branch: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Branch used to resolve this item</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_path(type: <a href="#contentpathtype">ContentPathType</a>): String!</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content path. In the site-less mode, the result will be returned in the raw value, in other words, <code>env.source._path</code>.</p></td>
 </tr>
@@ -864,7 +872,7 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">pageUrl(params: Json): <a href="#pageurl">PageUrl</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL pointing to the content, along with its components for building the URL from segments</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Page link components. Use <code>siteKey</code> to select the site or project that the path is relative to; see <a href="#pageurl">PageUrl</a> and <a href="usage/images-and-urls.ahtml#base-urls">Base URLs</a></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">site: portal_Site</p></td>
@@ -1419,7 +1427,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <div class="sect2">
 <h3 id="pageurl"><a class="link" href="#pageurl">PageUrl</a></h3>
 <div class="paragraph">
-<p>Page URL and its components, for building the URL from segments: <code>url = baseUrl + path + queryString</code>.</p>
+<p>Page link components. Adapt <code>path</code> to your frontend&#8217;s routing and append <code>queryString</code>. If your deployment preserves the path, use <code>frontendBaseUrl + path + queryString</code>.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1433,11 +1441,6 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </tr>
 </thead>
 <tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">url: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The ready-made URL, with the base URL resolved by XP for the site the URL belongs to: the one given as <code>siteKey</code>, or - without it - the one the matched virtual host points at when served from a site endpoint, and the nearest site of the content otherwise</p>
-<p class="tableblock">A content outside the site the URL belongs to has no such URL - the site&#8217;s Base URL does not lead to it - so the field reports an error. This can happen when <code>siteKey</code> names a site and the query reaches content elsewhere in the project.</p></td>
-</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">path: String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">URL-escaped path of the content relative to the site - or project - the URL belongs to, with a leading slash. Empty when the content is that site itself</p></td>
@@ -1452,7 +1455,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <div class="sect2">
 <h3 id="imageurl"><a class="link" href="#imageurl">ImageUrl</a></h3>
 <div class="paragraph">
-<p>Image URL and its components, for building the URL from segments: <code>url = baseUrl + path + queryString</code>. All component values are URL-escaped as they appear in the URL.</p>
+<p>Image link components. Build the address as <code>mediaBaseUrl + path + queryString</code>, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1466,10 +1469,6 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </tr>
 </thead>
 <tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">url: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The ready-made URL, with the base URL resolved by XP</p></td>
-</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">path: String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The full media API path with a leading slash, ready to append to a base URL: <code>/media:image/&lt;context&gt;/&lt;id&gt;:&lt;fingerprint&gt;/&lt;scale&gt;/&lt;name&gt;</code></p></td>
@@ -1504,7 +1503,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <div class="sect2">
 <h3 id="attachmenturl"><a class="link" href="#attachmenturl">AttachmentUrl</a></h3>
 <div class="paragraph">
-<p>Attachment URL and its components, for building the URL from segments: <code>url = baseUrl + path + queryString</code>. All component values are URL-escaped as they appear in the URL.</p>
+<p>Attachment link components. Build the address as <code>mediaBaseUrl + path + queryString</code>, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1518,10 +1517,6 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </tr>
 </thead>
 <tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">url: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The ready-made URL, with the base URL resolved by XP</p></td>
-</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">path: String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The full media API path with a leading slash, ready to append to a base URL: <code>/media:attachment/&lt;context&gt;/&lt;id&gt;:&lt;fingerprint&gt;/&lt;name&gt;</code></p></td>
@@ -2317,16 +2312,20 @@ after: String
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">from: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">from: DateTime</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Scheduled publication start time</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">to: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">to: DateTime</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Scheduled publication end time</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">first: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">first: DateTime</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">First publication time</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">time: DateTime</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Publication marker. On draft content, its presence indicates that the draft matches the published version; its absence indicates unpublished changes. Use its presence rather than interpreting the timestamp as a publication date</p></td>
 </tr>
 </tbody>
 </table>
@@ -3702,7 +3701,7 @@ Defaults to none - will be displayed in the same order in which fragments appear
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-11 14:57:15 UTC
+Last updated 2026-09-11 17:42:18 UTC
 </div>
 </div>
 </body>

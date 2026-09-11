@@ -435,18 +435,472 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body class="article toc2 toc-right">
 <div id="header">
 <h1>Upgrade Notes</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#upgrading_from_guillotine_8_to_9">Upgrading from Guillotine 8 to 9</a>
+<ul class="sectlevel2">
+<li><a href="#endpoint-migration">API endpoint</a></li>
+<li><a href="#project-branch-migration">Project and branch</a></li>
+<li><a href="#url-migration">Page, image and attachment URLs</a></li>
+<li><a href="#search-migration">Search queries</a></li>
+<li><a href="#playground_at_the_graphql_endpoint">Playground at the GraphQL endpoint</a></li>
+<li><a href="#site-context-migration">Site context and relative paths</a></li>
+<li><a href="#metadata-migration">Schema metadata and publication timestamps</a></li>
+<li><a href="#extension-migration">Custom extensions</a></li>
+<li><a href="#gradual-migration">Migrating clients gradually</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
+<div class="sect1">
+<h2 id="upgrading_from_guillotine_8_to_9"><a class="link" href="#upgrading_from_guillotine_8_to_9">Upgrading from Guillotine 8 to 9</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>Upgrade notes for Guillotine 9 will be added here.</p>
+<p>Guillotine 9 requires Enonic XP 8.1.0 or higher.</p>
+</div>
+<div class="paragraph">
+<p>Guillotine 9 changes the API endpoint and several GraphQL fields. Start with the endpoint and URL changes below, then review the sections for features your clients use. Regenerate client types from the new schema after updating your queries.</p>
+</div>
+<div class="paragraph">
+<p>Versions 8 and 9 use the same application key, so installing version 9 replaces version 8. If clients need to migrate at different times, see <a href="#gradual-migration">Migrating clients gradually</a>.</p>
+</div>
+<div class="sect2">
+<h3 id="endpoint-migration"><a class="link" href="#endpoint-migration">API endpoint</a></h3>
+<div class="paragraph">
+<p>All clients using the standard Guillotine 8 endpoint need to update their endpoint or its routing configuration.</p>
+</div>
+<div class="paragraph">
+<p>These are the native XP endpoints; your production setup may expose a different public URL:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Version</th>
+<th class="tableblock halign-left valign-top">Native XP endpoint</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Guillotine 8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>POST /site/&lt;project&gt;/&lt;branch&gt;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Guillotine 9 Web API</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>POST /api/com.enonic.app.guillotine:graphql</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Update ingress or virtual-host targets that point to the old endpoint. You can keep the same public URL, but must still update queries to select <a href="#project-branch-migration">project and branch</a>.</p>
+</div>
+<div class="paragraph">
+<p>A common XP 8 setup exposes <code>/api</code> as a shared <a href="setup.ahtml#api-base-url">API base URL</a>. Guillotine is then at <code>&lt;apiBaseUrl&gt;/com.enonic.app.guillotine:graphql</code>, with the image and attachment APIs under the same base. If you expose GraphQL individually or serve media through a CDN, also verify that your media links have working public routes. See <a href="setup.ahtml">Setup</a> for routing examples and <a href="configuration.ahtml#media-base-url">Configuration</a> for separate media hosting.</p>
+</div>
+<div class="paragraph">
+<p>For site mounting, add <code>com.enonic.app.guillotine:graphql</code> to the site&#8217;s <code>apis</code> descriptor list. The native endpoint is <code>/site/&lt;project&gt;/&lt;branch&gt;/&lt;site-path&gt;/_/com.enonic.app.guillotine:graphql</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="project-branch-migration"><a class="link" href="#project-branch-migration">Project and branch</a></h3>
+<div class="paragraph">
+<p>At the new Web endpoint, project and branch move from the request URL into the query. A request previously sent to <code>/site/myproject/master</code> becomes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine(project: "myproject", branch: "master") {
+    getChildren(key: "/", first: 10) {
+      _id
+      displayName
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The JSON request body still contains <code>query</code> and optional <code>variables</code>; see <a href="usage.ahtml#request-format">Request format</a> for complete examples.</p>
+</div>
+<div class="paragraph">
+<p>Use <code>master</code> for published content or <code>draft</code> for work in progress. Content permissions continue to apply; draft access normally requires authentication.</p>
+</div>
+<div class="paragraph">
+<p>At a site-mounted endpoint, the request still supplies project and branch, and query arguments cannot override them.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="url-migration"><a class="link" href="#url-migration">Page, image and attachment URLs</a></h3>
+<div class="paragraph">
+<p>Clients selecting URL fields must update both their queries and their handling of the response. These fields now return objects:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Guillotine 8</th>
+<th class="tableblock halign-left valign-top">Guillotine 9</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Content.pageUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>PageUrl</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>media_Image.imageUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ImageUrl</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Media content&#8217;s <code>mediaUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>AttachmentUrl</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Attachment.attachmentUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>AttachmentUrl</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Select <code>path</code> and <code>queryString</code>, then build the address in your client using the appropriate media base URL or frontend route.</p>
+</div>
+<div class="listingblock">
+<div class="title">Guillotine 8</div>
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine {
+    get(key: "/my-site/photo") {
+      pageUrl(type: absolute)
+      ... on media_Image {
+        imageUrl(scale: "width(800)", type: absolute)
+        mediaUrl(type: absolute)
+      }
+      attachments {
+        attachmentUrl(type: absolute)
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Guillotine 9</div>
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine(project: "myproject", branch: "master") {
+    get(key: "/my-site/photo") {
+      pageUrl { path queryString }
+      ... on media_Image {
+        imageUrl(scale: "width(800)") { path queryString }
+        mediaUrl { path queryString }
+      }
+      attachments {
+        attachmentUrl { path queryString }
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For media, concatenate your public API or CDN base with <code>path</code> and <code>queryString</code>. For pages, adapt <code>pageUrl.path</code> to your frontend&#8217;s host and routing, then append <code>pageUrl.queryString</code>. These components are already URL-escaped. See <a href="usage/images-and-urls.ahtml#url-parts">Building URLs from parts</a> for client examples.</p>
+</div>
+<div class="paragraph">
+<p>The <code>type</code> argument and <code>UrlType</code> enum are removed. Remove <code>type: server</code> and <code>type: absolute</code> from queries and variables. Your client now supplies the deployment context when building links from these components.</p>
+</div>
+<div class="sect3">
+<h4 id="processed_rich_text"><a class="link" href="#processed_rich_text">Processed rich text</a></h4>
+<div class="paragraph">
+<p><code>ProcessHtmlInput.type</code> is also removed. Remove the <code>type</code> property from <code>processHtml</code> arguments and variables; <code>imageWidths</code> and <code>imageSizes</code> remain available. Links embedded in processed HTML follow XP&#8217;s site and media configuration. Verify rendered links and images against your deployment, or use structured rich-text data to build them in your client. See <a href="usage/rich-text.ahtml">Rich text</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="search-migration"><a class="link" href="#search-migration">Search queries</a></h3>
+<div class="paragraph">
+<p>Clients using <code>query</code> or <code>queryConnection</code> must migrate to Query DSL. Clients already using <code>queryDsl</code> and <code>queryDslConnection</code> can keep those field names.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Removed</th>
+<th class="tableblock halign-left valign-top">Replacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HeadlessCms.query</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HeadlessCms.queryDsl</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HeadlessCms.queryConnection</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>HeadlessCms.queryDslConnection</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>QueryContentConnection</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>QueryDSLContentConnection</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Rewrite string queries as structured DSL expressions and string sorting as <code>SortDslInput</code> objects. For example:</p>
+</div>
+<div class="listingblock">
+<div class="title">Guillotine 8</div>
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine {
+    query(query: "type = 'portal:site'", sort: "displayName ASC", first: 10) {
+      _id
+      displayName
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Guillotine 9</div>
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine(project: "myproject", branch: "master") {
+    queryDsl(
+      query: { term: { field: "type", value: { string: "portal:site" } } }
+      sort: [{ field: "displayName", direction: ASC }]
+      first: 10
+    ) {
+      _id
+      displayName
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The old <code>contentTypes</code> and <code>filters</code> arguments are not available on the DSL fields. Express those constraints within the DSL query, combining conditions with boolean expressions as needed. The associated <code>FilterInput</code>, <code>BooleanFilterInput</code>, <code>ExistsFilterInput</code>, <code>NotExistsFilterInput</code>, <code>HasValueFilterInput</code> and <code>IdsFilterInput</code> types are removed; update variable declarations and any extension references to them.</p>
+</div>
+<div class="paragraph">
+<p>For connection queries, update fragments that reference <code>QueryContentConnection</code> to <code>QueryDSLContentConnection</code>. The DSL connection supports cursor pagination and aggregations, but its query and sort arguments use the DSL input types. See <a href="usage/content-queries.ahtml">Content queries</a> for examples.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="playground_at_the_graphql_endpoint"><a class="link" href="#playground_at_the_graphql_endpoint">Playground at the GraphQL endpoint</a></h3>
+<div class="paragraph">
+<p>Guillotine 9 removes the embedded playground that Guillotine 8 served on GET requests to the API root. Opening the API endpoint in a browser no longer displays a query editor. Send GraphQL queries using HTTP POST to the <a href="setup.ahtml#endpoints">endpoint exposed by your installation</a>.</p>
+</div>
+<div class="paragraph">
+<p>The <a href="playground.ahtml">Query Playground in Content Studio</a> remains available. To explore the API outside Content Studio, connect a <a href="usage.ahtml#third-party-clients">third-party GraphQL client such as Altair</a>.</p>
+</div>
+<div class="paragraph">
+<p>The <code>queryplayground.ui.mode</code> configuration property is removed. Delete it from existing Guillotine configuration files; it no longer enables an editor at the API endpoint.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="site-context-migration"><a class="link" href="#site-context-migration">Site context and relative paths</a></h3>
+<div class="paragraph">
+<p>Review this section if you use <code>siteKey</code>, <code>getSite</code>, site-relative paths, or queries scoped to a site.</p>
+</div>
+<div class="sect3">
+<h4 id="selecting_a_site"><a class="link" href="#selecting_a_site">Selecting a site</a></h4>
+<div class="paragraph">
+<p>The <code>X-Guillotine-SiteKey</code> request header is no longer supported. Move the selection into the GraphQL query:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+    getSite {
+      _id
+      displayName
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>An omitted <code>siteKey</code> no longer defaults to <code>"/"</code>. <code>getSite</code> returns <code>null</code> without a selection, including at a site-mounted endpoint; select a site explicitly when you need this field. A nonexistent <code>siteKey</code> now raises an error while setting up the <code>guillotine</code> context.</p>
+</div>
+<div class="paragraph">
+<p>Use <code>siteKey: "/"</code> when you explicitly want project-root path and URL context. The project root is not a site content item, so <code>getSite</code> returns <code>null</code> for that selection. Queries using the <code>${site}</code> placeholder must also supply <code>siteKey</code>. See <a href="usage/site-context.ahtml">Site context</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="replacing_site_relative_path"><a class="link" href="#replacing_site_relative_path">Replacing site-relative <code>_path</code></a></h4>
+<div class="paragraph">
+<p>The <code>_path</code> field no longer accepts <code>type: siteRelative</code>, and the <code>ContentPathType</code> enum is removed. <code>_path</code> returns the content&#8217;s full path within the project.</p>
+</div>
+<div class="paragraph">
+<p>Select <code>pageUrl { path }</code> with an appropriate <code>siteKey</code> for a site-relative link. This is not a direct string replacement: the old site-relative <code>_path</code> omitted the leading slash, while <code>pageUrl.path</code> includes it for descendants and URL-escapes the path. For the selected site itself, <code>pageUrl.path</code> is empty. Adjust URL concatenation accordingly.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="query_scope_and_url_scope"><a class="link" href="#query_scope_and_url_scope">Query scope and URL scope</a></h4>
+<div class="paragraph">
+<p>The previous automatic site-path restrictions on content queries and lookups are removed. Queries can reach content elsewhere in the project, subject to content permissions. If your client needs results from one subtree, add explicit path constraints to its DSL queries.</p>
+</div>
+<div class="paragraph">
+<p>For page URLs, <code>siteKey</code> now selects both the URL base and the relative path. A request for a page URL outside the selected site can produce a GraphQL field error. For nested sites, choosing the parent or child site can produce different links. Without <code>siteKey</code>, page URL context depends on the endpoint. Test cross-site references and nested-site links against the <a href="usage/images-and-urls.ahtml#base-urls">URL context rules</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="metadata-migration"><a class="link" href="#metadata-migration">Schema metadata and publication timestamps</a></h3>
+<div class="paragraph">
+<p>These changes affect clients inspecting content type definitions or generating types from the schema.</p>
+</div>
+<div class="sect3">
+<h4 id="content_type_and_form_definitions"><a class="link" href="#content_type_and_form_definitions">Content type and form definitions</a></h4>
+<div class="paragraph">
+<p><code>ContentType.displayName</code> is removed. Select <code>title</code> instead when querying <code>getType</code>, <code>getTypes</code> or a content item&#8217;s <code>contentType</code> field. This does not affect <code>Content.displayName</code>.</p>
+</div>
+<div class="paragraph">
+<p>The following form metadata fields and types are removed:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Removed fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FormInput</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>customText</code>, <code>validationRegexp</code>, <code>maximize</code>, <code>defaultValue</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FormItemSet</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>customText</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DefaultValue</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The entire type, including <code>value</code> and <code>type</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Remove these selections and any fragments on <code>DefaultValue</code>. If your tooling depends on this metadata, inspect the current definitions in <a href="playground.ahtml">Query Playground</a> and adapt it to the available fields. <code>ContentType.form</code> and <code>formAsJson</code> remain available.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="publication_timestamps"><a class="link" href="#publication_timestamps">Publication timestamps</a></h4>
+<div class="paragraph">
+<p><code>PublishInfo.from</code>, <code>to</code> and <code>first</code> change from <code>String</code> to <code>DateTime</code>. They are still represented as timestamp strings in JSON, but generated clients and extensions may require a <code>DateTime</code> scalar mapping. Regenerate client types and review custom resolvers that provide these values.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="extension-migration"><a class="link" href="#extension-migration">Custom extensions</a></h3>
+<div class="paragraph">
+<p>Review these changes if your app provides <code>guillotine.ts</code> or <code>guillotine.js</code> extensions. The <code>extensions(graphQL)</code> entry point remains the same. Update any references to the removed fields, arguments and types described above, then verify schema generation and queries using your custom fields.</p>
+</div>
+<div class="sect3">
+<h4 id="resolver_application_context"><a class="link" href="#resolver_application_context">Resolver application context</a></h4>
+<div class="paragraph">
+<p>Guillotine no longer temporarily changes the portal request&#8217;s application to the app that owns a resolver. Portal URL helpers that infer an application from the request can therefore generate different URLs. Where a helper accepts an <code>application</code> parameter, pass the intended application explicitly.</p>
+</div>
+<div class="paragraph">
+<p>The resolver&#8217;s script context and <code>app.name</code> still identify the extension app. Resolvers beneath <code>guillotine</code> execute in the selected project repository and branch. Treat <code>env.localContext.siteKey</code> as optional. See <a href="extending.ahtml#lifecycle">Lifecycle and execution</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="rich_text_macro_discovery"><a class="link" href="#rich_text_macro_discovery">Rich-text macro discovery</a></h4>
+<div class="paragraph">
+<p>When processing rich text in a site context, Guillotine now uses macros collected from installed applications, rather than limiting discovery to applications configured on that site. Verify macro output if your installation has multiple apps providing macros, especially where names overlap.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="typescript_definitions"><a class="link" href="#typescript_definitions">TypeScript definitions</a></h4>
+<div class="paragraph">
+<p>The generic parameters for resolver types have changed:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Guillotine 8</th>
+<th class="tableblock halign-left valign-top">Guillotine 9</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>DataFetchingEnvironment</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;Args, LocalContext, Source&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;Args, Source&gt;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Resolver</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;Args, LocalContext, Source, Return&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;Args, Source, Return&gt;</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Update generic arguments when migrating typed resolvers. Custom local-context types are no longer supplied through these generic parameters; describe the properties your resolver uses separately.</p>
+</div>
+<div class="paragraph">
+<p>Several named exports are also removed from the root of <code>@enonic-types/guillotine</code>, including <code>Field</code>, <code>Fields</code>, <code>CreationCallbacks</code>, <code>Enums</code>, <code>Type</code>, <code>Types</code>, <code>InputTypeField</code>, <code>InputTypeFields</code>, <code>InputType</code>, <code>InputTypes</code>, <code>Interface</code>, <code>Interfaces</code>, <code>Union</code>, <code>Unions</code>, <code>CreateDataFetcherResult</code>, <code>CreateDataFetcherResultParams</code> and <code>DataFetcherResult</code>.</p>
+</div>
+<div class="paragraph">
+<p>Use the exported <code>Extensions</code> type to derive types for individual properties, for example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-typescript" data-lang="typescript">import type {Extensions} from '@enonic-types/guillotine';
+
+type Types = NonNullable&lt;Extensions['types']&gt;;
+type CreationCallbacks = NonNullable&lt;Extensions['creationCallbacks']&gt;;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Recompile extensions against the updated definitions and follow the <a href="extending.ahtml">TypeScript examples</a> for the current signatures.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="gradual-migration"><a class="link" href="#gradual-migration">Migrating clients gradually</a></h3>
+<div class="paragraph">
+<p>For a gradual migration, you can fork the <a href="https://github.com/enonic/app-guillotine/tree/8.x">Guillotine 8 branch</a> and build it with a distinct application key. Change <code>appName</code> in <code>gradle.properties</code>, for example to <code>com.example.guillotine8</code>, and update application-key references and endpoint mappings accordingly. This allows the fork to serve existing clients while you migrate others to Guillotine 9. Public URLs can be preserved by mapping them to the fork&#8217;s endpoint.</p>
+</div>
+<div class="paragraph">
+<p>Verify the fork against your target XP version and test your extensions with both APIs before using this arrangement. Both versions discover extension files in installed apps, so a different application key does not isolate extensions. Their schema definitions, creation callbacks and resolvers must work with both versions; check schema generation and representative client queries against each endpoint.</p>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-11 14:57:15 UTC
+Last updated 2026-09-11 17:42:18 UTC
 </div>
 </div>
 </body>

@@ -443,6 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#usage">Usage</a></li>
 <li><a href="#datafetchingenvironment">DataFetchingEnvironment</a></li>
+<li><a href="#application_context">Application context</a></li>
 <li><a href="#createdatafetcherresult">createDataFetcherResult</a></li>
 </ul>
 </div>
@@ -459,20 +460,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="usage"><a class="link" href="#usage">Usage</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>It must be an object with the following structure:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">resolvers: {
-    &lt;GraphQLTypeName&gt;: {
-        &lt;fieldName&gt;: function (env) {
-            // your code here
-        },
-        // the rest of field resolvers ...
-    },
-    // the rest of type resolvers ...
-}</code></pre>
-</div>
+<p>Add functions to the <code>resolvers</code> property returned by your <a href="../extending.ahtml">extension function</a>. The outer key names a GraphQL type, and each inner key names a field on that type. Each resolver receives a <code>DataFetchingEnvironment</code> and returns the field&#8217;s value.</p>
 </div>
 </div>
 </div>
@@ -507,38 +495,58 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p><code>project</code> - project name, taken from the current context.</p>
+<p><code>project</code> - project name, selected by the <code>guillotine</code> field&#8217;s argument or supplied by the request context.</p>
 </li>
 <li>
-<p><code>branch</code> - branch name, taken from the current context.</p>
+<p><code>branch</code> - branch name, selected by the <code>guillotine</code> field&#8217;s argument or supplied by the request context.</p>
 </li>
 <li>
-<p><code>siteKey</code> - site key is taken from the <code>siteKey</code> argument of the <code>guillotine</code> field. If this argument is not provided, it will be equal to <code>/</code>.</p>
+<p><code>siteKey</code> - the selected site key, when present. Treat this property as optional; see <a href="../usage/site-context.ahtml">Site context</a>.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>Keys starting with <code>__</code> are internal to Guillotine and are not part of the extension contract.</p>
+</div>
+<div class="paragraph">
+<p>Resolvers beneath <code>guillotine</code> run in the selected project&#8217;s repository and branch. Calls to XP libraries such as <code>/lib/xp/content</code> use that context automatically. See <a href="../extending.ahtml#lifecycle">Lifecycle and execution</a> for fields added directly to <code>Query</code>.</p>
 </div>
 <div class="paragraph">
 <p>Below you can find an example of how to use these properties:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.extensions = function (graphQL) {
-    return {
-        ...
-        resolvers: {
-            MyCustomType: {
-                myCustomField: function (env) {
-                    const project = env.localContext.project;
-                    const branch = env.localContext.branch;
-                    const siteKey = env.localContext.siteKey;
-                    ...
-                }
-            }
+<pre class="highlight"><code class="language-typescript" data-lang="typescript">import type {DataFetchingEnvironment, Extensions} from '@enonic-types/guillotine';
+
+interface Source {
+    _id: string;
+}
+
+export const extensions = (): Extensions =&gt; ({
+    resolvers: {
+        MyCustomType: {
+            myCustomField: (env: DataFetchingEnvironment&lt;Record&lt;string, never&gt;, Source&gt;): string =&gt; {
+                const {project, branch, siteKey} = env.localContext;
+                return `${project}/${branch}: ${env.source._id} (site: ${siteKey ?? 'not selected'})`;
+            },
         },
-        ...
-   }
-}</code></pre>
+    },
+});</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>This example assumes <code>MyCustomType</code> has a string field named <code>myCustomField</code>, and that its parent resolver supplies an object with an <code>_id</code> property. The generic parameters describe the field arguments and source value respectively.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="application_context"><a class="link" href="#application_context">Application context</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A resolver runs as a script of the app containing the extension: <code>app.name</code>, <code>app.config</code>, <code>require</code> and localization through <code>/lib/xp/i18n</code> refer to that app.</p>
+</div>
+<div class="paragraph">
+<p>The portal request keeps its own application context. When calling a portal URL helper that accepts an <code>application</code> parameter, pass <code>application: app.name</code> to reference your extension app&#8217;s resources explicitly.</p>
 </div>
 </div>
 </div>
@@ -575,35 +583,34 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">exports.extensions = function (graphQL) {
-    return {
-        ...
-        resolvers: {
-            MyCustomType: {
-                myCustomField: function (env) {
-                    return graphQL.createDataFetcherResult({
-                        data: __.toScriptValue({
-                           id: "100",
-                        }),
-                        localContext: {
-                            parentId: "101",
-                        },
-                        parentLocalContext: env.localContext,
-                    });
-                }
-            }
+<pre class="highlight"><code class="language-typescript" data-lang="typescript">import type {Extensions, GraphQL} from '@enonic-types/guillotine';
+
+export const extensions = (graphQL: GraphQL): Extensions =&gt; ({
+    resolvers: {
+        MyCustomType: {
+            myCustomField: (env) =&gt; {
+                return graphQL.createDataFetcherResult({
+                    data: __.toScriptValue({id: '100'}),
+                    localContext: {
+                        parentId: '101',
+                    },
+                    parentLocalContext: env.localContext,
+                });
+            },
         },
-        ...
-   }
-}</code></pre>
+    },
+});</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Here, <code>myCustomField</code> must return an object type with an <code>id</code> field. Its child resolvers receive <code>parentId</code> through <code>env.localContext</code>. This is an alternative to the string-valued resolver above.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-11 14:57:15 UTC
+Last updated 2026-09-11 17:42:18 UTC
 </div>
 </div>
 </body>

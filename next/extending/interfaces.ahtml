@@ -457,46 +457,29 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="usage"><a class="link" href="#usage">Usage</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>It must be an object with the following structure:</p>
+<p>Add definitions to the <code>interfaces</code> property returned by your <a href="../extending.ahtml">extension function</a>. Each key is the name of a GraphQL type. This example references <code>CustomFilterInput</code> from <a href="input-types.ahtml">Input types</a>; include that definition in the same extension.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">interfaces: {
-    &lt;InterfaceTypeName&gt;: {
-        description: &lt;description&gt;
-        fields: {
-            &lt;fieldName&gt;: {
-               type: &lt;graphQLType&gt;,
-               args: {
-                 &lt;argName&gt;: &lt;graphQLType&gt;,
-                 // the rest of arguments ...
-               }
-            },
-            // the rest of field definitions ...
-        },
-    },
-    // the rest of interface definitions ...
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">interfaces: {
-    CustomInterface: {
-        description: "Custom Interface",
-        fields: {
-            query: {
-                type: graphQL.list(graphQL.GraphQLString),
-                args: {
-                    filter: graphQL.reference('CustomFilterInput')
-                }
+<pre class="highlight"><code class="language-typescript" data-lang="typescript">import type {Extensions, GraphQL} from '@enonic-types/guillotine';
+
+export const extensions = (graphQL: GraphQL): Extensions =&gt; {
+    return {
+        interfaces: {
+            CustomInterface: {
+                description: "Custom Interface",
+                fields: {
+                    query: {
+                        type: graphQL.list(graphQL.GraphQLString),
+                        args: {
+                            filter: graphQL.reference('CustomFilterInput')
+                        }
+                    }
+                },
             }
-        },
-    }
-}</code></pre>
+        }
+    };
+};</code></pre>
 </div>
 </div>
 </div>
@@ -504,7 +487,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-11 14:57:15 UTC
+Last updated 2026-09-11 17:42:18 UTC
 </div>
 </div>
 </body>

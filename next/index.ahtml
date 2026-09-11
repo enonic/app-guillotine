@@ -442,7 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#introduction">Introduction</a></li>
-<li><a href="#overview">Overview</a></li>
+<li><a href="#documentation_guide">Documentation guide</a></li>
 </ul>
 </div>
 </div>
@@ -450,13 +450,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>A bend-over-backwards flexible GraphQL API based on XP&#8217;s content API</p>
+<p>A GraphQL API generated from your Enonic content model</p>
 </div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>Guillotine is an Enonic app that exposes content through a headless GraphQL API. It generates a typed schema from your content model, letting websites, apps and other clients request the content and fields they need.</p>
+</div>
+<div class="paragraph">
+<p>Built-in queries provide access to content, references, images and rich text. Queries respect content permissions and support both published and draft content.</p>
+</div>
+<div class="paragraph">
+<p>You can extend the generated API with custom types, fields and resolvers written in TypeScript, including data from external services.</p>
+</div>
+<div class="paragraph">
+<p>To get started, <a href="setup.ahtml">install Guillotine</a>, explore your schema in <a href="playground.ahtml">Query Playground</a>, and <a href="usage.ahtml">send a query</a> from your client.</p>
+</div>
 <div class="admonitionblock tip">
 <table>
 <tr>
@@ -464,13 +476,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-<strong>Quickstart!</strong> Check out <a href="https://developer.enonic.com/learn/developer-101">the Developer 101 tutorial</a> for a hands-on introduction to Enonic and the GraphQL API.
+For a hands-on introduction to Enonic and its GraphQL API, follow <a href="https://developer.enonic.com/learn/developer-101">the Developer 101 tutorial</a>.
 </td>
 </tr>
 </table>
-</div>
-<div class="paragraph">
-<p>At its core, Guillotine is a strongly typed GraphQL version of XP&#8217;s internal <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-content">Content library</a>.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -480,32 +489,44 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="overview"><a class="link" href="#overview">Overview</a></h2>
+<h2 id="documentation_guide"><a class="link" href="#documentation_guide">Documentation guide</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>What you will find in this documentation:</p>
 </div>
 <div class="dlist">
 <dl>
-<dt class="hdlist1">Installation</dt>
+<dt class="hdlist1">Setup</dt>
 <dd>
-<p>How to <a href="setup.ahtml">install and deploy Guillotine</a></p>
+<p><a href="setup.ahtml">Install Guillotine and expose its API</a> in your environment.</p>
 </dd>
-<dt class="hdlist1">Query playground</dt>
+<dt class="hdlist1">Query Playground</dt>
 <dd>
-<p>Content Studio extension, allowing privileged users to <a href="playground.ahtml">query the API in context of the content</a>.</p>
+<p><a href="playground.ahtml">Explore your schema and try queries</a> in Content Studio.</p>
+</dd>
+<dt class="hdlist1">Usage</dt>
+<dd>
+<p>How to <a href="usage.ahtml">send queries and handle responses</a>, with cURL and JavaScript examples.</p>
 </dd>
 <dt class="hdlist1">Query examples</dt>
 <dd>
-<p>A basic introduction to using the API, with hands <a href="usage.ahtml">examples on how to use the API</a>.</p>
+<p>Reference examples for <a href="usage/content-queries.ahtml">content queries</a>, <a href="usage/references-and-mixins.ahtml">references and mixins</a>, <a href="usage/images-and-urls.ahtml">images and URLs</a>, <a href="usage/rich-text.ahtml">rich text</a> and <a href="usage/site-context.ahtml">site context</a>.</p>
 </dd>
-<dt class="hdlist1">Clients</dt>
+<dt class="hdlist1">Extending</dt>
 <dd>
-<p>Demonstrating how to invoke the API using <a href="usage/curl.ahtml">cURL</a> or <a href="usage/javascript.ahtml">JavaScript</a>.</p>
+<p><a href="extending.ahtml">Customize the schema and add resolvers</a> in TypeScript, and learn how Guillotine executes your extensions.</p>
 </dd>
-<dt class="hdlist1">Extending and augmenting</dt>
+<dt class="hdlist1">API reference</dt>
 <dd>
-<p>Discover Guillotine&#8217;s superpower and how to <a href="extending.ahtml">dynamically extend the API to match your needs</a>.</p>
+<p><a href="api.ahtml">Look up built-in GraphQL fields, arguments and types</a>.</p>
+</dd>
+<dt class="hdlist1">Configuration</dt>
+<dd>
+<p><a href="configuration.ahtml">Configure Guillotine</a>, including CORS and schema extension behavior.</p>
+</dd>
+<dt class="hdlist1">Release notes</dt>
+<dd>
+<p><a href="release.ahtml">What&#8217;s new in Guillotine 9</a> and <a href="upgrade.ahtml">how to upgrade</a> from Guillotine 8.</p>
 </dd>
 </dl>
 </div>
@@ -514,7 +535,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-11 14:57:15 UTC
+Last updated 2026-09-11 17:42:18 UTC
 </div>
 </div>
 </body>
