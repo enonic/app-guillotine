@@ -1,0 +1,73 @@
+= Content queries
+
+Use `get` to retrieve a known content item, `getChildren` to list items below a path, and `queryDsl` to search across the project. The <<../api#headlesscms, HeadlessCms>> reference lists their arguments and return types.
+
+These examples query published content in `myproject`. Replace the project name and content paths with your own, and send the queries using the request format on the <<../usage#, Usage>> page.
+
+== Retrieve an item
+
+The `key` argument accepts a content ID or a path within the project:
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master") {
+    get(key: "/my-site/posts/first-post") {
+      _id
+      displayName
+      type
+    }
+  }
+}
+----
+
+== Query by content type
+
+Enonic's https://developer.enonic.com/docs/code/stable/storage/querying[Query DSL] supports filtering, ranked search, aggregations and highlighting. This query filters on the content type and returns up to ten posts:
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master") {
+    queryDsl(
+      query: {
+        term: {
+          field: "type"
+          value: { string: "com.example.myapp:post" }
+        }
+      }
+      first: 10
+    ) {
+      _id
+      displayName
+      ... on com_example_myapp_Post {
+        data {
+          title
+        }
+      }
+    }
+  }
+}
+----
+
+This example assumes a `com.example.myapp:post` content type with a `title` field. Its content type identifier includes the owning app's namespace. Guillotine exposes its form fields under `data` on the generated GraphQL type, here `+com_example_myapp_Post+`.
+
+Use an inline fragment (`... on TypeName`) to select fields belonging to a particular content type. Check the generated type and field names in <<../playground#, Playground>> when adapting the query to your model.
+
+== Pagination
+
+List fields such as `getChildren` and `queryDsl` accept `first` to limit the number of items and `offset` to skip items. For example, this requests the second group of ten children, sorted by display name:
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master") {
+    getChildren(key: "/my-site/posts", first: 10, offset: 10, sort: "displayName ASC") {
+      _id
+      displayName
+    }
+  }
+}
+----
+
+For cursor pagination and result metadata, use the corresponding connection fields, such as `getChildrenConnection` and `queryDslConnection`. See <<../api#contentconnection, ContentConnection>> and <<../api#querydslcontentconnection, QueryDSLContentConnection>> for the response structures.

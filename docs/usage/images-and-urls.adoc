@@ -1,0 +1,162 @@
+= Images and URLs
+
+Guillotine provides URL components for pages, scaled images, media and attachments. Select `path` and `queryString`, then build links using your client's media base URL or frontend routing.
+
+These examples query published content in `myproject`. Replace the project and content paths with your own, and send the queries using the request format on the <<../usage#, Usage>> page.
+
+== Scaled images
+
+On `+media_Image+` content, `imageUrl` provides the path for a requested size and crop. This query finds up to ten images and requests an 800 by 200 pixel crop for each:
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master") {
+    queryDsl(
+      query: {
+        term: {
+          field: "type"
+          value: { string: "media:image" }
+        }
+      }
+      first: 10
+    ) {
+      displayName
+      ... on media_Image {
+        imageUrl(scale: "block(800,200)") {
+          path
+          queryString
+        }
+      }
+    }
+  }
+}
+----
+
+Prefix the returned `path` with your media base URL and append `queryString`. With the shared <<../setup#api-base-url, API base URL>> `https://example.com/api`, the resulting image address can be:
+
+[source,text]
+----
+https://example.com/api/media:image/myproject/contentid:fingerprint/block-800-200/photo.jpg
+----
+
+== Media and attachments
+
+Media content exposes `mediaUrl` for its binary attachment. Other attachments are available through the content item's `attachments` field. Select `path` and `queryString` on `attachmentUrl` to build an attachment link:
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master") {
+    get(key: "/my-site/downloads/report") {
+      attachments {
+        name
+        attachmentUrl(download: true) {
+          path
+          queryString
+        }
+      }
+      ... on media_Document {
+        mediaUrl(download: true) {
+          path
+          queryString
+        }
+      }
+    }
+  }
+}
+----
+
+This example assumes a document media item. The `download` argument adds the download instruction to `queryString`, so retain it when building the link. See <<../api#attachmenturl, AttachmentUrl>> for the returned fields.
+
+== Page URLs
+
+Select `pageUrl.path` and `pageUrl.queryString` to build a content item's page link. Use `siteKey` to request paths relative to a specific site:
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+    get(key: "/my-site/posts/first-post") {
+      pageUrl {
+        path
+        queryString
+      }
+    }
+  }
+}
+----
+
+The returned `path` is `/posts/first-post`. Adapt it to your frontend's routes: a frontend serving the site at `/news` could use `/news/posts/first-post`, while one on a dedicated host could use `https://www.example.com/posts/first-post`. Append `queryString` to preserve any parameters.
+
+[#base-urls]
+== Base URLs
+
+=== Page links
+
+Your frontend controls the public host and routing for page links. Use `siteKey` to select the site or project that `pageUrl.path` is relative to, then map that path to your deployment.
+
+For nested sites, the selected level determines the path. Given a post at `/my-site/subsite/posts/first-post`:
+
+[%header,cols="1,2"]
+|===
+|siteKey |Page URL path
+|/my-site |/subsite/posts/first-post
+|/my-site/subsite |/posts/first-post
+|/ |/my-site/subsite/posts/first-post
+|===
+
+`siteKey: "/"` selects the project itself. Selecting the parent site retains the nested site's path segment; selecting the nested site removes it.
+
+Without `siteKey`, the context depends on the endpoint:
+
+* At the Web endpoint under `/api`, each content item's nearest site determines the relative page path.
+* At a site endpoint, the matched virtual host mapping determines which level of the content tree the address represents. Without a mapping narrowing that context, it is the project.
+
+When following references across sites, choose the appropriate site context and frontend route for each target.
+
+=== Media links
+
+XP serves images and attachments at `/api/media:image/...` and `/api/media:attachment/...` by default. When your deployment exposes the shared <<../setup#api-base-url, API base URL>>, it provides routes for both Guillotine and these media APIs. For example, an API base of `https://example.com/api` serves GraphQL at `/com.enonic.app.guillotine:graphql` and images at `/media:image/...` beneath that base.
+
+Configure a media base URL in your client and prefix it to the returned media paths. Use the shared API base, or a separate CDN base such as `https://cdn.example.com/api`. The CDN must route those paths to the corresponding XP media endpoints. If images and attachments use different hosts, configure a base for each.
+
+XP also embeds links in <<rich-text#, processed rich text>>. Those links follow XP's site and media configuration; see <<../configuration#media-base-url, Media base URL>>. Client-side URL assembly uses the base you supply.
+
+[#url-parts]
+== Building URLs from parts
+
+The `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields expose `path` and `queryString`. These components are already URL-escaped, so do not encode them again. For a deployment that preserves the returned paths, assemble links as `baseUrl + path + queryString`.
+
+Choose a base without a trailing slash. A media path already includes `/media:image` or `/media:attachment`, so use the API or CDN base that serves those paths. For pages, supply your frontend's host or route prefix, or adapt the path to your routing scheme. The query string includes its leading `?` when non-empty.
+
+[source,javascript]
+----
+const mediaBaseUrl = 'https://example.com/api';
+const imageSrc = mediaBaseUrl + image.imageUrl.path + image.imageUrl.queryString;
+
+// This frontend serves the selected site's pages under /news.
+const pageBasePath = '/news';
+const pageHref = pageBasePath + content.pageUrl.path + content.pageUrl.queryString;
+----
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master") {
+    get(key: "/my-site/images/photo") {
+      ... on media_Image {
+        imageUrl(scale: "block(800,200)") {
+          path
+          queryString
+          fingerprint
+        }
+      }
+    }
+  }
+}
+----
+
+For example, `path` can be `/media:image/myproject/contentid:fingerprint/block-800-200/photo.jpg`. On a non-master branch, the context segment includes the branch, such as `myproject:draft`.
+
+Use the returned media fingerprint; it cannot be calculated by the client. See <<../api#pageurl, PageUrl>>, <<../api#imageurl, ImageUrl>> and <<../api#attachmenturl, AttachmentUrl>> for the available components.

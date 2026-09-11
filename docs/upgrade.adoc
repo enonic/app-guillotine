@@ -1,3 +1,284 @@
 = Upgrade Notes
 
-Upgrade notes for Guillotine 9 will be added here.
+== Upgrading from Guillotine 8 to 9
+
+Guillotine 9 requires Enonic XP 8.1.0 or higher.
+
+Guillotine 9 changes the API endpoint and several GraphQL fields. Start with the endpoint and URL changes below, then review the sections for features your clients use. Regenerate client types from the new schema after updating your queries.
+
+Versions 8 and 9 use the same application key, so installing version 9 replaces version 8. If clients need to migrate at different times, see <<#gradual-migration, Migrating clients gradually>>.
+
+[#endpoint-migration]
+=== API endpoint
+
+All clients using the standard Guillotine 8 endpoint need to update their endpoint or its routing configuration.
+
+These are the native XP endpoints; your production setup may expose a different public URL:
+
+[%header,cols="1,2"]
+|===
+|Version |Native XP endpoint
+|Guillotine 8
+|`POST /site/<project>/<branch>`
+|Guillotine 9 Web API
+|`POST /api/com.enonic.app.guillotine:graphql`
+|===
+
+Update ingress or virtual-host targets that point to the old endpoint. You can keep the same public URL, but must still update queries to select <<#project-branch-migration, project and branch>>.
+
+A common XP 8 setup exposes `/api` as a shared <<setup#api-base-url, API base URL>>. Guillotine is then at `<apiBaseUrl>/com.enonic.app.guillotine:graphql`, with the image and attachment APIs under the same base. If you expose GraphQL individually or serve media through a CDN, also verify that your media links have working public routes. See <<setup#, Setup>> for routing examples and <<configuration#media-base-url, Configuration>> for separate media hosting.
+
+For site mounting, add `com.enonic.app.guillotine:graphql` to the site's `apis` descriptor list. The native endpoint is `/site/<project>/<branch>/<site-path>/_/com.enonic.app.guillotine:graphql`.
+
+[#project-branch-migration]
+=== Project and branch
+
+At the new Web endpoint, project and branch move from the request URL into the query. A request previously sent to `/site/myproject/master` becomes:
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master") {
+    getChildren(key: "/", first: 10) {
+      _id
+      displayName
+    }
+  }
+}
+----
+
+The JSON request body still contains `query` and optional `variables`; see <<usage#request-format, Request format>> for complete examples.
+
+Use `master` for published content or `draft` for work in progress. Content permissions continue to apply; draft access normally requires authentication.
+
+At a site-mounted endpoint, the request still supplies project and branch, and query arguments cannot override them.
+
+[#url-migration]
+=== Page, image and attachment URLs
+
+Clients selecting URL fields must update both their queries and their handling of the response. These fields now return objects:
+
+[%header,cols="2,1,1"]
+|===
+|Field |Guillotine 8 |Guillotine 9
+|`Content.pageUrl` |`String` |`PageUrl`
+|`media_Image.imageUrl` |`String` |`ImageUrl`
+|Media content's `mediaUrl` |`String` |`AttachmentUrl`
+|`Attachment.attachmentUrl` |`String` |`AttachmentUrl`
+|===
+
+Select `path` and `queryString`, then build the address in your client using the appropriate media base URL or frontend route.
+
+.Guillotine 8
+[source,graphql]
+----
+{
+  guillotine {
+    get(key: "/my-site/photo") {
+      pageUrl(type: absolute)
+      ... on media_Image {
+        imageUrl(scale: "width(800)", type: absolute)
+        mediaUrl(type: absolute)
+      }
+      attachments {
+        attachmentUrl(type: absolute)
+      }
+    }
+  }
+}
+----
+
+.Guillotine 9
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master") {
+    get(key: "/my-site/photo") {
+      pageUrl { path queryString }
+      ... on media_Image {
+        imageUrl(scale: "width(800)") { path queryString }
+        mediaUrl { path queryString }
+      }
+      attachments {
+        attachmentUrl { path queryString }
+      }
+    }
+  }
+}
+----
+
+For media, concatenate your public API or CDN base with `path` and `queryString`. For pages, adapt `pageUrl.path` to your frontend's host and routing, then append `pageUrl.queryString`. These components are already URL-escaped. See <<usage/images-and-urls#url-parts, Building URLs from parts>> for client examples.
+
+The `type` argument and `UrlType` enum are removed. Remove `type: server` and `type: absolute` from queries and variables. Your client now supplies the deployment context when building links from these components.
+
+==== Processed rich text
+
+`ProcessHtmlInput.type` is also removed. Remove the `type` property from `processHtml` arguments and variables; `imageWidths` and `imageSizes` remain available. Links embedded in processed HTML follow XP's site and media configuration. Verify rendered links and images against your deployment, or use structured rich-text data to build them in your client. See <<usage/rich-text#, Rich text>>.
+
+[#search-migration]
+=== Search queries
+
+Clients using `query` or `queryConnection` must migrate to Query DSL. Clients already using `queryDsl` and `queryDslConnection` can keep those field names.
+
+[%header,cols="1,1"]
+|===
+|Removed |Replacement
+|`HeadlessCms.query` |`HeadlessCms.queryDsl`
+|`HeadlessCms.queryConnection` |`HeadlessCms.queryDslConnection`
+|`QueryContentConnection` |`QueryDSLContentConnection`
+|===
+
+Rewrite string queries as structured DSL expressions and string sorting as `SortDslInput` objects. For example:
+
+.Guillotine 8
+[source,graphql]
+----
+{
+  guillotine {
+    query(query: "type = 'portal:site'", sort: "displayName ASC", first: 10) {
+      _id
+      displayName
+    }
+  }
+}
+----
+
+.Guillotine 9
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master") {
+    queryDsl(
+      query: { term: { field: "type", value: { string: "portal:site" } } }
+      sort: [{ field: "displayName", direction: ASC }]
+      first: 10
+    ) {
+      _id
+      displayName
+    }
+  }
+}
+----
+
+The old `contentTypes` and `filters` arguments are not available on the DSL fields. Express those constraints within the DSL query, combining conditions with boolean expressions as needed. The associated `FilterInput`, `BooleanFilterInput`, `ExistsFilterInput`, `NotExistsFilterInput`, `HasValueFilterInput` and `IdsFilterInput` types are removed; update variable declarations and any extension references to them.
+
+For connection queries, update fragments that reference `QueryContentConnection` to `QueryDSLContentConnection`. The DSL connection supports cursor pagination and aggregations, but its query and sort arguments use the DSL input types. See <<usage/content-queries#, Content queries>> for examples.
+
+=== Playground at the GraphQL endpoint
+
+Guillotine 9 removes the embedded playground that Guillotine 8 served on GET requests to the API root. Opening the API endpoint in a browser no longer displays a query editor. Send GraphQL queries using HTTP POST to the <<setup#endpoints, endpoint exposed by your installation>>.
+
+The <<playground#, Query Playground in Content Studio>> remains available. To explore the API outside Content Studio, connect a <<usage#third-party-clients, third-party GraphQL client such as Altair>>.
+
+The `queryplayground.ui.mode` configuration property is removed. Delete it from existing Guillotine configuration files; it no longer enables an editor at the API endpoint.
+
+[#site-context-migration]
+=== Site context and relative paths
+
+Review this section if you use `siteKey`, `getSite`, site-relative paths, or queries scoped to a site.
+
+==== Selecting a site
+
+The `X-Guillotine-SiteKey` request header is no longer supported. Move the selection into the GraphQL query:
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+    getSite {
+      _id
+      displayName
+    }
+  }
+}
+----
+
+An omitted `siteKey` no longer defaults to `"/"`. `getSite` returns `null` without a selection, including at a site-mounted endpoint; select a site explicitly when you need this field. A nonexistent `siteKey` now raises an error while setting up the `guillotine` context.
+
+Use `siteKey: "/"` when you explicitly want project-root path and URL context. The project root is not a site content item, so `getSite` returns `null` for that selection. Queries using the `${site}` placeholder must also supply `siteKey`. See <<usage/site-context#, Site context>>.
+
+==== Replacing site-relative `_path`
+
+The `_path` field no longer accepts `type: siteRelative`, and the `ContentPathType` enum is removed. `_path` returns the content's full path within the project.
+
+Select `pageUrl { path }` with an appropriate `siteKey` for a site-relative link. This is not a direct string replacement: the old site-relative `_path` omitted the leading slash, while `pageUrl.path` includes it for descendants and URL-escapes the path. For the selected site itself, `pageUrl.path` is empty. Adjust URL concatenation accordingly.
+
+==== Query scope and URL scope
+
+The previous automatic site-path restrictions on content queries and lookups are removed. Queries can reach content elsewhere in the project, subject to content permissions. If your client needs results from one subtree, add explicit path constraints to its DSL queries.
+
+For page URLs, `siteKey` now selects both the URL base and the relative path. A request for a page URL outside the selected site can produce a GraphQL field error. For nested sites, choosing the parent or child site can produce different links. Without `siteKey`, page URL context depends on the endpoint. Test cross-site references and nested-site links against the <<usage/images-and-urls#base-urls, URL context rules>>.
+
+[#metadata-migration]
+=== Schema metadata and publication timestamps
+
+These changes affect clients inspecting content type definitions or generating types from the schema.
+
+==== Content type and form definitions
+
+`ContentType.displayName` is removed. Select `title` instead when querying `getType`, `getTypes` or a content item's `contentType` field. This does not affect `Content.displayName`.
+
+The following form metadata fields and types are removed:
+
+[%header,cols="1,2"]
+|===
+|Type |Removed fields
+|`FormInput` |`customText`, `validationRegexp`, `maximize`, `defaultValue`
+|`FormItemSet` |`customText`
+|`DefaultValue` |The entire type, including `value` and `type`
+|===
+
+Remove these selections and any fragments on `DefaultValue`. If your tooling depends on this metadata, inspect the current definitions in <<playground#, Query Playground>> and adapt it to the available fields. `ContentType.form` and `formAsJson` remain available.
+
+==== Publication timestamps
+
+`PublishInfo.from`, `to` and `first` change from `String` to `DateTime`. They are still represented as timestamp strings in JSON, but generated clients and extensions may require a `DateTime` scalar mapping. Regenerate client types and review custom resolvers that provide these values.
+
+[#extension-migration]
+=== Custom extensions
+
+Review these changes if your app provides `guillotine.ts` or `guillotine.js` extensions. The `extensions(graphQL)` entry point remains the same. Update any references to the removed fields, arguments and types described above, then verify schema generation and queries using your custom fields.
+
+==== Resolver application context
+
+Guillotine no longer temporarily changes the portal request's application to the app that owns a resolver. Portal URL helpers that infer an application from the request can therefore generate different URLs. Where a helper accepts an `application` parameter, pass the intended application explicitly.
+
+The resolver's script context and `app.name` still identify the extension app. Resolvers beneath `guillotine` execute in the selected project repository and branch. Treat `env.localContext.siteKey` as optional. See <<extending#lifecycle, Lifecycle and execution>>.
+
+==== Rich-text macro discovery
+
+When processing rich text in a site context, Guillotine now uses macros collected from installed applications, rather than limiting discovery to applications configured on that site. Verify macro output if your installation has multiple apps providing macros, especially where names overlap.
+
+==== TypeScript definitions
+
+The generic parameters for resolver types have changed:
+
+[%header,cols="1,2,2"]
+|===
+|Type |Guillotine 8 |Guillotine 9
+|`DataFetchingEnvironment` |`<Args, LocalContext, Source>` |`<Args, Source>`
+|`Resolver` |`<Args, LocalContext, Source, Return>` |`<Args, Source, Return>`
+|===
+
+Update generic arguments when migrating typed resolvers. Custom local-context types are no longer supplied through these generic parameters; describe the properties your resolver uses separately.
+
+Several named exports are also removed from the root of `@enonic-types/guillotine`, including `Field`, `Fields`, `CreationCallbacks`, `Enums`, `Type`, `Types`, `InputTypeField`, `InputTypeFields`, `InputType`, `InputTypes`, `Interface`, `Interfaces`, `Union`, `Unions`, `CreateDataFetcherResult`, `CreateDataFetcherResultParams` and `DataFetcherResult`.
+
+Use the exported `Extensions` type to derive types for individual properties, for example:
+
+[source,typescript]
+----
+import type {Extensions} from '@enonic-types/guillotine';
+
+type Types = NonNullable<Extensions['types']>;
+type CreationCallbacks = NonNullable<Extensions['creationCallbacks']>;
+----
+
+Recompile extensions against the updated definitions and follow the <<extending#, TypeScript examples>> for the current signatures.
+
+[#gradual-migration]
+=== Migrating clients gradually
+
+For a gradual migration, you can fork the https://github.com/enonic/app-guillotine/tree/8.x[Guillotine 8 branch] and build it with a distinct application key. Change `appName` in `gradle.properties`, for example to `com.example.guillotine8`, and update application-key references and endpoint mappings accordingly. This allows the fork to serve existing clients while you migrate others to Guillotine 9. Public URLs can be preserved by mapping them to the fork's endpoint.
+
+Verify the fork against your target XP version and test your extensions with both APIs before using this arrangement. Both versions discover extension files in installed apps, so a different application key does not isolate extensions. Their schema definitions, creation callbacks and resolvers must work with both versions; check schema generation and representative client queries against each endpoint.

@@ -1,0 +1,71 @@
+= Site context
+
+The `siteKey` argument on `guillotine` selects a site within the current project. Use it to retrieve the site and resolve paths relative to it.
+
+Project and branch select the content repository and version of the content. Site context is a separate choice within that project. See <<../usage#content-context, Project and branch>> for how these are selected.
+
+== Select a site
+
+Set `siteKey` to the site's content ID or its path within the project. This example selects `/my-site` and retrieves its display name:
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+    getSite {
+      _id
+      displayName
+    }
+  }
+}
+----
+
+Replace `myproject` and `/my-site` with an existing project and site. The selected site must exist in the branch you query. Send this query using the request format on the <<../usage#, Usage>> page.
+
+== Path placeholder
+
+Use `${site}` in a content key to insert the selected site's path. This lets a query use paths below a site without repeating its location:
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+    get(key: "${site}") {
+      displayName
+    }
+    getChildren(key: "${site}/persons", first: 10) {
+      displayName
+    }
+  }
+}
+----
+
+The placeholder can be used in the `key` argument of `get`, `getChildren`, `getChildrenConnection` and `getPermissions`. See <<../api#headlesscms, HeadlessCms>> for the field signatures.
+
+NOTE: `${site}` is a Guillotine placeholder inside a GraphQL string. When writing the query in a JavaScript template literal, escape it as `\${site}` so JavaScript sends the placeholder unchanged.
+
+== Site-relative paths
+
+Select `pageUrl.path` to retrieve a URL-escaped path relative to the selected site:
+
+[source,graphql]
+----
+{
+  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+    getChildren(key: "${site}/persons", first: 10) {
+      displayName
+      pageUrl {
+        path
+      }
+    }
+  }
+}
+----
+
+The content's `+_path+` field contains its path within the project. Use `pageUrl.path` for site-relative links, adapt it to your frontend's routing, and append `pageUrl.queryString` if requested. See <<images-and-urls#, Images and URLs>>.
+
+== Project root and URL context
+
+`siteKey: "/"` selects the project root as the context for paths and URLs. The project root is not a site content item, so `getSite` returns `null` in that context.
+
+Selecting a site does not restrict every query to its descendants: `queryDsl` still searches the project, and an absolute content path can point outside the selected site. When building links across sites, choose the appropriate site context and frontend route for each target. See <<images-and-urls#base-urls, Base URLs>> for nested sites and path context.

@@ -4,34 +4,23 @@ Add custom GraphQL enums
 
 == Usage
 
-It must be an object with the following structure:
+Add enum definitions to the `enums` property returned by your <<../extending#, extension function>>. Each enum has a description and a map of names to values.
 
-[source,javascript]
+[source,typescript]
 ----
-enums: {
-    <EnumTypeName>: {
-        description: <description>
-        values: {
-            <key1>: <value1>,
-            <key2>: <value2>,
-            // the rest of pairs of key and value ...
-        },
-    },
-    // the rest of enum type definitions ...
-}
-----
+import type {Extensions, GraphQL} from '@enonic-types/guillotine';
 
-For example:
-
-[source,javascript]
-----
-enums: {
-    CustomEnum: {
-        description: "Custom Enum",
-        values: {
-            a: "A",
-            b: "B",
+export const extensions = (graphQL: GraphQL): Extensions => {
+    return {
+        enums: {
+            CustomEnum: {
+                description: "Custom Enum",
+                values: {
+                    a: "A",
+                    b: "B",
+                }
+            }
         }
-    }
-}
+    };
+};
 ----

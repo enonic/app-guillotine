@@ -4,7 +4,7 @@ Add remove, or modify existing fields, their description, types and interfaces.
 
 == Introduction
 
-creationCallbacks are invoked during the GraphQL schema generation - every time Guillotine or an application extending Guillotine is started or stopped.
+`creationCallbacks` are invoked when Guillotine builds the GraphQL schema. Application start, stop and uninstall events invalidate the cached schema; the callbacks run again when the next query triggers a rebuild. See <<../extending#lifecycle, Lifecycle and execution>> for the full execution flow.
 
 
 Important to remember:
@@ -25,85 +25,45 @@ NOTE: It is *NOT recommended* to make modification to the standard fields of the
 
 == Usage
 
-This property must be an object with the following structure:
+Add functions to the `creationCallbacks` property returned by your <<../extending#, extension function>>. Each key names the type or interface to modify. Callback parameters provide these methods:
 
-[source,javascript]
-----
-creationCallbacks: {
-    <GraphQLTypeName>: function (params) {
-        // if you want to add new fields
-        params.addFields({
-            <newFieldName>: {
-                type: <GraphQLType>,
-                args: {
-                    <argName>: <GraphQLType>,
-                    // the rest of argument definitions ...
-                },
-            },
-        });
-
-        // if you want to remove existing fields
-        params.removeFields([
-             "fieldName 1",
-             "filedName 2",
-             // the rest of fieldName ...
-        ]);
-
-        // If you want to modify existing fields,
-        // keep in mind that all arguments will be rewritten by the new arguments.
-        // If type or args are not provided then type and args of the original field will be used.
-        params.modifyFields({
-            <existingFieldName>: {
-                type: <GraphQLType>,
-                args: {
-                    <argName>: <GraphQLType>,
-                    // the rest of arguments definitions ...
-                },
-            },
-        });
-
-        // If you want to change description
-        params.setDescription("New description");
-
-        // If you want to add or remove some interfaces in an object,
-        // keep in mind that interfaces will be rewritten by the new array of interfaces.
-        // Also do not forget to add all the required fields.
-        params.setInterfaces([
-            <GraphQLInterfaceType or GraphQLReferenceType>
-        ]);
-    },
-    // the rest of creation callback definition ...
-}
-----
+* `addFields` adds named fields with a `type` and optional `args` map.
+* `removeFields` removes fields by name.
+* `modifyFields` changes a field's type or arguments. Supplying `args` replaces all existing arguments; omitted properties retain their original values.
+* `setDescription` changes the type's description.
+* `setInterfaces` replaces the interfaces implemented by an object type. Include all fields required by those interfaces.
 
 NOTE: By default, Guillotine will throw an error if it tries to modify an unknown field. You can customise this behaviour by setting the `graphql.extensions.modifyUnknownField` property in the <<../configuration#, configuration>>.
 
 
-For example:
+For example, given an existing `MyCustomType` with the named fields:
 
-[source,javascript]
+[source,typescript]
 ----
-creationCallbacks: {
-    MyCustomType: function (params) {
-        params.addFields({
-            extraField: {
-                type: graphQL.GraphQLString,
-            }
-        });
+import type {Extensions, GraphQL} from '@enonic-types/guillotine';
 
-        params.removeFields([
-            "fieldToRemove1",
-            "fieldToRemove2",
-        ]);
+export const extensions = (graphQL: GraphQL): Extensions => ({
+    creationCallbacks: {
+        MyCustomType: (params) => {
+            params.addFields({
+                extraField: {
+                    type: graphQL.GraphQLString,
+                },
+            });
 
-        params.modifyFields({
-          fieldToModify: {
-            type: graphQL.GraphQLString,
-          }
-        });
+            params.removeFields([
+                'fieldToRemove1',
+                'fieldToRemove2',
+            ]);
+
+            params.modifyFields({
+                fieldToModify: {
+                    type: graphQL.GraphQLString,
+                },
+            });
+        },
     },
-
-}
+});
 ----
 
 To learn how to set or override data fetcher for a field you can refer to the <<./resolvers#,resolvers>> section.

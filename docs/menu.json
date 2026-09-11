@@ -13,12 +13,24 @@
       "document": "usage",
       "menuItems": [
         {
-          "title": "cURL",
-          "document": "usage/cURL"
+          "title": "Content queries",
+          "document": "usage/content-queries"
         },
         {
-          "title": "JavaScript",
-          "document": "usage/javascript"
+          "title": "References and mixins",
+          "document": "usage/references-and-mixins"
+        },
+        {
+          "title": "Images and URLs",
+          "document": "usage/images-and-urls"
+        },
+        {
+          "title": "Rich text",
+          "document": "usage/rich-text"
+        },
+        {
+          "title": "Site context",
+          "document": "usage/site-context"
         }
       ]
     },

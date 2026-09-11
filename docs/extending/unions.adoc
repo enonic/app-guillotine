@@ -4,33 +4,23 @@ Used to create custom unions
 
 == Usage
 
-It must be an object with the following structure:
+Add definitions to the `unions` property returned by your <<../extending#, extension function>>. Each key is the name of a GraphQL type. The referenced object types must also exist in the schema; replace `GraphQLTypeNameOne` and `GraphQLTypeNameTwo` with your type names.
 
-[source,javascript]
+[source,typescript]
 ----
-unions: {
-    <UnionTypeName>: {
-        description: <description>,
-        types: [
-            <graphQLType>,
-            // the rest of types or reference to type ...
-        ],
-    },
-    // the rest of union definitions ...
-}
-----
+import type {Extensions, GraphQL} from '@enonic-types/guillotine';
 
-For example:
-
-[source,javascript]
-----
-unions: {
-    CustomUnion: {
-        description: "Custom Union",
-        types: [
-            graphQL.reference('GraphQLTypeNameOne'),
-            graphQL.reference('GraphQLTypeNameTwo'),
-        ]
-    }
-}
+export const extensions = (graphQL: GraphQL): Extensions => {
+    return {
+        unions: {
+            CustomUnion: {
+                description: "Custom Union",
+                types: [
+                    graphQL.reference('GraphQLTypeNameOne'),
+                    graphQL.reference('GraphQLTypeNameTwo'),
+                ]
+            }
+        }
+    };
+};
 ----

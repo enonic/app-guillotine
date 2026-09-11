@@ -35,9 +35,11 @@ For instance, you may add a field returning the current server time like this:
 
 For example:
 
-[source,javascript]
+[source,typescript]
 ----
-exports.extensions = function (graphQL) {
+import type {Extensions, GraphQL} from '@enonic-types/guillotine';
+
+export const extensions = (graphQL: GraphQL): Extensions => {
     return {
         types: {},
         creationCallbacks: {
@@ -51,9 +53,7 @@ exports.extensions = function (graphQL) {
         },
         resolvers: {
             Query: {
-                myapp_serverTime: function (env) {
-                    // return current server time
-                }
+                myapp_serverTime: (): string => new Date().toISOString()
             }
         }
     }
@@ -71,14 +71,19 @@ We recommend to use this rule: if field is related to `Content`, then add it to 
 
 For example:
 
-[source,JavaScript]
+[source,typescript]
 ----
-exports.extensions = function (graphQL) {
+import {get} from '/lib/xp/content';
+import type {DataFetchingEnvironment, Extensions, GraphQL} from '@enonic-types/guillotine';
+
+export const extensions = (graphQL: GraphQL): Extensions => {
     return {
         types: {
             MyApp_Menu: {
+                description: 'A menu entry for a content item',
                 fields: {
-                    // add fields here
+                    title: {type: graphQL.GraphQLString},
+                    content: {type: graphQL.reference('Content')},
                 }
             }
         },
@@ -88,9 +93,7 @@ exports.extensions = function (graphQL) {
                     myapp_menu: {
                         type: graphQL.reference('MyApp_Menu'),
                         args: {
-                            contentKey: {
-                                type: graphQL.nonNull(graphQL.GraphQLString)
-                            }
+                            contentKey: graphQL.nonNull(graphQL.GraphQLString)
                         }
                     }
                 });
@@ -98,8 +101,9 @@ exports.extensions = function (graphQL) {
         },
         resolvers: {
             HeadlessCms: {
-                myapp_menu: function (env) {
-                    // return menu for specified Content instance
+                myapp_menu: (env: DataFetchingEnvironment<{contentKey: string}>) => {
+                    const content = get({key: env.args.contentKey});
+                    return content ? {title: content.displayName, content} : null;
                 }
             }
         }
@@ -113,36 +117,47 @@ You may also extend any other standard or generated Guillotine type, for instanc
 
 == Coding guidelines
 
-The `extensions` function can get huge, so we recommend to split it into several files. For example, you can create a file for each property such as `types`, `creationCallbacks`, `resolvers` and others. If needed, you can split them into several files too.
+Split larger extensions into typed factory functions. Keep `guillotine.ts` as the entry point and import the factories it needs. For example, these three files define the server-time field from above:
 
-[source,JavaScript]
+.src/main/resources/guillotine/guillotine.ts
+[source,typescript]
 ----
-const typesFactory = require('./types-factory');
-const creationCallbacksFactory = require('./creation-callbacks-factory');
-const resolversFactory = require('./resolvers-factory');
+import type {Extensions, GraphQL} from '@enonic-types/guillotine';
+import {create as createCallbacks} from './creation-callbacks-factory';
+import {create as createResolvers} from './resolvers-factory';
 
-exports.extensions = function (graphQL) {
-    return {
-        types: typesFactory.create(graphQL),
-        creationCallbacks: creationCallbacksFactory.create(graphQL),
-        resolvers: resolversFactory.create(graphQL)
-    }
-};
+export const extensions = (graphQL: GraphQL): Extensions => ({
+    creationCallbacks: createCallbacks(graphQL),
+    resolvers: createResolvers(),
+});
 ----
 
-Let's take a look at the `resolvers-factory.js` file:
-
-This example below demonstrates how to split the `resolvers` property into two files: `headless-cms-resolvers-factory.js` and `query-resolvers-factory.js`, where each file contains resolvers for fields of the corresponding type.
-
-[source,javascript]
+.src/main/resources/guillotine/creation-callbacks-factory.ts
+[source,typescript]
 ----
-const headlessCmsResolversFactory = require('./headless-cms-resolvers-factory');
-const queryResolversFactory = require('./query-resolvers-factory');
+import type {Extensions, GraphQL} from '@enonic-types/guillotine';
 
-exports.create = function (graphQL) {
-    return {
-        Query: queryResolversFactory.create(graphQL),
-        HeadlessCms: headlessCmsResolversFactory.create(graphQL)
-    }
-};
+export const create = (graphQL: GraphQL): NonNullable<Extensions['creationCallbacks']> => ({
+    Query: (params) => {
+        params.addFields({
+            myapp_serverTime: {
+                type: graphQL.DateTime,
+            },
+        });
+    },
+});
 ----
+
+.src/main/resources/guillotine/resolvers-factory.ts
+[source,typescript]
+----
+import type {Extensions} from '@enonic-types/guillotine';
+
+export const create = (): NonNullable<Extensions['resolvers']> => ({
+    Query: {
+        myapp_serverTime: (): string => new Date().toISOString(),
+    },
+});
+----
+
+Use the same pattern for `types`, `inputTypes` and other extension properties. You can also split resolver factories by GraphQL type as the extension grows.

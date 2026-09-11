@@ -1,39 +1,27 @@
 = typeResolvers
 
-Set or override type resolver for a union or interface. 
+Set or override the type resolver for a union or interface.
 
 == Usage
 
-It must be an object with the following structure:
+Add functions to the `typeResolvers` property returned by your <<../extending#, extension function>>. Each key names an interface or union, and its function returns the name of the concrete GraphQL object type for a value.
 
-[source,javascript]
+[source,typescript]
 ----
-{
-    typeResolvers: {
-        <GraphQLTypeName>: function (obj) {
-            // your code here
-        },
-        // the rest of type resolvers ...
-    }
-}
-----
+import type {Extensions} from '@enonic-types/guillotine';
 
-For example:
-
-[source,javascript]
-----
-{
-    typeResolvers: {
-        CustomInterface: function (obj) {
-            return 'CustomInterfaceImpl';
-        },
-        CustomUnion: function (obj) {
-            if (obj.title) {
-                return 'GraphQLTypeNameOne';
-            }
-            return 'GraphQLTypeNameTwo';
-        },
-    }
+interface UnionValue {
+    title?: string;
 }
 
+export const extensions = (): Extensions => ({
+    typeResolvers: {
+        CustomInterface: () => 'CustomInterfaceImpl',
+        CustomUnion: (obj: UnionValue): string => {
+            return obj.title ? 'GraphQLTypeNameOne' : 'GraphQLTypeNameTwo';
+        },
+    },
+});
 ----
+
+The interface, union and returned object types must exist in the schema. Merge these resolvers with the definitions from <<interfaces#, Interfaces>>, <<types#, Types>> and <<unions#, Unions>>, replacing the example names with your own.
