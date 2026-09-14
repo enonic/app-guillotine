@@ -487,7 +487,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>Guillotine must also be <a href="setup.ahtml">installed</a> in the Enonic instance where you deploy your app.</p>
+<p>The exported types are documented in <a href="extending/typescript.ahtml">TypeScript</a>. Guillotine must also be <a href="setup.ahtml">installed</a> in the Enonic instance where you deploy your app.</p>
 </div>
 </div>
 </div>
@@ -811,7 +811,7 @@ function sendRequestToBooksApi(queryString: string): BooksResponse {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-14 11:21:13 UTC
+Last updated 2026-09-14 15:23:52 UTC
 </div>
 </div>
 </body>

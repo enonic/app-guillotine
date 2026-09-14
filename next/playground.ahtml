@@ -484,11 +484,11 @@ Guillotine 9 removes the playground previously served by GET requests to the Gra
 <div class="paragraph">
 <p>Query Playground lets you access the detailed documentation, and perform queries in context of your content:</p>
 </div>
-<div class="imageblock">
-<div class="content">
-<img src="images/playground.png" alt="Query playground interface" width="1320px">
-</div>
-</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Query the Guillotine API directly from Content Studio. Project and branch context are automatically applied based on your current selection.
+image::images/playground.png["Query playground interface with docs, query editor, and results panel - directly integrated in Content Studio", 1651px]</p>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Left panel</dt>
@@ -520,6 +520,9 @@ Queries use the project currently selected in Content Studio and the branch sele
 </div>
 </dd>
 </dl>
+</div>
+</li>
+</ol>
 </div>
 <div class="sect2">
 <h3 id="query_example"><a class="link" href="#query_example">Query example</a></h3>
@@ -561,7 +564,7 @@ Queries use the project currently selected in Content Studio and the branch sele
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-14 11:21:13 UTC
+Last updated 2026-09-14 15:23:52 UTC
 </div>
 </div>
 </body>
