@@ -102,7 +102,7 @@ Gathers all content retrieval requests.
 query: <<QueryDSLInput>>,
 offset: Int,
 first: Int,
-sort: <<SortDslInput>>
+sort: [<<SortDslInput>>]
 ): [<<Content>>]
 |Queries contents
 
@@ -110,7 +110,7 @@ sort: <<SortDslInput>>
 query: <<QueryDSLInput>>!,
 after: String,
 first: Int,
-sort: <<SortDslInput>>,
+sort: [<<SortDslInput>>],
 aggregations: [<<AggregationInput>>],
 highlight: <<HighlightInputType>>
 ): <<QueryDSLContentConnection>>
@@ -140,14 +140,20 @@ All types implementing `Content` share the same fields, with the exception of th
 |_name: String!
 |Content name
 
+|_path: String!
+|Full content path within the project. For a site-relative link, select `pageUrl { path }` with the appropriate `siteKey`
+
 |_project: String
 |Name of the content project used to resolve this item
 
 |_branch: String
 |Branch used to resolve this item
 
-|_path(type: <<ContentPathType>>): String!
-|Content path. In the site-less mode, the result will be returned in the raw value, in other words, `env.source._path`.
+|_references: [<<Content>>]
+|Contents that have a reference to this content
+
+|_score: Float
+|Search relevance score
 
 |creator: <<PrincipalKey>>
 |Content creator
@@ -155,23 +161,23 @@ All types implementing `Content` share the same fields, with the exception of th
 |modifier: <<PrincipalKey>>
 |Last content modifier
 
-|createdTime: String
+|createdTime: DateTime
 |Content creation time
 
-|modifiedTime: String
+|modifiedTime: DateTime
 |Last content modification time
 
 |owner: <<PrincipalKey>>
 |Content owner
 
 |type: String
-|Content type
+|Content type name
+
+|contentType: <<ContentType>>
+|Content type definition
 
 |displayName: String
 |Content display name
-
-|hasChildren: Boolean
-|true if the content has children content
 
 |language: String
 |Content language
@@ -182,7 +188,7 @@ All types implementing `Content` share the same fields, with the exception of th
 |dataAsJson: JSON
 |Content data
 
-|x: [<<ExtraData>>]
+|x: <<Mixin>>
 |Content extra data.
 
 |xAsJson: JSON
@@ -209,7 +215,7 @@ a|Flattened list of page components
 |publish: <<PublishInfo>>
 |Publication information
 
-|pageUrl(params: Json): <<PageUrl>>
+|pageUrl(params: JSON): <<PageUrl>>
 |Page link components. Use `siteKey` to select the site or project that the path is relative to; see <<PageUrl>> and <<usage/images-and-urls#base-urls, Base URLs>>
 
 |site: portal_Site
@@ -261,6 +267,9 @@ portal_Site
 , <<media_Image>>
 , base_Unstructured
 , portal_Fragment
+, UntypedContent
+
+`UntypedContent` is returned for content whose content type is not part of the schema. It provides the `Content` fields without a `data` field.
 
 === media_Image
 
@@ -271,10 +280,10 @@ In addition to the fields of the <<Content>> interface, all `media:*` content ty
 |===
 |Name(Arguments):Type | Description
 
-|mediaUrl (download: Boolean, params: Json): <<AttachmentUrl>>
+|mediaUrl (download: Boolean, params: JSON): <<AttachmentUrl>>
 |URL to the underlying media attachment, along with its components. Set `download` to `true` to force download instead of inline rendering.
 
-|imageUrl (scale: String!, quality: Int, background: String, format: String, filter: String, params: Json): <<ImageUrl>>
+|imageUrl (scale: String!, quality: Int, background: String, format: String, filter: String, params: JSON): <<ImageUrl>>
 a|URL to a processed version of the image, scaled and cropped by the server at request time, along with its components.
 
 * `scale` (required) - scaling function to apply: `block(width,height)`, `height(height)`, `max(size)`, `square(size)`, `wide(width,height)`, `width(width)` or `full`
@@ -348,7 +357,7 @@ It allows you to :
 |pageInfo: <<PageInfo>>
 |Paging information
 
-|aggregationAsJson: JSON
+|aggregationsAsJson: JSON
 |Result of aggregations
 
 |highlightAsJson: JSON
@@ -418,8 +427,7 @@ Represents result of HtmlArea processing.
 
 === Macro
 
-Dynamic type which contains macro details. By default contains two fields: `disable` and `embed`, other fields will be added dynamically based on macro descriptors for provided `applicationKeys` during schema creation.
-Given `applicationKeys` are expected to have the same order as in the site configs. It means that first macro descriptor that was matched will be used to process it.
+Details of a macro detected in a <<RichText>> value.
 
 |===
 |Name (Arguments): Type | Description
@@ -433,9 +441,6 @@ Given `applicationKeys` are expected to have the same order as in the site confi
 |descriptor: String
 |Macro descriptor, for instance `app:macroName`
 
-|body: String
-|Related content
-
 |config: <<MacroConfig>>
 |Macro config
 
@@ -443,7 +448,7 @@ Given `applicationKeys` are expected to have the same order as in the site confi
 
 === MacroConfig
 
-Dynamic type, that contains fields based on macro names which are belong to apps of the site.
+Dynamic type with one field per macro descriptor. The system macros `disable` and `embed` are always present; other fields are added during schema creation from the macro descriptors of the installed applications.
 
 |===
 |Name (Arguments): Type | Description
@@ -560,6 +565,9 @@ Page link components. Adapt `path` to your frontend's routing and append `queryS
 |===
 |Name (Arguments): Type | Description
 
+|url: String
+|Complete page URL as resolved by XP: `baseUrl + path + queryString`. The base is the configured Base URL of the site selected with `siteKey`, or of the content's own site without a selection. A site without a configured Base URL falls back to the site engine address
+
 |path: String
 |URL-escaped path of the content relative to the site - or project - the URL belongs to, with a leading slash. Empty when the content is that site itself
 
@@ -570,10 +578,13 @@ Page link components. Adapt `path` to your frontend's routing and append `queryS
 
 === ImageUrl
 
-Image link components. Build the address as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped.
+Image link components. Build the address as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped. Select `url` to let XP assemble the address instead.
 
 |===
 |Name (Arguments): Type | Description
+
+|url: String
+|Complete image URL as resolved by XP: `baseUrl + path + queryString`. With `siteKey`, the base is where XP serves the image API for that site, taking API mounts and configuration into account. Without a selection, the URL is relative to the current request
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<fingerprint>/<scale>/<name>`
@@ -600,10 +611,13 @@ Image link components. Build the address as `mediaBaseUrl + path + queryString`,
 
 === AttachmentUrl
 
-Attachment link components. Build the address as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped.
+Attachment link components. Build the address as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped. Select `url` to let XP assemble the address instead.
 
 |===
 |Name (Arguments): Type | Description
+
+|url: String
+|Complete attachment URL as resolved by XP: `baseUrl + path + queryString`. With `siteKey`, the base is where XP serves the attachment API for that site, taking API mounts and configuration into account. Without a selection, the URL is relative to the current request
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:attachment/<context>/<id>:<fingerprint>/<name>`
@@ -634,9 +648,6 @@ Attachment link components. Build the address as `mediaBaseUrl + path + queryStr
 
 |===
 |Name(Arguments):Type | Description
-
-|inheritsPermissions: Boolean
-|Inherit permissions from parent content
 
 |permissions: [<<AccessControlEntry>>]
 |Permissions
@@ -694,11 +705,17 @@ Representation of a content type definition
 |name: String
 |Content type name
 
-|displayName: String
-|Content type display name
+|title: String
+|Content type title
+
+|titleI18nKey: String
+|i18n key of the content type title
 
 |description: String
 |Content type description
+
+|descriptionI18nKey: String
+|i18n key of the content type description
 
 |superType: String
 |Parent content type
@@ -712,30 +729,26 @@ Representation of a content type definition
 |allowChildContent: Boolean
 |true if content can be added under a content of this type
 
-|contentDisplayNameScript: String
-|
+|displayNameExpression: String
+|Expression used to generate the display name of contents of this type
 
-|icon: Icon
-|
+|displayNameListExpression: String
+|Expression used to generate the display name of contents of this type in list views
+
+|displayNamePlaceholder: String
+|Placeholder for the display name input
+
+|displayNamePlaceholderI18nKey: String
+|i18n key of the display name placeholder
+
+|icon: <<Icon>>
+|Content type icon
 
 |form: [<<FormItem>>]
 |Content type fields schema
 
-|getInstances(
-offset: Int
-, first: Int
-, query: String
-, sort: String
-): [<<Content>>]
-|Util field returning the contents of this type
-
-|getInstanceConnection(
-after: String
-, first: Int
-, query: String
-, sort: String
-): <<ContentConnection>>
-|Util field returning the contents of this type as a connection
+|formAsJson: JSON
+|Content type fields schema as JSON
 
 |===
 
@@ -764,53 +777,53 @@ Direct Known Subtypes: FormInput
 , FormLayout
 , FormItemSet
 
-=== ExtraData
+=== Mixin
 
 ==== Fields
 
 |===
 |Name(Arguments):Type | Description
 
-|media: <<XData_media_ApplicationConfig>>
-|X-Data for `media` application
+|media: <<Mixin_media_ApplicationConfig>>
+|Mixin data for `media` application
 
-|base: <<XData_base_ApplicationConfig>>
-|X-Data for `base` application
+|base: <<Mixin_base_ApplicationConfig>>
+|Mixin data for `base` application
 
-|<applicationKey>: XData_<applicationKey>_ApplicationConfig
-|X-Data for `<applicationKey>` application
+|<applicationKey>: Mixin_<applicationKey>_ApplicationConfig
+|Mixin data for `<applicationKey>` application
 
 |===
 
-=== XData_media_ApplicationConfig
+=== Mixin_media_ApplicationConfig
 
 ==== Fields
 
 |===
 |Name(Arguments):Type | Description
 
-|imageInfo: <<XData_media_imageInfo_DataConfig>>
-|Related X-Data config
+|imageInfo: <<Mixin_media_imageInfo_DataConfig>>
+|Related mixin config
 
-|cameraInfo: <<XData_media_cameraInfo_DataConfig>>
-|Related X-Data config
+|cameraInfo: <<Mixin_media_cameraInfo_DataConfig>>
+|Related mixin config
 
 |===
 
-=== XData_media_imageInfo_DataConfig
+=== Mixin_media_imageInfo_DataConfig
 
 ==== Fields
 
 |===
 |Name(Arguments):Type | Description
 
-|pixelSize: Int
+|pixelSize: Long
 |Pixel size
 
-|imageHeight: Int
+|imageHeight: Long
 |Image height
 
-|imageWidth: Int
+|imageWidth: Long
 |Image width
 
 |contentType: String
@@ -819,15 +832,18 @@ Direct Known Subtypes: FormInput
 |description: String
 |Description
 
-|byteSize: Int
+|byteSize: Long
 |Byte size
 
 |colorSpace(offset: Int, first: Int): [String]
 |Color space
 
+|fileSource: String
+|File source
+
 |===
 
-=== XData_media_cameraInfo_DataConfig
+=== Mixin_media_cameraInfo_DataConfig
 
 ==== Fields
 
@@ -893,19 +909,19 @@ Direct Known Subtypes: FormInput
 
 |===
 
-==== XData_base_ApplicationConfig
+=== Mixin_base_ApplicationConfig
 
 ==== Fields
 
 |===
 |Name(Arguments):Type | Description
 
-|gpsInfo: <<XData_base_gpsInfo_DataConfig>>
+|gpsInfo: <<Mixin_base_gpsInfo_DataConfig>>
 |GPS information
 
 |===
 
-=== XData_base_gpsInfo_DataConfig
+=== Mixin_base_gpsInfo_DataConfig
 
 ==== Fields
 
@@ -930,10 +946,10 @@ Direct Known Subtypes: FormInput
 |===
 |Name(Arguments):Type | Description
 
-|path: String
+|path: String!
 |Component path
 
-|type: <<ComponentType>>
+|type: <<ComponentType>>!
 |Component type
 
 |page: <<PageComponentData>>
@@ -972,6 +988,9 @@ Direct Known Subtypes: FormInput
 |configAsJson: JSON
 |Component config
 
+|config: PageComponentDataConfig
+|Typed component config, with one field per application that provides page controllers with a config form. Absent when no installed application does
+
 |template: <<Content>>
 |Related template content
 
@@ -989,6 +1008,9 @@ Direct Known Subtypes: FormInput
 
 |configAsJson: JSON
 |Component config
+
+|config: LayoutComponentDataConfig
+|Typed component config, with one field per application that provides layouts with a config form. Absent when no installed application does
 
 |===
 
@@ -1022,6 +1044,9 @@ Direct Known Subtypes: FormInput
 
 |configAsJson: JSON
 |Component config
+
+|config: PartComponentDataConfig
+|Typed component config, with one field per application that provides parts with a config form. Absent when no installed application does
 
 |===
 
@@ -1071,7 +1096,10 @@ Direct Known Subtypes: FormInput
 |mimeType: String
 |Attachment mime type
 
-|attachmentUrl (download: Boolean, params: Json): <<AttachmentUrl>>
+|sha512: String
+|Attachment SHA-512 checksum
+
+|attachmentUrl (download: Boolean, params: JSON): <<AttachmentUrl>>
 |Attachment URL and its components. Set `download` to `true` to force download instead of inline rendering
 
 |===
@@ -1159,7 +1187,7 @@ Aggregations enable extracting statistical data from search results. Only one of
 |dateHistogram: <<DateHistogramAggregationInput>>
 |DateHistogram aggregation
 
-|getDistance: <<GeoDistanceAggregationInput>>
+|geoDistance: <<GeoDistanceAggregationInput>>
 |GeoDistance aggregation
 
 |min: <<MinAggregationInput>>
@@ -1571,7 +1599,7 @@ Ngram DSL expression input type.
 |query: String!
 |A query string to match field value(s). Support the set of operators.
 
-|operator: [<<DslOperatorType>>]
+|operator: <<DslOperatorType>>
 |DSL operator. By default, `OR` (any of the words in the query matches).
 
 |===
@@ -1755,7 +1783,7 @@ Like DSL expression input type. Returns nodes that contain the field matching a 
 |field: String!
 |Property name to search.
 
-|value: <<DSLExpressionValueInput>>!
+|value: String!
 |Search string.
 
 |boost: Float
@@ -1975,10 +2003,6 @@ Enum values: page
 , part
 , text
 , fragment
-
-=== ContentPathType
-
-Enum values: siteRelative
 
 === MediaIntentType
 
