@@ -38,7 +38,7 @@ export const extensions = (graphQL: GraphQL): Extensions => {
     },
     resolvers: {
       [ObjectTypeName.Content]: {
-        [MY_FIELD_NAME]: () => {
+        [MY_FIELD_NAME]: (env) => {
           const {
             // args,
             // localContext,

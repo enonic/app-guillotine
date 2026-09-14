@@ -42,7 +42,7 @@
   },
   "scripts": {
     "check": "npx tsc --noEmit",
-    "test": "tsd ./"
+    "test": "tsd ./ --files \"test-d/**/*.test-d.ts\""
   },
   "types": "index.ts",
   "version": "0.0.2"

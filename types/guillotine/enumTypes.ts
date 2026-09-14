@@ -1,7 +1,6 @@
 // This is a value, do not add declare.
 export enum EnumTypeName {
 	ComponentType = 'ComponentType',
-	ContentPathType = 'ContentPathType',
 	DslGeoPointDistanceType = 'DslGeoPointDistanceType',
 	DslOperatorType = 'DslOperatorType',
 	DslSortDirectionType = 'DslSortDirectionType',
@@ -18,6 +17,16 @@ export enum EnumTypeName {
 export declare type EnumTypeNames = keyof typeof EnumTypeName
 
 //──────────────────────────────────────────────────────────────────────────────
+
+// This is a value, do not add declare.
+export enum ComponentType {
+	page = 'page',
+	layout = 'layout',
+	image = 'image',
+	part = 'part',
+	text = 'text',
+	fragment = 'fragment',
+}
 
 // This is a value, do not add declare.
 export enum FormItemType {

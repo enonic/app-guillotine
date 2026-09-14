@@ -50,6 +50,7 @@ import type {
 export type {
 	CreateDataFetcherResult,
 	CreateDataFetcherResultParams,
+	DataFetcherResult,
 } from './CreateDataFetcherResult'
 
 export type {
