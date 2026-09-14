@@ -1,0 +1,369 @@
+= TypeScript
+:toc: right
+
+Type definitions for Guillotine extensions
+
+== Introduction
+
+The `@enonic-types/guillotine` package provides the TypeScript types for writing an <<../extending#, extension>>. It contains no runtime code; it describes the `extensions` function contract, the `graphQL` utility object passed to it, the environment a resolver receives, and constants naming the built-in schema types.
+
+Install it as a development dependency in your app:
+
+[source,shell]
+----
+npm install --save-dev @enonic-types/guillotine
+----
+
+The package depends on `@enonic-types/core`, `@enonic-types/global` and `@enonic-types/lib-content`, which are installed with it. Types shared with the XP libraries, such as `Content` and `ScriptValue`, are defined in `@enonic-types/core` and documented in the https://developer.enonic.com/docs/code/stable/libraries/types[library type reference].
+
+The pages in this chapter name these types in their examples. This page is the canonical reference for the exported types themselves.
+
+NOTE: Each exported type is a TypeScript shape only. The behaviour behind it, such as how `localContext` is merged or when a creation callback runs, is documented on the page for the corresponding extension property.
+
+== Extension contract
+
+[#extensions]
+=== Extensions
+
+The object returned by the `extensions` function. Every property is optional, but the function must return an object.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| enums | Record<string, <<enum, Enum>>> | *Optional.* Custom enums, keyed by enum name. See <<enums#, Enums>>.
+| inputTypes | Record<string, <<input-type, InputType>>> | *Optional.* Custom input types, keyed by type name. See <<input-types#, Input types>>.
+| interfaces | Record<string, <<interface, Interface>>> | *Optional.* Custom interfaces, keyed by interface name. See <<interfaces#, Interfaces>>.
+| unions | Record<string, <<union, Union>>> | *Optional.* Custom unions, keyed by union name. See <<unions#, Unions>>.
+| types | Record<string, <<type, Type>>> | *Optional.* Custom object types, keyed by type name. See <<types#, Types>>.
+| creationCallbacks | Record<string, <<creation-callback, CreationCallback>>> | *Optional.* Callbacks modifying existing types and interfaces, keyed by the name of the type to modify. See <<creation-callbacks#, Creation callbacks>>.
+| resolvers | Record<string, Record<string, <<resolver, Resolver>>>> | *Optional.* Field resolvers, keyed by type name and then by field name. See <<resolvers#, Resolvers>>.
+| typeResolvers | Record<string, <<type-resolver, TypeResolver>>> | *Optional.* Type resolvers for interfaces and unions, keyed by interface or union name. See <<type-resolvers#, Type resolvers>>.
+|===
+
+The sub-object types below are not exported by name. Derive them from `Extensions` when you split definitions across files:
+
+[source,typescript]
+----
+import type {Extensions} from '@enonic-types/guillotine';
+
+type Types = NonNullable<Extensions['types']>;
+type Resolvers = NonNullable<Extensions['resolvers']>;
+----
+
+[#enum]
+=== Enum
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| description | string | Description shown in the schema.
+| values | Record<string, string> | Enum values, keyed by the name exposed in the schema.
+|===
+
+[#input-type]
+=== InputType
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| description | string | *Optional.* Description shown in the schema.
+| fields | Record<string, <<graphql-type, GraphQLType>>> | Input fields, keyed by field name. Each value is a scalar, an enum or input type reference, or a list of one of these.
+|===
+
+[#interface]
+=== Interface
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| description | string | Description shown in the schema.
+| fields | Record<string, <<field, Field>>> | Fields every implementing type must provide, keyed by field name.
+|===
+
+[#union]
+=== Union
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| description | string | Description shown in the schema.
+| types | <<graphql-type, GraphQLType>>[] | The object types that are members of the union, typically created with `graphQL.reference()`.
+|===
+
+[#type]
+=== Type
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| description | string | Description shown in the schema.
+| fields | Record<string, <<field, Field>>> | Fields of the object type, keyed by field name.
+| interfaces | <<graphql-type, GraphQLType>>[] | *Optional.* Interfaces the type implements, created with `graphQL.reference()`. The type must declare every field of each interface.
+|===
+
+[#field]
+=== Field
+
+A field on an object type or interface. Used in <<type, Type>>, <<interface, Interface>>, and the `addFields` and `modifyFields` methods of a <<creation-callback, CreationCallback>>.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| type | <<graphql-type, GraphQLType>> | The field's output type.
+| args | <<graphql-args, GraphQLArgs>> | *Optional.* Arguments the field accepts, keyed by argument name.
+|===
+
+[#creation-callback]
+=== CreationCallback
+
+A function invoked while Guillotine builds the schema. It receives a single `params` object with these methods:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| addFields | (fields: Record<string, <<field, Field>>>) => void | Adds fields to the type.
+| modifyFields | (fields: Record<string, <<field, Field>>>) => void | Changes the type or arguments of existing fields. Supplying `args` replaces all existing arguments.
+| removeFields | (names: string[]) => void | Removes the named fields.
+| setDescription | (description: string) => void | Replaces the type's description.
+| setInterfaces | (interfaces: <<graphql-type, GraphQLType>>[]) => void | Replaces the interfaces implemented by an object type.
+|===
+
+The callback returns nothing.
+
+[#type-resolver]
+=== TypeResolver
+
+`(value: any) => string`
+
+A function receiving the value resolved for an interface or union field and returning the name of the concrete object type. See <<type-resolvers#, Type resolvers>>.
+
+== Resolvers
+
+[#resolver]
+=== Resolver
+
+`Resolver<Args, Source, Return>`
+
+A function receiving a <<data-fetching-environment, DataFetchingEnvironment>> and returning the field's value. All three generic parameters default to permissive types, so an untyped resolver is accepted. Narrow `Args` and `Source` to the shapes your field expects:
+
+[source,typescript]
+----
+import type {DataFetchingEnvironment} from '@enonic-types/guillotine';
+
+interface Book {
+    title: string;
+}
+
+const findBooks = (env: DataFetchingEnvironment<{queryString: string}, null>): Book[] => {
+    return [{title: env.args.queryString}];
+};
+----
+
+A resolver may return a plain value, an object used as the source for child fields, or the result of <<create-data-fetcher-result, createDataFetcherResult>>.
+
+[#data-fetching-environment]
+=== DataFetchingEnvironment
+
+`DataFetchingEnvironment<Args, Source>`
+
+The single argument passed to a <<resolver, Resolver>>.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| args | Args | Arguments supplied to the field in the query. Defaults to `+Record<string, any>+`.
+| source | Source | Value returned by the parent field's resolver. `null` for fields directly on `Query`. Defaults to `unknown`.
+| localContext | <<local-context, LocalContext>> | Read-only context inherited from ancestor resolvers.
+|===
+
+[#local-context]
+=== LocalContext
+
+`LocalContext<T extends LocalContextRecord>`
+
+The context object available as `env.localContext`. Guillotine always supplies the first three properties. Additional properties come from ancestor resolvers via <<create-data-fetcher-result, createDataFetcherResult>>; describe them with the generic parameter `T` when you read them.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| project | string | Project selected for the query.
+| branch | string | Branch selected for the query.
+| siteKey | string | *Optional.* Selected site key, when present. See <<../usage/site-context#, Site context>>.
+|===
+
+[#local-context-record]
+=== LocalContextRecord
+
+`+Record<string, string | number | boolean | null>+`
+
+The value types a local context may hold. Objects and arrays are not allowed; serialize them with `JSON.stringify` if needed. Keys with `null` values are removed.
+
+[#data-fetcher-result]
+=== DataFetcherResult
+
+An opaque value returned by <<create-data-fetcher-result, createDataFetcherResult>>. Return it from a resolver unchanged. Guillotine unwraps its `data` as the field value and merges its `localContext` into the context of child resolvers.
+
+== The graphQL argument
+
+[#graphql]
+=== GraphQL
+
+The utility object passed as the argument to the `extensions` function.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| GraphQLString | <<scalars, scalar>> | The `String` scalar.
+| GraphQLInt | <<scalars, scalar>> | The `Int` scalar.
+| GraphQLFloat | <<scalars, scalar>> | The `Float` scalar.
+| GraphQLBoolean | <<scalars, scalar>> | The `Boolean` scalar.
+| GraphQLID | <<scalars, scalar>> | The `ID` scalar.
+| Json | <<scalars, scalar>> | The `Json` scalar.
+| Date | <<scalars, scalar>> | The `Date` scalar, an ISO date string.
+| DateTime | <<scalars, scalar>> | The `DateTime` scalar, an ISO instant string.
+| LocalDateTime | <<scalars, scalar>> | The `LocalDateTime` scalar, an ISO date-time string without zone.
+| LocalTime | <<scalars, scalar>> | The `LocalTime` scalar, an ISO time string.
+| nonNull | (type: <<graphql-type, GraphQLType>>) => GraphQLType | Marks a type as non-nullable.
+| list | (type: <<graphql-type, GraphQLType>>) => GraphQLType[] | Wraps a type in a list.
+| reference | (typeName: string) => <<graphql-type, GraphQLType>> | References a named type in the schema, built in or custom. Use it for object types, interfaces, unions, enums and input types.
+| createDataFetcherResult | <<create-data-fetcher-result, CreateDataFetcherResult>> | Wraps a resolver's return value together with context for child resolvers.
+|===
+
+[#scalars]
+=== Scalars
+
+`GraphQLString`, `GraphQLInt`, `GraphQLFloat`, `GraphQLBoolean`, `GraphQLID`, `GraphQLJson`, `GraphQLDate`, `GraphQLDateTime`, `GraphQLLocalDateTime` and `GraphQLLocalTime` are exported as named types. Each is a branded primitive, so a `GraphQLString` is a `string` carrying the scalar's schema name at the type level. Use them to annotate the fields of an object a resolver returns:
+
+[source,typescript]
+----
+import type {GraphQLDateTime, GraphQLString} from '@enonic-types/guillotine';
+
+interface Book {
+    title: GraphQLString;
+    published: GraphQLDateTime;
+}
+----
+
+In schema definitions, use the properties of the <<graphql, GraphQL>> object rather than the named types.
+
+[#graphql-type]
+=== GraphQLType
+
+The type of any schema type reference: a scalar from the <<graphql, GraphQL>> object, or the result of `reference()`, `nonNull()` or `list()`. It is declared as `any`, so TypeScript does not validate that a reference names an existing type. Schema generation reports unknown names at runtime.
+
+[#graphql-args]
+=== GraphQLArgs
+
+`Record<string, GraphQLType | GraphQLType[]>`
+
+Field arguments, keyed by argument name. Values are scalars, enum or input type references, or lists of these.
+
+[#create-data-fetcher-result]
+=== CreateDataFetcherResult
+
+`graphQL.createDataFetcherResult()` takes a single `params` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| data | ScriptValue \| string \| number \| boolean | The field value. Objects and arrays must be wrapped with `+__.toScriptValue()+`; primitives may be passed as is. Must not be `null`.
+| localContext | <<local-context-record, LocalContextRecord>> | *Optional.* Values made available to child resolvers through `env.localContext`. Overrides matching keys in `parentLocalContext`.
+| parentLocalContext | <<local-context, LocalContext>> | *Optional.* The current `env.localContext`. Pass it to keep inherited values; omit it to replace the context with `localContext` only.
+|===
+
+Returns a <<data-fetcher-result, DataFetcherResult>>. See <<resolvers#, Resolvers>> for the merge rules and an example.
+
+== Schema name constants
+
+These are runtime enums, imported without `import type`. Each member's value is the type name as it appears in the schema. Use them as keys in `creationCallbacks`, `resolvers` and `typeResolvers`, and as arguments to `graphQL.reference()`, instead of string literals.
+
+[source,typescript]
+----
+import type {Extensions, GraphQL} from '@enonic-types/guillotine';
+import {ObjectTypeName} from '@enonic-types/guillotine';
+
+export const extensions = (graphQL: GraphQL): Extensions => ({
+    creationCallbacks: {
+        [ObjectTypeName.Content]: (params) => {
+            params.addFields({
+                wordCount: {type: graphQL.GraphQLInt},
+            });
+        },
+    },
+});
+----
+
+[%header,cols="1%,99%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Description
+| ObjectTypeName | Built-in object types, such as `Content`, `HeadlessCms`, `Query`, `RichText`, `Image`, `Link`, `PublishInfo` and the generated types for built-in content types like `+portal_Site+` and `+media_Image+`.
+| InputTypeName | Built-in input types, such as `QueryDSLInput`, `SortDslInput`, `AggregationInput` and `ProcessHtmlInput`.
+| EnumTypeName | Built-in enums, such as `ComponentType`, `FormItemType`, `Permission` and `PrincipalType`.
+| ScalarTypeName | The scalar names `String`, `Int`, `Float`, `Boolean`, `ID`, `Json`, `Date`, `DateTime`, `LocalDateTime` and `LocalTime`.
+|===
+
+The companion types `ObjectTypeNames`, `InputTypeNames`, `EnumTypeNames` and `ScalarTypeNames` are string unions of the corresponding member names.
+
+=== Enum values
+
+The values of these built-in schema enums are exported as runtime enums, for comparing against data in a resolver or returning a valid enum value:
+
+[%header,cols="1%,99%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Values
+| ComponentType | `page`, `layout`, `image`, `part`, `text`, `fragment`
+| FormItemType | `Input`, `ItemSet`, `Layout`, `OptionSet`
+| MediaIntentType | `download`, `inline`
+| Permission | `READ`, `CREATE`, `MODIFY`, `DELETE`, `PUBLISH`, `+READ_PERMISSIONS+`, `+WRITE_PERMISSIONS+`
+| PrincipalType | `user`, `group`, `role`
+|===
+
+== Content types
+
+Three content shapes are exported for typing `env.source` in resolvers on built-in content types. They are built on `Content` from `@enonic-types/core` and `Site` from `@enonic-types/lib-content`.
+
+[%header,cols="1%,99%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Description
+| BaseFolderContent | `+Content<{}, 'base:folder'>+`. A folder with no data of its own.
+| MediaImageContent | `+Content<..., 'media:image'>+`. An image, with `media.attachment`, `media.focalPoint`, and optional `altText`, `artist`, `caption`, `copyright` and `tags`.
+| PortalSiteContent<Config> | `Site<Config>`. A site, with `Config` describing the merged site configuration.
+|===
+
+For the full `Content` shape, see the https://developer.enonic.com/docs/code/stable/libraries/types[library type reference].
+
+== Advanced entry point
+
+`@enonic-types/guillotine/advanced` exports a larger, experimental set of types. It includes TypeScript declarations mirroring the built-in schema object types, such as `Content`, `HeadlessCms`, `Query`, `RichText`, `Image`, `Link`, `PublishInfo` and the `+Mixin_*+` configuration types, plus branded scalar and reference helpers.
+
+These declarations describe the GraphQL schema, not the values a resolver receives as `env.source`, which follow the XP content model instead. Use them to type the objects your resolvers return for built-in types. Their names and shapes may change between minor releases.

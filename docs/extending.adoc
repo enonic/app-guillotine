@@ -17,7 +17,7 @@ Install Guillotine's type definitions in your app project:
 npm install --save-dev @enonic-types/guillotine
 ----
 
-Guillotine must also be <<setup#, installed>> in the Enonic instance where you deploy your app.
+The exported types are documented in <<extending/typescript#, TypeScript>>. Guillotine must also be <<setup#, installed>> in the Enonic instance where you deploy your app.
 
 == Extension file
 
