@@ -12,8 +12,8 @@ NOTE: Guillotine 9 removes the playground previously served by GET requests to t
 
 Query Playground lets you access the detailed documentation, and perform queries in context of your content:
 
-
-image::images/playground.png[Query playground interface, 1320px]
+. Query the Guillotine API directly from Content Studio. Project and branch context are automatically applied based on your current selection.
+image::images/playground.png["Query playground interface with docs, query editor, and results panel - directly integrated in Content Studio", 1651px]
 
 Left panel:: GraphQL API documentation
 Center panel:: Edit your GraphQL query

@@ -73,26 +73,28 @@
         {
           "title": "Best practices",
           "document": "extending/best-practices"
+        },
+        {
+          "title": "TypeScript",
+          "document": "extending/typescript"
         }
       ]
-    },
-    {
-      "title": "Configuration",
-      "document": "configuration"
     },
     {
       "title": "API",
       "document": "api"
     },
     {
-      "title": "Release Notes",
-      "document": "release",
-      "menuItems": [
-        {
-          "title": "Upgrade Notes",
-          "document": "upgrade"
-        }
-      ]
+      "title": "Configuration",
+      "document": "configuration"
+    },
+    {
+      "title": "Release",
+      "document": "release"
+    },
+    {
+      "title": "Upgrade",
+      "document": "upgrade"
     }
   ]
 }
