@@ -4,6 +4,7 @@ import type {ScriptValue} from '@enonic-types/core'
 
 
 declare const __name: unique symbol
+declare const __dataFetcherResult: unique symbol
 
 declare type BrandGraphQLScalarType<
 	GQL_SCALAR_TYPE_NAME extends string,
@@ -25,6 +26,12 @@ export declare type GraphQLString = BrandGraphQLScalarType<'GraphQLString', stri
 
 export declare type GraphQLType = any
 
+// Opaque value returned by GraphQL.createDataFetcherResult.
+// Return it from a resolver as is; Guillotine unwraps data and localContext.
+declare interface DataFetcherResult {
+	readonly [__dataFetcherResult]: true
+}
+
 export declare interface GraphQL {
 	Date: GraphQLDate
 	DateTime: GraphQLDateTime
@@ -36,14 +43,12 @@ export declare interface GraphQL {
 	Json: GraphQLJson
 	LocalDateTime: GraphQLLocalDateTime
 	LocalTime: GraphQLLocalTime
-	createDataFetcherResult: <
-	In extends LocalContextRecord = LocalContext,
-	Out extends LocalContextRecord = LocalContext
-> () => {
-		data: ScriptValue
-		localContext?: LocalContext<Out>
-		parentLocalContext?: LocalContext<In>
-	}
+	createDataFetcherResult: (params: {
+		// Objects and arrays must be wrapped with __.toScriptValue; primitives may be passed as is.
+		data: ScriptValue | string | number | boolean
+		localContext?: LocalContextRecord
+		parentLocalContext?: LocalContext
+	}) => DataFetcherResult
 	nonNull: (type: GraphQLType) => GraphQLType
 	list: (type: GraphQLType) => GraphQLType[]
 	reference: (typeName: string) => GraphQLType
@@ -122,19 +127,23 @@ export declare interface Extensions {
 			type: GraphQLType | GraphQLType[]
 		}>
 	}>
+	// Resolvers may narrow Args and Source via DataFetchingEnvironment<Args, Source>,
+	// so the map must accept any resolver signature under strictFunctionTypes.
 	resolvers?: Record<
 		string,
 		Record<
 			string,
-			Resolver
+			Resolver<any, any, any>
 		>
 	>
 	typeResolvers?: Record<string, (param: any) => string>
 	types?: Record<string, {
 		description: string
 		fields: Record<string, {
+			args?: GraphQLArgs
 			type: GraphQLType | GraphQLType[]
 		}>
+		interfaces?: GraphQLType[]
 	}>
 	unions?: Record<string, {
 		description: string
@@ -151,9 +160,11 @@ export type {
 
 
 export {
+	ComponentType,
 	EnumTypeName,
 	FormItemType,
 	InputTypeName,
+	MediaIntentType,
 	ObjectTypeName,
 	Permission,
 	PrincipalType,

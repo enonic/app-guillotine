@@ -4,6 +4,7 @@ import type {
 	NonNull
 } from '../brand'
 import type {
+	ComponentType,
 	FormItemType,
 	MediaIntentType,
 	Permission,
@@ -42,8 +43,7 @@ export enum ObjectTypeName {
 	ContentConnection = 'ContentConnection',
 	ContentEdge = 'ContentEdge',
 	ContentType = 'ContentType',
-	DefaultValue = 'DefaultValue',
-	ExtraData = 'ExtraData',
+	FormInput = 'FormInput',
 	FormItem = 'FormItem',
 	FormItemSet = 'FormItemSet',
 	FormLayout = 'FormLayout',
@@ -67,6 +67,7 @@ export enum ObjectTypeName {
 	Media = 'Media',
 	MediaFocalPoint = 'MediaFocalPoint',
 	MediaUploader = 'MediaUploader',
+	Mixin = 'Mixin',
 	media_Archive = 'media_Archive',
 	media_Archive_Data = 'media_Archive_Data',
 	media_Audio = 'media_Audio',
@@ -112,7 +113,7 @@ export enum ObjectTypeName {
 	portal_TemplateFolder = 'portal_TemplateFolder',
 	PrincipalKey = 'PrincipalKey',
 	PublishInfo = 'PublishInfo',
-	QueryContentConnection = 'QueryContentConnection',
+	Query = 'Query',
 	QueryDSLContentConnection = 'QueryDSLContentConnection',
 	RichText = 'RichText',
 	// RobotsTxt = 'RobotsTxt', // Not builtin?
@@ -166,10 +167,12 @@ export declare type Content<
 		_path: NonNull<GraphQLString>
 		_references: Content[]
 		_score: GraphQLFloat
+		_project: GraphQLString
+		_branch: GraphQLString
 		attachments: Attachment[]
 		children: Content[]
 		childrenConnection: ContentConnection
-		components: Content[]
+		components: Component[]
 		contentType: ContentType
 		createdTime: GraphQLDateTime
 		creator: PrincipalKey
@@ -193,6 +196,17 @@ export declare type Content<
 	} & Extensions,
 	CoreContent
 >
+
+export declare interface Component {
+	type: NonNull<ComponentType> // enum
+	path: NonNull<GraphQLString>
+	part: PartComponentData
+	page: PageComponentData
+	layout: LayoutComponentData
+	image: ImageComponentData
+	text: TextComponentData
+	fragment: FragmentComponentData
+}
 
 export declare interface ContentConnection {
 	totalCount: NonNull<GraphQLInt>
@@ -229,10 +243,49 @@ export declare interface Mixin {
     base: Mixin_base_ApplicationConfig
 }
 
+export declare interface FormInput extends FormItem {
+	helpText: GraphQLString
+	inputType: GraphQLString
+	occurrences: Occurrences
+	configAsJson: GraphQLJson
+}
+
+// Interface implemented by FormInput, FormItemSet, FormLayout and FormOptionSet.
 export declare interface FormItem {
 	formItemType: FormItemType // enum
 	name: GraphQLString
 	label: GraphQLString
+}
+
+export declare interface FormItemSet extends FormItem {
+	helpText: GraphQLString
+	occurrences: Occurrences
+	items: FormItem[]
+}
+
+export declare interface FormLayout extends FormItem {
+	items: FormItem[]
+}
+
+export declare interface FormOptionSet extends FormItem {
+	expanded: GraphQLBoolean
+	helpText: GraphQLString
+	occurrences: Occurrences
+	selection: Occurrences
+	options: FormOptionSetOption[]
+}
+
+export declare interface FormOptionSetOption {
+	name: GraphQLString
+	label: GraphQLString
+	helpText: GraphQLString
+	default: GraphQLBoolean
+	items: FormItem[]
+}
+
+export declare interface FragmentComponentData {
+	id: NonNull<GraphQLID>
+	fragment: Content
 }
 
 export declare interface GeoPoint {
@@ -241,9 +294,40 @@ export declare interface GeoPoint {
 	longitude: GraphQLFloat
 }
 
+// Type of the Query.guillotine field. Extensions may add fields via creationCallbacks.
+export declare interface HeadlessCms {
+	get: Content
+	getChildren: Content[]
+	getChildrenConnection: ContentConnection
+	getPermissions: Permissions
+	getSite: portal_Site
+	queryDsl: Content[]
+	queryDslConnection: QueryDSLContentConnection
+	getType: ContentType
+	getTypes: ContentType[]
+}
+
 export declare interface Icon {
 	mimeType: GraphQLString
 	modifiedTime: GraphQLString
+}
+
+export declare interface Image {
+	image: Content
+	ref: GraphQLString
+	style: ImageStyle
+}
+
+export declare interface ImageComponentData {
+	id: NonNull<GraphQLID>
+	caption: GraphQLString
+	image: media_Image
+}
+
+export declare interface ImageStyle {
+	name: GraphQLString
+	aspectRatio: GraphQLString
+	filter: GraphQLString
 }
 
 export declare interface ImageUrl {
@@ -255,6 +339,33 @@ export declare interface ImageUrl {
 	fingerprint: GraphQLString
 	scale: GraphQLString
 	name: GraphQLString
+}
+
+export declare interface LayoutComponentData {
+	descriptor: NonNull<GraphQLString>
+	configAsJson: GraphQLJson
+	config: Record<string, unknown> // LayoutComponentDataConfig, generated from installed applications
+}
+
+export declare interface Link {
+	ref: GraphQLString
+	uri: GraphQLString
+	media: Media
+	content: Content
+	pageUrl: PageUrl
+}
+
+export declare interface Macro {
+	ref: GraphQLString
+	name: GraphQLString
+	descriptor: GraphQLString
+	config: Record<string, unknown> // MacroConfig, generated from installed applications
+}
+
+export declare interface Media {
+	content: Content
+	intent: MediaIntentType // enum
+	mediaUrl: AttachmentUrl
 }
 
 export declare type media_Image = BrandGraphQLObjectType<
@@ -286,6 +397,19 @@ export declare interface MediaUploader {
 	focalPoint: MediaFocalPoint
 }
 
+export declare interface Occurrences {
+	maximum: GraphQLInt
+	minimum: GraphQLInt
+}
+
+export declare interface PageComponentData {
+	descriptor: GraphQLString
+	customized: GraphQLBoolean
+	template: Content
+	configAsJson: GraphQLJson
+	config: Record<string, unknown> // PageComponentDataConfig, generated from installed applications
+}
+
 export declare interface PageInfo {
 	startCursor: NonNull<GraphQLString>
 	endCursor: NonNull<GraphQLString>
@@ -298,8 +422,13 @@ export declare interface PageUrl {
 	queryString: GraphQLString
 }
 
+export declare interface PartComponentData {
+	descriptor: NonNull<GraphQLString>
+	configAsJson: GraphQLJson
+	config: Record<string, unknown> // PartComponentDataConfig, generated from installed applications
+}
+
 export declare interface Permissions {
-	inheritsPermissions: GraphQLBoolean
 	permissions: AccessControlEntry[]
 }
 
@@ -323,10 +452,42 @@ export declare interface PrincipalKey {
 }
 
 export declare interface PublishInfo {
-	from: GraphQLString
-	to: GraphQLString
-	first: GraphQLString
+	from: GraphQLDateTime
+	to: GraphQLDateTime
+	first: GraphQLDateTime
+	time: GraphQLDateTime
 }
+
+// Root query type. Extensions may add fields via creationCallbacks.
+export declare interface Query {
+	guillotine: HeadlessCms
+}
+
+export declare interface QueryDSLContentConnection extends ContentConnection {
+	aggregationsAsJson: GraphQLJson
+	highlightAsJson: GraphQLJson
+}
+
+export declare interface RichText {
+	raw: GraphQLString
+	processedHtml: GraphQLString
+	macrosAsJson: GraphQLJson
+	macros: Macro[]
+	images: Image[]
+	links: Link[]
+}
+
+export declare interface SiteConfigurator {
+	applicationKey: GraphQLString
+	configAsJson: GraphQLJson
+}
+
+export declare interface TextComponentData {
+	value: NonNull<RichText>
+}
+
+// Object type used for content whose content type is not part of the schema; same fields as Content.
+export declare type UntypedContent = Content
 
 export declare interface Mixin_base_ApplicationConfig {
     gpsInfo: Mixin_base_gpsInfo_DataConfig
