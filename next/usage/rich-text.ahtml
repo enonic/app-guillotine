@@ -828,6 +828,22 @@ form:
 </div>
 </div>
 <div class="paragraph">
+<p>In the HtmlArea, the editor stores the macro as its name and parameters, which the <code>raw</code> field returns unchanged:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>[testmacro default_text="Please log in"/]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In <code>processedHtml</code>, the same macro is replaced by an <code>editor-macro</code> placeholder carrying the name and a reference into the <code>macros</code> list:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-html" data-lang="html">&lt;editor-macro data-macro-name="testmacro" data-macro-ref="7a5f2d3e-4c1b-4e8a-9f60-2b1c3d4e5f60"&gt;&lt;/editor-macro&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>Select <code>default_text</code> to retrieve the macro parameter defined by this schema:</p>
 </div>
 <div class="listingblock">
@@ -861,7 +877,7 @@ form:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-14 15:23:52 UTC
+Last updated 2026-09-15 06:18:30 UTC
 </div>
 </div>
 </body>
