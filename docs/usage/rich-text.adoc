@@ -278,6 +278,20 @@ form:
     label: Text to show if no user is logged in
 ----
 
+In the HtmlArea, the editor stores the macro as its name and parameters, which the `raw` field returns unchanged:
+
+[source]
+----
+[testmacro default_text="Please log in"/]
+----
+
+In `processedHtml`, the same macro is replaced by an `editor-macro` placeholder carrying the name and a reference into the `macros` list:
+
+[source,html]
+----
+<editor-macro data-macro-name="testmacro" data-macro-ref="7a5f2d3e-4c1b-4e8a-9f60-2b1c3d4e5f60"></editor-macro>
+----
+
 Select `+default_text+` to retrieve the macro parameter defined by this schema:
 
 [source,graphql]
