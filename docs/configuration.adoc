@@ -6,38 +6,40 @@ The following configuration options are available for Guillotine
 
 == Config file
 
-To configure Guillotine, add a configuration file to your XP instance's `config` folder.
+To configure Guillotine, add a configuration file to your XP instance's `config` folder. This example enables CORS for two frontend origins without cookie credentials. Replace the origins with your frontend addresses, including the scheme and port when applicable.
 
 .com.enonic.app.guillotine.cfg
 [source,properties]
 ----
-graphql.extensions.modifyUnknownField=throw  // <1>
+graphql.extensions.modifyUnknownField=throw
 
-cors.origin= https://example.com, https://admin.example.com // <2>
-cors.credentials=true|false // <3>
-cors.allowedHeaders=Content-Type // <4>
-cors.methods=POST, OPTIONS // <5>
-cors.exposedHeaders = X-Request-Id, X-Custom-Header // <6>
-cors.maxAge= 3600 // <7>
+cors.origin=https://example.com, https://admin.example.com
+cors.credentials=false
+cors.allowedHeaders=Content-Type
+cors.methods=POST, OPTIONS
+cors.exposedHeaders=X-Request-Id, X-Custom-Header
+cors.maxAge=3600
 
-maxQueryTokens=15000 // <8>
+maxQueryTokens=15000
 ----
 
-<1> Allows you to modify the default behaviour during modification of unknown fields. Possible values are: `throw`  - to throw an error if it tries to modify an unknown field, `ignore` - to ignore modification modify an unknown field, or `warn` - to log a warning on unknown field modification. Default is `throw`.
+`graphql.extensions.modifyUnknownField`:: Controls attempts to modify an unknown schema field: `throw` raises an error, `ignore` skips the modification, and `warn` logs a warning. Default is `throw`.
 
-<2> Allowed origin(s), comma-separated. Omit this field to disable CORS. Supports `*` (allow all origins), literal origins, and `~`-prefixed regex patterns for dynamic matching (e.g. `~https://.*\.example\.com`). Can use `~.*` to reflect all.
+`cors.origin`:: Allowed origins, comma-separated. Omit this property to disable CORS. Supports `*` (all origins), literal origins, and `~`-prefixed regular expressions for dynamic matching. `~.*` reflects any origin.
 
-<3> Sets the `Access-Control-Allow-Credentials` header to allow credentials in CORS requests. Default is `false`.
+`cors.credentials`:: Sets the `Access-Control-Allow-Credentials` header. Use `true` or `false`; the default is `false`. For cross-origin cookie authentication, set it to `true`, configure explicit allowed origins, and use `credentials: 'include'` in the browser's `fetch()` request. Browsers do not accept the wildcard origin `*` with credentials.
 
-<4> Sets the `Access-Control-Allow-Headers` header to allow headers in CORS requests. If `cors.allowedHeaders` is not configured and a request includes `Access-Control-Request-Headers`, that value is reflected in `Access-Control-Allow-Headers`.
+`cors.allowedHeaders`:: Sets the `Access-Control-Allow-Headers` header. If your client sends an `Authorization` header, include it, for example `cors.allowedHeaders=Content-Type, Authorization`. If this property is omitted, the request's `Access-Control-Request-Headers` value is reflected when present.
 
-<5> Sets the `Access-Control-Allow-Methods` header to allow methods in CORS requests. The Guillotine endpoint answers `POST` and `OPTIONS` requests only. Default is `GET, HEAD, POST`.
+`cors.methods`:: Sets the `Access-Control-Allow-Methods` header. The Guillotine endpoint answers `POST` and `OPTIONS` requests only. The library default is `GET, HEAD, POST`; the example explicitly allows `POST, OPTIONS`.
 
-<6> Extra response headers to expose beyond the CORS safelist. If you configure `cors.exposedHeaders = *`, browsers only treat `*` as a wildcard for non-credentialed requests.
+`cors.exposedHeaders`:: Extra response headers browser scripts may read beyond the CORS safelist. Listing a header does not create it; expose headers your deployment actually returns. Browsers treat `*` as a wildcard only for requests without credentials.
 
-<7> Sets the `Access-Control-Max-Age` header to specify preflight cache duration in seconds
+`cors.maxAge`:: Sets the `Access-Control-Max-Age` header, specifying the preflight cache duration in seconds.
 
-<8> If the number of raw tokens exceeds the specified maximum, the parser will throw an exception. Default is `15000`.
+`maxQueryTokens`:: Maximum number of raw query tokens. The parser throws an exception when this limit is exceeded. Default is `15000`.
+
+CORS controls which browser origins can read responses. Authentication and content permissions still determine which content the caller can access. See <<usage#troubleshooting, Troubleshooting>> when requests fail.
 
 [#media-base-url]
 == Media base URL

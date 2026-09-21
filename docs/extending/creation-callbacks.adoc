@@ -16,7 +16,7 @@ NOTE: field renaming is not supported.
 +
 
 - May be invoked in a different order than what is defined in the `creationCallbacks` property.
-- If you add or modify some fields of an interface in the creation callback, you must also do that for all implementations. Otherwise, you will get an error during schema generation.
+- Field additions, modifications and removals made by an interface's creation callback are automatically applied to its implementing object types. Define the shared change on the interface; you do not need to repeat it for each implementation. Supply any resolvers needed to return the new or changed fields.
 - If you modify some field, make sure that you implement correct data fetcher in the <<./resolvers#,resolvers>> section. Otherwise, you can get an error during query execution.
 
 WARNING: *Conflicts*. Multiple applications may define creationCallbacks. Conflicts between these may lead to schema generation errors or query errors.

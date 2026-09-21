@@ -5,7 +5,7 @@ Type definitions for Guillotine extensions
 
 == Introduction
 
-The `@enonic-types/guillotine` package provides the TypeScript types for writing an <<../extending#, extension>>. It contains no runtime code; it describes the `extensions` function contract, the `graphQL` utility object passed to it, the environment a resolver receives, and constants naming the built-in schema types.
+The `@enonic-types/guillotine` package provides the TypeScript types for writing an <<../extending#, extension>>. It describes the `extensions` function contract, the `graphQL` utility object passed to it, and the environment a resolver receives. It also exports runtime enums for schema names and enum values; bundle these with your app when using them as values.
 
 Install it as a development dependency in your app:
 
@@ -42,7 +42,7 @@ The object returned by the `extensions` function. Every property is optional, bu
 | typeResolvers | Record<string, <<type-resolver, TypeResolver>>> | *Optional.* Type resolvers for interfaces and unions, keyed by interface or union name. See <<type-resolvers#, Type resolvers>>.
 |===
 
-The sub-object types below are not exported by name. Derive them from `Extensions` when you split definitions across files:
+`Enum` and `CreationCallback` are exported as named types. The `InputType`, `Interface`, `Union`, `Type` and `Field` shapes below describe nested definitions and are not named exports. Derive these types from `Extensions` when you split definitions across files:
 
 [source,typescript]
 ----
@@ -199,7 +199,7 @@ The single argument passed to a <<resolver, Resolver>>.
 
 `LocalContext<T extends LocalContextRecord>`
 
-The context object available as `env.localContext`. Guillotine always supplies the first three properties. Additional properties come from ancestor resolvers via <<create-data-fetcher-result, createDataFetcherResult>>; describe them with the generic parameter `T` when you read them.
+The context object available as `env.localContext`. The `guillotine` field supplies `project` and `branch` to its descendants, and `siteKey` when explicitly selected. Fields added directly to `Query` do not inherit this context from a sibling `guillotine` field. Additional properties come from ancestor resolvers via <<create-data-fetcher-result, createDataFetcherResult>>; describe them with the generic parameter `T` when you read them. Pass `parentLocalContext: env.localContext` when adding values to preserve the inherited context.
 
 [%header,cols="1%,1%,98%a"]
 [frame="none"]
@@ -328,7 +328,7 @@ export const extensions = (graphQL: GraphQL): Extensions => ({
 | ScalarTypeName | The scalar names `String`, `Int`, `Float`, `Boolean`, `ID`, `Json`, `Date`, `DateTime`, `LocalDateTime` and `LocalTime`.
 |===
 
-The companion types `ObjectTypeNames`, `InputTypeNames`, `EnumTypeNames` and `ScalarTypeNames` are string unions of the corresponding member names.
+The companion types `ObjectTypeNames`, `InputTypeNames`, `EnumTypeNames` and `ScalarTypeNames` are string unions of the corresponding member names. They are exported from `@enonic-types/guillotine/advanced`, rather than the package root.
 
 === Enum values
 

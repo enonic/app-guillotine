@@ -23,7 +23,67 @@ The exported types are documented in <<extending/typescript#, TypeScript>>. Guil
 
 Create `src/main/resources/guillotine/guillotine.ts` in your app. The build must compile it to `/guillotine/guillotine.js` in the application resources, which is the path Guillotine loads at runtime. The TypeScript starter handles this compilation.
 
-This file must export the `extensions` function with the following structure:
+This file must export an `extensions` function returning the definitions and resolvers to add to the schema.
+
+[#first-extension]
+== Add your first field
+
+Start with a field that returns a greeting. This example needs no content model or external service.
+
+.src/main/resources/guillotine/guillotine.ts
+[source,typescript]
+----
+import type {DataFetchingEnvironment, Extensions, GraphQL} from '@enonic-types/guillotine';
+
+export const extensions = (graphQL: GraphQL): Extensions => ({
+    creationCallbacks: {
+        Query: (params) => {
+            params.addFields({
+                myapp_greeting: {
+                    type: graphQL.GraphQLString,
+                    args: {
+                        name: graphQL.nonNull(graphQL.GraphQLString),
+                    },
+                },
+            });
+        },
+    },
+    resolvers: {
+        Query: {
+            myapp_greeting: (env: DataFetchingEnvironment<{name: string}>): string =>
+                `Hello, ${env.args.name}!`,
+        },
+    },
+});
+----
+
+Build and deploy your app to the instance running Guillotine. Open <<playground#, Query Playground>> and refresh the schema, or connect a <<usage#third-party-clients, GraphQL client>>. Run:
+
+[source,graphql]
+----
+{
+  myapp_greeting(name: "Ada")
+}
+----
+
+The response is:
+
+[source,json]
+----
+{
+  "data": {
+    "myapp_greeting": "Hello, Ada!"
+  }
+}
+----
+
+`creationCallbacks` adds the field and its required argument; `resolvers` supplies its value. The field is directly on `Query`, so this example does not need a `guillotine` selection or project and branch arguments. For fields that use content, prefer `HeadlessCms` so resolvers inherit the selected content context; see <<extending/best-practices#, Field placement>>.
+
+If the field is missing, check that your deployed app contains `/guillotine/guillotine.js`, exports `extensions`, and has started successfully. Check the XP logs for extension-loading or schema-generation errors.
+
+== Extension structure
+
+As your extension grows, add the properties you need to the same returned object:
 
 [source,typescript]
 ----
@@ -71,7 +131,7 @@ export const extensions = (graphQL: GraphQL): Extensions => {
 You can omit any of the properties, but you must return an object with the same structure. Order of the properties is not important. The following subpages show individual extension properties; merge the ones you need into the object returned by your app's single `extensions` function.
 
 
-== Usage example
+== Call an external service
 
 Let's imagine that we have to extend the GraphQL schema with a new type `GoogleBooks` and add a new field `findBooks` to the `Query` type to be able to find books by query string. To execute requests to Google Books API we will use `lib-http-client` library.
 
@@ -82,7 +142,7 @@ dependencies {
 }
 ----
 
-In our application we have to create a new file `src/main/resources/guillotine/guillotine.ts` and add the following content to it:
+The following is a complete alternative for `src/main/resources/guillotine/guillotine.ts`. To keep the greeting example too, merge its `Query` callback and resolver into this extension rather than declaring a second `extensions` function:
 
 [source,typescript]
 ----
