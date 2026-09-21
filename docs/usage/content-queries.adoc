@@ -71,3 +71,49 @@ List fields such as `getChildren` and `queryDsl` accept `first` to limit the num
 ----
 
 For cursor pagination and result metadata, use the corresponding connection fields, such as `getChildrenConnection` and `queryDslConnection`. See <<../api#contentconnection, ContentConnection>> and <<../api#querydslcontentconnection, QueryDSLContentConnection>> for the response structures.
+
+=== Cursor pagination
+
+This query retrieves a page of ten children and the information needed to request the next page:
+
+[source,graphql]
+----
+query ChildrenPage($after: String) {
+  guillotine(project: "myproject", branch: "master") {
+    getChildrenConnection(
+      key: "/my-site/posts"
+      first: 10
+      after: $after
+      sort: "displayName ASC"
+    ) {
+      totalCount
+      edges {
+        node {
+          _id
+          displayName
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNext
+      }
+    }
+  }
+}
+----
+
+For the first request, send these variables:
+
+[source,json]
+----
+{"after": null}
+----
+
+Read the items from `data.guillotine.getChildrenConnection.edges`, where each `node` is a content item. If `pageInfo.hasNext` is `true`, copy `pageInfo.endCursor` into the next request's `after` variable and send the same query again. For example, if the returned cursor is `"OQ=="`, the next variables are:
+
+[source,json]
+----
+{"after": "OQ=="}
+----
+
+Repeat until `hasNext` is `false`. Treat cursors as opaque values: use the value returned by the API rather than calculating it. Keep the project, branch, key and sorting unchanged while paging; start again with `after: null` when changing them. Content changes between requests can shift the results, so pagination does not provide a snapshot of the content.

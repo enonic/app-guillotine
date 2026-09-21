@@ -75,7 +75,7 @@ Gathers all content retrieval requests.
 |Fetches the permissions on a content
 
 |getSite: portal_Site
-|Fetches the parent site of the content corresponding to the current execution context
+|Returns the nearest site for the content ID or path supplied through `guillotine(siteKey: ...)`. Returns `null` when `siteKey` is omitted or selects the project root (`"/"`), including at a site-mounted endpoint. See <<usage/site-context#, Site context>>
 
 // |query(
 //  query: String,
@@ -120,7 +120,7 @@ highlight: <<HighlightInputType>>
 |Retrieves the properties and icon of the specified content type
 
 |getTypes: [<<ContentType>>]
-|Retrieves the list of all content types available for the current site
+|Lists built-in content types and content types from installed applications, independently of the selected project, branch or site
 |===
 
 === Content
@@ -150,7 +150,7 @@ All types implementing `Content` share the same fields, with the exception of th
 |Branch used to resolve this item
 
 |_references: [<<Content>>]
-|Contents that have a reference to this content
+|Content items referenced by this content item (outgoing references)
 
 |_score: Float
 |Search relevance score

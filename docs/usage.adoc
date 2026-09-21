@@ -180,6 +180,40 @@ Both requests return the same JSON structure. The items depend on your project's
 
 GraphQL errors appear in an `errors` array and can accompany partial `data`, even when the HTTP status is successful. Check both the HTTP response and the GraphQL result. The JavaScript example treats any GraphQL error as a failed request; a client that supports partial results can handle the returned data separately.
 
+[#troubleshooting]
+== Troubleshooting
+
+Check both the HTTP status and the response body. A successful HTTP status can still contain GraphQL `errors`; those errors identify fields or arguments that need attention.
+
+=== Empty results or missing content
+
+Confirm that `project` names the intended project and that `branch` is `master` or `draft`. Content must be published to appear in `master`. Also check the content path, query filters and the caller's read permissions. At a site-mounted endpoint, the request supplies project and branch even if the query specifies different values.
+
+Query Playground uses your signed-in Content Studio user. A separate client may be anonymous or use another identity, so the same query can return different results. Compare requests using the same project, branch and caller.
+
+=== Missing project or branch context
+
+At the Web endpoint, explicitly pass both values, for example `guillotine(project: "myproject", branch: "master")`. An omitted value must come from the request context; when it is unavailable, context setup fails. See <<#content-context, Project and branch>>.
+
+`siteKey` selects a site inside that project and does not replace project or branch selection. Supply it when using `getSite` or the `${site}` placeholder, and make sure the selected site exists in the requested branch.
+
+=== Authentication or access failures
+
+For `401` or `403` responses, confirm that the client sends the authentication expected by your deployment and that the caller can access the endpoint and content. Use the configured identity provider or gateway's authentication mechanism; installing Guillotine does not create a separate API credential.
+
+A Content Studio login does not automatically authenticate another client. Configure its session or authorization headers separately. For cross-origin cookie sessions, use `credentials: 'include'` in browser requests and enable credentials for the frontend origin in the <<configuration#config_file, CORS configuration>>. Browser cookie restrictions still apply.
+
+=== Browser CORS errors
+
+If a request works in cURL or a desktop client but the browser reports a CORS error, inspect the `OPTIONS` preflight and the POST response in the browser's Network panel:
+
+* `cors.origin` must allow the frontend's origin, including its scheme and port.
+* The public route or proxy must pass `OPTIONS` requests through to Guillotine.
+* Allowed methods must include `POST`, and allowed headers must cover those the client sends. Add `Authorization` if your authentication uses that header.
+* For cookie credentials, use an explicit allowed origin and `cors.credentials=true`, together with `credentials: 'include'` in the client.
+
+See <<configuration#config_file, Configuration>> for a complete example. CORS settings do not grant access to protected content.
+
 == Query examples
 
 * <<usage/content-queries#, Content queries>> — retrieve items by ID or path, search by type, and paginate results.
