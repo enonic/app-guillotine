@@ -698,7 +698,7 @@ A more intuitive way to discover the API is by using the <a href="playground.aht
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">getSite: portal_Site</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Fetches the parent site of the content corresponding to the current execution context</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the nearest site for the content ID or path supplied through <code>guillotine(siteKey: &#8230;&#8203;)</code>. Returns <code>null</code> when <code>siteKey</code> is omitted or selects the project root (<code>"/"</code>), including at a site-mounted endpoint. See <a href="usage/site-context.ahtml">Site context</a></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">queryDsl(
@@ -726,7 +726,7 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">getTypes: [<a href="#contenttype">ContentType</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Retrieves the list of all content types available for the current site</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lists built-in content types and content types from installed applications, independently of the selected project, branch or site</p></td>
 </tr>
 </tbody>
 </table>
@@ -776,7 +776,7 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_references: [<a href="#content">Content</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Contents that have a reference to this content</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content items referenced by this content item (outgoing references)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_score: Float</p></td>
@@ -3735,7 +3735,7 @@ Defaults to none - will be displayed in the same order in which fragments appear
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-15 06:18:30 UTC
+Last updated 2026-09-21 07:28:55 UTC
 </div>
 </div>
 </body>

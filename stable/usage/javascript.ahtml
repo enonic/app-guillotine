@@ -514,7 +514,7 @@ fetch('http://localhost:8080/site/moviedb/master', {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-15 06:18:56 UTC
+Last updated 2026-09-21 07:29:22 UTC
 </div>
 </div>
 </body>

@@ -441,12 +441,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#content_studio_extension">Content Studio Extension</a></li>
-<li><a href="#api_browser">API browser</a>
-<ul class="sectlevel2">
-<li><a href="#query_example">Query example</a></li>
-</ul>
-</li>
+<li><a href="#open_query_playground">Open Query Playground</a></li>
+<li><a href="#explore_the_interface">Explore the interface</a></li>
+<li><a href="#run_your_first_query">Run your first query</a></li>
+<li><a href="#use_another_client">Use another client</a></li>
 </ul>
 </div>
 </div>
@@ -459,91 +457,77 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="content_studio_extension"><a class="link" href="#content_studio_extension">Content Studio Extension</a></h2>
+<h2 id="open_query_playground"><a class="link" href="#open_query_playground">Open Query Playground</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Guillotine provides Query Playground as an admin extension implementing the <code>contentstudio.menuitem</code> interface. Content Studio displays it as a panel; other applications supporting that interface can also embed it. It is only accessible for users with the <code>system.admin</code> or <code>cms.admin</code> roles.</p>
+<p>With Guillotine installed, open Content Studio, select a project, and choose <strong>Query Playground</strong> from the left navigation. Your user must have the <code>system.admin</code> or <code>cms.admin</code> role.</p>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Guillotine 9 removes the playground previously served by GET requests to the GraphQL endpoint. The Content Studio extension described here remains available. To explore the API outside Content Studio, use a <a href="usage.ahtml#third-party-clients">third-party GraphQL client such as Altair</a>.
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>Queries use the project selected in Content Studio. Use the <strong>Draft</strong> and <strong>Master</strong> buttons in Query Playground to choose between work in progress and published content.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="api_browser"><a class="link" href="#api_browser">API browser</a></h2>
+<h2 id="explore_the_interface"><a class="link" href="#explore_the_interface">Explore the interface</a></h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p>Query Playground lets you access the detailed documentation, and perform queries in context of your content:</p>
+<div class="imageblock">
+<div class="content">
+<img src="images/playground.png" alt="Query Playground in Content Studio, with the project selector, Docs panel, query editor, response panel, branch selector, and Variables panel annotated" width="1651px">
 </div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Query the Guillotine API directly from Content Studio. Project and branch context are automatically applied based on your current selection.
-image::images/playground.png["Query playground interface with docs, query editor, and results panel - directly integrated in Content Studio", 1651px]</p>
+</div>
 <div class="dlist">
 <dl>
-<dt class="hdlist1">Left panel</dt>
+<dt class="hdlist1">Docs</dt>
 <dd>
-<p>GraphQL API documentation</p>
+<p>Open the Docs panel on the left to browse the schema&#8217;s types and fields.</p>
 </dd>
-<dt class="hdlist1">Center panel</dt>
+<dt class="hdlist1">Query</dt>
 <dd>
-<p>Edit your GraphQL query</p>
+<p>Write your GraphQL query in the center editor.</p>
 </dd>
-<dt class="hdlist1">Right panel</dt>
+<dt class="hdlist1">Response</dt>
 <dd>
-<p>Displays query results</p>
+<p>Read query results and errors in the right panel.</p>
 </dd>
-<dt class="hdlist1">Branch selector</dt>
+<dt class="hdlist1">Variables</dt>
 <dd>
-<p>Toggle between querying Draft and Master branches</p>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Queries use the project currently selected in Content Studio and the branch selected in Query Playground.
-</td>
-</tr>
-</table>
-</div>
+<p>Expand the Variables panel below the query editor to supply query variables as a JSON object.</p>
+</dd>
+<dt class="hdlist1">Active project</dt>
+<dd>
+<p>Select the content project in Content Studio&#8217;s top bar.</p>
+</dd>
+<dt class="hdlist1">Active branch</dt>
+<dd>
+<p>Choose <strong>Draft</strong> or <strong>Master</strong> above the response panel.</p>
 </dd>
 </dl>
 </div>
-</li>
-</ol>
 </div>
-<div class="sect2">
-<h3 id="query_example"><a class="link" href="#query_example">Query example</a></h3>
+</div>
+<div class="sect1">
+<h2 id="run_your_first_query"><a class="link" href="#run_your_first_query">Run your first query</a></h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>Try out this query for a start.</p>
+<p>The following query returns the display name and content type of up to ten items at the root of the selected project and branch.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Paste the query below inside the center panel.</p>
+<p>Select your project and choose the <strong>Draft</strong> branch.</p>
 </li>
 <li>
-<p>Click on the query play button above</p>
+<p>Replace the contents of the query editor with the query below.</p>
 </li>
 <li>
-<p>The service response is displayed in the right panel</p>
+<p>Click the pink play button in the query editor.</p>
+</li>
+<li>
+<p>Inspect the JSON response in the right panel.</p>
 </li>
 </ol>
 </div>
 <div class="listingblock">
-<div class="title">Retrieve the displayName and type of the root items.</div>
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">{
   guillotine {
@@ -555,16 +539,47 @@ Queries use the project currently selected in Content Studio and the branch sele
 }</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>See <a href="usage/content-queries.ahtml">Content queries</a> for more query examples, or <a href="usage.ahtml">Usage</a> to send queries from your own client.</p>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+If <code>getChildren</code> returns an empty array, check that the selected project and branch contain content your user can access. Content must be published to appear in <strong>Master</strong>.
+</td>
+</tr>
+</table>
 </div>
+<div class="paragraph">
+<p>See <a href="usage/content-queries.ahtml">Content queries</a> for more examples.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="use_another_client"><a class="link" href="#use_another_client">Use another client</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To explore the API outside Content Studio, use a <a href="usage.ahtml#third-party-clients">third-party GraphQL client such as Altair</a>. See <a href="usage.ahtml">Usage</a> for endpoint URLs and request examples.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+In Guillotine 9, opening the GraphQL endpoint in a browser no longer displays a playground. Query Playground remains available inside Content Studio.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-15 06:18:30 UTC
+Last updated 2026-09-21 07:28:55 UTC
 </div>
 </div>
 </body>

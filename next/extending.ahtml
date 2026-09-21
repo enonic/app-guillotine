@@ -444,7 +444,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#get_started">Get started</a></li>
 <li><a href="#extension_file">Extension file</a></li>
-<li><a href="#usage_example">Usage example</a></li>
+<li><a href="#first-extension">Add your first field</a></li>
+<li><a href="#extension_structure">Extension structure</a></li>
+<li><a href="#call_an_external_service">Call an external service</a></li>
 <li><a href="#arguments">Arguments</a></li>
 <li><a href="#lifecycle">Lifecycle and execution</a>
 <ul class="sectlevel2">
@@ -498,7 +500,78 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Create <code>src/main/resources/guillotine/guillotine.ts</code> in your app. The build must compile it to <code>/guillotine/guillotine.js</code> in the application resources, which is the path Guillotine loads at runtime. The TypeScript starter handles this compilation.</p>
 </div>
 <div class="paragraph">
-<p>This file must export the <code>extensions</code> function with the following structure:</p>
+<p>This file must export an <code>extensions</code> function returning the definitions and resolvers to add to the schema.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="first-extension"><a class="link" href="#first-extension">Add your first field</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Start with a field that returns a greeting. This example needs no content model or external service.</p>
+</div>
+<div class="listingblock">
+<div class="title">src/main/resources/guillotine/guillotine.ts</div>
+<div class="content">
+<pre class="highlight"><code class="language-typescript" data-lang="typescript">import type {DataFetchingEnvironment, Extensions, GraphQL} from '@enonic-types/guillotine';
+
+export const extensions = (graphQL: GraphQL): Extensions =&gt; ({
+    creationCallbacks: {
+        Query: (params) =&gt; {
+            params.addFields({
+                myapp_greeting: {
+                    type: graphQL.GraphQLString,
+                    args: {
+                        name: graphQL.nonNull(graphQL.GraphQLString),
+                    },
+                },
+            });
+        },
+    },
+    resolvers: {
+        Query: {
+            myapp_greeting: (env: DataFetchingEnvironment&lt;{name: string}&gt;): string =&gt;
+                `Hello, ${env.args.name}!`,
+        },
+    },
+});</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Build and deploy your app to the instance running Guillotine. Open <a href="playground.ahtml">Query Playground</a> and refresh the schema, or connect a <a href="usage.ahtml#third-party-clients">GraphQL client</a>. Run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">{
+  myapp_greeting(name: "Ada")
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The response is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+  "data": {
+    "myapp_greeting": "Hello, Ada!"
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>creationCallbacks</code> adds the field and its required argument; <code>resolvers</code> supplies its value. The field is directly on <code>Query</code>, so this example does not need a <code>guillotine</code> selection or project and branch arguments. For fields that use content, prefer <code>HeadlessCms</code> so resolvers inherit the selected content context; see <a href="extending/best-practices.ahtml">Field placement</a>.</p>
+</div>
+<div class="paragraph">
+<p>If the field is missing, check that your deployed app contains <code>/guillotine/guillotine.js</code>, exports <code>extensions</code>, and has started successfully. Check the XP logs for extension-loading or schema-generation errors.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="extension_structure"><a class="link" href="#extension_structure">Extension structure</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>As your extension grows, add the properties you need to the same returned object:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -576,7 +649,7 @@ export const extensions = (graphQL: GraphQL): Extensions =&gt; {
 </div>
 </div>
 <div class="sect1">
-<h2 id="usage_example"><a class="link" href="#usage_example">Usage example</a></h2>
+<h2 id="call_an_external_service"><a class="link" href="#call_an_external_service">Call an external service</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Let&#8217;s imagine that we have to extend the GraphQL schema with a new type <code>GoogleBooks</code> and add a new field <code>findBooks</code> to the <code>Query</code> type to be able to find books by query string. To execute requests to Google Books API we will use <code>lib-http-client</code> library.</p>
@@ -589,7 +662,7 @@ export const extensions = (graphQL: GraphQL): Extensions =&gt; {
 </div>
 </div>
 <div class="paragraph">
-<p>In our application we have to create a new file <code>src/main/resources/guillotine/guillotine.ts</code> and add the following content to it:</p>
+<p>The following is a complete alternative for <code>src/main/resources/guillotine/guillotine.ts</code>. To keep the greeting example too, merge its <code>Query</code> callback and resolver into this extension rather than declaring a second <code>extensions</code> function:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -811,7 +884,7 @@ function sendRequestToBooksApi(queryString: string): BooksResponse {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-15 06:18:30 UTC
+Last updated 2026-09-21 07:28:55 UTC
 </div>
 </div>
 </body>

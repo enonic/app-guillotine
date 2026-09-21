@@ -443,7 +443,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#retrieve_an_item">Retrieve an item</a></li>
 <li><a href="#query_by_content_type">Query by content type</a></li>
-<li><a href="#pagination">Pagination</a></li>
+<li><a href="#pagination">Pagination</a>
+<ul class="sectlevel2">
+<li><a href="#cursor_pagination">Cursor pagination</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -539,12 +543,63 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>For cursor pagination and result metadata, use the corresponding connection fields, such as <code>getChildrenConnection</code> and <code>queryDslConnection</code>. See <a href="../api.ahtml#contentconnection">ContentConnection</a> and <a href="../api.ahtml#querydslcontentconnection">QueryDSLContentConnection</a> for the response structures.</p>
 </div>
+<div class="sect2">
+<h3 id="cursor_pagination"><a class="link" href="#cursor_pagination">Cursor pagination</a></h3>
+<div class="paragraph">
+<p>This query retrieves a page of ten children and the information needed to request the next page:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">query ChildrenPage($after: String) {
+  guillotine(project: "myproject", branch: "master") {
+    getChildrenConnection(
+      key: "/my-site/posts"
+      first: 10
+      after: $after
+      sort: "displayName ASC"
+    ) {
+      totalCount
+      edges {
+        node {
+          _id
+          displayName
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNext
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For the first request, send these variables:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{"after": null}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Read the items from <code>data.guillotine.getChildrenConnection.edges</code>, where each <code>node</code> is a content item. If <code>pageInfo.hasNext</code> is <code>true</code>, copy <code>pageInfo.endCursor</code> into the next request&#8217;s <code>after</code> variable and send the same query again. For example, if the returned cursor is <code>"OQ=="</code>, the next variables are:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{"after": "OQ=="}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Repeat until <code>hasNext</code> is <code>false</code>. Treat cursors as opaque values: use the value returned by the API rather than calculating it. Keep the project, branch, key and sorting unchanged while paging; start again with <code>after: null</code> when changing them. Content changes between requests can shift the results, so pagination does not provide a snapshot of the content.</p>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-15 06:18:30 UTC
+Last updated 2026-09-21 07:28:55 UTC
 </div>
 </div>
 </body>

@@ -458,58 +458,61 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="config_file"><a class="link" href="#config_file">Config file</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To configure Guillotine, add a configuration file to your XP instance&#8217;s <code>config</code> folder.</p>
+<p>To configure Guillotine, add a configuration file to your XP instance&#8217;s <code>config</code> folder. This example enables CORS for two frontend origins without cookie credentials. Replace the origins with your frontend addresses, including the scheme and port when applicable.</p>
 </div>
 <div class="listingblock">
 <div class="title">com.enonic.app.guillotine.cfg</div>
 <div class="content">
-<pre class="highlight"><code class="language-properties" data-lang="properties">graphql.extensions.modifyUnknownField=throw  <i class="conum" data-value="1"></i><b>(1)</b>
+<pre class="highlight"><code class="language-properties" data-lang="properties">graphql.extensions.modifyUnknownField=throw
 
-cors.origin= https://example.com, https://admin.example.com <i class="conum" data-value="2"></i><b>(2)</b>
-cors.credentials=true|false <i class="conum" data-value="3"></i><b>(3)</b>
-cors.allowedHeaders=Content-Type <i class="conum" data-value="4"></i><b>(4)</b>
-cors.methods=POST, OPTIONS <i class="conum" data-value="5"></i><b>(5)</b>
-cors.exposedHeaders = X-Request-Id, X-Custom-Header <i class="conum" data-value="6"></i><b>(6)</b>
-cors.maxAge= 3600 <i class="conum" data-value="7"></i><b>(7)</b>
+cors.origin=https://example.com, https://admin.example.com
+cors.credentials=false
+cors.allowedHeaders=Content-Type
+cors.methods=POST, OPTIONS
+cors.exposedHeaders=X-Request-Id, X-Custom-Header
+cors.maxAge=3600
 
-maxQueryTokens=15000 <i class="conum" data-value="8"></i><b>(8)</b></code></pre>
+maxQueryTokens=15000</code></pre>
 </div>
 </div>
-<div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Allows you to modify the default behaviour during modification of unknown fields. Possible values are: <code>throw</code>  - to throw an error if it tries to modify an unknown field, <code>ignore</code> - to ignore modification modify an unknown field, or <code>warn</code> - to log a warning on unknown field modification. Default is <code>throw</code>.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Allowed origin(s), comma-separated. Omit this field to disable CORS. Supports <code><strong></code> (allow all origins), literal origins, and <code>~</code>-prefixed regex patterns for dynamic matching (e.g. <code>~https://.</strong>\.example\.com</code>). Can use <code>~.*</code> to reflect all.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Sets the <code>Access-Control-Allow-Credentials</code> header to allow credentials in CORS requests. Default is <code>false</code>.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>Sets the <code>Access-Control-Allow-Headers</code> header to allow headers in CORS requests. If <code>cors.allowedHeaders</code> is not configured and a request includes <code>Access-Control-Request-Headers</code>, that value is reflected in <code>Access-Control-Allow-Headers</code>.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Sets the <code>Access-Control-Allow-Methods</code> header to allow methods in CORS requests. The Guillotine endpoint answers <code>POST</code> and <code>OPTIONS</code> requests only. Default is <code>GET, HEAD, POST</code>.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="6"></i><b>6</b></td>
-<td>Extra response headers to expose beyond the CORS safelist. If you configure <code>cors.exposedHeaders = <strong></code>, browsers only treat <code></strong></code> as a wildcard for non-credentialed requests.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="7"></i><b>7</b></td>
-<td>Sets the <code>Access-Control-Max-Age</code> header to specify preflight cache duration in seconds</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="8"></i><b>8</b></td>
-<td>If the number of raw tokens exceeds the specified maximum, the parser will throw an exception. Default is <code>15000</code>.</td>
-</tr>
-</table>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>graphql.extensions.modifyUnknownField</code></dt>
+<dd>
+<p>Controls attempts to modify an unknown schema field: <code>throw</code> raises an error, <code>ignore</code> skips the modification, and <code>warn</code> logs a warning. Default is <code>throw</code>.</p>
+</dd>
+<dt class="hdlist1"><code>cors.origin</code></dt>
+<dd>
+<p>Allowed origins, comma-separated. Omit this property to disable CORS. Supports <code><strong></code> (all origins), literal origins, and <code>~</code>-prefixed regular expressions for dynamic matching. <code>~.</strong></code> reflects any origin.</p>
+</dd>
+<dt class="hdlist1"><code>cors.credentials</code></dt>
+<dd>
+<p>Sets the <code>Access-Control-Allow-Credentials</code> header. Use <code>true</code> or <code>false</code>; the default is <code>false</code>. For cross-origin cookie authentication, set it to <code>true</code>, configure explicit allowed origins, and use <code>credentials: 'include'</code> in the browser&#8217;s <code>fetch()</code> request. Browsers do not accept the wildcard origin <code>*</code> with credentials.</p>
+</dd>
+<dt class="hdlist1"><code>cors.allowedHeaders</code></dt>
+<dd>
+<p>Sets the <code>Access-Control-Allow-Headers</code> header. If your client sends an <code>Authorization</code> header, include it, for example <code>cors.allowedHeaders=Content-Type, Authorization</code>. If this property is omitted, the request&#8217;s <code>Access-Control-Request-Headers</code> value is reflected when present.</p>
+</dd>
+<dt class="hdlist1"><code>cors.methods</code></dt>
+<dd>
+<p>Sets the <code>Access-Control-Allow-Methods</code> header. The Guillotine endpoint answers <code>POST</code> and <code>OPTIONS</code> requests only. The library default is <code>GET, HEAD, POST</code>; the example explicitly allows <code>POST, OPTIONS</code>.</p>
+</dd>
+<dt class="hdlist1"><code>cors.exposedHeaders</code></dt>
+<dd>
+<p>Extra response headers browser scripts may read beyond the CORS safelist. Listing a header does not create it; expose headers your deployment actually returns. Browsers treat <code>*</code> as a wildcard only for requests without credentials.</p>
+</dd>
+<dt class="hdlist1"><code>cors.maxAge</code></dt>
+<dd>
+<p>Sets the <code>Access-Control-Max-Age</code> header, specifying the preflight cache duration in seconds.</p>
+</dd>
+<dt class="hdlist1"><code>maxQueryTokens</code></dt>
+<dd>
+<p>Maximum number of raw query tokens. The parser throws an exception when this limit is exceeded. Default is <code>15000</code>.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>CORS controls which browser origins can read responses. Authentication and content permissions still determine which content the caller can access. See <a href="usage.ahtml#troubleshooting">Troubleshooting</a> when requests fail.</p>
 </div>
 </div>
 </div>
@@ -542,7 +545,7 @@ maxQueryTokens=15000 <i class="conum" data-value="8"></i><b>(8)</b></code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-15 06:18:30 UTC
+Last updated 2026-09-21 07:28:55 UTC
 </div>
 </div>
 </body>

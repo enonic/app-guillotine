@@ -495,7 +495,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>@enonic-types/guillotine</code> package provides the TypeScript types for writing an <a href="../extending.ahtml">extension</a>. It contains no runtime code; it describes the <code>extensions</code> function contract, the <code>graphQL</code> utility object passed to it, the environment a resolver receives, and constants naming the built-in schema types.</p>
+<p>The <code>@enonic-types/guillotine</code> package provides the TypeScript types for writing an <a href="../extending.ahtml">extension</a>. It describes the <code>extensions</code> function contract, the <code>graphQL</code> utility object passed to it, and the environment a resolver receives. It also exports runtime enums for schema names and enum values; bundle these with your app when using them as values.</p>
 </div>
 <div class="paragraph">
 <p>Install it as a development dependency in your app:</p>
@@ -606,7 +606,7 @@ Each exported type is a TypeScript shape only. The behaviour behind it, such as 
 </tbody>
 </table>
 <div class="paragraph">
-<p>The sub-object types below are not exported by name. Derive them from <code>Extensions</code> when you split definitions across files:</p>
+<p><code>Enum</code> and <code>CreationCallback</code> are exported as named types. The <code>InputType</code>, <code>Interface</code>, <code>Union</code>, <code>Type</code> and <code>Field</code> shapes below describe nested definitions and are not named exports. Derive these types from <code>Extensions</code> when you split definitions across files:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -976,7 +976,7 @@ const findBooks = (env: DataFetchingEnvironment&lt;{queryString: string}, null&g
 <p><code>LocalContext&lt;T extends LocalContextRecord&gt;</code></p>
 </div>
 <div class="paragraph">
-<p>The context object available as <code>env.localContext</code>. Guillotine always supplies the first three properties. Additional properties come from ancestor resolvers via <a href="#create-data-fetcher-result">createDataFetcherResult</a>; describe them with the generic parameter <code>T</code> when you read them.</p>
+<p>The context object available as <code>env.localContext</code>. The <code>guillotine</code> field supplies <code>project</code> and <code>branch</code> to its descendants, and <code>siteKey</code> when explicitly selected. Fields added directly to <code>Query</code> do not inherit this context from a sibling <code>guillotine</code> field. Additional properties come from ancestor resolvers via <a href="#create-data-fetcher-result">createDataFetcherResult</a>; describe them with the generic parameter <code>T</code> when you read them. Pass <code>parentLocalContext: env.localContext</code> when adding values to preserve the inherited context.</p>
 </div>
 <table class="tableblock frame-none grid-none stretch">
 <colgroup>
@@ -1299,7 +1299,7 @@ export const extensions = (graphQL: GraphQL): Extensions =&gt; ({
 </tbody>
 </table>
 <div class="paragraph">
-<p>The companion types <code>ObjectTypeNames</code>, <code>InputTypeNames</code>, <code>EnumTypeNames</code> and <code>ScalarTypeNames</code> are string unions of the corresponding member names.</p>
+<p>The companion types <code>ObjectTypeNames</code>, <code>InputTypeNames</code>, <code>EnumTypeNames</code> and <code>ScalarTypeNames</code> are string unions of the corresponding member names. They are exported from <code>@enonic-types/guillotine/advanced</code>, rather than the package root.</p>
 </div>
 <div class="sect2">
 <h3 id="enum_values"><a class="link" href="#enum_values">Enum values</a></h3>
@@ -1410,7 +1410,7 @@ export const extensions = (graphQL: GraphQL): Extensions =&gt; ({
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-15 06:18:30 UTC
+Last updated 2026-09-21 07:28:55 UTC
 </div>
 </div>
 </body>

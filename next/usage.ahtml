@@ -448,6 +448,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#curl">cURL</a></li>
 <li><a href="#javascript">JavaScript</a></li>
 <li><a href="#response">Response</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a>
+<ul class="sectlevel2">
+<li><a href="#empty_results_or_missing_content">Empty results or missing content</a></li>
+<li><a href="#missing_project_or_branch_context">Missing project or branch context</a></li>
+<li><a href="#authentication_or_access_failures">Authentication or access failures</a></li>
+<li><a href="#browser_cors_errors">Browser CORS errors</a></li>
+</ul>
+</li>
 <li><a href="#query_examples">Query examples</a></li>
 </ul>
 </div>
@@ -704,6 +712,66 @@ getRootItems().then(console.log).catch(console.error);</code></pre>
 </div>
 </div>
 <div class="sect1">
+<h2 id="troubleshooting"><a class="link" href="#troubleshooting">Troubleshooting</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Check both the HTTP status and the response body. A successful HTTP status can still contain GraphQL <code>errors</code>; those errors identify fields or arguments that need attention.</p>
+</div>
+<div class="sect2">
+<h3 id="empty_results_or_missing_content"><a class="link" href="#empty_results_or_missing_content">Empty results or missing content</a></h3>
+<div class="paragraph">
+<p>Confirm that <code>project</code> names the intended project and that <code>branch</code> is <code>master</code> or <code>draft</code>. Content must be published to appear in <code>master</code>. Also check the content path, query filters and the caller&#8217;s read permissions. At a site-mounted endpoint, the request supplies project and branch even if the query specifies different values.</p>
+</div>
+<div class="paragraph">
+<p>Query Playground uses your signed-in Content Studio user. A separate client may be anonymous or use another identity, so the same query can return different results. Compare requests using the same project, branch and caller.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="missing_project_or_branch_context"><a class="link" href="#missing_project_or_branch_context">Missing project or branch context</a></h3>
+<div class="paragraph">
+<p>At the Web endpoint, explicitly pass both values, for example <code>guillotine(project: "myproject", branch: "master")</code>. An omitted value must come from the request context; when it is unavailable, context setup fails. See <a href="#content-context">Project and branch</a>.</p>
+</div>
+<div class="paragraph">
+<p><code>siteKey</code> selects a site inside that project and does not replace project or branch selection. Supply it when using <code>getSite</code> or the <code>${site}</code> placeholder, and make sure the selected site exists in the requested branch.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="authentication_or_access_failures"><a class="link" href="#authentication_or_access_failures">Authentication or access failures</a></h3>
+<div class="paragraph">
+<p>For <code>401</code> or <code>403</code> responses, confirm that the client sends the authentication expected by your deployment and that the caller can access the endpoint and content. Use the configured identity provider or gateway&#8217;s authentication mechanism; installing Guillotine does not create a separate API credential.</p>
+</div>
+<div class="paragraph">
+<p>A Content Studio login does not automatically authenticate another client. Configure its session or authorization headers separately. For cross-origin cookie sessions, use <code>credentials: 'include'</code> in browser requests and enable credentials for the frontend origin in the <a href="configuration.ahtml#config_file">CORS configuration</a>. Browser cookie restrictions still apply.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="browser_cors_errors"><a class="link" href="#browser_cors_errors">Browser CORS errors</a></h3>
+<div class="paragraph">
+<p>If a request works in cURL or a desktop client but the browser reports a CORS error, inspect the <code>OPTIONS</code> preflight and the POST response in the browser&#8217;s Network panel:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cors.origin</code> must allow the frontend&#8217;s origin, including its scheme and port.</p>
+</li>
+<li>
+<p>The public route or proxy must pass <code>OPTIONS</code> requests through to Guillotine.</p>
+</li>
+<li>
+<p>Allowed methods must include <code>POST</code>, and allowed headers must cover those the client sends. Add <code>Authorization</code> if your authentication uses that header.</p>
+</li>
+<li>
+<p>For cookie credentials, use an explicit allowed origin and <code>cors.credentials=true</code>, together with <code>credentials: 'include'</code> in the client.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>See <a href="configuration.ahtml#config_file">Configuration</a> for a complete example. CORS settings do not grant access to protected content.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="query_examples"><a class="link" href="#query_examples">Query examples</a></h2>
 <div class="sectionbody">
 <div class="ulist">
@@ -730,7 +798,7 @@ getRootItems().then(console.log).catch(console.error);</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-15 06:18:30 UTC
+Last updated 2026-09-21 07:28:55 UTC
 </div>
 </div>
 </body>

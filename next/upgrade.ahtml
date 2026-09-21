@@ -579,7 +579,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tbody>
 </table>
 <div class="paragraph">
-<p>Select <code>path</code> and <code>queryString</code>, then build the address in your client using the appropriate media base URL or frontend route.</p>
+<p>If XP&#8217;s generated addresses match your deployment, select <code>url</code> on the new object: for example, change <code>imageUrl(scale: "width(800)")</code> to <code>imageUrl(scale: "width(800)") { url }</code> and read <code>imageUrl.url</code> in your client. The same option is available on <code>pageUrl</code>, <code>mediaUrl</code> and <code>attachmentUrl</code>. Generated addresses depend on XP&#8217;s site, media and request context and may be relative; see <a href="usage/images-and-urls.ahtml#generated-urls">XP-generated URLs</a>.</p>
+</div>
+<div class="paragraph">
+<p>For custom frontend routes or a client-selected API/CDN base, select <code>path</code> and <code>queryString</code>, then build the address in your client. The following example uses this approach:</p>
 </div>
 <div class="listingblock">
 <div class="title">Guillotine 8</div>
@@ -623,7 +626,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>For media, concatenate your public API or CDN base with <code>path</code> and <code>queryString</code>. For pages, adapt <code>pageUrl.path</code> to your frontend&#8217;s host and routing, then append <code>pageUrl.queryString</code>. These components are already URL-escaped. See <a href="usage/images-and-urls.ahtml#url-parts">Building URLs from parts</a> for client examples.</p>
 </div>
 <div class="paragraph">
-<p>The <code>type</code> argument and <code>UrlType</code> enum are removed. Remove <code>type: server</code> and <code>type: absolute</code> from queries and variables. Your client now supplies the deployment context when building links from these components.</p>
+<p>The <code>type</code> argument and <code>UrlType</code> enum are removed. Remove <code>type: server</code> and <code>type: absolute</code> from queries and variables. Use <code>url</code> with XP&#8217;s configured URL context, or supply the deployment context in your client when building links from components.</p>
 </div>
 <div class="sect3">
 <h4 id="processed_rich_text"><a class="link" href="#processed_rich_text">Processed rich text</a></h4>
@@ -900,7 +903,7 @@ type CreationCallbacks = NonNullable&lt;Extensions['creationCallbacks']&gt;;</co
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-15 06:18:30 UTC
+Last updated 2026-09-21 07:28:55 UTC
 </div>
 </div>
 </body>

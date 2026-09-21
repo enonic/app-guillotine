@@ -484,7 +484,7 @@ field renaming is not supported.
 <p>May be invoked in a different order than what is defined in the <code>creationCallbacks</code> property.</p>
 </li>
 <li>
-<p>If you add or modify some fields of an interface in the creation callback, you must also do that for all implementations. Otherwise, you will get an error during schema generation.</p>
+<p>Field additions, modifications and removals made by an interface&#8217;s creation callback are automatically applied to its implementing object types. Define the shared change on the interface; you do not need to repeat it for each implementation. Supply any resolvers needed to return the new or changed fields.</p>
 </li>
 <li>
 <p>If you modify some field, make sure that you implement correct data fetcher in the <a href="./resolvers.ahtml">resolvers</a> section. Otherwise, you can get an error during query execution.</p>
@@ -593,7 +593,7 @@ export const extensions = (graphQL: GraphQL): Extensions =&gt; ({
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-09-15 06:18:30 UTC
+Last updated 2026-09-21 07:28:55 UTC
 </div>
 </div>
 </body>
