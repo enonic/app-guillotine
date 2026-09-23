@@ -273,12 +273,12 @@ public class GenericTypesFactory
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
-        fields.add( outputField( "url", Scalars.GraphQLString ) );
+        fields.add( outputField( "baseUrl", Scalars.GraphQLString ) );
         fields.add( outputField( "path", Scalars.GraphQLString ) );
         fields.add( outputField( "queryString", Scalars.GraphQLString ) );
 
         GraphQLObjectType outputObject =
-            newObject( context.uniqueName( "PageUrl" ), "Page URL and its components: url = baseUrl + path + queryString.", fields );
+            newObject( context.uniqueName( "PageUrl" ), "Components of a page URL: url = baseUrl + path + queryString.", fields );
         context.registerType( outputObject.getName(), outputObject );
     }
 

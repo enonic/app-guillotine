@@ -10,7 +10,7 @@ One endpoint for content projects::
 The `guillotine` field accepts `project` and `branch` arguments, so a single Web API endpoint can serve multiple projects and branches. Content permissions apply to every request. See <<setup#api-base-url, API base URL>>.
 
 URL components::
-`pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` return objects exposing `path` and `queryString`. Media fields also provide components such as the project context, content ID and fingerprint. Clients can prepend an API or CDN base to media paths and adapt page paths to their frontend routes. See <<usage/images-and-urls#url-parts, Building URLs from parts>>.
+`pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` return objects exposing `path` and `queryString`. `pageUrl` also exposes the configured `baseUrl` of the site selected with `siteKey`, which it requires. Media fields also provide components such as the project context, content ID and fingerprint. Clients can prepend an API or CDN base to media paths and adapt page paths to their frontend routes. See <<usage/images-and-urls#url-parts, Building URLs from parts>>.
 
 Structured rich-text links::
 The `Link.pageUrl` and `Media.mediaUrl` fields expose the same URL components for references found in rich text. Clients can use these fields when rendering links for their own deployment. See <<usage/rich-text#, Rich text>>.

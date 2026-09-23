@@ -417,7 +417,7 @@ export declare interface PageInfo {
 }
 
 export declare interface PageUrl {
-	url: GraphQLString
+	baseUrl: GraphQLString
 	path: GraphQLString
 	queryString: GraphQLString
 }

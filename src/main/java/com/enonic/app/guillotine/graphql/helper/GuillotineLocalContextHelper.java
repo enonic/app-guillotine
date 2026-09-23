@@ -99,6 +99,23 @@ public class GuillotineLocalContextHelper
         return builder.build();
     }
 
+    /**
+     * @return the level of the content tree page URLs belong to, which they are resolved against
+     * from configuration alone
+     * @throws IllegalArgumentException when no siteKey is in use: nothing else says which site
+     * the URL belongs to
+     */
+    public static BaseUrlParams requireSiteBase( final DataFetchingEnvironment environment )
+    {
+        final BaseUrlParams base = getSiteBase( environment );
+        if ( base == null )
+        {
+            throw new IllegalArgumentException(
+                String.format( "Page URLs require the \"%s\" argument: the site or project the URL belongs to", Constants.SITE_ARG ) );
+        }
+        return base;
+    }
+
     public static String getImageBaseUrl( final DataFetchingEnvironment environment )
     {
         // resolved by XP when siteKey is in use: where the image API is served for the site

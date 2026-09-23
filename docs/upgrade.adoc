@@ -107,7 +107,7 @@ Select `path` and `queryString`, then build the address in your client using the
 }
 ----
 
-For media, concatenate your public API or CDN base with `path` and `queryString`. For pages, adapt `pageUrl.path` to your frontend's host and routing, then append `pageUrl.queryString`. These components are already URL-escaped. See <<usage/images-and-urls#url-parts, Building URLs from parts>> for client examples.
+For media, concatenate your public API or CDN base with `path` and `queryString`. For pages, pass `siteKey`, which `pageUrl` requires, and adapt `pageUrl.path` to your frontend's host and routing, then append `pageUrl.queryString`. `pageUrl.baseUrl` holds the selected site's configured Base URL, or `null` when it has none. These components are already URL-escaped. See <<usage/images-and-urls#url-parts, Building URLs from parts>> for client examples.
 
 The `type` argument and `UrlType` enum are removed. Remove `type: server` and `type: absolute` from queries and variables. Your client now supplies the deployment context when building links from these components.
 
@@ -207,7 +207,7 @@ Select `pageUrl { path }` with an appropriate `siteKey` for a site-relative link
 
 The previous automatic site-path restrictions on content queries and lookups are removed. Queries can reach content elsewhere in the project, subject to content permissions. If your client needs results from one subtree, add explicit path constraints to its DSL queries.
 
-For page URLs, `siteKey` now selects both the URL base and the relative path. A request for a page URL outside the selected site can produce a GraphQL field error. For nested sites, choosing the parent or child site can produce different links. Without `siteKey`, page URL context depends on the endpoint. Test cross-site references and nested-site links against the <<usage/images-and-urls#base-urls, URL context rules>>.
+For page URLs, `siteKey` now selects both the URL base and the relative path, and is required: without it, `pageUrl` produces a GraphQL field error. So does a request for a page URL outside the selected site. For nested sites, choosing the parent or child site can produce different links. Page URLs no longer depend on the endpoint or the request. Test cross-site references and nested-site links against the <<usage/images-and-urls#base-urls, URL context rules>>.
 
 [#metadata-migration]
 === Schema metadata and publication timestamps

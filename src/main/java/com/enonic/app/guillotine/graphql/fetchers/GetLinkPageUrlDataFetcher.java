@@ -1,6 +1,5 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import graphql.schema.DataFetcher;
@@ -33,21 +32,11 @@ public class GetLinkPageUrlDataFetcher
             return null;
         }
 
-        return GuillotineLocalContextHelper.executeInContext( environment, () -> {
-            // one set of params for the whole field, so that url = baseUrl + path + queryString
-            final PageUrlParams params = new PageUrlParams().id( contentId.toString() )
-                .base( GuillotineLocalContextHelper.getSiteBase( environment ) );
+        // resolved from configuration alone, against the site the siteKey names
+        final PageUrlParams params =
+            new PageUrlParams().id( contentId.toString() ).base( GuillotineLocalContextHelper.requireSiteBase( environment ) );
 
-            final Map<String, Object> result = UrlPartsHelper.anyPagePartSelected( environment.getSelectionSet() )
-                ? UrlPartsHelper.toMap( portalUrlService.pageUrlParts( params ) )
-                : new LinkedHashMap<>();
-
-            if ( environment.getSelectionSet().contains( "url" ) )
-            {
-                result.put( "url", portalUrlService.pageUrl( params ) );
-            }
-
-            return result;
-        } );
+        return GuillotineLocalContextHelper.executeInContext( environment,
+                                                              () -> UrlPartsHelper.toMap( portalUrlService.pageUrlParts( params ) ) );
     }
 }

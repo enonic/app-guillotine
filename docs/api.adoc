@@ -216,7 +216,7 @@ a|Flattened list of page components
 |Publication information
 
 |pageUrl(params: JSON): <<PageUrl>>
-|Page link components. Use `siteKey` to select the site or project that the path is relative to; see <<PageUrl>> and <<usage/images-and-urls#base-urls, Base URLs>>
+|Page link components for the site or project selected with `siteKey`, which this field requires; see <<PageUrl>> and <<usage/images-and-urls#base-urls, Base URLs>>
 
 |site: portal_Site
 |Link to the nearest site
@@ -560,13 +560,15 @@ Represents details for image found and processed in the <<RichText>> type.
 
 === PageUrl
 
-Page link components. Adapt `path` to your frontend's routing and append `queryString`. If your deployment preserves the path, use `frontendBaseUrl + path + queryString`.
+Page link components, resolved from configuration for the site or project selected with `siteKey`. The request the query arrives with plays no part. Without `siteKey` the field reports an error, because nothing else says which site the link belongs to. So does a content outside the selected site: the site's Base URL does not lead to it.
+
+Guillotine does not return an assembled address. Build it in the client as `baseUrl + path + queryString`, supplying your frontend's own base when `baseUrl` is `null` or when your deployment routes pages differently.
 
 |===
 |Name (Arguments): Type | Description
 
-|url: String
-|Complete page URL as resolved by XP: `baseUrl + path + queryString`. The base is the configured Base URL of the site selected with `siteKey`, or of the content's own site without a selection. A site without a configured Base URL falls back to the site engine address
+|baseUrl: String
+|The Base URL configured for the selected site or project, without a trailing slash. `null` when none is configured. Configuration is never inherited from a parent site
 
 |path: String
 |URL-escaped path of the content relative to the site - or project - the URL belongs to, with a leading slash. Empty when the content is that site itself
