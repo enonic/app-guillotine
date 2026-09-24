@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import graphql.execution.DataFetcherResult;
 import graphql.schema.DataFetchingEnvironment;
 
+import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.xp.branch.Branch;
@@ -16,6 +17,7 @@ import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.portal.RenderMode;
+import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.repository.RepositoryId;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -86,8 +88,11 @@ public class GuillotineDataFetcherTest
     private Map<Object, Object> fetchLocalContext( final DataFetchingEnvironment environment )
         throws Exception
     {
-        // no siteKey argument, so the ServiceFacade is never touched
-        final GuillotineDataFetcher fetcher = new GuillotineDataFetcher( () -> null );
+        // no siteKey argument: only the media API bases are resolved, for the project
+        final ServiceFacade serviceFacade = Mockito.mock( ServiceFacade.class );
+        when( serviceFacade.getPortalUrlService() ).thenReturn( Mockito.mock( PortalUrlService.class ) );
+
+        final GuillotineDataFetcher fetcher = new GuillotineDataFetcher( () -> serviceFacade );
 
         final DataFetcherResult<?> result = ContextBuilder.create()
             .repositoryId( RepositoryId.from( "com.enonic.cms.myproject" ) )

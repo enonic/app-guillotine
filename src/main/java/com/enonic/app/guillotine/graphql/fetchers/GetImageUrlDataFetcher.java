@@ -40,28 +40,23 @@ public class GetImageUrlDataFetcher
         }
 
         final Map<String, Object> result = UrlPartsHelper.anyImagePartSelected( environment.getSelectionSet() )
-            ? UrlPartsHelper.toMap( portalUrlGeneratorService.imageUrlParts( buildParams( environment, content, null ) ) )
+            ? UrlPartsHelper.toMap( portalUrlGeneratorService.imageUrlParts( buildParams( environment, content ) ) )
             : new LinkedHashMap<>();
 
-        if ( environment.getSelectionSet().contains( "url" ) )
-        {
-            result.put( "url", portalUrlGeneratorService.imageUrl(
-                buildParams( environment, content, GuillotineLocalContextHelper.getImageBaseUrl( environment ) ) ) );
-        }
+        // where the image API is served for the level of the query, resolved once from configuration
+        result.put( "apiUrl", GuillotineLocalContextHelper.getImageBaseUrl( environment ) );
 
         return result;
     }
 
     @SuppressWarnings("unchecked")
-    private static ImageUrlGeneratorParams buildParams( final DataFetchingEnvironment environment, final Content content,
-                                                        final String mediaBaseUrl )
+    private static ImageUrlGeneratorParams buildParams( final DataFetchingEnvironment environment, final Content content )
     {
         final ImageUrlGeneratorParams.Builder builder = ImageUrlGeneratorParams.create();
 
         builder.setMedia( () -> (Media) content );
         builder.setProjectName( () -> GuillotineLocalContextHelper.getProjectName( environment ) );
         builder.setBranch( () -> GuillotineLocalContextHelper.getBranch( environment ) );
-        builder.setMediaBaseUrl( mediaBaseUrl );
         builder.setScale( environment.getArgument( "scale" ) );
         builder.setQuality( environment.getArgument( "quality" ) );
         builder.setBackground( environment.getArgument( "background" ) );

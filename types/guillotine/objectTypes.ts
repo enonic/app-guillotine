@@ -147,7 +147,7 @@ export declare interface Attachment {
 }
 
 export declare interface AttachmentUrl {
-	url: GraphQLString
+	apiUrl: GraphQLString
 	path: GraphQLString
 	queryString: GraphQLString
 	context: GraphQLString
@@ -331,7 +331,7 @@ export declare interface ImageStyle {
 }
 
 export declare interface ImageUrl {
-	url: GraphQLString
+	apiUrl: GraphQLString
 	path: GraphQLString
 	queryString: GraphQLString
 	context: GraphQLString

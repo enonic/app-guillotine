@@ -7,7 +7,7 @@ query {
                     b: [2, 3],
                     c: []
                 }) {
-                    url
+                    apiUrl
                     path
                     queryString
                     intent
@@ -17,7 +17,7 @@ query {
         downloadAttachmentUrl: get(key: "contentid") {
             ... on media_Image {
                 mediaUrl(download: true) {
-                    url
+                    queryString
                     intent
                 }
             }

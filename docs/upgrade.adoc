@@ -107,7 +107,7 @@ Select `path` and `queryString`, then build the address in your client using the
 }
 ----
 
-For media, concatenate your public API or CDN base with `path` and `queryString`. For pages, pass `siteKey`, which `pageUrl` requires, and adapt `pageUrl.path` to your frontend's host and routing, then append `pageUrl.queryString`. `pageUrl.baseUrl` holds the selected site's configured Base URL, or `null` when it has none. These components are already URL-escaped. See <<usage/images-and-urls#url-parts, Building URLs from parts>> for client examples.
+For media, concatenate your public API or CDN base with `path` and `queryString`. `apiUrl` holds the media base configured in XP, or `null` when there is none. For pages, pass `siteKey`, which `pageUrl` requires, and adapt `pageUrl.path` to your frontend's host and routing, then append `pageUrl.queryString`. `pageUrl.baseUrl` holds the selected site's configured Base URL, or `null` when it has none. These components are already URL-escaped. See <<usage/images-and-urls#url-parts, Building URLs from parts>> for client examples.
 
 The `type` argument and `UrlType` enum are removed. Remove `type: server` and `type: absolute` from queries and variables. Your client now supplies the deployment context when building links from these components.
 

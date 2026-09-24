@@ -201,7 +201,12 @@ public class GuillotineApiGraphQLIntegrationTest
             executeQuery( graphQLSchema, "query { guillotine(siteKey: \"\") { getSite { _id } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
-        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.never() ).baseUrl( any() );
+
+        // without a site the project is the level media API bases are resolved for
+        ArgumentCaptor<BaseUrlParams> captor = ArgumentCaptor.forClass( BaseUrlParams.class );
+        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.times( 2 ) ).baseUrl( captor.capture() );
+        assertEquals( "/", captor.getAllValues().get( 0 ).getPath() );
+        assertEquals( "/", captor.getAllValues().get( 1 ).getPath() );
     }
 
     @Test
@@ -275,8 +280,7 @@ public class GuillotineApiGraphQLIntegrationTest
         Mockito.verify( contentService ).findIdsByParent( captor.capture() );
         assertEquals( ContentPath.ROOT, captor.getValue().getParentPath() );
 
-        // media API bases resolve at the project level in XP; unresolved bases keep URLs
-        // request-based
+        // media API bases resolve at the project level in XP
         Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.times( 2 ) ).baseUrl( any() );
     }
 

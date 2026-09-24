@@ -580,13 +580,13 @@ Guillotine does not return an assembled address. Build it in the client as `base
 
 === ImageUrl
 
-Image link components. Build the address as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped. Select `url` to let XP assemble the address instead.
+Image link components. Guillotine does not return an assembled address: build it as `apiUrl + path + queryString`, or use your own public API or CDN base, without a trailing slash, in place of `apiUrl`. All component values are already URL-escaped.
 
 |===
 |Name (Arguments): Type | Description
 
-|url: String
-|Complete image URL as resolved by XP: `baseUrl + path + queryString`. With `siteKey`, the base is where XP serves the image API for that site, taking API mounts and configuration into account. Without a selection, the URL is relative to the current request
+|apiUrl: String
+|Where the image API is served, as configured for the site selected with `siteKey`, or for the project without one. It is the site's Base URL followed by `/_` when the API is mounted on the site, and otherwise the <<configuration#media-base-url, media base URL>> configured for XP. `null` when neither is configured. The request plays no part
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<fingerprint>/<scale>/<name>`
@@ -613,13 +613,13 @@ Image link components. Build the address as `mediaBaseUrl + path + queryString`,
 
 === AttachmentUrl
 
-Attachment link components. Build the address as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped. Select `url` to let XP assemble the address instead.
+Attachment link components. Guillotine does not return an assembled address: build it as `apiUrl + path + queryString`, or use your own public API or CDN base, without a trailing slash, in place of `apiUrl`. All component values are already URL-escaped.
 
 |===
 |Name (Arguments): Type | Description
 
-|url: String
-|Complete attachment URL as resolved by XP: `baseUrl + path + queryString`. With `siteKey`, the base is where XP serves the attachment API for that site, taking API mounts and configuration into account. Without a selection, the URL is relative to the current request
+|apiUrl: String
+|Where the attachment API is served, as configured for the site selected with `siteKey`, or for the project without one. It is the site's Base URL followed by `/_` when the API is mounted on the site, and otherwise the <<configuration#media-base-url, media base URL>> configured for XP. `null` when neither is configured. The request plays no part
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:attachment/<context>/<id>:<fingerprint>/<name>`

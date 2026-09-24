@@ -59,28 +59,31 @@ public class GuillotineDataFetcher
         localContext.putIfAbsent( Constants.BRANCH_ARG, branch );
 
         final String siteKey = environment.getArgument( Constants.SITE_ARG );
-        if ( siteKey != null && !siteKey.isBlank() )
+        final boolean siteSelected = siteKey != null && !siteKey.isBlank();
+        if ( siteSelected )
         {
             requireSiteExists( projectName, branch, siteKey );
 
             // page URLs carry the site key itself, which keeps their base and their path
             // derived from the same site
             localContext.putIfAbsent( Constants.SITE_ARG, siteKey );
+        }
 
-            // XP resolves where each media API is served for the site (mounts and configuration
-            // considered); the two bases can diverge when the site mounts only one of the APIs.
-            // null means the URLs stay request-based
-            final String imageBaseUrl = resolveApiBaseUrl( projectName, branch, siteKey, MEDIA_IMAGE_API_DESCRIPTOR_KEY );
-            if ( imageBaseUrl != null )
-            {
-                localContext.putIfAbsent( Constants.IMAGE_BASE_URL, imageBaseUrl );
-            }
+        // XP resolves from configuration where each media API is served for the level: the
+        // selected site, or the project without one. The two bases can diverge when the site
+        // mounts only one of the APIs; null means none is configured
+        final String level = siteSelected ? siteKey : "/";
 
-            final String attachmentBaseUrl = resolveApiBaseUrl( projectName, branch, siteKey, MEDIA_ATTACHMENT_API_DESCRIPTOR_KEY );
-            if ( attachmentBaseUrl != null )
-            {
-                localContext.putIfAbsent( Constants.ATTACHMENT_BASE_URL, attachmentBaseUrl );
-            }
+        final String imageBaseUrl = resolveApiBaseUrl( projectName, branch, level, MEDIA_IMAGE_API_DESCRIPTOR_KEY );
+        if ( imageBaseUrl != null )
+        {
+            localContext.putIfAbsent( Constants.IMAGE_BASE_URL, imageBaseUrl );
+        }
+
+        final String attachmentBaseUrl = resolveApiBaseUrl( projectName, branch, level, MEDIA_ATTACHMENT_API_DESCRIPTOR_KEY );
+        if ( attachmentBaseUrl != null )
+        {
+            localContext.putIfAbsent( Constants.ATTACHMENT_BASE_URL, attachmentBaseUrl );
         }
 
         return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
