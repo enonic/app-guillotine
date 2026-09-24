@@ -586,7 +586,7 @@ Image link components. Guillotine does not return an assembled address: build it
 |Name (Arguments): Type | Description
 
 |apiUrl: String
-|Where the image API is served, as configured for the site selected with `siteKey`, or for the project without one. It is the site's Base URL followed by `/_` when the API is mounted on the site, and otherwise the <<configuration#media-base-url, media base URL>> configured for XP. `null` when neither is configured. The request plays no part
+|The <<configuration#media-base-url, media base URL>> configured for XP, without a trailing slash, or `null` when none is configured. Neither the request, the site nor its media API mounts plays a part, so it never contains a `/_` segment
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<fingerprint>/<scale>/<name>`
@@ -619,7 +619,7 @@ Attachment link components. Guillotine does not return an assembled address: bui
 |Name (Arguments): Type | Description
 
 |apiUrl: String
-|Where the attachment API is served, as configured for the site selected with `siteKey`, or for the project without one. It is the site's Base URL followed by `/_` when the API is mounted on the site, and otherwise the <<configuration#media-base-url, media base URL>> configured for XP. `null` when neither is configured. The request plays no part
+|The <<configuration#media-base-url, media base URL>> configured for XP, without a trailing slash, or `null` when none is configured. Neither the request, the site nor its media API mounts plays a part, so it never contains a `/_` segment
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:attachment/<context>/<id>:<fingerprint>/<name>`

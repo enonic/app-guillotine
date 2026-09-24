@@ -106,14 +106,10 @@ public class RichTextDataFetcher
     {
         Map<String, Object> processHtmlParams = environment.getArgument( "processHtml" );
 
-        // the media bases are resolved for the project as well, but processed HTML is only
-        // anchored at a site the query selects: without one it keeps XP's own resolution
-        final boolean siteSelected = GuillotineLocalContextHelper.getSiteKey( environment ) != null;
-
-        final ProcessHtmlParams htmlParams = new ProcessHtmlParams().value( htmlText )
-            .imageBaseUrl( siteSelected ? GuillotineLocalContextHelper.getImageBaseUrl( environment ) : null )
-            .attachmentBaseUrl( siteSelected ? GuillotineLocalContextHelper.getAttachmentBaseUrl( environment ) : null )
-            .pageBase( GuillotineLocalContextHelper.getSiteBase( environment ) );
+        // a page base makes XP resolve every link from configuration alone, with bare paths where
+        // nothing is configured: the request and site mounts play no part
+        final ProcessHtmlParams htmlParams =
+            new ProcessHtmlParams().value( htmlText ).pageBase( GuillotineLocalContextHelper.getPageBase( environment ) );
 
         if ( processHtmlParams != null )
         {

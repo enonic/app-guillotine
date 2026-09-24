@@ -11,16 +11,13 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.Constants;
-import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
-import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
-import com.enonic.xp.portal.url.BaseUrlParams;
 import com.enonic.xp.project.ProjectName;
 
 import static java.util.Objects.requireNonNull;
@@ -28,10 +25,6 @@ import static java.util.Objects.requireNonNull;
 public class GuillotineDataFetcher
     implements DataFetcher<Object>
 {
-    private static final DescriptorKey MEDIA_IMAGE_API_DESCRIPTOR_KEY = DescriptorKey.from( ApplicationKey.MEDIA_MOD, "image" );
-
-    private static final DescriptorKey MEDIA_ATTACHMENT_API_DESCRIPTOR_KEY = DescriptorKey.from( ApplicationKey.MEDIA_MOD, "attachment" );
-
     private final Supplier<ServiceFacade> serviceFacadeSupplier;
 
     public GuillotineDataFetcher( final Supplier<ServiceFacade> serviceFacadeSupplier )
@@ -59,8 +52,7 @@ public class GuillotineDataFetcher
         localContext.putIfAbsent( Constants.BRANCH_ARG, branch );
 
         final String siteKey = environment.getArgument( Constants.SITE_ARG );
-        final boolean siteSelected = siteKey != null && !siteKey.isBlank();
-        if ( siteSelected )
+        if ( siteKey != null && !siteKey.isBlank() )
         {
             requireSiteExists( projectName, branch, siteKey );
 
@@ -69,26 +61,8 @@ public class GuillotineDataFetcher
             localContext.putIfAbsent( Constants.SITE_ARG, siteKey );
         }
 
-        // XP resolves from configuration where each media API is served for the level: the
-        // selected site, or the project without one. The two bases can diverge when the site
-        // mounts only one of the APIs; null means none is configured
-        final String level = siteSelected ? siteKey : "/";
-
-        final String imageBaseUrl = resolveApiBaseUrl( projectName, branch, level, MEDIA_IMAGE_API_DESCRIPTOR_KEY );
-        if ( imageBaseUrl != null )
-        {
-            localContext.putIfAbsent( Constants.IMAGE_BASE_URL, imageBaseUrl );
-        }
-
-        final String attachmentBaseUrl = resolveApiBaseUrl( projectName, branch, level, MEDIA_ATTACHMENT_API_DESCRIPTOR_KEY );
-        if ( attachmentBaseUrl != null )
-        {
-            localContext.putIfAbsent( Constants.ATTACHMENT_BASE_URL, attachmentBaseUrl );
-        }
-
         return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
     }
-
 
     private void requireSiteExists( final String projectName, final String branch, final String siteKey )
     {
@@ -121,22 +95,5 @@ public class GuillotineDataFetcher
             throw new IllegalArgumentException(
                 String.format( "Content for the \"%s\" argument not found: \"%s\"", Constants.SITE_ARG, siteKey ) );
         }
-    }
-
-    private String resolveApiBaseUrl( final String projectName, final String branch, final String siteKey, final DescriptorKey api )
-    {
-        // the configured Base URL is used verbatim by XP: no urlType is needed to receive it unchanged
-        final BaseUrlParams.Builder paramsBuilder =
-            BaseUrlParams.create().setProjectName( projectName ).setBranch( branch ).setApi( api );
-
-        if ( siteKey.startsWith( "/" ) )
-        {
-            paramsBuilder.setPath( siteKey );
-        }
-        else
-        {
-            paramsBuilder.setId( siteKey );
-        }
-        return serviceFacadeSupplier.get().getPortalUrlService().baseUrl( paramsBuilder.build() );
     }
 }

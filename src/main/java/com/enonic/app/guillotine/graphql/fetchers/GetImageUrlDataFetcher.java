@@ -43,9 +43,6 @@ public class GetImageUrlDataFetcher
             ? UrlPartsHelper.toMap( portalUrlGeneratorService.imageUrlParts( buildParams( environment, content ) ) )
             : new LinkedHashMap<>();
 
-        // where the image API is served for the level of the query, resolved once from configuration
-        result.put( "apiUrl", GuillotineLocalContextHelper.getImageBaseUrl( environment ) );
-
         return result;
     }
 

@@ -120,9 +120,9 @@ XP serves images and attachments at `/api/media:image/...` and `/api/media:attac
 
 Configure a media base URL in your client and prefix it to the returned media paths. Use the shared API base, or a separate CDN base such as `https://cdn.example.com/api`. The CDN must route those paths to the corresponding XP media endpoints. If images and attachments use different hosts, configure a base for each.
 
-`imageUrl.apiUrl`, `mediaUrl.apiUrl` and `attachmentUrl.apiUrl` report where XP's configuration says the API is served: the selected site's Base URL followed by `/_` when the site mounts the API, and otherwise the <<../configuration#media-base-url, media base URL>> configured for XP. Without `siteKey` the project decides. The value is `null` when neither is configured, and the request plays no part. Images and attachments are resolved separately, so the two can differ.
+`imageUrl.apiUrl`, `mediaUrl.apiUrl` and `attachmentUrl.apiUrl` report the <<../configuration#media-base-url, media base URL>> configured for XP, or `null` when none is configured. They do not depend on the request, the site or its media API mounts, so Guillotine never returns a `/_` segment.
 
-XP also embeds links in <<rich-text#, processed rich text>>. Those links follow XP's site and media configuration; see <<../configuration#media-base-url, Media base URL>>. Client-side URL assembly uses the base you supply.
+XP also embeds links in <<rich-text#, processed rich text>>. Those links are built from the same configuration: the configured base followed by the path, or the path alone when no base is configured. Client-side URL assembly uses the base you supply.
 
 [#url-parts]
 == Building URLs from parts

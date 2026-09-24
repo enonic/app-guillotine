@@ -68,9 +68,7 @@ public class UrlFieldDataFetcherTest
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.attachmentUrlParts( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/name", "", "myproject", "contentid", "hash", "name" ) );
-
-        localContext.put( Constants.ATTACHMENT_BASE_URL, "https://site.example.com/_" );
+            new AttachmentUrlParts( "https://cdn.example.com/api", "/media:attachment/myproject/contentid:hash/name", "", "myproject", "contentid", "hash", "name" ) );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "name", "name" );
@@ -79,7 +77,7 @@ public class UrlFieldDataFetcherTest
 
         final Map<String, Object> result = new GetAttachmentUrlByNameDataFetcher( portalUrlService ).get( environment );
 
-        assertEquals( "https://site.example.com/_", result.get( "apiUrl" ) );
+        assertEquals( "https://cdn.example.com/api", result.get( "apiUrl" ) );
         assertEquals( "/media:attachment/myproject/contentid:hash/name", result.get( "path" ) );
         assertFalse( result.containsKey( "url" ) );
         verify( portalUrlService, never() ).attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) );
@@ -91,7 +89,7 @@ public class UrlFieldDataFetcherTest
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.imageUrlParts( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn(
-            new ImageUrlParts( "/media:image/myproject:draft/contentid:hash/scale/name.jpg", "", "myproject:draft", "contentid", "hash",
+            new ImageUrlParts( null, "/media:image/myproject:draft/contentid:hash/scale/name.jpg", "", "myproject:draft", "contentid", "hash",
                                "scale", "name.jpg" ) );
 
         Map<String, Object> source = new HashMap<>();
@@ -118,9 +116,7 @@ public class UrlFieldDataFetcherTest
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.attachmentUrlParts( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/name", "", "myproject", "contentid", "hash", "name" ) );
-
-        localContext.put( Constants.ATTACHMENT_BASE_URL, "https://site.example.com/_" );
+            new AttachmentUrlParts( "https://cdn.example.com/api", "/media:attachment/myproject/contentid:hash/name", "", "myproject", "contentid", "hash", "name" ) );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "_id", "contentid" );
@@ -131,19 +127,19 @@ public class UrlFieldDataFetcherTest
 
         final Map<String, Object> result = new GetAttachmentUrlByIdDataFetcher( portalUrlService ).get( environment );
 
-        assertEquals( "https://site.example.com/_", result.get( "apiUrl" ) );
+        assertEquals( "https://cdn.example.com/api", result.get( "apiUrl" ) );
         assertEquals( "/media:attachment/myproject/contentid:hash/name", result.get( "path" ) );
         assertFalse( result.containsKey( "url" ) );
         verify( portalUrlService, never() ).attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) );
     }
 
     @Test
-    public void testImageApiUrlComesFromLocalContext()
+    public void testImageApiUrlComesFromTheParts()
         throws Exception
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.imageUrlParts( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn(
-            new ImageUrlParts( "/media:image/myproject:draft/contentid:hash/scale/name.jpg", "", "myproject:draft", "contentid", "hash",
+            new ImageUrlParts( "https://cdn.example.com/api", "/media:image/myproject:draft/contentid:hash/scale/name.jpg", "", "myproject:draft", "contentid", "hash",
                                "scale", "name.jpg" ) );
 
         Map<String, Object> source = new HashMap<>();
@@ -152,14 +148,11 @@ public class UrlFieldDataFetcherTest
         when( environment.getSource() ).thenReturn( source );
         when( environment.getArgument( "scale" ) ).thenReturn( "scale" );
 
-        // resolved by XP at the guillotine field: guillotine passes it through unchanged
-        localContext.put( Constants.IMAGE_BASE_URL, "https://site.example.com/_" );
-
         final Map<String, Object> result = new GetImageUrlDataFetcher( portalUrlService ).get( environment );
 
-        assertEquals( "https://site.example.com/_", result.get( "apiUrl" ) );
+        assertEquals( "https://cdn.example.com/api", result.get( "apiUrl" ) );
 
-        // parts never carry a base URL: components are independent of siteKey and request
+        // configured in XP and carried by the parts: guillotine passes no base of its own
         ArgumentCaptor<ImageUrlGeneratorParams> partsCaptor = ArgumentCaptor.forClass( ImageUrlGeneratorParams.class );
         verify( portalUrlService ).imageUrlParts( partsCaptor.capture() );
         assertNull( partsCaptor.getValue().getMediaBaseUrl() );
@@ -172,7 +165,7 @@ public class UrlFieldDataFetcherTest
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.imageUrlParts( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn(
-            new ImageUrlParts( "/media:image/myproject:draft/contentid:hash/scale/name.jpg", "", "myproject:draft", "contentid", "hash",
+            new ImageUrlParts( null, "/media:image/myproject:draft/contentid:hash/scale/name.jpg", "", "myproject:draft", "contentid", "hash",
                                "scale", "name.jpg" ) );
 
         Map<String, Object> source = new HashMap<>();
@@ -195,7 +188,7 @@ public class UrlFieldDataFetcherTest
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.imageUrlParts( Mockito.any( ImageUrlGeneratorParams.class ) ) ).thenReturn(
-            new ImageUrlParts( "/media:image/myproject:draft/contentid:hash/max-300/name.jpg", "?quality=85", "myproject:draft",
+            new ImageUrlParts( null, "/media:image/myproject:draft/contentid:hash/max-300/name.jpg", "?quality=85", "myproject:draft",
                                "contentid", "hash", "max-300", "name.jpg" ) );
 
         Map<String, Object> source = new HashMap<>();
@@ -225,7 +218,7 @@ public class UrlFieldDataFetcherTest
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlService.attachmentUrlParts( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/name.jpg", "", "myproject", "contentid", "hash",
+            new AttachmentUrlParts( null, "/media:attachment/myproject/contentid:hash/name.jpg", "", "myproject", "contentid", "hash",
                                     "name.jpg" ) );
 
         Map<String, Object> source = new HashMap<>();
@@ -355,7 +348,7 @@ public class UrlFieldDataFetcherTest
     {
         PortalUrlGeneratorService portalUrlGeneratorService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlGeneratorService.attachmentUrlParts( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/name.jpg", "?download", "myproject", "contentid",
+            new AttachmentUrlParts( null, "/media:attachment/myproject/contentid:hash/name.jpg", "?download", "myproject", "contentid",
                                     "hash", "name.jpg" ) );
 
         ContentService contentService = Mockito.mock( ContentService.class );
@@ -379,15 +372,13 @@ public class UrlFieldDataFetcherTest
     }
 
     @Test
-    public void testLinkMediaApiUrlComesFromLocalContext()
+    public void testLinkMediaApiUrlComesFromTheParts()
         throws Exception
     {
         PortalUrlGeneratorService portalUrlGeneratorService = Mockito.mock( PortalUrlGeneratorService.class );
         when( portalUrlGeneratorService.attachmentUrlParts( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/name.jpg", "", "myproject", "contentid", "hash",
+            new AttachmentUrlParts( "https://cdn.example.com/api", "/media:attachment/myproject/contentid:hash/name.jpg", "", "myproject", "contentid", "hash",
                                     "name.jpg" ) );
-
-        localContext.put( Constants.ATTACHMENT_BASE_URL, "https://site.example.com/_" );
 
         ContentService contentService = Mockito.mock( ContentService.class );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( Mockito.mock( Content.class ) );
@@ -400,7 +391,7 @@ public class UrlFieldDataFetcherTest
         final Map<String, Object> result =
             new GetLinkMediaUrlDataFetcher( portalUrlGeneratorService, contentService ).get( environment );
 
-        assertEquals( "https://site.example.com/_", result.get( "apiUrl" ) );
+        assertEquals( "https://cdn.example.com/api", result.get( "apiUrl" ) );
         assertEquals( "/media:attachment/myproject/contentid:hash/name.jpg", result.get( "path" ) );
         assertFalse( result.containsKey( "url" ) );
 
@@ -411,14 +402,12 @@ public class UrlFieldDataFetcherTest
     }
 
     @Test
-    public void testImageUrlSkipsPartsWhenOnlyApiUrlSelected()
+    public void testImageUrlSkipsPartsWhenNoneSelected()
         throws Exception
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
 
         when( selectionSet.containsAnyOf( Mockito.anyString(), Mockito.any( String[].class ) ) ).thenReturn( false );
-
-        localContext.put( Constants.IMAGE_BASE_URL, "https://site.example.com/_" );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "_id", "contentid" );
@@ -428,20 +417,17 @@ public class UrlFieldDataFetcherTest
 
         final Map<String, Object> result = new GetImageUrlDataFetcher( portalUrlService ).get( environment );
 
-        assertEquals( "https://site.example.com/_", result.get( "apiUrl" ) );
-        assertFalse( result.containsKey( "path" ) );
+        assertTrue( result.isEmpty() );
         verifyNoInteractions( portalUrlService );
     }
 
     @Test
-    public void testAttachmentUrlSkipsPartsWhenOnlyApiUrlSelected()
+    public void testAttachmentUrlSkipsPartsWhenOnlyIntentSelected()
         throws Exception
     {
         PortalUrlGeneratorService portalUrlService = Mockito.mock( PortalUrlGeneratorService.class );
 
         when( selectionSet.containsAnyOf( Mockito.anyString(), Mockito.any( String[].class ) ) ).thenReturn( false );
-
-        localContext.put( Constants.ATTACHMENT_BASE_URL, "https://site.example.com/_" );
 
         Map<String, Object> source = new HashMap<>();
         source.put( "_id", "contentid" );
@@ -451,7 +437,7 @@ public class UrlFieldDataFetcherTest
 
         final Map<String, Object> result = new GetAttachmentUrlByIdDataFetcher( portalUrlService ).get( environment );
 
-        assertEquals( "https://site.example.com/_", result.get( "apiUrl" ) );
+        assertFalse( result.containsKey( "apiUrl" ) );
         // intent is computed locally and stays available without the parts call
         assertEquals( "inline", result.get( "intent" ) );
         assertFalse( result.containsKey( "path" ) );

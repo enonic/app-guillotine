@@ -55,7 +55,7 @@ public class GetAttachmentUrlByNameDataFetcherTest
         PortalUrlGeneratorService portalUrlService = mock( PortalUrlGeneratorService.class );
 
         when( portalUrlService.attachmentUrlParts( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/Name", "?a=1&b=2&b=3&c", "myproject", "contentid",
+            new AttachmentUrlParts( null, "/media:attachment/myproject/contentid:hash/Name", "?a=1&b=2&b=3&c", "myproject", "contentid",
                                     "hash", "Name" ) );
 
         GetAttachmentUrlByNameDataFetcher instance = new GetAttachmentUrlByNameDataFetcher( portalUrlService );

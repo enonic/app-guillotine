@@ -33,7 +33,7 @@ public class GetMediaContentGraphQLIntegrationTest
     public void testMediaAndAttachmentUrls()
     {
         when( serviceFacade.getPortalUrlGeneratorService().attachmentUrlParts( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/name", "?a=1&b=2&b=3&c", "myproject", "contentid",
+            new AttachmentUrlParts( null, "/media:attachment/myproject/contentid:hash/name", "?a=1&b=2&b=3&c", "myproject", "contentid",
                                     "hash", "name" ) );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
@@ -59,7 +59,7 @@ public class GetMediaContentGraphQLIntegrationTest
     public void testDownloadAttachmentUrl()
     {
         when( serviceFacade.getPortalUrlGeneratorService().attachmentUrlParts( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/name", "?download", "myproject", "contentid", "hash",
+            new AttachmentUrlParts( null, "/media:attachment/myproject/contentid:hash/name", "?download", "myproject", "contentid", "hash",
                                     "name" ) );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 

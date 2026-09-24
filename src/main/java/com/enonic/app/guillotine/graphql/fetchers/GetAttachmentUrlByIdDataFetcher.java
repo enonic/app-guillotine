@@ -46,9 +46,6 @@ public class GetAttachmentUrlByIdDataFetcher
 
         result.put( "intent", download != null && download ? "download" : "inline" );
 
-        // where the attachment API is served for the level of the query, resolved once from configuration
-        result.put( "apiUrl", GuillotineLocalContextHelper.getAttachmentBaseUrl( environment ) );
-
         return result;
     }
 

@@ -51,8 +51,6 @@ public class GetLinkMediaUrlDataFetcher
                     UrlPartsHelper.toMap( portalUrlGeneratorService.attachmentUrlParts( buildParams( environment, content, intent ) ) ) );
             }
 
-            // where the attachment API is served for the level of the query, resolved once from configuration
-            result.put( "apiUrl", GuillotineLocalContextHelper.getAttachmentBaseUrl( environment ) );
             result.put( "intent", intent == null ? null : intent.toString() );
 
             return result;
