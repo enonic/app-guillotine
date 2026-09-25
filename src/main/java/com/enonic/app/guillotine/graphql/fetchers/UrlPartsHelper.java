@@ -15,14 +15,10 @@ final class UrlPartsHelper
     {
     }
 
-    static boolean anyPagePartSelected( final DataFetchingFieldSelectionSet selectionSet )
-    {
-        return selectionSet.containsAnyOf( "path", "queryString" );
-    }
-
     static Map<String, Object> toMap( final PageUrlParts parts )
     {
         final Map<String, Object> result = new LinkedHashMap<>();
+        result.put( "baseUrl", parts.baseUrl() );
         result.put( "path", parts.path() );
         result.put( "queryString", parts.queryString() );
         return result;
@@ -30,12 +26,13 @@ final class UrlPartsHelper
 
     static boolean anyImagePartSelected( final DataFetchingFieldSelectionSet selectionSet )
     {
-        return selectionSet.containsAnyOf( "path", "queryString", "context", "id", "fingerprint", "scale", "name" );
+        return selectionSet.containsAnyOf( "apiUrl", "path", "queryString", "context", "id", "fingerprint", "scale", "name" );
     }
 
     static Map<String, Object> toMap( final ImageUrlParts parts )
     {
         final Map<String, Object> result = new LinkedHashMap<>();
+        result.put( "apiUrl", parts.apiUrl() );
         result.put( "path", parts.path() );
         result.put( "queryString", parts.queryString() );
         result.put( "context", parts.context() );
@@ -48,12 +45,13 @@ final class UrlPartsHelper
 
     static boolean anyAttachmentPartSelected( final DataFetchingFieldSelectionSet selectionSet )
     {
-        return selectionSet.containsAnyOf( "path", "queryString", "context", "id", "fingerprint", "name" );
+        return selectionSet.containsAnyOf( "apiUrl", "path", "queryString", "context", "id", "fingerprint", "name" );
     }
 
     static Map<String, Object> toMap( final AttachmentUrlParts parts )
     {
         final Map<String, Object> result = new LinkedHashMap<>();
+        result.put( "apiUrl", parts.apiUrl() );
         result.put( "path", parts.path() );
         result.put( "queryString", parts.queryString() );
         result.put( "context", parts.context() );

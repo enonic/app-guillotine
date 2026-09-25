@@ -41,23 +41,16 @@ public class GetAttachmentUrlByIdDataFetcher
         final Boolean download = environment.getArgument( "download" );
 
         final Map<String, Object> result = UrlPartsHelper.anyAttachmentPartSelected( environment.getSelectionSet() )
-            ? UrlPartsHelper.toMap( portalUrlGeneratorService.attachmentUrlParts( buildParams( environment, content, null ) ) )
+            ? UrlPartsHelper.toMap( portalUrlGeneratorService.attachmentUrlParts( buildParams( environment, content ) ) )
             : new LinkedHashMap<>();
 
         result.put( "intent", download != null && download ? "download" : "inline" );
-
-        if ( environment.getSelectionSet().contains( "url" ) )
-        {
-            result.put( "url", portalUrlGeneratorService.attachmentUrl(
-                buildParams( environment, content, GuillotineLocalContextHelper.getAttachmentBaseUrl( environment ) ) ) );
-        }
 
         return result;
     }
 
     @SuppressWarnings("unchecked")
-    private static AttachmentUrlGeneratorParams buildParams( final DataFetchingEnvironment environment, final Content content,
-                                                             final String mediaBaseUrl )
+    private static AttachmentUrlGeneratorParams buildParams( final DataFetchingEnvironment environment, final Content content )
     {
         final Boolean download = environment.getArgument( "download" );
 
@@ -67,7 +60,6 @@ public class GetAttachmentUrlByIdDataFetcher
         builder.setProjectName( () -> GuillotineLocalContextHelper.getProjectName( environment ) );
         builder.setBranch( () -> GuillotineLocalContextHelper.getBranch( environment ) );
         builder.setContent( () -> content );
-        builder.setMediaBaseUrl( mediaBaseUrl );
 
         if ( environment.getArgument( "params" ) instanceof Map queryParams )
         {

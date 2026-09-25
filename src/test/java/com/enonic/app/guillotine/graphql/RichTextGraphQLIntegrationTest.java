@@ -84,9 +84,30 @@ public class RichTextGraphQLIntegrationTest
         ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
         verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
         assertEquals( "/mysite", captor.getValue().getPageBase().getPath() );
+        assertNull( captor.getValue().getImageBaseUrl() );
+        assertNull( captor.getValue().getAttachmentBaseUrl() );
     }
 
+    @Test
+    public void testLinksBelongToProjectWithoutSiteKey()
+    {
+        when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
 
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response = executeQuery( graphQLSchema, "query { guillotine { get(key: \"contentid\") { " +
+            "...on myapplication_News { data { text { processedHtml } } } } } }" );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        // a page base is always given, so XP never follows the request: without a siteKey links
+        // belong to the project and carry the full content path
+        ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
+        verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
+        assertEquals( "/", captor.getValue().getPageBase().getPath() );
+    }
 
     @Test
     public void testEmptyRichTextField()

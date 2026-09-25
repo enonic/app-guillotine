@@ -106,10 +106,10 @@ public class RichTextDataFetcher
     {
         Map<String, Object> processHtmlParams = environment.getArgument( "processHtml" );
 
-        final ProcessHtmlParams htmlParams = new ProcessHtmlParams().value( htmlText )
-            .imageBaseUrl( GuillotineLocalContextHelper.getImageBaseUrl( environment ) )
-            .attachmentBaseUrl( GuillotineLocalContextHelper.getAttachmentBaseUrl( environment ) )
-            .pageBase( GuillotineLocalContextHelper.getSiteBase( environment ) );
+        // a page base makes XP resolve every link from configuration alone, with bare paths where
+        // nothing is configured: the request and site mounts play no part
+        final ProcessHtmlParams htmlParams =
+            new ProcessHtmlParams().value( htmlText ).pageBase( GuillotineLocalContextHelper.getPageBase( environment ) );
 
         if ( processHtmlParams != null )
         {

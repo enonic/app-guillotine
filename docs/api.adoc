@@ -216,7 +216,7 @@ a|Flattened list of page components
 |Publication information
 
 |pageUrl(params: JSON): <<PageUrl>>
-|Page link components. Use `siteKey` to select the site or project that the path is relative to; see <<PageUrl>> and <<usage/images-and-urls#base-urls, Base URLs>>
+|Page link components for the site or project selected with `siteKey`, which this field requires; see <<PageUrl>> and <<usage/images-and-urls#base-urls, Base URLs>>
 
 |site: portal_Site
 |Link to the nearest site
@@ -560,13 +560,15 @@ Represents details for image found and processed in the <<RichText>> type.
 
 === PageUrl
 
-Page link components. Adapt `path` to your frontend's routing and append `queryString`. If your deployment preserves the path, use `frontendBaseUrl + path + queryString`.
+Page link components, resolved from configuration for the site or project selected with `siteKey`. The request the query arrives with plays no part. Without `siteKey` the field reports an error, because nothing else says which site the link belongs to. So does a content outside the selected site: the site's Base URL does not lead to it.
+
+Guillotine does not return an assembled address. Build it in the client as `baseUrl + path + queryString`, supplying your frontend's own base when `baseUrl` is `null` or when your deployment routes pages differently.
 
 |===
 |Name (Arguments): Type | Description
 
-|url: String
-|Complete page URL as resolved by XP: `baseUrl + path + queryString`. The base is the configured Base URL of the site selected with `siteKey`, or of the content's own site without a selection. A site without a configured Base URL falls back to the site engine address
+|baseUrl: String
+|The Base URL configured for the selected site or project, without a trailing slash. `null` when none is configured. Configuration is never inherited from a parent site
 
 |path: String
 |URL-escaped path of the content relative to the site - or project - the URL belongs to, with a leading slash. Empty when the content is that site itself
@@ -578,13 +580,13 @@ Page link components. Adapt `path` to your frontend's routing and append `queryS
 
 === ImageUrl
 
-Image link components. Build the address as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped. Select `url` to let XP assemble the address instead.
+Image link components. Guillotine does not return an assembled address: build it as `apiUrl + path + queryString`, or use your own public API or CDN base, without a trailing slash, in place of `apiUrl`. All component values are already URL-escaped.
 
 |===
 |Name (Arguments): Type | Description
 
-|url: String
-|Complete image URL as resolved by XP: `baseUrl + path + queryString`. With `siteKey`, the base is where XP serves the image API for that site, taking API mounts and configuration into account. Without a selection, the URL is relative to the current request
+|apiUrl: String
+|The <<configuration#media-base-url, media base URL>> configured for XP, without a trailing slash, or `null` when none is configured. Neither the request, the site nor its media API mounts plays a part, so it never contains a `/_` segment
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<fingerprint>/<scale>/<name>`
@@ -611,13 +613,13 @@ Image link components. Build the address as `mediaBaseUrl + path + queryString`,
 
 === AttachmentUrl
 
-Attachment link components. Build the address as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped. Select `url` to let XP assemble the address instead.
+Attachment link components. Guillotine does not return an assembled address: build it as `apiUrl + path + queryString`, or use your own public API or CDN base, without a trailing slash, in place of `apiUrl`. All component values are already URL-escaped.
 
 |===
 |Name (Arguments): Type | Description
 
-|url: String
-|Complete attachment URL as resolved by XP: `baseUrl + path + queryString`. With `siteKey`, the base is where XP serves the attachment API for that site, taking API mounts and configuration into account. Without a selection, the URL is relative to the current request
+|apiUrl: String
+|The <<configuration#media-base-url, media base URL>> configured for XP, without a trailing slash, or `null` when none is configured. Neither the request, the site nor its media API mounts plays a part, so it never contains a `/_` segment
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:attachment/<context>/<id>:<fingerprint>/<name>`

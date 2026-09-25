@@ -71,7 +71,7 @@ This example assumes a document media item. The `download` argument adds the dow
 
 == Page URLs
 
-Select `pageUrl.path` and `pageUrl.queryString` to build a content item's page link. Use `siteKey` to request paths relative to a specific site:
+Select `pageUrl.path` and `pageUrl.queryString` to build a content item's page link. `pageUrl` requires `siteKey`, which names the site the path is relative to:
 
 [source,graphql]
 ----
@@ -87,7 +87,7 @@ Select `pageUrl.path` and `pageUrl.queryString` to build a content item's page l
 }
 ----
 
-The returned `path` is `/posts/first-post`. Adapt it to your frontend's routes: a frontend serving the site at `/news` could use `/news/posts/first-post`, while one on a dedicated host could use `https://www.example.com/posts/first-post`. Append `queryString` to preserve any parameters.
+The returned `path` is `/posts/first-post`. Select `baseUrl` as well to receive the Base URL configured for `/my-site`, or `null` when it has none. Adapt the path to your frontend's routes: a frontend serving the site at `/news` could use `/news/posts/first-post`, while one on a dedicated host could use `https://www.example.com/posts/first-post`. Append `queryString` to preserve any parameters.
 
 [#base-urls]
 == Base URLs
@@ -108,10 +108,9 @@ For nested sites, the selected level determines the path. Given a post at `/my-s
 
 `siteKey: "/"` selects the project itself. Selecting the parent site retains the nested site's path segment; selecting the nested site removes it.
 
-Without `siteKey`, the context depends on the endpoint:
+`pageUrl.baseUrl` is the Base URL configured for the selected level. A nested site's Base URL does not apply when its parent is selected, and a parent's is never inherited by the nested site.
 
-* At the Web endpoint under `/api`, each content item's nearest site determines the relative page path.
-* At a site endpoint, the matched virtual host mapping determines which level of the content tree the address represents. Without a mapping narrowing that context, it is the project.
+Page URLs are resolved from configuration alone, whichever endpoint serves the query: neither the request's host nor a virtual host mapping affects them. Without `siteKey`, `pageUrl` reports an error. So does a content outside the selected site, such as the parent site when the nested one is selected.
 
 When following references across sites, choose the appropriate site context and frontend route for each target.
 
@@ -121,23 +120,28 @@ XP serves images and attachments at `/api/media:image/...` and `/api/media:attac
 
 Configure a media base URL in your client and prefix it to the returned media paths. Use the shared API base, or a separate CDN base such as `https://cdn.example.com/api`. The CDN must route those paths to the corresponding XP media endpoints. If images and attachments use different hosts, configure a base for each.
 
-XP also embeds links in <<rich-text#, processed rich text>>. Those links follow XP's site and media configuration; see <<../configuration#media-base-url, Media base URL>>. Client-side URL assembly uses the base you supply.
+`imageUrl.apiUrl`, `mediaUrl.apiUrl` and `attachmentUrl.apiUrl` report the <<../configuration#media-base-url, media base URL>> configured for XP, or `null` when none is configured. They do not depend on the request, the site or its media API mounts, so Guillotine never returns a `/_` segment.
+
+XP also embeds links in <<rich-text#, processed rich text>>. Those links are built from the same configuration: the configured base followed by the path, or the path alone when no base is configured. Client-side URL assembly uses the base you supply.
 
 [#url-parts]
 == Building URLs from parts
 
 The `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields expose `path` and `queryString`. These components are already URL-escaped, so do not encode them again. For a deployment that preserves the returned paths, assemble links as `baseUrl + path + queryString`.
 
+`pageUrl.baseUrl` gives the Base URL configured for the selected site, which you can use as that base. It is `null` when none is configured, so check it before concatenating: in JavaScript, `null + path` produces the string `"null/..."` without an error.
+
 Choose a base without a trailing slash. A media path already includes `/media:image` or `/media:attachment`, so use the API or CDN base that serves those paths. For pages, supply your frontend's host or route prefix, or adapt the path to your routing scheme. The query string includes its leading `?` when non-empty.
 
 [source,javascript]
 ----
-const mediaBaseUrl = 'https://example.com/api';
+// XP's configured media base when there is one, the deployment's API base otherwise.
+const mediaBaseUrl = image.imageUrl.apiUrl ?? 'https://example.com/api';
 const imageSrc = mediaBaseUrl + image.imageUrl.path + image.imageUrl.queryString;
 
-// This frontend serves the selected site's pages under /news.
-const pageBasePath = '/news';
-const pageHref = pageBasePath + content.pageUrl.path + content.pageUrl.queryString;
+// The site's configured Base URL when it has one; this frontend serves the site's pages under /news otherwise.
+const pageBase = content.pageUrl.baseUrl ?? '/news';
+const pageHref = pageBase + content.pageUrl.path + content.pageUrl.queryString;
 ----
 
 [source,graphql]

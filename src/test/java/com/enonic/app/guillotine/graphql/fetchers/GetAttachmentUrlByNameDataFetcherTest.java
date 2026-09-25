@@ -19,6 +19,7 @@ import com.enonic.xp.portal.url.AttachmentUrlParts;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +42,6 @@ public class GetAttachmentUrlByNameDataFetcherTest
         when( environment.getArgument( "download" ) ).thenReturn( true );
 
         DataFetchingFieldSelectionSet selectionSet = mock( DataFetchingFieldSelectionSet.class );
-        when( selectionSet.contains( "url" ) ).thenReturn( true );
         when( selectionSet.containsAnyOf( Mockito.anyString(), Mockito.any( String[].class ) ) ).thenReturn( true );
         when( environment.getSelectionSet() ).thenReturn( selectionSet );
 
@@ -54,16 +54,17 @@ public class GetAttachmentUrlByNameDataFetcherTest
 
         PortalUrlGeneratorService portalUrlService = mock( PortalUrlGeneratorService.class );
 
-        when( portalUrlService.attachmentUrl( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn( "url?a=1&b=2&b=3&c" );
         when( portalUrlService.attachmentUrlParts( Mockito.any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/Name", "?a=1&b=2&b=3&c", "myproject", "contentid",
+            new AttachmentUrlParts( null, "/media:attachment/myproject/contentid:hash/Name", "?a=1&b=2&b=3&c", "myproject", "contentid",
                                     "hash", "Name" ) );
 
         GetAttachmentUrlByNameDataFetcher instance = new GetAttachmentUrlByNameDataFetcher( portalUrlService );
 
         Map<String, Object> attachmentUrl = instance.get( environment );
 
-        assertEquals( "url?a=1&b=2&b=3&c", attachmentUrl.get( "url" ) );
+        assertEquals( "/media:attachment/myproject/contentid:hash/Name", attachmentUrl.get( "path" ) );
+        assertEquals( "?a=1&b=2&b=3&c", attachmentUrl.get( "queryString" ) );
+        assertFalse( attachmentUrl.containsKey( "url" ) );
         assertEquals( "download", attachmentUrl.get( "intent" ) );
     }
 }

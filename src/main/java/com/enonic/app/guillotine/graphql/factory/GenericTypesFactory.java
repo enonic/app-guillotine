@@ -273,12 +273,12 @@ public class GenericTypesFactory
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
-        fields.add( outputField( "url", Scalars.GraphQLString ) );
+        fields.add( outputField( "baseUrl", Scalars.GraphQLString ) );
         fields.add( outputField( "path", Scalars.GraphQLString ) );
         fields.add( outputField( "queryString", Scalars.GraphQLString ) );
 
         GraphQLObjectType outputObject =
-            newObject( context.uniqueName( "PageUrl" ), "Page URL and its components: url = baseUrl + path + queryString.", fields );
+            newObject( context.uniqueName( "PageUrl" ), "Components of a page URL: url = baseUrl + path + queryString.", fields );
         context.registerType( outputObject.getName(), outputObject );
     }
 
@@ -286,7 +286,7 @@ public class GenericTypesFactory
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
-        fields.add( outputField( "url", Scalars.GraphQLString ) );
+        fields.add( outputField( "apiUrl", Scalars.GraphQLString ) );
         fields.add( outputField( "path", Scalars.GraphQLString ) );
         fields.add( outputField( "queryString", Scalars.GraphQLString ) );
         fields.add( outputField( "context", Scalars.GraphQLString ) );
@@ -296,7 +296,7 @@ public class GenericTypesFactory
         fields.add( outputField( "name", Scalars.GraphQLString ) );
 
         GraphQLObjectType outputObject =
-            newObject( context.uniqueName( "ImageUrl" ), "Image URL and its components: url = baseUrl + path + queryString.", fields );
+            newObject( context.uniqueName( "ImageUrl" ), "Components of an image URL: url = apiUrl + path + queryString.", fields );
         context.registerType( outputObject.getName(), outputObject );
     }
 
@@ -304,7 +304,7 @@ public class GenericTypesFactory
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
-        fields.add( outputField( "url", Scalars.GraphQLString ) );
+        fields.add( outputField( "apiUrl", Scalars.GraphQLString ) );
         fields.add( outputField( "path", Scalars.GraphQLString ) );
         fields.add( outputField( "queryString", Scalars.GraphQLString ) );
         fields.add( outputField( "context", Scalars.GraphQLString ) );
@@ -314,7 +314,7 @@ public class GenericTypesFactory
         fields.add( outputField( "intent", GraphQLTypeReference.typeRef( "MediaIntentType" ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "AttachmentUrl" ),
-                                                    "Attachment URL and its components: url = baseUrl + path + queryString.", fields );
+                                                    "Components of an attachment URL: url = apiUrl + path + queryString.", fields );
         context.registerType( outputObject.getName(), outputObject );
     }
 

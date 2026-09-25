@@ -46,12 +46,12 @@ public class GenericTypesVerifier
     {
         GraphQLObjectType type = context.getOutputType( "PageUrl" );
 
-        assertEquals( "Page URL and its components: url = baseUrl + path + queryString.", type.getDescription() );
+        assertEquals( "Components of a page URL: url = baseUrl + path + queryString.", type.getDescription() );
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
         assertEquals( 3, fields.size() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "url" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "baseUrl" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "path" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "queryString" ).getType() );
     }
@@ -60,12 +60,12 @@ public class GenericTypesVerifier
     {
         GraphQLObjectType type = context.getOutputType( "ImageUrl" );
 
-        assertEquals( "Image URL and its components: url = baseUrl + path + queryString.", type.getDescription() );
+        assertEquals( "Components of an image URL: url = apiUrl + path + queryString.", type.getDescription() );
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
         assertEquals( 8, fields.size() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "url" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "apiUrl" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "path" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "queryString" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "context" ).getType() );
@@ -79,12 +79,12 @@ public class GenericTypesVerifier
     {
         GraphQLObjectType type = context.getOutputType( "AttachmentUrl" );
 
-        assertEquals( "Attachment URL and its components: url = baseUrl + path + queryString.", type.getDescription() );
+        assertEquals( "Components of an attachment URL: url = apiUrl + path + queryString.", type.getDescription() );
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
         assertEquals( 8, fields.size() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "url" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "apiUrl" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "path" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "queryString" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "context" ).getType() );

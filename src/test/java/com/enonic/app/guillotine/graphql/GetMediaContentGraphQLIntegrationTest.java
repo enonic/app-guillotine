@@ -14,6 +14,7 @@ import com.enonic.xp.portal.url.AttachmentUrlParts;
 import static com.enonic.app.guillotine.graphql.ResourceHelper.readGraphQLQuery;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -31,10 +32,8 @@ public class GetMediaContentGraphQLIntegrationTest
     @Test
     public void testMediaAndAttachmentUrls()
     {
-        when( serviceFacade.getPortalUrlGeneratorService().attachmentUrl( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            "url?a=1&b=2&b=3&c" );
         when( serviceFacade.getPortalUrlGeneratorService().attachmentUrlParts( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/name", "?a=1&b=2&b=3&c", "myproject", "contentid",
+            new AttachmentUrlParts( null, "/media:attachment/myproject/contentid:hash/name", "?a=1&b=2&b=3&c", "myproject", "contentid",
                                     "hash", "name" ) );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
@@ -47,7 +46,9 @@ public class GetMediaContentGraphQLIntegrationTest
 
         Map<String, Object> attachmentUrlField = CastHelper.cast( getFieldFromGuillotine( result, "attachmentUrl" ) );
         Map<String, Object> mediaUrl = CastHelper.cast( attachmentUrlField.get( "mediaUrl" ) );
-        assertEquals( "url?a=1&b=2&b=3&c", mediaUrl.get( "url" ) );
+        // nothing configured for the project: the client supplies the media base
+        assertTrue( mediaUrl.containsKey( "apiUrl" ) );
+        assertNull( mediaUrl.get( "apiUrl" ) );
         assertEquals( "/media:attachment/myproject/contentid:hash/name", mediaUrl.get( "path" ) );
         assertEquals( "?a=1&b=2&b=3&c", mediaUrl.get( "queryString" ) );
         assertEquals( "inline", mediaUrl.get( "intent" ) );
@@ -57,10 +58,8 @@ public class GetMediaContentGraphQLIntegrationTest
     @Test
     public void testDownloadAttachmentUrl()
     {
-        when( serviceFacade.getPortalUrlGeneratorService().attachmentUrl( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            "url?download" );
         when( serviceFacade.getPortalUrlGeneratorService().attachmentUrlParts( any( AttachmentUrlGeneratorParams.class ) ) ).thenReturn(
-            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/name", "?download", "myproject", "contentid", "hash",
+            new AttachmentUrlParts( null, "/media:attachment/myproject/contentid:hash/name", "?download", "myproject", "contentid", "hash",
                                     "name" ) );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
@@ -73,7 +72,7 @@ public class GetMediaContentGraphQLIntegrationTest
 
         Map<String, Object> downloadAttachmentUrlField = CastHelper.cast( getFieldFromGuillotine( result, "downloadAttachmentUrl" ) );
         Map<String, Object> mediaUrl = CastHelper.cast( downloadAttachmentUrlField.get( "mediaUrl" ) );
-        assertEquals( "url?download", mediaUrl.get( "url" ) );
+        assertEquals( "?download", mediaUrl.get( "queryString" ) );
         assertEquals( "download", mediaUrl.get( "intent" ) );
     }
 }

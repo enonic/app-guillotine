@@ -52,8 +52,8 @@ XP also generates media links inside <<usage/rich-text#, processed rich text>>. 
 media.defaultBaseUrl = https://cdn.example.com/api
 ----
 
-This produces media URLs under `https://cdn.example.com/api/media:image/...` and `https://cdn.example.com/api/media:attachment/...` where a more specific API location or a contextual media mount does not take precedence. Configure the CDN to forward those paths to XP's corresponding `/api/media:image/...` and `/api/media:attachment/...` endpoints. This setting changes URL generation; the CDN route must be configured separately.
+This produces media URLs under `https://cdn.example.com/api/media:image/...` and `https://cdn.example.com/api/media:attachment/...` The same value is reported as `apiUrl` on `ImageUrl` and `AttachmentUrl`, and without it Guillotine returns bare media paths such as `/media:image/...`. Configure the CDN to forward those paths to XP's corresponding `/api/media:image/...` and `/api/media:attachment/...` endpoints. This setting changes URL generation; the CDN route must be configured separately.
 
-Sites that mount the media APIs keep URLs under their own endpoints. To move their media to the default media base, also set `legacy.mediaApiAutoMount.enabled = false` and omit the relevant media APIs from the site's descriptor. See the https://developer.enonic.com/docs/platform/xp8/config/cms#media_base_url[XP media configuration] for mount precedence and preview behavior.
+Guillotine does not use site mounts of the media APIs: its media URLs, including those in processed rich text, depend on this setting alone. Pages rendered by XP's site engine keep their own mount rules; see the https://developer.enonic.com/docs/platform/xp8/config/cms#media_base_url[XP media configuration].
 
-Virtual-host context can also declare a shared API location or individual API locations. See the https://developer.enonic.com/docs/platform/xp8/config/vhosts#api-locations[API locations reference] for dedicated hosts and paths.
+Virtual-host context can also declare a shared API location or individual API locations, used by XP when it renders URLs for a request. Guillotine URLs do not depend on the request, so these locations do not affect them. See the https://developer.enonic.com/docs/platform/xp8/config/vhosts#api-locations[API locations reference] for dedicated hosts and paths.
