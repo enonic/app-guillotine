@@ -100,7 +100,9 @@ public class RichTextDataFetcher
         Map<String, Object> processHtmlParams = environment.getArgument( "processHtml" );
 
         final ProcessHtmlPartsParams.Builder htmlParams =
-            ProcessHtmlPartsParams.create().value( htmlText ).base( GuillotineLocalContextHelper.getPageBase( environment ) );
+            ProcessHtmlPartsParams.create()
+                .value( htmlText )
+                .base( GuillotineLocalContextHelper.getUrlBase( environment, serviceFacade.getPortalUrlService() ) );
 
         if ( processHtmlParams != null )
         {

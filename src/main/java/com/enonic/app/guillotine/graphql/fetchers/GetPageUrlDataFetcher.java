@@ -43,11 +43,11 @@ public class GetPageUrlDataFetcher
         return UrlPartsHelper.toMap( portalUrlService.pageUrlParts( buildParams( environment, content ) ) );
     }
 
-    private static PageUrlPartsParams buildParams( final DataFetchingEnvironment environment, final Content content )
+    private PageUrlPartsParams buildParams( final DataFetchingEnvironment environment, final Content content )
     {
         final PageUrlPartsParams.Builder params = PageUrlPartsParams.create()
             .setId( content.getId().toString() )
-            .setBase( GuillotineLocalContextHelper.getPageBase( environment ) );
+            .setBase( GuillotineLocalContextHelper.getUrlBase( environment, portalUrlService ) );
 
         if ( environment.getArgument( "params" ) instanceof Map<?, ?> queryParams )
         {

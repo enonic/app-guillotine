@@ -11,6 +11,7 @@ import org.mockito.ArgumentCaptor;
 import graphql.schema.GraphQLSchema;
 
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
+import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
@@ -22,20 +23,26 @@ import com.enonic.xp.portal.url.ImageUrlParts;
 import com.enonic.xp.portal.url.PageUrlParts;
 import com.enonic.xp.portal.url.ProcessHtmlPartsParams;
 import com.enonic.xp.portal.url.ProcessedHtml;
+import com.enonic.xp.portal.url.UrlBase;
+import com.enonic.xp.portal.url.UrlBaseParams;
+import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
+import com.enonic.xp.site.SiteConfigs;
 
 import static com.enonic.app.guillotine.graphql.ResourceHelper.readGraphQLQuery;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -85,11 +92,36 @@ public class RichTextGraphQLIntegrationTest
 
         assertFalse( response.containsKey( "errors" ) );
 
-        // content links carry the site key as their selection: XP resolves the base URL of that
-        // site and makes the path of each link relative to it
+        // the site key selects the base: XP resolves it once, and makes the path of each link relative to it
+        assertEquals( "/mysite", urlBaseKey() );
+    }
+
+    @Test
+    public void testBaseIsResolvedOncePerQuery()
+    {
+        final UrlBase base =
+            new UrlBase( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( "/mysite" ), null, SiteConfigs.empty() );
+        when( serviceFacade.getPortalUrlService().urlBase( any( UrlBaseParams.class ) ) ).thenReturn( base );
+        when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
+            new ProcessedHtml( "processedHtml", null, List.of(), List.of() ) );
+
+        when( contentService.contentExists( ContentPath.from( "/mysite" ) ) ).thenReturn( true );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response = executeQuery( graphQLSchema,
+                                                     "query { guillotine(siteKey: \"/mysite\") { get(key: \"contentid\") { " +
+                                                         "...on myapplication_News { data { first: text { processedHtml } " +
+                                                         "second: text { processedHtml } } } } } }" );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        verify( serviceFacade.getPortalUrlService(), times( 1 ) ).urlBase( any( UrlBaseParams.class ) );
+
         ArgumentCaptor<ProcessHtmlPartsParams> captor = ArgumentCaptor.forClass( ProcessHtmlPartsParams.class );
-        verify( serviceFacade.getPortalUrlService() ).processHtmlParts( captor.capture() );
-        assertEquals( "/mysite", captor.getValue().getBase().getPath() );
+        verify( serviceFacade.getPortalUrlService(), times( 2 ) ).processHtmlParts( captor.capture() );
+        captor.getAllValues().forEach( params -> assertSame( base, params.getBase() ) );
     }
 
     @Test
@@ -107,9 +139,10 @@ public class RichTextGraphQLIntegrationTest
 
         assertFalse( response.containsKey( "errors" ) );
 
+        assertEquals( "/", urlBaseKey() );
+
         ArgumentCaptor<ProcessHtmlPartsParams> captor = ArgumentCaptor.forClass( ProcessHtmlPartsParams.class );
         verify( serviceFacade.getPortalUrlService() ).processHtmlParts( captor.capture() );
-        assertEquals( "/", captor.getValue().getBase().getPath() );
         assertNull( captor.getValue().getCustomStyleDescriptorsCallback() );
 
         assertNull( captor.getValue().getCustomHtmlProcessor() );
@@ -282,5 +315,12 @@ public class RichTextGraphQLIntegrationTest
         builder.data( data );
 
         return builder.build();
+    }
+
+    private String urlBaseKey()
+    {
+        final ArgumentCaptor<UrlBaseParams> captor = ArgumentCaptor.forClass( UrlBaseParams.class );
+        verify( serviceFacade.getPortalUrlService() ).urlBase( captor.capture() );
+        return captor.getValue().getKey();
     }
 }

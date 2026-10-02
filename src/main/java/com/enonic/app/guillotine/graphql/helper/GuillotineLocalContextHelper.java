@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import graphql.GraphQLContext;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
@@ -16,7 +17,9 @@ import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
-import com.enonic.xp.portal.url.BaseUrlParams;
+import com.enonic.xp.portal.url.PortalUrlService;
+import com.enonic.xp.portal.url.UrlBase;
+import com.enonic.xp.portal.url.UrlBaseParams;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.repository.RepositoryId;
 
@@ -76,37 +79,28 @@ public class GuillotineLocalContextHelper
     }
 
     /**
-     * @return the level of the content tree URLs belong to - the site or project named by
-     * siteKey - or {@code null} when no siteKey is in use and the content decides on its own
+     * @return the base page URLs and processed HTML belong to: the site or project named by siteKey, or the project when
+     * no siteKey is in use. It is resolved once per query for each project, branch and siteKey
      */
-    public static BaseUrlParams getSiteBase( final DataFetchingEnvironment environment )
+    public static UrlBase getUrlBase( final DataFetchingEnvironment environment, final PortalUrlService portalUrlService )
     {
-        final String siteKey = getSiteKey( environment );
-        if ( siteKey == null )
-        {
-            return null;
-        }
+        final UrlBaseParams params = UrlBaseParams.create()
+            .setKey( getSiteKey( environment ) )
+            .setProjectName( getProjectName( environment ).toString() )
+            .setBranch( getBranch( environment ).toString() )
+            .build();
 
-        final BaseUrlParams.Builder builder = BaseUrlParams.create();
-        if ( siteKey.startsWith( "/" ) )
+        final GraphQLContext graphQLContext = environment.getGraphQlContext();
+        if ( graphQLContext == null )
         {
-            builder.setPath( siteKey );
+            return portalUrlService.urlBase( params );
         }
-        else
-        {
-            builder.setId( siteKey );
-        }
-        return builder.build();
+        return graphQLContext.computeIfAbsent( new UrlBaseKey( params.getKey(), params.getProjectName(), params.getBranch() ),
+                                               key -> portalUrlService.urlBase( params ) );
     }
 
-    /**
-     * @return the level page URLs and processed HTML belong to: the site or project named by siteKey, or the project
-     * when no siteKey is in use. URLs are then resolved from configuration alone
-     */
-    public static BaseUrlParams getPageBase( final DataFetchingEnvironment environment )
+    private record UrlBaseKey(String key, String projectName, String branch)
     {
-        final BaseUrlParams siteBase = getSiteBase( environment );
-        return siteBase != null ? siteBase : BaseUrlParams.create().setPath( "/" ).build();
     }
 
     public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )

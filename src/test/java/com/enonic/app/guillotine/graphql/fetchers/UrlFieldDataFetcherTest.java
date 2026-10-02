@@ -14,6 +14,8 @@ import graphql.schema.DataFetchingFieldSelectionSet;
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.ContentFixtures;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
+import com.enonic.xp.branch.Branch;
+import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.portal.url.AttachmentUrlGeneratorParams;
 import com.enonic.xp.portal.url.AttachmentUrlPartsParams;
 import com.enonic.xp.portal.url.ImageUrlGeneratorParams;
@@ -28,10 +30,15 @@ import com.enonic.xp.portal.url.PageUrlParams;
 import com.enonic.xp.portal.url.PageUrlPartsParams;
 import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.portal.url.PortalUrlService;
+import com.enonic.xp.portal.url.UrlBase;
+import com.enonic.xp.portal.url.UrlBaseParams;
+import com.enonic.xp.project.ProjectName;
+import com.enonic.xp.site.SiteConfigs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.never;
@@ -217,6 +224,7 @@ public class UrlFieldDataFetcherTest
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        final UrlBase base = urlBase( portalUrlService, "/mysite" );
         when( portalUrlService.pageUrlParts( Mockito.any( PageUrlPartsParams.class ) ) ).thenReturn(
             new PageUrlParts( "https://site.example.com", "/b/mycontent", "?a=1" ) );
 
@@ -231,7 +239,8 @@ public class UrlFieldDataFetcherTest
 
         ArgumentCaptor<PageUrlPartsParams> captor = ArgumentCaptor.forClass( PageUrlPartsParams.class );
         verify( portalUrlService ).pageUrlParts( captor.capture() );
-        assertEquals( "/mysite", captor.getValue().getBase().getPath() );
+        assertSame( base, captor.getValue().getBase() );
+        assertEquals( "/mysite", urlBaseKey( portalUrlService ) );
 
         verify( portalUrlService, never() ).pageUrl( Mockito.any( PageUrlParams.class ) );
     }
@@ -258,6 +267,7 @@ public class UrlFieldDataFetcherTest
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        final UrlBase base = urlBase( portalUrlService, "/" );
         when( portalUrlService.pageUrlParts( Mockito.any( PageUrlPartsParams.class ) ) ).thenReturn(
             new PageUrlParts( null, "/mysite/b/mycontent", "" ) );
 
@@ -267,7 +277,8 @@ public class UrlFieldDataFetcherTest
 
         ArgumentCaptor<PageUrlPartsParams> captor = ArgumentCaptor.forClass( PageUrlPartsParams.class );
         verify( portalUrlService ).pageUrlParts( captor.capture() );
-        assertEquals( "/", captor.getValue().getBase().getPath() );
+        assertSame( base, captor.getValue().getBase() );
+        assertEquals( "/", urlBaseKey( portalUrlService ) );
     }
 
     @Test
@@ -339,5 +350,20 @@ public class UrlFieldDataFetcherTest
         when( environment.getSource() ).thenReturn( Map.of( "media", Map.of() ) );
 
         assertNull( new GetLinkPageUrlDataFetcher().get( environment ) );
+    }
+
+    private static UrlBase urlBase( final PortalUrlService portalUrlService, final String key )
+    {
+        final UrlBase base = new UrlBase( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( key ), null,
+                                          SiteConfigs.empty() );
+        when( portalUrlService.urlBase( Mockito.any( UrlBaseParams.class ) ) ).thenReturn( base );
+        return base;
+    }
+
+    private static String urlBaseKey( final PortalUrlService portalUrlService )
+    {
+        final ArgumentCaptor<UrlBaseParams> captor = ArgumentCaptor.forClass( UrlBaseParams.class );
+        verify( portalUrlService ).urlBase( captor.capture() );
+        return captor.getValue().getKey();
     }
 }
