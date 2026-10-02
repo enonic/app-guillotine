@@ -15,6 +15,7 @@ import graphql.schema.DataFetchingFieldSelectionSet;
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.ContentFixtures;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
+import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.portal.url.AttachmentUrlParams;
@@ -33,7 +34,6 @@ import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.portal.url.UrlBase;
 import com.enonic.xp.portal.url.UrlBaseParams;
 import com.enonic.xp.project.ProjectName;
-import com.enonic.xp.site.SiteConfigs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -355,7 +355,7 @@ public class UrlFieldDataFetcherTest
     private static UrlBase urlBase( final PortalUrlService portalUrlService, final String key )
     {
         final UrlBase base = new UrlBase( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( key ), null,
-                                          SiteConfigs.empty() );
+                                          ApplicationKeys.empty() );
         when( portalUrlService.urlBase( Mockito.any( UrlBaseParams.class ) ) ).thenReturn( base );
         return base;
     }

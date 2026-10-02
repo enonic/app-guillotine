@@ -12,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import graphql.schema.GraphQLSchema;
 
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
+import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
@@ -33,7 +34,6 @@ import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
-import com.enonic.xp.site.SiteConfigs;
 
 import static com.enonic.app.guillotine.graphql.ResourceHelper.readGraphQLQuery;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -101,7 +101,7 @@ public class RichTextGraphQLIntegrationTest
     public void testBaseIsResolvedOncePerQuery()
     {
         final UrlBase base =
-            new UrlBase( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( "/mysite" ), null, SiteConfigs.empty() );
+            new UrlBase( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( "/mysite" ), null, ApplicationKeys.empty() );
         when( serviceFacade.getPortalUrlService().urlBase( any( UrlBaseParams.class ) ) ).thenReturn( base );
         when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
             new ProcessedHtml( "processedHtml", null, List.of(), List.of() ) );
