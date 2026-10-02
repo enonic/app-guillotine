@@ -11,16 +11,16 @@ import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.Media;
 import com.enonic.xp.portal.url.ImageUrlPartsParams;
-import com.enonic.xp.portal.url.PortalUrlGeneratorService;
+import com.enonic.xp.portal.url.PortalUrlService;
 
 public class GetImageUrlDataFetcher
     implements DataFetcher<Map<String, Object>>
 {
-    private final PortalUrlGeneratorService portalUrlGeneratorService;
+    private final PortalUrlService portalUrlService;
 
-    public GetImageUrlDataFetcher( final PortalUrlGeneratorService portalUrlGeneratorService )
+    public GetImageUrlDataFetcher( final PortalUrlService portalUrlService )
     {
-        this.portalUrlGeneratorService = portalUrlGeneratorService;
+        this.portalUrlService = portalUrlService;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class GetImageUrlDataFetcher
         }
 
         final Map<String, Object> result = UrlPartsHelper.anyImagePartSelected( environment.getSelectionSet() )
-            ? UrlPartsHelper.toMap( portalUrlGeneratorService.imageUrlParts( buildParams( environment, content ) ) )
+            ? UrlPartsHelper.toMap( portalUrlService.imageUrlParts( buildParams( environment, content ) ) )
             : new LinkedHashMap<>();
 
         return result;

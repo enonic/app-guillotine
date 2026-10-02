@@ -144,7 +144,7 @@ public class GenericTypesFactory
         context.registerType( outputObject.getName(), outputObject );
 
         context.registerDataFetcher( outputObject.getName(), "attachmentUrl",
-                                     new GetAttachmentUrlByNameDataFetcher( serviceFacade.getPortalUrlGeneratorService() ) );
+                                     new GetAttachmentUrlByNameDataFetcher( serviceFacade.getPortalUrlService() ) );
     }
 
     private void createIconType()

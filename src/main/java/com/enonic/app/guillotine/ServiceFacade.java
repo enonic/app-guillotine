@@ -10,7 +10,6 @@ import com.enonic.xp.macro.MacroDescriptorService;
 import com.enonic.xp.macro.MacroService;
 import com.enonic.xp.node.NodeService;
 import com.enonic.xp.page.PageTemplateService;
-import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentTypeService;
@@ -39,8 +38,6 @@ public class ServiceFacade
 
     private final StyleDescriptorService styleDescriptorService;
 
-    private final PortalUrlGeneratorService portalUrlGeneratorService;
-
     @Activate
     public ServiceFacade( final @Reference ContentService contentService, final @Reference ContentTypeService contentTypeService,
                           final @Reference ComponentDescriptorService componentDescriptorService,
@@ -48,8 +45,7 @@ public class ServiceFacade
                           final @Reference CmsFormFragmentService cmsFormFragmentService, final @Reference MacroService macroService,
                           final @Reference MacroDescriptorService macroDescriptorService,
                           final @Reference PageTemplateService pageTemplateService,
-                          final @Reference StyleDescriptorService styleDescriptorService,
-                          final @Reference PortalUrlGeneratorService portalUrlGeneratorService )
+                          final @Reference StyleDescriptorService styleDescriptorService )
     {
         this.contentService = contentService;
         this.contentTypeService = contentTypeService;
@@ -61,7 +57,6 @@ public class ServiceFacade
         this.macroDescriptorService = macroDescriptorService;
         this.pageTemplateService = pageTemplateService;
         this.styleDescriptorService = styleDescriptorService;
-        this.portalUrlGeneratorService = portalUrlGeneratorService;
     }
 
     public ContentService getContentService()
@@ -112,10 +107,5 @@ public class ServiceFacade
     public StyleDescriptorService getStyleDescriptorService()
     {
         return styleDescriptorService;
-    }
-
-    public PortalUrlGeneratorService getPortalUrlGeneratorService()
-    {
-        return portalUrlGeneratorService;
     }
 }

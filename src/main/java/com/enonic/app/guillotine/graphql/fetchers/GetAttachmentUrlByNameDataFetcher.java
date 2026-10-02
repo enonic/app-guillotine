@@ -10,16 +10,16 @@ import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.portal.url.AttachmentUrlPartsParams;
-import com.enonic.xp.portal.url.PortalUrlGeneratorService;
+import com.enonic.xp.portal.url.PortalUrlService;
 
 public class GetAttachmentUrlByNameDataFetcher
     implements DataFetcher<Map<String, Object>>
 {
-    private final PortalUrlGeneratorService portalUrlGeneratorService;
+    private final PortalUrlService portalUrlService;
 
-    public GetAttachmentUrlByNameDataFetcher( final PortalUrlGeneratorService portalUrlGeneratorService )
+    public GetAttachmentUrlByNameDataFetcher( final PortalUrlService portalUrlService )
     {
-        this.portalUrlGeneratorService = portalUrlGeneratorService;
+        this.portalUrlService = portalUrlService;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class GetAttachmentUrlByNameDataFetcher
         final Boolean download = environment.getArgument( "download" );
 
         final Map<String, Object> result = UrlPartsHelper.anyAttachmentPartSelected( environment.getSelectionSet() )
-            ? UrlPartsHelper.toMap( portalUrlGeneratorService.attachmentUrlParts( buildParams( environment, attachmentAsMap, content ) ) )
+            ? UrlPartsHelper.toMap( portalUrlService.attachmentUrlParts( buildParams( environment, attachmentAsMap, content ) ) )
             : new LinkedHashMap<>();
 
         result.put( "intent", download != null && download ? "download" : "inline" );

@@ -16,7 +16,7 @@ import com.enonic.app.guillotine.graphql.ContentFixtures;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.portal.url.AttachmentUrlPartsParams;
 import com.enonic.xp.portal.url.AttachmentUrlParts;
-import com.enonic.xp.portal.url.PortalUrlGeneratorService;
+import com.enonic.xp.portal.url.PortalUrlService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -52,7 +52,7 @@ public class GetAttachmentUrlByNameDataFetcherTest
 
         when( environment.getArgument( "params" ) ).thenReturn( params );
 
-        PortalUrlGeneratorService portalUrlService = mock( PortalUrlGeneratorService.class );
+        PortalUrlService portalUrlService = mock( PortalUrlService.class );
 
         when( portalUrlService.attachmentUrlParts( Mockito.any( AttachmentUrlPartsParams.class ) ) ).thenReturn(
             new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/Name", "?a=1&b=2&b=3&c", "myproject", "contentid",
