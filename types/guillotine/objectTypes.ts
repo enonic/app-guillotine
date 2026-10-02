@@ -315,12 +315,19 @@ export declare interface Image {
 	image: Content
 	ref: GraphQLString
 	style: ImageStyle
+	src: ImageUrl
+	srcset: ImageSource[]
 }
 
 export declare interface ImageComponentData {
 	id: NonNull<GraphQLID>
 	caption: GraphQLString
 	image: media_Image
+}
+
+export declare interface ImageSource {
+	width: GraphQLInt
+	imageUrl: ImageUrl
 }
 
 export declare interface ImageStyle {
