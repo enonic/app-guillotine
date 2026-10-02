@@ -39,14 +39,11 @@ Retrieve blog posts with an author reference, tags and an HtmlArea field named `
 
 `processedHtml` contains HTML with placeholders for internal links, images and macros. The structured fields described below hold what your client needs to render them.
 
-Link and image placeholders are readable values, useful for debugging: a page link shows the content path, a media link the media API path. Browsers cannot follow them as they are. Render each one by rewriting the element that carries a `data-link-ref` or `data-image-ref` attribute from its entry in `links` or `images`.
+Browsers cannot follow the link and image placeholders as they are. Render each one by rewriting the element that carries a `data-link-ref` or `data-image-ref` attribute from its entry in `links` or `images`.
 
 == Links
 
-Each internal link receives a `data-link-ref` attribute naming its entry in the `links` field, and an `href` placeholder:
-
-* a page link shows the content path relative to the site selected with `siteKey`, with the query and fragment the link carries, such as `/posts/first-post?ref=news#intro`; the site itself shows `/`, while its `pageUrl.path` is empty, as for <<images-and-urls#base-urls, the selected site>>. Without `siteKey`, it shows the full content path, such as `/my-site/posts/first-post`;
-* a media link shows the media API path, such as `/media:attachment/...`.
+Each internal link receives a `data-link-ref` attribute naming its entry in the `links` field, and an `href` placeholder.
 
 Build the `href` from the link's entry. For a page link, use `pageUrl`: `baseUrl` is the Base URL configured for the selected site, or for the project without `siteKey`, `null` when there is none, followed by `path` and `queryString`, or adapt `path` to your frontend's routes. Sites do not inherit a Base URL from their parent; see <<images-and-urls#base-urls, Base URLs>>. For a media link, put your media base in front of `media.mediaUrl.path` and `media.mediaUrl.queryString`.
 
@@ -113,7 +110,7 @@ query {
 
 == Images
 
-Each internal image receives a `data-image-ref` attribute naming its entry in the `images` field, and `src` and `srcset` placeholders showing the media API path, such as `/media:image/...`.
+Each internal image receives a `data-image-ref` attribute naming its entry in the `images` field, and `src` and `srcset` placeholders.
 
 Build the image URLs from the image's entry, which holds one URL for each attribute:
 

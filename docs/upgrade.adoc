@@ -113,7 +113,7 @@ The `type` argument and `UrlType` enum are removed. Remove `type: server` and `t
 
 ==== Processed rich text
 
-`ProcessHtmlInput.type` is also removed. Remove the `type` property from `processHtml` arguments and variables; `imageWidths` and `imageSizes` remain available. Links and images in processed HTML are placeholders, useful for debugging: page links show the site-relative content path, media links the media API path. Rewrite each element carrying a `data-link-ref` or `data-image-ref` attribute from its entry in `links` or `images`. See <<usage/rich-text#, Rich text>>.
+`ProcessHtmlInput.type` is also removed. Remove the `type` property from `processHtml` arguments and variables; `imageWidths` and `imageSizes` remain available. Links and images in processed HTML are placeholders. Rewrite each element carrying a `data-link-ref` or `data-image-ref` attribute from its entry in `links` or `images`. See <<usage/rich-text#, Rich text>>.
 
 [#search-migration]
 === Search queries
