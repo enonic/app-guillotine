@@ -13,7 +13,7 @@ URL components::
 `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` return objects exposing `path` and `queryString`. `pageUrl` also exposes the configured `baseUrl` of the site selected with `siteKey`, or of the project without it. Media fields also provide components such as the project context, content ID and fingerprint. Clients can prepend an API or CDN base to media paths and adapt page paths to their frontend routes. See <<usage/images-and-urls#url-parts, Building URLs from parts>>.
 
 Structured rich-text links::
-The `Link.pageUrl`, `Media.mediaUrl`, `Image.src` and `Image.srcset` fields expose the same URL components for references found in rich text. Clients can use these fields when rendering links for their own deployment. See <<usage/rich-text#, Rich text>>.
+The `Link.pageUrl`, `Media.mediaUrl`, `Image.src` and `Image.srcset` fields expose the same URL components for references found in rich text, and `Link.fragment` holds the fragment of a page link. Clients can use these fields when rendering links for their own deployment. See <<usage/rich-text#, Rich text>>.
 
 Content context fields::
 `Content._project` and `Content._branch` expose the project and branch used to resolve a content item. See <<api#content, Content>>.

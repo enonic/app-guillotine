@@ -262,6 +262,7 @@ public class GenericTypesFactory
         fields.add( outputField( "media", GraphQLTypeReference.typeRef( "Media" ) ) );
         fields.add( outputField( "content", GraphQLTypeReference.typeRef( "Content" ) ) );
         fields.add( outputField( "pageUrl", GraphQLTypeReference.typeRef( "PageUrl" ) ) );
+        fields.add( outputField( "fragment", Scalars.GraphQLString ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "Link" ), "Link type.", fields );
         context.registerType( outputObject.getName(), outputObject );

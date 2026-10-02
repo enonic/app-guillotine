@@ -32,6 +32,7 @@ public final class RichTextProjections
             {
                 projection.put( "contentId", content.contentId() );
                 projection.put( "pageUrl", content.page() == null ? null : pageUrl( content.page() ) );
+                projection.put( "fragment", content.fragment() );
             }
             case ProcessedHtml.AttachmentLink attachment ->
             {

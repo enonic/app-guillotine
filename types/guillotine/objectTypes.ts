@@ -358,6 +358,7 @@ export declare interface Link {
 	media: Media
 	content: Content
 	pageUrl: PageUrl
+	fragment: GraphQLString
 }
 
 export declare interface Macro {

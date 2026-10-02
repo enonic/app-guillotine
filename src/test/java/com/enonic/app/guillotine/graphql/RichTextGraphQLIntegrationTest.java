@@ -120,7 +120,7 @@ public class RichTextGraphQLIntegrationTest
     public void testLinksAndImagesComeFromProcessedHtml()
     {
         final ProcessedHtml processed = new ProcessedHtml(
-            "<a href=\"/posts/first?a=1\" data-link-ref=\"link-1\">Post</a><a href=\"/media:attachment/p:b/f:h/doc.pdf?download\" " +
+            "<a href=\"/posts/first?a=1#top\" data-link-ref=\"link-1\">Post</a><a href=\"/media:attachment/p:b/f:h/doc.pdf?download\" " +
                 "data-link-ref=\"link-2\">Doc</a><img src=\"/media:image/p:b/i:h/width-768/a.jpg\" data-image-ref=\"image-1\">",
             "https://site.example.com", List.of(
             new ProcessedHtml.ContentLink( "link-1", "content://first", "first", new PageUrlParts( "https://site.example.com", "/posts/first", "?a=1" ),
@@ -144,7 +144,7 @@ public class RichTextGraphQLIntegrationTest
         Map<String, Object> response = executeQuery( graphQLSchema,
                                                      "query { guillotine(siteKey: \"/mysite\") { get(key: \"contentid\") { " +
                                                          "...on myapplication_News { data { text { processedHtml " +
-                                                         "links { ref uri pageUrl { baseUrl path queryString } media { intent mediaUrl { path queryString } } } " +
+                                                         "links { ref uri pageUrl { baseUrl path queryString } fragment media { intent mediaUrl { path queryString } } } " +
                                                          "images { ref src { path queryString } srcset { width imageUrl { path } } } } } } } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
@@ -157,10 +157,12 @@ public class RichTextGraphQLIntegrationTest
         assertEquals( "content://first", links.get( 0 ).get( "uri" ) );
         assertEquals( Map.of( "baseUrl", "https://site.example.com", "path", "/posts/first", "queryString", "?a=1" ),
                       links.get( 0 ).get( "pageUrl" ) );
+        assertEquals( "top", links.get( 0 ).get( "fragment" ) );
         assertNull( links.get( 0 ).get( "media" ) );
 
         assertEquals( "link-2", links.get( 1 ).get( "ref" ) );
         assertNull( links.get( 1 ).get( "pageUrl" ) );
+        assertNull( links.get( 1 ).get( "fragment" ) );
         Map<String, Object> media = CastHelper.cast( links.get( 1 ).get( "media" ) );
         assertEquals( "download", media.get( "intent" ) );
         assertEquals( Map.of( "path", "/media:attachment/p:b/f:h/doc.pdf", "queryString", "?download" ), media.get( "mediaUrl" ) );
@@ -180,7 +182,7 @@ public class RichTextGraphQLIntegrationTest
     public void testLinksAndImagesThatDoNotResolve()
     {
         final ProcessedHtml processed = new ProcessedHtml( "<a href=\"content://gone\" data-link-ref=\"link-1\">Gone</a>", null, List.of(
-            new ProcessedHtml.ContentLink( "link-1", "content://gone", "gone", null, null ),
+            new ProcessedHtml.ContentLink( "link-1", "content://gone?fragment=top", "gone", null, "top" ),
             new ProcessedHtml.AttachmentLink( "link-2", "media://download/gone", "gone", null, true ) ),
                                                            List.of( new ProcessedHtml.Image( "image-1", "gone", null, null, List.of() ) ) );
 
@@ -193,7 +195,7 @@ public class RichTextGraphQLIntegrationTest
         Map<String, Object> response = executeQuery( graphQLSchema,
                                                      "query { guillotine(siteKey: \"/mysite\") { get(key: \"contentid\") { " +
                                                          "...on myapplication_News { data { text { " +
-                                                         "links { ref pageUrl { path } media { intent mediaUrl { path } } } " +
+                                                         "links { ref pageUrl { path } fragment media { intent mediaUrl { path } } } " +
                                                          "images { ref src { path } srcset { width } } } } } } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
@@ -204,6 +206,7 @@ public class RichTextGraphQLIntegrationTest
         List<Map<String, Object>> links = CastHelper.cast( textField.get( "links" ) );
         assertEquals( "link-1", links.get( 0 ).get( "ref" ) );
         assertNull( links.get( 0 ).get( "pageUrl" ) );
+        assertEquals( "top", links.get( 0 ).get( "fragment" ) );
         Map<String, Object> media = CastHelper.cast( links.get( 1 ).get( "media" ) );
         assertEquals( "download", media.get( "intent" ) );
         assertNull( media.get( "mediaUrl" ) );

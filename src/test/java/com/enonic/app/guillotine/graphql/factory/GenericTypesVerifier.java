@@ -118,9 +118,10 @@ public class GenericTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 5, fields.size() );
+        assertEquals( 6, fields.size() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "ref" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "uri" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "fragment" ).getType() );
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getFieldDefinition( "content" ).getType() ) );
         assertEquals( "Media", getNameForGraphQLTypeReference( type.getFieldDefinition( "media" ).getType() ) );
         assertEquals( "PageUrl", getNameForGraphQLTypeReference( type.getFieldDefinition( "pageUrl" ).getType() ) );
