@@ -1171,7 +1171,7 @@ Direct Known Subtypes: FormInput
 |Generates image URLs for given widths which will be used in the `srcset` attribute of `img` tag.
 
 |imageSizes: String
-|Specifies image width for a specific browser resolution in the following format: `(media-condition) width`. Multiple sizes are comma-separated.
+|Specifies image width for a specific browser resolution in the following format: `(media-condition) width`. Multiple sizes are comma-separated. Written along with the `srcset` that `imageWidths` adds.
 
 |===
 
