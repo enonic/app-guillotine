@@ -140,7 +140,7 @@ Build the image URLs from the image's entry, which holds one URL for each attrib
 
 Put your media base in front of each `path` and `queryString`. See <<../configuration#media-base-url, Media base URL>>.
 
-The style of an image is the one named in the HtmlArea, looked up among the styles of the applications configured on the site selected with `siteKey`, or on the project without it. To apply a style, configure the application providing it on that site or project; installing the application is not enough.
+The style of an image is the one named in the HtmlArea, looked up among the styles of the applications configured on the site selected with `siteKey`, or on the project without it. To apply a style, configure the application providing it on that site or project; installing the application is not enough. A style named `<application>:<name>` is the style of that application; a name alone is the first style of that name. The `style.name` field gives the style as `<application>:<name>`, so it names the style unambiguously.
 
 For instance, the processed value of an image looks like this:
 

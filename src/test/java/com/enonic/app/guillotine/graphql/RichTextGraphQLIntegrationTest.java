@@ -162,7 +162,7 @@ public class RichTextGraphQLIntegrationTest
             new ProcessedHtml.AttachmentLink( "link-2", "media://download/doc", "doc",
                                               new AttachmentUrlParts( "/media:attachment/p:b/f:h/doc.pdf", "?download", "p:b", "f", "h",
                                                                       "doc.pdf" ), true ) ), List.of(
-            new ProcessedHtml.Image( "image-1", "image", null,
+            new ProcessedHtml.Image( "image-1", "image", new ProcessedHtml.Style( "myapp:wide", "16:9", "grayscale()" ),
                                      new ImageUrlParts( "/media:image/p:b/i:h/width-768/a.jpg", "", "p:b", "i", "h", "width-768", "a.jpg" ),
                                      List.of( new ProcessedHtml.Source( 400, new ImageUrlParts( "/media:image/p:b/i:h/width-400/a.jpg", "",
                                                                                                "p:b", "i", "h", "width-400",
@@ -179,7 +179,7 @@ public class RichTextGraphQLIntegrationTest
                                                      "query { guillotine(siteKey: \"/mysite\") { get(key: \"contentid\") { " +
                                                          "...on myapplication_News { data { text { processedHtml " +
                                                          "links { ref uri pageUrl { baseUrl path queryString } fragment media { intent mediaUrl { path queryString } } } " +
-                                                         "images { ref src { path queryString } srcset { width imageUrl { path } } } } } } } } }" );
+                                                         "images { ref style { name aspectRatio filter } src { path queryString } srcset { width imageUrl { path } } } } } } } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
 
@@ -203,6 +203,7 @@ public class RichTextGraphQLIntegrationTest
 
         List<Map<String, Object>> images = CastHelper.cast( textField.get( "images" ) );
         assertEquals( "image-1", images.get( 0 ).get( "ref" ) );
+        assertEquals( Map.of( "name", "myapp:wide", "aspectRatio", "16:9", "filter", "grayscale()" ), images.get( 0 ).get( "style" ) );
         assertEquals( Map.of( "path", "/media:image/p:b/i:h/width-768/a.jpg", "queryString", "" ), images.get( 0 ).get( "src" ) );
         assertEquals( List.of( Map.of( "width", 400, "imageUrl", Map.of( "path", "/media:image/p:b/i:h/width-400/a.jpg" ) ) ),
                       images.get( 0 ).get( "srcset" ) );

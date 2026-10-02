@@ -7,7 +7,6 @@ import com.enonic.xp.portal.url.AttachmentUrlParts;
 import com.enonic.xp.portal.url.ImageUrlParts;
 import com.enonic.xp.portal.url.PageUrlParts;
 import com.enonic.xp.portal.url.ProcessedHtml;
-import com.enonic.xp.style.ImageStyle;
 
 /**
  * Projections of the links and images of {@link ProcessedHtml} for the {@code Link} and {@code Image} GraphQL types,
@@ -58,13 +57,13 @@ public final class RichTextProjections
         projection.put( "imageId", image.contentId() );
         projection.put( "imageRef", image.ref() );
 
-        final ImageStyle style = image.style();
+        final ProcessedHtml.Style style = image.style();
         if ( style != null )
         {
             final Map<String, Object> styleProjection = new LinkedHashMap<>();
-            styleProjection.put( "name", style.getName() );
-            styleProjection.put( "aspectRatio", style.getAspectRatio() );
-            styleProjection.put( "filter", style.getFilter() );
+            styleProjection.put( "name", style.name() );
+            styleProjection.put( "aspectRatio", style.aspectRatio() );
+            styleProjection.put( "filter", style.filter() );
             projection.put( "style", styleProjection );
         }
 

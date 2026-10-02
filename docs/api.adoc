@@ -530,7 +530,7 @@ A `srcset` candidate of a rich text <<Image>>.
 |Name (Arguments): Type | Description
 
 |name: String
-|Style name
+|Style name, qualified by the application providing the style: `<application>:<name>`
 
 |aspectRatio: String
 |The `aspect-ratio` value for server-side image processing
