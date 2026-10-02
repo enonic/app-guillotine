@@ -45,6 +45,8 @@ Browsers cannot follow the link and image placeholders as they are. Render each 
 
 Each internal link receives a `data-link-ref` attribute naming its entry in the `links` field, and an `href` placeholder.
 
+Links are resolved for the site selected with `siteKey`, or for the project without it. Without `siteKey`, a page link's `pageUrl.path` is the full content path, such as `/my-site/posts/first-post`, and `pageUrl.baseUrl` is the project's Base URL.
+
 Build the `href` from the link's entry. For a page link, use `pageUrl`: `baseUrl` is the Base URL configured for the selected site, or for the project without `siteKey`, `null` when there is none, followed by `path` and `queryString`, or adapt `path` to your frontend's routes. Sites do not inherit a Base URL from their parent; see <<images-and-urls#base-urls, Base URLs>>. For a media link, put your media base in front of `media.mediaUrl.path` and `media.mediaUrl.queryString`.
 
 For instance, the processed value of a link looks like this:
@@ -119,7 +121,7 @@ Build the image URLs from the image's entry, which holds one URL for each attrib
 
 Put your media base in front of each `path` and `queryString`. See <<../configuration#media-base-url, Media base URL>>.
 
-The style of an image is the one named in the HtmlArea, looked up among the styles of the applications configured on the site selected with `siteKey`, or on the project without it.
+The style of an image is the one named in the HtmlArea, looked up among the styles of the applications configured on the site selected with `siteKey`, or on the project without it. To apply a style, configure the application providing it on that site or project; installing the application is not enough.
 
 For instance, the processed value of an image looks like this:
 

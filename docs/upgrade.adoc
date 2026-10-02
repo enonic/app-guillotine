@@ -207,7 +207,11 @@ Select `pageUrl { path }` with an appropriate `siteKey` for a site-relative link
 
 The previous automatic site-path restrictions on content queries and lookups are removed. Queries can reach content elsewhere in the project, subject to content permissions. If your client needs results from one subtree, add explicit path constraints to its DSL queries.
 
-For page URLs, `siteKey` now selects both the URL base and the relative path. Without it, page URLs belong to the project: their path is the full content path, and their Base URL is the project's. Site frontends pass `siteKey`. A request for a page URL outside the selected site produces a GraphQL field error. For nested sites, choosing the parent or child site can produce different links. Test cross-site references and nested-site links against the <<usage/images-and-urls#base-urls, URL context rules>>.
+For page URLs, `siteKey` now selects both the URL base and the relative path. A request for a page URL outside the selected site produces a GraphQL field error. For nested sites, choosing the parent or child site can produce different links. Test cross-site references and nested-site links against the <<usage/images-and-urls#base-urls, URL context rules>>.
+
+==== Page URLs without `siteKey`
+
+Without `siteKey`, page URLs belong to the project, not to the site that contains the content: `pageUrl.path` is the full content path, such as `/my-site/posts/first-post`, and `pageUrl.baseUrl` is the Base URL configured for the project. This applies to `pageUrl` on content and on rich-text links alike. Site frontends pass the `siteKey` of their site to get site-relative paths and the site's Base URL.
 
 [#metadata-migration]
 === Schema metadata and publication timestamps
