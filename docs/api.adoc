@@ -502,7 +502,7 @@ Represents details for image found and processed in the <<RichText>> type.
 |Style of the image, from the applications configured on the site selected with `siteKey`, or on the project without it
 
 |src: <<ImageUrl>>
-|The URL for the `src` attribute: a single image URL, 768 pixels wide or cropped to the style's aspect ratio, or with the `full` scale for an image the image API serves as stored
+|The URL for the `src` attribute: a single image URL, 768 pixels wide or cropped to the style's aspect ratio, or with the `full` scale for an image the image API serves as stored. `null` for an image that does not resolve, such as a missing one
 
 |srcset: [<<ImageSource>>]
 |The URLs for the `srcset` attribute: a list with an entry, holding a width and an image URL, for each `processHtml.imageWidths` width; empty without them, and for an image the image API serves as stored
@@ -549,7 +549,7 @@ A `srcset` candidate of a rich text <<Image>>.
 |Link intent.
 
 |mediaUrl: <<AttachmentUrl>>
-|Components of the attachment URL, honoring the link intent (`?download` for download links)
+|Components of the attachment URL, honoring the link intent (`?download` for download links). `null` for a link that does not resolve, such as one to a missing content
 
 |content: <<Content>>
 |Related content
@@ -575,7 +575,7 @@ A `srcset` candidate of a rich text <<Image>>.
 |Related content. This field has `null` value for media content
 
 |pageUrl: <<PageUrl>>
-|Components of the page URL, with the query string the link carries, relative to the site selected with `siteKey`, or to the project without it. This field has `null` value for media links
+|Components of the page URL, with the query string the link carries, relative to the site selected with `siteKey`, or to the project without it. This field has `null` value for media links, and for a link that does not resolve, such as one to a missing content
 
 |===
 

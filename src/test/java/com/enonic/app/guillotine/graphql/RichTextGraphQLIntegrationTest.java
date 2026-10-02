@@ -177,6 +177,44 @@ public class RichTextGraphQLIntegrationTest
     }
 
     @Test
+    public void testLinksAndImagesThatDoNotResolve()
+    {
+        final ProcessedHtml processed = new ProcessedHtml( "<a href=\"content://gone\" data-link-ref=\"link-1\">Gone</a>", null, List.of(
+            new ProcessedHtml.ContentLink( "link-1", "content://gone", "gone", null, null ),
+            new ProcessedHtml.AttachmentLink( "link-2", "media://download/gone", "gone", null, true ) ),
+                                                           List.of( new ProcessedHtml.Image( "image-1", "gone", null, null, List.of() ) ) );
+
+        when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn( processed );
+        when( contentService.contentExists( ContentPath.from( "/mysite" ) ) ).thenReturn( true );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response = executeQuery( graphQLSchema,
+                                                     "query { guillotine(siteKey: \"/mysite\") { get(key: \"contentid\") { " +
+                                                         "...on myapplication_News { data { text { " +
+                                                         "links { ref pageUrl { path } media { intent mediaUrl { path } } } " +
+                                                         "images { ref src { path } srcset { width } } } } } } } }" );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        Map<String, Object> getField = CastHelper.cast( getFieldFromGuillotine( response, "get" ) );
+        Map<String, Object> textField = CastHelper.cast( CastHelper.<Map<String, Object>>cast( getField.get( "data" ) ).get( "text" ) );
+
+        List<Map<String, Object>> links = CastHelper.cast( textField.get( "links" ) );
+        assertEquals( "link-1", links.get( 0 ).get( "ref" ) );
+        assertNull( links.get( 0 ).get( "pageUrl" ) );
+        Map<String, Object> media = CastHelper.cast( links.get( 1 ).get( "media" ) );
+        assertEquals( "download", media.get( "intent" ) );
+        assertNull( media.get( "mediaUrl" ) );
+
+        List<Map<String, Object>> images = CastHelper.cast( textField.get( "images" ) );
+        assertEquals( "image-1", images.get( 0 ).get( "ref" ) );
+        assertNull( images.get( 0 ).get( "src" ) );
+        assertEquals( List.of(), images.get( 0 ).get( "srcset" ) );
+    }
+
+    @Test
     public void testEmptyRichTextField()
     {
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( false ) );

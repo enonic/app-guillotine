@@ -49,6 +49,8 @@ Links are resolved for the site selected with `siteKey`, or for the project with
 
 Build the `href` from the link's entry. For a page link, use `pageUrl`: `baseUrl` is the Base URL configured for the selected site, or for the project without `siteKey`, `null` when there is none, followed by `path` and `queryString`, or adapt `path` to your frontend's routes. Sites do not inherit a Base URL from their parent; see <<images-and-urls#base-urls, Base URLs>>. For a media link, put your media base in front of `media.mediaUrl.path` and `media.mediaUrl.queryString`.
 
+A link that does not resolve, such as one to a content that is missing, receives its `data-link-ref` too, and has an entry with a `null` `pageUrl`, or a `null` `media.mediaUrl` for a media link. Decide how to render it, for instance as its text alone.
+
 For instance, the processed value of a link looks like this:
 
 [source,html]
@@ -113,6 +115,8 @@ query {
 == Images
 
 Each internal image receives a `data-image-ref` attribute naming its entry in the `images` field, and `src` and `srcset` placeholders.
+
+An image that does not resolve, such as a missing one, receives its `data-image-ref` too, and has an entry with a `null` `src` and an empty `srcset`.
 
 Build the image URLs from the image's entry, which holds one URL for each attribute:
 

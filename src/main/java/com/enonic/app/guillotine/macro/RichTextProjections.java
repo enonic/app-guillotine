@@ -31,7 +31,7 @@ public final class RichTextProjections
             case ProcessedHtml.ContentLink content ->
             {
                 projection.put( "contentId", content.contentId() );
-                projection.put( "pageUrl", pageUrl( content.page() ) );
+                projection.put( "pageUrl", content.page() == null ? null : pageUrl( content.page() ) );
             }
             case ProcessedHtml.AttachmentLink attachment ->
             {
@@ -40,7 +40,7 @@ public final class RichTextProjections
                 final Map<String, Object> media = new LinkedHashMap<>();
                 media.put( "intent", intent );
                 media.put( "contentId", attachment.contentId() );
-                media.put( "mediaUrl", attachmentUrl( attachment.attachment(), intent ) );
+                media.put( "mediaUrl", attachment.attachment() == null ? null : attachmentUrl( attachment.attachment(), intent ) );
 
                 projection.put( "contentId", null );
                 projection.put( "media", media );
@@ -67,7 +67,7 @@ public final class RichTextProjections
             projection.put( "style", styleProjection );
         }
 
-        projection.put( "src", imageUrl( image.src() ) );
+        projection.put( "src", image.src() == null ? null : imageUrl( image.src() ) );
         projection.put( "srcset", image.srcset().stream().map( RichTextProjections::source ).toList() );
 
         return projection;
