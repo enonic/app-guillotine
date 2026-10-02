@@ -2,6 +2,7 @@ package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -278,7 +279,7 @@ public class UrlFieldDataFetcherTest
         ArgumentCaptor<PageUrlPartsParams> captor = ArgumentCaptor.forClass( PageUrlPartsParams.class );
         verify( portalUrlService ).pageUrlParts( captor.capture() );
         assertSame( base, captor.getValue().getBase() );
-        assertEquals( "/", urlBaseKey( portalUrlService ) );
+        assertNull( urlBaseKey( portalUrlService ) );
     }
 
     @Test
@@ -364,6 +365,7 @@ public class UrlFieldDataFetcherTest
     {
         final ArgumentCaptor<UrlBaseParams> captor = ArgumentCaptor.forClass( UrlBaseParams.class );
         verify( portalUrlService ).urlBase( captor.capture() );
-        return captor.getValue().getKey();
+        final UrlBaseParams params = captor.getValue();
+        return params.getContentPath() != null ? params.getContentPath().toString() : Objects.toString( params.getContentId(), null );
     }
 }

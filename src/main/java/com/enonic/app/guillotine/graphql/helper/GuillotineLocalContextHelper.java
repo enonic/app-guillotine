@@ -15,6 +15,8 @@ import graphql.schema.DataFetchingEnvironment;
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.portal.url.PortalUrlService;
@@ -84,22 +86,30 @@ public class GuillotineLocalContextHelper
      */
     public static UrlBase getUrlBase( final DataFetchingEnvironment environment, final PortalUrlService portalUrlService )
     {
-        final UrlBaseParams params = UrlBaseParams.create()
-            .setKey( getSiteKey( environment ) )
-            .setProjectName( getProjectName( environment ).toString() )
-            .setBranch( getBranch( environment ).toString() )
-            .build();
+        final String siteKey = getSiteKey( environment );
+        final ProjectName projectName = getProjectName( environment );
+        final Branch branch = getBranch( environment );
+
+        final UrlBaseParams.Builder params = UrlBaseParams.create().setProjectName( projectName ).setBranch( branch );
+        if ( siteKey != null && siteKey.startsWith( "/" ) )
+        {
+            params.setContentPath( ContentPath.from( siteKey ) );
+        }
+        else if ( siteKey != null )
+        {
+            params.setContentId( ContentId.from( siteKey ) );
+        }
 
         final GraphQLContext graphQLContext = environment.getGraphQlContext();
         if ( graphQLContext == null )
         {
-            return portalUrlService.urlBase( params );
+            return portalUrlService.urlBase( params.build() );
         }
-        return graphQLContext.computeIfAbsent( new UrlBaseKey( params.getKey(), params.getProjectName(), params.getBranch() ),
-                                               key -> portalUrlService.urlBase( params ) );
+        return graphQLContext.computeIfAbsent( new UrlBaseKey( siteKey, projectName, branch ),
+                                               key -> portalUrlService.urlBase( params.build() ) );
     }
 
-    private record UrlBaseKey(String key, String projectName, String branch)
+    private record UrlBaseKey(String siteKey, ProjectName projectName, Branch branch)
     {
     }
 

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -139,7 +140,7 @@ public class RichTextGraphQLIntegrationTest
 
         assertFalse( response.containsKey( "errors" ) );
 
-        assertEquals( "/", urlBaseKey() );
+        assertNull( urlBaseKey() );
 
         ArgumentCaptor<ProcessHtmlPartsParams> captor = ArgumentCaptor.forClass( ProcessHtmlPartsParams.class );
         verify( serviceFacade.getPortalUrlService() ).processHtmlParts( captor.capture() );
@@ -321,6 +322,7 @@ public class RichTextGraphQLIntegrationTest
     {
         final ArgumentCaptor<UrlBaseParams> captor = ArgumentCaptor.forClass( UrlBaseParams.class );
         verify( serviceFacade.getPortalUrlService() ).urlBase( captor.capture() );
-        return captor.getValue().getKey();
+        final UrlBaseParams params = captor.getValue();
+        return params.getContentPath() != null ? params.getContentPath().toString() : Objects.toString( params.getContentId(), null );
     }
 }
