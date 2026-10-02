@@ -22,7 +22,6 @@ import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.content.Media;
 import com.enonic.xp.data.PropertyTree;
-import com.enonic.xp.descriptor.DescriptorKey;
 import com.enonic.xp.form.FieldSet;
 import com.enonic.xp.form.FormItemSet;
 import com.enonic.xp.form.FormOptionSet;
@@ -30,7 +29,6 @@ import com.enonic.xp.form.FormOptionSetOption;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.form.Occurrences;
 import com.enonic.xp.inputtype.InputTypeName;
-import com.enonic.xp.portal.url.BaseUrlParams;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.site.Site;
@@ -225,13 +223,11 @@ public class GuillotineApiGraphQLIntegrationTest
             executeQuery( graphQLSchema, "query { guillotine(siteKey: \"/\") { getSite { _id } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
-        // XP resolves base URLs at the project level for the root path: once per media
-        // API base. Page URLs need no base URL resolved here - they carry the site key itself
-        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.times( 2 ) ).baseUrl( any() );
+        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.never() ).baseUrl( any() );
     }
 
     @Test
-    public void testSiteKeyResolvesMediaBaseUrlViaApi()
+    public void testSiteKeyResolvesNoBaseUrl()
     {
         when( contentService.contentExists( ContentPath.from( "/mysite" ) ) ).thenReturn( true );
 
@@ -242,13 +238,7 @@ public class GuillotineApiGraphQLIntegrationTest
 
         assertFalse( response.containsKey( "errors" ) );
 
-        // guillotine assumes nothing about where media APIs are mounted: each media API base is
-        // resolved with its own descriptor - the two can diverge when the site mounts only one
-        // of the APIs. No base URL is resolved for page URLs: those carry the site key itself
-        ArgumentCaptor<BaseUrlParams> captor = ArgumentCaptor.forClass( BaseUrlParams.class );
-        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.times( 2 ) ).baseUrl( captor.capture() );
-        assertEquals( DescriptorKey.from( "media:image" ), captor.getAllValues().get( 0 ).getApi() );
-        assertEquals( DescriptorKey.from( "media:attachment" ), captor.getAllValues().get( 1 ).getApi() );
+        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.never() ).baseUrl( any() );
     }
 
     @Test
@@ -275,9 +265,27 @@ public class GuillotineApiGraphQLIntegrationTest
         Mockito.verify( contentService ).findIdsByParent( captor.capture() );
         assertEquals( ContentPath.ROOT, captor.getValue().getParentPath() );
 
-        // media API bases resolve at the project level in XP; unresolved bases keep URLs
-        // request-based
-        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.times( 2 ) ).baseUrl( any() );
+        Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.never() ).baseUrl( any() );
+    }
+
+    @Test
+    public void testSitePlaceholderWithoutSiteKeyResolvesAgainstProject()
+    {
+        when( contentService.findIdsByParent( any( FindContentByParentParams.class ) ) ).thenReturn(
+            FindContentIdsByParentResult.create().totalHits( 0 ).contentIds( ContentIds.empty() ).build() );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( Contents.empty() );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response = executeQuery( graphQLSchema, "query { guillotine { " +
+            "blogs: getChildren(key: \"${site}/blogs\") { _id } root: getChildren(key: \"${site}\") { _id } } }" );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        ArgumentCaptor<FindContentByParentParams> captor = ArgumentCaptor.forClass( FindContentByParentParams.class );
+        Mockito.verify( contentService, Mockito.times( 2 ) ).findIdsByParent( captor.capture() );
+        assertEquals( List.of( ContentPath.from( "/blogs" ), ContentPath.ROOT ),
+                      captor.getAllValues().stream().map( FindContentByParentParams::getParentPath ).toList() );
     }
 
     @Override

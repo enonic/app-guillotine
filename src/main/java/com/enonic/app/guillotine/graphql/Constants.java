@@ -12,10 +12,6 @@ public interface Constants
 
     String SITE_ARG = "siteKey";
 
-    String IMAGE_BASE_URL = "__imageBaseUrl";
-
-    String ATTACHMENT_BASE_URL = "__attachmentBaseUrl";
-
     List<String> SUPPORTED_AGGREGATIONS =
         List.of( "terms", "stats", "range", "dateRange", "dateHistogram", "geoDistance", "min", "max", "count" );
 

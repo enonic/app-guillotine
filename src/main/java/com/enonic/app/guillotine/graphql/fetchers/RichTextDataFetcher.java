@@ -11,17 +11,16 @@ import graphql.schema.DataFetchingEnvironment;
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
-import com.enonic.app.guillotine.macro.CustomHtmlPostProcessor;
 import com.enonic.app.guillotine.macro.HtmlEditorProcessedResult;
 import com.enonic.app.guillotine.macro.MacroDecorator;
 import com.enonic.app.guillotine.macro.MacroEditorJsonSerializer;
 import com.enonic.app.guillotine.macro.MacroEditorSerializer;
+import com.enonic.app.guillotine.macro.RichTextProjections;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.app.guillotine.mapper.HtmlEditorResultMapper;
 import com.enonic.xp.macro.MacroDescriptor;
-import com.enonic.xp.portal.html.HtmlDocument;
-import com.enonic.xp.portal.html.HtmlElement;
-import com.enonic.xp.portal.url.ProcessHtmlParams;
+import com.enonic.xp.portal.url.ProcessHtmlPartsParams;
+import com.enonic.xp.portal.url.ProcessedHtml;
 
 public class RichTextDataFetcher
     implements DataFetcher<Object>
@@ -55,27 +54,20 @@ public class RichTextDataFetcher
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
     {
-        ProcessHtmlParams htmlParams = createProcessHtmlParams( environment );
+        final ProcessHtmlPartsParams.Builder htmlParams = createProcessHtmlParams( environment );
 
-        List<Map<String, Object>> links = new ArrayList<>();
-        List<Map<String, Object>> images = new ArrayList<>();
         List<MacroDecorator> processedMacros = new ArrayList<>();
 
         Map<String, MacroDescriptor> registeredMacros = guillotineContext.getMacroDecorators();
 
+        // macros are serialized for the editor below
         htmlParams.processMacros( false );
-        htmlParams.customStyleDescriptorsCallback( () -> serviceFacade.getStyleDescriptorService().getAll() );
-        htmlParams.customHtmlProcessor( processor -> {
-            HtmlDocument htmlDocument = processor.getDocument();
 
-            processor.processDefault( new CustomHtmlPostProcessor( links, images ) );
+        final ProcessedHtml result = serviceFacade.getPortalUrlService().processHtmlParts( htmlParams.build() );
+        final List<Map<String, Object>> links = result.links().stream().map( RichTextProjections::link ).toList();
+        final List<Map<String, Object>> images = result.images().stream().map( RichTextProjections::image ).toList();
 
-            htmlDocument.select( "figcaption:empty" ).forEach( HtmlElement::remove );
-            return htmlDocument.getInnerHtml();
-        } );
-
-        String processedHtml =
-            serviceFacade.getMacroService().evaluateMacros( serviceFacade.getPortalUrlService().processHtml( htmlParams ), macro -> {
+        String processedHtml = serviceFacade.getMacroService().evaluateMacros( result.html(), macro -> {
                 if ( !registeredMacros.containsKey( macro.getName() ) )
                 {
                     return macro.toString();
@@ -102,14 +94,13 @@ public class RichTextDataFetcher
         return generator.getRoot();
     }
 
-    private ProcessHtmlParams createProcessHtmlParams( DataFetchingEnvironment environment )
+    @SuppressWarnings("unchecked")
+    private ProcessHtmlPartsParams.Builder createProcessHtmlParams( DataFetchingEnvironment environment )
     {
         Map<String, Object> processHtmlParams = environment.getArgument( "processHtml" );
 
-        final ProcessHtmlParams htmlParams = new ProcessHtmlParams().value( htmlText )
-            .imageBaseUrl( GuillotineLocalContextHelper.getImageBaseUrl( environment ) )
-            .attachmentBaseUrl( GuillotineLocalContextHelper.getAttachmentBaseUrl( environment ) )
-            .pageBase( GuillotineLocalContextHelper.getSiteBase( environment ) );
+        final ProcessHtmlPartsParams.Builder htmlParams =
+            ProcessHtmlPartsParams.create().value( htmlText ).base( GuillotineLocalContextHelper.getPageBase( environment ) );
 
         if ( processHtmlParams != null )
         {

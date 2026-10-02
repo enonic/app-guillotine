@@ -71,7 +71,7 @@ This example assumes a document media item. The `download` argument adds the dow
 
 == Page URLs
 
-Select `pageUrl.path` and `pageUrl.queryString` to build a content item's page link. Use `siteKey` to request paths relative to a specific site:
+Select `pageUrl.path` and `pageUrl.queryString` to build a content item's page link. `siteKey` names the site the path is relative to; without it, the path is relative to the project:
 
 [source,graphql]
 ----
@@ -87,31 +87,33 @@ Select `pageUrl.path` and `pageUrl.queryString` to build a content item's page l
 }
 ----
 
-The returned `path` is `/posts/first-post`. Adapt it to your frontend's routes: a frontend serving the site at `/news` could use `/news/posts/first-post`, while one on a dedicated host could use `https://www.example.com/posts/first-post`. Append `queryString` to preserve any parameters.
+The returned `path` is `/posts/first-post`. Select `baseUrl` as well to receive the Base URL configured for `/my-site`, or `null` when it has none. Adapt the path to your frontend's routes: a frontend serving the site at `/news` could use `/news/posts/first-post`, while one on a dedicated host could use `https://www.example.com/posts/first-post`. Append `queryString` to preserve any parameters.
 
 [#base-urls]
 == Base URLs
 
 === Page links
 
-Your frontend controls the public host and routing for page links. Use `siteKey` to select the site or project that `pageUrl.path` is relative to, then map that path to your deployment.
+Your frontend controls the public host and routing for page links. Use `siteKey` to select the site or project that `pageUrl.path` is relative to, then map that path to your deployment. Without `siteKey`, the project is selected.
 
 For nested sites, the selected level determines the path. Given a post at `/my-site/subsite/posts/first-post`:
 
-[%header,cols="1,2"]
+[%header,cols="1,2,2"]
 |===
-|siteKey |Page URL path
-|/my-site |/subsite/posts/first-post
-|/my-site/subsite |/posts/first-post
-|/ |/my-site/subsite/posts/first-post
+|siteKey |Page URL path of the post |Page URL path of `/my-site/subsite`
+|/my-site |/subsite/posts/first-post |/subsite
+|/my-site/subsite |/posts/first-post |_(empty)_
+|/ |/my-site/subsite/posts/first-post |/my-site/subsite
+|_(none)_ |/my-site/subsite/posts/first-post |/my-site/subsite
 |===
 
-`siteKey: "/"` selects the project itself. Selecting the parent site retains the nested site's path segment; selecting the nested site removes it.
+The path of the selected site itself is empty, so `baseUrl + path` is the Base URL as configured: `https://example.com/news` stays `https://example.com/news`, without a trailing slash. When your frontend needs a path of its own for the site root, use `/` for an empty `path`.
 
-Without `siteKey`, the context depends on the endpoint:
+`siteKey: "/"`, like no `siteKey`, selects the project itself. Selecting the parent site retains the nested site's path segment; selecting the nested site removes it.
 
-* At the Web endpoint under `/api`, each content item's nearest site determines the relative page path.
-* At a site endpoint, the matched virtual host mapping determines which level of the content tree the address represents. Without a mapping narrowing that context, it is the project.
+`pageUrl.baseUrl` is the Base URL configured for the selected level. A nested site's Base URL does not apply when its parent is selected, and a parent's is never inherited by the nested site.
+
+Without `siteKey`, page URLs belong to the project. A content outside the selected site, such as the parent site when the nested one is selected, has no page URL there, and `pageUrl` reports an error.
 
 When following references across sites, choose the appropriate site context and frontend route for each target.
 
@@ -121,12 +123,21 @@ XP serves images and attachments at `/api/media:image/...` and `/api/media:attac
 
 Configure a media base URL in your client and prefix it to the returned media paths. Use the shared API base, or a separate CDN base such as `https://cdn.example.com/api`. The CDN must route those paths to the corresponding XP media endpoints. If images and attachments use different hosts, configure a base for each.
 
-XP also embeds links in <<rich-text#, processed rich text>>. Those links follow XP's site and media configuration; see <<../configuration#media-base-url, Media base URL>>. Client-side URL assembly uses the base you supply.
+The media base URL is yours to supply. See <<../configuration#media-base-url, Media base URL>>.
+
+In <<rich-text#, processed rich text>>, links and images are placeholders, which your client rewrites from the structured `links` and `images` data.
+
+[#media-cdn]
+=== Serving media from a CDN host
+
+A CDN host can serve the media API paths without their leading segments, such as `https://cdn.example.com/myproject/d1:5ab2…/price-list.pdf` without `/media:attachment`, or `https://media.myproject.com/d1:5ab2…/price-list.pdf` without the context as well. Set up such a host with an XP https://developer.enonic.com/docs/platform/xp8/config/vhosts[virtual host mapping], and build its links from the segments of the URL components; see <<#url-segments, Building URLs from segments>>.
 
 [#url-parts]
 == Building URLs from parts
 
 The `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields expose `path` and `queryString`. These components are already URL-escaped, so do not encode them again. For a deployment that preserves the returned paths, assemble links as `baseUrl + path + queryString`.
+
+`pageUrl.baseUrl` gives the Base URL configured for the selected site, or for the project without `siteKey`, which you can use as that base. It is `null` when none is configured, so check it before concatenating: in JavaScript, `null + path` produces the string `"null/..."` without an error.
 
 Choose a base without a trailing slash. A media path already includes `/media:image` or `/media:attachment`, so use the API or CDN base that serves those paths. For pages, supply your frontend's host or route prefix, or adapt the path to your routing scheme. The query string includes its leading `?` when non-empty.
 
@@ -135,9 +146,9 @@ Choose a base without a trailing slash. A media path already includes `/media:im
 const mediaBaseUrl = 'https://example.com/api';
 const imageSrc = mediaBaseUrl + image.imageUrl.path + image.imageUrl.queryString;
 
-// This frontend serves the selected site's pages under /news.
-const pageBasePath = '/news';
-const pageHref = pageBasePath + content.pageUrl.path + content.pageUrl.queryString;
+// The site's configured Base URL when it has one; this frontend serves the site's pages under /news otherwise.
+const pageBase = content.pageUrl.baseUrl ?? '/news';
+const pageHref = pageBase + content.pageUrl.path + content.pageUrl.queryString;
 ----
 
 [source,graphql]
@@ -158,5 +169,39 @@ const pageHref = pageBasePath + content.pageUrl.path + content.pageUrl.queryStri
 ----
 
 For example, `path` can be `/media:image/myproject/contentid:fingerprint/block-800-200/photo.jpg`. On a non-master branch, the context segment includes the branch, such as `myproject:draft`.
+
+[#url-segments]
+=== Building URLs from segments
+
+`imageUrl`, `mediaUrl` and `attachmentUrl` also expose the segments `path` is made of: `/media:image/<context>/<id>:<fingerprint>/<scale>/<name>` for images, `/media:attachment/<context>/<id>:<fingerprint>/<name>` for attachments. Use them when a <<#media-cdn, CDN host>> hides leading segments:
+
+[source,graphql]
+----
+mediaUrl(download: true) {
+  queryString
+  context
+  id
+  fingerprint
+  name
+}
+----
+
+[source,javascript]
+----
+const u = content.mediaUrl;  // or link.media.mediaUrl in rich text
+const i = content.imageUrl;  // or image.src in rich text
+
+// <id>:<fingerprint>, or the id alone when there is no fingerprint
+const idHash = (u) => u.fingerprint ? `${u.id}:${u.fingerprint}` : u.id;
+
+// the API segment hidden by the CDN host
+const href = `https://cdn.example.com/${u.context}/${idHash(u)}/${u.name}${u.queryString}`;
+// the context segment hidden too
+const href2 = `https://media.myproject.com/${idHash(u)}/${u.name}${u.queryString}`;
+// images carry the scale segment before the name
+const src = `https://img.example.com/${i.context}/${idHash(i)}/${i.scale}/${i.name}${i.queryString}`;
+----
+
+The segments are URL-escaped as they appear in `path`.
 
 Use the returned media fingerprint; it cannot be calculated by the client. See <<../api#pageurl, PageUrl>>, <<../api#imageurl, ImageUrl>> and <<../api#attachmenturl, AttachmentUrl>> for the available components.

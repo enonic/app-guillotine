@@ -99,16 +99,14 @@ public class GuillotineLocalContextHelper
         return builder.build();
     }
 
-    public static String getImageBaseUrl( final DataFetchingEnvironment environment )
+    /**
+     * @return the level page URLs and processed HTML belong to: the site or project named by siteKey, or the project
+     * when no siteKey is in use. URLs are then resolved from configuration alone
+     */
+    public static BaseUrlParams getPageBase( final DataFetchingEnvironment environment )
     {
-        // resolved by XP when siteKey is in use: where the image API is served for the site
-        return getContextProperty( environment, Constants.IMAGE_BASE_URL );
-    }
-
-    public static String getAttachmentBaseUrl( final DataFetchingEnvironment environment )
-    {
-        // resolved by XP when siteKey is in use: where the attachment API is served for the site
-        return getContextProperty( environment, Constants.ATTACHMENT_BASE_URL );
+        final BaseUrlParams siteBase = getSiteBase( environment );
+        return siteBase != null ? siteBase : BaseUrlParams.create().setPath( "/" ).build();
     }
 
     public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )

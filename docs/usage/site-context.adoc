@@ -40,13 +40,15 @@ Use `${site}` in a content key to insert the selected site's path. This lets a q
 }
 ----
 
+Without `siteKey`, or with `siteKey: "/"`, the project is the root and `${site}` is empty: `${site}/persons` becomes `/persons`, and `${site}` alone becomes `/`.
+
 The placeholder can be used in the `key` argument of `get`, `getChildren`, `getChildrenConnection` and `getPermissions`. See <<../api#headlesscms, HeadlessCms>> for the field signatures.
 
 NOTE: `${site}` is a Guillotine placeholder inside a GraphQL string. When writing the query in a JavaScript template literal, escape it as `\${site}` so JavaScript sends the placeholder unchanged.
 
 == Site-relative paths
 
-Select `pageUrl.path` to retrieve a URL-escaped path relative to the selected site:
+Select `pageUrl.path` to retrieve a URL-escaped path relative to the selected site, or to the project without `siteKey`:
 
 [source,graphql]
 ----
@@ -66,6 +68,6 @@ The content's `+_path+` field contains its path within the project. Use `pageUrl
 
 == Project root and URL context
 
-`siteKey: "/"` selects the project root as the context for paths and URLs. The project root is not a site content item, so `getSite` returns `null` in that context.
+Without `siteKey`, the project root is the context for paths and URLs, as with `siteKey: "/"`: `${site}` is empty, page URLs carry the full content path, and `pageUrl.baseUrl` is the Base URL configured for the project. The project root is not a site content item, so `getSite` returns `null` in both cases, and `env.localContext.siteKey` is only present when `siteKey` is given.
 
 Selecting a site does not restrict every query to its descendants: `queryDsl` still searches the project, and an absolute content path can point outside the selected site. When building links across sites, choose the appropriate site context and frontend route for each target. See <<images-and-urls#base-urls, Base URLs>> for nested sites and path context.

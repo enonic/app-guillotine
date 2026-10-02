@@ -16,7 +16,6 @@ import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentUrlByNameDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetLinkPageUrlDataFetcher;
-import com.enonic.app.guillotine.graphql.fetchers.GetLinkMediaUrlDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetFieldAsJsonDataFetcher;
 
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newArgument;
@@ -48,6 +47,7 @@ public class GenericTypesFactory
         createIconType();
         createContentTypeType();
         createImageStyleType();
+        createImageSourceType();
         createImageType();
         createMediaType();
         createLinkType();
@@ -197,6 +197,18 @@ public class GenericTypesFactory
         context.registerType( outputObject.getName(), outputObject );
     }
 
+    private void createImageSourceType()
+    {
+        List<GraphQLFieldDefinition> fields = new ArrayList<>();
+
+        fields.add( outputField( "width", Scalars.GraphQLInt ) );
+        fields.add( outputField( "imageUrl", GraphQLTypeReference.typeRef( "ImageUrl" ) ) );
+
+        GraphQLObjectType outputObject =
+            newObject( context.uniqueName( "ImageSource" ), "A srcset candidate of a rich text image: its width and image URL components.", fields );
+        context.registerType( outputObject.getName(), outputObject );
+    }
+
     private void createImageType()
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
@@ -204,6 +216,8 @@ public class GenericTypesFactory
         fields.add( outputField( "image", GraphQLTypeReference.typeRef( "Content" ) ) );
         fields.add( outputField( "ref", Scalars.GraphQLString ) );
         fields.add( outputField( "style", GraphQLTypeReference.typeRef( "ImageStyle" ) ) );
+        fields.add( outputField( "src", GraphQLTypeReference.typeRef( "ImageUrl" ) ) );
+        fields.add( outputField( "srcset", new GraphQLList( GraphQLTypeReference.typeRef( "ImageSource" ) ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "Image" ), "Image type.", fields );
         context.registerType( outputObject.getName(), outputObject );
@@ -236,9 +250,7 @@ public class GenericTypesFactory
             return null;
         } );
 
-        context.registerDataFetcher( outputObject.getName(), "mediaUrl",
-                                     new GetLinkMediaUrlDataFetcher( serviceFacade.getPortalUrlGeneratorService(),
-                                                                     serviceFacade.getContentService() ) );
+        context.registerDataFetcher( outputObject.getName(), "mediaUrl", new GetFieldAsJsonDataFetcher( "mediaUrl" ) );
     }
 
     private void createLinkType()
@@ -257,7 +269,7 @@ public class GenericTypesFactory
         context.registerDataFetcher( outputObject.getName(), "ref", new GetFieldAsJsonDataFetcher( "linkRef" ) );
 
         context.registerDataFetcher( outputObject.getName(), "pageUrl",
-                                     new GetLinkPageUrlDataFetcher( serviceFacade.getPortalUrlService() ) );
+                                     new GetLinkPageUrlDataFetcher() );
 
         context.registerDataFetcher( outputObject.getName(), "content", environment -> {
             Map<String, Object> sourceAsMap = environment.getSource();
@@ -273,12 +285,12 @@ public class GenericTypesFactory
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
-        fields.add( outputField( "url", Scalars.GraphQLString ) );
+        fields.add( outputField( "baseUrl", Scalars.GraphQLString ) );
         fields.add( outputField( "path", Scalars.GraphQLString ) );
         fields.add( outputField( "queryString", Scalars.GraphQLString ) );
 
         GraphQLObjectType outputObject =
-            newObject( context.uniqueName( "PageUrl" ), "Page URL and its components: url = baseUrl + path + queryString.", fields );
+            newObject( context.uniqueName( "PageUrl" ), "Components of a page URL: url = baseUrl + path + queryString.", fields );
         context.registerType( outputObject.getName(), outputObject );
     }
 
@@ -286,7 +298,6 @@ public class GenericTypesFactory
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
-        fields.add( outputField( "url", Scalars.GraphQLString ) );
         fields.add( outputField( "path", Scalars.GraphQLString ) );
         fields.add( outputField( "queryString", Scalars.GraphQLString ) );
         fields.add( outputField( "context", Scalars.GraphQLString ) );
@@ -296,7 +307,7 @@ public class GenericTypesFactory
         fields.add( outputField( "name", Scalars.GraphQLString ) );
 
         GraphQLObjectType outputObject =
-            newObject( context.uniqueName( "ImageUrl" ), "Image URL and its components: url = baseUrl + path + queryString.", fields );
+            newObject( context.uniqueName( "ImageUrl" ), "Components of an image URL: url = mediaBaseUrl + path + queryString, with the media base supplied by the client.", fields );
         context.registerType( outputObject.getName(), outputObject );
     }
 
@@ -304,7 +315,6 @@ public class GenericTypesFactory
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
-        fields.add( outputField( "url", Scalars.GraphQLString ) );
         fields.add( outputField( "path", Scalars.GraphQLString ) );
         fields.add( outputField( "queryString", Scalars.GraphQLString ) );
         fields.add( outputField( "context", Scalars.GraphQLString ) );
@@ -314,7 +324,7 @@ public class GenericTypesFactory
         fields.add( outputField( "intent", GraphQLTypeReference.typeRef( "MediaIntentType" ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "AttachmentUrl" ),
-                                                    "Attachment URL and its components: url = baseUrl + path + queryString.", fields );
+                                                    "Components of an attachment URL: url = mediaBaseUrl + path + queryString, with the media base supplied by the client.", fields );
         context.registerType( outputObject.getName(), outputObject );
     }
 

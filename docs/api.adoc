@@ -216,7 +216,7 @@ a|Flattened list of page components
 |Publication information
 
 |pageUrl(params: JSON): <<PageUrl>>
-|Page link components. Use `siteKey` to select the site or project that the path is relative to; see <<PageUrl>> and <<usage/images-and-urls#base-urls, Base URLs>>
+|Page link components for the site or project selected with `siteKey`, or for the project without it; see <<PageUrl>> and <<usage/images-and-urls#base-urls, Base URLs>>
 
 |site: portal_Site
 |Link to the nearest site
@@ -284,7 +284,7 @@ In addition to the fields of the <<Content>> interface, all `media:*` content ty
 |URL to the underlying media attachment, along with its components. Set `download` to `true` to force download instead of inline rendering.
 
 |imageUrl (scale: String!, quality: Int, background: String, format: String, filter: String, params: JSON): <<ImageUrl>>
-a|URL to a processed version of the image, scaled and cropped by the server at request time, along with its components.
+a|URL to a processed version of the image, scaled and cropped by the server at request time, along with its components. An image the image API serves as stored has a single URL, with the `full` scale and none of the processing arguments.
 
 * `scale` (required) - scaling function to apply: `block(width,height)`, `height(height)`, `max(size)`, `square(size)`, `wide(width,height)`, `width(width)` or `full`
 * `quality` - compression quality of JPEG images, from 0 to 100. Default is 85
@@ -409,7 +409,7 @@ Represents result of HtmlArea processing.
 |HtmlArea raw value
 
 |processedHtml: String
-|HtmlArea with processed value that contains replaced internal links to resources, content and translated macros. For macros without descriptors processing will be skipped
+|HtmlArea with processed value that contains replaced internal links to resources, content and translated macros. Link and image targets are placeholders, rewritten by the client from `links` and `images`. For macros without descriptors processing will be skipped
 
 |macrosAsJson: JSON
 |Represents macro details in JSON format
@@ -499,7 +499,28 @@ Represents details for image found and processed in the <<RichText>> type.
 |Reference to image in the processedHtml field
 
 |style: <<ImageStyle>>
-|Related styles to image
+|Style of the image, from the applications configured on the site selected with `siteKey`, or on the project without it
+
+|src: <<ImageUrl>>
+|The URL for the `src` attribute: a single image URL, 768 pixels wide or cropped to the style's aspect ratio, or with the `full` scale for an image the image API serves as stored
+
+|srcset: [<<ImageSource>>]
+|The URLs for the `srcset` attribute: a list with an entry, holding a width and an image URL, for each `processHtml.imageWidths` width; empty without them, and for an image the image API serves as stored
+
+|===
+
+=== ImageSource
+
+A `srcset` candidate of a rich text <<Image>>.
+
+|===
+|Name (Arguments): Type | Description
+
+|width: Int
+|Width in pixels, as the `w` descriptor of the candidate
+
+|imageUrl: <<ImageUrl>>
+|Components of the URL of the image scaled to the width
 
 |===
 
@@ -528,7 +549,7 @@ Represents details for image found and processed in the <<RichText>> type.
 |Link intent.
 
 |mediaUrl: <<AttachmentUrl>>
-|Media URL and its components, honoring the link intent (`?download` for download links)
+|Components of the attachment URL, honoring the link intent (`?download` for download links)
 
 |content: <<Content>>
 |Related content
@@ -554,22 +575,24 @@ Represents details for image found and processed in the <<RichText>> type.
 |Related content. This field has `null` value for media content
 
 |pageUrl: <<PageUrl>>
-|Link target page URL and its components. This field has `null` value for media links
+|Components of the page URL, with the query string the link carries, relative to the site selected with `siteKey`, or to the project without it. This field has `null` value for media links
 
 |===
 
 === PageUrl
 
-Page link components. Adapt `path` to your frontend's routing and append `queryString`. If your deployment preserves the path, use `frontendBaseUrl + path + queryString`.
+Page link components, resolved from configuration for the site or project selected with `siteKey`, or for the project without it. A content outside the selected site has no page URL there, since the site's Base URL does not lead to it, and the field reports an error.
+
+Build the address in the client as `baseUrl + path + queryString`, supplying your frontend's own base when `baseUrl` is `null` or when your deployment routes pages differently.
 
 |===
 |Name (Arguments): Type | Description
 
-|url: String
-|Complete page URL as resolved by XP: `baseUrl + path + queryString`. The base is the configured Base URL of the site selected with `siteKey`, or of the content's own site without a selection. A site without a configured Base URL falls back to the site engine address
+|baseUrl: String
+|The Base URL configured for the selected site or project, without a trailing slash. `null` when none is configured. Configuration is never inherited from a parent site
 
 |path: String
-|URL-escaped path of the content relative to the site - or project - the URL belongs to, with a leading slash. Empty when the content is that site itself
+|URL-escaped path of the content relative to the site - or project - the URL belongs to, with a leading slash. Empty for that site itself, so that `baseUrl + path` is the Base URL, without a trailing slash
 
 |queryString: String
 |URL-escaped query string, prefixed with `?`. Empty when there are no parameters
@@ -578,13 +601,10 @@ Page link components. Adapt `path` to your frontend's routing and append `queryS
 
 === ImageUrl
 
-Image link components. Build the address as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped. Select `url` to let XP assemble the address instead.
+Image link components. Build the address in the client as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped.
 
 |===
 |Name (Arguments): Type | Description
-
-|url: String
-|Complete image URL as resolved by XP: `baseUrl + path + queryString`. With `siteKey`, the base is where XP serves the image API for that site, taking API mounts and configuration into account. Without a selection, the URL is relative to the current request
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<fingerprint>/<scale>/<name>`
@@ -611,13 +631,10 @@ Image link components. Build the address as `mediaBaseUrl + path + queryString`,
 
 === AttachmentUrl
 
-Attachment link components. Build the address as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped. Select `url` to let XP assemble the address instead.
+Attachment link components. Build the address in the client as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped.
 
 |===
 |Name (Arguments): Type | Description
-
-|url: String
-|Complete attachment URL as resolved by XP: `baseUrl + path + queryString`. With `siteKey`, the base is where XP serves the attachment API for that site, taking API mounts and configuration into account. Without a selection, the URL is relative to the current request
 
 |path: String
 |The full media API path with a leading slash, ready to append to a base URL: `/media:attachment/<context>/<id>:<fingerprint>/<name>`

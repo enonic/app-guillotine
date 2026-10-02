@@ -17,7 +17,11 @@ import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.inputtype.InputTypeName;
-import com.enonic.xp.portal.url.ProcessHtmlParams;
+import com.enonic.xp.portal.url.AttachmentUrlParts;
+import com.enonic.xp.portal.url.ImageUrlParts;
+import com.enonic.xp.portal.url.PageUrlParts;
+import com.enonic.xp.portal.url.ProcessHtmlPartsParams;
+import com.enonic.xp.portal.url.ProcessedHtml;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.security.PrincipalKey;
@@ -41,7 +45,8 @@ public class RichTextGraphQLIntegrationTest
     @Test
     public void testRichTextField()
     {
-        when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
+        when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
+            new ProcessedHtml( "processedHtml", null, List.of(), List.of() ) );
 
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
 
@@ -66,7 +71,8 @@ public class RichTextGraphQLIntegrationTest
     @Test
     public void testContentLinksBelongToSiteKey()
     {
-        when( serviceFacade.getPortalUrlService().processHtml( any( ProcessHtmlParams.class ) ) ).thenReturn( "processedHtml" );
+        when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
+            new ProcessedHtml( "processedHtml", null, List.of(), List.of() ) );
 
         when( contentService.contentExists( ContentPath.from( "/mysite" ) ) ).thenReturn( true );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
@@ -81,12 +87,94 @@ public class RichTextGraphQLIntegrationTest
 
         // content links carry the site key as their selection: XP resolves the base URL of that
         // site and makes the path of each link relative to it
-        ArgumentCaptor<ProcessHtmlParams> captor = ArgumentCaptor.forClass( ProcessHtmlParams.class );
-        verify( serviceFacade.getPortalUrlService() ).processHtml( captor.capture() );
-        assertEquals( "/mysite", captor.getValue().getPageBase().getPath() );
+        ArgumentCaptor<ProcessHtmlPartsParams> captor = ArgumentCaptor.forClass( ProcessHtmlPartsParams.class );
+        verify( serviceFacade.getPortalUrlService() ).processHtmlParts( captor.capture() );
+        assertEquals( "/mysite", captor.getValue().getBase().getPath() );
     }
 
+    @Test
+    public void testLinksBelongToProjectWithoutSiteKey()
+    {
+        when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
+            new ProcessedHtml( "processedHtml", null, List.of(), List.of() ) );
 
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response = executeQuery( graphQLSchema, "query { guillotine { get(key: \"contentid\") { " +
+            "...on myapplication_News { data { text { processedHtml } } } } } }" );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        ArgumentCaptor<ProcessHtmlPartsParams> captor = ArgumentCaptor.forClass( ProcessHtmlPartsParams.class );
+        verify( serviceFacade.getPortalUrlService() ).processHtmlParts( captor.capture() );
+        assertEquals( "/", captor.getValue().getBase().getPath() );
+        assertNull( captor.getValue().getCustomStyleDescriptorsCallback() );
+
+        assertNull( captor.getValue().getCustomHtmlProcessor() );
+        assertFalse( captor.getValue().isProcessMacros() );
+    }
+
+    @Test
+    public void testLinksAndImagesComeFromProcessedHtml()
+    {
+        final ProcessedHtml processed = new ProcessedHtml(
+            "<a href=\"/posts/first?a=1\" data-link-ref=\"link-1\">Post</a><a href=\"/media:attachment/p:b/f:h/doc.pdf?download\" " +
+                "data-link-ref=\"link-2\">Doc</a><img src=\"/media:image/p:b/i:h/width-768/a.jpg\" data-image-ref=\"image-1\">",
+            "https://site.example.com", List.of(
+            new ProcessedHtml.ContentLink( "link-1", "content://first", "first", new PageUrlParts( "https://site.example.com", "/posts/first", "?a=1" ),
+                                           "top" ),
+            new ProcessedHtml.AttachmentLink( "link-2", "media://download/doc", "doc",
+                                              new AttachmentUrlParts( "/media:attachment/p:b/f:h/doc.pdf", "?download", "p:b", "f", "h",
+                                                                      "doc.pdf" ), true ) ), List.of(
+            new ProcessedHtml.Image( "image-1", "image", null,
+                                     new ImageUrlParts( "/media:image/p:b/i:h/width-768/a.jpg", "", "p:b", "i", "h", "width-768", "a.jpg" ),
+                                     List.of( new ProcessedHtml.Source( 400, new ImageUrlParts( "/media:image/p:b/i:h/width-400/a.jpg", "",
+                                                                                               "p:b", "i", "h", "width-400",
+                                                                                               "a.jpg" ) ) ) ) ) );
+
+        when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn( processed );
+
+        when( contentService.contentExists( ContentPath.from( "/mysite" ) ) ).thenReturn( true );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response = executeQuery( graphQLSchema,
+                                                     "query { guillotine(siteKey: \"/mysite\") { get(key: \"contentid\") { " +
+                                                         "...on myapplication_News { data { text { processedHtml " +
+                                                         "links { ref uri pageUrl { baseUrl path queryString } media { intent mediaUrl { path queryString } } } " +
+                                                         "images { ref src { path queryString } srcset { width imageUrl { path } } } } } } } } }" );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        Map<String, Object> getField = CastHelper.cast( getFieldFromGuillotine( response, "get" ) );
+        Map<String, Object> textField = CastHelper.cast( CastHelper.<Map<String, Object>>cast( getField.get( "data" ) ).get( "text" ) );
+
+        List<Map<String, Object>> links = CastHelper.cast( textField.get( "links" ) );
+        assertEquals( "link-1", links.get( 0 ).get( "ref" ) );
+        assertEquals( "content://first", links.get( 0 ).get( "uri" ) );
+        assertEquals( Map.of( "baseUrl", "https://site.example.com", "path", "/posts/first", "queryString", "?a=1" ),
+                      links.get( 0 ).get( "pageUrl" ) );
+        assertNull( links.get( 0 ).get( "media" ) );
+
+        assertEquals( "link-2", links.get( 1 ).get( "ref" ) );
+        assertNull( links.get( 1 ).get( "pageUrl" ) );
+        Map<String, Object> media = CastHelper.cast( links.get( 1 ).get( "media" ) );
+        assertEquals( "download", media.get( "intent" ) );
+        assertEquals( Map.of( "path", "/media:attachment/p:b/f:h/doc.pdf", "queryString", "?download" ), media.get( "mediaUrl" ) );
+
+        List<Map<String, Object>> images = CastHelper.cast( textField.get( "images" ) );
+        assertEquals( "image-1", images.get( 0 ).get( "ref" ) );
+        assertEquals( Map.of( "path", "/media:image/p:b/i:h/width-768/a.jpg", "queryString", "" ), images.get( 0 ).get( "src" ) );
+        assertEquals( List.of( Map.of( "width", 400, "imageUrl", Map.of( "path", "/media:image/p:b/i:h/width-400/a.jpg" ) ) ),
+                      images.get( 0 ).get( "srcset" ) );
+
+        ArgumentCaptor<ProcessHtmlPartsParams> captor = ArgumentCaptor.forClass( ProcessHtmlPartsParams.class );
+        verify( serviceFacade.getPortalUrlService() ).processHtmlParts( captor.capture() );
+        assertNull( captor.getValue().getCustomStyleDescriptorsCallback() );
+    }
 
     @Test
     public void testEmptyRichTextField()
