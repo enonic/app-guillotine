@@ -48,7 +48,7 @@ NOTE: `${site}` is a Guillotine placeholder inside a GraphQL string. When writin
 
 == Site-relative paths
 
-Select `pageUrl.path` to retrieve a URL-escaped path relative to the selected site, or to the project without `siteKey`:
+Select `pageUrl.path` to retrieve the path relative to the selected site, or to the project without `siteKey`:
 
 [source,graphql]
 ----

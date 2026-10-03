@@ -37,7 +37,7 @@ Retrieve blog posts with an author reference, tags and an HtmlArea field named `
 }
 ----
 
-`processedHtml` contains HTML with placeholders for internal links, images and macros. The structured fields described below hold what your client needs to render them.
+`processedHtml` is the HtmlArea value processed by XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts[`processHtmlParts`], for the site selected with `siteKey`, or for the project without it. It contains HTML with placeholders for internal links, images and macros. The structured fields described below hold what your client needs to render them; XP's reference describes how each is resolved.
 
 Browsers cannot follow the link and image placeholders as they are. Render each one by rewriting the element that carries a `data-link-ref` or `data-image-ref` attribute from its entry in `links` or `images`.
 
@@ -45,11 +45,9 @@ Browsers cannot follow the link and image placeholders as they are. Render each 
 
 Each internal link receives a `data-link-ref` attribute naming its entry in the `links` field, and an `href` placeholder.
 
-Links are resolved for the site selected with `siteKey`, or for the project without it. Without `siteKey`, a page link's `pageUrl.path` is the full content path, such as `/my-site/posts/first-post`, and `pageUrl.baseUrl` is the project's Base URL.
+Build the `href` from the link's entry. For a page link, use `pageUrl`: `baseUrl`, or your frontend's own base when it is `null`, followed by `path` and `queryString`, or adapt `path` to your frontend's routes. Append `#` and `fragment` when the link carries one. See <<images-and-urls#base-urls, Base URLs>>. For a media link, put your media base in front of `media.mediaUrl.path` and `media.mediaUrl.queryString`.
 
-Build the `href` from the link's entry. For a page link, use `pageUrl`: `baseUrl` is the Base URL configured for the selected site, or for the project without `siteKey`, `null` when there is none, followed by `path` and `queryString`, or adapt `path` to your frontend's routes. Append `#` and `fragment` when the link carries one. Sites do not inherit a Base URL from their parent; see <<images-and-urls#base-urls, Base URLs>>. For a media link, put your media base in front of `media.mediaUrl.path` and `media.mediaUrl.queryString`.
-
-A link that does not resolve, such as one to a content that is missing, receives its `data-link-ref` too, and has an entry with a `null` `pageUrl`, or a `null` `media.mediaUrl` for a media link. Decide how to render it, for instance as its text alone.
+A link that does not resolve, such as one to a content that is missing, has an entry with a `null` `pageUrl`, or a `null` `media.mediaUrl` for a media link. Decide how to render it, for instance as its text alone.
 
 For instance, the processed value of a link looks like this:
 
@@ -108,10 +106,10 @@ query {
 ----
 <1> Reference to link in the `processedHtml` field
 <2> Link URI
-<3> Related media content and the components of the attachment URL, including its segments; see <<images-and-urls#url-segments, Building URLs from segments>>. This field has `null` value for non-media content
+<3> Related media content and the components of the attachment URL; see <<images-and-urls#url-segments, Building URLs from segments>>. This field has `null` value for non-media content
 <4> Link intent. Available values `download` and `inline`
 <5> Related content. This field has `null` value for media content
-<6> Components of the page URL, with the query string the link carries, relative to the site selected with `siteKey`, or to the project without it. `baseUrl` is the Base URL configured there, or `null`. This field has `null` value for media links
+<6> Components of the page URL, with the query string the link carries. This field has `null` value for media links
 <7> The fragment the link carries, without `#`, or `null`
 
 The client rewrites the `href` of a page link from its entry:
@@ -131,16 +129,11 @@ if (link.pageUrl) {
 
 Each internal image receives a `data-image-ref` attribute naming its entry in the `images` field, and `src` and `srcset` placeholders.
 
-An image that does not resolve, such as a missing one, receives its `data-image-ref` too, and has an entry with a `null` `src` and an empty `srcset`.
+An image that does not resolve, such as a missing one, has an entry with a `null` `src` and an empty `srcset`.
 
-Build the image URLs from the image's entry, which holds one URL for each attribute:
+Build the image URLs from the image's entry, which holds the components of each URL: `src`, an <<../api#imageurl, ImageUrl>>, for the `src` attribute, and `srcset`, a list of <<../api#imagesource, ImageSource>> entries, one for each `processHtml.imageWidths` width, for the `srcset` attribute. Put your media base in front of each `path` and `queryString`. See <<../configuration#media-base-url, Media base URL>>.
 
-* `src` is a single <<../api#imageurl, ImageUrl>>: the image for the `src` attribute, 768 pixels wide, or cropped to the style's aspect ratio. An image the image API serves as stored has the `full` scale and no filter.
-* `srcset` is a list of <<../api#imagesource, ImageSource>> entries, one for each width requested with `processHtml.imageWidths`. It is empty without them, and for an image the image API serves as stored, whatever its width: such an image has its `src` alone. Each entry holds the `width`, used as the `w` descriptor, and an `imageUrl` of the same image scaled to that width.
-
-Put your media base in front of each `path` and `queryString`. See <<../configuration#media-base-url, Media base URL>>.
-
-The style of an image is the one named in the HtmlArea, looked up among the styles of the applications configured on the site selected with `siteKey`, or on the project without it. To apply a style, configure the application providing it on that site or project; installing the application is not enough. An image naming its style `<application>:<name>` gets the style of that application; a name alone gets the first style of that name. The `style` field gives the `application` whose style descriptor holds the style applied, and its `name` there, so together they identify it unambiguously.
+Image styles come from the applications configured on the selected site or project: configure the application providing a style there to apply it. The `style` field gives the `application` providing the style and its `name` there.
 
 For instance, the processed value of an image looks like this:
 
@@ -217,10 +210,10 @@ fragment imageFragment on Content {
 <1> Reference to an image in the `processedHtml` field
 <2> Image as <<../api#content, Content>> type
 <3> Image style as <<../api#imagestyle, ImageStyle>> type
-<4> Components of the `src` URL, with the style's scale and filter applied, including its segments; see <<images-and-urls#url-segments, Building URLs from segments>>
-<5> Components of each `srcset` URL, one for each of the `imageWidths`; empty without them, and for an image served as stored
+<4> Components of the `src` URL; see <<images-and-urls#url-segments, Building URLs from segments>>
+<5> Components of each `srcset` URL, one for each of the `imageWidths`
 
-Use the `processHtml` argument, of type <<../api#processhtmlinput, ProcessHtmlInput>>, on an HtmlArea field to control image processing. Setting `imageWidths` adds a `srcset` with an entry for each requested width to the image tags of images the image API scales.
+Use the `processHtml` argument, of type <<../api#processhtmlinput, ProcessHtmlInput>>, on an HtmlArea field to control image processing. Setting `imageWidths` adds a `srcset` with an entry for each requested width.
 
 For example:
 

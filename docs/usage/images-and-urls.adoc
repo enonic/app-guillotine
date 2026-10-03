@@ -2,6 +2,8 @@
 
 Guillotine provides URL components for pages, scaled images, media and attachments. Select `path` and `queryString`, then build links using your client's media base URL or frontend routing.
 
+The components come from XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts[`pageUrlParts`], https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts[`imageUrlParts`] and https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts[`attachmentUrlParts`], whose reference describes each of them.
+
 These examples query published content in `myproject`. Replace the project and content paths with your own, and send the queries using the request format on the <<../usage#, Usage>> page.
 
 == Scaled images
@@ -67,7 +69,7 @@ Media content exposes `mediaUrl` for its binary attachment. Other attachments ar
 }
 ----
 
-This example assumes a document media item. The `download` argument adds the download instruction to `queryString`, so retain it when building the link. See <<../api#attachmenturl, AttachmentUrl>> for the returned fields.
+This example assumes a document media item. The `download` argument is carried by `queryString`, so retain it when building the link. See <<../api#attachmenturl, AttachmentUrl>> for the returned fields.
 
 == Page URLs
 
@@ -107,13 +109,11 @@ For nested sites, the selected level determines the path. Given a post at `/my-s
 |_(none)_ |/my-site/subsite/posts/first-post |/my-site/subsite
 |===
 
-The path of the selected site itself is empty, so `baseUrl + path` is the Base URL as configured: `https://example.com/news` stays `https://example.com/news`, without a trailing slash. When your frontend needs a path of its own for the site root, use `/` for an empty `path`.
+When your frontend needs a path of its own for the site root, use `/` for an empty `path`.
 
-`siteKey: "/"`, like no `siteKey`, selects the project itself. Selecting the parent site retains the nested site's path segment; selecting the nested site removes it.
+`siteKey: "/"`, like no `siteKey`, selects the project itself. `pageUrl.baseUrl` is the Base URL configured for the selected level; see XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts[`pageUrlParts`].
 
-`pageUrl.baseUrl` is the Base URL configured for the selected level. A nested site's Base URL does not apply when its parent is selected, and a parent's is never inherited by the nested site.
-
-Without `siteKey`, page URLs belong to the project. A content outside the selected site, such as the parent site when the nested one is selected, has no page URL there, and `pageUrl` reports an error.
+A content outside the selected site, such as the parent site when the nested one is selected, has no page URL there, and `pageUrl` reports an error.
 
 When following references across sites, choose the appropriate site context and frontend route for each target.
 
@@ -135,11 +135,11 @@ A CDN host can serve the media API paths without their leading segments, such as
 [#url-parts]
 == Building URLs from parts
 
-The `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields expose `path` and `queryString`. These components are already URL-escaped, so do not encode them again. For a deployment that preserves the returned paths, assemble links as `baseUrl + path + queryString`.
+The `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields expose `path` and `queryString`, ready to use as they are. For a deployment that preserves the returned paths, assemble links as `baseUrl + path + queryString`.
 
-`pageUrl.baseUrl` gives the Base URL configured for the selected site, or for the project without `siteKey`, which you can use as that base. It is `null` when none is configured, so check it before concatenating: in JavaScript, `null + path` produces the string `"null/..."` without an error.
+`pageUrl.baseUrl` can serve as the base of page links. It is `null` when none is configured, so check it before concatenating: in JavaScript, `null + path` produces the string `"null/..."` without an error.
 
-Choose a base without a trailing slash. A media path already includes `/media:image` or `/media:attachment`, so use the API or CDN base that serves those paths. For pages, supply your frontend's host or route prefix, or adapt the path to your routing scheme. The query string includes its leading `?` when non-empty.
+Choose a base without a trailing slash. For media, use the API or CDN base that serves the media API paths. For pages, supply your frontend's host or route prefix, or adapt the path to your routing scheme.
 
 [source,javascript]
 ----
@@ -168,12 +168,12 @@ const pageHref = pageBase + content.pageUrl.path + content.pageUrl.queryString;
 }
 ----
 
-For example, `path` can be `/media:image/myproject/contentid:fingerprint/block-800-200/photo.jpg`. On a non-master branch, the context segment includes the branch, such as `myproject:draft`.
+For example, `path` can be `/media:image/myproject/contentid:fingerprint/block-800-200/photo.jpg`.
 
 [#url-segments]
 === Building URLs from segments
 
-`imageUrl`, `mediaUrl` and `attachmentUrl` also expose the segments `path` is made of: `/media:image/<context>/<id>:<fingerprint>/<scale>/<name>` for images, `/media:attachment/<context>/<id>:<fingerprint>/<name>` for attachments. Use them when a <<#media-cdn, CDN host>> hides leading segments:
+`imageUrl`, `mediaUrl` and `attachmentUrl` also expose the segments `path` is made of, described with XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts[`imageUrlParts`] and https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts[`attachmentUrlParts`]. Use them when a <<#media-cdn, CDN host>> hides leading segments:
 
 [source,graphql]
 ----
@@ -202,6 +202,4 @@ const href2 = `https://media.myproject.com/${idHash(u)}/${u.name}${u.queryString
 const src = `https://img.example.com/${i.context}/${idHash(i)}/${i.scale}/${i.name}${i.queryString}`;
 ----
 
-The segments are URL-escaped as they appear in `path`.
-
-Use the returned media fingerprint; it cannot be calculated by the client. See <<../api#pageurl, PageUrl>>, <<../api#imageurl, ImageUrl>> and <<../api#attachmenturl, AttachmentUrl>> for the available components.
+Use the segments as they are returned, including the fingerprint. See <<../api#pageurl, PageUrl>>, <<../api#imageurl, ImageUrl>> and <<../api#attachmenturl, AttachmentUrl>> for the available components.
