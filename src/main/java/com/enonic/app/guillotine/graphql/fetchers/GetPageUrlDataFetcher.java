@@ -1,14 +1,17 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.StreamSupport;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.Content;
-import com.enonic.xp.portal.url.PageUrlParams;
+import com.enonic.xp.portal.url.PageUrlPartsParams;
 import com.enonic.xp.portal.url.PortalUrlService;
 
 public class GetPageUrlDataFetcher
@@ -37,33 +40,31 @@ public class GetPageUrlDataFetcher
             return null;
         }
 
-        // one set of params for the whole field, so that url = baseUrl + path + queryString:
-        // the URL belongs to the site named by siteKey when there is one, and to the site of the
-        // content otherwise
-        final PageUrlParams params = buildParams( environment, content );
-
-        final Map<String, Object> result = UrlPartsHelper.anyPagePartSelected( environment.getSelectionSet() )
-            ? UrlPartsHelper.toMap( portalUrlService.pageUrlParts( params ) )
-            : new LinkedHashMap<>();
-
-        if ( environment.getSelectionSet().contains( "url" ) )
-        {
-            result.put( "url", portalUrlService.pageUrl( params ) );
-        }
-
-        return result;
+        return UrlPartsHelper.toMap( portalUrlService.pageUrlParts( buildParams( environment, content ) ) );
     }
 
-    private static PageUrlParams buildParams( final DataFetchingEnvironment environment, final Content content )
+    private PageUrlPartsParams buildParams( final DataFetchingEnvironment environment, final Content content )
     {
-        final PageUrlParams params = new PageUrlParams().id( content.getId().toString() )
-            .base( GuillotineLocalContextHelper.getSiteBase( environment ) );
+        final PageUrlPartsParams.Builder params = PageUrlPartsParams.create()
+            .setId( content.getId().toString() )
+            .setBase( GuillotineLocalContextHelper.getUrlBase( environment, portalUrlService ) );
 
         if ( environment.getArgument( "params" ) instanceof Map<?, ?> queryParams )
         {
-            queryParams.forEach( ( key, value ) -> params.param( key.toString(), value ) );
+            final Map<String, List<String>> values = new LinkedHashMap<>();
+            queryParams.forEach( ( key, value ) -> values.put( key.toString(), toStrings( value ) ) );
+            params.setQueryParams( values );
         }
 
-        return params;
+        return params.build();
+    }
+
+    private static List<String> toStrings( final Object value )
+    {
+        if ( value instanceof Iterable<?> values )
+        {
+            return StreamSupport.stream( values.spliterator(), false ).map( Objects::toString ).toList();
+        }
+        return List.of( value.toString() );
     }
 }

@@ -147,7 +147,6 @@ export declare interface Attachment {
 }
 
 export declare interface AttachmentUrl {
-	url: GraphQLString
 	path: GraphQLString
 	queryString: GraphQLString
 	context: GraphQLString
@@ -316,6 +315,8 @@ export declare interface Image {
 	image: Content
 	ref: GraphQLString
 	style: ImageStyle
+	src: ImageUrl
+	srcset: ImageSource[]
 }
 
 export declare interface ImageComponentData {
@@ -324,14 +325,19 @@ export declare interface ImageComponentData {
 	image: media_Image
 }
 
+export declare interface ImageSource {
+	width: GraphQLInt
+	imageUrl: ImageUrl
+}
+
 export declare interface ImageStyle {
+	application: GraphQLString
 	name: GraphQLString
 	aspectRatio: GraphQLString
 	filter: GraphQLString
 }
 
 export declare interface ImageUrl {
-	url: GraphQLString
 	path: GraphQLString
 	queryString: GraphQLString
 	context: GraphQLString
@@ -353,6 +359,7 @@ export declare interface Link {
 	media: Media
 	content: Content
 	pageUrl: PageUrl
+	fragment: GraphQLString
 }
 
 export declare interface Macro {
@@ -417,7 +424,7 @@ export declare interface PageInfo {
 }
 
 export declare interface PageUrl {
-	url: GraphQLString
+	baseUrl: GraphQLString
 	path: GraphQLString
 	queryString: GraphQLString
 }

@@ -7,10 +7,8 @@ import org.osgi.service.component.annotations.Reference;
 import com.enonic.app.guillotine.graphql.ComponentDescriptorService;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.macro.MacroDescriptorService;
-import com.enonic.xp.macro.MacroService;
 import com.enonic.xp.node.NodeService;
 import com.enonic.xp.page.PageTemplateService;
-import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentTypeService;
@@ -31,25 +29,20 @@ public class ServiceFacade
 
     private final CmsFormFragmentService cmsFormFragmentService;
 
-    private final MacroService macroService;
-
     private final MacroDescriptorService macroDescriptorService;
 
     private final PageTemplateService pageTemplateService;
 
     private final StyleDescriptorService styleDescriptorService;
 
-    private final PortalUrlGeneratorService portalUrlGeneratorService;
-
     @Activate
     public ServiceFacade( final @Reference ContentService contentService, final @Reference ContentTypeService contentTypeService,
                           final @Reference ComponentDescriptorService componentDescriptorService,
                           final @Reference PortalUrlService portalUrlService, final @Reference NodeService nodeService,
-                          final @Reference CmsFormFragmentService cmsFormFragmentService, final @Reference MacroService macroService,
+                          final @Reference CmsFormFragmentService cmsFormFragmentService,
                           final @Reference MacroDescriptorService macroDescriptorService,
                           final @Reference PageTemplateService pageTemplateService,
-                          final @Reference StyleDescriptorService styleDescriptorService,
-                          final @Reference PortalUrlGeneratorService portalUrlGeneratorService )
+                          final @Reference StyleDescriptorService styleDescriptorService )
     {
         this.contentService = contentService;
         this.contentTypeService = contentTypeService;
@@ -57,11 +50,9 @@ public class ServiceFacade
         this.portalUrlService = portalUrlService;
         this.nodeService = nodeService;
         this.cmsFormFragmentService = cmsFormFragmentService;
-        this.macroService = macroService;
         this.macroDescriptorService = macroDescriptorService;
         this.pageTemplateService = pageTemplateService;
         this.styleDescriptorService = styleDescriptorService;
-        this.portalUrlGeneratorService = portalUrlGeneratorService;
     }
 
     public ContentService getContentService()
@@ -94,11 +85,6 @@ public class ServiceFacade
         return cmsFormFragmentService;
     }
 
-    public MacroService getMacroService()
-    {
-        return macroService;
-    }
-
     public MacroDescriptorService getMacroDescriptorService()
     {
         return macroDescriptorService;
@@ -112,10 +98,5 @@ public class ServiceFacade
     public StyleDescriptorService getStyleDescriptorService()
     {
         return styleDescriptorService;
-    }
-
-    public PortalUrlGeneratorService getPortalUrlGeneratorService()
-    {
-        return portalUrlGeneratorService;
     }
 }

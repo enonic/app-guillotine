@@ -145,7 +145,7 @@ public class ContentTypesFactory
 
             fields.add( mediaUrlField );
             context.registerDataFetcher( typeName, mediaUrlField.getName(),
-                                         new GetAttachmentUrlByIdDataFetcher( serviceFacade.getPortalUrlGeneratorService() ) );
+                                         new GetAttachmentUrlByIdDataFetcher( serviceFacade.getPortalUrlService() ) );
 
             if ( contentType.getName().toString().equals( "media:image" ) )
             {
@@ -153,7 +153,7 @@ public class ContentTypesFactory
 
                 fields.add( imageUrlField );
                 context.registerDataFetcher( typeName, imageUrlField.getName(),
-                                             new GetImageUrlDataFetcher( serviceFacade.getPortalUrlGeneratorService() ) );
+                                             new GetImageUrlDataFetcher( serviceFacade.getPortalUrlService() ) );
             }
         }
 
@@ -227,7 +227,7 @@ public class ContentTypesFactory
                 GraphQLFieldDefinition field =
                     outputField( normalizedFieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
-                context.registerDataFetcher( typeName, normalizedFieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
+                context.registerDataFetcher( typeName, normalizedFieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
 
                 fields.add( field );
             }

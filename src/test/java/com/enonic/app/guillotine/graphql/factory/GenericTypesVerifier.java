@@ -33,6 +33,7 @@ public class GenericTypesVerifier
         verifyIcon();
         verifyContentType();
         verifyImageStyle();
+        verifyImageSource();
         verifyImage();
         verifyMedia();
         verifyLink();
@@ -46,12 +47,12 @@ public class GenericTypesVerifier
     {
         GraphQLObjectType type = context.getOutputType( "PageUrl" );
 
-        assertEquals( "Page URL and its components: url = baseUrl + path + queryString.", type.getDescription() );
+        assertEquals( "Components of a page URL: url = baseUrl + path + queryString.", type.getDescription() );
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
         assertEquals( 3, fields.size() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "url" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "baseUrl" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "path" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "queryString" ).getType() );
     }
@@ -60,12 +61,11 @@ public class GenericTypesVerifier
     {
         GraphQLObjectType type = context.getOutputType( "ImageUrl" );
 
-        assertEquals( "Image URL and its components: url = baseUrl + path + queryString.", type.getDescription() );
+        assertEquals( "Components of an image URL: url = mediaBaseUrl + path + queryString, with the media base supplied by the client.", type.getDescription() );
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 8, fields.size() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "url" ).getType() );
+        assertEquals( 7, fields.size() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "path" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "queryString" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "context" ).getType() );
@@ -79,12 +79,11 @@ public class GenericTypesVerifier
     {
         GraphQLObjectType type = context.getOutputType( "AttachmentUrl" );
 
-        assertEquals( "Attachment URL and its components: url = baseUrl + path + queryString.", type.getDescription() );
+        assertEquals( "Components of an attachment URL: url = mediaBaseUrl + path + queryString, with the media base supplied by the client.", type.getDescription() );
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 8, fields.size() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "url" ).getType() );
+        assertEquals( 7, fields.size() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "path" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "queryString" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "context" ).getType() );
@@ -119,9 +118,10 @@ public class GenericTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 5, fields.size() );
+        assertEquals( 6, fields.size() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "ref" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "uri" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "fragment" ).getType() );
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getFieldDefinition( "content" ).getType() ) );
         assertEquals( "Media", getNameForGraphQLTypeReference( type.getFieldDefinition( "media" ).getType() ) );
         assertEquals( "PageUrl", getNameForGraphQLTypeReference( type.getFieldDefinition( "pageUrl" ).getType() ) );
@@ -149,10 +149,23 @@ public class GenericTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 3, fields.size() );
+        assertEquals( 5, fields.size() );
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getFieldDefinition( "image" ).getType() ) );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "ref" ).getType() );
         assertEquals( "ImageStyle", getNameForGraphQLTypeReference( type.getFieldDefinition( "style" ).getType() ) );
+        assertEquals( "ImageUrl", getNameForGraphQLTypeReference( type.getFieldDefinition( "src" ).getType() ) );
+        assertEquals( "ImageSource", getNameForGraphQLTypeReference( getOriginalTypeFromGraphQLList( type, "srcset" ) ) );
+    }
+
+    private void verifyImageSource()
+    {
+        GraphQLObjectType type = context.getOutputType( "ImageSource" );
+
+        List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
+
+        assertEquals( 2, fields.size() );
+        assertEquals( Scalars.GraphQLInt, type.getFieldDefinition( "width" ).getType() );
+        assertEquals( "ImageUrl", getNameForGraphQLTypeReference( type.getFieldDefinition( "imageUrl" ).getType() ) );
     }
 
     private void verifyImageStyle()
@@ -163,7 +176,8 @@ public class GenericTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 3, fields.size() );
+        assertEquals( 4, fields.size() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "application" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "name" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "aspectRatio" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "filter" ).getType() );

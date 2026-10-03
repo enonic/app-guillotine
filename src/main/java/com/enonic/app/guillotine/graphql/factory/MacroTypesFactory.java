@@ -82,7 +82,7 @@ public class MacroTypesFactory
                         outputField( fieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
                     context.registerDataFetcher( macroDataConfigTypeName, fieldName,
-                                                 new FormItemDataFetcher( formItem, serviceFacade, context ) );
+                                                 new FormItemDataFetcher( formItem, serviceFacade ) );
 
                     macroDataConfigFields.add( field );
                 }

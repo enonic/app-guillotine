@@ -216,7 +216,7 @@ a|Flattened list of page components
 |Publication information
 
 |pageUrl(params: JSON): <<PageUrl>>
-|Page link components. Use `siteKey` to select the site or project that the path is relative to; see <<PageUrl>> and <<usage/images-and-urls#base-urls, Base URLs>>
+|Page link components for the site or project selected with `siteKey`, or for the project without it; see <<PageUrl>> and <<usage/images-and-urls#base-urls, Base URLs>>
 
 |site: portal_Site
 |Link to the nearest site
@@ -281,17 +281,10 @@ In addition to the fields of the <<Content>> interface, all `media:*` content ty
 |Name(Arguments):Type | Description
 
 |mediaUrl (download: Boolean, params: JSON): <<AttachmentUrl>>
-|URL to the underlying media attachment, along with its components. Set `download` to `true` to force download instead of inline rendering.
+|Components of the URL of the media's attachment. `download: true` asks for the attachment to be downloaded; `params` adds query parameters. The arguments are those of XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts[`attachmentUrlParts`].
 
 |imageUrl (scale: String!, quality: Int, background: String, format: String, filter: String, params: JSON): <<ImageUrl>>
-a|URL to a processed version of the image, scaled and cropped by the server at request time, along with its components.
-
-* `scale` (required) - scaling function to apply: `block(width,height)`, `height(height)`, `max(size)`, `square(size)`, `wide(width,height)`, `width(width)` or `full`
-* `quality` - compression quality of JPEG images, from 0 to 100. Default is 85
-* `background` - background color to use when converting images with transparency, as a hex value, e.g. `ff0000`
-* `format` - image format of the generated URL. Supported formats are `jpg`, `png` and `gif` - other formats, such as `webp` or `avif`, are not supported and the resulting URL will fail with `400 Invalid parameters`
-* `filter` - image filters to apply, e.g. `rounded(5);sharpen()`
-* `params` - additional query parameters to append to the URL
+|Components of the URL of the image, scaled and processed as the arguments ask. The arguments are those of XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts[`imageUrlParts`], where they are described.
 |===
 
 === ContentConnection
@@ -409,7 +402,7 @@ Represents result of HtmlArea processing.
 |HtmlArea raw value
 
 |processedHtml: String
-|HtmlArea with processed value that contains replaced internal links to resources, content and translated macros. For macros without descriptors processing will be skipped
+|The HtmlArea value processed by XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts[`processHtmlParts`]. Internal links, images and macros are placeholders, which the client renders from `links`, `images` and `macros`
 
 |macrosAsJson: JSON
 |Represents macro details in JSON format
@@ -418,10 +411,10 @@ Represents result of HtmlArea processing.
 |Represents details of macros which were detected in the `HtmlArea` or `TextComponent` value
 
 |images: [<<Image>>]
-|Represents details of images which were detected in the HtmlArea value, except images with `original` styles
+|Internal images of the HtmlArea value
 
 |links: [<<Link>>]
-|Represents details of links which were detected in the HtmlArea value, which represent `content` or `media`
+|Internal links of the HtmlArea value, to contents or media
 
 |===
 
@@ -436,7 +429,7 @@ Details of a macro detected in a <<RichText>> value.
 |Reference to macro in the processedHtml field
 
 |name: String
-|Macro name
+|Name of the macro descriptor
 
 |descriptor: String
 |Macro descriptor, for instance `app:macroName`
@@ -499,23 +492,51 @@ Represents details for image found and processed in the <<RichText>> type.
 |Reference to image in the processedHtml field
 
 |style: <<ImageStyle>>
-|Related styles to image
+|Style of the image, or `null` for none
+
+|src: <<ImageUrl>>
+|Components of the URL for the `src` attribute. `null` for an image that does not resolve
+
+|srcset: [<<ImageSource>>]
+|Components of the URLs for the `srcset` attribute, one for each `processHtml.imageWidths` width
+
+|===
+
+The entry is XP's `ProcessedHtml.Image`; see https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts[`processHtmlParts`] for how its URLs and style are resolved.
+
+=== ImageSource
+
+A `srcset` candidate of a rich text <<Image>>.
+
+|===
+|Name (Arguments): Type | Description
+
+|width: Int
+|Width in pixels, the `w` descriptor of the candidate
+
+|imageUrl: <<ImageUrl>>
+|Components of the URL of the image at that width
 
 |===
 
 === ImageStyle
 
+The style of a rich text <<Image>>, as XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts[`processHtmlParts`] resolves it.
+
 |===
 |Name (Arguments): Type | Description
 
+|application: String
+|Key of the application providing the style
+
 |name: String
-|Style name
+|Name of the style in that application
 
 |aspectRatio: String
-|The `aspect-ratio` value for server-side image processing
+|Aspect ratio of the style
 
 |filter: String
-|The `filter` value for server-side image processing
+|Image filter of the style
 
 |===
 
@@ -528,7 +549,7 @@ Represents details for image found and processed in the <<RichText>> type.
 |Link intent.
 
 |mediaUrl: <<AttachmentUrl>>
-|Media URL and its components, honoring the link intent (`?download` for download links)
+|Components of the attachment URL, following the link intent. `null` for a link that does not resolve
 
 |content: <<Content>>
 |Related content
@@ -554,88 +575,87 @@ Represents details for image found and processed in the <<RichText>> type.
 |Related content. This field has `null` value for media content
 
 |pageUrl: <<PageUrl>>
-|Link target page URL and its components. This field has `null` value for media links
+|Components of the page URL, with the query string the link carries. This field has `null` value for media links, and for a link that does not resolve
+
+|fragment: String
+|The fragment the link carries, without `#`. `null` for media links and for links without one
 
 |===
 
 === PageUrl
 
-Page link components. Adapt `path` to your frontend's routing and append `queryString`. If your deployment preserves the path, use `frontendBaseUrl + path + queryString`.
+Page URL components for the site selected with `siteKey`, or for the project without it, from XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts[`pageUrlParts`], where each component is described. A content outside the selected site has no page URL there, and the field reports an error.
+
+Build the address in the client as `baseUrl + path + queryString`, supplying your frontend's own base when `baseUrl` is `null` or when your deployment routes pages differently.
 
 |===
 |Name (Arguments): Type | Description
 
-|url: String
-|Complete page URL as resolved by XP: `baseUrl + path + queryString`. The base is the configured Base URL of the site selected with `siteKey`, or of the content's own site without a selection. A site without a configured Base URL falls back to the site engine address
+|baseUrl: String
+|The Base URL configured for the selected site or project; `null` when none is configured
 
 |path: String
-|URL-escaped path of the content relative to the site - or project - the URL belongs to, with a leading slash. Empty when the content is that site itself
+|Path of the content, relative to the selected site or project
 
 |queryString: String
-|URL-escaped query string, prefixed with `?`. Empty when there are no parameters
+|Query string, with its leading `?`; empty when there are no parameters
 
 |===
 
 === ImageUrl
 
-Image link components. Build the address as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped. Select `url` to let XP assemble the address instead.
+Image URL components, from XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts[`imageUrlParts`], where each component is described. Build the address in the client as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL.
 
 |===
 |Name (Arguments): Type | Description
 
-|url: String
-|Complete image URL as resolved by XP: `baseUrl + path + queryString`. With `siteKey`, the base is where XP serves the image API for that site, taking API mounts and configuration into account. Without a selection, the URL is relative to the current request
-
 |path: String
-|The full media API path with a leading slash, ready to append to a base URL: `/media:image/<context>/<id>:<fingerprint>/<scale>/<name>`
+|Media API path of the image
 
 |queryString: String
-|URL-escaped query string, prefixed with `?`. Empty when there are no parameters
+|Query string, with its leading `?`; empty when there are no parameters
 
 |context: String
-|Project context segment: `<project>` on the master branch, `<project>:<branch>` otherwise
+|Context segment of `path`
 
 |id: String
 |Content ID
 
 |fingerprint: String
-|Media fingerprint, joined with the id as `<id>:<fingerprint>` in the path
+|Fingerprint of the media
 
 |scale: String
-|Processed scale segment (for example `max-300`)
+|Scale segment of `path`
 
 |name: String
-|File name segment, with the requested format extension applied
+|File name segment of `path`
 
 |===
 
 === AttachmentUrl
 
-Attachment link components. Build the address as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped. Select `url` to let XP assemble the address instead.
+Attachment URL components, from XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts[`attachmentUrlParts`], where each component is described. Build the address in the client as `mediaBaseUrl + path + queryString`, using your public API or CDN base URL.
 
 |===
 |Name (Arguments): Type | Description
 
-|url: String
-|Complete attachment URL as resolved by XP: `baseUrl + path + queryString`. With `siteKey`, the base is where XP serves the attachment API for that site, taking API mounts and configuration into account. Without a selection, the URL is relative to the current request
-
 |path: String
-|The full media API path with a leading slash, ready to append to a base URL: `/media:attachment/<context>/<id>:<fingerprint>/<name>`
+|Media API path of the attachment
 
 |queryString: String
-|URL-escaped query string, prefixed with `?`. Empty when there are no parameters
+|Query string, with its leading `?`; empty when there are no parameters
 
 |context: String
-|Project context segment: `<project>` on the master branch, `<project>:<branch>` otherwise
+|Context segment of `path`
 
 |id: String
 |Content ID
 
 |fingerprint: String
-|Media fingerprint, joined with the id as `<id>:<fingerprint>` in the path
+|Fingerprint of the media
 
 |name: String
-|Attachment file name segment
+|File name segment of `path`
 
 |intent: <<MediaIntentType,MediaIntentType>>
 |How the URL is meant to be consumed: `download` when the URL carries the `?download` query string, `inline` otherwise
@@ -1148,12 +1168,14 @@ Direct Known Subtypes: FormInput
 |Name(Arguments):Type | Description
 
 |imageWidths: [Int]
-|Generates image URLs for given widths which will be used in the `srcset` attribute of `img` tag.
+|Image widths for the `srcset` of each image
 
 |imageSizes: String
-|Specifies image width for a specific browser resolution in the following format: `(media-condition) width`. Multiple sizes are comma-separated.
+|Value of the `sizes` attribute of each image
 
 |===
+
+The fields are those of XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts[`processHtmlParts`], where they are described.
 
 == Aggregation Input Types
 

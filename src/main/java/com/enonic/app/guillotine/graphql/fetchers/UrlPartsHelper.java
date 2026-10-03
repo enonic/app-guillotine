@@ -15,14 +15,10 @@ final class UrlPartsHelper
     {
     }
 
-    static boolean anyPagePartSelected( final DataFetchingFieldSelectionSet selectionSet )
-    {
-        return selectionSet.containsAnyOf( "path", "queryString" );
-    }
-
     static Map<String, Object> toMap( final PageUrlParts parts )
     {
         final Map<String, Object> result = new LinkedHashMap<>();
+        result.put( "baseUrl", parts.baseUrl() );
         result.put( "path", parts.path() );
         result.put( "queryString", parts.queryString() );
         return result;
