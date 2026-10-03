@@ -257,7 +257,7 @@ When processing rich text in a site context, Guillotine now uses macros collecte
 
 Image styles in rich text come from the applications configured on the site selected with `siteKey`, or on the project without it, rather than from all installed applications. An image whose style belongs to an application configured elsewhere is processed without that style. Configure the application providing the styles on the site or project.
 
-`ImageStyle.name` is qualified by the application providing the style, as `<application>:<name>`. Compare against the qualified name, or the part after the first `:`, where you match style names.
+`ImageStyle.application` (new) gives the application whose style descriptor holds the style, next to its `name`. Match both where several applications define styles of the same name.
 
 ==== TypeScript definitions
 

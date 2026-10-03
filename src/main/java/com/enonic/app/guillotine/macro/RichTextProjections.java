@@ -61,6 +61,7 @@ public final class RichTextProjections
         if ( style != null )
         {
             final Map<String, Object> styleProjection = new LinkedHashMap<>();
+            styleProjection.put( "application", style.application().toString() );
             styleProjection.put( "name", style.name() );
             styleProjection.put( "aspectRatio", style.aspectRatio() );
             styleProjection.put( "filter", style.filter() );

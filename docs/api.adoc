@@ -529,8 +529,11 @@ A `srcset` candidate of a rich text <<Image>>.
 |===
 |Name (Arguments): Type | Description
 
+|application: String
+|Key of the application whose style descriptor holds the style
+
 |name: String
-|Style name, qualified by the application providing the style: `<application>:<name>`
+|Style name within that style descriptor
 
 |aspectRatio: String
 |The `aspect-ratio` value for server-side image processing

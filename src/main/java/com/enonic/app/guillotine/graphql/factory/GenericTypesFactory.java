@@ -189,6 +189,7 @@ public class GenericTypesFactory
     {
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
 
+        fields.add( outputField( "application", Scalars.GraphQLString ) );
         fields.add( outputField( "name", Scalars.GraphQLString ) );
         fields.add( outputField( "aspectRatio", Scalars.GraphQLString ) );
         fields.add( outputField( "filter", Scalars.GraphQLString ) );

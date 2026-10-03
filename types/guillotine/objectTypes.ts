@@ -331,6 +331,7 @@ export declare interface ImageSource {
 }
 
 export declare interface ImageStyle {
+	application: GraphQLString
 	name: GraphQLString
 	aspectRatio: GraphQLString
 	filter: GraphQLString

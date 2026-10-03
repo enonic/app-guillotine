@@ -176,7 +176,8 @@ public class GenericTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 3, fields.size() );
+        assertEquals( 4, fields.size() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "application" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "name" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "aspectRatio" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "filter" ).getType() );
