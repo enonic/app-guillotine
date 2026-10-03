@@ -21,6 +21,7 @@ import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.inputtype.InputTypeName;
+import com.enonic.xp.macro.MacroKey;
 import com.enonic.xp.portal.url.AttachmentUrlParts;
 import com.enonic.xp.portal.url.ImageUrlParts;
 import com.enonic.xp.portal.url.PageUrlParts;
@@ -55,7 +56,7 @@ public class RichTextGraphQLIntegrationTest
     public void testRichTextField()
     {
         when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
-            new ProcessedHtml( "processedHtml", null, List.of(), List.of() ) );
+            new ProcessedHtml( "processedHtml", null, List.of(), List.of(), List.of() ) );
 
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
 
@@ -81,7 +82,7 @@ public class RichTextGraphQLIntegrationTest
     public void testContentLinksBelongToSiteKey()
     {
         when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
-            new ProcessedHtml( "processedHtml", null, List.of(), List.of() ) );
+            new ProcessedHtml( "processedHtml", null, List.of(), List.of(), List.of() ) );
 
         when( contentService.contentExists( ContentPath.from( "/mysite" ) ) ).thenReturn( true );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
@@ -105,7 +106,7 @@ public class RichTextGraphQLIntegrationTest
             new UrlBase( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( "/mysite" ), null, ApplicationKeys.empty() );
         when( serviceFacade.getPortalUrlService().urlBase( any( UrlBaseParams.class ) ) ).thenReturn( base );
         when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
-            new ProcessedHtml( "processedHtml", null, List.of(), List.of() ) );
+            new ProcessedHtml( "processedHtml", null, List.of(), List.of(), List.of() ) );
 
         when( contentService.contentExists( ContentPath.from( "/mysite" ) ) ).thenReturn( true );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
@@ -130,7 +131,7 @@ public class RichTextGraphQLIntegrationTest
     public void testLinksBelongToProjectWithoutSiteKey()
     {
         when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
-            new ProcessedHtml( "processedHtml", null, List.of(), List.of() ) );
+            new ProcessedHtml( "processedHtml", null, List.of(), List.of(), List.of() ) );
 
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
 
@@ -148,7 +149,39 @@ public class RichTextGraphQLIntegrationTest
         assertNull( captor.getValue().getCustomStyleDescriptorsCallback() );
 
         assertNull( captor.getValue().getCustomHtmlProcessor() );
-        assertFalse( captor.getValue().isProcessMacros() );
+        assertTrue( captor.getValue().isProcessMacros() );
+    }
+
+    @Test
+    public void testMacrosComeFromProcessedHtml()
+    {
+        final String html = "<editor-macro data-macro-name=\"embed\" data-macro-ref=\"macro-1\">&lt;iframe&gt;&lt;/iframe&gt;</editor-macro>";
+        final ProcessedHtml processed = new ProcessedHtml( html, null, List.of(), List.of(), List.of(
+            new ProcessedHtml.Macro( "macro-1", MacroKey.from( "system:embed" ), Map.of(), "&lt;iframe&gt;&lt;/iframe&gt;" ),
+            new ProcessedHtml.Macro( "macro-2", MacroKey.from( "myapp:removed" ), Map.of(), "" ) ) );
+
+        when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn( processed );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response = executeQuery( graphQLSchema, readGraphQLQuery( "graphql/richText.graphql" ) );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        Map<String, Object> getField = CastHelper.cast( getFieldFromGuillotine( response, "get" ) );
+        Map<String, Object> textField = CastHelper.cast( CastHelper.<Map<String, Object>>cast( getField.get( "data" ) ).get( "text" ) );
+
+        assertEquals( html, textField.get( "processedHtml" ) );
+
+        // a macro whose descriptor is gone by the time it is serialized has no entry
+        List<Map<String, Object>> macros = CastHelper.cast( textField.get( "macros" ) );
+        assertEquals( 1, macros.size() );
+        assertEquals( "macro-1", macros.get( 0 ).get( "ref" ) );
+        assertEquals( "embed", macros.get( 0 ).get( "name" ) );
+        assertEquals( "system:embed", macros.get( 0 ).get( "descriptor" ) );
+        Map<String, Object> config = CastHelper.cast( macros.get( 0 ).get( "config" ) );
+        assertEquals( Map.of( "body", "&lt;iframe&gt;&lt;/iframe&gt;" ), config.get( "embed" ) );
     }
 
     @Test
@@ -167,7 +200,7 @@ public class RichTextGraphQLIntegrationTest
                                      new ImageUrlParts( "/media:image/p:b/i:h/width-768/a.jpg", "", "p:b", "i", "h", "width-768", "a.jpg" ),
                                      List.of( new ProcessedHtml.Source( 400, new ImageUrlParts( "/media:image/p:b/i:h/width-400/a.jpg", "",
                                                                                                "p:b", "i", "h", "width-400",
-                                                                                               "a.jpg" ) ) ) ) ) );
+                                                                                               "a.jpg" ) ) ) ) ), List.of() );
 
         when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn( processed );
 
@@ -221,7 +254,8 @@ public class RichTextGraphQLIntegrationTest
         final ProcessedHtml processed = new ProcessedHtml( "<a href=\"content://gone\" data-link-ref=\"link-1\">Gone</a>", null, List.of(
             new ProcessedHtml.ContentLink( "link-1", "content://gone?fragment=top", "gone", null, "top" ),
             new ProcessedHtml.AttachmentLink( "link-2", "media://download/gone", "gone", null, true ) ),
-                                                           List.of( new ProcessedHtml.Image( "image-1", "gone", null, null, List.of() ) ) );
+                                                           List.of( new ProcessedHtml.Image( "image-1", "gone", null, null, List.of() ) ),
+                                                           List.of() );
 
         when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn( processed );
         when( contentService.contentExists( ContentPath.from( "/mysite" ) ) ).thenReturn( true );

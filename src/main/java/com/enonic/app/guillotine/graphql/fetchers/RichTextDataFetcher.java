@@ -1,20 +1,16 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
-import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.macro.HtmlEditorProcessedResult;
-import com.enonic.app.guillotine.macro.MacroDecorator;
 import com.enonic.app.guillotine.macro.MacroEditorJsonSerializer;
-import com.enonic.app.guillotine.macro.MacroEditorSerializer;
 import com.enonic.app.guillotine.macro.RichTextProjections;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.app.guillotine.mapper.HtmlEditorResultMapper;
@@ -29,13 +25,10 @@ public class RichTextDataFetcher
 
     private final ServiceFacade serviceFacade;
 
-    private final GuillotineContext guillotineContext;
-
-    public RichTextDataFetcher( final String htmlText, final ServiceFacade serviceFacade, final GuillotineContext guillotineContext )
+    public RichTextDataFetcher( final String htmlText, final ServiceFacade serviceFacade )
     {
         this.htmlText = htmlText;
         this.serviceFacade = serviceFacade;
-        this.guillotineContext = guillotineContext;
     }
 
     public Object execute( final DataFetchingEnvironment environment )
@@ -54,44 +47,28 @@ public class RichTextDataFetcher
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
     {
-        final ProcessHtmlPartsParams.Builder htmlParams = createProcessHtmlParams( environment );
-
-        List<MacroDecorator> processedMacros = new ArrayList<>();
-
-        Map<String, MacroDescriptor> registeredMacros = guillotineContext.getMacroDecorators();
-
-        // macros are serialized for the editor below
-        htmlParams.processMacros( false );
-
-        final ProcessedHtml result = serviceFacade.getPortalUrlService().processHtmlParts( htmlParams.build() );
+        final ProcessedHtml result = serviceFacade.getPortalUrlService().processHtmlParts( createProcessHtmlParams( environment ).build() );
         final List<Map<String, Object>> links = result.links().stream().map( RichTextProjections::link ).toList();
         final List<Map<String, Object>> images = result.images().stream().map( RichTextProjections::image ).toList();
 
-        String processedHtml = serviceFacade.getMacroService().evaluateMacros( result.html(), macro -> {
-                if ( !registeredMacros.containsKey( macro.getName() ) )
-                {
-                    return macro.toString();
-                }
-                MacroDecorator macroDecorator = MacroDecorator.from( macro );
-                processedMacros.add( macroDecorator );
-                return new MacroEditorSerializer( macroDecorator ).serialize();
-            } );
-
         HtmlEditorProcessedResult.Builder builder =
-            HtmlEditorProcessedResult.create().setRaw( htmlText ).setImages( images ).setLinks( links ).setProcessedHtml( processedHtml );
+            HtmlEditorProcessedResult.create().setRaw( htmlText ).setImages( images ).setLinks( links ).setProcessedHtml( result.html() );
 
-        if ( !processedMacros.isEmpty() )
+        final List<Map<String, Object>> macrosAsJson = result.macros().stream().map( this::macroAsJson ).filter( Objects::nonNull ).toList();
+        if ( !macrosAsJson.isEmpty() )
         {
-            final List<Map<String, Object>> macrosAsJson = processedMacros.stream().map(
-                macro -> new MacroEditorJsonSerializer( macro, registeredMacros.get( macro.getMacro().getName() ) ).serialize() ).collect(
-                Collectors.toList() );
-
             builder.setMacrosAsJson( macrosAsJson );
         }
 
         GuillotineMapGenerator generator = new GuillotineMapGenerator();
         new HtmlEditorResultMapper( builder.build() ).serialize( generator );
         return generator.getRoot();
+    }
+
+    private Map<String, Object> macroAsJson( final ProcessedHtml.Macro macro )
+    {
+        final MacroDescriptor descriptor = serviceFacade.getMacroDescriptorService().getByKey( macro.descriptor() );
+        return descriptor != null ? new MacroEditorJsonSerializer( macro, descriptor ).serialize() : null;
     }
 
     @SuppressWarnings("unchecked")

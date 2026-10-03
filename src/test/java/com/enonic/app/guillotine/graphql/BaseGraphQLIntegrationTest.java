@@ -30,7 +30,6 @@ import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.macro.MacroDescriptorService;
-import com.enonic.xp.macro.MacroService;
 import com.enonic.xp.portal.script.PortalScriptService;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.repository.RepositoryId;
@@ -107,7 +106,6 @@ public class BaseGraphQLIntegrationTest
 
 
         MacroDescriptorService macroDescriptorService = mock( MacroDescriptorService.class );
-        MacroService macroService = mock( MacroService.class );
 
         when( serviceFacade.getComponentDescriptorService() ).thenReturn( componentDescriptorService );
         when( serviceFacade.getContentTypeService() ).thenReturn( contentTypeService );
@@ -115,10 +113,12 @@ public class BaseGraphQLIntegrationTest
         when( serviceFacade.getPortalUrlService() ).thenReturn( portalUrlService );
 
 
-        when( macroDescriptorService.getAll() ).thenReturn( BuiltinMacros.getSystemMacroDescriptors() );
+        when( macroDescriptorService.getByKey( any() ) ).thenAnswer( invocation -> BuiltinMacros.getSystemMacroDescriptors()
+            .stream()
+            .filter( descriptor -> descriptor.getKey().equals( invocation.getArgument( 0 ) ) )
+            .findFirst()
+            .orElse( null ) );
         when( serviceFacade.getMacroDescriptorService() ).thenReturn( macroDescriptorService );
-        when( macroService.evaluateMacros( anyString(), any() ) ).thenReturn( "processedMacros" );
-        when( serviceFacade.getMacroService() ).thenReturn( macroService );
 
         guillotineConfigService = spy( new GuillotineConfigService() );
         guillotineConfigService.activate( mock( GuillotineConfig.class, invocation -> invocation.getMethod().getDefaultValue() ) );
@@ -134,7 +134,6 @@ public class BaseGraphQLIntegrationTest
         addService( ApplicationService.class, applicationService );
         addService( PortalUrlService.class, portalUrlService );
         addService( MacroDescriptorService.class, macroDescriptorService );
-        addService( MacroService.class, macroService );
         addService( GuillotineConfigService.class, guillotineConfigService );
         addService( CmsFormFragmentService.class, cmsFormFragmentService );
 

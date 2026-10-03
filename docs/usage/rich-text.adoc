@@ -318,7 +318,7 @@ Each macro will be translated to an `editor-macro` tag with `data-macro-ref` and
 
 [NOTE]
 ====
-Guillotine processes macros which have a descriptor and built-in macros called `disable` and `embed`, otherwise processing will be skipped. https://developer.enonic.com/docs/cms/stable/richtext/macros[More details about macros].
+Guillotine processes the macros of the applications configured on the site selected with `siteKey`, or on the project without it, and the built-in macros `disable` and `embed`. Other macros stay in the text as written. https://developer.enonic.com/docs/cms/stable/richtext/macros[More details about macros].
 ====
 
 For instance, we have an input form item called `description` of `HtmlArea` type which contains the `embed` macro as shown below:

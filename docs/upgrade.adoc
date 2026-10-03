@@ -249,9 +249,11 @@ Guillotine no longer temporarily changes the portal request's application to the
 
 The resolver's script context and `app.name` still identify the extension app. Resolvers beneath `guillotine` execute in the selected project repository and branch. Treat `env.localContext.siteKey` as optional. See <<extending#lifecycle, Lifecycle and execution>>.
 
-==== Rich-text macro discovery
+==== Rich-text macros
 
-When processing rich text in a site context, Guillotine now uses macros collected from installed applications, rather than limiting discovery to applications configured on that site. Verify macro output if your installation has multiple apps providing macros, especially where names overlap.
+Macros in rich text come from the applications configured on the site selected with `siteKey`, or on the project without it, and from the built-in macros `disable` and `embed`. Among them, a macro is matched by its name, also when written in another case. A macro of an application configured elsewhere stays in the text as written. Configure the application providing the macros on the site or project.
+
+The `data-macro-name` attribute and the `name` of a macro hold the name of its descriptor, and its parameters are named as the inputs of the descriptor's form, also when the text writes them in another case.
 
 ==== Rich-text image styles
 

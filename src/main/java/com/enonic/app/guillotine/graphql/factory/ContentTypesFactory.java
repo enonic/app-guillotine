@@ -227,7 +227,7 @@ public class ContentTypesFactory
                 GraphQLFieldDefinition field =
                     outputField( normalizedFieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
-                context.registerDataFetcher( typeName, normalizedFieldName, new FormItemDataFetcher( formItem, serviceFacade, context ) );
+                context.registerDataFetcher( typeName, normalizedFieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
 
                 fields.add( field );
             }

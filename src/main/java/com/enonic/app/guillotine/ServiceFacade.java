@@ -7,7 +7,6 @@ import org.osgi.service.component.annotations.Reference;
 import com.enonic.app.guillotine.graphql.ComponentDescriptorService;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.macro.MacroDescriptorService;
-import com.enonic.xp.macro.MacroService;
 import com.enonic.xp.node.NodeService;
 import com.enonic.xp.page.PageTemplateService;
 import com.enonic.xp.portal.url.PortalUrlService;
@@ -30,8 +29,6 @@ public class ServiceFacade
 
     private final CmsFormFragmentService cmsFormFragmentService;
 
-    private final MacroService macroService;
-
     private final MacroDescriptorService macroDescriptorService;
 
     private final PageTemplateService pageTemplateService;
@@ -42,7 +39,7 @@ public class ServiceFacade
     public ServiceFacade( final @Reference ContentService contentService, final @Reference ContentTypeService contentTypeService,
                           final @Reference ComponentDescriptorService componentDescriptorService,
                           final @Reference PortalUrlService portalUrlService, final @Reference NodeService nodeService,
-                          final @Reference CmsFormFragmentService cmsFormFragmentService, final @Reference MacroService macroService,
+                          final @Reference CmsFormFragmentService cmsFormFragmentService,
                           final @Reference MacroDescriptorService macroDescriptorService,
                           final @Reference PageTemplateService pageTemplateService,
                           final @Reference StyleDescriptorService styleDescriptorService )
@@ -53,7 +50,6 @@ public class ServiceFacade
         this.portalUrlService = portalUrlService;
         this.nodeService = nodeService;
         this.cmsFormFragmentService = cmsFormFragmentService;
-        this.macroService = macroService;
         this.macroDescriptorService = macroDescriptorService;
         this.pageTemplateService = pageTemplateService;
         this.styleDescriptorService = styleDescriptorService;
@@ -87,11 +83,6 @@ public class ServiceFacade
     public CmsFormFragmentService getCmsFormFragmentService()
     {
         return cmsFormFragmentService;
-    }
-
-    public MacroService getMacroService()
-    {
-        return macroService;
     }
 
     public MacroDescriptorService getMacroDescriptorService()
