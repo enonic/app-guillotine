@@ -55,6 +55,7 @@ export enum ObjectTypeName {
 	Icon = 'Icon',
 	Image = 'Image',
 	ImageComponentData = 'ImageComponentData',
+	ImageSource = 'ImageSource',
 	ImageStyle = 'ImageStyle',
 	ImageUrl = 'ImageUrl',
 	LayoutComponentData = 'LayoutComponentData',
