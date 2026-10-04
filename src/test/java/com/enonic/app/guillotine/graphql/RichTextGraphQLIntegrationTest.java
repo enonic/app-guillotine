@@ -13,7 +13,6 @@ import graphql.schema.GraphQLSchema;
 
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.xp.app.ApplicationKey;
-import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
@@ -26,10 +25,10 @@ import com.enonic.xp.macro.MacroKey;
 import com.enonic.xp.portal.url.AttachmentUrlParts;
 import com.enonic.xp.portal.url.ImageUrlParts;
 import com.enonic.xp.portal.url.PageUrlParts;
+import com.enonic.xp.portal.url.PortalScope;
+import com.enonic.xp.portal.url.PortalScopeParams;
 import com.enonic.xp.portal.url.ProcessHtmlPartsParams;
 import com.enonic.xp.portal.url.ProcessedHtml;
-import com.enonic.xp.portal.url.UrlBase;
-import com.enonic.xp.portal.url.UrlBaseParams;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
@@ -37,6 +36,7 @@ import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
+import com.enonic.xp.site.SiteConfigs;
 
 import static com.enonic.app.guillotine.graphql.ResourceHelper.readGraphQLQuery;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -96,16 +96,16 @@ public class RichTextGraphQLIntegrationTest
 
         assertFalse( response.containsKey( "errors" ) );
 
-        // the site key selects the base: XP resolves it once, and makes the path of each link relative to it
-        assertEquals( "/mysite", urlBaseKey() );
+        // the site key selects the scope: XP resolves it once, and makes the path of each link relative to it
+        assertEquals( "/mysite", portalScopeKey() );
     }
 
     @Test
     public void testBaseIsResolvedOncePerQuery()
     {
-        final UrlBase base =
-            new UrlBase( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( "/mysite" ), null, ApplicationKeys.empty() );
-        when( serviceFacade.getPortalUrlService().urlBase( any( UrlBaseParams.class ) ) ).thenReturn( base );
+        final PortalScope scope =
+            new PortalScope( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( "/mysite" ), SiteConfigs.empty() );
+        when( serviceFacade.getPortalUrlService().portalScope( any( PortalScopeParams.class ) ) ).thenReturn( scope );
         when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
             new ProcessedHtml( "processedHtml", null, List.of(), List.of(), List.of() ) );
 
@@ -121,11 +121,11 @@ public class RichTextGraphQLIntegrationTest
 
         assertFalse( response.containsKey( "errors" ) );
 
-        verify( serviceFacade.getPortalUrlService(), times( 1 ) ).urlBase( any( UrlBaseParams.class ) );
+        verify( serviceFacade.getPortalUrlService(), times( 1 ) ).portalScope( any( PortalScopeParams.class ) );
 
         ArgumentCaptor<ProcessHtmlPartsParams> captor = ArgumentCaptor.forClass( ProcessHtmlPartsParams.class );
         verify( serviceFacade.getPortalUrlService(), times( 2 ) ).processHtmlParts( captor.capture() );
-        captor.getAllValues().forEach( params -> assertSame( base, params.getBase() ) );
+        captor.getAllValues().forEach( params -> assertSame( scope, params.getScope() ) );
     }
 
     @Test
@@ -143,7 +143,7 @@ public class RichTextGraphQLIntegrationTest
 
         assertFalse( response.containsKey( "errors" ) );
 
-        assertNull( urlBaseKey() );
+        assertNull( portalScopeKey() );
 
         ArgumentCaptor<ProcessHtmlPartsParams> captor = ArgumentCaptor.forClass( ProcessHtmlPartsParams.class );
         verify( serviceFacade.getPortalUrlService() ).processHtmlParts( captor.capture() );
@@ -389,11 +389,11 @@ public class RichTextGraphQLIntegrationTest
         return builder.build();
     }
 
-    private String urlBaseKey()
+    private String portalScopeKey()
     {
-        final ArgumentCaptor<UrlBaseParams> captor = ArgumentCaptor.forClass( UrlBaseParams.class );
-        verify( serviceFacade.getPortalUrlService() ).urlBase( captor.capture() );
-        final UrlBaseParams params = captor.getValue();
+        final ArgumentCaptor<PortalScopeParams> captor = ArgumentCaptor.forClass( PortalScopeParams.class );
+        verify( serviceFacade.getPortalUrlService() ).portalScope( captor.capture() );
+        final PortalScopeParams params = captor.getValue();
         return params.getContentPath() != null ? params.getContentPath().toString() : Objects.toString( params.getContentId(), null );
     }
 }

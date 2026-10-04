@@ -47,7 +47,7 @@ public class GetPageUrlDataFetcher
     {
         final PageUrlPartsParams.Builder params = PageUrlPartsParams.create()
             .setId( content.getId().toString() )
-            .setBase( GuillotineLocalContextHelper.getUrlBase( environment, portalUrlService ) );
+            .setScope( GuillotineLocalContextHelper.getPortalScope( environment, portalUrlService ) );
 
         if ( environment.getArgument( "params" ) instanceof Map<?, ?> queryParams )
         {

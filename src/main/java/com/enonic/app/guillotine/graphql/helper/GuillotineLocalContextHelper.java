@@ -19,9 +19,9 @@ import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
+import com.enonic.xp.portal.url.PortalScope;
+import com.enonic.xp.portal.url.PortalScopeParams;
 import com.enonic.xp.portal.url.PortalUrlService;
-import com.enonic.xp.portal.url.UrlBase;
-import com.enonic.xp.portal.url.UrlBaseParams;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.repository.RepositoryId;
 
@@ -81,16 +81,16 @@ public class GuillotineLocalContextHelper
     }
 
     /**
-     * @return the base page URLs and processed HTML belong to: the site or project named by siteKey, or the project when
+     * @return the scope page URLs and processed HTML belong to: the site or project named by siteKey, or the project when
      * no siteKey is in use. It is resolved once per query for each project, branch and siteKey
      */
-    public static UrlBase getUrlBase( final DataFetchingEnvironment environment, final PortalUrlService portalUrlService )
+    public static PortalScope getPortalScope( final DataFetchingEnvironment environment, final PortalUrlService portalUrlService )
     {
         final String siteKey = getSiteKey( environment );
         final ProjectName projectName = getProjectName( environment );
         final Branch branch = getBranch( environment );
 
-        final UrlBaseParams.Builder params = UrlBaseParams.create().setProjectName( projectName ).setBranch( branch );
+        final PortalScopeParams.Builder params = PortalScopeParams.create().setProjectName( projectName ).setBranch( branch );
         if ( siteKey != null && siteKey.startsWith( "/" ) )
         {
             params.setContentPath( ContentPath.from( siteKey ) );
@@ -103,13 +103,13 @@ public class GuillotineLocalContextHelper
         final GraphQLContext graphQLContext = environment.getGraphQlContext();
         if ( graphQLContext == null )
         {
-            return portalUrlService.urlBase( params.build() );
+            return portalUrlService.portalScope( params.build() );
         }
-        return graphQLContext.computeIfAbsent( new UrlBaseKey( siteKey, projectName, branch ),
-                                               key -> portalUrlService.urlBase( params.build() ) );
+        return graphQLContext.computeIfAbsent( new PortalScopeKey( siteKey, projectName, branch ),
+                                               key -> portalUrlService.portalScope( params.build() ) );
     }
 
-    private record UrlBaseKey(String siteKey, ProjectName projectName, Branch branch)
+    private record PortalScopeKey(String siteKey, ProjectName projectName, Branch branch)
     {
     }
 

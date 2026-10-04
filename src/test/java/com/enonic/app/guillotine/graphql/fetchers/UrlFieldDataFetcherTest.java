@@ -15,22 +15,22 @@ import graphql.schema.DataFetchingFieldSelectionSet;
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.ContentFixtures;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
-import com.enonic.xp.app.ApplicationKeys;
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.portal.url.AttachmentUrlParams;
+import com.enonic.xp.portal.url.AttachmentUrlParts;
 import com.enonic.xp.portal.url.AttachmentUrlPartsParams;
 import com.enonic.xp.portal.url.ImageUrlParams;
-import com.enonic.xp.portal.url.ImageUrlPartsParams;
-import com.enonic.xp.portal.url.AttachmentUrlParts;
 import com.enonic.xp.portal.url.ImageUrlParts;
-import com.enonic.xp.portal.url.PageUrlParts;
+import com.enonic.xp.portal.url.ImageUrlPartsParams;
 import com.enonic.xp.portal.url.PageUrlParams;
+import com.enonic.xp.portal.url.PageUrlParts;
 import com.enonic.xp.portal.url.PageUrlPartsParams;
+import com.enonic.xp.portal.url.PortalScope;
+import com.enonic.xp.portal.url.PortalScopeParams;
 import com.enonic.xp.portal.url.PortalUrlService;
-import com.enonic.xp.portal.url.UrlBase;
-import com.enonic.xp.portal.url.UrlBaseParams;
 import com.enonic.xp.project.ProjectName;
+import com.enonic.xp.site.SiteConfigs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -220,7 +220,7 @@ public class UrlFieldDataFetcherTest
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        final UrlBase base = urlBase( portalUrlService, "/mysite" );
+        final PortalScope scope = portalScope( portalUrlService, "/mysite" );
         when( portalUrlService.pageUrlParts( Mockito.any( PageUrlPartsParams.class ) ) ).thenReturn(
             new PageUrlParts( "https://site.example.com", "/b/mycontent", "?a=1" ) );
 
@@ -235,8 +235,8 @@ public class UrlFieldDataFetcherTest
 
         ArgumentCaptor<PageUrlPartsParams> captor = ArgumentCaptor.forClass( PageUrlPartsParams.class );
         verify( portalUrlService ).pageUrlParts( captor.capture() );
-        assertSame( base, captor.getValue().getBase() );
-        assertEquals( "/mysite", urlBaseKey( portalUrlService ) );
+        assertSame( scope, captor.getValue().getScope() );
+        assertEquals( "/mysite", portalScopeKey( portalUrlService ) );
 
         verify( portalUrlService, never() ).pageUrl( Mockito.any( PageUrlParams.class ) );
     }
@@ -263,7 +263,7 @@ public class UrlFieldDataFetcherTest
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
-        final UrlBase base = urlBase( portalUrlService, "/" );
+        final PortalScope scope = portalScope( portalUrlService, "/" );
         when( portalUrlService.pageUrlParts( Mockito.any( PageUrlPartsParams.class ) ) ).thenReturn(
             new PageUrlParts( null, "/mysite/b/mycontent", "" ) );
 
@@ -273,8 +273,8 @@ public class UrlFieldDataFetcherTest
 
         ArgumentCaptor<PageUrlPartsParams> captor = ArgumentCaptor.forClass( PageUrlPartsParams.class );
         verify( portalUrlService ).pageUrlParts( captor.capture() );
-        assertSame( base, captor.getValue().getBase() );
-        assertNull( urlBaseKey( portalUrlService ) );
+        assertSame( scope, captor.getValue().getScope() );
+        assertNull( portalScopeKey( portalUrlService ) );
     }
 
     @Test
@@ -348,19 +348,18 @@ public class UrlFieldDataFetcherTest
         assertNull( new GetLinkPageUrlDataFetcher().get( environment ) );
     }
 
-    private static UrlBase urlBase( final PortalUrlService portalUrlService, final String key )
+    private static PortalScope portalScope( final PortalUrlService portalUrlService, final String key )
     {
-        final UrlBase base = new UrlBase( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( key ), null,
-                                          ApplicationKeys.empty() );
-        when( portalUrlService.urlBase( Mockito.any( UrlBaseParams.class ) ) ).thenReturn( base );
-        return base;
+        final PortalScope scope = new PortalScope( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( key ), SiteConfigs.empty() );
+        when( portalUrlService.portalScope( Mockito.any( PortalScopeParams.class ) ) ).thenReturn( scope );
+        return scope;
     }
 
-    private static String urlBaseKey( final PortalUrlService portalUrlService )
+    private static String portalScopeKey( final PortalUrlService portalUrlService )
     {
-        final ArgumentCaptor<UrlBaseParams> captor = ArgumentCaptor.forClass( UrlBaseParams.class );
-        verify( portalUrlService ).urlBase( captor.capture() );
-        final UrlBaseParams params = captor.getValue();
+        final ArgumentCaptor<PortalScopeParams> captor = ArgumentCaptor.forClass( PortalScopeParams.class );
+        verify( portalUrlService ).portalScope( captor.capture() );
+        final PortalScopeParams params = captor.getValue();
         return params.getContentPath() != null ? params.getContentPath().toString() : Objects.toString( params.getContentId(), null );
     }
 }
