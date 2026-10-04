@@ -579,8 +579,8 @@ The style of a rich text <<Image>>, as XP's https://developer.enonic.com/docs/co
 |pageUrl: <<PageUrl>>
 |Components of the page URL, with the query string the link carries. This field has `null` value for media links, and for a link that does not resolve
 
-|fragment: String
-|The fragment the link carries, without `#`. `null` for media links and for links without one
+|fragment: String!
+|The fragment the link carries, with its leading `#`, such as `#details`; empty for media links and for links without one. Append it to the page URL: `baseUrl + path + queryString + fragment`
 
 |===
 

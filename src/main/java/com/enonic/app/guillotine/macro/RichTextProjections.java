@@ -44,6 +44,7 @@ public final class RichTextProjections
 
                 projection.put( "contentId", null );
                 projection.put( "media", media );
+                projection.put( "fragment", "" );
             }
         }
 

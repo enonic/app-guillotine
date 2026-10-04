@@ -8,6 +8,7 @@ import graphql.Scalars;
 import graphql.scalars.ExtendedScalars;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
+import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLTypeReference;
 
@@ -263,7 +264,7 @@ public class GenericTypesFactory
         fields.add( outputField( "media", GraphQLTypeReference.typeRef( "Media" ) ) );
         fields.add( outputField( "content", GraphQLTypeReference.typeRef( "Content" ) ) );
         fields.add( outputField( "pageUrl", GraphQLTypeReference.typeRef( "PageUrl" ) ) );
-        fields.add( outputField( "fragment", Scalars.GraphQLString ) );
+        fields.add( outputField( "fragment", new GraphQLNonNull( Scalars.GraphQLString ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "Link" ), "Link type.", fields );
         context.registerType( outputObject.getName(), outputObject );

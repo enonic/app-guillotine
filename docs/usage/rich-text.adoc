@@ -45,7 +45,7 @@ Browsers cannot follow the link and image placeholders as they are. Render each 
 
 Each internal link receives a `data-link-ref` attribute naming its entry in the `links` field, and an `href` placeholder.
 
-Build the `href` from the link's entry. For a page link, use `pageUrl`: `baseUrl`, or your frontend's own base when it is `null`, followed by `path` and `queryString`, or adapt `path` to your frontend's routes. Append `#` and `fragment` when the link carries one. See <<images-and-urls#base-urls, Base URLs>>. For a media link, put your media base in front of `media.mediaUrl.path` and `media.mediaUrl.queryString`.
+Build the `href` from the link's entry. For a page link, use `pageUrl`: `baseUrl`, or your frontend's own base when it is `null`, followed by `path`, `queryString` and the link's `fragment`, or adapt `path` to your frontend's routes. `fragment` holds its leading `#`, and is empty when the link has none. See <<images-and-urls#base-urls, Base URLs>>. For a media link, put your media base in front of `media.mediaUrl.path` and `media.mediaUrl.queryString`.
 
 A link that does not resolve, such as one to a content that is missing, has an entry with a `null` `pageUrl`, or a `null` `media.mediaUrl` for a media link. Decide how to render it, for instance as its text alone.
 
@@ -110,7 +110,7 @@ query {
 <4> Link intent. Available values `download` and `inline`
 <5> Related content. This field has `null` value for media content
 <6> Components of the page URL, with the query string the link carries. This field has `null` value for media links
-<7> The fragment the link carries, without `#`, or `null`
+<7> The fragment the link carries, with its leading `#`; empty when it has none
 
 The client rewrites the `href` of a page link from its entry:
 
@@ -121,7 +121,7 @@ const frontendBase = 'https://example.com';
 const a = document.querySelector(`[data-link-ref="${link.ref}"]`);
 if (link.pageUrl) {
   const u = link.pageUrl;
-  a.href = (u.baseUrl ?? frontendBase) + u.path + u.queryString + (link.fragment ? `#${link.fragment}` : '');
+  a.href = (u.baseUrl ?? frontendBase) + u.path + u.queryString + link.fragment;
 }
 ----
 

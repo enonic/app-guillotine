@@ -5,6 +5,7 @@ import java.util.List;
 import graphql.Scalars;
 import graphql.scalars.ExtendedScalars;
 import graphql.schema.GraphQLFieldDefinition;
+import graphql.schema.GraphQLNonNull;
 import graphql.schema.GraphQLObjectType;
 
 import com.enonic.app.guillotine.graphql.GuillotineContext;
@@ -121,7 +122,7 @@ public class GenericTypesVerifier
         assertEquals( 6, fields.size() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "ref" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "uri" ).getType() );
-        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "fragment" ).getType() );
+        assertEquals( Scalars.GraphQLString, ( (GraphQLNonNull) type.getFieldDefinition( "fragment" ).getType() ).getWrappedType() );
         assertEquals( "Content", getNameForGraphQLTypeReference( type.getFieldDefinition( "content" ).getType() ) );
         assertEquals( "Media", getNameForGraphQLTypeReference( type.getFieldDefinition( "media" ).getType() ) );
         assertEquals( "PageUrl", getNameForGraphQLTypeReference( type.getFieldDefinition( "pageUrl" ).getType() ) );
