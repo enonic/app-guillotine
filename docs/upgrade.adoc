@@ -92,7 +92,7 @@ Select `path` and `queryString`, then build the address in your client using the
 [source,graphql]
 ----
 {
-  guillotine(project: "myproject", branch: "master") {
+  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
     get(key: "/my-site/photo") {
       pageUrl { path queryString }
       ... on media_Image {
