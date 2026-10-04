@@ -6,6 +6,8 @@ public interface Constants
 {
     String CURRENT_CONTENT_FIELD = "__currentContent";
 
+    String MACRO_DESCRIPTOR_FIELD = "__macroDescriptor";
+
     String PROJECT_ARG = "project";
 
     String BRANCH_ARG = "branch";

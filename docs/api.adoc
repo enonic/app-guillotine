@@ -443,6 +443,8 @@ Details of a macro detected in a <<RichText>> value.
 
 Dynamic type with one field per macro descriptor. The system macros `disable` and `embed` are always present; other fields are added during schema creation from the macro descriptors of the installed applications.
 
+Fields are named after the macro. When several applications define a macro of the same name, its field belongs to one of them, and a macro of another application has no config there (`null`); read its parameters from `macrosAsJson`, which holds them for every macro.
+
 |===
 |Name (Arguments): Type | Description
 

@@ -21,6 +21,7 @@ import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.inputtype.InputTypeName;
+import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.macro.MacroKey;
 import com.enonic.xp.portal.url.AttachmentUrlParts;
 import com.enonic.xp.portal.url.ImageUrlParts;
@@ -182,6 +183,39 @@ public class RichTextGraphQLIntegrationTest
         assertEquals( "system:embed", macros.get( 0 ).get( "descriptor" ) );
         Map<String, Object> config = CastHelper.cast( macros.get( 0 ).get( "config" ) );
         assertEquals( Map.of( "body", "&lt;iframe&gt;&lt;/iframe&gt;" ), config.get( "embed" ) );
+    }
+
+    @Test
+    public void testMacroConfigOfAnotherApplicationsMacroOfTheSameName()
+    {
+        // the site's embed macro comes from myapp, while the schema's embed field is built for the built-in one
+        final MacroKey key = MacroKey.from( "myapp:embed" );
+        when( serviceFacade.getMacroDescriptorService().getByKey( key ) ).thenReturn( MacroDescriptor.create().key( key ).build() );
+
+        final ProcessedHtml processed = new ProcessedHtml(
+            "<editor-macro data-macro-name=\"embed\" data-macro-ref=\"macro-1\">body</editor-macro>", null, List.of(), List.of(),
+            List.of( new ProcessedHtml.Macro( "macro-1", key, Map.of(), "body" ) ) );
+
+        when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn( processed );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response = executeQuery( graphQLSchema, readGraphQLQuery( "graphql/richText.graphql" ) );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        Map<String, Object> getField = CastHelper.cast( getFieldFromGuillotine( response, "get" ) );
+        Map<String, Object> textField = CastHelper.cast( CastHelper.<Map<String, Object>>cast( getField.get( "data" ) ).get( "text" ) );
+
+        List<Map<String, Object>> macros = CastHelper.cast( textField.get( "macros" ) );
+        assertEquals( "myapp:embed", macros.get( 0 ).get( "descriptor" ) );
+        Map<String, Object> config = CastHelper.cast( macros.get( 0 ).get( "config" ) );
+        assertNull( config.get( "embed" ) );
+
+        // its parameters stay available as JSON
+        List<Map<String, Object>> macrosAsJson = CastHelper.cast( textField.get( "macrosAsJson" ) );
+        assertEquals( Map.of( "embed", Map.of( "body", "body" ) ), macrosAsJson.get( 0 ).get( "config" ) );
     }
 
     @Test
