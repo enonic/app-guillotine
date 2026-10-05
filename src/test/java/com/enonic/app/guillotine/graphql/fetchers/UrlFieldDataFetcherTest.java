@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import graphql.GraphQLContext;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
 
@@ -62,6 +63,7 @@ public class UrlFieldDataFetcherTest
 
         environment = Mockito.mock( DataFetchingEnvironment.class );
         when( environment.getLocalContext() ).thenReturn( localContext );
+        when( environment.getGraphQlContext() ).thenReturn( GraphQLContext.newContext().build() );
 
         selectionSet = Mockito.mock( DataFetchingFieldSelectionSet.class );
         when( selectionSet.containsAnyOf( Mockito.anyString(), Mockito.any( String[].class ) ) ).thenReturn( true );

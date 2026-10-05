@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import graphql.GraphQLContext;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
@@ -90,6 +89,13 @@ public class GuillotineLocalContextHelper
         final ProjectName projectName = getProjectName( environment );
         final Branch branch = getBranch( environment );
 
+        return environment.getGraphQlContext()
+            .computeIfAbsent( new PortalScopeKey( siteKey, projectName, branch ),
+                              key -> portalUrlService.portalScope( portalScopeParams( siteKey, projectName, branch ) ) );
+    }
+
+    private static PortalScopeParams portalScopeParams( final String siteKey, final ProjectName projectName, final Branch branch )
+    {
         final PortalScopeParams.Builder params = PortalScopeParams.create().setProjectName( projectName ).setBranch( branch );
         if ( siteKey != null && siteKey.startsWith( "/" ) )
         {
@@ -99,14 +105,7 @@ public class GuillotineLocalContextHelper
         {
             params.setContentId( ContentId.from( siteKey ) );
         }
-
-        final GraphQLContext graphQLContext = environment.getGraphQlContext();
-        if ( graphQLContext == null )
-        {
-            return portalUrlService.portalScope( params.build() );
-        }
-        return graphQLContext.computeIfAbsent( new PortalScopeKey( siteKey, projectName, branch ),
-                                               key -> portalUrlService.portalScope( params.build() ) );
+        return params.build();
     }
 
     private record PortalScopeKey(String siteKey, ProjectName projectName, Branch branch)
