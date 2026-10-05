@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
+import graphql.schema.DataFetchingFieldSelectionSet;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
@@ -47,6 +48,12 @@ public class RichTextDataFetcher
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
     {
+        final DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
+        if ( selectionSet != null && !selectionSet.containsAnyOf( "processedHtml", "macrosAsJson", "macros", "images", "links" ) )
+        {
+            return serialize( HtmlEditorProcessedResult.create().setRaw( htmlText ).build() );
+        }
+
         final ProcessedHtml result = serviceFacade.getPortalUrlService().processHtmlParts( createProcessHtmlParams( environment ).build() );
         final List<Map<String, Object>> links = result.links().stream().map( RichTextProjections::link ).toList();
         final List<Map<String, Object>> images = result.images().stream().map( RichTextProjections::image ).toList();
@@ -60,8 +67,13 @@ public class RichTextDataFetcher
             builder.setMacrosAsJson( macrosAsJson );
         }
 
-        GuillotineMapGenerator generator = new GuillotineMapGenerator();
-        new HtmlEditorResultMapper( builder.build() ).serialize( generator );
+        return serialize( builder.build() );
+    }
+
+    private static Object serialize( final HtmlEditorProcessedResult result )
+    {
+        final GuillotineMapGenerator generator = new GuillotineMapGenerator();
+        new HtmlEditorResultMapper( result ).serialize( generator );
         return generator.getRoot();
     }
 

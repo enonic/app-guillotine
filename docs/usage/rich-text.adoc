@@ -348,7 +348,7 @@ query {
   }
 }
 ----
-<1> Non-processed value of the `description` field
+<1> Non-processed value of the `description` field. When `raw` is the only field selected, the text is not processed
 <2> Processed value of the `description` field
 <3> Array of processed macros in JSON format. The order of macros will be the same as in the `raw` and `processedHtml` fields.
 <4> <<../api#macro, Macro>> allows to specify necessary fields. That field is an alternative for `macrosAsJson` field

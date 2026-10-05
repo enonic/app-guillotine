@@ -46,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -151,6 +152,27 @@ public class RichTextGraphQLIntegrationTest
 
         assertNull( captor.getValue().getCustomHtmlProcessor() );
         assertTrue( captor.getValue().isProcessMacros() );
+    }
+
+    @Test
+    public void testRawAloneIsNotProcessed()
+    {
+        final Content content = createContent( true );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( content );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response = executeQuery( graphQLSchema, "query { guillotine { get(key: \"contentid\") { " +
+            "...on myapplication_News { data { text { raw } } } } } }" );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        Map<String, Object> getField = CastHelper.cast( getFieldFromGuillotine( response, "get" ) );
+        Map<String, Object> textField = CastHelper.cast( CastHelper.<Map<String, Object>>cast( getField.get( "data" ) ).get( "text" ) );
+        assertEquals( content.getData().getString( "text" ), textField.get( "raw" ) );
+
+        verify( serviceFacade.getPortalUrlService(), never() ).processHtmlParts( any( ProcessHtmlPartsParams.class ) );
+        verify( serviceFacade.getPortalUrlService(), never() ).portalScope( any( PortalScopeParams.class ) );
     }
 
     @Test

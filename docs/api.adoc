@@ -399,7 +399,7 @@ Represents result of HtmlArea processing.
 |Name (Arguments): Type | Description
 
 |raw: String
-|HtmlArea raw value
+|HtmlArea raw value. A query selecting only `raw` skips processing
 
 |processedHtml: String
 |The HtmlArea value processed by XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts[`processHtmlParts`]. Internal links, images and macros are placeholders, which the client renders from `links`, `images` and `macros`
