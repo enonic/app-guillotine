@@ -112,14 +112,6 @@ public class BaseGraphQLIntegrationTest
         when( serviceFacade.getContentService() ).thenReturn( contentService );
         when( serviceFacade.getPortalUrlService() ).thenReturn( portalUrlService );
 
-
-        when( macroDescriptorService.getByKey( any() ) ).thenAnswer( invocation -> BuiltinMacros.getSystemMacroDescriptors()
-            .stream()
-            .filter( descriptor -> descriptor.getKey().equals( invocation.getArgument( 0 ) ) )
-            .findFirst()
-            .orElse( null ) );
-        when( serviceFacade.getMacroDescriptorService() ).thenReturn( macroDescriptorService );
-
         guillotineConfigService = spy( new GuillotineConfigService() );
         guillotineConfigService.activate( mock( GuillotineConfig.class, invocation -> invocation.getMethod().getDefaultValue() ) );
         when( guillotineConfigService.getModifyUnknownFieldMode() ).thenReturn( ModifyUnknownFieldMode.WARN );

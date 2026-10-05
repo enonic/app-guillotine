@@ -6,13 +6,11 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.enonic.app.guillotine.graphql.ComponentDescriptorService;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.macro.MacroDescriptorService;
 import com.enonic.xp.node.NodeService;
 import com.enonic.xp.page.PageTemplateService;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentTypeService;
-import com.enonic.xp.style.StyleDescriptorService;
 
 @Component(immediate = true, service = ServiceFacade.class)
 public class ServiceFacade
@@ -29,20 +27,14 @@ public class ServiceFacade
 
     private final CmsFormFragmentService cmsFormFragmentService;
 
-    private final MacroDescriptorService macroDescriptorService;
-
     private final PageTemplateService pageTemplateService;
-
-    private final StyleDescriptorService styleDescriptorService;
 
     @Activate
     public ServiceFacade( final @Reference ContentService contentService, final @Reference ContentTypeService contentTypeService,
                           final @Reference ComponentDescriptorService componentDescriptorService,
                           final @Reference PortalUrlService portalUrlService, final @Reference NodeService nodeService,
                           final @Reference CmsFormFragmentService cmsFormFragmentService,
-                          final @Reference MacroDescriptorService macroDescriptorService,
-                          final @Reference PageTemplateService pageTemplateService,
-                          final @Reference StyleDescriptorService styleDescriptorService )
+                          final @Reference PageTemplateService pageTemplateService )
     {
         this.contentService = contentService;
         this.contentTypeService = contentTypeService;
@@ -50,9 +42,7 @@ public class ServiceFacade
         this.portalUrlService = portalUrlService;
         this.nodeService = nodeService;
         this.cmsFormFragmentService = cmsFormFragmentService;
-        this.macroDescriptorService = macroDescriptorService;
         this.pageTemplateService = pageTemplateService;
-        this.styleDescriptorService = styleDescriptorService;
     }
 
     public ContentService getContentService()
@@ -85,18 +75,8 @@ public class ServiceFacade
         return cmsFormFragmentService;
     }
 
-    public MacroDescriptorService getMacroDescriptorService()
-    {
-        return macroDescriptorService;
-    }
-
     public PageTemplateService getPageTemplateService()
     {
         return pageTemplateService;
-    }
-
-    public StyleDescriptorService getStyleDescriptorService()
-    {
-        return styleDescriptorService;
     }
 }

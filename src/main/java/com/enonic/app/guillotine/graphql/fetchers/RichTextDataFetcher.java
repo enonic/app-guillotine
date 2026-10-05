@@ -2,7 +2,6 @@ package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
@@ -15,7 +14,6 @@ import com.enonic.app.guillotine.macro.MacroEditorJsonSerializer;
 import com.enonic.app.guillotine.macro.RichTextProjections;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
 import com.enonic.app.guillotine.mapper.HtmlEditorResultMapper;
-import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.portal.url.ProcessHtmlPartsParams;
 import com.enonic.xp.portal.url.ProcessedHtml;
 
@@ -61,7 +59,7 @@ public class RichTextDataFetcher
         HtmlEditorProcessedResult.Builder builder =
             HtmlEditorProcessedResult.create().setRaw( htmlText ).setImages( images ).setLinks( links ).setProcessedHtml( result.html() );
 
-        final List<Map<String, Object>> macrosAsJson = result.macros().stream().map( this::macroAsJson ).filter( Objects::nonNull ).toList();
+        final List<Map<String, Object>> macrosAsJson = result.macros().stream().map( macro -> new MacroEditorJsonSerializer( macro ).serialize() ).toList();
         if ( !macrosAsJson.isEmpty() )
         {
             builder.setMacrosAsJson( macrosAsJson );
@@ -75,12 +73,6 @@ public class RichTextDataFetcher
         final GuillotineMapGenerator generator = new GuillotineMapGenerator();
         new HtmlEditorResultMapper( result ).serialize( generator );
         return generator.getRoot();
-    }
-
-    private Map<String, Object> macroAsJson( final ProcessedHtml.Macro macro )
-    {
-        final MacroDescriptor descriptor = serviceFacade.getMacroDescriptorService().getByKey( macro.descriptor() );
-        return descriptor != null ? new MacroEditorJsonSerializer( macro, descriptor ).serialize() : null;
     }
 
     @SuppressWarnings("unchecked")
