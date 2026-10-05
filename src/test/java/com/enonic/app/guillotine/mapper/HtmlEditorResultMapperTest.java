@@ -1,7 +1,6 @@
 package com.enonic.app.guillotine.mapper;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -10,14 +9,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import com.enonic.app.guillotine.macro.HtmlEditorProcessedResult;
 import com.enonic.app.guillotine.macro.MacroEditorJsonSerializer;
-import com.enonic.xp.form.Form;
-import com.enonic.xp.form.Input;
-import com.enonic.xp.form.Occurrences;
-import com.enonic.xp.inputtype.InputTypeName;
-import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.macro.MacroKey;
 import com.enonic.xp.portal.url.ProcessedHtml;
 import com.enonic.xp.testing.serializer.JsonMapGenerator;
+import com.enonic.xp.util.GenericValue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -29,24 +24,11 @@ class HtmlEditorResultMapperTest
     @Test
     void serialize()
     {
-        MacroDescriptor macroDescriptor = MacroDescriptor.create().
-            title( "TestMacro" ).
-            key( MacroKey.from( "myapp:mymacro" ) ).
-            form( Form.create().
-                addFormItem( Input.create().
-                    name( "attr1" ).
-                    label( "Label" ).
-                    inputType( InputTypeName.TEXT_LINE ).occurrences( Occurrences.create( 0, 2 ) ).build() ).
-                addFormItem( Input.create().
-                    name( "attr2" ).
-                    label( "Label" ).
-                    inputType( InputTypeName.TEXT_LINE ).build() ).
-                build() ).
-            build();
-
         Map<String, Object> macroResult = new MacroEditorJsonSerializer(
-            new ProcessedHtml.Macro( "307f02a2-7019-4012-807e-916df5779ae6", MacroKey.from( "myapp:mymacro" ),
-                                     Map.of( "attr1", List.of( "val11", "val12" ), "attr2", List.of( "val2" ) ), "" ), macroDescriptor ).serialize();
+            new ProcessedHtml.Macro( "307f02a2-7019-4012-807e-916df5779ae6", MacroKey.from( "myapp:mymacro" ), GenericValue.newObject()
+                .put( "attr1", GenericValue.newList().add( GenericValue.stringValue( "val11" ) ).add( GenericValue.stringValue( "val12" ) ).build() )
+                .put( "attr2", "val2" )
+                .build(), "" ) ).serialize();
 
         HtmlEditorProcessedResult input = HtmlEditorProcessedResult.create().
             setProcessedHtml(

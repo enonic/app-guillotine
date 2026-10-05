@@ -58,8 +58,6 @@ public class MacroTypesFactory
         String macroConfigTypeName = context.uniqueName( "MacroConfig" );
 
         serviceFacade.getComponentDescriptorService().getMacroDescriptors( context.getApplications() ).forEach( macroDescriptor -> {
-            context.registerMacroDescriptor( macroDescriptor );
-
             String descriptorName = StringNormalizer.create( macroDescriptor.getName() );
 
             String macroTypeName =
@@ -88,7 +86,7 @@ public class MacroTypesFactory
                         outputField( fieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
                     context.registerDataFetcher( macroDataConfigTypeName, fieldName,
-                                                 new FormItemDataFetcher( formItem, context, serviceFacade ) );
+                                                 new FormItemDataFetcher( formItem, serviceFacade ) );
 
                     macroDataConfigFields.add( field );
                 }
