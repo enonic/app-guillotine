@@ -10,6 +10,7 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.ArgumentsValidator;
+import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.ArrayHelper;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
@@ -26,11 +27,14 @@ public class FormItemDataFetcher
 {
     private final FormItem formItem;
 
+    private final GuillotineContext context;
+
     private final ServiceFacade serviceFacade;
 
-    public FormItemDataFetcher( final FormItem formItem, final ServiceFacade serviceFacade )
+    public FormItemDataFetcher( final FormItem formItem, final GuillotineContext context, final ServiceFacade serviceFacade )
     {
         this.formItem = formItem;
+        this.context = context;
         this.serviceFacade = serviceFacade;
     }
 
@@ -53,7 +57,7 @@ public class FormItemDataFetcher
                 InputTypeName inputType = ( (Input) formItem ).getInputType();
                 if ( inputType.equals( InputTypeName.HTML_AREA ) )
                 {
-                    return new RichTextDataFetcher( (String) value, serviceFacade ).execute( environment );
+                    return new RichTextDataFetcher( (String) value, context, serviceFacade ).execute( environment );
                 }
                 if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) )
                 {
@@ -89,7 +93,7 @@ public class FormItemDataFetcher
                 if ( inputType.equals( InputTypeName.HTML_AREA ) )
                 {
                     return values.stream().map(
-                        value -> new RichTextDataFetcher( (String) value, serviceFacade ).execute(
+                        value -> new RichTextDataFetcher( (String) value, context, serviceFacade ).execute(
                             environment ) ).collect( Collectors.toList() );
                 }
                 if ( inputType.equals( InputTypeName.ATTACHMENT_UPLOADER ) )

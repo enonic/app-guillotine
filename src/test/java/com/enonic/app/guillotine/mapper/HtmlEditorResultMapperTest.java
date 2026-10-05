@@ -45,8 +45,8 @@ class HtmlEditorResultMapperTest
             build();
 
         Map<String, Object> macroResult = new MacroEditorJsonSerializer(
-            new ProcessedHtml.Macro( "307f02a2-7019-4012-807e-916df5779ae6", macroDescriptor,
-                                     Map.of( "attr1", List.of( "val11", "val12" ), "attr2", List.of( "val2" ) ), "" ) ).serialize();
+            new ProcessedHtml.Macro( "307f02a2-7019-4012-807e-916df5779ae6", MacroKey.from( "myapp:mymacro" ),
+                                     Map.of( "attr1", List.of( "val11", "val12" ), "attr2", List.of( "val2" ) ), "" ), macroDescriptor ).serialize();
 
         HtmlEditorProcessedResult input = HtmlEditorProcessedResult.create().
             setProcessedHtml(

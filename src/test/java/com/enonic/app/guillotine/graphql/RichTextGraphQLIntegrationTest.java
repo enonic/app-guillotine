@@ -1,6 +1,7 @@
 package com.enonic.app.guillotine.graphql;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -22,6 +23,7 @@ import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.macro.MacroDescriptor;
+import com.enonic.xp.macro.MacroDescriptors;
 import com.enonic.xp.macro.MacroKey;
 import com.enonic.xp.portal.url.AttachmentUrlParts;
 import com.enonic.xp.portal.url.ImageUrlParts;
@@ -47,6 +49,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -180,13 +183,9 @@ public class RichTextGraphQLIntegrationTest
     public void testMacrosComeFromProcessedHtml()
     {
         final String html = "<editor-macro data-macro-name=\"embed\" data-macro-ref=\"macro-1\">&lt;iframe&gt;&lt;/iframe&gt;</editor-macro>";
-        final MacroDescriptor embed = BuiltinMacros.getSystemMacroDescriptors()
-            .stream()
-            .filter( descriptor -> descriptor.getName().equals( "embed" ) )
-            .findFirst()
-            .orElseThrow();
-        final ProcessedHtml processed = new ProcessedHtml( html, null, List.of(), List.of(),
-                                                           List.of( new ProcessedHtml.Macro( "macro-1", embed, Map.of(), "&lt;iframe&gt;&lt;/iframe&gt;" ) ) );
+        final ProcessedHtml processed = new ProcessedHtml( html, null, List.of(), List.of(), List.of(
+            new ProcessedHtml.Macro( "macro-1", MacroKey.from( "system:embed" ), Map.of(), "&lt;iframe&gt;&lt;/iframe&gt;" ),
+            new ProcessedHtml.Macro( "macro-2", MacroKey.from( "myapp:removed" ), Map.of(), "" ) ) );
 
         when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn( processed );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
@@ -202,6 +201,7 @@ public class RichTextGraphQLIntegrationTest
 
         assertEquals( html, textField.get( "processedHtml" ) );
 
+        // a macro whose descriptor is not in the schema has no entry
         List<Map<String, Object>> macros = CastHelper.cast( textField.get( "macros" ) );
         assertEquals( 1, macros.size() );
         assertEquals( "macro-1", macros.get( 0 ).get( "ref" ) );
@@ -216,10 +216,15 @@ public class RichTextGraphQLIntegrationTest
     {
         // the site's embed macro comes from myapp, while the schema's embed field is built for the built-in one
         final MacroKey key = MacroKey.from( "myapp:embed" );
+        final List<MacroDescriptor> descriptors = new ArrayList<>();
+        descriptors.add( MacroDescriptor.create().key( key ).build() );
+        BuiltinMacros.getSystemMacroDescriptors().forEach( descriptors::add );
+        when( serviceFacade.getComponentDescriptorService().getMacroDescriptors( anyList() ) ).thenReturn(
+            MacroDescriptors.from( descriptors ) );
 
         final ProcessedHtml processed = new ProcessedHtml(
             "<editor-macro data-macro-name=\"embed\" data-macro-ref=\"macro-1\">body</editor-macro>", null, List.of(), List.of(),
-            List.of( new ProcessedHtml.Macro( "macro-1", MacroDescriptor.create().key( key ).build(), Map.of(), "body" ) ) );
+            List.of( new ProcessedHtml.Macro( "macro-1", key, Map.of(), "body" ) ) );
 
         when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn( processed );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );

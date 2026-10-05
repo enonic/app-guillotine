@@ -109,7 +109,7 @@ public class FormItemTypesFactory
 
                 GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
 
-                context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
+                context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, context, serviceFacade ) );
 
                 fields.add( field );
             }
@@ -170,7 +170,7 @@ public class FormItemTypesFactory
 
                 fields.add( outputField( optionName, type ) );
 
-                context.registerDataFetcher( uniqueTypeName, optionName, new FormItemDataFetcher( option, serviceFacade ) );
+                context.registerDataFetcher( uniqueTypeName, optionName, new FormItemDataFetcher( option, context, serviceFacade ) );
             }
             catch ( Exception e )
             {
@@ -325,7 +325,7 @@ public class FormItemTypesFactory
 
                 GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
 
-                context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
+                context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, context, serviceFacade ) );
 
                 fields.add( field );
             }

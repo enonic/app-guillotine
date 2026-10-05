@@ -131,7 +131,7 @@ public class XDataTypesFactory
                 GraphQLFieldDefinition field =
                     outputField( fieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
-                context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
+                context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, context, serviceFacade ) );
 
                 mixinConfigFields.add( field );
             }

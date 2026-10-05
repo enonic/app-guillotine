@@ -17,6 +17,9 @@ import graphql.schema.GraphQLNamedType;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.TypeResolver;
 
+import com.enonic.xp.macro.MacroDescriptor;
+import com.enonic.xp.macro.MacroKey;
+
 
 public class GuillotineContext
 {
@@ -31,6 +34,8 @@ public class GuillotineContext
     private final ConcurrentMap<FieldCoordinates, DataFetcher<?>> dataFetchers = new ConcurrentHashMap<>();
 
     private final ConcurrentMap<String, TypeResolver> typeResolvers = new ConcurrentHashMap<>();
+
+    private final ConcurrentMap<MacroKey, MacroDescriptor> macroDescriptors = new ConcurrentHashMap<>();
 
     private final ImmutableList<String> applications;
 
@@ -78,6 +83,16 @@ public class GuillotineContext
     public GraphQLObjectType getOutputType( String name )
     {
         return (GraphQLObjectType) types.get( name );
+    }
+
+    public void registerMacroDescriptor( MacroDescriptor macroDescriptor )
+    {
+        macroDescriptors.put( macroDescriptor.getKey(), macroDescriptor );
+    }
+
+    public MacroDescriptor getMacroDescriptor( MacroKey key )
+    {
+        return macroDescriptors.get( key );
     }
 
     public String getContentType( String name )

@@ -17,10 +17,10 @@ public class MacroEditorJsonSerializer
 
     private final MacroDescriptor descriptor;
 
-    public MacroEditorJsonSerializer( final ProcessedHtml.Macro macro )
+    public MacroEditorJsonSerializer( final ProcessedHtml.Macro macro, final MacroDescriptor descriptor )
     {
         this.macro = macro;
-        this.descriptor = macro.descriptor();
+        this.descriptor = descriptor;
     }
 
     public Map<String, Object> serialize()
