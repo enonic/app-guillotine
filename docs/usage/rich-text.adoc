@@ -108,7 +108,7 @@ query {
 <2> Link URI
 <3> Related media content and the components of the attachment URL; see <<images-and-urls#url-segments, Building URLs from segments>>. This field has `null` value for non-media content
 <4> Link intent. Available values `download` and `inline`
-<5> Related content. This field has `null` value for media content
+<5> Linked content; for a media link, the media content
 <6> Components of the page URL, with the query string the link carries. This field has `null` value for media links
 <7> The fragment the link carries, with its leading `#`; empty when it has none
 

@@ -42,7 +42,7 @@ public final class RichTextProjections
                 media.put( "contentId", attachment.contentId() );
                 media.put( "mediaUrl", attachment.attachment() == null ? null : attachmentUrl( attachment.attachment(), intent ) );
 
-                projection.put( "contentId", null );
+                projection.put( "contentId", attachment.contentId() );
                 projection.put( "media", media );
                 projection.put( "fragment", "" );
             }

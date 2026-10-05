@@ -574,7 +574,7 @@ The style of a rich text <<Image>>, as XP's https://developer.enonic.com/docs/co
 |Related media content. This field has `null` value for non-media content
 
 |content: <<Content>>
-|Related content. This field has `null` value for media content
+|Linked content; for a media link, the media content
 
 |pageUrl: <<PageUrl>>
 |Components of the page URL, with the query string the link carries. This field has `null` value for media links, and for a link that does not resolve
