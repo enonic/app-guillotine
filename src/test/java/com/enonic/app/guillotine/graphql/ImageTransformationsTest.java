@@ -43,6 +43,7 @@ public class ImageTransformationsTest
 
     private static ImageTransformations resolve( final String baseUri, final String setting )
     {
+        PortalRequestAccessor.remove();
         if ( baseUri != null )
         {
             final PortalRequest portalRequest = new PortalRequest();
