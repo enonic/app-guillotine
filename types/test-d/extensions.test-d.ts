@@ -156,3 +156,4 @@ expectType<true>(hasKey(ObjectTypeName, 'Mixin'));
 expectType<true>(hasKey(ObjectTypeName, 'FormInput'));
 expectType<true>(hasKey(ObjectTypeName, 'Query'));
 expectType<true>(hasKey(ObjectTypeName, 'QueryDSLContentConnection'));
+expectType<true>(hasKey(ObjectTypeName, 'ImageSource'));

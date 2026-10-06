@@ -30,9 +30,7 @@ import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.macro.MacroDescriptorService;
-import com.enonic.xp.macro.MacroService;
 import com.enonic.xp.portal.script.PortalScriptService;
-import com.enonic.xp.portal.url.PortalUrlGeneratorService;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.resource.ResourceKey;
@@ -106,22 +104,13 @@ public class BaseGraphQLIntegrationTest
 
         final PortalUrlService portalUrlService = mock( PortalUrlService.class );
 
-        final PortalUrlGeneratorService portalUrlGeneratorService = mock( PortalUrlGeneratorService.class );
 
         MacroDescriptorService macroDescriptorService = mock( MacroDescriptorService.class );
-        MacroService macroService = mock( MacroService.class );
 
         when( serviceFacade.getComponentDescriptorService() ).thenReturn( componentDescriptorService );
         when( serviceFacade.getContentTypeService() ).thenReturn( contentTypeService );
         when( serviceFacade.getContentService() ).thenReturn( contentService );
         when( serviceFacade.getPortalUrlService() ).thenReturn( portalUrlService );
-
-        when( serviceFacade.getPortalUrlGeneratorService() ).thenReturn( portalUrlGeneratorService );
-
-        when( macroDescriptorService.getAll() ).thenReturn( BuiltinMacros.getSystemMacroDescriptors() );
-        when( serviceFacade.getMacroDescriptorService() ).thenReturn( macroDescriptorService );
-        when( macroService.evaluateMacros( anyString(), any() ) ).thenReturn( "processedMacros" );
-        when( serviceFacade.getMacroService() ).thenReturn( macroService );
 
         guillotineConfigService = spy( new GuillotineConfigService() );
         guillotineConfigService.activate( mock( GuillotineConfig.class, invocation -> invocation.getMethod().getDefaultValue() ) );
@@ -136,9 +125,7 @@ public class BaseGraphQLIntegrationTest
         addService( ExtensionsExtractorService.class, extensionsExtractorService );
         addService( ApplicationService.class, applicationService );
         addService( PortalUrlService.class, portalUrlService );
-        addService( PortalUrlGeneratorService.class, portalUrlGeneratorService );
         addService( MacroDescriptorService.class, macroDescriptorService );
-        addService( MacroService.class, macroService );
         addService( GuillotineConfigService.class, guillotineConfigService );
         addService( CmsFormFragmentService.class, cmsFormFragmentService );
 

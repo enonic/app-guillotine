@@ -2,37 +2,28 @@ package com.enonic.app.guillotine.macro;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import com.google.common.collect.ListMultimap;
-
-import com.enonic.app.guillotine.graphql.helper.FormItemTypesHelper;
-import com.enonic.xp.form.FormItemPath;
-import com.enonic.xp.form.Occurrences;
-import com.enonic.xp.macro.MacroDescriptor;
+import com.enonic.xp.portal.url.ProcessedHtml;
+import com.enonic.xp.util.GenericValue;
 
 public class MacroEditorJsonSerializer
 {
-    private final MacroDecorator macro;
+    private final ProcessedHtml.Macro macro;
 
-    private final MacroDescriptor descriptor;
-
-    public MacroEditorJsonSerializer( final MacroDecorator macro, final MacroDescriptor descriptor )
+    public MacroEditorJsonSerializer( final ProcessedHtml.Macro macro )
     {
         this.macro = macro;
-        this.descriptor = descriptor;
     }
 
     public Map<String, Object> serialize()
     {
         final Map<String, Object> result = new LinkedHashMap<>();
 
-        result.put( "ref", macro.getId() );
-        result.put( "name", macro.getMacro().getName() );
-        result.put( "descriptor", descriptor.getKey().toString() );
-        result.put( "config", Collections.singletonMap( macro.getMacro().getName(), createMacroData() ) );
+        result.put( "ref", macro.ref() );
+        result.put( "name", macro.descriptor().getName() );
+        result.put( "descriptor", macro.descriptor().toString() );
+        result.put( "config", Collections.singletonMap( macro.descriptor().getName(), createMacroData() ) );
 
         return result;
     }
@@ -41,27 +32,13 @@ public class MacroEditorJsonSerializer
     {
         final Map<String, Object> macroData = new LinkedHashMap<>();
 
-        macroData.put( "body", macro.getMacro().getBody() );
+        macroData.put( "body", macro.body() );
 
-        final ListMultimap<String, String> params = macro.getMacro().getParameters();
-
-        for ( String key : params.keySet() )
+        for ( Map.Entry<String, GenericValue> param : macro.config().properties() )
         {
-            List<String> values = macro.getMacro().getParameter( key );
-
-            Occurrences occurrences = FormItemTypesHelper.getOccurrences( descriptor.getForm().getFormItem( FormItemPath.from( key ) ) );
-
-            if ( occurrences != null && occurrences.isMultiple() )
-            {
-                macroData.put( key, values );
-            }
-            else
-            {
-                macroData.put( key, Objects.requireNonNullElse( values, List.of() ).isEmpty() ? null : values.get( 0 ) );
-            }
+            macroData.put( param.getKey(), param.getValue().toRawJava() );
         }
 
         return macroData;
     }
-
 }

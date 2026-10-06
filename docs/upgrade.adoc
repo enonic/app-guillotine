@@ -67,9 +67,7 @@ Clients selecting URL fields must update both their queries and their handling o
 |`Attachment.attachmentUrl` |`String` |`AttachmentUrl`
 |===
 
-If XP's generated addresses match your deployment, select `url` on the new object: for example, change `imageUrl(scale: "width(800)")` to `imageUrl(scale: "width(800)") { url }` and read `imageUrl.url` in your client. The same option is available on `pageUrl`, `mediaUrl` and `attachmentUrl`. Generated addresses depend on XP's site, media and request context and may be relative; see <<usage/images-and-urls#generated-urls, XP-generated URLs>>.
-
-For custom frontend routes or a client-selected API/CDN base, select `path` and `queryString`, then build the address in your client. The following example uses this approach:
+Select `path` and `queryString`, then build the address in your client using the appropriate media base URL or frontend route.
 
 .Guillotine 8
 [source,graphql]
@@ -94,7 +92,7 @@ For custom frontend routes or a client-selected API/CDN base, select `path` and 
 [source,graphql]
 ----
 {
-  guillotine(project: "myproject", branch: "master") {
+  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
     get(key: "/my-site/photo") {
       pageUrl { path queryString }
       ... on media_Image {
@@ -109,13 +107,13 @@ For custom frontend routes or a client-selected API/CDN base, select `path` and 
 }
 ----
 
-For media, concatenate your public API or CDN base with `path` and `queryString`. For pages, adapt `pageUrl.path` to your frontend's host and routing, then append `pageUrl.queryString`. These components are already URL-escaped. See <<usage/images-and-urls#url-parts, Building URLs from parts>> for client examples.
+For media, concatenate your public API or CDN base with `path` and `queryString`. Links and images in `processedHtml` are placeholders: rewrite them from the structured rich-text data. For pages of a site, pass its `siteKey`, and adapt `pageUrl.path` to your frontend's host and routing, then append `pageUrl.queryString`. `pageUrl.baseUrl` holds the Base URL configured for the selected site, or for the project without `siteKey`, or `null` when there is none. See <<usage/images-and-urls#url-parts, Building URLs from parts>> for client examples.
 
-The `type` argument and `UrlType` enum are removed. Remove `type: server` and `type: absolute` from queries and variables. Use `url` with XP's configured URL context, or supply the deployment context in your client when building links from components.
+The `type` argument and `UrlType` enum are removed. Remove `type: server` and `type: absolute` from queries and variables. Your client now supplies the deployment context when building links from these components.
 
 ==== Processed rich text
 
-`ProcessHtmlInput.type` is also removed. Remove the `type` property from `processHtml` arguments and variables; `imageWidths` and `imageSizes` remain available. Links embedded in processed HTML follow XP's site and media configuration. Verify rendered links and images against your deployment, or use structured rich-text data to build them in your client. See <<usage/rich-text#, Rich text>>.
+`ProcessHtmlInput.type` is also removed. Remove the `type` property from `processHtml` arguments and variables; `imageWidths` and `imageSizes` remain available. Links and images in processed HTML are placeholders. Rewrite each element carrying a `data-link-ref` or `data-image-ref` attribute from its entry in `links` or `images`. See <<usage/rich-text#, Rich text>>. `Link.content` of a media link is the media content, as `Link.media.content` is.
 
 [#search-migration]
 === Search queries
@@ -195,9 +193,9 @@ The `X-Guillotine-SiteKey` request header is no longer supported. Move the selec
 }
 ----
 
-An omitted `siteKey` no longer defaults to `"/"`. `getSite` returns `null` without a selection, including at a site-mounted endpoint; select a site explicitly when you need this field. A nonexistent `siteKey` now raises an error while setting up the `guillotine` context.
+An omitted `siteKey` selects the project for paths and URLs, as `siteKey: "/"` does. `getSite` returns `null` without a site selection, including at a site-mounted endpoint; select a site explicitly when you need this field. A nonexistent `siteKey` now raises an error while setting up the `guillotine` context.
 
-Use `siteKey: "/"` when you explicitly want project-root path and URL context. The project root is not a site content item, so `getSite` returns `null` for that selection. Queries using the `${site}` placeholder must also supply `siteKey`. See <<usage/site-context#, Site context>>.
+Omit `siteKey`, or pass `siteKey: "/"`, for project-root path and URL context: `${site}` is then empty, so `${site}/blogs` becomes `/blogs`. The project root is not a site content item, so `getSite` returns `null` for that selection, and `env.localContext.siteKey` is only present when `siteKey` is given. See <<usage/site-context#, Site context>>.
 
 ==== Replacing site-relative `_path`
 
@@ -209,7 +207,11 @@ Select `pageUrl { path }` with an appropriate `siteKey` for a site-relative link
 
 The previous automatic site-path restrictions on content queries and lookups are removed. Queries can reach content elsewhere in the project, subject to content permissions. If your client needs results from one subtree, add explicit path constraints to its DSL queries.
 
-For page URLs, `siteKey` now selects both the URL base and the relative path. A request for a page URL outside the selected site can produce a GraphQL field error. For nested sites, choosing the parent or child site can produce different links. Without `siteKey`, page URL context depends on the endpoint. Test cross-site references and nested-site links against the <<usage/images-and-urls#base-urls, URL context rules>>.
+For page URLs, `siteKey` now selects both the URL base and the relative path. A request for a page URL outside the selected site produces a GraphQL field error. For nested sites, choosing the parent or child site can produce different links. Test cross-site references and nested-site links against the <<usage/images-and-urls#base-urls, URL context rules>>.
+
+==== Page URLs without `siteKey`
+
+Without `siteKey`, page URLs belong to the project, not to the site that contains the content: `pageUrl.path` is the full content path, such as `/my-site/posts/first-post`, and `pageUrl.baseUrl` is the Base URL configured for the project. This applies to `pageUrl` on content and on rich-text links alike. Site frontends pass the `siteKey` of their site to get site-relative paths and the site's Base URL.
 
 [#metadata-migration]
 === Schema metadata and publication timestamps
@@ -247,9 +249,17 @@ Guillotine no longer temporarily changes the portal request's application to the
 
 The resolver's script context and `app.name` still identify the extension app. Resolvers beneath `guillotine` execute in the selected project repository and branch. Treat `env.localContext.siteKey` as optional. See <<extending#lifecycle, Lifecycle and execution>>.
 
-==== Rich-text macro discovery
+==== Rich-text macros
 
-When processing rich text in a site context, Guillotine now uses macros collected from installed applications, rather than limiting discovery to applications configured on that site. Verify macro output if your installation has multiple apps providing macros, especially where names overlap.
+Macros in rich text come from the applications configured on the site selected with `siteKey`, or on the project without it, and from the built-in macros `disable` and `embed`. Among them, a macro is matched by its name, also when written in another case. A macro of an application configured elsewhere stays in the text as written. Configure the application providing the macros on the site or project.
+
+The `data-macro-name` attribute and the `name` of a macro hold the name of its descriptor, and its parameters are named as the inputs of the descriptor's form, also when the text writes them in another case.
+
+==== Rich-text image styles
+
+Image styles in rich text come from the applications configured on the site selected with `siteKey`, or on the project without it, rather than from all installed applications. An image whose style belongs to an application configured elsewhere is processed without that style. Configure the application providing the styles on the site or project.
+
+`ImageStyle.application` (new) gives the application whose style descriptor holds the style, next to its `name`. Match both where several applications define styles of the same name.
 
 ==== TypeScript definitions
 

@@ -68,6 +68,7 @@ public class InputTypesFactory
     {
         List<GraphQLInputObjectField> fields = new ArrayList<>();
 
+        fields.add( inputField( "imageSrcWidth", Scalars.GraphQLInt ) );
         fields.add( inputField( "imageWidths", new GraphQLList( Scalars.GraphQLInt ) ) );
         fields.add( inputField( "imageSizes", Scalars.GraphQLString ) );
 

@@ -14,9 +14,13 @@ import graphql.schema.DataFetchingEnvironment;
 import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.xp.branch.Branch;
 import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
-import com.enonic.xp.portal.url.BaseUrlParams;
+import com.enonic.xp.portal.url.PortalScope;
+import com.enonic.xp.portal.url.PortalScopeParams;
+import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.repository.RepositoryId;
 
@@ -76,39 +80,36 @@ public class GuillotineLocalContextHelper
     }
 
     /**
-     * @return the level of the content tree URLs belong to - the site or project named by
-     * siteKey - or {@code null} when no siteKey is in use and the content decides on its own
+     * @return the scope page URLs and processed HTML belong to: the site or project named by siteKey, or the project when
+     * no siteKey is in use. It is resolved once per query for each project, branch and siteKey
      */
-    public static BaseUrlParams getSiteBase( final DataFetchingEnvironment environment )
+    public static PortalScope getPortalScope( final DataFetchingEnvironment environment, final PortalUrlService portalUrlService )
     {
         final String siteKey = getSiteKey( environment );
-        if ( siteKey == null )
-        {
-            return null;
-        }
+        final ProjectName projectName = getProjectName( environment );
+        final Branch branch = getBranch( environment );
 
-        final BaseUrlParams.Builder builder = BaseUrlParams.create();
-        if ( siteKey.startsWith( "/" ) )
-        {
-            builder.setPath( siteKey );
-        }
-        else
-        {
-            builder.setId( siteKey );
-        }
-        return builder.build();
+        return environment.getGraphQlContext()
+            .computeIfAbsent( new PortalScopeKey( siteKey, projectName, branch ),
+                              key -> portalUrlService.portalScope( portalScopeParams( siteKey, projectName, branch ) ) );
     }
 
-    public static String getImageBaseUrl( final DataFetchingEnvironment environment )
+    private static PortalScopeParams portalScopeParams( final String siteKey, final ProjectName projectName, final Branch branch )
     {
-        // resolved by XP when siteKey is in use: where the image API is served for the site
-        return getContextProperty( environment, Constants.IMAGE_BASE_URL );
+        final PortalScopeParams.Builder params = PortalScopeParams.create().setProjectName( projectName ).setBranch( branch );
+        if ( siteKey != null && siteKey.startsWith( "/" ) )
+        {
+            params.setContentPath( ContentPath.from( siteKey ) );
+        }
+        else if ( siteKey != null )
+        {
+            params.setContentId( ContentId.from( siteKey ) );
+        }
+        return params.build();
     }
 
-    public static String getAttachmentBaseUrl( final DataFetchingEnvironment environment )
+    private record PortalScopeKey(String siteKey, ProjectName projectName, Branch branch)
     {
-        // resolved by XP when siteKey is in use: where the attachment API is served for the site
-        return getContextProperty( environment, Constants.ATTACHMENT_BASE_URL );
     }
 
     public static String getContextProperty( final DataFetchingEnvironment environment, final String propertyName )
