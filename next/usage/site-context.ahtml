@@ -503,6 +503,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
+<p>Without <code>siteKey</code>, or with <code>siteKey: "/"</code>, the project is the root and <code>${site}</code> is empty: <code>${site}/persons</code> becomes <code>/persons</code>, and <code>${site}</code> alone becomes <code>/</code>.</p>
+</div>
+<div class="paragraph">
 <p>The placeholder can be used in the <code>key</code> argument of <code>get</code>, <code>getChildren</code>, <code>getChildrenConnection</code> and <code>getPermissions</code>. See <a href="../api.ahtml#headlesscms">HeadlessCms</a> for the field signatures.</p>
 </div>
 <div class="admonitionblock note">
@@ -523,7 +526,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="site_relative_paths"><a class="link" href="#site_relative_paths">Site-relative paths</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Select <code>pageUrl.path</code> to retrieve a URL-escaped path relative to the selected site:</p>
+<p>Select <code>pageUrl.path</code> to retrieve the path relative to the selected site, or to the project without <code>siteKey</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -548,7 +551,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="project_root_and_url_context"><a class="link" href="#project_root_and_url_context">Project root and URL context</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><code>siteKey: "/"</code> selects the project root as the context for paths and URLs. The project root is not a site content item, so <code>getSite</code> returns <code>null</code> in that context.</p>
+<p>Without <code>siteKey</code>, the project root is the context for paths and URLs, as with <code>siteKey: "/"</code>: <code>${site}</code> is empty, page URLs carry the full content path, and <code>pageUrl.baseUrl</code> is the Base URL configured for the project. The project root is not a site content item, so <code>getSite</code> returns <code>null</code> in both cases, and <code>env.localContext.siteKey</code> is only present when <code>siteKey</code> is given.</p>
 </div>
 <div class="paragraph">
 <p>Selecting a site does not restrict every query to its descendants: <code>queryDsl</code> still searches the project, and an absolute content path can point outside the selected site. When building links across sites, choose the appropriate site context and frontend route for each target. See <a href="images-and-urls.ahtml#base-urls">Base URLs</a> for nested sites and path context.</p>
@@ -558,7 +561,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-06 13:48:11 UTC
+Last updated 2026-10-06 13:48:43 UTC
 </div>
 </div>
 </body>

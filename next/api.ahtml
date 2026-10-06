@@ -458,6 +458,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#macro_system_disable_dataconfig">Macro_system_disable_DataConfig</a></li>
 <li><a href="#macro_system_embed_dataconfig">Macro_system_embed_DataConfig</a></li>
 <li><a href="#image">Image</a></li>
+<li><a href="#imagesource">ImageSource</a></li>
 <li><a href="#imagestyle">ImageStyle</a></li>
 <li><a href="#media">Media</a></li>
 <li><a href="#link">Link</a></li>
@@ -880,7 +881,7 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">pageUrl(params: JSON): <a href="#pageurl">PageUrl</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Page link components. Use <code>siteKey</code> to select the site or project that the path is relative to; see <a href="#pageurl">PageUrl</a> and <a href="usage/images-and-urls.ahtml#base-urls">Base URLs</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Page link components for the site or project selected with <code>siteKey</code>, or for the project without it; see <a href="#pageurl">PageUrl</a> and <a href="usage/images-and-urls.ahtml#base-urls">Base URLs</a></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">site: portal_Site</p></td>
@@ -967,35 +968,11 @@ portal_Site
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">mediaUrl (download: Boolean, params: JSON): <a href="#attachmenturl">AttachmentUrl</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL to the underlying media attachment, along with its components. Set <code>download</code> to <code>true</code> to force download instead of inline rendering.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the URL of the media&#8217;s attachment. <code>download: true</code> asks for the attachment to be downloaded; <code>params</code> adds query parameters. The arguments are those of XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts"><code>attachmentUrlParts</code></a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">imageUrl (scale: String!, quality: Int, background: String, format: String, filter: String, params: JSON): <a href="#imageurl">ImageUrl</a></p></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>URL to a processed version of the image, scaled and cropped by the server at request time, along with its components.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>scale</code> (required) - scaling function to apply: <code>block(width,height)</code>, <code>height(height)</code>, <code>max(size)</code>, <code>square(size)</code>, <code>wide(width,height)</code>, <code>width(width)</code> or <code>full</code></p>
-</li>
-<li>
-<p><code>quality</code> - compression quality of JPEG images, from 0 to 100. Default is 85</p>
-</li>
-<li>
-<p><code>background</code> - background color to use when converting images with transparency, as a hex value, e.g. <code>ff0000</code></p>
-</li>
-<li>
-<p><code>format</code> - image format of the generated URL. Supported formats are <code>jpg</code>, <code>png</code> and <code>gif</code> - other formats, such as <code>webp</code> or <code>avif</code>, are not supported and the resulting URL will fail with <code>400 Invalid parameters</code></p>
-</li>
-<li>
-<p><code>filter</code> - image filters to apply, e.g. <code>rounded(5);sharpen()</code></p>
-</li>
-<li>
-<p><code>params</code> - additional query parameters to append to the URL</p>
-</li>
-</ul>
-</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the URL of the image, scaled and processed as the arguments ask. The arguments are those of XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts"><code>imageUrlParts</code></a>, where they are described.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1169,11 +1146,11 @@ It allows you to :</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">raw: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">HtmlArea raw value</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HtmlArea raw value. A query selecting only <code>raw</code> skips processing</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">processedHtml: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">HtmlArea with processed value that contains replaced internal links to resources, content and translated macros. For macros without descriptors processing will be skipped</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The HtmlArea value processed by XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts"><code>processHtmlParts</code></a>. Internal links, images and macros are placeholders, which the client renders from <code>links</code>, <code>images</code> and <code>macros</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">macrosAsJson: JSON</p></td>
@@ -1185,11 +1162,11 @@ It allows you to :</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">images: [<a href="#image">Image</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Represents details of images which were detected in the HtmlArea value, except images with <code>original</code> styles</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Internal images of the HtmlArea value</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">links: [<a href="#link">Link</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Represents details of links which were detected in the HtmlArea value, which represent <code>content</code> or <code>media</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Internal links of the HtmlArea value, to contents or media</p></td>
 </tr>
 </tbody>
 </table>
@@ -1217,7 +1194,7 @@ It allows you to :</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">name: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Macro name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the macro descriptor</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">descriptor: String</p></td>
@@ -1234,6 +1211,9 @@ It allows you to :</p>
 <h3 id="macroconfig"><a class="link" href="#macroconfig">MacroConfig</a></h3>
 <div class="paragraph">
 <p>Dynamic type with one field per macro descriptor. The system macros <code>disable</code> and <code>embed</code> are always present; other fields are added during schema creation from the macro descriptors of the installed applications.</p>
+</div>
+<div class="paragraph">
+<p>Fields are named after the macro. When several applications define a macro of the same name, its field belongs to one of them, and a macro of another application has no config there (<code>null</code>); read its parameters from <code>macrosAsJson</code>, which holds them for every macro.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1331,13 +1311,27 @@ It allows you to :</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">style: <a href="#imagestyle">ImageStyle</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Related styles to image</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Style of the image, or <code>null</code> for none</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">src: <a href="#imageurl">ImageUrl</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the URL for the <code>src</code> attribute. <code>null</code> for an image that does not resolve</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">srcset: [<a href="#imagesource">ImageSource</a>]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the URLs for the <code>srcset</code> attribute, one for each <code>processHtml.imageWidths</code> width</p></td>
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>The entry is XP&#8217;s <code>ProcessedHtml.Image</code>; see <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts"><code>processHtmlParts</code></a> for how its URLs and style are resolved.</p>
+</div>
 </div>
 <div class="sect2">
-<h3 id="imagestyle"><a class="link" href="#imagestyle">ImageStyle</a></h3>
+<h3 id="imagesource"><a class="link" href="#imagesource">ImageSource</a></h3>
+<div class="paragraph">
+<p>A <code>srcset</code> candidate of a rich text <a href="#image">Image</a>.</p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1351,16 +1345,48 @@ It allows you to :</p>
 </thead>
 <tbody>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">width: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Width in pixels, the <code>w</code> descriptor of the candidate</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">imageUrl: <a href="#imageurl">ImageUrl</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the URL of the image at that width</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="imagestyle"><a class="link" href="#imagestyle">ImageStyle</a></h3>
+<div class="paragraph">
+<p>The style of a rich text <a href="#image">Image</a>, as XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts"><code>processHtmlParts</code></a> resolves it.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name (Arguments): Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">application: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Key of the application providing the style</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">name: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Style name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the style in that application</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">aspectRatio: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The <code>aspect-ratio</code> value for server-side image processing</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Aspect ratio of the style</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">filter: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The <code>filter</code> value for server-side image processing</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Image filter of the style</p></td>
 </tr>
 </tbody>
 </table>
@@ -1385,7 +1411,7 @@ It allows you to :</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">mediaUrl: <a href="#attachmenturl">AttachmentUrl</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Media URL and its components, honoring the link intent (<code>?download</code> for download links)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the attachment URL, following the link intent. <code>null</code> for a link that does not resolve</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">content: <a href="#content">Content</a></p></td>
@@ -1422,11 +1448,15 @@ It allows you to :</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">content: <a href="#content">Content</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Related content. This field has <code>null</code> value for media content</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Linked content; for a media link, the media content</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">pageUrl: <a href="#pageurl">PageUrl</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Link target page URL and its components. This field has <code>null</code> value for media links</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the page URL, with the query string the link carries. This field has <code>null</code> value for media links, and for a link that does not resolve</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fragment: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The fragment the link carries, with its leading <code>#</code>, such as <code>#details</code>; empty for media links and for links without one. Append it to the page URL: <code>baseUrl + path + queryString + fragment</code></p></td>
 </tr>
 </tbody>
 </table>
@@ -1434,7 +1464,10 @@ It allows you to :</p>
 <div class="sect2">
 <h3 id="pageurl"><a class="link" href="#pageurl">PageUrl</a></h3>
 <div class="paragraph">
-<p>Page link components. Adapt <code>path</code> to your frontend&#8217;s routing and append <code>queryString</code>. If your deployment preserves the path, use <code>frontendBaseUrl + path + queryString</code>.</p>
+<p>Page URL components for the site selected with <code>siteKey</code>, or for the project without it, from XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts"><code>pageUrlParts</code></a>, where each component is described. A content outside the selected site has no page URL there, and the field reports an error.</p>
+</div>
+<div class="paragraph">
+<p>Build the address in the client as <code>baseUrl + path + queryString</code>, supplying your frontend&#8217;s own base when <code>baseUrl</code> is <code>null</code> or when your deployment routes pages differently.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1449,16 +1482,16 @@ It allows you to :</p>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">url: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Complete page URL as resolved by XP: <code>baseUrl + path + queryString</code>. The base is the configured Base URL of the site selected with <code>siteKey</code>, or of the content&#8217;s own site without a selection. A site without a configured Base URL falls back to the site engine address</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">baseUrl: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Base URL configured for the selected site or project; <code>null</code> when none is configured</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">path: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL-escaped path of the content relative to the site - or project - the URL belongs to, with a leading slash. Empty when the content is that site itself</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path of the content, relative to the selected site or project</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">queryString: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL-escaped query string, prefixed with <code>?</code>. Empty when there are no parameters</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query string, with its leading <code>?</code>; empty when there are no parameters</p></td>
 </tr>
 </tbody>
 </table>
@@ -1466,7 +1499,7 @@ It allows you to :</p>
 <div class="sect2">
 <h3 id="imageurl"><a class="link" href="#imageurl">ImageUrl</a></h3>
 <div class="paragraph">
-<p>Image link components. Build the address as <code>mediaBaseUrl + path + queryString</code>, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped. Select <code>url</code> to let XP assemble the address instead.</p>
+<p>Image URL components, from XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts"><code>imageUrlParts</code></a>, where each component is described. Build the address in the client as <code>mediaBaseUrl + path + queryString</code>, using your public API or CDN base URL.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1481,20 +1514,16 @@ It allows you to :</p>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">url: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Complete image URL as resolved by XP: <code>baseUrl + path + queryString</code>. With <code>siteKey</code>, the base is where XP serves the image API for that site, taking API mounts and configuration into account. Without a selection, the URL is relative to the current request</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">path: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The full media API path with a leading slash, ready to append to a base URL: <code>/media:image/&lt;context&gt;/&lt;id&gt;:&lt;fingerprint&gt;/&lt;scale&gt;/&lt;name&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Media API path of the image</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">queryString: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL-escaped query string, prefixed with <code>?</code>. Empty when there are no parameters</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query string, with its leading <code>?</code>; empty when there are no parameters</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">context: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Project context segment: <code>&lt;project&gt;</code> on the master branch, <code>&lt;project&gt;:&lt;branch&gt;</code> otherwise</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context segment of <code>path</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">id: String</p></td>
@@ -1502,15 +1531,15 @@ It allows you to :</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">fingerprint: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Media fingerprint, joined with the id as <code>&lt;id&gt;:&lt;fingerprint&gt;</code> in the path</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fingerprint of the media</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">scale: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Processed scale segment (for example <code>max-300</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scale segment of <code>path</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">name: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">File name segment, with the requested format extension applied</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">File name segment of <code>path</code></p></td>
 </tr>
 </tbody>
 </table>
@@ -1518,7 +1547,7 @@ It allows you to :</p>
 <div class="sect2">
 <h3 id="attachmenturl"><a class="link" href="#attachmenturl">AttachmentUrl</a></h3>
 <div class="paragraph">
-<p>Attachment link components. Build the address as <code>mediaBaseUrl + path + queryString</code>, using your public API or CDN base URL without a trailing slash. All component values are already URL-escaped. Select <code>url</code> to let XP assemble the address instead.</p>
+<p>Attachment URL components, from XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts"><code>attachmentUrlParts</code></a>, where each component is described. Build the address in the client as <code>mediaBaseUrl + path + queryString</code>, using your public API or CDN base URL.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1533,20 +1562,16 @@ It allows you to :</p>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">url: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Complete attachment URL as resolved by XP: <code>baseUrl + path + queryString</code>. With <code>siteKey</code>, the base is where XP serves the attachment API for that site, taking API mounts and configuration into account. Without a selection, the URL is relative to the current request</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">path: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The full media API path with a leading slash, ready to append to a base URL: <code>/media:attachment/&lt;context&gt;/&lt;id&gt;:&lt;fingerprint&gt;/&lt;name&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Media API path of the attachment</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">queryString: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL-escaped query string, prefixed with <code>?</code>. Empty when there are no parameters</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query string, with its leading <code>?</code>; empty when there are no parameters</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">context: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Project context segment: <code>&lt;project&gt;</code> on the master branch, <code>&lt;project&gt;:&lt;branch&gt;</code> otherwise</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context segment of <code>path</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">id: String</p></td>
@@ -1554,11 +1579,11 @@ It allows you to :</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">fingerprint: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Media fingerprint, joined with the id as <code>&lt;id&gt;:&lt;fingerprint&gt;</code> in the path</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fingerprint of the media</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">name: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Attachment file name segment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">File name segment of <code>path</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">intent: <a href="#mediaintenttype">MediaIntentType</a></p></td>
@@ -2419,15 +2444,22 @@ It allows you to :</p>
 </thead>
 <tbody>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">imageSrcWidth: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Width of the <code>src</code> of each image; 768 by default</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">imageWidths: [Int]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Generates image URLs for given widths which will be used in the <code>srcset</code> attribute of <code>img</code> tag.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Image widths for the <code>srcset</code> of each image</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">imageSizes: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies image width for a specific browser resolution in the following format: <code>(media-condition) width</code>. Multiple sizes are comma-separated.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Value of the <code>sizes</code> attribute of each image</p></td>
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>The fields are those of XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts"><code>processHtmlParts</code></a>, where they are described.</p>
+</div>
 </div>
 </div>
 </div>
@@ -3735,7 +3767,7 @@ Defaults to none - will be displayed in the same order in which fragments appear
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-06 13:48:11 UTC
+Last updated 2026-10-06 13:48:43 UTC
 </div>
 </div>
 </body>

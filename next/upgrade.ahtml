@@ -579,10 +579,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tbody>
 </table>
 <div class="paragraph">
-<p>If XP&#8217;s generated addresses match your deployment, select <code>url</code> on the new object: for example, change <code>imageUrl(scale: "width(800)")</code> to <code>imageUrl(scale: "width(800)") { url }</code> and read <code>imageUrl.url</code> in your client. The same option is available on <code>pageUrl</code>, <code>mediaUrl</code> and <code>attachmentUrl</code>. Generated addresses depend on XP&#8217;s site, media and request context and may be relative; see <a href="usage/images-and-urls.ahtml#generated-urls">XP-generated URLs</a>.</p>
-</div>
-<div class="paragraph">
-<p>For custom frontend routes or a client-selected API/CDN base, select <code>path</code> and <code>queryString</code>, then build the address in your client. The following example uses this approach:</p>
+<p>Select <code>path</code> and <code>queryString</code>, then build the address in your client using the appropriate media base URL or frontend route.</p>
 </div>
 <div class="listingblock">
 <div class="title">Guillotine 8</div>
@@ -607,7 +604,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="title">Guillotine 9</div>
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine(project: "myproject", branch: "master") {
+  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
     get(key: "/my-site/photo") {
       pageUrl { path queryString }
       ... on media_Image {
@@ -623,15 +620,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>For media, concatenate your public API or CDN base with <code>path</code> and <code>queryString</code>. For pages, adapt <code>pageUrl.path</code> to your frontend&#8217;s host and routing, then append <code>pageUrl.queryString</code>. These components are already URL-escaped. See <a href="usage/images-and-urls.ahtml#url-parts">Building URLs from parts</a> for client examples.</p>
+<p>For media, concatenate your public API or CDN base with <code>path</code> and <code>queryString</code>. Links and images in <code>processedHtml</code> are placeholders: rewrite them from the structured rich-text data. For pages of a site, pass its <code>siteKey</code>, and adapt <code>pageUrl.path</code> to your frontend&#8217;s host and routing, then append <code>pageUrl.queryString</code>. <code>pageUrl.baseUrl</code> holds the Base URL configured for the selected site, or for the project without <code>siteKey</code>, or <code>null</code> when there is none. See <a href="usage/images-and-urls.ahtml#url-parts">Building URLs from parts</a> for client examples.</p>
 </div>
 <div class="paragraph">
-<p>The <code>type</code> argument and <code>UrlType</code> enum are removed. Remove <code>type: server</code> and <code>type: absolute</code> from queries and variables. Use <code>url</code> with XP&#8217;s configured URL context, or supply the deployment context in your client when building links from components.</p>
+<p>The <code>type</code> argument and <code>UrlType</code> enum are removed. Remove <code>type: server</code> and <code>type: absolute</code> from queries and variables. Your client now supplies the deployment context when building links from these components.</p>
 </div>
 <div class="sect3">
 <h4 id="processed_rich_text"><a class="link" href="#processed_rich_text">Processed rich text</a></h4>
 <div class="paragraph">
-<p><code>ProcessHtmlInput.type</code> is also removed. Remove the <code>type</code> property from <code>processHtml</code> arguments and variables; <code>imageWidths</code> and <code>imageSizes</code> remain available. Links embedded in processed HTML follow XP&#8217;s site and media configuration. Verify rendered links and images against your deployment, or use structured rich-text data to build them in your client. See <a href="usage/rich-text.ahtml">Rich text</a>.</p>
+<p><code>ProcessHtmlInput.type</code> is also removed. Remove the <code>type</code> property from <code>processHtml</code> arguments and variables; <code>imageWidths</code> and <code>imageSizes</code> remain available. Links and images in processed HTML are placeholders. Rewrite each element carrying a <code>data-link-ref</code> or <code>data-image-ref</code> attribute from its entry in <code>links</code> or <code>images</code>. See <a href="usage/rich-text.ahtml">Rich text</a>. <code>Link.content</code> of a media link is the media content, as <code>Link.media.content</code> is.</p>
 </div>
 </div>
 </div>
@@ -741,10 +738,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>An omitted <code>siteKey</code> no longer defaults to <code>"/"</code>. <code>getSite</code> returns <code>null</code> without a selection, including at a site-mounted endpoint; select a site explicitly when you need this field. A nonexistent <code>siteKey</code> now raises an error while setting up the <code>guillotine</code> context.</p>
+<p>An omitted <code>siteKey</code> selects the project for paths and URLs, as <code>siteKey: "/"</code> does. <code>getSite</code> returns <code>null</code> without a site selection, including at a site-mounted endpoint; select a site explicitly when you need this field. A nonexistent <code>siteKey</code> now raises an error while setting up the <code>guillotine</code> context.</p>
 </div>
 <div class="paragraph">
-<p>Use <code>siteKey: "/"</code> when you explicitly want project-root path and URL context. The project root is not a site content item, so <code>getSite</code> returns <code>null</code> for that selection. Queries using the <code>${site}</code> placeholder must also supply <code>siteKey</code>. See <a href="usage/site-context.ahtml">Site context</a>.</p>
+<p>Omit <code>siteKey</code>, or pass <code>siteKey: "/"</code>, for project-root path and URL context: <code>${site}</code> is then empty, so <code>${site}/blogs</code> becomes <code>/blogs</code>. The project root is not a site content item, so <code>getSite</code> returns <code>null</code> for that selection, and <code>env.localContext.siteKey</code> is only present when <code>siteKey</code> is given. See <a href="usage/site-context.ahtml">Site context</a>.</p>
 </div>
 </div>
 <div class="sect3">
@@ -762,7 +759,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>The previous automatic site-path restrictions on content queries and lookups are removed. Queries can reach content elsewhere in the project, subject to content permissions. If your client needs results from one subtree, add explicit path constraints to its DSL queries.</p>
 </div>
 <div class="paragraph">
-<p>For page URLs, <code>siteKey</code> now selects both the URL base and the relative path. A request for a page URL outside the selected site can produce a GraphQL field error. For nested sites, choosing the parent or child site can produce different links. Without <code>siteKey</code>, page URL context depends on the endpoint. Test cross-site references and nested-site links against the <a href="usage/images-and-urls.ahtml#base-urls">URL context rules</a>.</p>
+<p>For page URLs, <code>siteKey</code> now selects both the URL base and the relative path. A request for a page URL outside the selected site produces a GraphQL field error. For nested sites, choosing the parent or child site can produce different links. Test cross-site references and nested-site links against the <a href="usage/images-and-urls.ahtml#base-urls">URL context rules</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="page_urls_without_sitekey"><a class="link" href="#page_urls_without_sitekey">Page URLs without <code>siteKey</code></a></h4>
+<div class="paragraph">
+<p>Without <code>siteKey</code>, page URLs belong to the project, not to the site that contains the content: <code>pageUrl.path</code> is the full content path, such as <code>/my-site/posts/first-post</code>, and <code>pageUrl.baseUrl</code> is the Base URL configured for the project. This applies to <code>pageUrl</code> on content and on rich-text links alike. Site frontends pass the <code>siteKey</code> of their site to get site-relative paths and the site&#8217;s Base URL.</p>
 </div>
 </div>
 </div>
@@ -831,9 +834,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect3">
-<h4 id="rich_text_macro_discovery"><a class="link" href="#rich_text_macro_discovery">Rich-text macro discovery</a></h4>
+<h4 id="rich_text_macros"><a class="link" href="#rich_text_macros">Rich-text macros</a></h4>
 <div class="paragraph">
-<p>When processing rich text in a site context, Guillotine now uses macros collected from installed applications, rather than limiting discovery to applications configured on that site. Verify macro output if your installation has multiple apps providing macros, especially where names overlap.</p>
+<p>Macros in rich text come from the applications configured on the site selected with <code>siteKey</code>, or on the project without it, and from the built-in macros <code>disable</code> and <code>embed</code>. Among them, a macro is matched by its name, also when written in another case. A macro of an application configured elsewhere stays in the text as written. Configure the application providing the macros on the site or project.</p>
+</div>
+<div class="paragraph">
+<p>The <code>data-macro-name</code> attribute and the <code>name</code> of a macro hold the name of its descriptor, and its parameters are named as the inputs of the descriptor&#8217;s form, also when the text writes them in another case.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="rich_text_image_styles"><a class="link" href="#rich_text_image_styles">Rich-text image styles</a></h4>
+<div class="paragraph">
+<p>Image styles in rich text come from the applications configured on the site selected with <code>siteKey</code>, or on the project without it, rather than from all installed applications. An image whose style belongs to an application configured elsewhere is processed without that style. Configure the application providing the styles on the site or project.</p>
+</div>
+<div class="paragraph">
+<p><code>ImageStyle.application</code> (new) gives the application whose style descriptor holds the style, next to its <code>name</code>. Match both where several applications define styles of the same name.</p>
 </div>
 </div>
 <div class="sect3">
@@ -903,7 +918,7 @@ type CreationCallbacks = NonNullable&lt;Extensions['creationCallbacks']&gt;;</co
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-06 13:48:11 UTC
+Last updated 2026-10-06 13:48:43 UTC
 </div>
 </div>
 </body>

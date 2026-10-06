@@ -471,11 +471,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">URL components</dt>
 <dd>
-<p><code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code> and <code>attachmentUrl</code> return objects exposing <code>path</code> and <code>queryString</code>. Media fields also provide components such as the project context, content ID and fingerprint. Clients can prepend an API or CDN base to media paths and adapt page paths to their frontend routes. See <a href="usage/images-and-urls.ahtml#url-parts">Building URLs from parts</a>.</p>
+<p><code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code> and <code>attachmentUrl</code> return objects exposing <code>path</code> and <code>queryString</code>. <code>pageUrl</code> also exposes the configured <code>baseUrl</code> of the site selected with <code>siteKey</code>, or of the project without it. Media fields also provide components such as the project context, content ID and fingerprint. Clients can prepend an API or CDN base to media paths and adapt page paths to their frontend routes. See <a href="usage/images-and-urls.ahtml#url-parts">Building URLs from parts</a>.</p>
 </dd>
 <dt class="hdlist1">Structured rich-text links</dt>
 <dd>
-<p>The <code>Link.pageUrl</code> and <code>Media.mediaUrl</code> fields expose the same URL components for references found in rich text. Clients can use these fields when rendering links for their own deployment. See <a href="usage/rich-text.ahtml">Rich text</a>.</p>
+<p>The <code>Link.pageUrl</code>, <code>Media.mediaUrl</code>, <code>Image.src</code> and <code>Image.srcset</code> fields expose the same URL components for references found in rich text, and <code>Link.fragment</code> holds the fragment of a page link. Clients can use these fields when rendering links for their own deployment. See <a href="usage/rich-text.ahtml">Rich text</a>.</p>
 </dd>
 <dt class="hdlist1">Content context fields</dt>
 <dd>
@@ -536,7 +536,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-06 13:48:11 UTC
+Last updated 2026-10-06 13:48:43 UTC
 </div>
 </div>
 </body>
