@@ -879,9 +879,12 @@ Use each image URL as it is returned, and don&#8217;t make other sizes by editin
 const url = (u) =&gt; mediaBaseUrl + u.path + u.queryString;
 
 const img = document.querySelector(`[data-image-ref="${image.ref}"]`);
-img.src = url(image.src);
-if (image.srcset.length) {
-  img.srcset = image.srcset.map((source) =&gt; `${url(source.imageUrl)} ${source.width}w`).join(', ');
+// an image that does not resolve has no src: keep its 404 URL, or render it otherwise
+if (image.src) {
+  img.src = url(image.src);
+  if (image.srcset.length) {
+    img.srcset = image.srcset.map((source) =&gt; `${url(source.imageUrl)} ${source.width}w`).join(', ');
+  }
 }</code></pre>
 </div>
 </div>
@@ -1041,7 +1044,7 @@ form:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-06 14:27:14 UTC
+Last updated 2026-10-06 14:28:48 UTC
 </div>
 </div>
 </body>
