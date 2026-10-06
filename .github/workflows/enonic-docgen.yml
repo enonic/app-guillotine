@@ -11,6 +11,10 @@ on:
       - 'docs/**'
   workflow_dispatch:
 
+concurrency:
+  group: docs
+  cancel-in-progress: true
+
 jobs:
   docs:
     runs-on: ubuntu-latest

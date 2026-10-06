@@ -1,15 +1,13 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.StreamSupport;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
+import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.portal.url.PageUrlPartsParams;
 import com.enonic.xp.portal.url.PortalUrlService;
@@ -51,20 +49,9 @@ public class GetPageUrlDataFetcher
 
         if ( environment.getArgument( "params" ) instanceof Map<?, ?> queryParams )
         {
-            final Map<String, List<String>> values = new LinkedHashMap<>();
-            queryParams.forEach( ( key, value ) -> values.put( key.toString(), toStrings( value ) ) );
-            params.setQueryParams( values );
+            params.setQueryParams( ParamsUrHelper.convertToMultimap( CastHelper.cast( queryParams ) ) );
         }
 
         return params.build();
-    }
-
-    private static List<String> toStrings( final Object value )
-    {
-        if ( value instanceof Iterable<?> values )
-        {
-            return StreamSupport.stream( values.spliterator(), false ).map( Objects::toString ).toList();
-        }
-        return List.of( value.toString() );
     }
 }
