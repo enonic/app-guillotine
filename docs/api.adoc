@@ -129,7 +129,6 @@ The `Content` interface is implemented by both built-in and custom defined conte
 
 All types implementing `Content` share the same fields, with the exception of the `data` field, which offers a specific implementation per type.
 
-
 ==== Fields
 |===
 |Name(Arguments):Type | Description
@@ -280,8 +279,8 @@ In addition to the fields of the <<Content>> interface, all `media:*` content ty
 |===
 |Name(Arguments):Type | Description
 
-|mediaUrl (download: Boolean, params: JSON): <<AttachmentUrl>>
-|Components of the URL of the media's attachment. `download: true` asks for the attachment to be downloaded; `params` adds query parameters. The arguments are those of XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts[`attachmentUrlParts`].
+|mediaUrl (download: Boolean): <<AttachmentUrl>>
+|Components of the URL of the media's attachment. `download: true` asks for the attachment to be downloaded. The arguments are those of XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts[`attachmentUrlParts`].
 
 |imageUrl (scale: String, quality: Int, background: String, format: String, filter: String): <<ImageUrl>>
 |Components of the URL of the image, scaled and processed as the arguments ask; without `scale`, the image as stored (`full`). The arguments are those of XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts[`imageUrlParts`], where they are described. Where image transformations are not allowed, the arguments are errors; see <<configuration#image-transformations, Image transformations>>
@@ -459,7 +458,6 @@ Fields are named after the macro. When several applications define a macro of th
 
 |===
 
-
 === Macro_system_disable_DataConfig
 
 |===
@@ -559,7 +557,6 @@ The style of a rich text <<Image>>, as XP's https://developer.enonic.com/docs/co
 |===
 
 === Link
-
 
 |===
 |Name (Arguments): Type | Description
@@ -1121,7 +1118,7 @@ Direct Known Subtypes: FormInput
 |sha512: String
 |Attachment SHA-512 checksum
 
-|attachmentUrl (download: Boolean, params: JSON): <<AttachmentUrl>>
+|attachmentUrl (download: Boolean): <<AttachmentUrl>>
 |Attachment URL and its components. Set `download` to `true` to force download instead of inline rendering
 
 |===
@@ -1228,7 +1225,6 @@ Aggregations enable extracting statistical data from search results. Only one of
 
 |===
 
-
 === TermsAggregationInput
 
 ==== Fields
@@ -1274,9 +1270,7 @@ Aggregations enable extracting statistical data from search results. Only one of
 
 |===
 
-
 === MaxAggregationInput
-
 
 ==== Fields
 
@@ -1289,7 +1283,6 @@ Aggregations enable extracting statistical data from search results. Only one of
 |===
 
 === ValueCountAggregationInput
-
 
 ==== Fields
 
@@ -1347,12 +1340,10 @@ Aggregations enable extracting statistical data from search results. Only one of
 |format: String
 |Date/time format for buckets. Defaults to `yyyy-MM-dd’T’HH:mm:ss.SSSZ`.
 
-
 |ranges: [ <<DateRangeInput>> ]
 |The range-buckets to create.
 
 |===
-
 
 === DateRangeInput
 
@@ -1385,10 +1376,8 @@ Aggregations enable extracting statistical data from search results. Only one of
 |interval: String
 |The time-unit interval for buckets. Supported time-unit notations are `y`, `M`, `W`,`d`,`h`,`m`,`s`.
 
-
 |format: String
 |Date/time format for buckets. Defaults to `yyyy-MM-dd’T’HH:mm:ss.SSSZ`.
-
 
 |minDocCount: Int
 |Only include bucket in result if number of hits is equal or greater than `minDocCount`.

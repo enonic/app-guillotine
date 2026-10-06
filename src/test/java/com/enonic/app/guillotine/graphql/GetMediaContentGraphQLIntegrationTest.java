@@ -32,7 +32,7 @@ public class GetMediaContentGraphQLIntegrationTest
     public void testMediaAndAttachmentUrls()
     {
         when( serviceFacade.getPortalUrlService().attachmentUrlParts( any( AttachmentUrlPartsParams.class ) ) ).thenReturn(
-            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/name", "?a=1&b=2&b=3&c", "myproject", "contentid",
+            new AttachmentUrlParts( "/media:attachment/myproject/contentid:hash/name", "", "myproject", "contentid",
                                     "hash", "name" ) );
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
 
@@ -46,7 +46,7 @@ public class GetMediaContentGraphQLIntegrationTest
         Map<String, Object> attachmentUrlField = CastHelper.cast( getFieldFromGuillotine( result, "attachmentUrl" ) );
         Map<String, Object> mediaUrl = CastHelper.cast( attachmentUrlField.get( "mediaUrl" ) );
         assertEquals( "/media:attachment/myproject/contentid:hash/name", mediaUrl.get( "path" ) );
-        assertEquals( "?a=1&b=2&b=3&c", mediaUrl.get( "queryString" ) );
+        assertEquals( "", mediaUrl.get( "queryString" ) );
         assertEquals( "inline", mediaUrl.get( "intent" ) );
     }
 

@@ -7,7 +7,6 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
-import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.portal.url.AttachmentUrlPartsParams;
 import com.enonic.xp.portal.url.PortalUrlService;
@@ -60,11 +59,6 @@ public class GetAttachmentUrlByIdDataFetcher
         builder.setProjectName( () -> GuillotineLocalContextHelper.getProjectName( environment ) );
         builder.setBranch( () -> GuillotineLocalContextHelper.getBranch( environment ) );
         builder.setContent( () -> content );
-
-        if ( environment.getArgument( "params" ) instanceof Map queryParams )
-        {
-            builder.setQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
-        }
 
         return builder.build();
     }

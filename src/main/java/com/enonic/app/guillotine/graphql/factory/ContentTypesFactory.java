@@ -179,7 +179,6 @@ public class ContentTypesFactory
         List<GraphQLArgument> arguments = new ArrayList<>();
 
         arguments.add( newArgument( "download", Scalars.GraphQLBoolean ) );
-        arguments.add( newArgument( "params", ExtendedScalars.Json ) );
 
         return outputField( "mediaUrl", GraphQLTypeReference.typeRef( "AttachmentUrl" ), arguments );
     }
@@ -245,14 +244,12 @@ public class ContentTypesFactory
         return newObject( typeName, description, fields );
     }
 
-
     private String generateContentTypeName( ContentTypeName name )
     {
         String applicationKey = StringNormalizer.create( name.getApplicationKey().toString() );
         String localName = StringNormalizer.create( name.getLocalName() );
         return applicationKey + "_" + NamingHelper.camelCase( localName );
     }
-
 
     private List<GraphQLFieldDefinition> getGenericContentFields( String contentType )
     {
