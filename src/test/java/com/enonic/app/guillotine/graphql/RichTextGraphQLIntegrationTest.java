@@ -264,7 +264,8 @@ public class RichTextGraphQLIntegrationTest
 
         Map<String, Object> response = executeQuery( graphQLSchema,
                                                      "query { guillotine(siteKey: \"/mysite\") { get(key: \"contentid\") { " +
-                                                         "...on myapplication_News { data { text { processedHtml " +
+                                                         "...on myapplication_News { data { " +
+                                                         "text(processHtml: { imageSrcWidth: 1200, imageWidths: [400], imageSizes: \"50vw\" }) { processedHtml " +
                                                          "links { ref uri pageUrl { baseUrl path queryString } fragment media { intent mediaUrl { path queryString } } } " +
                                                          "images { ref style { application name aspectRatio filter } src { path queryString } srcset { width imageUrl { path } } } } } } } } }" );
 
@@ -299,6 +300,9 @@ public class RichTextGraphQLIntegrationTest
         ArgumentCaptor<ProcessHtmlPartsParams> captor = ArgumentCaptor.forClass( ProcessHtmlPartsParams.class );
         verify( serviceFacade.getPortalUrlService() ).processHtmlParts( captor.capture() );
         assertNull( captor.getValue().getCustomStyleDescriptorsCallback() );
+        assertEquals( 1200, captor.getValue().getImageSrcWidth() );
+        assertEquals( List.of( 400 ), captor.getValue().getImageWidths() );
+        assertEquals( "50vw", captor.getValue().getImageSizes() );
     }
 
     @Test

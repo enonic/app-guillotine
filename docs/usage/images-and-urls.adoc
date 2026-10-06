@@ -203,3 +203,5 @@ const src = `https://img.example.com/${i.context}/${idHash(i)}/${i.scale}/${i.na
 ----
 
 Use the segments as they are returned, including the fingerprint. See <<../api#pageurl, PageUrl>>, <<../api#imageurl, ImageUrl>> and <<../api#attachmenturl, AttachmentUrl>> for the available components.
+
+WARNING: Use each image URL as it is returned, and don't make other sizes by editing its `scale` segment. The fingerprint of an image URL can depend on its whole transformation, so an edited URL may no longer be served. The image's style also contributes to the scale. Ask for each size with the `scale` argument of `imageUrl`, or with `imageSrcWidth` and `imageWidths` for rich text, instead.

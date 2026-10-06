@@ -87,6 +87,10 @@ public class RichTextDataFetcher
 
         if ( processHtmlParams != null )
         {
+            if ( processHtmlParams.containsKey( "imageSrcWidth" ) )
+            {
+                htmlParams.imageSrcWidth( (Integer) processHtmlParams.get( "imageSrcWidth" ) );
+            }
             if ( processHtmlParams.containsKey( "imageWidths" ) )
             {
                 htmlParams.imageWidths( (List<Integer>) processHtmlParams.get( "imageWidths" ) );

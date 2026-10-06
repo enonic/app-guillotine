@@ -1169,6 +1169,9 @@ Direct Known Subtypes: FormInput
 |===
 |Name(Arguments):Type | Description
 
+|imageSrcWidth: Int
+|Width of the `src` of each image; 768 by default
+
 |imageWidths: [Int]
 |Image widths for the `srcset` of each image
 
