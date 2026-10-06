@@ -10,17 +10,17 @@ import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.Media;
-import com.enonic.xp.portal.url.ImageUrlGeneratorParams;
-import com.enonic.xp.portal.url.PortalUrlGeneratorService;
+import com.enonic.xp.portal.url.ImageUrlPartsParams;
+import com.enonic.xp.portal.url.PortalUrlService;
 
 public class GetImageUrlDataFetcher
     implements DataFetcher<Map<String, Object>>
 {
-    private final PortalUrlGeneratorService portalUrlGeneratorService;
+    private final PortalUrlService portalUrlService;
 
-    public GetImageUrlDataFetcher( final PortalUrlGeneratorService portalUrlGeneratorService )
+    public GetImageUrlDataFetcher( final PortalUrlService portalUrlService )
     {
-        this.portalUrlGeneratorService = portalUrlGeneratorService;
+        this.portalUrlService = portalUrlService;
     }
 
     @Override
@@ -40,28 +40,20 @@ public class GetImageUrlDataFetcher
         }
 
         final Map<String, Object> result = UrlPartsHelper.anyImagePartSelected( environment.getSelectionSet() )
-            ? UrlPartsHelper.toMap( portalUrlGeneratorService.imageUrlParts( buildParams( environment, content, null ) ) )
+            ? UrlPartsHelper.toMap( portalUrlService.imageUrlParts( buildParams( environment, content ) ) )
             : new LinkedHashMap<>();
-
-        if ( environment.getSelectionSet().contains( "url" ) )
-        {
-            result.put( "url", portalUrlGeneratorService.imageUrl(
-                buildParams( environment, content, GuillotineLocalContextHelper.getImageBaseUrl( environment ) ) ) );
-        }
 
         return result;
     }
 
     @SuppressWarnings("unchecked")
-    private static ImageUrlGeneratorParams buildParams( final DataFetchingEnvironment environment, final Content content,
-                                                        final String mediaBaseUrl )
+    private static ImageUrlPartsParams buildParams( final DataFetchingEnvironment environment, final Content content )
     {
-        final ImageUrlGeneratorParams.Builder builder = ImageUrlGeneratorParams.create();
+        final ImageUrlPartsParams.Builder builder = ImageUrlPartsParams.create();
 
         builder.setMedia( () -> (Media) content );
         builder.setProjectName( () -> GuillotineLocalContextHelper.getProjectName( environment ) );
         builder.setBranch( () -> GuillotineLocalContextHelper.getBranch( environment ) );
-        builder.setMediaBaseUrl( mediaBaseUrl );
         builder.setScale( environment.getArgument( "scale" ) );
         builder.setQuality( environment.getArgument( "quality" ) );
         builder.setBackground( environment.getArgument( "background" ) );

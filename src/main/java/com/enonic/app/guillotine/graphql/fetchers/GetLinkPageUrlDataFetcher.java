@@ -1,53 +1,31 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
-import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
-import com.enonic.xp.portal.url.PageUrlParams;
-import com.enonic.xp.portal.url.PortalUrlService;
 
+/**
+ * The page URL parts of a rich text link to a content, as XP resolved them while processing the text for the site
+ * {@code siteKey} names, or for the project without one.
+ */
 public class GetLinkPageUrlDataFetcher
     implements DataFetcher<Map<String, Object>>
 {
-    private final PortalUrlService portalUrlService;
-
-    public GetLinkPageUrlDataFetcher( final PortalUrlService portalUrlService )
-    {
-        this.portalUrlService = portalUrlService;
-    }
-
     @Override
+    @SuppressWarnings("unchecked")
     public Map<String, Object> get( final DataFetchingEnvironment environment )
-        throws Exception
     {
         final Map<String, Object> sourceAsMap = environment.getSource();
 
-        // contentId is only present on content links: media links have no page URL
-        final Object contentId = sourceAsMap == null ? null : sourceAsMap.get( "contentId" );
-        if ( contentId == null )
+        // pageUrl is only present on content links: media links have no page URL
+        final Object pageUrl = sourceAsMap == null ? null : sourceAsMap.get( "pageUrl" );
+        if ( pageUrl == null )
         {
             return null;
         }
 
-        return GuillotineLocalContextHelper.executeInContext( environment, () -> {
-            // one set of params for the whole field, so that url = baseUrl + path + queryString
-            final PageUrlParams params = new PageUrlParams().id( contentId.toString() )
-                .base( GuillotineLocalContextHelper.getSiteBase( environment ) );
-
-            final Map<String, Object> result = UrlPartsHelper.anyPagePartSelected( environment.getSelectionSet() )
-                ? UrlPartsHelper.toMap( portalUrlService.pageUrlParts( params ) )
-                : new LinkedHashMap<>();
-
-            if ( environment.getSelectionSet().contains( "url" ) )
-            {
-                result.put( "url", portalUrlService.pageUrl( params ) );
-            }
-
-            return result;
-        } );
+        return (Map<String, Object>) pageUrl;
     }
 }
