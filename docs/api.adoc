@@ -283,8 +283,8 @@ In addition to the fields of the <<Content>> interface, all `media:*` content ty
 |mediaUrl (download: Boolean, params: JSON): <<AttachmentUrl>>
 |Components of the URL of the media's attachment. `download: true` asks for the attachment to be downloaded; `params` adds query parameters. The arguments are those of XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts[`attachmentUrlParts`].
 
-|imageUrl (scale: String!, quality: Int, background: String, format: String, filter: String, params: JSON): <<ImageUrl>>
-|Components of the URL of the image, scaled and processed as the arguments ask. The arguments are those of XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts[`imageUrlParts`], where they are described.
+|imageUrl (scale: String, quality: Int, background: String, format: String, filter: String): <<ImageUrl>>
+|Components of the URL of the image, scaled and processed as the arguments ask; without `scale`, the image as stored (`full`). The arguments are those of XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts[`imageUrlParts`], where they are described. Where image transformations are not allowed, the arguments are errors; see <<configuration#image-transformations, Image transformations>>
 |===
 
 === ContentConnection

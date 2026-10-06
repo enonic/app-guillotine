@@ -8,6 +8,7 @@ import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
 
 import com.enonic.app.guillotine.ServiceFacade;
+import com.enonic.app.guillotine.graphql.ImageTransformations;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.macro.HtmlEditorProcessedResult;
 import com.enonic.app.guillotine.macro.MacroEditorJsonSerializer;
@@ -46,6 +47,17 @@ public class RichTextDataFetcher
     public Object get( final DataFetchingEnvironment environment )
         throws Exception
     {
+        if ( environment.getArgument( "processHtml" ) instanceof Map<?, ?> processHtmlParams )
+        {
+            for ( final String argument : List.of( "imageSrcWidth", "imageWidths" ) )
+            {
+                if ( processHtmlParams.get( argument ) != null )
+                {
+                    ImageTransformations.check( environment, "processHtml." + argument );
+                }
+            }
+        }
+
         final DataFetchingFieldSelectionSet selectionSet = environment.getSelectionSet();
         if ( selectionSet != null && !selectionSet.containsAnyOf( "processedHtml", "macrosAsJson", "macros", "images", "links" ) )
         {

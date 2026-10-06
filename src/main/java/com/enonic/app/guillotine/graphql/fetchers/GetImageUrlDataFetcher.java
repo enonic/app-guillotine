@@ -1,13 +1,15 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
+import com.enonic.app.guillotine.graphql.ImageTransformations;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
-import com.enonic.app.guillotine.graphql.helper.ParamsUrHelper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.Media;
 import com.enonic.xp.portal.url.ImageUrlPartsParams;
@@ -16,6 +18,10 @@ import com.enonic.xp.portal.url.PortalUrlService;
 public class GetImageUrlDataFetcher
     implements DataFetcher<Map<String, Object>>
 {
+    private static final List<String> TRANSFORMATION_ARGUMENTS = List.of( "scale", "quality", "background", "format", "filter" );
+
+    private static final String FULL_SCALE = "full";
+
     private final PortalUrlService portalUrlService;
 
     public GetImageUrlDataFetcher( final PortalUrlService portalUrlService )
@@ -32,6 +38,14 @@ public class GetImageUrlDataFetcher
 
     private Map<String, Object> doGet( final DataFetchingEnvironment environment )
     {
+        for ( final String argument : TRANSFORMATION_ARGUMENTS )
+        {
+            if ( environment.containsArgument( argument ) )
+            {
+                ImageTransformations.check( environment, argument );
+            }
+        }
+
         final Content content = GuillotineLocalContextHelper.resolveContent( environment );
 
         if ( content == null )
@@ -54,16 +68,11 @@ public class GetImageUrlDataFetcher
         builder.setMedia( () -> (Media) content );
         builder.setProjectName( () -> GuillotineLocalContextHelper.getProjectName( environment ) );
         builder.setBranch( () -> GuillotineLocalContextHelper.getBranch( environment ) );
-        builder.setScale( environment.getArgument( "scale" ) );
+        builder.setScale( Objects.requireNonNullElse( environment.getArgument( "scale" ), FULL_SCALE ) );
         builder.setQuality( environment.getArgument( "quality" ) );
         builder.setBackground( environment.getArgument( "background" ) );
         builder.setFormat( environment.getArgument( "format" ) );
         builder.setFilter( environment.getArgument( "filter" ) );
-
-        if ( environment.getArgument( "params" ) instanceof Map queryParams )
-        {
-            builder.setQueryParams( ParamsUrHelper.convertToMultimap( queryParams ) );
-        }
 
         return builder.build();
     }

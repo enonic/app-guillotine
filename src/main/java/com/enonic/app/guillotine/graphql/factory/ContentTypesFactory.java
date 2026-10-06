@@ -193,12 +193,11 @@ public class ContentTypesFactory
     {
         List<GraphQLArgument> arguments = new ArrayList<>();
 
-        arguments.add( newArgument( "scale", new GraphQLNonNull( Scalars.GraphQLString ) ) );
+        arguments.add( newArgument( "scale", Scalars.GraphQLString ) );
         arguments.add( newArgument( "quality", Scalars.GraphQLInt ) );
         arguments.add( newArgument( "background", Scalars.GraphQLString ) );
         arguments.add( newArgument( "format", Scalars.GraphQLString ) );
         arguments.add( newArgument( "filter", Scalars.GraphQLString ) );
-        arguments.add( newArgument( "params", ExtendedScalars.Json ) );
 
         return arguments;
     }

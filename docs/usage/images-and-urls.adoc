@@ -8,7 +8,7 @@ These examples query published content in `myproject`. Replace the project and c
 
 == Scaled images
 
-On `+media_Image+` content, `imageUrl` provides the path for a requested size and crop. This query finds up to ten images and requests an 800 by 200 pixel crop for each:
+On `+media_Image+` content, `imageUrl` provides the path for a requested size and crop, or for the image as stored without a `scale`. Guillotine mounted on a site or a webapp gives the image as stored only, unless configured otherwise; see <<../configuration#image-transformations, Image transformations>>. This query finds up to ten images and requests an 800 by 200 pixel crop for each:
 
 [source,graphql]
 ----
