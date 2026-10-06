@@ -213,7 +213,7 @@ fragment imageFragment on Content {
 <4> Components of the `src` URL; see <<images-and-urls#url-segments, Building URLs from segments>>
 <5> Components of each `srcset` URL, one for each of the `imageWidths`
 
-Use the `processHtml` argument, of type <<../api#processhtmlinput, ProcessHtmlInput>>, on an HtmlArea field to control image processing. Setting `imageWidths` adds a `srcset` with an entry for each requested width.
+Use the `processHtml` argument, of type <<../api#processhtmlinput, ProcessHtmlInput>>, on an HtmlArea field to control image processing. `imageSrcWidth` sets the width of the `src`, and `imageWidths` adds a `srcset` with an entry for each requested width.
 
 For example:
 
@@ -224,7 +224,7 @@ For example:
     get(key: "/my-site/posts/first-post") {
       ... on com_example_myapp_Post {
         data {
-          text(processHtml: { imageWidths: [600, 992] }) {
+          text(processHtml: { imageSrcWidth: 992, imageWidths: [600, 992, 1440] }) {
             processedHtml
             images {
               ref
@@ -254,10 +254,11 @@ The processed HTML holds both attributes as placeholders:
 ----
 <figure class="editor-align-justify">
     <img alt="Alt text"
-         src="/media:image/myproject/contentid:fingerprint/width-768/photo.jpg"
-         data-image-ref="4f2439ff-ecef-4470-a4b4-d8929bce6ee2"
+         src="/media:image/myproject/contentid:fingerprint/width-992/photo.jpg"
          srcset="/media:image/myproject/contentid:fingerprint/width-600/photo.jpg 600w,
-                 /media:image/myproject/contentid:fingerprint/width-992/photo.jpg 992w"/>
+                 /media:image/myproject/contentid:fingerprint/width-992/photo.jpg 992w,
+                 /media:image/myproject/contentid:fingerprint/width-1440/photo.jpg 1440w"
+         data-image-ref="4f2439ff-ecef-4470-a4b4-d8929bce6ee2"/>
     <figcaption>Caption text</figcaption>
 </figure>
 ----
@@ -269,7 +270,7 @@ and the image's entry holds their parts: `src` once, `srcset` once for each widt
 {
   "ref": "4f2439ff-ecef-4470-a4b4-d8929bce6ee2",
   "src": {
-    "path": "/media:image/myproject/contentid:fingerprint/width-768/photo.jpg",
+    "path": "/media:image/myproject/contentid:fingerprint/width-992/photo.jpg",
     "queryString": ""
   },
   "srcset": [
@@ -284,6 +285,13 @@ and the image's entry holds their parts: `src` once, `srcset` once for each widt
       "width": 992,
       "imageUrl": {
         "path": "/media:image/myproject/contentid:fingerprint/width-992/photo.jpg",
+        "queryString": ""
+      }
+    },
+    {
+      "width": 1440,
+      "imageUrl": {
+        "path": "/media:image/myproject/contentid:fingerprint/width-1440/photo.jpg",
         "queryString": ""
       }
     }
