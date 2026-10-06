@@ -336,6 +336,8 @@ and the image's entry holds their parts: `src` once, `srcset` once for each widt
 
 The client rewrites both attributes of the element from the entry. Each `srcset` entry holds the same segments as `src`, so a `srcset` for a CDN host can be built from segments as well; see <<images-and-urls#url-segments, Building URLs from segments>>.
 
+WARNING: Use each image URL as it is returned, and don't make other sizes by editing its `scale` segment. The fingerprint of an image URL can depend on its whole transformation, so an edited URL may no longer be served. The image's style also contributes to the scale. Ask for each size with `imageSrcWidth` and `imageWidths` instead.
+
 [source,javascript]
 ----
 const mediaBaseUrl = 'https://example.com/api';
