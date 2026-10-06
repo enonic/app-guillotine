@@ -55,9 +55,15 @@ public abstract class BaseContentDataFetcher
 
         if ( argumentKey.startsWith( SITE_PATTERN ) )
         {
-            final Site site = getSiteByKey( siteKey );
+            // without a siteKey the project is the root, as with siteKey "/"
+            final Site site = siteKey == null ? null : getSiteByKey( siteKey );
             final String replacement = site != null ? site.getPath().toString() : "";
             argumentKey = replacement + argumentKey.substring( SITE_PATTERN.length() );
+
+            if ( argumentKey.isEmpty() )
+            {
+                return "/";
+            }
         }
 
         if ( argumentKey.isEmpty() )

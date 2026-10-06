@@ -1,6 +1,7 @@
 package com.enonic.app.guillotine.graphql.factory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -8,15 +9,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import graphql.Scalars;
+import graphql.execution.DataFetcherResult;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLTypeReference;
 
 import com.enonic.app.guillotine.ServiceFacade;
+import com.enonic.app.guillotine.graphql.Constants;
 import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.fetchers.FormItemDataFetcher;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
+import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
 import com.enonic.xp.form.Form;
 
@@ -82,7 +86,7 @@ public class MacroTypesFactory
                         outputField( fieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
 
                     context.registerDataFetcher( macroDataConfigTypeName, fieldName,
-                                                 new FormItemDataFetcher( formItem, serviceFacade, context ) );
+                                                 new FormItemDataFetcher( formItem, serviceFacade ) );
 
                     macroDataConfigFields.add( field );
                 }
@@ -101,7 +105,14 @@ public class MacroTypesFactory
             final GraphQLFieldDefinition macroConfigField = outputField( descriptorName, macroDataConfigType );
             macroConfigTypeFields.add( macroConfigField );
 
+            // several applications can define a macro of the same name, and the field is built for one of them:
+            // a macro resolved to another descriptor has no config here
+            final String descriptorKey = macroDescriptor.getKey().toString();
             context.registerDataFetcher( macroConfigTypeName, macroConfigField.getName(), environment -> {
+                if ( !descriptorKey.equals( GuillotineLocalContextHelper.getLocalContext( environment ).get( Constants.MACRO_DESCRIPTOR_FIELD ) ) )
+                {
+                    return null;
+                }
                 Map<String, Object> sourceAsMap = CastHelper.cast( environment.getSource() );
                 return sourceAsMap.get( macroDescriptor.getName() );
             } );
@@ -129,6 +140,19 @@ public class MacroTypesFactory
         GraphQLObjectType macroType = newObject( context.uniqueName( "Macro" ), "Macro type.", macroTypeFields );
 
         context.registerType( macroType.getName(), macroType );
+
+        if ( context.getOutputType( "MacroConfig" ) != null )
+        {
+            context.registerDataFetcher( macroType.getName(), "config", environment -> {
+                final Map<String, Object> sourceAsMap = CastHelper.cast( environment.getSource() );
+                final Map<String, Object> localContext = GuillotineLocalContextHelper.newLocalContext( environment );
+                localContext.put( Constants.MACRO_DESCRIPTOR_FIELD, sourceAsMap.get( "descriptor" ) );
+                return DataFetcherResult.newResult()
+                    .data( sourceAsMap.get( "config" ) )
+                    .localContext( Collections.unmodifiableMap( localContext ) )
+                    .build();
+            } );
+        }
     }
 
     private Form resolveForm( Form originalForm )

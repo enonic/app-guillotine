@@ -114,6 +114,7 @@ export type {
 	Icon,
 	Image,
 	ImageComponentData,
+	ImageSource,
 	ImageStyle,
 	ImageUrl,
 	LayoutComponentData,

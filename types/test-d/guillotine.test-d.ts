@@ -13,7 +13,13 @@ import {
 	GraphQLTypeToGuillotineFields,
 	GraphQLTypeToResolverResult,
 } from '../graphQL/';
-import type {Content} from '../guillotine/objectTypes'
+import type {
+	Content,
+	Image,
+	ImageSource,
+	ImageUrl,
+	Link,
+} from '../guillotine/objectTypes'
 
 
 import {
@@ -170,3 +176,20 @@ expectType<{
 	string: string
 	stringArray: string[]
 }>(resolverResult)
+
+
+//──────────────────────────────────────────────────────────────────────────────
+// Rich text images
+//──────────────────────────────────────────────────────────────────────────────
+declare const richTextImage: Image;
+expectType<ImageUrl>(richTextImage.src);
+expectType<ImageSource[]>(richTextImage.srcset);
+expectType<GraphQLInt>(richTextImage.srcset[0].width);
+expectType<ImageUrl>(richTextImage.srcset[0].imageUrl);
+
+
+//──────────────────────────────────────────────────────────────────────────────
+// Rich text links
+//──────────────────────────────────────────────────────────────────────────────
+declare const richTextLink: Link;
+expectType<GraphQLString>(richTextLink.fragment);
