@@ -1,6 +1,9 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -241,6 +244,27 @@ public class UrlFieldDataFetcherTest
         assertEquals( "/mysite", portalScopeKey( portalUrlService ) );
 
         verify( portalUrlService, never() ).pageUrl( Mockito.any( PageUrlParams.class ) );
+    }
+
+    @Test
+    public void testPageUrlParamsWithNullValues()
+        throws Exception
+    {
+        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        when( portalUrlService.pageUrlParts( Mockito.any( PageUrlPartsParams.class ) ) ).thenReturn(
+            new PageUrlParts( null, "/b/mycontent", "" ) );
+
+        final Map<String, Object> queryParams = new LinkedHashMap<>();
+        queryParams.put( "flag", null );
+        queryParams.put( "tags", Arrays.asList( "a", null, "b" ) );
+        queryParams.put( "page", 2 );
+        when( environment.getArgument( "params" ) ).thenReturn( queryParams );
+
+        new GetPageUrlDataFetcher( portalUrlService ).get( environment );
+
+        ArgumentCaptor<PageUrlPartsParams> captor = ArgumentCaptor.forClass( PageUrlPartsParams.class );
+        verify( portalUrlService ).pageUrlParts( captor.capture() );
+        assertEquals( Map.of( "flag", List.of(), "tags", List.of( "a", "b" ), "page", List.of( "2" ) ), captor.getValue().getQueryParams() );
     }
 
     @Test
