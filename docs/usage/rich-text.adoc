@@ -344,9 +344,12 @@ const mediaBaseUrl = 'https://example.com/api';
 const url = (u) => mediaBaseUrl + u.path + u.queryString;
 
 const img = document.querySelector(`[data-image-ref="${image.ref}"]`);
-img.src = url(image.src);
-if (image.srcset.length) {
-  img.srcset = image.srcset.map((source) => `${url(source.imageUrl)} ${source.width}w`).join(', ');
+// an image that does not resolve has no src: keep its 404 URL, or render it otherwise
+if (image.src) {
+  img.src = url(image.src);
+  if (image.srcset.length) {
+    img.srcset = image.srcset.map((source) => `${url(source.imageUrl)} ${source.width}w`).join(', ');
+  }
 }
 ----
 
