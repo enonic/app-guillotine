@@ -67,9 +67,7 @@ Clients selecting URL fields must update both their queries and their handling o
 |`Attachment.attachmentUrl` |`String` |`AttachmentUrl`
 |===
 
-If XP's generated addresses match your deployment, select `url` on the new object: for example, change `imageUrl(scale: "width(800)")` to `imageUrl(scale: "width(800)") { url }` and read `imageUrl.url` in your client. The same option is available on `pageUrl`, `mediaUrl` and `attachmentUrl`. Generated addresses depend on XP's site, media and request context and may be relative; see <<usage/images-and-urls#generated-urls, XP-generated URLs>>.
-
-For custom frontend routes or a client-selected API/CDN base, select `path` and `queryString`, then build the address in your client. The following example uses this approach:
+Select `path` and `queryString`, then build the address in your client using the appropriate media base URL or frontend route.
 
 .Guillotine 8
 [source,graphql]
@@ -111,7 +109,7 @@ For custom frontend routes or a client-selected API/CDN base, select `path` and 
 
 For media, concatenate your public API or CDN base with `path` and `queryString`. Links and images in `processedHtml` are placeholders: rewrite them from the structured rich-text data. For pages of a site, pass its `siteKey`, and adapt `pageUrl.path` to your frontend's host and routing, then append `pageUrl.queryString`. `pageUrl.baseUrl` holds the Base URL configured for the selected site, or for the project without `siteKey`, or `null` when there is none. See <<usage/images-and-urls#url-parts, Building URLs from parts>> for client examples.
 
-The `type` argument and `UrlType` enum are removed. Remove `type: server` and `type: absolute` from queries and variables. Use `url` with XP's configured URL context, or supply the deployment context in your client when building links from components.
+The `type` argument and `UrlType` enum are removed. Remove `type: server` and `type: absolute` from queries and variables. Your client now supplies the deployment context when building links from these components.
 
 ==== Processed rich text
 
