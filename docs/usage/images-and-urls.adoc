@@ -135,7 +135,7 @@ A CDN host can serve the media API paths without their leading segments, such as
 [#url-parts]
 == Building URLs from parts
 
-The `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields expose `path` and `queryString`, ready to use as they are. For a deployment that preserves the returned paths, assemble links as `baseUrl + path + queryString`.
+The `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields expose `path` and `queryString`, ready to use as they are. Their `params` argument adds query parameters to `queryString`: `params: { page: 2, tag: ["a", "b"], preview: null }` gives `?page=2&tag=a&tag=b&preview`. For a deployment that preserves the returned paths, assemble links as `baseUrl + path + queryString`.
 
 `pageUrl.baseUrl` can serve as the base of page links. It is `null` when none is configured, so check it before concatenating: in JavaScript, `null + path` produces the string `"null/..."` without an error.
 
