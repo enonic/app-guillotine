@@ -30,9 +30,13 @@ public class SchemaProvider
                                     () -> guillotineConfigService );
     }
 
+    /**
+     * Executes a query received over HTTP, which may ask for image transformations as {@link ImageTransformations#ofRequest()}
+     * decides.
+     */
     public Object execute( final String query, final Map<String, Object> variables )
     {
-        return graphQLApi.execute( getSchema(), query, variables );
+        return graphQLApi.execute( getSchema(), query, variables, ImageTransformations.ofRequest() );
     }
 
     public Map<String, Object> executeToSpecification( final String query, final Map<String, Object> variables )

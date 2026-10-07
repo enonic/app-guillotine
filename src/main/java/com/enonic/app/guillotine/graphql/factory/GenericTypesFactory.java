@@ -138,8 +138,7 @@ public class GenericTypesFactory
         fields.add( outputField( "mimeType", Scalars.GraphQLString ) );
         fields.add( outputField( "sha512", Scalars.GraphQLString ) );
         fields.add( outputField( "attachmentUrl", GraphQLTypeReference.typeRef( "AttachmentUrl" ),
-                                 List.of( newArgument( "download", Scalars.GraphQLBoolean ),
-                                          newArgument( "params", ExtendedScalars.Json ) ) ) );
+                                 List.of( newArgument( "download", Scalars.GraphQLBoolean ) ) ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "Attachment" ), "Attachment.", fields );
         context.registerType( outputObject.getName(), outputObject );

@@ -2,11 +2,7 @@ query {
     guillotine {
         attachmentUrl: get(key: "contentid") {
             ... on media_Image {
-                mediaUrl(params: {
-                    a: 1,
-                    b: [2, 3],
-                    c: []
-                }) {
+                mediaUrl {
                     path
                     queryString
                     intent

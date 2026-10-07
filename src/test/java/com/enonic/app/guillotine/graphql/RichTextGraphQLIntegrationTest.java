@@ -155,6 +155,31 @@ public class RichTextGraphQLIntegrationTest
     }
 
     @Test
+    public void testImageWidthsDenied()
+    {
+        when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
+            new ProcessedHtml( "processedHtml", null, List.of(), List.of(), List.of() ) );
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( createContent( true ) );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> denied = executeQuery( graphQLSchema, "query { guillotine { get(key: \"contentid\") { " +
+            "...on myapplication_News { data { text(processHtml: { imageWidths: [400], imageSizes: \"50vw\" }) { processedHtml } } } } } }",
+                                                   ImageTransformations.DENIED );
+
+        List<Map<String, Object>> errors = CastHelper.cast( denied.get( "errors" ) );
+        assertEquals( 1, errors.size() );
+        assertTrue( errors.get( 0 ).get( "message" ).toString().contains( "'processHtml.imageWidths'" ) );
+        verify( serviceFacade.getPortalUrlService(), never() ).processHtmlParts( any( ProcessHtmlPartsParams.class ) );
+
+        // imageSizes alone transforms nothing
+        Map<String, Object> allowed = executeQuery( graphQLSchema, "query { guillotine { get(key: \"contentid\") { " +
+            "...on myapplication_News { data { text(processHtml: { imageSizes: \"50vw\" }) { processedHtml } } } } } }",
+                                                    ImageTransformations.DENIED );
+        assertFalse( allowed.containsKey( "errors" ) );
+    }
+
+    @Test
     public void testRawAloneIsNotProcessed()
     {
         final Content content = createContent( true );

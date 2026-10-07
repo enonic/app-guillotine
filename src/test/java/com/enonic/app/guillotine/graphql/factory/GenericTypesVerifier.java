@@ -242,9 +242,8 @@ public class GenericTypesVerifier
         GraphQLFieldDefinition attachmentUrlField = type.getFieldDefinition( "attachmentUrl" );
         assertEquals( "AttachmentUrl", getNameForGraphQLTypeReference( attachmentUrlField.getType() ) );
 
-        assertEquals( 2, attachmentUrlField.getArguments().size() );
+        assertEquals( 1, attachmentUrlField.getArguments().size() );
         assertEquals( Scalars.GraphQLBoolean, attachmentUrlField.getArgument( "download" ).getType() );
-        assertEquals( ExtendedScalars.Json, attachmentUrlField.getArgument( "params" ).getType() );
     }
 
     private void verifyPublishInfo()

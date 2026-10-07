@@ -17,6 +17,7 @@ import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingFieldSelectionSet;
 
 import com.enonic.app.guillotine.graphql.Constants;
+import com.enonic.app.guillotine.graphql.ImageTransformations;
 import com.enonic.app.guillotine.graphql.ContentFixtures;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.branch.Branch;
@@ -40,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -165,6 +167,53 @@ public class UrlFieldDataFetcherTest
 
         verify( portalUrlService ).imageUrlParts( Mockito.any( ImageUrlPartsParams.class ) );
         verify( portalUrlService, never() ).imageUrl( Mockito.any( ImageUrlParams.class ) );
+    }
+
+    @Test
+    public void testImageUrlIsFullScaleWithoutScale()
+        throws Exception
+    {
+        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        when( portalUrlService.imageUrlParts( Mockito.any( ImageUrlPartsParams.class ) ) ).thenReturn(
+            new ImageUrlParts( "/media:image/myproject:draft/contentid:hash/full/name.jpg", "", "myproject:draft", "contentid", "hash",
+                               "full", "name.jpg" ) );
+
+        new GetImageUrlDataFetcher( portalUrlService ).get( environment );
+
+        ArgumentCaptor<ImageUrlPartsParams> captor = ArgumentCaptor.forClass( ImageUrlPartsParams.class );
+        verify( portalUrlService ).imageUrlParts( captor.capture() );
+        assertEquals( "full", captor.getValue().getScale() );
+    }
+
+    @Test
+    public void testImageUrlTransformationsDenied()
+    {
+        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        when( environment.getGraphQlContext() ).thenReturn(
+            GraphQLContext.newContext().of( ImageTransformations.class, ImageTransformations.DENIED ).build() );
+        when( environment.containsArgument( "scale" ) ).thenReturn( true );
+        when( environment.getArgument( "scale" ) ).thenReturn( "max(300)" );
+
+        final IllegalArgumentException e =
+            assertThrows( IllegalArgumentException.class, () -> new GetImageUrlDataFetcher( portalUrlService ).get( environment ) );
+        assertTrue( e.getMessage().contains( "'scale'" ) );
+        verify( portalUrlService, never() ).imageUrlParts( Mockito.any( ImageUrlPartsParams.class ) );
+    }
+
+    @Test
+    public void testImageUrlWithoutTransformationsWhenDenied()
+        throws Exception
+    {
+        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        when( portalUrlService.imageUrlParts( Mockito.any( ImageUrlPartsParams.class ) ) ).thenReturn(
+            new ImageUrlParts( "/media:image/myproject:draft/contentid:hash/full/name.jpg", "", "myproject:draft", "contentid", "hash",
+                               "full", "name.jpg" ) );
+        when( environment.getGraphQlContext() ).thenReturn(
+            GraphQLContext.newContext().of( ImageTransformations.class, ImageTransformations.DENIED ).build() );
+
+        final Map<String, Object> parts = new GetImageUrlDataFetcher( portalUrlService ).get( environment );
+
+        assertEquals( "full", parts.get( "scale" ) );
     }
 
     @Test
