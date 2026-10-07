@@ -41,6 +41,27 @@ maxQueryTokens=15000
 
 CORS controls which browser origins can read responses. Authentication and content permissions still determine which content the caller can access. See <<usage#troubleshooting, Troubleshooting>> when requests fail.
 
+[#image-transformations]
+== Image transformations
+
+XP signs the image URLs it generates, so a query that can ask for any scale, quality, background, format or filter can have any image variant signed. A virtual host mapping decides whether the queries it serves may ask for them, with the `guillotine.imageTransformations` context property in `com.enonic.xp.web.vhost.cfg`:
+
+[source,properties]
+----
+mapping.mysite.host = www.example.com
+mapping.mysite.source = /
+mapping.mysite.target = /site/myproject/master/mysite
+mapping.mysite.context.guillotine.imageTransformations = deny
+----
+
+`auto`:: The default. Queries sent to Guillotine's API endpoint, such as `/api/com.enonic.app.guillotine:graphql`, and in the admin may ask for image transformations; queries sent to Guillotine mounted on a site or a webapp may not.
+`allow`:: Queries may ask for image transformations.
+`deny`:: Queries may not ask for image transformations.
+
+A query that may not ask for them gets a field error for each `scale`, `quality`, `background`, `format` or `filter` argument of `imageUrl`, and for the `imageSrcWidth` and `imageWidths` of `processHtml`. Without those arguments, `imageUrl` gives the image as stored, and rich text images keep the scale and style the editor chose.
+
+Queries run in-process, through the `guillotine.execute` function, may always ask for image transformations.
+
 [#media-base-url]
 == Media base URL
 

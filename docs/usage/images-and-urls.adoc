@@ -8,7 +8,7 @@ These examples query published content in `myproject`. Replace the project and c
 
 == Scaled images
 
-On `+media_Image+` content, `imageUrl` provides the path for a requested size and crop. This query finds up to ten images and requests an 800 by 200 pixel crop for each:
+On `+media_Image+` content, `imageUrl` provides the path for a requested size and crop, or for the image as stored without a `scale`. Guillotine mounted on a site or a webapp gives the image as stored only, unless configured otherwise; see <<../configuration#image-transformations, Image transformations>>. This query finds up to ten images and requests an 800 by 200 pixel crop for each:
 
 [source,graphql]
 ----
@@ -135,7 +135,7 @@ A CDN host can serve the media API paths without their leading segments, such as
 [#url-parts]
 == Building URLs from parts
 
-The `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields expose `path` and `queryString`, ready to use as they are. Their `params` argument adds query parameters to `queryString`: `params: { page: 2, tag: ["a", "b"], preview: null }` gives `?page=2&tag=a&tag=b&preview`. For a deployment that preserves the returned paths, assemble links as `baseUrl + path + queryString`.
+The `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl` fields expose `path` and `queryString`, ready to use as they are. The `params` argument of `pageUrl` adds query parameters to `queryString`: `params: { page: 2, tag: ["a", "b"], preview: null }` gives `?page=2&tag=a&tag=b&preview`. For a deployment that preserves the returned paths, assemble links as `baseUrl + path + queryString`.
 
 `pageUrl.baseUrl` can serve as the base of page links. It is `null` when none is configured, so check it before concatenating: in JavaScript, `null + path` produces the string `"null/..."` without an error.
 

@@ -111,6 +111,10 @@ For media, concatenate your public API or CDN base with `path` and `queryString`
 
 The `type` argument and `UrlType` enum are removed. Remove `type: server` and `type: absolute` from queries and variables. Your client now supplies the deployment context when building links from these components.
 
+The `params` argument of `imageUrl`, `mediaUrl` and `attachmentUrl` is removed: the media APIs read no query parameters of their own besides those the other arguments set. `pageUrl` keeps it. `scale` is optional: without it, `imageUrl` gives the image as stored.
+
+Guillotine mounted on a site or a webapp no longer accepts image transformations by default: the `scale`, `quality`, `background`, `format` and `filter` of `imageUrl`, and the `imageSrcWidth` and `imageWidths` of `processHtml`, are field errors there. Queries to Guillotine's API endpoint are not affected. To keep them on a site or webapp mount, set `guillotine.imageTransformations = allow` on its virtual host mapping; see <<configuration#image-transformations, Image transformations>>.
+
 ==== Processed rich text
 
 `ProcessHtmlInput.type` is also removed. Remove the `type` property from `processHtml` arguments and variables; `imageWidths` and `imageSizes` remain available. Links and images in processed HTML are placeholders. Rewrite each element carrying a `data-link-ref` or `data-image-ref` attribute from its entry in `links` or `images`. See <<usage/rich-text#, Rich text>>. `Link.content` of a media link is the media content, as `Link.media.content` is.

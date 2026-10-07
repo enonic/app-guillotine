@@ -235,15 +235,24 @@ public class GraphQLApi
 
     public Object execute( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables )
     {
-        return new ExecutionResultMapper( executeInternal( graphQLSchema, query, variables == null ? Map.of() : variables ) );
+        return execute( graphQLSchema, query, variables, ImageTransformations.ALLOWED );
+    }
+
+    public Object execute( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables,
+                           ImageTransformations imageTransformations )
+    {
+        return new ExecutionResultMapper(
+            executeInternal( graphQLSchema, query, variables == null ? Map.of() : variables, imageTransformations ) );
     }
 
     public Map<String, Object> executeToSpecification( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables )
     {
-        return executeInternal( graphQLSchema, query, variables == null ? Map.of() : variables ).toSpecification();
+        return executeInternal( graphQLSchema, query, variables == null ? Map.of() : variables,
+                                ImageTransformations.ALLOWED ).toSpecification();
     }
 
-    private ExecutionResult executeInternal( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables )
+    private ExecutionResult executeInternal( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables,
+                                             ImageTransformations imageTransformations )
     {
         final PreparsedDocumentProvider preparsedProvider = ( executionInput, parseAndValidateFunction ) -> {
             PreparsedDocumentEntry entry;
@@ -271,7 +280,11 @@ public class GraphQLApi
 
         final GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).preparsedDocumentProvider( preparsedProvider ).build();
 
-        final ExecutionInput executionInput = ExecutionInput.newExecutionInput().query( query ).variables( variables ).build();
+        final ExecutionInput executionInput = ExecutionInput.newExecutionInput()
+            .query( query )
+            .variables( variables )
+            .graphQLContext( Map.of( ImageTransformations.class, imageTransformations ) )
+            .build();
 
         return graphQL.execute( executionInput );
     }
