@@ -442,6 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#config_file">Config file</a></li>
+<li><a href="#image-transformations">Image transformations</a></li>
 <li><a href="#media-base-url">Media base URL</a></li>
 </ul>
 </div>
@@ -517,6 +518,44 @@ maxQueryTokens=15000</code></pre>
 </div>
 </div>
 <div class="sect1">
+<h2 id="image-transformations"><a class="link" href="#image-transformations">Image transformations</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>XP signs the image URLs it generates, so a query that can ask for any scale, quality, background, format or filter can have any image variant signed. A virtual host mapping decides whether the queries it serves may ask for them, with the <code>guillotine.imageTransformations</code> context property in <code>com.enonic.xp.web.vhost.cfg</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-properties" data-lang="properties">mapping.mysite.host = www.example.com
+mapping.mysite.source = /
+mapping.mysite.target = /site/myproject/master/mysite
+mapping.mysite.context.guillotine.imageTransformations = deny</code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>auto</code></dt>
+<dd>
+<p>The default. Queries sent to Guillotine&#8217;s API endpoint, such as <code>/api/com.enonic.app.guillotine:graphql</code>, and in the admin may ask for image transformations; queries sent to Guillotine mounted on a site or a webapp may not.</p>
+</dd>
+<dt class="hdlist1"><code>allow</code></dt>
+<dd>
+<p>Queries may ask for image transformations.</p>
+</dd>
+<dt class="hdlist1"><code>deny</code></dt>
+<dd>
+<p>Queries may not ask for image transformations.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>A query that may not ask for them gets a field error for each <code>scale</code>, <code>quality</code>, <code>background</code>, <code>format</code> or <code>filter</code> argument of <code>imageUrl</code>, and for the <code>imageSrcWidth</code> and <code>imageWidths</code> of <code>processHtml</code>. Without those arguments, <code>imageUrl</code> gives the image as stored, and rich text images keep the scale and style the editor chose.</p>
+</div>
+<div class="paragraph">
+<p>Queries run in-process, through the <code>guillotine.execute</code> function, may always ask for image transformations.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="media-base-url"><a class="link" href="#media-base-url">Media base URL</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -530,7 +569,7 @@ maxQueryTokens=15000</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-07 05:56:00 UTC
+Last updated 2026-10-07 06:28:08 UTC
 </div>
 </div>
 </body>

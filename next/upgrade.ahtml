@@ -625,6 +625,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>The <code>type</code> argument and <code>UrlType</code> enum are removed. Remove <code>type: server</code> and <code>type: absolute</code> from queries and variables. Your client now supplies the deployment context when building links from these components.</p>
 </div>
+<div class="paragraph">
+<p>The <code>params</code> argument of <code>imageUrl</code>, <code>mediaUrl</code> and <code>attachmentUrl</code> is removed: the media APIs read no query parameters of their own besides those the other arguments set. <code>pageUrl</code> keeps it. <code>scale</code> is optional: without it, <code>imageUrl</code> gives the image as stored.</p>
+</div>
+<div class="paragraph">
+<p>Guillotine mounted on a site or a webapp no longer accepts image transformations by default: the <code>scale</code>, <code>quality</code>, <code>background</code>, <code>format</code> and <code>filter</code> of <code>imageUrl</code>, and the <code>imageSrcWidth</code> and <code>imageWidths</code> of <code>processHtml</code>, are field errors there. Queries to Guillotine&#8217;s API endpoint are not affected. To keep them on a site or webapp mount, set <code>guillotine.imageTransformations = allow</code> on its virtual host mapping; see <a href="configuration.ahtml#image-transformations">Image transformations</a>.</p>
+</div>
 <div class="sect3">
 <h4 id="processed_rich_text"><a class="link" href="#processed_rich_text">Processed rich text</a></h4>
 <div class="paragraph">
@@ -918,7 +924,7 @@ type CreationCallbacks = NonNullable&lt;Extensions['creationCallbacks']&gt;;</co
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-07 05:56:00 UTC
+Last updated 2026-10-07 06:28:08 UTC
 </div>
 </div>
 </body>

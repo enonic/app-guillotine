@@ -477,7 +477,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="scaled_images"><a class="link" href="#scaled_images">Scaled images</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>On <code>media_Image</code> content, <code>imageUrl</code> provides the path for a requested size and crop. This query finds up to ten images and requests an 800 by 200 pixel crop for each:</p>
+<p>On <code>media_Image</code> content, <code>imageUrl</code> provides the path for a requested size and crop, or for the image as stored without a <code>scale</code>. Guillotine mounted on a site or a webapp gives the image as stored only, unless configured otherwise; see <a href="../configuration.ahtml#image-transformations">Image transformations</a>. This query finds up to ten images and requests an 800 by 200 pixel crop for each:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -660,7 +660,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="url-parts"><a class="link" href="#url-parts">Building URLs from parts</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code> and <code>attachmentUrl</code> fields expose <code>path</code> and <code>queryString</code>, ready to use as they are. Their <code>params</code> argument adds query parameters to <code>queryString</code>: <code>params: { page: 2, tag: ["a", "b"], preview: null }</code> gives <code>?page=2&amp;tag=a&amp;tag=b&amp;preview</code>. For a deployment that preserves the returned paths, assemble links as <code>baseUrl + path + queryString</code>.</p>
+<p>The <code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code> and <code>attachmentUrl</code> fields expose <code>path</code> and <code>queryString</code>, ready to use as they are. The <code>params</code> argument of <code>pageUrl</code> adds query parameters to <code>queryString</code>: <code>params: { page: 2, tag: ["a", "b"], preview: null }</code> gives <code>?page=2&amp;tag=a&amp;tag=b&amp;preview</code>. For a deployment that preserves the returned paths, assemble links as <code>baseUrl + path + queryString</code>.</p>
 </div>
 <div class="paragraph">
 <p><code>pageUrl.baseUrl</code> can serve as the base of page links. It is <code>null</code> when none is configured, so check it before concatenating: in JavaScript, <code>null + path</code> produces the string <code>"null/&#8230;&#8203;"</code> without an error.</p>
@@ -751,7 +751,7 @@ Use each image URL as it is returned, and don&#8217;t make other sizes by editin
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-07 05:56:00 UTC
+Last updated 2026-10-07 06:28:08 UTC
 </div>
 </div>
 </body>
