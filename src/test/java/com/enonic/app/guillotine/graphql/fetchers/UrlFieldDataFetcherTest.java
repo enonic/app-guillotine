@@ -35,7 +35,6 @@ import com.enonic.xp.portal.url.PortalScope;
 import com.enonic.xp.portal.url.PortalScopeParams;
 import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.project.ProjectName;
-import com.enonic.xp.site.SiteConfigs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -425,9 +424,12 @@ public class UrlFieldDataFetcherTest
 
     private static PortalScope portalScope( final PortalUrlService portalUrlService, final String key )
     {
-        final PortalScope scope =
-            new PortalScope( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( key ), ContentPath.from( key ),
-                             SiteConfigs.empty() );
+        final PortalScope scope = PortalScope.create()
+            .projectName( ProjectName.from( "myproject" ) )
+            .branch( Branch.from( "master" ) )
+            .path( ContentPath.from( key ) )
+            .sitePath( ContentPath.from( key ) )
+            .build();
         when( portalUrlService.portalScope( Mockito.any( PortalScopeParams.class ) ) ).thenReturn( scope );
         return scope;
     }
