@@ -207,6 +207,8 @@ The `_path` field no longer accepts `type: siteRelative`, and the `ContentPathTy
 
 Select `pageUrl { path }` with an appropriate `siteKey` for a site-relative link. This is not a direct string replacement: the old site-relative `_path` omitted the leading slash, while `pageUrl.path` includes it for descendants and URL-escapes the path. For the selected site itself, `pageUrl.path` is empty. Adjust URL concatenation accordingly.
 
+A `siteKey` naming a content that is not a site makes `pageUrl.path` relative to that content, as a virtual host mounted on it does, where the old site-relative `_path` was relative to its site. `getSite` and `${site}` keep resolving to the nearest site.
+
 ==== Query scope and URL scope
 
 The previous automatic site-path restrictions on content queries and lookups are removed. Queries can reach content elsewhere in the project, subject to content permissions. If your client needs results from one subtree, add explicit path constraints to its DSL queries.
