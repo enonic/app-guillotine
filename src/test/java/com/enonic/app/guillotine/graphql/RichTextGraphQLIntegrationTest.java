@@ -105,8 +105,8 @@ public class RichTextGraphQLIntegrationTest
     public void testBaseIsResolvedOncePerQuery()
     {
         final PortalScope scope =
-            new PortalScope( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( "/mysite" ), SiteConfigs.empty(),
-                             null );
+            new PortalScope( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( "/mysite" ),
+                             ContentPath.from( "/mysite" ), SiteConfigs.empty() );
         when( serviceFacade.getPortalUrlService().portalScope( any( PortalScopeParams.class ) ) ).thenReturn( scope );
         when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
             new ProcessedHtml( "processedHtml", null, List.of(), List.of(), List.of() ) );

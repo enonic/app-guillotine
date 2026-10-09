@@ -426,7 +426,8 @@ public class UrlFieldDataFetcherTest
     private static PortalScope portalScope( final PortalUrlService portalUrlService, final String key )
     {
         final PortalScope scope =
-            new PortalScope( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( key ), SiteConfigs.empty(), null );
+            new PortalScope( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( key ), ContentPath.from( key ),
+                             SiteConfigs.empty() );
         when( portalUrlService.portalScope( Mockito.any( PortalScopeParams.class ) ) ).thenReturn( scope );
         return scope;
     }
