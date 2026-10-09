@@ -80,8 +80,8 @@ public class GuillotineLocalContextHelper
     }
 
     /**
-     * @return the scope page URLs and processed HTML belong to: the site or project named by siteKey, or the project when
-     * no siteKey is in use. It is resolved once per query for each project, branch and siteKey
+     * @return the scope page URLs and processed HTML belong to: the content named by siteKey, or the project when no
+     * siteKey is in use. It is resolved once per query for each project, branch and siteKey
      */
     public static PortalScope getPortalScope( final DataFetchingEnvironment environment, final PortalUrlService portalUrlService )
     {
