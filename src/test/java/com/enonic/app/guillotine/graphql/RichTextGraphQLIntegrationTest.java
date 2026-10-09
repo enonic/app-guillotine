@@ -35,7 +35,6 @@ import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
-import com.enonic.xp.site.SiteConfigs;
 import com.enonic.xp.util.GenericValue;
 
 import static com.enonic.app.guillotine.graphql.ResourceHelper.readGraphQLQuery;
@@ -104,8 +103,12 @@ public class RichTextGraphQLIntegrationTest
     @Test
     public void testBaseIsResolvedOncePerQuery()
     {
-        final PortalScope scope =
-            new PortalScope( ProjectName.from( "myproject" ), Branch.from( "master" ), ContentPath.from( "/mysite" ), SiteConfigs.empty() );
+        final PortalScope scope = PortalScope.create()
+            .projectName( ProjectName.from( "myproject" ) )
+            .branch( Branch.from( "master" ) )
+            .path( ContentPath.from( "/mysite" ) )
+            .sitePath( ContentPath.from( "/mysite" ) )
+            .build();
         when( serviceFacade.getPortalUrlService().portalScope( any( PortalScopeParams.class ) ) ).thenReturn( scope );
         when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
             new ProcessedHtml( "processedHtml", null, List.of(), List.of(), List.of() ) );
