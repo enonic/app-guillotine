@@ -73,7 +73,7 @@ This example assumes a document media item. The `download` argument is carried b
 
 == Page URLs
 
-Select `pageUrl.path` and `pageUrl.queryString` to build a content item's page link. `siteKey` names the site the path is relative to; without it, the path is relative to the project:
+Select `pageUrl.path` and `pageUrl.queryString` to build a content item's page link. `siteKey` names the site, or another content, that the path is relative to; without it, the path is relative to the project:
 
 [source,graphql]
 ----
@@ -96,7 +96,7 @@ The returned `path` is `/posts/first-post`. Select `baseUrl` as well to receive 
 
 === Page links
 
-Your frontend controls the public host and routing for page links. Use `siteKey` to select the site or project that `pageUrl.path` is relative to, then map that path to your deployment. Without `siteKey`, the project is selected.
+Your frontend controls the public host and routing for page links. Use `siteKey` to select the site, or another content, that `pageUrl.path` is relative to, then map that path to your deployment. Without `siteKey`, the project is selected.
 
 For nested sites, the selected level determines the path. Given a post at `/my-site/subsite/posts/first-post`:
 
@@ -111,7 +111,7 @@ For nested sites, the selected level determines the path. Given a post at `/my-s
 
 When your frontend needs a path of its own for the site root, use `/` for an empty `path`.
 
-`siteKey: "/"`, like no `siteKey`, selects the project itself. `pageUrl.baseUrl` is the Base URL configured for the selected level; see XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts[`pageUrlParts`].
+`siteKey: "/"`, like no `siteKey`, selects the project itself. `pageUrl.baseUrl` is the Base URL configured for the selected site or project, followed by the path of a selected content below it, so that `baseUrl + path` is the page's URL; see XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts[`pageUrlParts`].
 
 A content outside the selected site, such as the parent site when the nested one is selected, has no page URL there, and `pageUrl` reports an error.
 
