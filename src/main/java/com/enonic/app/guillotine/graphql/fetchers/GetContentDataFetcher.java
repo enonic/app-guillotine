@@ -6,13 +6,14 @@ import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentService;
+import com.enonic.xp.portal.url.PortalUrlService;
 
 public class GetContentDataFetcher
     extends BaseContentDataFetcher
 {
-    public GetContentDataFetcher( final ContentService contentService )
+    public GetContentDataFetcher( final ContentService contentService, final PortalUrlService portalUrlService )
     {
-        super( contentService );
+        super( contentService, portalUrlService );
     }
 
     @Override

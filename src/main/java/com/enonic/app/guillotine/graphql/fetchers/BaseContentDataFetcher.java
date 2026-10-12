@@ -1,15 +1,17 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
+import java.util.function.Function;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.Content;
-import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.site.Site;
+import com.enonic.xp.portal.url.PortalScope;
+import com.enonic.xp.portal.url.PortalUrlService;
 
 public abstract class BaseContentDataFetcher
     implements DataFetcher<Object>
@@ -20,9 +22,12 @@ public abstract class BaseContentDataFetcher
 
     protected final ContentService contentService;
 
-    public BaseContentDataFetcher( final ContentService contentService )
+    private final PortalUrlService portalUrlService;
+
+    public BaseContentDataFetcher( final ContentService contentService, final PortalUrlService portalUrlService )
     {
         this.contentService = contentService;
+        this.portalUrlService = portalUrlService;
     }
 
     protected Content getContent( DataFetchingEnvironment environment )
@@ -58,12 +63,14 @@ public abstract class BaseContentDataFetcher
         // without a scopeKey the project is the root, as with scopeKey "/"
         if ( argumentKey.startsWith( SITE_PATTERN ) )
         {
-            return pathOrRoot( sitePath( scopeKey ) + argumentKey.substring( SITE_PATTERN.length() ) );
+            final String sitePath = scopePath( environment, scopeKey, PortalScope::getSitePath );
+            return pathOrRoot( sitePath + argumentKey.substring( SITE_PATTERN.length() ) );
         }
 
         if ( argumentKey.startsWith( SCOPE_PATTERN ) )
         {
-            return pathOrRoot( scopePath( scopeKey ) + argumentKey.substring( SCOPE_PATTERN.length() ) );
+            final String scopePath = scopePath( environment, scopeKey, PortalScope::getPath );
+            return pathOrRoot( scopePath + argumentKey.substring( SCOPE_PATTERN.length() ) );
         }
 
         if ( argumentKey.isEmpty() )
@@ -74,29 +81,16 @@ public abstract class BaseContentDataFetcher
         return argumentKey;
     }
 
-    private String sitePath( final String scopeKey )
-    {
-        if ( scopeKey == null )
-        {
-            return "";
-        }
-
-        final Site site = scopeKey.startsWith( "/" )
-            ? contentService.findNearestSiteByPath( ContentPath.from( scopeKey ) )
-            : contentService.getNearestSite( ContentId.from( scopeKey ) );
-        return site != null ? site.getPath().toString() : "";
-    }
-
-    private String scopePath( final String scopeKey )
+    private String scopePath( final DataFetchingEnvironment environment, final String scopeKey,
+                              final Function<PortalScope, ContentPath> path )
     {
         if ( scopeKey == null || "/".equals( scopeKey ) )
         {
             return "";
         }
 
-        return scopeKey.startsWith( "/" )
-            ? ContentPath.from( scopeKey ).toString()
-            : contentService.getById( ContentId.from( scopeKey ) ).getPath().toString();
+        final ContentPath contentPath = path.apply( GuillotineLocalContextHelper.getPortalScope( environment, portalUrlService ) );
+        return contentPath.isRoot() ? "" : contentPath.toString();
     }
 
     private static String pathOrRoot( final String path )

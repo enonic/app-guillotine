@@ -46,18 +46,22 @@ public class HeadlessCmsTypeFactory
 
         context.registerType( headlessCms.getName(), headlessCms );
 
-        context.registerDataFetcher( headlessCms.getName(), "get", new GetContentDataFetcher( serviceFacade.getContentService() ) );
+        context.registerDataFetcher( headlessCms.getName(), "get",
+                                     new GetContentDataFetcher( serviceFacade.getContentService(), serviceFacade.getPortalUrlService() ) );
 
         context.registerDataFetcher( headlessCms.getName(), "getChildren",
-                                     new GetChildrenDataFetcher( serviceFacade.getContentService() ) );
+                                     new GetChildrenDataFetcher( serviceFacade.getContentService(), serviceFacade.getPortalUrlService() ) );
 
         context.registerDataFetcher( headlessCms.getName(), "getChildrenConnection",
-                                     new GetChildrenConnectionDataFetcher( serviceFacade.getContentService() ) );
+                                     new GetChildrenConnectionDataFetcher( serviceFacade.getContentService(),
+                                                                           serviceFacade.getPortalUrlService() ) );
 
         context.registerDataFetcher( headlessCms.getName(), "getPermissions",
-                                     new GetPermissionsDataFetcher( serviceFacade.getContentService() ) );
+                                     new GetPermissionsDataFetcher( serviceFacade.getContentService(),
+                                                                    serviceFacade.getPortalUrlService() ) );
 
-        context.registerDataFetcher( headlessCms.getName(), "getSite", new GetSiteDataFetcher( serviceFacade.getContentService() ) );
+        context.registerDataFetcher( headlessCms.getName(), "getSite",
+                                     new GetSiteDataFetcher( serviceFacade.getContentService(), serviceFacade.getPortalUrlService() ) );
 
         context.registerDataFetcher( headlessCms.getName(), "queryDsl", new QueryDslDataFetcher( serviceFacade.getContentService() ) );
 
