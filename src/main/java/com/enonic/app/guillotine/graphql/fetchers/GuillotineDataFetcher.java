@@ -51,22 +51,19 @@ public class GuillotineDataFetcher
         localContext.putIfAbsent( Constants.PROJECT_ARG, projectName );
         localContext.putIfAbsent( Constants.BRANCH_ARG, branch );
 
-        final String siteKey = environment.getArgument( Constants.SITE_ARG );
-        if ( siteKey != null && !siteKey.isBlank() )
+        final String scopeKey = environment.getArgument( Constants.SCOPE_ARG );
+        if ( scopeKey != null && !scopeKey.isBlank() )
         {
-            requireSiteExists( projectName, branch, siteKey );
-
-            // page URLs carry the site key itself, which keeps their base and their path
-            // derived from the same site
-            localContext.putIfAbsent( Constants.SITE_ARG, siteKey );
+            requireScopeExists( projectName, branch, scopeKey );
+            localContext.putIfAbsent( Constants.SCOPE_ARG, scopeKey );
         }
 
         return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
     }
 
-    private void requireSiteExists( final String projectName, final String branch, final String siteKey )
+    private void requireScopeExists( final String projectName, final String branch, final String scopeKey )
     {
-        if ( "/".equals( siteKey ) )
+        if ( "/".equals( scopeKey ) )
         {
             // project root: always resolvable
             return;
@@ -80,9 +77,9 @@ public class GuillotineDataFetcher
                 final ContentService contentService = serviceFacadeSupplier.get().getContentService();
                 try
                 {
-                    return siteKey.startsWith( "/" )
-                        ? contentService.contentExists( ContentPath.from( siteKey ) )
-                        : contentService.contentExists( ContentId.from( siteKey ) );
+                    return scopeKey.startsWith( "/" )
+                        ? contentService.contentExists( ContentPath.from( scopeKey ) )
+                        : contentService.contentExists( ContentId.from( scopeKey ) );
                 }
                 catch ( IllegalArgumentException e )
                 {
@@ -93,7 +90,7 @@ public class GuillotineDataFetcher
         if ( !exists )
         {
             throw new IllegalArgumentException(
-                String.format( "Content for the \"%s\" argument not found: \"%s\"", Constants.SITE_ARG, siteKey ) );
+                String.format( "Content for the \"%s\" argument not found: \"%s\"", Constants.SCOPE_ARG, scopeKey ) );
         }
     }
 }

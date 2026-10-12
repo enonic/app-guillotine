@@ -5,5 +5,5 @@ export declare type LocalContext<
 > = {
 	branch: string
 	project: string
-	siteKey?: string
+	scopeKey?: string
 } & T

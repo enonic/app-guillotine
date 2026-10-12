@@ -80,7 +80,7 @@ public class RichTextGraphQLIntegrationTest
     }
 
     @Test
-    public void testContentLinksBelongToSiteKey()
+    public void testContentLinksBelongToScopeKey()
     {
         when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
             new ProcessedHtml( "processedHtml", null, List.of(), List.of(), List.of() ) );
@@ -91,7 +91,7 @@ public class RichTextGraphQLIntegrationTest
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
         Map<String, Object> response = executeQuery( graphQLSchema,
-                                                     "query { guillotine(siteKey: \"/mysite\") { get(key: \"contentid\") { " +
+                                                     "query { guillotine(scopeKey: \"/mysite\") { get(key: \"contentid\") { " +
                                                          "...on myapplication_News { data { text { processedHtml } } } } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
@@ -119,7 +119,7 @@ public class RichTextGraphQLIntegrationTest
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
         Map<String, Object> response = executeQuery( graphQLSchema,
-                                                     "query { guillotine(siteKey: \"/mysite\") { get(key: \"contentid\") { " +
+                                                     "query { guillotine(scopeKey: \"/mysite\") { get(key: \"contentid\") { " +
                                                          "...on myapplication_News { data { first: text { processedHtml } " +
                                                          "second: text { processedHtml } } } } } }" );
 
@@ -133,7 +133,7 @@ public class RichTextGraphQLIntegrationTest
     }
 
     @Test
-    public void testLinksBelongToProjectWithoutSiteKey()
+    public void testLinksBelongToProjectWithoutScopeKey()
     {
         when( serviceFacade.getPortalUrlService().processHtmlParts( any( ProcessHtmlPartsParams.class ) ) ).thenReturn(
             new ProcessedHtml( "processedHtml", null, List.of(), List.of(), List.of() ) );
@@ -291,7 +291,7 @@ public class RichTextGraphQLIntegrationTest
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
         Map<String, Object> response = executeQuery( graphQLSchema,
-                                                     "query { guillotine(siteKey: \"/mysite\") { get(key: \"contentid\") { " +
+                                                     "query { guillotine(scopeKey: \"/mysite\") { get(key: \"contentid\") { " +
                                                          "...on myapplication_News { data { " +
                                                          "text(processHtml: { imageSrcWidth: 1200, imageWidths: [400], imageSizes: \"50vw\" }) { processedHtml " +
                                                          "links { ref uri pageUrl { baseUrl path queryString } fragment media { intent mediaUrl { path queryString } } } " +
@@ -349,7 +349,7 @@ public class RichTextGraphQLIntegrationTest
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
         Map<String, Object> response = executeQuery( graphQLSchema,
-                                                     "query { guillotine(siteKey: \"/mysite\") { get(key: \"contentid\") { " +
+                                                     "query { guillotine(scopeKey: \"/mysite\") { get(key: \"contentid\") { " +
                                                          "...on myapplication_News { data { text { " +
                                                          "links { ref pageUrl { path } fragment media { intent mediaUrl { path } } } " +
                                                          "images { ref src { path } srcset { width } } } } } } } }" );
