@@ -604,7 +604,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="title">Guillotine 9</div>
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+  guillotine(project: "myproject", branch: "master", scopeKey: "/my-site") {
     get(key: "/my-site/photo") {
       pageUrl { path queryString }
       ... on media_Image {
@@ -620,7 +620,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>For media, concatenate your public API or CDN base with <code>path</code> and <code>queryString</code>. Links and images in <code>processedHtml</code> are placeholders: rewrite them from the structured rich-text data. For pages of a site, pass its <code>siteKey</code>, and adapt <code>pageUrl.path</code> to your frontend&#8217;s host and routing, then append <code>pageUrl.queryString</code>. <code>pageUrl.baseUrl</code> holds the Base URL configured for the selected site, or for the project without <code>siteKey</code>, or <code>null</code> when there is none. See <a href="usage/images-and-urls.ahtml#url-parts">Building URLs from parts</a> for client examples.</p>
+<p>For media, concatenate your public API or CDN base with <code>path</code> and <code>queryString</code>. Links and images in <code>processedHtml</code> are placeholders: rewrite them from the structured rich-text data. For pages of a site, pass its <code>scopeKey</code>, and adapt <code>pageUrl.path</code> to your frontend&#8217;s host and routing, then append <code>pageUrl.queryString</code>. <code>pageUrl.baseUrl</code> holds the Base URL configured for the selected site, or for the project without <code>scopeKey</code>, or <code>null</code> when there is none. See <a href="usage/images-and-urls.ahtml#url-parts">Building URLs from parts</a> for client examples.</p>
 </div>
 <div class="paragraph">
 <p>The <code>type</code> argument and <code>UrlType</code> enum are removed. Remove <code>type: server</code> and <code>type: absolute</code> from queries and variables. Your client now supplies the deployment context when building links from these components.</p>
@@ -727,14 +727,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Review this section if you use <code>siteKey</code>, <code>getSite</code>, site-relative paths, or queries scoped to a site.</p>
 </div>
 <div class="sect3">
-<h4 id="selecting_a_site"><a class="link" href="#selecting_a_site">Selecting a site</a></h4>
+<h4 id="selecting_a_scope"><a class="link" href="#selecting_a_scope">Selecting a scope</a></h4>
 <div class="paragraph">
-<p>The <code>X-Guillotine-SiteKey</code> request header is no longer supported. Move the selection into the GraphQL query:</p>
+<p>The <code>siteKey</code> argument is renamed <code>scopeKey</code>, and the <code>X-Guillotine-SiteKey</code> request header is no longer supported. Select the scope in the GraphQL query:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+  guillotine(project: "myproject", branch: "master", scopeKey: "/my-site") {
     getSite {
       _id
       displayName
@@ -744,10 +744,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>An omitted <code>siteKey</code> selects the project for paths and URLs, as <code>siteKey: "/"</code> does. <code>getSite</code> returns <code>null</code> without a site selection, including at a site-mounted endpoint; select a site explicitly when you need this field. A nonexistent <code>siteKey</code> now raises an error while setting up the <code>guillotine</code> context.</p>
+<p>In resolvers, read <code>env.localContext.scopeKey</code> in place of <code>env.localContext.siteKey</code>.</p>
 </div>
 <div class="paragraph">
-<p>Omit <code>siteKey</code>, or pass <code>siteKey: "/"</code>, for project-root path and URL context: <code>${site}</code> is then empty, so <code>${site}/blogs</code> becomes <code>/blogs</code>. The project root is not a site content item, so <code>getSite</code> returns <code>null</code> for that selection, and <code>env.localContext.siteKey</code> is only present when <code>siteKey</code> is given. See <a href="usage/site-context.ahtml">Site context</a>.</p>
+<p>An omitted <code>scopeKey</code> selects the project for paths and URLs, as <code>scopeKey: "/"</code> does. <code>getSite</code> returns <code>null</code> without a site selection, including at a site-mounted endpoint; select a site explicitly when you need this field. A nonexistent <code>scopeKey</code> now raises an error while setting up the <code>guillotine</code> context.</p>
+</div>
+<div class="paragraph">
+<p>Omit <code>scopeKey</code>, or pass <code>scopeKey: "/"</code>, for project-root path and URL context: <code>${site}</code> is then empty, so <code>${site}/blogs</code> becomes <code>/blogs</code>. The project root is not a site content item, so <code>getSite</code> returns <code>null</code> for that selection, and <code>env.localContext.scopeKey</code> is only present when <code>scopeKey</code> is given. See <a href="usage/site-context.ahtml">Scope and site</a>.</p>
 </div>
 </div>
 <div class="sect3">
@@ -756,7 +759,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>The <code>_path</code> field no longer accepts <code>type: siteRelative</code>, and the <code>ContentPathType</code> enum is removed. <code>_path</code> returns the content&#8217;s full path within the project.</p>
 </div>
 <div class="paragraph">
-<p>Select <code>pageUrl { path }</code> with an appropriate <code>siteKey</code> for a site-relative link. This is not a direct string replacement: the old site-relative <code>_path</code> omitted the leading slash, while <code>pageUrl.path</code> includes it for descendants and URL-escapes the path. For the selected site itself, <code>pageUrl.path</code> is empty. Adjust URL concatenation accordingly.</p>
+<p>Select <code>pageUrl { path }</code> with an appropriate <code>scopeKey</code> for a site-relative link. This is not a direct string replacement: the old site-relative <code>_path</code> omitted the leading slash, while <code>pageUrl.path</code> includes it for descendants and URL-escapes the path. For the selected site itself, <code>pageUrl.path</code> is empty. Adjust URL concatenation accordingly.</p>
+</div>
+<div class="paragraph">
+<p>A <code>scopeKey</code> naming a content that is not a site makes <code>pageUrl.path</code> relative to that content, as a virtual host mounted on it does, where the old site-relative <code>_path</code> was relative to its site. <code>getSite</code> and <code>${site}</code> keep resolving to the nearest site, and the new <code>${scope}</code> placeholder inserts the path of the content <code>scopeKey</code> names.</p>
 </div>
 </div>
 <div class="sect3">
@@ -765,13 +771,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>The previous automatic site-path restrictions on content queries and lookups are removed. Queries can reach content elsewhere in the project, subject to content permissions. If your client needs results from one subtree, add explicit path constraints to its DSL queries.</p>
 </div>
 <div class="paragraph">
-<p>For page URLs, <code>siteKey</code> now selects both the URL base and the relative path. A request for a page URL outside the selected site produces a GraphQL field error. For nested sites, choosing the parent or child site can produce different links. Test cross-site references and nested-site links against the <a href="usage/images-and-urls.ahtml#base-urls">URL context rules</a>.</p>
+<p>For page URLs, <code>scopeKey</code> selects both the URL base and the relative path. A request for a page URL outside the scope produces a GraphQL field error. For nested sites, choosing the parent or child site can produce different links. Test cross-site references and nested-site links against the <a href="usage/images-and-urls.ahtml#base-urls">URL context rules</a>.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="page_urls_without_sitekey"><a class="link" href="#page_urls_without_sitekey">Page URLs without <code>siteKey</code></a></h4>
+<h4 id="page_urls_without_scopekey"><a class="link" href="#page_urls_without_scopekey">Page URLs without <code>scopeKey</code></a></h4>
 <div class="paragraph">
-<p>Without <code>siteKey</code>, page URLs belong to the project, not to the site that contains the content: <code>pageUrl.path</code> is the full content path, such as <code>/my-site/posts/first-post</code>, and <code>pageUrl.baseUrl</code> is the Base URL configured for the project. This applies to <code>pageUrl</code> on content and on rich-text links alike. Site frontends pass the <code>siteKey</code> of their site to get site-relative paths and the site&#8217;s Base URL.</p>
+<p>Without <code>scopeKey</code>, page URLs belong to the project, not to the site that contains the content: <code>pageUrl.path</code> is the full content path, such as <code>/my-site/posts/first-post</code>, and <code>pageUrl.baseUrl</code> is the Base URL configured for the project. This applies to <code>pageUrl</code> on content and on rich-text links alike. Site frontends pass the <code>scopeKey</code> of their site to get site-relative paths and the site&#8217;s Base URL.</p>
 </div>
 </div>
 </div>
@@ -836,13 +842,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Guillotine no longer temporarily changes the portal request&#8217;s application to the app that owns a resolver. Portal URL helpers that infer an application from the request can therefore generate different URLs. Where a helper accepts an <code>application</code> parameter, pass the intended application explicitly.</p>
 </div>
 <div class="paragraph">
-<p>The resolver&#8217;s script context and <code>app.name</code> still identify the extension app. Resolvers beneath <code>guillotine</code> execute in the selected project repository and branch. Treat <code>env.localContext.siteKey</code> as optional. See <a href="extending.ahtml#lifecycle">Lifecycle and execution</a>.</p>
+<p>The resolver&#8217;s script context and <code>app.name</code> still identify the extension app. Resolvers beneath <code>guillotine</code> execute in the selected project repository and branch. Treat <code>env.localContext.scopeKey</code> as optional. See <a href="extending.ahtml#lifecycle">Lifecycle and execution</a>.</p>
 </div>
 </div>
 <div class="sect3">
 <h4 id="rich_text_macros"><a class="link" href="#rich_text_macros">Rich-text macros</a></h4>
 <div class="paragraph">
-<p>Macros in rich text come from the applications configured on the site selected with <code>siteKey</code>, or on the project without it, and from the built-in macros <code>disable</code> and <code>embed</code>. Among them, a macro is matched by its name, also when written in another case. A macro of an application configured elsewhere stays in the text as written. Configure the application providing the macros on the site or project.</p>
+<p>Macros in rich text come from the applications configured on the site that <code>scopeKey</code> selects or lies in, or on the project without one, and from the built-in macros <code>disable</code> and <code>embed</code>. Among them, a macro is matched by its name, also when written in another case. A macro of an application configured elsewhere stays in the text as written. Configure the application providing the macros on the site or project.</p>
 </div>
 <div class="paragraph">
 <p>The <code>data-macro-name</code> attribute and the <code>name</code> of a macro hold the name of its descriptor, and its parameters are named as the inputs of the descriptor&#8217;s form, also when the text writes them in another case.</p>
@@ -851,7 +857,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect3">
 <h4 id="rich_text_image_styles"><a class="link" href="#rich_text_image_styles">Rich-text image styles</a></h4>
 <div class="paragraph">
-<p>Image styles in rich text come from the applications configured on the site selected with <code>siteKey</code>, or on the project without it, rather than from all installed applications. An image whose style belongs to an application configured elsewhere is processed without that style. Configure the application providing the styles on the site or project.</p>
+<p>Image styles in rich text come from the applications configured on the site that <code>scopeKey</code> selects or lies in, or on the project without one, rather than from all installed applications. An image whose style belongs to an application configured elsewhere is processed without that style. Configure the application providing the styles on the site or project.</p>
 </div>
 <div class="paragraph">
 <p><code>ImageStyle.application</code> (new) gives the application whose style descriptor holds the style, next to its <code>name</code>. Match both where several applications define styles of the same name.</p>
@@ -924,7 +930,7 @@ type CreationCallbacks = NonNullable&lt;Extensions['creationCallbacks']&gt;;</co
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-12 11:37:08 UTC
+Last updated 2026-10-12 11:46:06 UTC
 </div>
 </div>
 </body>

@@ -442,6 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#common_arguments">Common arguments</a></li>
+<li><a href="#portal-extensions">Portal API extensions</a></li>
 <li><a href="#object_types">Object Types</a>
 <ul class="sectlevel2">
 <li><a href="#query">Query</a></li>
@@ -616,6 +617,33 @@ A more intuitive way to discover the API is by using the <a href="playground.aht
 </div>
 </div>
 <div class="sect1">
+<h2 id="portal-extensions"><a class="link" href="#portal-extensions">Portal API extensions</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Most of the API reads content as XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-content">Content API</a> does. These parts extend it with XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal">Portal API</a>, which resolves content the way a site serves it:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>scopeKey</code> on <code>guillotine</code>, and <code>env.localContext.scopeKey</code> in resolvers</p>
+</li>
+<li>
+<p><code>getSite</code>, and the <code>${scope}</code> and <code>${site}</code> placeholders</p>
+</li>
+<li>
+<p>the URL fields <code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code> and <code>attachmentUrl</code></p>
+</li>
+<li>
+<p>rich text: <code>processedHtml</code>, <code>links</code>, <code>images</code>, <code>macros</code> and <code>macrosAsJson</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>They are resolved from configuration, for the scope <code>scopeKey</code> selects, or for the project without it. See <a href="usage/site-context.ahtml">Scope and site</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="object_types"><a class="link" href="#object_types">Object Types</a></h2>
 <div class="sectionbody">
 <div class="sect2">
@@ -635,7 +663,7 @@ A more intuitive way to discover the API is by using the <a href="playground.aht
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">guillotine(project: String, branch: String, siteKey: String): <a href="#headlesscms">HeadlessCms</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">guillotine(project: String, branch: String, scopeKey: String): <a href="#headlesscms">HeadlessCms</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Type gathering all content retrieval requests</p></td>
 </tr>
 </tbody>
@@ -699,7 +727,7 @@ A more intuitive way to discover the API is by using the <a href="playground.aht
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">getSite: portal_Site</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the nearest site for the content ID or path supplied through <code>guillotine(siteKey: &#8230;&#8203;)</code>. Returns <code>null</code> when <code>siteKey</code> is omitted or selects the project root (<code>"/"</code>), including at a site-mounted endpoint. See <a href="usage/site-context.ahtml">Site context</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the nearest site for the content ID or path supplied through <code>guillotine(scopeKey: &#8230;&#8203;)</code>. Returns <code>null</code> when <code>scopeKey</code> is omitted or selects the project root (<code>"/"</code>), including at a site-mounted endpoint. See <a href="usage/site-context.ahtml">Scope and site</a></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">queryDsl(
@@ -765,7 +793,7 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_path: String!</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Full content path within the project. For a site-relative link, select <code>pageUrl { path }</code> with the appropriate <code>siteKey</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Full content path within the project. For a site-relative link, select <code>pageUrl { path }</code> with the appropriate <code>scopeKey</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_project: String</p></td>
@@ -881,7 +909,7 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">pageUrl(params: JSON): <a href="#pageurl">PageUrl</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Page link components for the site or project selected with <code>siteKey</code>, or for the project without it; see <a href="#pageurl">PageUrl</a> and <a href="usage/images-and-urls.ahtml#base-urls">Base URLs</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Page link components for the scope selected with <code>scopeKey</code>, or for the project without it; see <a href="#pageurl">PageUrl</a> and <a href="usage/images-and-urls.ahtml#base-urls">Base URLs</a></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">site: portal_Site</p></td>
@@ -1464,7 +1492,7 @@ It allows you to :</p>
 <div class="sect2">
 <h3 id="pageurl"><a class="link" href="#pageurl">PageUrl</a></h3>
 <div class="paragraph">
-<p>Page URL components for the site selected with <code>siteKey</code>, or for the project without it, from XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts"><code>pageUrlParts</code></a>, where each component is described. A content outside the selected site has no page URL there, and the field reports an error.</p>
+<p>Page URL components for the scope selected with <code>scopeKey</code>, or for the project without it, from XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts"><code>pageUrlParts</code></a>, where each component is described. A content outside the scope has no page URL there, and the field reports an error.</p>
 </div>
 <div class="paragraph">
 <p>Build the address in the client as <code>baseUrl + path + queryString</code>, supplying your frontend&#8217;s own base when <code>baseUrl</code> is <code>null</code> or when your deployment routes pages differently.</p>
@@ -1483,11 +1511,11 @@ It allows you to :</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">baseUrl: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The Base URL configured for the selected site or project; <code>null</code> when none is configured</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Base URL of the scope, or of the project without <code>scopeKey</code>; <code>null</code> when none is configured</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">path: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Path of the content, relative to the selected site or project</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path of the content, relative to the content <code>scopeKey</code> names, or to the project without it</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">queryString: String</p></td>
@@ -3767,7 +3795,7 @@ Defaults to none - will be displayed in the same order in which fragments appear
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-12 11:37:08 UTC
+Last updated 2026-10-12 11:46:06 UTC
 </div>
 </div>
 </body>

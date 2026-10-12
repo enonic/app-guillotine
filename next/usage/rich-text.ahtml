@@ -495,7 +495,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p><code>processedHtml</code> is the HtmlArea value processed by XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts"><code>processHtmlParts</code></a>, for the site selected with <code>siteKey</code>, or for the project without it. It contains HTML with placeholders for internal links, images and macros. The structured fields described below hold what your client needs to render them; XP&#8217;s reference describes how each is resolved.</p>
+<p><code>processedHtml</code> is the HtmlArea value processed by XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts"><code>processHtmlParts</code></a>, for the scope selected with <code>scopeKey</code>, or for the project without it. It contains HTML with placeholders for internal links, images and macros. The structured fields described below hold what your client needs to render them; XP&#8217;s reference describes how each is resolved. These fields are <a href="../api.ahtml#portal-extensions">Portal API extensions</a>.</p>
 </div>
 <div class="paragraph">
 <p>Browsers cannot follow the link and image placeholders as they are. Render each one by rewriting the element that carries a <code>data-link-ref</code> or <code>data-image-ref</code> attribute from its entry in <code>links</code> or <code>images</code>.</p>
@@ -532,7 +532,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">query {
-  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+  guillotine(project: "myproject", branch: "master", scopeKey: "/my-site") {
     get(key: "/my-site/posts/first-post") {
       ... on com_example_myapp_Post {
         data {
@@ -633,7 +633,7 @@ if (link.pageUrl) {
 <p>Build the image URLs from the image&#8217;s entry, which holds the components of each URL: <code>src</code>, an <a href="../api.ahtml#imageurl">ImageUrl</a>, for the <code>src</code> attribute, and <code>srcset</code>, a list of <a href="../api.ahtml#imagesource">ImageSource</a> entries, one for each <code>processHtml.imageWidths</code> width, for the <code>srcset</code> attribute. Put your media base in front of each <code>path</code> and <code>queryString</code>. See <a href="../configuration.ahtml#media-base-url">Media base URL</a>.</p>
 </div>
 <div class="paragraph">
-<p>Image styles come from the applications configured on the selected site or project: configure the application providing a style there to apply it. The <code>style</code> field gives the <code>application</code> providing the style and its <code>name</code> there.</p>
+<p>Image styles come from the applications configured on the site that <code>scopeKey</code> selects or lies in, or on the project without one: configure the application providing a style there to apply it. The <code>style</code> field gives the <code>application</code> providing the style and its <code>name</code> there.</p>
 </div>
 <div class="paragraph">
 <p>For instance, the processed value of an image looks like this:</p>
@@ -904,7 +904,7 @@ if (image.src) {
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Guillotine processes the macros of the applications configured on the site selected with <code>siteKey</code>, or on the project without it, and the built-in macros <code>disable</code> and <code>embed</code>. Other macros stay in the text as written. <a href="https://developer.enonic.com/docs/cms/stable/richtext/macros">More details about macros</a>.</p>
+<p>Guillotine processes the macros of the applications configured on the site that <code>scopeKey</code> selects or lies in, or on the project without one, and the built-in macros <code>disable</code> and <code>embed</code>. Other macros stay in the text as written. <a href="https://developer.enonic.com/docs/cms/stable/richtext/macros">More details about macros</a>.</p>
 </div>
 </td>
 </tr>
@@ -1044,7 +1044,7 @@ form:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-12 11:37:08 UTC
+Last updated 2026-10-12 11:46:06 UTC
 </div>
 </div>
 </body>

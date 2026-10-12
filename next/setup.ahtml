@@ -580,7 +580,7 @@ apis:
 </div>
 </div>
 <div class="paragraph">
-<p>At this endpoint, the site request supplies the project and branch; arguments on the <code>guillotine</code> field cannot override them. The <code>siteKey</code> argument can separately select the <a href="usage/site-context.ahtml">site context</a> used by queries and URLs.</p>
+<p>At this endpoint, the site request supplies the project and branch; arguments on the <code>guillotine</code> field cannot override them. The <code>scopeKey</code> argument can separately select the <a href="usage/site-context.ahtml">scope</a> used by queries and URLs.</p>
 </div>
 <div class="paragraph">
 <p>See the <a href="https://developer.enonic.com/docs/code/stable/web/apis#contextual-apis">Universal API reference</a> for mounting APIs in sites and other services.</p>
@@ -645,7 +645,7 @@ mapping.example-api.target = /site/myproject/master/my-site/_/com.enonic.app.gui
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-12 11:37:08 UTC
+Last updated 2026-10-12 11:46:06 UTC
 </div>
 </div>
 </body>

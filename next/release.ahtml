@@ -471,7 +471,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">URL components</dt>
 <dd>
-<p><code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code> and <code>attachmentUrl</code> return objects exposing <code>path</code> and <code>queryString</code>. <code>pageUrl</code> also exposes the configured <code>baseUrl</code> of the site selected with <code>siteKey</code>, or of the project without it. Media fields also provide components such as the project context, content ID and fingerprint. Clients can prepend an API or CDN base to media paths and adapt page paths to their frontend routes. See <a href="usage/images-and-urls.ahtml#url-parts">Building URLs from parts</a>.</p>
+<p><code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code> and <code>attachmentUrl</code> return objects exposing <code>path</code> and <code>queryString</code>. <code>pageUrl</code> also exposes the <code>baseUrl</code> of the scope selected with <code>scopeKey</code>, or of the project without it. Media fields also provide components such as the project context, content ID and fingerprint. Clients can prepend an API or CDN base to media paths and adapt page paths to their frontend routes. See <a href="usage/images-and-urls.ahtml#url-parts">Building URLs from parts</a>.</p>
 </dd>
 <dt class="hdlist1">Structured rich-text links</dt>
 <dd>
@@ -514,7 +514,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 <dt class="hdlist1">Site context and paths</dt>
 <dd>
-<p>The <code>X-Guillotine-SiteKey</code> header and <code>_path&#8217;s `type</code> argument are removed. Select <code>siteKey</code> explicitly when needed; without it, <code>getSite</code> returns <code>null</code>. Use <code>pageUrl.path</code> for site-relative paths. See <a href="upgrade.ahtml#site-context-migration">Site context and paths</a>.</p>
+<p>The <code>X-Guillotine-SiteKey</code> header and <code>_path&#8217;s `type</code> argument are removed, and <code>siteKey</code> is renamed <code>scopeKey</code>, with a new <code>${scope}</code> placeholder. Select <code>scopeKey</code> explicitly when needed; without it, <code>getSite</code> returns <code>null</code>. Use <code>pageUrl.path</code> for site-relative paths. See <a href="upgrade.ahtml#site-context-migration">Site context and paths</a>.</p>
 </dd>
 <dt class="hdlist1">Schema metadata</dt>
 <dd>
@@ -536,7 +536,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-12 11:37:08 UTC
+Last updated 2026-10-12 11:46:06 UTC
 </div>
 </div>
 </body>

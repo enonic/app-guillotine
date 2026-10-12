@@ -466,7 +466,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Guillotine provides URL components for pages, scaled images, media and attachments. Select <code>path</code> and <code>queryString</code>, then build links using your client&#8217;s media base URL or frontend routing.</p>
 </div>
 <div class="paragraph">
-<p>The components come from XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts"><code>pageUrlParts</code></a>, <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts"><code>imageUrlParts</code></a> and <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts"><code>attachmentUrlParts</code></a>, whose reference describes each of them.</p>
+<p>The components come from XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts"><code>pageUrlParts</code></a>, <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts"><code>imageUrlParts</code></a> and <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts"><code>attachmentUrlParts</code></a>, whose reference describes each of them. The URL fields are <a href="../api.ahtml#portal-extensions">Portal API extensions</a>.</p>
 </div>
 <div class="paragraph">
 <p>These examples query published content in <code>myproject</code>. Replace the project and content paths with your own, and send the queries using the request format on the <a href="../usage.ahtml">Usage</a> page.</p>
@@ -552,12 +552,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="page_urls"><a class="link" href="#page_urls">Page URLs</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Select <code>pageUrl.path</code> and <code>pageUrl.queryString</code> to build a content item&#8217;s page link. <code>siteKey</code> names the site the path is relative to; without it, the path is relative to the project:</p>
+<p>Select <code>pageUrl.path</code> and <code>pageUrl.queryString</code> to build a content item&#8217;s page link. <code>scopeKey</code> names the site, or another content, that the path is relative to; without it, the path is relative to the project:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+  guillotine(project: "myproject", branch: "master", scopeKey: "/my-site") {
     get(key: "/my-site/posts/first-post") {
       pageUrl {
         path
@@ -579,7 +579,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="page_links"><a class="link" href="#page_links">Page links</a></h3>
 <div class="paragraph">
-<p>Your frontend controls the public host and routing for page links. Use <code>siteKey</code> to select the site or project that <code>pageUrl.path</code> is relative to, then map that path to your deployment. Without <code>siteKey</code>, the project is selected.</p>
+<p>Your frontend controls the public host and routing for page links. Use <code>scopeKey</code> to select the site, or another content, that <code>pageUrl.path</code> is relative to, then map that path to your deployment. Without <code>scopeKey</code>, the project is selected.</p>
 </div>
 <div class="paragraph">
 <p>For nested sites, the selected level determines the path. Given a post at <code>/my-site/subsite/posts/first-post</code>:</p>
@@ -592,7 +592,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">siteKey</th>
+<th class="tableblock halign-left valign-top">scopeKey</th>
 <th class="tableblock halign-left valign-top">Page URL path of the post</th>
 <th class="tableblock halign-left valign-top">Page URL path of <code>/my-site/subsite</code></th>
 </tr>
@@ -624,10 +624,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>When your frontend needs a path of its own for the site root, use <code>/</code> for an empty <code>path</code>.</p>
 </div>
 <div class="paragraph">
-<p><code>siteKey: "/"</code>, like no <code>siteKey</code>, selects the project itself. <code>pageUrl.baseUrl</code> is the Base URL configured for the selected level; see XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts"><code>pageUrlParts</code></a>.</p>
+<p><code>scopeKey: "/"</code>, like no <code>scopeKey</code>, selects the project itself. <code>pageUrl.baseUrl</code> is the Base URL configured for the selected site or project, followed by the path of a selected content below it, so that <code>baseUrl + path</code> is the page&#8217;s URL; see XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts"><code>pageUrlParts</code></a>.</p>
 </div>
 <div class="paragraph">
-<p>A content outside the selected site, such as the parent site when the nested one is selected, has no page URL there, and <code>pageUrl</code> reports an error.</p>
+<p>A content outside the scope, such as the parent site when the nested one is selected, has no page URL there, and <code>pageUrl</code> reports an error.</p>
 </div>
 <div class="paragraph">
 <p>When following references across sites, choose the appropriate site context and frontend route for each target.</p>
@@ -751,7 +751,7 @@ Use each image URL as it is returned, and don&#8217;t make other sizes by editin
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-12 11:37:08 UTC
+Last updated 2026-10-12 11:46:06 UTC
 </div>
 </div>
 </body>

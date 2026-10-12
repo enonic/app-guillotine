@@ -976,7 +976,7 @@ const findBooks = (env: DataFetchingEnvironment&lt;{queryString: string}, null&g
 <p><code>LocalContext&lt;T extends LocalContextRecord&gt;</code></p>
 </div>
 <div class="paragraph">
-<p>The context object available as <code>env.localContext</code>. The <code>guillotine</code> field supplies <code>project</code> and <code>branch</code> to its descendants, and <code>siteKey</code> when explicitly selected. Fields added directly to <code>Query</code> do not inherit this context from a sibling <code>guillotine</code> field. Additional properties come from ancestor resolvers via <a href="#create-data-fetcher-result">createDataFetcherResult</a>; describe them with the generic parameter <code>T</code> when you read them. Pass <code>parentLocalContext: env.localContext</code> when adding values to preserve the inherited context.</p>
+<p>The context object available as <code>env.localContext</code>. The <code>guillotine</code> field supplies <code>project</code> and <code>branch</code> to its descendants, and <code>scopeKey</code> when explicitly selected. Fields added directly to <code>Query</code> do not inherit this context from a sibling <code>guillotine</code> field. Additional properties come from ancestor resolvers via <a href="#create-data-fetcher-result">createDataFetcherResult</a>; describe them with the generic parameter <code>T</code> when you read them. Pass <code>parentLocalContext: env.localContext</code> when adding values to preserve the inherited context.</p>
 </div>
 <table class="tableblock frame-none grid-none stretch">
 <colgroup>
@@ -1007,10 +1007,10 @@ const findBooks = (env: DataFetchingEnvironment&lt;{queryString: string}, null&g
 </div></div></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">siteKey</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">scopeKey</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p><strong>Optional.</strong> Selected site key, when present. See <a href="../usage/site-context.ahtml">Site context</a>.</p>
+<p><strong>Optional.</strong> Selected scope key, when present. See <a href="../usage/site-context.ahtml">Scope and site</a>.</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -1410,7 +1410,7 @@ export const extensions = (graphQL: GraphQL): Extensions =&gt; ({
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-12 11:37:08 UTC
+Last updated 2026-10-12 11:46:06 UTC
 </div>
 </div>
 </body>

@@ -501,7 +501,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>branch</code> - branch name, selected by the <code>guillotine</code> field&#8217;s argument or supplied by the request context.</p>
 </li>
 <li>
-<p><code>siteKey</code> - the selected site key, when present. Treat this property as optional; see <a href="../usage/site-context.ahtml">Site context</a>.</p>
+<p><code>scopeKey</code> - the selected scope key, when present. Treat this property as optional; see <a href="../usage/site-context.ahtml">Scope and site</a>.</p>
 </li>
 </ul>
 </div>
@@ -526,8 +526,8 @@ export const extensions = (): Extensions =&gt; ({
     resolvers: {
         MyCustomType: {
             myCustomField: (env: DataFetchingEnvironment&lt;Record&lt;string, never&gt;, Source&gt;): string =&gt; {
-                const {project, branch, siteKey} = env.localContext;
-                return `${project}/${branch}: ${env.source._id} (site: ${siteKey ?? 'not selected'})`;
+                const {project, branch, scopeKey} = env.localContext;
+                return `${project}/${branch}: ${env.source._id} (scope: ${scopeKey ?? 'not selected'})`;
             },
         },
     },
@@ -610,7 +610,7 @@ export const extensions = (graphQL: GraphQL): Extensions =&gt; ({
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-12 11:37:08 UTC
+Last updated 2026-10-12 11:46:06 UTC
 </div>
 </div>
 </body>

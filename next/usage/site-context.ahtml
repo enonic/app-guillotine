@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.26">
-<title>Site context</title>
+<title>Scope and site</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,13 +437,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Site context</h1>
+<h1>Scope and site</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#select_a_site">Select a site</a></li>
-<li><a href="#path_placeholder">Path placeholder</a></li>
-<li><a href="#site_relative_paths">Site-relative paths</a></li>
+<li><a href="#select_a_scope">Select a scope</a></li>
+<li><a href="#path_placeholders">Path placeholders</a></li>
+<li><a href="#relative_paths">Relative paths</a></li>
 <li><a href="#project_root_and_url_context">Project root and URL context</a></li>
 </ul>
 </div>
@@ -452,23 +452,23 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>siteKey</code> argument on <code>guillotine</code> selects a site within the current project. Use it to retrieve the site and resolve paths relative to it.</p>
+<p>The <code>scopeKey</code> argument on <code>guillotine</code> selects the scope of a query within the current project: the content that page URLs are relative to, usually a site. Use it to resolve paths relative to that content and to retrieve its site. The scope, <code>getSite</code> and the path placeholders are <a href="../api.ahtml#portal-extensions">Portal API extensions</a>.</p>
 </div>
 <div class="paragraph">
-<p>Project and branch select the content repository and version of the content. Site context is a separate choice within that project. See <a href="../usage.ahtml#content-context">Project and branch</a> for how these are selected.</p>
+<p>Project and branch select the content repository and version of the content. The scope is a separate choice within that project. See <a href="../usage.ahtml#content-context">Project and branch</a> for how these are selected.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="select_a_site"><a class="link" href="#select_a_site">Select a site</a></h2>
+<h2 id="select_a_scope"><a class="link" href="#select_a_scope">Select a scope</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Set <code>siteKey</code> to the site&#8217;s content ID or its path within the project. This example selects <code>/my-site</code> and retrieves its display name:</p>
+<p>Set <code>scopeKey</code> to the content ID or path of a site, or of another content, within the project. This example selects the site <code>/my-site</code> and retrieves its display name:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+  guillotine(project: "myproject", branch: "master", scopeKey: "/my-site") {
     getSite {
       _id
       displayName
@@ -478,21 +478,24 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>Replace <code>myproject</code> and <code>/my-site</code> with an existing project and site. The selected site must exist in the branch you query. Send this query using the request format on the <a href="../usage.ahtml">Usage</a> page.</p>
+<p>Replace <code>myproject</code> and <code>/my-site</code> with an existing project and site. The selected content must exist in the branch you query. Send this query using the request format on the <a href="../usage.ahtml">Usage</a> page.</p>
+</div>
+<div class="paragraph">
+<p><code>getSite</code> returns the nearest site at or above the selected content: the site itself when <code>scopeKey</code> names a site.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="path_placeholder"><a class="link" href="#path_placeholder">Path placeholder</a></h2>
+<h2 id="path_placeholders"><a class="link" href="#path_placeholders">Path placeholders</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Use <code>${site}</code> in a content key to insert the selected site&#8217;s path. This lets a query use paths below a site without repeating its location:</p>
+<p>Use <code>${scope}</code> in a content key to insert the path of the content <code>scopeKey</code> names, and <code>${site}</code> to insert the path of its site. This lets a query use paths below them without repeating their location:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
-    get(key: "${site}") {
+  guillotine(project: "myproject", branch: "master", scopeKey: "/my-site/blog") {
+    get(key: "${scope}") {
       displayName
     }
     getChildren(key: "${site}/persons", first: 10) {
@@ -503,10 +506,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>Without <code>siteKey</code>, or with <code>siteKey: "/"</code>, the project is the root and <code>${site}</code> is empty: <code>${site}/persons</code> becomes <code>/persons</code>, and <code>${site}</code> alone becomes <code>/</code>.</p>
+<p>Here <code>${scope}</code> is <code>/my-site/blog</code> and <code>${site}</code> is <code>/my-site</code>. When <code>scopeKey</code> names a site, both are its path. Without <code>scopeKey</code>, or with <code>scopeKey: "/"</code>, the project is the root and both are empty: <code>${site}/persons</code> becomes <code>/persons</code>, and <code>${site}</code> alone becomes <code>/</code>. <code>${site}</code> is also empty for a content outside any site.</p>
 </div>
 <div class="paragraph">
-<p>The placeholder can be used in the <code>key</code> argument of <code>get</code>, <code>getChildren</code>, <code>getChildrenConnection</code> and <code>getPermissions</code>. See <a href="../api.ahtml#headlesscms">HeadlessCms</a> for the field signatures.</p>
+<p>The placeholders can be used in the <code>key</code> argument of <code>get</code>, <code>getChildren</code>, <code>getChildrenConnection</code> and <code>getPermissions</code>. See <a href="../api.ahtml#headlesscms">HeadlessCms</a> for the field signatures.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -515,7 +518,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-<code>${site}</code> is a Guillotine placeholder inside a GraphQL string. When writing the query in a JavaScript template literal, escape it as <code>\${site}</code> so JavaScript sends the placeholder unchanged.
+<code>${scope}</code> and <code>${site}</code> are Guillotine placeholders inside a GraphQL string. When writing the query in a JavaScript template literal, escape them as <code>\${scope}</code> and <code>\${site}</code> so JavaScript sends the placeholders unchanged.
 </td>
 </tr>
 </table>
@@ -523,15 +526,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="site_relative_paths"><a class="link" href="#site_relative_paths">Site-relative paths</a></h2>
+<h2 id="relative_paths"><a class="link" href="#relative_paths">Relative paths</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Select <code>pageUrl.path</code> to retrieve the path relative to the selected site, or to the project without <code>siteKey</code>:</p>
+<p>Select <code>pageUrl.path</code> to retrieve the path relative to the content <code>scopeKey</code> names, or to the project without <code>scopeKey</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-graphql" data-lang="graphql">{
-  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+  guillotine(project: "myproject", branch: "master", scopeKey: "/my-site") {
     getChildren(key: "${site}/persons", first: 10) {
       displayName
       pageUrl {
@@ -551,17 +554,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="project_root_and_url_context"><a class="link" href="#project_root_and_url_context">Project root and URL context</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Without <code>siteKey</code>, the project root is the context for paths and URLs, as with <code>siteKey: "/"</code>: <code>${site}</code> is empty, page URLs carry the full content path, and <code>pageUrl.baseUrl</code> is the Base URL configured for the project. The project root is not a site content item, so <code>getSite</code> returns <code>null</code> in both cases, and <code>env.localContext.siteKey</code> is only present when <code>siteKey</code> is given.</p>
+<p>Without <code>scopeKey</code>, the project root is the context for paths and URLs, as with <code>scopeKey: "/"</code>: <code>${scope}</code> and <code>${site}</code> are empty, page URLs carry the full content path, and <code>pageUrl.baseUrl</code> is the Base URL configured for the project. The project root is not a site content item, so <code>getSite</code> returns <code>null</code> in both cases, and <code>env.localContext.scopeKey</code> is only present when <code>scopeKey</code> is given.</p>
 </div>
 <div class="paragraph">
-<p>Selecting a site does not restrict every query to its descendants: <code>queryDsl</code> still searches the project, and an absolute content path can point outside the selected site. When building links across sites, choose the appropriate site context and frontend route for each target. See <a href="images-and-urls.ahtml#base-urls">Base URLs</a> for nested sites and path context.</p>
+<p>Selecting a scope does not restrict every query to its descendants: <code>queryDsl</code> still searches the project, and an absolute content path can point outside the scope. When building links across sites, choose the appropriate scope and frontend route for each target. See <a href="images-and-urls.ahtml#base-urls">Base URLs</a> for nested sites and path context.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-12 11:37:08 UTC
+Last updated 2026-10-12 11:46:06 UTC
 </div>
 </div>
 </body>
