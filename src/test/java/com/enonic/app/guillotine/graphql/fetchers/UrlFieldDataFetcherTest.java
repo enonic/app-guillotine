@@ -277,7 +277,7 @@ public class UrlFieldDataFetcherTest
         when( portalUrlService.pageUrlParts( Mockito.any( PageUrlPartsParams.class ) ) ).thenReturn(
             new PageUrlParts( "https://site.example.com", "/b/mycontent", "?a=1" ) );
 
-        localContext.put( Constants.SITE_ARG, "/mysite" );
+        localContext.put( Constants.SCOPE_ARG, "/mysite" );
 
         final Map<String, Object> parts = new GetPageUrlDataFetcher( portalUrlService ).get( environment );
 
@@ -323,7 +323,7 @@ public class UrlFieldDataFetcherTest
         when( portalUrlService.pageUrlParts( Mockito.any( PageUrlPartsParams.class ) ) ).thenReturn(
             new PageUrlParts( null, "/b/mycontent", "" ) );
 
-        localContext.put( Constants.SITE_ARG, "/mysite" );
+        localContext.put( Constants.SCOPE_ARG, "/mysite" );
 
         final Map<String, Object> parts = new GetPageUrlDataFetcher( portalUrlService ).get( environment );
 
@@ -333,7 +333,7 @@ public class UrlFieldDataFetcherTest
     }
 
     @Test
-    public void testPageUrlWithoutSiteKeyBelongsToProject()
+    public void testPageUrlWithoutScopeKeyBelongsToProject()
         throws Exception
     {
         PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
@@ -397,7 +397,7 @@ public class UrlFieldDataFetcherTest
     @Test
     public void testLinkPageUrl()
     {
-        localContext.put( Constants.SITE_ARG, "/mysite" );
+        localContext.put( Constants.SCOPE_ARG, "/mysite" );
 
         final Map<String, Object> pageUrl = Map.of( "path", "/b/mycontent", "queryString", "?a=1" );
         when( environment.getSource() ).thenReturn( Map.of( "contentId", "linkedcontent", "pageUrl", pageUrl ) );
@@ -406,7 +406,7 @@ public class UrlFieldDataFetcherTest
     }
 
     @Test
-    public void testLinkPageUrlWithoutSiteKey()
+    public void testLinkPageUrlWithoutScopeKey()
     {
         final Map<String, Object> pageUrl = Map.of( "path", "/mysite/b", "queryString", "" );
         when( environment.getSource() ).thenReturn( Map.of( "contentId", "linkedcontent", "pageUrl", pageUrl ) );

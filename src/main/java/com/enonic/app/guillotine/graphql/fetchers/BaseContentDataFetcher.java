@@ -1,26 +1,33 @@
 package com.enonic.app.guillotine.graphql.fetchers;
 
+import java.util.function.Function;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.GuillotineLocalContextHelper;
 import com.enonic.xp.content.Content;
-import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
-import com.enonic.xp.site.Site;
+import com.enonic.xp.portal.url.PortalScope;
+import com.enonic.xp.portal.url.PortalUrlService;
 
 public abstract class BaseContentDataFetcher
     implements DataFetcher<Object>
 {
     private final static String SITE_PATTERN = "${site}";
 
+    private final static String SCOPE_PATTERN = "${scope}";
+
     protected final ContentService contentService;
 
-    public BaseContentDataFetcher( final ContentService contentService )
+    private final PortalUrlService portalUrlService;
+
+    public BaseContentDataFetcher( final ContentService contentService, final PortalUrlService portalUrlService )
     {
         this.contentService = contentService;
+        this.portalUrlService = portalUrlService;
     }
 
     protected Content getContent( DataFetchingEnvironment environment )
@@ -44,40 +51,50 @@ public abstract class BaseContentDataFetcher
 
     protected String resolveKeyFromArgumentOrLocalContext( DataFetchingEnvironment environment )
     {
-        String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
+        String scopeKey = GuillotineLocalContextHelper.getScopeKey( environment );
 
         String argumentKey = environment.getArgument( "key" );
 
         if ( argumentKey == null )
         {
-            return siteKey;
+            return scopeKey;
         }
 
+        // without a scopeKey the project is the root, as with scopeKey "/"
         if ( argumentKey.startsWith( SITE_PATTERN ) )
         {
-            // without a siteKey the project is the root, as with siteKey "/"
-            final Site site = siteKey == null ? null : getSiteByKey( siteKey );
-            final String replacement = site != null ? site.getPath().toString() : "";
-            argumentKey = replacement + argumentKey.substring( SITE_PATTERN.length() );
+            final String sitePath = scopePath( environment, scopeKey, PortalScope::getSitePath );
+            return pathOrRoot( sitePath + argumentKey.substring( SITE_PATTERN.length() ) );
+        }
 
-            if ( argumentKey.isEmpty() )
-            {
-                return "/";
-            }
+        if ( argumentKey.startsWith( SCOPE_PATTERN ) )
+        {
+            final String scopePath = scopePath( environment, scopeKey, PortalScope::getPath );
+            return pathOrRoot( scopePath + argumentKey.substring( SCOPE_PATTERN.length() ) );
         }
 
         if ( argumentKey.isEmpty() )
         {
-            return "/".equals( siteKey ) ? "/" : null;
+            return "/".equals( scopeKey ) ? "/" : null;
         }
 
         return argumentKey;
     }
 
-    private Site getSiteByKey( String siteKey )
+    private String scopePath( final DataFetchingEnvironment environment, final String scopeKey,
+                              final Function<PortalScope, ContentPath> path )
     {
-        return siteKey.startsWith( "/" )
-            ? contentService.findNearestSiteByPath( ContentPath.from( siteKey ) )
-            : contentService.getNearestSite( ContentId.from( siteKey ) );
+        if ( scopeKey == null || "/".equals( scopeKey ) )
+        {
+            return "";
+        }
+
+        final ContentPath contentPath = path.apply( GuillotineLocalContextHelper.getPortalScope( environment, portalUrlService ) );
+        return contentPath.isRoot() ? "" : contentPath.toString();
+    }
+
+    private static String pathOrRoot( final String path )
+    {
+        return path.isEmpty() ? "/" : path;
     }
 }

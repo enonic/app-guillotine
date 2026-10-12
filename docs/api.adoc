@@ -28,6 +28,18 @@ TIP: A more intuitive way to discover the API is by using the <<playground#, Que
 |"_score DESC"
 |===
 
+[#portal-extensions]
+== Portal API extensions
+
+Most of the API reads content as XP's https://developer.enonic.com/docs/code/stable/libraries/lib-content[Content API] does. These parts extend it with XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal[Portal API], which resolves content the way a site serves it:
+
+* `scopeKey` on `guillotine`, and `env.localContext.scopeKey` in resolvers
+* `getSite`, and the `${scope}` and `${site}` placeholders
+* the URL fields `pageUrl`, `imageUrl`, `mediaUrl` and `attachmentUrl`
+* rich text: `processedHtml`, `links`, `images`, `macros` and `macrosAsJson`
+
+They are resolved from configuration, for the scope `scopeKey` selects, or for the project without it. See <<usage/site-context#, Scope and site>>.
+
 == Object Types
 === Query
 
@@ -35,7 +47,7 @@ TIP: A more intuitive way to discover the API is by using the <<playground#, Que
 |===
 |Name(Arguments):Type | Description
 
-|guillotine(project: String, branch: String, siteKey: String): <<HeadlessCms>>
+|guillotine(project: String, branch: String, scopeKey: String): <<HeadlessCms>>
 |Type gathering all content retrieval requests
 |===
 
@@ -75,7 +87,7 @@ Gathers all content retrieval requests.
 |Fetches the permissions on a content
 
 |getSite: portal_Site
-|Returns the nearest site for the content ID or path supplied through `guillotine(siteKey: ...)`. Returns `null` when `siteKey` is omitted or selects the project root (`"/"`), including at a site-mounted endpoint. See <<usage/site-context#, Site context>>
+|Returns the nearest site for the content ID or path supplied through `guillotine(scopeKey: ...)`. Returns `null` when `scopeKey` is omitted or selects the project root (`"/"`), including at a site-mounted endpoint. See <<usage/site-context#, Scope and site>>
 
 // |query(
 //  query: String,
@@ -140,7 +152,7 @@ All types implementing `Content` share the same fields, with the exception of th
 |Content name
 
 |_path: String!
-|Full content path within the project. For a site-relative link, select `pageUrl { path }` with the appropriate `siteKey`
+|Full content path within the project. For a site-relative link, select `pageUrl { path }` with the appropriate `scopeKey`
 
 |_project: String
 |Name of the content project used to resolve this item
@@ -215,7 +227,7 @@ a|Flattened list of page components
 |Publication information
 
 |pageUrl(params: JSON): <<PageUrl>>
-|Page link components for the site or project selected with `siteKey`, or for the project without it; see <<PageUrl>> and <<usage/images-and-urls#base-urls, Base URLs>>
+|Page link components for the scope selected with `scopeKey`, or for the project without it; see <<PageUrl>> and <<usage/images-and-urls#base-urls, Base URLs>>
 
 |site: portal_Site
 |Link to the nearest site
@@ -583,7 +595,7 @@ The style of a rich text <<Image>>, as XP's https://developer.enonic.com/docs/co
 
 === PageUrl
 
-Page URL components for the site selected with `siteKey`, or for the project without it, from XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts[`pageUrlParts`], where each component is described. A content outside the selected site has no page URL there, and the field reports an error.
+Page URL components for the scope selected with `scopeKey`, or for the project without it, from XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts[`pageUrlParts`], where each component is described. A content outside the scope has no page URL there, and the field reports an error.
 
 Build the address in the client as `baseUrl + path + queryString`, supplying your frontend's own base when `baseUrl` is `null` or when your deployment routes pages differently.
 
@@ -591,10 +603,10 @@ Build the address in the client as `baseUrl + path + queryString`, supplying you
 |Name (Arguments): Type | Description
 
 |baseUrl: String
-|The Base URL configured for the selected site or project; `null` when none is configured
+|The Base URL of the scope, or of the project without `scopeKey`; `null` when none is configured
 
 |path: String
-|Path of the content, relative to the selected site or project
+|Path of the content, relative to the content `scopeKey` names, or to the project without it
 
 |queryString: String
 |Query string, with its leading `?`; empty when there are no parameters
