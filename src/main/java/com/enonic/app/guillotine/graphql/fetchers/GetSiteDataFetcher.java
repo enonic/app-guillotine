@@ -29,12 +29,12 @@ public class GetSiteDataFetcher
 
     private Object doGet( final DataFetchingEnvironment environment )
     {
-        String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
-        if ( siteKey != null && !siteKey.isEmpty() )
+        String scopeKey = GuillotineLocalContextHelper.getScopeKey( environment );
+        if ( scopeKey != null && !scopeKey.isEmpty() )
         {
-            Site site = siteKey.startsWith( "/" )
-                ? contentService.findNearestSiteByPath( ContentPath.from( siteKey ) )
-                : contentService.getNearestSite( ContentId.from( siteKey ) );
+            Site site = scopeKey.startsWith( "/" )
+                ? contentService.findNearestSiteByPath( ContentPath.from( scopeKey ) )
+                : contentService.getNearestSite( ContentId.from( scopeKey ) );
 
             return GuillotineSerializer.serialize( site );
         }

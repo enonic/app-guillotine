@@ -82,7 +82,7 @@ For example, a site at `/my-site` in `myproject` exposes its published content a
 http://localhost:8080/site/myproject/master/my-site/_/com.enonic.app.guillotine:graphql
 ----
 
-At this endpoint, the site request supplies the project and branch; arguments on the `guillotine` field cannot override them. The `siteKey` argument can separately select the <<usage/site-context#, site context>> used by queries and URLs.
+At this endpoint, the site request supplies the project and branch; arguments on the `guillotine` field cannot override them. The `scopeKey` argument can separately select the <<usage/site-context#, scope>> used by queries and URLs.
 
 See the https://developer.enonic.com/docs/code/stable/web/apis#contextual-apis[Universal API reference] for mounting APIs in sites and other services.
 

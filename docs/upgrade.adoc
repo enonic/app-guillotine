@@ -92,7 +92,7 @@ Select `path` and `queryString`, then build the address in your client using the
 [source,graphql]
 ----
 {
-  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+  guillotine(project: "myproject", branch: "master", scopeKey: "/my-site") {
     get(key: "/my-site/photo") {
       pageUrl { path queryString }
       ... on media_Image {
@@ -107,7 +107,7 @@ Select `path` and `queryString`, then build the address in your client using the
 }
 ----
 
-For media, concatenate your public API or CDN base with `path` and `queryString`. Links and images in `processedHtml` are placeholders: rewrite them from the structured rich-text data. For pages of a site, pass its `siteKey`, and adapt `pageUrl.path` to your frontend's host and routing, then append `pageUrl.queryString`. `pageUrl.baseUrl` holds the Base URL configured for the selected site, or for the project without `siteKey`, or `null` when there is none. See <<usage/images-and-urls#url-parts, Building URLs from parts>> for client examples.
+For media, concatenate your public API or CDN base with `path` and `queryString`. Links and images in `processedHtml` are placeholders: rewrite them from the structured rich-text data. For pages of a site, pass its `scopeKey`, and adapt `pageUrl.path` to your frontend's host and routing, then append `pageUrl.queryString`. `pageUrl.baseUrl` holds the Base URL configured for the selected site, or for the project without `scopeKey`, or `null` when there is none. See <<usage/images-and-urls#url-parts, Building URLs from parts>> for client examples.
 
 The `type` argument and `UrlType` enum are removed. Remove `type: server` and `type: absolute` from queries and variables. Your client now supplies the deployment context when building links from these components.
 
@@ -181,14 +181,14 @@ The `queryplayground.ui.mode` configuration property is removed. Delete it from 
 
 Review this section if you use `siteKey`, `getSite`, site-relative paths, or queries scoped to a site.
 
-==== Selecting a site
+==== Selecting a scope
 
-The `X-Guillotine-SiteKey` request header is no longer supported. Move the selection into the GraphQL query:
+The `siteKey` argument is renamed `scopeKey`, and the `X-Guillotine-SiteKey` request header is no longer supported. Select the scope in the GraphQL query:
 
 [source,graphql]
 ----
 {
-  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+  guillotine(project: "myproject", branch: "master", scopeKey: "/my-site") {
     getSite {
       _id
       displayName
@@ -197,27 +197,29 @@ The `X-Guillotine-SiteKey` request header is no longer supported. Move the selec
 }
 ----
 
-An omitted `siteKey` selects the project for paths and URLs, as `siteKey: "/"` does. `getSite` returns `null` without a site selection, including at a site-mounted endpoint; select a site explicitly when you need this field. A nonexistent `siteKey` now raises an error while setting up the `guillotine` context.
+In resolvers, read `env.localContext.scopeKey` in place of `env.localContext.siteKey`.
 
-Omit `siteKey`, or pass `siteKey: "/"`, for project-root path and URL context: `${site}` is then empty, so `${site}/blogs` becomes `/blogs`. The project root is not a site content item, so `getSite` returns `null` for that selection, and `env.localContext.siteKey` is only present when `siteKey` is given. See <<usage/site-context#, Site context>>.
+An omitted `scopeKey` selects the project for paths and URLs, as `scopeKey: "/"` does. `getSite` returns `null` without a site selection, including at a site-mounted endpoint; select a site explicitly when you need this field. A nonexistent `scopeKey` now raises an error while setting up the `guillotine` context.
+
+Omit `scopeKey`, or pass `scopeKey: "/"`, for project-root path and URL context: `${site}` is then empty, so `${site}/blogs` becomes `/blogs`. The project root is not a site content item, so `getSite` returns `null` for that selection, and `env.localContext.scopeKey` is only present when `scopeKey` is given. See <<usage/site-context#, Scope and site>>.
 
 ==== Replacing site-relative `_path`
 
 The `_path` field no longer accepts `type: siteRelative`, and the `ContentPathType` enum is removed. `_path` returns the content's full path within the project.
 
-Select `pageUrl { path }` with an appropriate `siteKey` for a site-relative link. This is not a direct string replacement: the old site-relative `_path` omitted the leading slash, while `pageUrl.path` includes it for descendants and URL-escapes the path. For the selected site itself, `pageUrl.path` is empty. Adjust URL concatenation accordingly.
+Select `pageUrl { path }` with an appropriate `scopeKey` for a site-relative link. This is not a direct string replacement: the old site-relative `_path` omitted the leading slash, while `pageUrl.path` includes it for descendants and URL-escapes the path. For the selected site itself, `pageUrl.path` is empty. Adjust URL concatenation accordingly.
 
-A `siteKey` naming a content that is not a site makes `pageUrl.path` relative to that content, as a virtual host mounted on it does, where the old site-relative `_path` was relative to its site. `getSite` and `${site}` keep resolving to the nearest site.
+A `scopeKey` naming a content that is not a site makes `pageUrl.path` relative to that content, as a virtual host mounted on it does, where the old site-relative `_path` was relative to its site. `getSite` and `${site}` keep resolving to the nearest site, and the new `${scope}` placeholder inserts the path of the content `scopeKey` names.
 
 ==== Query scope and URL scope
 
 The previous automatic site-path restrictions on content queries and lookups are removed. Queries can reach content elsewhere in the project, subject to content permissions. If your client needs results from one subtree, add explicit path constraints to its DSL queries.
 
-For page URLs, `siteKey` now selects both the URL base and the relative path. A request for a page URL outside the selected site produces a GraphQL field error. For nested sites, choosing the parent or child site can produce different links. Test cross-site references and nested-site links against the <<usage/images-and-urls#base-urls, URL context rules>>.
+For page URLs, `scopeKey` selects both the URL base and the relative path. A request for a page URL outside the scope produces a GraphQL field error. For nested sites, choosing the parent or child site can produce different links. Test cross-site references and nested-site links against the <<usage/images-and-urls#base-urls, URL context rules>>.
 
-==== Page URLs without `siteKey`
+==== Page URLs without `scopeKey`
 
-Without `siteKey`, page URLs belong to the project, not to the site that contains the content: `pageUrl.path` is the full content path, such as `/my-site/posts/first-post`, and `pageUrl.baseUrl` is the Base URL configured for the project. This applies to `pageUrl` on content and on rich-text links alike. Site frontends pass the `siteKey` of their site to get site-relative paths and the site's Base URL.
+Without `scopeKey`, page URLs belong to the project, not to the site that contains the content: `pageUrl.path` is the full content path, such as `/my-site/posts/first-post`, and `pageUrl.baseUrl` is the Base URL configured for the project. This applies to `pageUrl` on content and on rich-text links alike. Site frontends pass the `scopeKey` of their site to get site-relative paths and the site's Base URL.
 
 [#metadata-migration]
 === Schema metadata and publication timestamps
@@ -253,17 +255,17 @@ Review these changes if your app provides `guillotine.ts` or `guillotine.js` ext
 
 Guillotine no longer temporarily changes the portal request's application to the app that owns a resolver. Portal URL helpers that infer an application from the request can therefore generate different URLs. Where a helper accepts an `application` parameter, pass the intended application explicitly.
 
-The resolver's script context and `app.name` still identify the extension app. Resolvers beneath `guillotine` execute in the selected project repository and branch. Treat `env.localContext.siteKey` as optional. See <<extending#lifecycle, Lifecycle and execution>>.
+The resolver's script context and `app.name` still identify the extension app. Resolvers beneath `guillotine` execute in the selected project repository and branch. Treat `env.localContext.scopeKey` as optional. See <<extending#lifecycle, Lifecycle and execution>>.
 
 ==== Rich-text macros
 
-Macros in rich text come from the applications configured on the site selected with `siteKey`, or on the project without it, and from the built-in macros `disable` and `embed`. Among them, a macro is matched by its name, also when written in another case. A macro of an application configured elsewhere stays in the text as written. Configure the application providing the macros on the site or project.
+Macros in rich text come from the applications configured on the site that `scopeKey` selects or lies in, or on the project without one, and from the built-in macros `disable` and `embed`. Among them, a macro is matched by its name, also when written in another case. A macro of an application configured elsewhere stays in the text as written. Configure the application providing the macros on the site or project.
 
 The `data-macro-name` attribute and the `name` of a macro hold the name of its descriptor, and its parameters are named as the inputs of the descriptor's form, also when the text writes them in another case.
 
 ==== Rich-text image styles
 
-Image styles in rich text come from the applications configured on the site selected with `siteKey`, or on the project without it, rather than from all installed applications. An image whose style belongs to an application configured elsewhere is processed without that style. Configure the application providing the styles on the site or project.
+Image styles in rich text come from the applications configured on the site that `scopeKey` selects or lies in, or on the project without one, rather than from all installed applications. An image whose style belongs to an application configured elsewhere is processed without that style. Configure the application providing the styles on the site or project.
 
 `ImageStyle.application` (new) gives the application whose style descriptor holds the style, next to its `name`. Match both where several applications define styles of the same name.
 

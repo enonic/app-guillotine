@@ -47,10 +47,10 @@ public class GuillotineLocalContextHelper
         return ContextBuilder.from( ContextAccessor.current() ).branch( branch ).repositoryId( repositoryId ).build().callWith( callable );
     }
 
-    public static String getSiteKey( final DataFetchingEnvironment environment )
+    public static String getScopeKey( final DataFetchingEnvironment environment )
     {
         final Map<String, Object> localContext = getLocalContext( environment );
-        return Objects.toString( localContext.get( Constants.SITE_ARG ), null );
+        return Objects.toString( localContext.get( Constants.SCOPE_ARG ), null );
     }
 
     public static Map<String, Object> getLocalContext( final DataFetchingEnvironment environment )
@@ -80,35 +80,35 @@ public class GuillotineLocalContextHelper
     }
 
     /**
-     * @return the scope page URLs and processed HTML belong to: the content named by siteKey, or the project when no
-     * siteKey is in use. It is resolved once per query for each project, branch and siteKey
+     * @return the scope page URLs and processed HTML belong to: the content named by scopeKey, or the project when
+     * no scopeKey is in use. It is resolved once per query for each project, branch and scopeKey
      */
     public static PortalScope getPortalScope( final DataFetchingEnvironment environment, final PortalUrlService portalUrlService )
     {
-        final String siteKey = getSiteKey( environment );
+        final String scopeKey = getScopeKey( environment );
         final ProjectName projectName = getProjectName( environment );
         final Branch branch = getBranch( environment );
 
         return environment.getGraphQlContext()
-            .computeIfAbsent( new PortalScopeKey( siteKey, projectName, branch ),
-                              key -> portalUrlService.portalScope( portalScopeParams( siteKey, projectName, branch ) ) );
+            .computeIfAbsent( new PortalScopeKey( scopeKey, projectName, branch ),
+                              key -> portalUrlService.portalScope( portalScopeParams( scopeKey, projectName, branch ) ) );
     }
 
-    private static PortalScopeParams portalScopeParams( final String siteKey, final ProjectName projectName, final Branch branch )
+    private static PortalScopeParams portalScopeParams( final String scopeKey, final ProjectName projectName, final Branch branch )
     {
         final PortalScopeParams.Builder params = PortalScopeParams.create().setProjectName( projectName ).setBranch( branch );
-        if ( siteKey != null && siteKey.startsWith( "/" ) )
+        if ( scopeKey != null && scopeKey.startsWith( "/" ) )
         {
-            params.setContentPath( ContentPath.from( siteKey ) );
+            params.setContentPath( ContentPath.from( scopeKey ) );
         }
-        else if ( siteKey != null )
+        else if ( scopeKey != null )
         {
-            params.setContentId( ContentId.from( siteKey ) );
+            params.setContentId( ContentId.from( scopeKey ) );
         }
         return params.build();
     }
 
-    private record PortalScopeKey(String siteKey, ProjectName projectName, Branch branch)
+    private record PortalScopeKey(String scopeKey, ProjectName projectName, Branch branch)
     {
     }
 

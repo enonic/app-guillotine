@@ -22,7 +22,7 @@ The `localContext` object is unmodifiable, so you can't change it. If you need t
 
 - `project` - project name, selected by the `guillotine` field's argument or supplied by the request context.
 - `branch` - branch name, selected by the `guillotine` field's argument or supplied by the request context.
-- `siteKey` - the selected site key, when present. Treat this property as optional; see <<../usage/site-context#, Site context>>.
+- `scopeKey` - the selected scope key, when present. Treat this property as optional; see <<../usage/site-context#, Scope and site>>.
 
 Keys starting with `__` are internal to Guillotine and are not part of the extension contract.
 
@@ -42,8 +42,8 @@ export const extensions = (): Extensions => ({
     resolvers: {
         MyCustomType: {
             myCustomField: (env: DataFetchingEnvironment<Record<string, never>, Source>): string => {
-                const {project, branch, siteKey} = env.localContext;
-                return `${project}/${branch}: ${env.source._id} (site: ${siteKey ?? 'not selected'})`;
+                const {project, branch, scopeKey} = env.localContext;
+                return `${project}/${branch}: ${env.source._id} (scope: ${scopeKey ?? 'not selected'})`;
             },
         },
     },

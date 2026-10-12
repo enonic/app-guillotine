@@ -210,7 +210,7 @@ public class GraphQLApi
         Map<String, Object> guillotineFieldArguments = new HashMap<>();
         guillotineFieldArguments.put( "project", Scalars.GraphQLString );
         guillotineFieldArguments.put( "branch", Scalars.GraphQLString );
-        guillotineFieldArguments.put( "siteKey", Scalars.GraphQLString );
+        guillotineFieldArguments.put( "scopeKey", Scalars.GraphQLString );
 
         Map<String, Object> guillotineFieldOptions = new HashMap<>();
         guillotineFieldOptions.put( "type", guillotineApi );

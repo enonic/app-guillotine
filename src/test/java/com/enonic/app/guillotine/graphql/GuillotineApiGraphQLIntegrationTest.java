@@ -160,7 +160,7 @@ public class GuillotineApiGraphQLIntegrationTest
     @Test
     public void testGetSiteField()
     {
-        when( contentService.contentExists( ContentPath.from( "/siteKey" ) ) ).thenReturn( true );
+        when( contentService.contentExists( ContentPath.from( "/mysite" ) ) ).thenReturn( true );
         when( contentService.findNearestSiteByPath( any( ContentPath.class ) ) ).thenReturn(
             Site.create().name( "site" ).type( ContentTypeName.site() ).parentPath( ContentPath.ROOT ).data(
                 new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteid" ) ).build() );
@@ -191,50 +191,50 @@ public class GuillotineApiGraphQLIntegrationTest
     }
 
     @Test
-    public void testBlankSiteKeyBehavesAsNotSet()
+    public void testBlankScopeKeyBehavesAsNotSet()
     {
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
         Map<String, Object> response =
-            executeQuery( graphQLSchema, "query { guillotine(siteKey: \"\") { getSite { _id } } }" );
+            executeQuery( graphQLSchema, "query { guillotine(scopeKey: \"\") { getSite { _id } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
         Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.never() ).baseUrl( any() );
     }
 
     @Test
-    public void testUnknownSiteKeyIsRejected()
+    public void testUnknownScopeKeyIsRejected()
     {
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
         Map<String, Object> response =
-            executeQuery( graphQLSchema, "query { guillotine(siteKey: \"unknown\") { getSite { _id } } }" );
+            executeQuery( graphQLSchema, "query { guillotine(scopeKey: \"unknown\") { getSite { _id } } }" );
 
         assertTrue( response.containsKey( "errors" ) );
         Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.never() ).baseUrl( any() );
     }
 
     @Test
-    public void testProjectRootSiteKeyIsAllowed()
+    public void testProjectRootScopeKeyIsAllowed()
     {
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
         Map<String, Object> response =
-            executeQuery( graphQLSchema, "query { guillotine(siteKey: \"/\") { getSite { _id } } }" );
+            executeQuery( graphQLSchema, "query { guillotine(scopeKey: \"/\") { getSite { _id } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
         Mockito.verify( serviceFacade.getPortalUrlService(), Mockito.never() ).baseUrl( any() );
     }
 
     @Test
-    public void testSiteKeyResolvesNoBaseUrl()
+    public void testScopeKeyResolvesNoBaseUrl()
     {
         when( contentService.contentExists( ContentPath.from( "/mysite" ) ) ).thenReturn( true );
 
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
         Map<String, Object> response =
-            executeQuery( graphQLSchema, "query { guillotine(siteKey: \"/mysite\") { getSite { _id } } }" );
+            executeQuery( graphQLSchema, "query { guillotine(scopeKey: \"/mysite\") { getSite { _id } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
 
@@ -242,7 +242,7 @@ public class GuillotineApiGraphQLIntegrationTest
     }
 
     @Test
-    public void testProjectRootSiteKeyResolvesBareSitePlaceholderToRoot()
+    public void testProjectRootScopeKeyResolvesBareSitePlaceholderToRoot()
     {
         final Media mediaContent = ContentFixtures.createMediaContent();
         when( contentService.findIdsByParent( any( FindContentByParentParams.class ) ) ).thenReturn(
@@ -252,7 +252,7 @@ public class GuillotineApiGraphQLIntegrationTest
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
         Map<String, Object> response =
-            executeQuery( graphQLSchema, "query { guillotine(siteKey: \"/\") { getChildren(key: \"${site}\") { _id } } }" );
+            executeQuery( graphQLSchema, "query { guillotine(scopeKey: \"/\") { getChildren(key: \"${site}\") { _id } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
 
@@ -269,7 +269,7 @@ public class GuillotineApiGraphQLIntegrationTest
     }
 
     @Test
-    public void testSitePlaceholderWithoutSiteKeyResolvesAgainstProject()
+    public void testPlaceholdersWithoutScopeKeyResolveAgainstProject()
     {
         when( contentService.findIdsByParent( any( FindContentByParentParams.class ) ) ).thenReturn(
             FindContentIdsByParentResult.create().totalHits( 0 ).contentIds( ContentIds.empty() ).build() );
@@ -278,14 +278,67 @@ public class GuillotineApiGraphQLIntegrationTest
         GraphQLSchema graphQLSchema = getBean().createSchema();
 
         Map<String, Object> response = executeQuery( graphQLSchema, "query { guillotine { " +
-            "blogs: getChildren(key: \"${site}/blogs\") { _id } root: getChildren(key: \"${site}\") { _id } } }" );
+            "blogs: getChildren(key: \"${site}/blogs\") { _id } root: getChildren(key: \"${site}\") { _id } " +
+            "scopeBlogs: getChildren(key: \"${scope}/blogs\") { _id } scopeRoot: getChildren(key: \"${scope}\") { _id } } }" );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        ArgumentCaptor<FindContentByParentParams> captor = ArgumentCaptor.forClass( FindContentByParentParams.class );
+        Mockito.verify( contentService, Mockito.times( 4 ) ).findIdsByParent( captor.capture() );
+        assertEquals( List.of( ContentPath.from( "/blogs" ), ContentPath.ROOT, ContentPath.from( "/blogs" ), ContentPath.ROOT ),
+                      captor.getAllValues().stream().map( FindContentByParentParams::getParentPath ).toList() );
+    }
+
+    @Test
+    public void testScopePlaceholderIsTheScopeContentAndSitePlaceholderItsSite()
+    {
+        when( contentService.contentExists( ContentPath.from( "/mysite/folder" ) ) ).thenReturn( true );
+        when( contentService.findNearestSiteByPath( ContentPath.from( "/mysite/folder" ) ) ).thenReturn(
+            Site.create().name( "mysite" ).type( ContentTypeName.site() ).parentPath( ContentPath.ROOT ).data(
+                new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteid" ) ).build() );
+        when( contentService.findIdsByParent( any( FindContentByParentParams.class ) ) ).thenReturn(
+            FindContentIdsByParentResult.create().totalHits( 0 ).contentIds( ContentIds.empty() ).build() );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( Contents.empty() );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response = executeQuery( graphQLSchema, "query { guillotine(scopeKey: \"/mysite/folder\") { " +
+            "scope: getChildren(key: \"${scope}/posts\") { _id } site: getChildren(key: \"${site}/posts\") { _id } } }" );
 
         assertFalse( response.containsKey( "errors" ) );
 
         ArgumentCaptor<FindContentByParentParams> captor = ArgumentCaptor.forClass( FindContentByParentParams.class );
         Mockito.verify( contentService, Mockito.times( 2 ) ).findIdsByParent( captor.capture() );
-        assertEquals( List.of( ContentPath.from( "/blogs" ), ContentPath.ROOT ),
+        assertEquals( List.of( ContentPath.from( "/mysite/folder/posts" ), ContentPath.from( "/mysite/posts" ) ),
                       captor.getAllValues().stream().map( FindContentByParentParams::getParentPath ).toList() );
+    }
+
+    @Test
+    public void testScopePlaceholderResolvesAnIdToItsPath()
+    {
+        final Content folder = Content.create()
+            .id( ContentId.from( "folderid" ) )
+            .name( "folder" )
+            .parentPath( ContentPath.from( "/mysite" ) )
+            .type( ContentTypeName.folder() )
+            .data( new PropertyTree() )
+            .build();
+        when( contentService.contentExists( ContentId.from( "folderid" ) ) ).thenReturn( true );
+        when( contentService.getById( ContentId.from( "folderid" ) ) ).thenReturn( folder );
+        when( contentService.findIdsByParent( any( FindContentByParentParams.class ) ) ).thenReturn(
+            FindContentIdsByParentResult.create().totalHits( 0 ).contentIds( ContentIds.empty() ).build() );
+        when( contentService.getByIds( any( GetContentByIdsParams.class ) ) ).thenReturn( Contents.empty() );
+
+        GraphQLSchema graphQLSchema = getBean().createSchema();
+
+        Map<String, Object> response =
+            executeQuery( graphQLSchema, "query { guillotine(scopeKey: \"folderid\") { getChildren(key: \"${scope}\") { _id } } }" );
+
+        assertFalse( response.containsKey( "errors" ) );
+
+        ArgumentCaptor<FindContentByParentParams> captor = ArgumentCaptor.forClass( FindContentByParentParams.class );
+        Mockito.verify( contentService ).findIdsByParent( captor.capture() );
+        assertEquals( ContentPath.from( "/mysite/folder" ), captor.getValue().getParentPath() );
     }
 
     @Override

@@ -199,7 +199,7 @@ The single argument passed to a <<resolver, Resolver>>.
 
 `LocalContext<T extends LocalContextRecord>`
 
-The context object available as `env.localContext`. The `guillotine` field supplies `project` and `branch` to its descendants, and `siteKey` when explicitly selected. Fields added directly to `Query` do not inherit this context from a sibling `guillotine` field. Additional properties come from ancestor resolvers via <<create-data-fetcher-result, createDataFetcherResult>>; describe them with the generic parameter `T` when you read them. Pass `parentLocalContext: env.localContext` when adding values to preserve the inherited context.
+The context object available as `env.localContext`. The `guillotine` field supplies `project` and `branch` to its descendants, and `scopeKey` when explicitly selected. Fields added directly to `Query` do not inherit this context from a sibling `guillotine` field. Additional properties come from ancestor resolvers via <<create-data-fetcher-result, createDataFetcherResult>>; describe them with the generic parameter `T` when you read them. Pass `parentLocalContext: env.localContext` when adding values to preserve the inherited context.
 
 [%header,cols="1%,1%,98%a"]
 [frame="none"]
@@ -208,7 +208,7 @@ The context object available as `env.localContext`. The `guillotine` field suppl
 | Name | Type | Description
 | project | string | Project selected for the query.
 | branch | string | Branch selected for the query.
-| siteKey | string | *Optional.* Selected site key, when present. See <<../usage/site-context#, Site context>>.
+| scopeKey | string | *Optional.* Selected scope key, when present. See <<../usage/site-context#, Scope and site>>.
 |===
 
 [#local-context-record]

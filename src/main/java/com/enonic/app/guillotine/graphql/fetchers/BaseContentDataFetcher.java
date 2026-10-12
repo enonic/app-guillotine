@@ -16,6 +16,8 @@ public abstract class BaseContentDataFetcher
 {
     private final static String SITE_PATTERN = "${site}";
 
+    private final static String SCOPE_PATTERN = "${scope}";
+
     protected final ContentService contentService;
 
     public BaseContentDataFetcher( final ContentService contentService )
@@ -44,40 +46,61 @@ public abstract class BaseContentDataFetcher
 
     protected String resolveKeyFromArgumentOrLocalContext( DataFetchingEnvironment environment )
     {
-        String siteKey = GuillotineLocalContextHelper.getSiteKey( environment );
+        String scopeKey = GuillotineLocalContextHelper.getScopeKey( environment );
 
         String argumentKey = environment.getArgument( "key" );
 
         if ( argumentKey == null )
         {
-            return siteKey;
+            return scopeKey;
         }
 
+        // without a scopeKey the project is the root, as with scopeKey "/"
         if ( argumentKey.startsWith( SITE_PATTERN ) )
         {
-            // without a siteKey the project is the root, as with siteKey "/"
-            final Site site = siteKey == null ? null : getSiteByKey( siteKey );
-            final String replacement = site != null ? site.getPath().toString() : "";
-            argumentKey = replacement + argumentKey.substring( SITE_PATTERN.length() );
+            return pathOrRoot( sitePath( scopeKey ) + argumentKey.substring( SITE_PATTERN.length() ) );
+        }
 
-            if ( argumentKey.isEmpty() )
-            {
-                return "/";
-            }
+        if ( argumentKey.startsWith( SCOPE_PATTERN ) )
+        {
+            return pathOrRoot( scopePath( scopeKey ) + argumentKey.substring( SCOPE_PATTERN.length() ) );
         }
 
         if ( argumentKey.isEmpty() )
         {
-            return "/".equals( siteKey ) ? "/" : null;
+            return "/".equals( scopeKey ) ? "/" : null;
         }
 
         return argumentKey;
     }
 
-    private Site getSiteByKey( String siteKey )
+    private String sitePath( final String scopeKey )
     {
-        return siteKey.startsWith( "/" )
-            ? contentService.findNearestSiteByPath( ContentPath.from( siteKey ) )
-            : contentService.getNearestSite( ContentId.from( siteKey ) );
+        if ( scopeKey == null )
+        {
+            return "";
+        }
+
+        final Site site = scopeKey.startsWith( "/" )
+            ? contentService.findNearestSiteByPath( ContentPath.from( scopeKey ) )
+            : contentService.getNearestSite( ContentId.from( scopeKey ) );
+        return site != null ? site.getPath().toString() : "";
+    }
+
+    private String scopePath( final String scopeKey )
+    {
+        if ( scopeKey == null || "/".equals( scopeKey ) )
+        {
+            return "";
+        }
+
+        return scopeKey.startsWith( "/" )
+            ? ContentPath.from( scopeKey ).toString()
+            : contentService.getById( ContentId.from( scopeKey ) ).getPath().toString();
+    }
+
+    private static String pathOrRoot( final String path )
+    {
+        return path.isEmpty() ? "/" : path;
     }
 }

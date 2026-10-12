@@ -40,7 +40,7 @@ public class GetSiteDataFetcherTest
         Map<String, Object> localContext = new HashMap<>();
         localContext.put( Constants.PROJECT_ARG, "myproject" );
         localContext.put( Constants.BRANCH_ARG, "draft" );
-        localContext.put( Constants.SITE_ARG, "/siteKey" );
+        localContext.put( Constants.SCOPE_ARG, "/mysite" );
 
         environment = Mockito.mock( DataFetchingEnvironment.class );
         when( environment.getLocalContext() ).thenReturn( localContext );
