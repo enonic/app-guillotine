@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import graphql.GraphQLContext;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.graphql.Constants;
@@ -18,6 +19,10 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
+import com.enonic.xp.portal.url.PortalScope;
+import com.enonic.xp.portal.url.PortalScopeParams;
+import com.enonic.xp.portal.url.PortalUrlService;
+import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.site.Site;
@@ -40,10 +45,11 @@ public class GetSiteDataFetcherTest
         Map<String, Object> localContext = new HashMap<>();
         localContext.put( Constants.PROJECT_ARG, "myproject" );
         localContext.put( Constants.BRANCH_ARG, "draft" );
-        localContext.put( Constants.SITE_ARG, "/siteKey" );
+        localContext.put( Constants.SCOPE_ARG, "/mysite" );
 
         environment = Mockito.mock( DataFetchingEnvironment.class );
         when( environment.getLocalContext() ).thenReturn( localContext );
+        when( environment.getGraphQlContext() ).thenReturn( GraphQLContext.newContext().build() );
     }
 
     @AfterEach
@@ -57,11 +63,20 @@ public class GetSiteDataFetcherTest
         throws Exception
     {
         ContentService contentService = Mockito.mock( ContentService.class );
-        when( contentService.findNearestSiteByPath( Mockito.any() ) ).thenReturn(
-            Site.create().name( "site" ).type( ContentTypeName.site() ).parentPath( ContentPath.ROOT ).data(
+        when( contentService.getByPath( ContentPath.from( "/mysite" ) ) ).thenReturn(
+            Site.create().name( "mysite" ).type( ContentTypeName.site() ).parentPath( ContentPath.ROOT ).data(
                 new PropertyTree() ).displayName( "Site" ).id( ContentId.from( "siteid" ) ).build() );
 
-        GetSiteDataFetcher instance = new GetSiteDataFetcher( contentService );
+        PortalScope scope = PortalScope.create()
+            .projectName( ProjectName.from( "myproject" ) )
+            .branch( Branch.from( "draft" ) )
+            .path( ContentPath.from( "/mysite" ) )
+            .sitePath( ContentPath.from( "/mysite" ) )
+            .build();
+        PortalUrlService portalUrlService = Mockito.mock( PortalUrlService.class );
+        when( portalUrlService.portalScope( Mockito.any( PortalScopeParams.class ) ) ).thenReturn( scope );
+
+        GetSiteDataFetcher instance = new GetSiteDataFetcher( contentService, portalUrlService );
         assertNotNull( instance.get( environment ) );
     }
 }

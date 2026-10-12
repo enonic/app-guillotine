@@ -86,7 +86,7 @@ public class GuillotineDataFetcherTest
     private Map<Object, Object> fetchLocalContext( final DataFetchingEnvironment environment )
         throws Exception
     {
-        // no siteKey argument, so the ServiceFacade is never touched
+        // no scopeKey argument, so the ServiceFacade is never touched
         final GuillotineDataFetcher fetcher = new GuillotineDataFetcher( () -> null );
 
         final DataFetcherResult<?> result = ContextBuilder.create()

@@ -1,17 +1,17 @@
-= Site context
+= Scope and site
 
-The `siteKey` argument on `guillotine` selects a site within the current project. Use it to retrieve the site and resolve paths relative to it.
+The `scopeKey` argument on `guillotine` selects the scope of a query within the current project: the content that page URLs are relative to, usually a site. Use it to resolve paths relative to that content and to retrieve its site. The scope, `getSite` and the path placeholders are <<../api#portal-extensions, Portal API extensions>>.
 
-Project and branch select the content repository and version of the content. Site context is a separate choice within that project. See <<../usage#content-context, Project and branch>> for how these are selected.
+Project and branch select the content repository and version of the content. The scope is a separate choice within that project. See <<../usage#content-context, Project and branch>> for how these are selected.
 
-== Select a site
+== Select a scope
 
-Set `siteKey` to the site's content ID or its path within the project. This example selects `/my-site` and retrieves its display name:
+Set `scopeKey` to the content ID or path of a site, or of another content, within the project. This example selects the site `/my-site` and retrieves its display name:
 
 [source,graphql]
 ----
 {
-  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+  guillotine(project: "myproject", branch: "master", scopeKey: "/my-site") {
     getSite {
       _id
       displayName
@@ -20,17 +20,19 @@ Set `siteKey` to the site's content ID or its path within the project. This exam
 }
 ----
 
-Replace `myproject` and `/my-site` with an existing project and site. The selected site must exist in the branch you query. Send this query using the request format on the <<../usage#, Usage>> page.
+Replace `myproject` and `/my-site` with an existing project and site. The selected content must exist in the branch you query. Send this query using the request format on the <<../usage#, Usage>> page.
 
-== Path placeholder
+`getSite` returns the nearest site at or above the selected content: the site itself when `scopeKey` names a site.
 
-Use `${site}` in a content key to insert the selected site's path. This lets a query use paths below a site without repeating its location:
+== Path placeholders
+
+Use `${scope}` in a content key to insert the path of the content `scopeKey` names, and `${site}` to insert the path of its site. This lets a query use paths below them without repeating their location:
 
 [source,graphql]
 ----
 {
-  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
-    get(key: "${site}") {
+  guillotine(project: "myproject", branch: "master", scopeKey: "/my-site/blog") {
+    get(key: "${scope}") {
       displayName
     }
     getChildren(key: "${site}/persons", first: 10) {
@@ -40,20 +42,20 @@ Use `${site}` in a content key to insert the selected site's path. This lets a q
 }
 ----
 
-Without `siteKey`, or with `siteKey: "/"`, the project is the root and `${site}` is empty: `${site}/persons` becomes `/persons`, and `${site}` alone becomes `/`.
+Here `${scope}` is `/my-site/blog` and `${site}` is `/my-site`. When `scopeKey` names a site, both are its path. Without `scopeKey`, or with `scopeKey: "/"`, the project is the root and both are empty: `${site}/persons` becomes `/persons`, and `${site}` alone becomes `/`. `${site}` is also empty for a content outside any site.
 
-The placeholder can be used in the `key` argument of `get`, `getChildren`, `getChildrenConnection` and `getPermissions`. See <<../api#headlesscms, HeadlessCms>> for the field signatures.
+The placeholders can be used in the `key` argument of `get`, `getChildren`, `getChildrenConnection` and `getPermissions`. See <<../api#headlesscms, HeadlessCms>> for the field signatures.
 
-NOTE: `${site}` is a Guillotine placeholder inside a GraphQL string. When writing the query in a JavaScript template literal, escape it as `\${site}` so JavaScript sends the placeholder unchanged.
+NOTE: `${scope}` and `${site}` are Guillotine placeholders inside a GraphQL string. When writing the query in a JavaScript template literal, escape them as `\${scope}` and `\${site}` so JavaScript sends the placeholders unchanged.
 
-== Site-relative paths
+== Relative paths
 
-Select `pageUrl.path` to retrieve the path relative to the selected site, or to the project without `siteKey`:
+Select `pageUrl.path` to retrieve the path relative to the content `scopeKey` names, or to the project without `scopeKey`:
 
 [source,graphql]
 ----
 {
-  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+  guillotine(project: "myproject", branch: "master", scopeKey: "/my-site") {
     getChildren(key: "${site}/persons", first: 10) {
       displayName
       pageUrl {
@@ -68,6 +70,6 @@ The content's `+_path+` field contains its path within the project. Use `pageUrl
 
 == Project root and URL context
 
-Without `siteKey`, the project root is the context for paths and URLs, as with `siteKey: "/"`: `${site}` is empty, page URLs carry the full content path, and `pageUrl.baseUrl` is the Base URL configured for the project. The project root is not a site content item, so `getSite` returns `null` in both cases, and `env.localContext.siteKey` is only present when `siteKey` is given.
+Without `scopeKey`, the project root is the context for paths and URLs, as with `scopeKey: "/"`: `${scope}` and `${site}` are empty, page URLs carry the full content path, and `pageUrl.baseUrl` is the Base URL configured for the project. The project root is not a site content item, so `getSite` returns `null` in both cases, and `env.localContext.scopeKey` is only present when `scopeKey` is given.
 
-Selecting a site does not restrict every query to its descendants: `queryDsl` still searches the project, and an absolute content path can point outside the selected site. When building links across sites, choose the appropriate site context and frontend route for each target. See <<images-and-urls#base-urls, Base URLs>> for nested sites and path context.
+Selecting a scope does not restrict every query to its descendants: `queryDsl` still searches the project, and an absolute content path can point outside the scope. When building links across sites, choose the appropriate scope and frontend route for each target. See <<images-and-urls#base-urls, Base URLs>> for nested sites and path context.

@@ -2,7 +2,7 @@
 
 Guillotine provides URL components for pages, scaled images, media and attachments. Select `path` and `queryString`, then build links using your client's media base URL or frontend routing.
 
-The components come from XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts[`pageUrlParts`], https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts[`imageUrlParts`] and https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts[`attachmentUrlParts`], whose reference describes each of them.
+The components come from XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts[`pageUrlParts`], https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts[`imageUrlParts`] and https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts[`attachmentUrlParts`], whose reference describes each of them. The URL fields are <<../api#portal-extensions, Portal API extensions>>.
 
 These examples query published content in `myproject`. Replace the project and content paths with your own, and send the queries using the request format on the <<../usage#, Usage>> page.
 
@@ -73,12 +73,12 @@ This example assumes a document media item. The `download` argument is carried b
 
 == Page URLs
 
-Select `pageUrl.path` and `pageUrl.queryString` to build a content item's page link. `siteKey` names the site, or another content, that the path is relative to; without it, the path is relative to the project:
+Select `pageUrl.path` and `pageUrl.queryString` to build a content item's page link. `scopeKey` names the site, or another content, that the path is relative to; without it, the path is relative to the project:
 
 [source,graphql]
 ----
 {
-  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+  guillotine(project: "myproject", branch: "master", scopeKey: "/my-site") {
     get(key: "/my-site/posts/first-post") {
       pageUrl {
         path
@@ -96,13 +96,13 @@ The returned `path` is `/posts/first-post`. Select `baseUrl` as well to receive 
 
 === Page links
 
-Your frontend controls the public host and routing for page links. Use `siteKey` to select the site, or another content, that `pageUrl.path` is relative to, then map that path to your deployment. Without `siteKey`, the project is selected.
+Your frontend controls the public host and routing for page links. Use `scopeKey` to select the site, or another content, that `pageUrl.path` is relative to, then map that path to your deployment. Without `scopeKey`, the project is selected.
 
 For nested sites, the selected level determines the path. Given a post at `/my-site/subsite/posts/first-post`:
 
 [%header,cols="1,2,2"]
 |===
-|siteKey |Page URL path of the post |Page URL path of `/my-site/subsite`
+|scopeKey |Page URL path of the post |Page URL path of `/my-site/subsite`
 |/my-site |/subsite/posts/first-post |/subsite
 |/my-site/subsite |/posts/first-post |_(empty)_
 |/ |/my-site/subsite/posts/first-post |/my-site/subsite
@@ -111,9 +111,9 @@ For nested sites, the selected level determines the path. Given a post at `/my-s
 
 When your frontend needs a path of its own for the site root, use `/` for an empty `path`.
 
-`siteKey: "/"`, like no `siteKey`, selects the project itself. `pageUrl.baseUrl` is the Base URL configured for the selected site or project, followed by the path of a selected content below it, so that `baseUrl + path` is the page's URL; see XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts[`pageUrlParts`].
+`scopeKey: "/"`, like no `scopeKey`, selects the project itself. `pageUrl.baseUrl` is the Base URL configured for the selected site or project, followed by the path of a selected content below it, so that `baseUrl + path` is the page's URL; see XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts[`pageUrlParts`].
 
-A content outside the selected site, such as the parent site when the nested one is selected, has no page URL there, and `pageUrl` reports an error.
+A content outside the scope, such as the parent site when the nested one is selected, has no page URL there, and `pageUrl` reports an error.
 
 When following references across sites, choose the appropriate site context and frontend route for each target.
 

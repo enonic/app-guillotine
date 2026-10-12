@@ -23,7 +23,7 @@ Production URLs depend on your deployment. See <<setup#endpoints, Setup>> for sh
 
 At the Web endpoint, specify `project` and `branch` on the `guillotine` field, as shown in the query below. Use `master` for published content or `draft` for work in progress. Content permissions apply to the caller; querying `draft` normally requires authentication.
 
-When Guillotine is mounted on a site, the endpoint supplies the project and branch, and query arguments cannot override them. See <<usage/site-context#, Site context>> for selecting a site within a project.
+When Guillotine is mounted on a site, the endpoint supplies the project and branch, and query arguments cannot override them. See <<usage/site-context#, Scope and site>> for selecting a scope within a project.
 
 [#request-format]
 == Request format
@@ -195,7 +195,7 @@ Query Playground uses your signed-in Content Studio user. A separate client may 
 
 At the Web endpoint, explicitly pass both values, for example `guillotine(project: "myproject", branch: "master")`. An omitted value must come from the request context; when it is unavailable, context setup fails. See <<#content-context, Project and branch>>.
 
-`siteKey` selects a site inside that project and does not replace project or branch selection. Supply it when using `getSite` or the `${site}` placeholder, and make sure the selected site exists in the requested branch.
+`scopeKey` selects a site, or another content, inside that project and does not replace project or branch selection. Supply it when using `getSite` or the `${scope}` and `${site}` placeholders, and make sure the selected content exists in the requested branch.
 
 === Authentication or access failures
 
@@ -220,4 +220,4 @@ See <<configuration#config_file, Configuration>> for a complete example. CORS se
 * <<usage/references-and-mixins#, References and mixins>> — traverse related content and access fields contributed by other schemas.
 * <<usage/images-and-urls#, Images and URLs>> — generate image, attachment and page URLs, or build URLs from their parts.
 * <<usage/rich-text#, Rich text>> — work with processed HTML, links, images and macros.
-* <<usage/site-context#, Site context>> — select a site, use path placeholders and retrieve site-relative paths.
+* <<usage/site-context#, Scope and site>> — select a scope, use path placeholders and retrieve relative paths.

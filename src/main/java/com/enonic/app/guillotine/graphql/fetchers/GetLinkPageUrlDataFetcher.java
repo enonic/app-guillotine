@@ -8,7 +8,7 @@ import graphql.schema.DataFetchingEnvironment;
 
 /**
  * The page URL parts of a rich text link to a content, as XP resolved them while processing the text for the content
- * {@code siteKey} names, or for the project without one.
+ * {@code scopeKey} names, or for the project without one.
  */
 public class GetLinkPageUrlDataFetcher
     implements DataFetcher<Map<String, Object>>

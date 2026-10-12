@@ -5,7 +5,7 @@ query {
             displayName
         }
     }
-    getSiteByKey: guillotine(siteKey: "/siteKey") {
+    getSiteByKey: guillotine(scopeKey: "/mysite") {
         getSite {
             _id
             displayName

@@ -19,6 +19,7 @@ import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
+import com.enonic.xp.portal.url.PortalUrlService;
 import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.content.GetContentByIdsParams;
@@ -29,9 +30,9 @@ public class GetChildrenConnectionDataFetcher
 {
     private static final Logger LOG = LoggerFactory.getLogger( GetChildrenConnectionDataFetcher.class );
 
-    public GetChildrenConnectionDataFetcher( final ContentService contentService )
+    public GetChildrenConnectionDataFetcher( final ContentService contentService, final PortalUrlService portalUrlService )
     {
-        super( contentService );
+        super( contentService, portalUrlService );
     }
 
     @Override

@@ -37,7 +37,7 @@ Retrieve blog posts with an author reference, tags and an HtmlArea field named `
 }
 ----
 
-`processedHtml` is the HtmlArea value processed by XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts[`processHtmlParts`], for the site selected with `siteKey`, or for the project without it. It contains HTML with placeholders for internal links, images and macros. The structured fields described below hold what your client needs to render them; XP's reference describes how each is resolved.
+`processedHtml` is the HtmlArea value processed by XP's https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts[`processHtmlParts`], for the scope selected with `scopeKey`, or for the project without it. It contains HTML with placeholders for internal links, images and macros. The structured fields described below hold what your client needs to render them; XP's reference describes how each is resolved. These fields are <<../api#portal-extensions, Portal API extensions>>.
 
 Browsers cannot follow the link and image placeholders as they are. Render each one by rewriting the element that carries a `data-link-ref` or `data-image-ref` attribute from its entry in `links` or `images`.
 
@@ -65,7 +65,7 @@ The GraphQL query below will process links inside the field:
 [source,graphql]
 ----
 query {
-  guillotine(project: "myproject", branch: "master", siteKey: "/my-site") {
+  guillotine(project: "myproject", branch: "master", scopeKey: "/my-site") {
     get(key: "/my-site/posts/first-post") {
       ... on com_example_myapp_Post {
         data {
@@ -133,7 +133,7 @@ An image that does not resolve, such as a missing one, has an entry with a `null
 
 Build the image URLs from the image's entry, which holds the components of each URL: `src`, an <<../api#imageurl, ImageUrl>>, for the `src` attribute, and `srcset`, a list of <<../api#imagesource, ImageSource>> entries, one for each `processHtml.imageWidths` width, for the `srcset` attribute. Put your media base in front of each `path` and `queryString`. See <<../configuration#media-base-url, Media base URL>>.
 
-Image styles come from the applications configured on the selected site or project: configure the application providing a style there to apply it. The `style` field gives the `application` providing the style and its `name` there.
+Image styles come from the applications configured on the site that `scopeKey` selects or lies in, or on the project without one: configure the application providing a style there to apply it. The `style` field gives the `application` providing the style and its `name` there.
 
 For instance, the processed value of an image looks like this:
 
@@ -359,7 +359,7 @@ Each macro will be translated to an `editor-macro` tag with `data-macro-ref` and
 
 [NOTE]
 ====
-Guillotine processes the macros of the applications configured on the site selected with `siteKey`, or on the project without it, and the built-in macros `disable` and `embed`. Other macros stay in the text as written. https://developer.enonic.com/docs/cms/stable/richtext/macros[More details about macros].
+Guillotine processes the macros of the applications configured on the site that `scopeKey` selects or lies in, or on the project without one, and the built-in macros `disable` and `embed`. Other macros stay in the text as written. https://developer.enonic.com/docs/cms/stable/richtext/macros[More details about macros].
 ====
 
 For instance, we have an input form item called `description` of `HtmlArea` type which contains the `embed` macro as shown below:

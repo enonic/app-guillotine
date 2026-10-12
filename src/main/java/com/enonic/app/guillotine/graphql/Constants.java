@@ -12,7 +12,7 @@ public interface Constants
 
     String BRANCH_ARG = "branch";
 
-    String SITE_ARG = "siteKey";
+    String SCOPE_ARG = "scopeKey";
 
     List<String> SUPPORTED_AGGREGATIONS =
         List.of( "terms", "stats", "range", "dateRange", "dateHistogram", "geoDistance", "min", "max", "count" );
