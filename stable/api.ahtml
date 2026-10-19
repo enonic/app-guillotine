@@ -442,6 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#common_arguments">Common arguments</a></li>
+<li><a href="#portal-extensions">Portal API extensions</a></li>
 <li><a href="#object_types">Object Types</a>
 <ul class="sectlevel2">
 <li><a href="#query">Query</a></li>
@@ -458,9 +459,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#macro_system_disable_dataconfig">Macro_system_disable_DataConfig</a></li>
 <li><a href="#macro_system_embed_dataconfig">Macro_system_embed_DataConfig</a></li>
 <li><a href="#image">Image</a></li>
+<li><a href="#imagesource">ImageSource</a></li>
 <li><a href="#imagestyle">ImageStyle</a></li>
 <li><a href="#media">Media</a></li>
 <li><a href="#link">Link</a></li>
+<li><a href="#pageurl">PageUrl</a></li>
+<li><a href="#imageurl">ImageUrl</a></li>
+<li><a href="#attachmenturl">AttachmentUrl</a></li>
 <li><a href="#permissions">Permissions</a></li>
 <li><a href="#accesscontrolentry">AccessControlEntry</a></li>
 <li><a href="#principalkey">PrincipalKey</a></li>
@@ -536,9 +541,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#principaltype">PrincipalType</a></li>
 <li><a href="#permission">Permission</a></li>
 <li><a href="#formitemtype">FormItemType</a></li>
-<li><a href="#urltype">UrlType</a></li>
 <li><a href="#componenttype">ComponentType</a></li>
-<li><a href="#contentpathtype">ContentPathType</a></li>
 <li><a href="#mediaintenttype">MediaIntentType</a></li>
 <li><a href="#dsloperatortype">DslOperatorType</a></li>
 <li><a href="#dslsortdirectiontype">DslSortDirectionType</a></li>
@@ -614,6 +617,33 @@ A more intuitive way to discover the API is by using the <a href="playground.aht
 </div>
 </div>
 <div class="sect1">
+<h2 id="portal-extensions"><a class="link" href="#portal-extensions">Portal API extensions</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Most of the API reads content as XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-content">Content API</a> does. These parts extend it with XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal">Portal API</a>, which resolves content the way a site serves it:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>scopeKey</code> on <code>guillotine</code>, and <code>env.localContext.scopeKey</code> in resolvers</p>
+</li>
+<li>
+<p><code>getSite</code>, and the <code>${scope}</code> and <code>${site}</code> placeholders</p>
+</li>
+<li>
+<p>the URL fields <code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code> and <code>attachmentUrl</code></p>
+</li>
+<li>
+<p>rich text: <code>processedHtml</code>, <code>links</code>, <code>images</code>, <code>macros</code> and <code>macrosAsJson</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>They are resolved from configuration, for the scope <code>scopeKey</code> selects, or for the project without it. See <a href="usage/site-context.ahtml">Scope and site</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="object_types"><a class="link" href="#object_types">Object Types</a></h2>
 <div class="sectionbody">
 <div class="sect2">
@@ -633,7 +663,7 @@ A more intuitive way to discover the API is by using the <a href="playground.aht
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">guillotine(siteKey: String): <a href="#headlesscms">HeadlessCms</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">guillotine(project: String, branch: String, scopeKey: String): <a href="#headlesscms">HeadlessCms</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Type gathering all content retrieval requests</p></td>
 </tr>
 </tbody>
@@ -697,14 +727,14 @@ A more intuitive way to discover the API is by using the <a href="playground.aht
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">getSite: portal_Site</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Fetches the parent site of the content corresponding to the current execution context</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the nearest site for the content ID or path supplied through <code>guillotine(scopeKey: &#8230;&#8203;)</code>. Returns <code>null</code> when <code>scopeKey</code> is omitted or selects the project root (<code>"/"</code>), including at a site-mounted endpoint. See <a href="usage/site-context.ahtml">Scope and site</a></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">queryDsl(
 query: <a href="#querydslinput">QueryDSLInput</a>,
 offset: Int,
 first: Int,
-sort: <a href="#sortdslinput">SortDslInput</a>
+sort: [<a href="#sortdslinput">SortDslInput</a>]
 ): [<a href="#content">Content</a>]</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Queries contents</p></td>
 </tr>
@@ -713,7 +743,7 @@ sort: <a href="#sortdslinput">SortDslInput</a>
 query: <a href="#querydslinput">QueryDSLInput</a>!,
 after: String,
 first: Int,
-sort: <a href="#sortdslinput">SortDslInput</a>,
+sort: [<a href="#sortdslinput">SortDslInput</a>],
 aggregations: [<a href="#aggregationinput">AggregationInput</a>],
 highlight: <a href="#highlightinputtype">HighlightInputType</a>
 ): <a href="#querydslcontentconnection">QueryDSLContentConnection</a></p></td>
@@ -725,7 +755,7 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">getTypes: [<a href="#contenttype">ContentType</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Retrieves the list of all content types available for the current site</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lists built-in content types and content types from installed applications, independently of the selected project, branch or site</p></td>
 </tr>
 </tbody>
 </table>
@@ -762,12 +792,20 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content name</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">_path(type: <a href="#contentpathtype">ContentPathType</a>): String!</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Content path. In the site-less mode, the result will be returned in the raw value, in other words, <code>env.source._path</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_path: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Full content path within the project. For a site-relative link, select <code>pageUrl { path }</code> with the appropriate <code>scopeKey</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_project: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the content project used to resolve this item</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_branch: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Branch used to resolve this item</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_references: [<a href="#content">Content</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Contents that have a reference to this content</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content items referenced by this content item (outgoing references)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_score: Float</p></td>
@@ -870,8 +908,8 @@ highlight: <a href="#highlightinputtype">HighlightInputType</a>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Publication information</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">pageUrl(type: <a href="#urltype">UrlType</a>, params: Json): String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Util field to generate a URL pointing to the content</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pageUrl(params: JSON): <a href="#pageurl">PageUrl</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Page link components for the scope selected with <code>scopeKey</code>, or for the project without it; see <a href="#pageurl">PageUrl</a> and <a href="usage/images-and-urls.ahtml#base-urls">Base URLs</a></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">site: portal_Site</p></td>
@@ -929,7 +967,11 @@ portal_Site
 , portal_TemplateFolder
 , <a href="#media_image">media_Image</a>
 , base_Unstructured
-, portal_Fragment</p>
+, portal_Fragment
+, UntypedContent</p>
+</div>
+<div class="paragraph">
+<p><code>UntypedContent</code> is returned for content whose content type is not part of the schema. It provides the <code>Content</code> fields without a <code>data</code> field.</p>
 </div>
 </div>
 </div>
@@ -953,39 +995,12 @@ portal_Site
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">mediaUrl (download: Boolean, type: <a href="#urltype">UrlType</a>, params: Json): String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL to the underlying media attachment. Set <code>download</code> to <code>true</code> to force download instead of inline rendering.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">mediaUrl (download: Boolean): <a href="#attachmenturl">AttachmentUrl</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the URL of the media&#8217;s attachment. <code>download: true</code> asks for the attachment to be downloaded. The arguments are those of XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts"><code>attachmentUrlParts</code></a>.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">imageUrl (scale: String!, quality: Int, type: <a href="#urltype">UrlType</a>, background: String, format: String, filter: String, params: Json): String</p></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>URL to a processed version of the image, scaled and cropped by the server at request time.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>scale</code> (required) - scaling function to apply: <code>block(width,height)</code>, <code>height(height)</code>, <code>max(size)</code>, <code>square(size)</code>, <code>wide(width,height)</code>, <code>width(width)</code> or <code>full</code></p>
-</li>
-<li>
-<p><code>quality</code> - compression quality of JPEG images, from 0 to 100. Default is 85</p>
-</li>
-<li>
-<p><code>type</code> - URL type: <code>server</code> (default) or <code>absolute</code>. Use <code>absolute</code> when the URL is consumed outside the server context, for instance when rendering from an external frontend or inside Content Studio preview</p>
-</li>
-<li>
-<p><code>background</code> - background color to use when converting images with transparency, as a hex value, e.g. <code>ff0000</code></p>
-</li>
-<li>
-<p><code>format</code> - image format of the generated URL. Supported formats are <code>jpg</code>, <code>png</code> and <code>gif</code> - other formats, such as <code>webp</code> or <code>avif</code>, are not supported and the resulting URL will fail with <code>400 Invalid parameters</code></p>
-</li>
-<li>
-<p><code>filter</code> - image filters to apply, e.g. <code>rounded(5);sharpen()</code></p>
-</li>
-<li>
-<p><code>params</code> - additional query parameters to append to the URL</p>
-</li>
-</ul>
-</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">imageUrl (scale: String, quality: Int, background: String, format: String, filter: String): <a href="#imageurl">ImageUrl</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the URL of the image, scaled and processed as the arguments ask; without <code>scale</code>, the image as stored (<code>full</code>). The arguments are those of XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts"><code>imageUrlParts</code></a>, where they are described. Where image transformations are not allowed, the arguments are errors; see <a href="configuration.ahtml#image-transformations">Image transformations</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -1069,7 +1084,7 @@ It allows you to :</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Paging information</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">aggregationAsJson: JSON</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">aggregationsAsJson: JSON</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Result of aggregations</p></td>
 </tr>
 <tr>
@@ -1159,11 +1174,11 @@ It allows you to :</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">raw: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">HtmlArea raw value</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HtmlArea raw value. A query selecting only <code>raw</code> skips processing</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">processedHtml: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">HtmlArea with processed value that contains replaced internal links to resources, content and translated macros. For macros without descriptors processing will be skipped</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The HtmlArea value processed by XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts"><code>processHtmlParts</code></a>. Internal links, images and macros are placeholders, which the client renders from <code>links</code>, <code>images</code> and <code>macros</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">macrosAsJson: JSON</p></td>
@@ -1175,11 +1190,11 @@ It allows you to :</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">images: [<a href="#image">Image</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Represents details of images which were detected in the HtmlArea value, except images with <code>original</code> styles</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Internal images of the HtmlArea value</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">links: [<a href="#link">Link</a>]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Represents details of links which were detected in the HtmlArea value, which represent <code>content</code> or <code>media</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Internal links of the HtmlArea value, to contents or media</p></td>
 </tr>
 </tbody>
 </table>
@@ -1187,8 +1202,7 @@ It allows you to :</p>
 <div class="sect2">
 <h3 id="macro"><a class="link" href="#macro">Macro</a></h3>
 <div class="paragraph">
-<p>Dynamic type which contains macro details. By default contains two fields: <code>disable</code> and <code>embed</code>, other fields will be added dynamically based on macro descriptors for provided <code>applicationKeys</code> during schema creation.
-Given <code>applicationKeys</code> are expected to have the same order as in the site configs. It means that first macro descriptor that was matched will be used to process it.</p>
+<p>Details of a macro detected in a <a href="#richtext">RichText</a> value.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1208,15 +1222,11 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">name: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Macro name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the macro descriptor</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">descriptor: String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Macro descriptor, for instance <code>app:macroName</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">body: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Related content</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">config: <a href="#macroconfig">MacroConfig</a></p></td>
@@ -1228,7 +1238,10 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <div class="sect2">
 <h3 id="macroconfig"><a class="link" href="#macroconfig">MacroConfig</a></h3>
 <div class="paragraph">
-<p>Dynamic type, that contains fields based on macro names which are belong to apps of the site.</p>
+<p>Dynamic type with one field per macro descriptor. The system macros <code>disable</code> and <code>embed</code> are always present; other fields are added during schema creation from the macro descriptors of the installed applications.</p>
+</div>
+<div class="paragraph">
+<p>Fields are named after the macro. When several applications define a macro of the same name, its field belongs to one of them, and a macro of another application has no config there (<code>null</code>); read its parameters from <code>macrosAsJson</code>, which holds them for every macro.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1326,13 +1339,27 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">style: <a href="#imagestyle">ImageStyle</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Related styles to image</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Style of the image, or <code>null</code> for none</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">src: <a href="#imageurl">ImageUrl</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the URL for the <code>src</code> attribute. <code>null</code> for an image that does not resolve</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">srcset: [<a href="#imagesource">ImageSource</a>]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the URLs for the <code>srcset</code> attribute, one for each <code>processHtml.imageWidths</code> width</p></td>
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>The entry is XP&#8217;s <code>ProcessedHtml.Image</code>; see <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts"><code>processHtmlParts</code></a> for how its URLs and style are resolved.</p>
+</div>
 </div>
 <div class="sect2">
-<h3 id="imagestyle"><a class="link" href="#imagestyle">ImageStyle</a></h3>
+<h3 id="imagesource"><a class="link" href="#imagesource">ImageSource</a></h3>
+<div class="paragraph">
+<p>A <code>srcset</code> candidate of a rich text <a href="#image">Image</a>.</p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -1346,16 +1373,48 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </thead>
 <tbody>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">width: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Width in pixels, the <code>w</code> descriptor of the candidate</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">imageUrl: <a href="#imageurl">ImageUrl</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the URL of the image at that width</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="imagestyle"><a class="link" href="#imagestyle">ImageStyle</a></h3>
+<div class="paragraph">
+<p>The style of a rich text <a href="#image">Image</a>, as XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts"><code>processHtmlParts</code></a> resolves it.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name (Arguments): Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">application: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Key of the application providing the style</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">name: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Style name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the style in that application</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">aspectRatio: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The <code>aspect-ratio</code> value for server-side image processing</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Aspect ratio of the style</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">filter: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The <code>filter</code> value for server-side image processing</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Image filter of the style</p></td>
 </tr>
 </tbody>
 </table>
@@ -1377,6 +1436,10 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">intent: <a href="#mediaintenttype">MediaIntentType</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Link intent.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">mediaUrl: <a href="#attachmenturl">AttachmentUrl</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the attachment URL, following the link intent. <code>null</code> for a link that does not resolve</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">content: <a href="#content">Content</a></p></td>
@@ -1413,7 +1476,146 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">content: <a href="#content">Content</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Related content. This field has <code>null</code> value for media content</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Linked content; for a media link, the media content</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pageUrl: <a href="#pageurl">PageUrl</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Components of the page URL, with the query string the link carries. This field has <code>null</code> value for media links, and for a link that does not resolve</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fragment: String!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The fragment the link carries, with its leading <code>#</code>, such as <code>#details</code>; empty for media links and for links without one. Append it to the page URL: <code>baseUrl + path + queryString + fragment</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="pageurl"><a class="link" href="#pageurl">PageUrl</a></h3>
+<div class="paragraph">
+<p>Page URL components for the scope selected with <code>scopeKey</code>, or for the project without it, from XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#pageurlparts"><code>pageUrlParts</code></a>, where each component is described. A content outside the scope has no page URL there, and the field reports an error.</p>
+</div>
+<div class="paragraph">
+<p>Build the address in the client as <code>baseUrl + path + queryString</code>, supplying your frontend&#8217;s own base when <code>baseUrl</code> is <code>null</code> or when your deployment routes pages differently.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name (Arguments): Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">baseUrl: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Base URL of the scope, or of the project without <code>scopeKey</code>; <code>null</code> when none is configured</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Path of the content, relative to the content <code>scopeKey</code> names, or to the project without it</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">queryString: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query string, with its leading <code>?</code>; empty when there are no parameters</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="imageurl"><a class="link" href="#imageurl">ImageUrl</a></h3>
+<div class="paragraph">
+<p>Image URL components, from XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#imageurlparts"><code>imageUrlParts</code></a>, where each component is described. Build the address in the client as <code>mediaBaseUrl + path + queryString</code>, using your public API or CDN base URL.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name (Arguments): Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Media API path of the image</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">queryString: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query string, with its leading <code>?</code>; empty when there are no parameters</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">context: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context segment of <code>path</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">id: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fingerprint: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fingerprint of the media</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">scale: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scale segment of <code>path</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">name: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">File name segment of <code>path</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="attachmenturl"><a class="link" href="#attachmenturl">AttachmentUrl</a></h3>
+<div class="paragraph">
+<p>Attachment URL components, from XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#attachmenturlparts"><code>attachmentUrlParts</code></a>, where each component is described. Build the address in the client as <code>mediaBaseUrl + path + queryString</code>, using your public API or CDN base URL.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name (Arguments): Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Media API path of the attachment</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">queryString: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query string, with its leading <code>?</code>; empty when there are no parameters</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">context: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context segment of <code>path</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">id: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fingerprint: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fingerprint of the media</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">name: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">File name segment of <code>path</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">intent: <a href="#mediaintenttype">MediaIntentType</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How the URL is meant to be consumed: <code>download</code> when the URL carries the <code>?download</code> query string, <code>inline</code> otherwise</p></td>
 </tr>
 </tbody>
 </table>
@@ -1532,10 +1734,6 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">name: String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content type name</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">displayName: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Deprecated</strong>. Use <code>title</code> instead. Returns the same value as <code>title</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">title: String</p></td>
@@ -1719,15 +1917,15 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">pixelSize: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pixelSize: Long</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Pixel size</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">imageHeight: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">imageHeight: Long</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Image height</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">imageWidth: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">imageWidth: Long</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Image width</p></td>
 </tr>
 <tr>
@@ -1739,12 +1937,16 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">byteSize: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">byteSize: Long</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Byte size</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">colorSpace(offset: Int, first: Int): [String]</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Color space</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fileSource: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">File source</p></td>
 </tr>
 </tbody>
 </table>
@@ -1919,11 +2121,11 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">path: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">path: String!</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Component path</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">type: <a href="#componenttype">ComponentType</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">type: <a href="#componenttype">ComponentType</a>!</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Component type</p></td>
 </tr>
 <tr>
@@ -1983,6 +2185,10 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <td class="tableblock halign-left valign-top"><p class="tableblock">Component config</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">config: PageComponentDataConfig</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Typed component config, with one field per application that provides page controllers with a config form. Absent when no installed application does</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">template: <a href="#content">Content</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Related template content</p></td>
 </tr>
@@ -2013,6 +2219,10 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">configAsJson: JSON</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Component config</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">config: LayoutComponentDataConfig</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Typed component config, with one field per application that provides layouts with a config form. Absent when no installed application does</p></td>
 </tr>
 </tbody>
 </table>
@@ -2073,6 +2283,10 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">configAsJson: JSON</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Component config</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">config: PartComponentDataConfig</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Typed component config, with one field per application that provides parts with a config form. Absent when no installed application does</p></td>
 </tr>
 </tbody>
 </table>
@@ -2167,8 +2381,8 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <td class="tableblock halign-left valign-top"><p class="tableblock">Attachment SHA-512 checksum</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">attachmentUrl (download: Boolean, type: <a href="#urltype">UrlType</a>, params: Json): String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Attachment URL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">attachmentUrl (download: Boolean): <a href="#attachmenturl">AttachmentUrl</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attachment URL and its components. Set <code>download</code> to <code>true</code> to force download instead of inline rendering</p></td>
 </tr>
 </tbody>
 </table>
@@ -2191,16 +2405,20 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">from: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">from: DateTime</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Scheduled publication start time</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">to: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">to: DateTime</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Scheduled publication end time</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">first: String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">first: DateTime</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">First publication time</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">time: DateTime</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Publication marker. On draft content, its presence indicates that the draft matches the published version; its absence indicates unpublished changes. Use its presence rather than interpreting the timestamp as a publication date</p></td>
 </tr>
 </tbody>
 </table>
@@ -2254,19 +2472,22 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">type: <a href="#urltype">UrlType</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">imageSrcWidth: Int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Width of the <code>src</code> of each image; 768 by default</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">imageWidths: [Int]</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Generates image URLs for given widths which will be used in the <code>srcset</code> attribute of <code>img</code> tag.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Image widths for the <code>srcset</code> of each image</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">imageSizes: String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies image width for a specific browser resolution in the following format: <code>(media-condition) width</code>. Multiple sizes are comma-separated.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Value of the <code>sizes</code> attribute of each image</p></td>
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>The fields are those of XP&#8217;s <a href="https://developer.enonic.com/docs/code/stable/libraries/lib-portal#processhtmlparts"><code>processHtmlParts</code></a>, where they are described.</p>
+</div>
 </div>
 </div>
 </div>
@@ -2321,7 +2542,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <td class="tableblock halign-left valign-top"><p class="tableblock">DateHistogram aggregation</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">getDistance: <a href="#geodistanceaggregationinput">GeoDistanceAggregationInput</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">geoDistance: <a href="#geodistanceaggregationinput">GeoDistanceAggregationInput</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">GeoDistance aggregation</p></td>
 </tr>
 <tr>
@@ -2839,7 +3060,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <td class="tableblock halign-left valign-top"><p class="tableblock">A query string to match field value(s). Support the set of operators.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">operator: [<a href="#dsloperatortype">DslOperatorType</a>]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">operator: <a href="#dsloperatortype">DslOperatorType</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">DSL operator. By default, <code>OR</code> (any of the words in the query matches).</p></td>
 </tr>
 </tbody>
@@ -3151,7 +3372,7 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 <td class="tableblock halign-left valign-top"><p class="tableblock">Property name to search.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">value: <a href="#dslexpressionvalueinput">DSLExpressionValueInput</a>!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">value: String!</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Search string.</p></td>
 </tr>
 <tr>
@@ -3488,13 +3709,6 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 </div>
 </div>
 <div class="sect2">
-<h3 id="urltype"><a class="link" href="#urltype">UrlType</a></h3>
-<div class="paragraph">
-<p>Enum values: server
-, absolute</p>
-</div>
-</div>
-<div class="sect2">
 <h3 id="componenttype"><a class="link" href="#componenttype">ComponentType</a></h3>
 <div class="paragraph">
 <p>Enum values: page
@@ -3503,12 +3717,6 @@ Given <code>applicationKeys</code> are expected to have the same order as in the
 , part
 , text
 , fragment</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="contentpathtype"><a class="link" href="#contentpathtype">ContentPathType</a></h3>
-<div class="paragraph">
-<p>Enum values: siteRelative</p>
 </div>
 </div>
 <div class="sect2">
@@ -3587,7 +3795,7 @@ Defaults to none - will be displayed in the same order in which fragments appear
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-10-12 11:46:41 UTC
+Last updated 2026-10-19 12:07:54 UTC
 </div>
 </div>
 </body>

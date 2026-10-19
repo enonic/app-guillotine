@@ -13,12 +13,24 @@
       "document": "usage",
       "menuItems": [
         {
-          "title": "cURL",
-          "document": "usage/cURL"
+          "title": "Content queries",
+          "document": "usage/content-queries"
         },
         {
-          "title": "JavaScript",
-          "document": "usage/javascript"
+          "title": "References and mixins",
+          "document": "usage/references-and-mixins"
+        },
+        {
+          "title": "Images and URLs",
+          "document": "usage/images-and-urls"
+        },
+        {
+          "title": "Rich text",
+          "document": "usage/rich-text"
+        },
+        {
+          "title": "Scope and site",
+          "document": "usage/site-context"
         }
       ]
     },
@@ -61,26 +73,28 @@
         {
           "title": "Best practices",
           "document": "extending/best-practices"
+        },
+        {
+          "title": "TypeScript",
+          "document": "extending/typescript"
         }
       ]
-    },
-    {
-      "title": "Configuration",
-      "document": "configuration"
     },
     {
       "title": "API",
       "document": "api"
     },
     {
-      "title": "Release Notes",
-      "document": "release",
-      "menuItems": [
-        {
-          "title": "Upgrade Notes",
-          "document": "upgrade"
-        }
-      ]
+      "title": "Configuration",
+      "document": "configuration"
+    },
+    {
+      "title": "Release",
+      "document": "release"
+    },
+    {
+      "title": "Upgrade",
+      "document": "upgrade"
     }
   ]
 }
