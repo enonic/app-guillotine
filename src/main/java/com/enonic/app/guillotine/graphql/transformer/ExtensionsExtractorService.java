@@ -61,8 +61,17 @@ public class ExtensionsExtractorService
     {
         SchemaExtensions.Builder schemaExtensionsBuilder = SchemaExtensions.create();
 
-        applicationService.getInstalledApplications().forEach( application -> {
-            ScriptValue extensions = executeMethod( application.getKey(), getGraphQLObject() );
+        applicationService.getInstalledApplications().forEach(
+            application -> extractApplicationExtensions( application.getKey(), schemaExtensionsBuilder ) );
+
+        return schemaExtensionsBuilder.build();
+    }
+
+    private void extractApplicationExtensions( final ApplicationKey applicationKey, final SchemaExtensions.Builder schemaExtensionsBuilder )
+    {
+        try
+        {
+            ScriptValue extensions = executeMethod( applicationKey, getGraphQLObject() );
 
             if ( extensions != null && extensions.isObject() )
             {
@@ -84,9 +93,11 @@ public class ExtensionsExtractorService
                 extractTypeResolvers( schemaExtensionsBuilder, typeResolvers );
                 extractCreationCallbacks( schemaExtensionsBuilder, creationCallbacks );
             }
-        } );
-
-        return schemaExtensionsBuilder.build();
+        }
+        catch ( Exception e )
+        {
+            LOG.error( "Skipping GraphQL schema extensions of application '{}'", applicationKey, e );
+        }
     }
 
     private static void extractCreationCallbacks( final SchemaExtensions.Builder schemaExtensionsBuilder,
