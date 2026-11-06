@@ -156,6 +156,21 @@ public class SchemaExtensions
             return this;
         }
 
+        public Builder addAll( final SchemaExtensions extensions )
+        {
+            this.types.putAll( extensions.types );
+            this.inputTypes.putAll( extensions.inputTypes );
+            this.enums.putAll( extensions.enums );
+            this.unions.putAll( extensions.unions );
+            this.interfaces.putAll( extensions.interfaces );
+            extensions.resolvers.forEach(
+                ( typeName, fields ) -> this.resolvers.computeIfAbsent( typeName, k -> new LinkedHashMap<>() ).putAll( fields ) );
+            this.typeResolvers.putAll( extensions.typeResolvers );
+            extensions.creationCallbacks.forEach(
+                ( typeName, callbacks ) -> this.creationCallbacks.computeIfAbsent( typeName, k -> new ArrayList<>() ).addAll( callbacks ) );
+            return this;
+        }
+
         private static void validate( final String typeName, final ScriptValue typeDef )
         {
             if ( typeDef == null || !typeDef.isObject() )

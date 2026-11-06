@@ -23,6 +23,13 @@ exports.extensions = function (graphQL) {
             }
         },
         interfaces: {
+            NoDescriptionInterface: {
+                fields: {
+                    value: {
+                        type: graphQL.GraphQLString,
+                    }
+                }
+            },
             CustomInterface: {
                 description: 'Custom Interface',
                 fields: {
@@ -39,12 +46,22 @@ exports.extensions = function (graphQL) {
             }
         },
         unions: {
+            NoDescriptionUnion: {
+                types: [graphQL.reference('GoogleBooks'), graphQL.reference('GoogleBooksAuthor')],
+            },
             CustomUnion: {
                 description: 'Custom Union',
                 types: [graphQL.reference('GoogleBooks'), graphQL.reference('GoogleBooksAuthor')],
             }
         },
         types: {
+            NoDescriptionType: {
+                fields: {
+                    value: {
+                        type: graphQL.GraphQLString,
+                    }
+                }
+            },
             ParentType: {
                 description: 'Parent Type',
                 fields: {
@@ -243,6 +260,12 @@ exports.extensions = function (graphQL) {
             }
         },
         typeResolvers: {
+            NoDescriptionInterface: function (obj) {
+                return 'DefaultCustomInterfaceImpl';
+            },
+            NoDescriptionUnion: function (obj) {
+                return 'GoogleBooks';
+            },
             CustomInterface: function (obj) {
                 if (obj.extraField) {
                     return 'CustomInterfaceImpl';
