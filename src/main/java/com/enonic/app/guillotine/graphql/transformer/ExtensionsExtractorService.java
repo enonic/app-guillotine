@@ -61,42 +61,54 @@ public class ExtensionsExtractorService
     {
         SchemaExtensions.Builder schemaExtensionsBuilder = SchemaExtensions.create();
 
-        applicationService.getInstalledApplications().forEach(
-            application -> extractApplicationExtensions( application.getKey(), schemaExtensionsBuilder ) );
+        applicationService.getInstalledApplications().forEach( application -> {
+            SchemaExtensions applicationExtensions = extractApplicationExtensions( application.getKey() );
+            if ( applicationExtensions != null )
+            {
+                schemaExtensionsBuilder.addAll( applicationExtensions );
+            }
+        } );
 
         return schemaExtensionsBuilder.build();
     }
 
-    private void extractApplicationExtensions( final ApplicationKey applicationKey, final SchemaExtensions.Builder schemaExtensionsBuilder )
+    private SchemaExtensions extractApplicationExtensions( final ApplicationKey applicationKey )
     {
         try
         {
             ScriptValue extensions = executeMethod( applicationKey, getGraphQLObject() );
 
-            if ( extensions != null && extensions.isObject() )
+            if ( extensions == null || !extensions.isObject() )
             {
-                ScriptValue types = extensions.getMember( TYPES_NODE );
-                ScriptValue inputTypes = extensions.getMember( INPUT_TYPES_NODE );
-                ScriptValue resolvers = extensions.getMember( RESOLVERS_NODE );
-                ScriptValue enums = extensions.getMember( ENUMS_NODE );
-                ScriptValue unions = extensions.getMember( UNIONS_NODE );
-                ScriptValue interfaces = extensions.getMember( INTERFACES_NODE );
-                ScriptValue creationCallbacks = extensions.getMember( CREATION_CALLBACKS_NODE );
-                ScriptValue typeResolvers = extensions.getMember( TYPE_RESOLVERS_NODE );
-
-                extractTypes( schemaExtensionsBuilder, types );
-                extractInputTypes( schemaExtensionsBuilder, inputTypes );
-                extractEnums( schemaExtensionsBuilder, enums );
-                extractUnions( schemaExtensionsBuilder, unions );
-                extractInterfaces( schemaExtensionsBuilder, interfaces );
-                extractResolvers( schemaExtensionsBuilder, resolvers );
-                extractTypeResolvers( schemaExtensionsBuilder, typeResolvers );
-                extractCreationCallbacks( schemaExtensionsBuilder, creationCallbacks );
+                return null;
             }
+
+            SchemaExtensions.Builder applicationExtensionsBuilder = SchemaExtensions.create();
+
+            ScriptValue types = extensions.getMember( TYPES_NODE );
+            ScriptValue inputTypes = extensions.getMember( INPUT_TYPES_NODE );
+            ScriptValue resolvers = extensions.getMember( RESOLVERS_NODE );
+            ScriptValue enums = extensions.getMember( ENUMS_NODE );
+            ScriptValue unions = extensions.getMember( UNIONS_NODE );
+            ScriptValue interfaces = extensions.getMember( INTERFACES_NODE );
+            ScriptValue creationCallbacks = extensions.getMember( CREATION_CALLBACKS_NODE );
+            ScriptValue typeResolvers = extensions.getMember( TYPE_RESOLVERS_NODE );
+
+            extractTypes( applicationExtensionsBuilder, types );
+            extractInputTypes( applicationExtensionsBuilder, inputTypes );
+            extractEnums( applicationExtensionsBuilder, enums );
+            extractUnions( applicationExtensionsBuilder, unions );
+            extractInterfaces( applicationExtensionsBuilder, interfaces );
+            extractResolvers( applicationExtensionsBuilder, resolvers );
+            extractTypeResolvers( applicationExtensionsBuilder, typeResolvers );
+            extractCreationCallbacks( applicationExtensionsBuilder, creationCallbacks );
+
+            return applicationExtensionsBuilder.build();
         }
         catch ( Exception e )
         {
             LOG.error( "Skipping GraphQL schema extensions of application '{}'", applicationKey, e );
+            return null;
         }
     }
 

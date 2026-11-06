@@ -19,6 +19,7 @@ import com.enonic.xp.script.ScriptExports;
 import com.enonic.xp.script.ScriptValue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -65,6 +66,40 @@ public class ExtensionsExtractorServiceResilienceTest
         assertTrue( schemaExtensions.getInterfaces().isEmpty() );
     }
 
+    @Test
+    public void testPartiallyExtractedExtensionsOfFailedApplicationAreDiscarded()
+    {
+        final Applications applications = Applications.from( application( GOOD_APP ), application( BAD_APP ) );
+        final ApplicationService applicationService = mock( ApplicationService.class );
+        when( applicationService.getInstalledApplications() ).thenReturn( applications );
+
+        final Resource resource = mock( Resource.class );
+        when( resource.exists() ).thenReturn( true );
+        final ResourceService resourceService = mock( ResourceService.class );
+        when( resourceService.getResource( any() ) ).thenReturn( resource );
+
+        final ScriptValue goodTypeDef = goodOutputTypeDef();
+        final ScriptValue badAppTypeDef = goodOutputTypeDef();
+
+        final Map<ApplicationKey, ScriptExports> exportsByApp =
+            Map.of( GOOD_APP, scriptExports( goodExtensions( goodTypeDef ) ), BAD_APP,
+                    scriptExports( extensionsWithValidTypesAndBrokenInputTypes( badAppTypeDef ) ) );
+
+        final PortalScriptService scriptService = mock( PortalScriptService.class );
+        when( scriptService.execute( any() ) ).thenAnswer( invocation -> {
+            final ResourceKey resourceKey = invocation.getArgument( 0 );
+            return exportsByApp.get( resourceKey.getApplicationKey() );
+        } );
+
+        final ExtensionsExtractorService service = new ExtensionsExtractorService( applicationService, resourceService, scriptService );
+
+        final SchemaExtensions schemaExtensions = service.extractSchemaExtensions();
+
+        assertEquals( Set.of( GOOD_TYPE ), schemaExtensions.getTypes().keySet() );
+        assertSame( goodTypeDef, schemaExtensions.getTypes().get( GOOD_TYPE ) );
+        assertTrue( schemaExtensions.getInputTypes().isEmpty() );
+    }
+
     private static ScriptExports scriptExports( final ScriptValue extensions )
     {
         final ScriptExports exports = mock( ScriptExports.class );
@@ -94,10 +129,35 @@ public class ExtensionsExtractorServiceResilienceTest
         return extensions;
     }
 
+    /**
+     * {@code types} is valid and gets extracted first, then {@code inputTypes} is not an object, which makes
+     * {@link GraphQLExtensionValidator#validateInputTypeDefs} throw. The already extracted types must not leak into the result.
+     */
+    private static ScriptValue extensionsWithValidTypesAndBrokenInputTypes( final ScriptValue typeDef )
+    {
+        final ScriptValue types = mock( ScriptValue.class );
+        when( types.isObject() ).thenReturn( true );
+        when( types.getKeys() ).thenReturn( Set.of( GOOD_TYPE, "BadAppType" ) );
+        when( types.getMember( GOOD_TYPE ) ).thenReturn( typeDef );
+        when( types.getMember( "BadAppType" ) ).thenReturn( typeDef );
+
+        final ScriptValue inputTypes = mock( ScriptValue.class );
+        when( inputTypes.isObject() ).thenReturn( false );
+
+        final ScriptValue extensions = mock( ScriptValue.class );
+        when( extensions.isObject() ).thenReturn( true );
+        when( extensions.getMember( "types" ) ).thenReturn( types );
+        when( extensions.getMember( "inputTypes" ) ).thenReturn( inputTypes );
+        return extensions;
+    }
+
     private static ScriptValue goodExtensions()
     {
-        final ScriptValue typeDef = goodOutputTypeDef();
+        return goodExtensions( goodOutputTypeDef() );
+    }
 
+    private static ScriptValue goodExtensions( final ScriptValue typeDef )
+    {
         final ScriptValue types = mock( ScriptValue.class );
         when( types.isObject() ).thenReturn( true );
         when( types.getKeys() ).thenReturn( Set.of( GOOD_TYPE ) );
