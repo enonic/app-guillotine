@@ -43,6 +43,12 @@ public class ExtensionsProcessor
         processCreationCallbacks( extensions.getCreationCallbacks() );
     }
 
+    private static String description( final ScriptValue typeDef )
+    {
+        final ScriptValue description = typeDef.getMember( "description" );
+        return description == null ? null : description.getValue( String.class );
+    }
+
     private void processEnumTypes( Map<String, ScriptValue> enums )
     {
         try
@@ -50,7 +56,7 @@ public class ExtensionsProcessor
             enums.forEach( ( typeName, typeDef ) -> {
                 try
                 {
-                    String description = typeDef.getMember( "description" ).getValue( String.class );
+                    String description = description( typeDef );
                     ScriptValue valuesDefs = typeDef.getMember( "values" );
 
                     Map<String, Object> values = new LinkedHashMap<>();
@@ -77,7 +83,7 @@ public class ExtensionsProcessor
             inputTypes.forEach( ( typeName, typeDef ) -> {
                 try
                 {
-                    String description = typeDef.getMember( "description" ).getValue( String.class );
+                    String description = description( typeDef );
                     ScriptValue fieldDefs = typeDef.getMember( "fields" );
 
                     List<GraphQLInputObjectField> fieldDefinitions = fieldDefs.getKeys().stream().map(
@@ -106,7 +112,7 @@ public class ExtensionsProcessor
             types.forEach( ( typeName, typeDef ) -> {
                 try
                 {
-                    String description = typeDef.getMember( "description" ).getValue( String.class );
+                    String description = description( typeDef );
                     ScriptValue interfacesDefs = typeDef.getMember( "interfaces" );
                     ScriptValue fieldDefs = typeDef.getMember( "fields" );
 
@@ -134,7 +140,7 @@ public class ExtensionsProcessor
             interfaces.forEach( ( typeName, typeDef ) -> {
                 try
                 {
-                    String description = typeDef.getMember( "description" ).getValue( String.class );
+                    String description = description( typeDef );
                     ScriptValue fieldsDefs = typeDef.getMember( "fields" );
                     List<GraphQLFieldDefinition> fieldDefinitions = extractFields( fieldsDefs );
 
@@ -159,7 +165,7 @@ public class ExtensionsProcessor
             unions.forEach( ( typeName, typeDef ) -> {
                 try
                 {
-                    String description = typeDef.getMember( "description" ).getValue( String.class );
+                    String description = description( typeDef );
                     ScriptValue typesDefs = typeDef.getMember( "types" );
 
                     typesRegister.addAdditionalType(

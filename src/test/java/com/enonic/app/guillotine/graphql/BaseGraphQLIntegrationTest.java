@@ -73,18 +73,16 @@ public class BaseGraphQLIntegrationTest
     {
         super.initialize();
 
-        final Application application = createApplication();
-
         this.applicationService = mock( ApplicationService.class );
 
-        final Applications applications = Applications.from( application );
+        final Applications applications = Applications.from( createApplications() );
         when( applicationService.getInstalledApplications() ).thenReturn( applications );
 
         final PortalScriptService scriptService = mock( PortalScriptService.class );
 
         when( scriptService.execute( any() ) ).thenAnswer( invocation -> {
             ResourceKey resourceKey = (ResourceKey) invocation.getArguments()[0];
-            return runScript( resourceKey );
+            return runScript( resolveScript( resourceKey ) );
         } );
 
         this.extensionsExtractorService = new ExtensionsExtractorService( applicationService, getResourceService(), scriptService );
@@ -186,11 +184,28 @@ public class BaseGraphQLIntegrationTest
         return (ResourceService) resourceServiceField.get( this );
     }
 
-    private Application createApplication()
+    /**
+     * Applications whose {@code guillotine/guillotine.js} extensions take part in the schema. Override to add more.
+     */
+    protected List<Application> createApplications()
+    {
+        return List.of( createApplication( "myapplication" ) );
+    }
+
+    /**
+     * Test resources are looked up by path only, regardless of application key. Override to point an application's
+     * {@code guillotine/guillotine.js} to another script under {@code src/test/resources}.
+     */
+    protected ResourceKey resolveScript( final ResourceKey resourceKey )
+    {
+        return resourceKey;
+    }
+
+    protected Application createApplication( final String key )
     {
         final Application application = mock( Application.class );
 
-        when( application.getKey() ).thenReturn( ApplicationKey.from( "myapplication" ) );
+        when( application.getKey() ).thenReturn( ApplicationKey.from( key ) );
         when( application.getVersion() ).thenReturn( Version.emptyVersion );
         when( application.getClassLoader() ).thenReturn( getClass().getClassLoader() );
         when( application.isStarted() ).thenReturn( true );

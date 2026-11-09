@@ -108,7 +108,7 @@ public final class GraphQLExtensionValidator
     private static void validateDescription( ScriptValue typeDef, String typeName )
     {
         ScriptValue description = typeDef.getMember( "description" );
-        if ( description != null && !description.isValue() || !( description.getValue() instanceof String ) )
+        if ( description != null && ( !description.isValue() || !( description.getValue() instanceof String ) ) )
         {
             throw new IllegalArgumentException( String.format( "The \"description\" field must be string for the \"%s\" type", typeName ) );
         }
