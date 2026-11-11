@@ -42,7 +42,7 @@ public class ContentTypesVerifier
     private void verifyDynamicallyCreatedContentType()
     {
         GraphQLObjectType type = context.getOutputType( "com_enonic_app_testapp_MyType" );
-        assertEquals( 32, type.getFieldDefinitions().size() );
+        assertEquals( 31, type.getFieldDefinitions().size() );
 
         GraphQLFieldDefinition dataField = type.getFieldDefinition( "data" );
 
@@ -210,7 +210,6 @@ public class ContentTypesVerifier
         assertEquals( Scalars.GraphQLInt, childrenConnectionField.getArgument( "first" ).getType() );
         assertEquals( Scalars.GraphQLString, childrenConnectionField.getArgument( "sort" ).getType() );
 
-        assertEquals( "Permissions", getNameForGraphQLTypeReference( type.getField( "permissions" ).getType() ) );
     }
 
     private static void verifyCommonContentFields( final GraphQLInterfaceType type )
@@ -272,6 +271,5 @@ public class ContentTypesVerifier
         assertEquals( Scalars.GraphQLInt, childrenConnectionField.getArgument( "first" ).getType() );
         assertEquals( Scalars.GraphQLString, childrenConnectionField.getArgument( "sort" ).getType() );
 
-        assertEquals( "Permissions", getNameForGraphQLTypeReference( type.getField( "permissions" ).getType() ) );
     }
 }

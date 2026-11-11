@@ -6,7 +6,6 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.graphql.helper.ContentDeserializer;
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.attachment.Attachments;
@@ -28,32 +27,11 @@ import com.enonic.xp.region.Regions;
 import com.enonic.xp.region.TextComponent;
 import com.enonic.xp.schema.mixin.MixinName;
 import com.enonic.xp.security.PrincipalKey;
-import com.enonic.xp.security.RoleKeys;
-import com.enonic.xp.security.acl.AccessControlEntry;
-import com.enonic.xp.security.acl.AccessControlList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class GuillotineSerializerDeserializerTest
 {
-    @Test
-    public void testSerializePermissions()
-    {
-        assertNull( GuillotineSerializer.serializePermissions( null ) );
-
-        Content content = mock( Content.class );
-        when( content.getPermissions() ).thenReturn( AccessControlList.create().add(
-            AccessControlEntry.create().allowAll().principal( RoleKeys.CONTENT_MANAGER_ADMIN ).build() ).build() );
-
-        Map<String, Object> mappedPermissions = CastHelper.cast( GuillotineSerializer.serializePermissions( content ) );
-        assertNotNull( mappedPermissions );
-        assertNotNull( mappedPermissions.get( "permissions" ) );
-    }
-
     @Test
     void test()
     {

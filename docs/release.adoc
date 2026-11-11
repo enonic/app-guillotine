@@ -44,6 +44,9 @@ The `X-Guillotine-SiteKey` header and `_path`'s `type` argument are removed, and
 Schema metadata::
 `ContentType.displayName` and several form metadata fields are removed. `PublishInfo.from`, `to` and `first` change from `String` to `DateTime`. See <<upgrade#metadata-migration, Schema metadata and publication timestamps>>.
 
+Content permissions::
+The `Content.permissions` and `HeadlessCms.getPermissions` fields are removed, along with the `Permissions` and `AccessControlEntry` types and the `Permission` enum. See <<upgrade#permissions-migration, Content permissions>>.
+
 Extension behavior and types::
 Resolver request context, macro discovery and TypeScript definitions have changed. See <<upgrade#extension-migration, Custom extensions>>.
 
