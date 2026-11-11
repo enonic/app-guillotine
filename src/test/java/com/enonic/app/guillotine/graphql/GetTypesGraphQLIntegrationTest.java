@@ -11,7 +11,6 @@ import graphql.schema.GraphQLSchema;
 
 import com.enonic.app.guillotine.BuiltinContentTypesAccessor;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
-import com.enonic.xp.content.ContentId;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.ContentTypes;
@@ -121,43 +120,5 @@ public class GetTypesGraphQLIntegrationTest
         assertEquals( "Input", formItem_2.get( "formItemType" ) );
         assertEquals( "siteConfig", formItem_2.get( "name" ) );
         assertEquals( "Applications", formItem_2.get( "label" ) );
-    }
-
-    @Test
-    public void testGetPermissionsField()
-    {
-        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
-
-        GraphQLSchema graphQLSchema = getBean().createSchema();
-
-        Map<String, Object> result = executeQuery( graphQLSchema, readGraphQLQuery( "graphql/getPermissionsField.graphql" ) );
-
-        assertFalse( result.containsKey( "errors" ) );
-        assertTrue( result.containsKey( "data" ) );
-
-        Map<String, Object> getPermissionsField = CastHelper.cast( getFieldFromGuillotine( result, "getPermissions" ) );
-
-        assertEquals( 1, getPermissionsField.size() );
-
-        List<Map<String, Object>> permissionsEntries = CastHelper.cast( getPermissionsField.get( "permissions" ) );
-
-        assertEquals( 2, permissionsEntries.size() );
-        permissionsEntries.forEach( entry -> {
-            Map<String, String> principal = CastHelper.cast( entry.get( "principal" ) );
-            if ( Objects.equals( "role:cms.admin", principal.get( "value" ) ) )
-            {
-                List<String> allow = CastHelper.cast( entry.get( "allow" ) );
-                assertEquals( 7, allow.size() );
-                List<String> deny = CastHelper.cast( entry.get( "deny" ) );
-                assertEquals( 0, deny.size() );
-            }
-            else
-            {
-                List<String> allow = CastHelper.cast( entry.get( "allow" ) );
-                assertEquals( 3, allow.size() );
-                List<String> deny = CastHelper.cast( entry.get( "deny" ) );
-                assertEquals( 2, deny.size() );
-            }
-        } );
     }
 }

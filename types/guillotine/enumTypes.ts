@@ -10,7 +10,6 @@ export enum EnumTypeName {
 	HighlightOrderType = 'HighlightOrderType',
 	HighlightTagsSchemaType = 'HighlightTagsSchemaType',
 	MediaIntentType = 'MediaIntentType',
-	Permission = 'Permission',
 	PrincipalType = 'PrincipalType',
 }
 
@@ -40,17 +39,6 @@ export enum FormItemType {
 export enum MediaIntentType {
 	download = 'download',
 	inline = 'inline',
-}
-
-// This is a value, do not add declare.
-export enum Permission {
-	READ = 'READ',
-	CREATE = 'CREATE',
-	MODIFY = 'MODIFY',
-	DELETE = 'DELETE',
-	PUBLISH = 'PUBLISH',
-	READ_PERMISSIONS = 'READ_PERMISSIONS',
-	WRITE_PERMISSIONS = 'WRITE_PERMISSIONS',
 }
 
 // This is a value, do not add declare.

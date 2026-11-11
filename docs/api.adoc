@@ -83,9 +83,6 @@ Gathers all content retrieval requests.
  ): <<ContentConnection>>
 | Fetches the children of a content and return the result as a connection
 
-|getPermissions(key: ID): <<Permissions>>
-|Fetches the permissions on a content
-
 |getSite: portal_Site
 |Returns the nearest site for the content ID or path supplied through `guillotine(scopeKey: ...)`. Returns `null` when `scopeKey` is omitted or selects the project root (`"/"`), including at a site-mounted endpoint. See <<usage/site-context#, Scope and site>>
 
@@ -248,9 +245,6 @@ first: Int,
 sort: String
 ): <<ContentConnection>>
 |Connection to the direct child contents
-
-|permissions: <<Permissions>>
-|Content permissions
 |===
 
 ==== Direct Known Subtypes
@@ -670,36 +664,6 @@ Attachment URL components, from XP's https://developer.enonic.com/docs/code/stab
 
 |intent: <<MediaIntentType,MediaIntentType>>
 |How the URL is meant to be consumed: `download` when the URL carries the `?download` query string, `inline` otherwise
-
-|===
-
-=== Permissions
-
-==== Fields
-
-|===
-|Name(Arguments):Type | Description
-
-|permissions: [<<AccessControlEntry>>]
-|Permissions
-
-|===
-
-=== AccessControlEntry
-
-==== Fields
-
-|===
-|Name(Arguments):Type | Description
-
-|principal: <<PrincipalKey>>
-|Principal key
-
-|allow: [<<Permission>>]
-|Allowed permissions
-
-|deny: [<<Permission>>]
-|Denied permissions
 
 |===
 
@@ -2005,16 +1969,6 @@ Highlight input type.
 Enum values: user
 , group
 , role
-
-=== Permission
-
-Enum values: READ
-, CREATE
-, MODIFY
-, DELETE
-, PUBLISH
-, READ_PERMISSIONS
-, WRITE_PERMISSIONS
 
 === FormItemType
 

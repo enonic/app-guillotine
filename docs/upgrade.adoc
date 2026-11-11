@@ -246,6 +246,13 @@ Remove these selections and any fragments on `DefaultValue`. If your tooling dep
 
 `PublishInfo.from`, `to` and `first` change from `String` to `DateTime`. They are still represented as timestamp strings in JSON, but generated clients and extensions may require a `DateTime` scalar mapping. Regenerate client types and review custom resolvers that provide these values.
 
+[#permissions-migration]
+=== Content permissions
+
+The `permissions` field on `Content` and the `getPermissions` field on `HeadlessCms` are removed. The `Permissions` and `AccessControlEntry` types and the `Permission` enum are removed with them. `PrincipalKey`, used by `creator`, `modifier` and `owner`, remains available.
+
+Remove these selections from client queries. Content permissions still determine which content the caller can read.
+
 [#extension-migration]
 === Custom extensions
 
@@ -282,7 +289,7 @@ The generic parameters for resolver types have changed:
 
 Update generic arguments when migrating typed resolvers. Custom local-context types are no longer supplied through these generic parameters; describe the properties your resolver uses separately.
 
-Several named exports are also removed from the root of `@enonic-types/guillotine`, including `Field`, `Fields`, `CreationCallbacks`, `Enums`, `Type`, `Types`, `InputTypeField`, `InputTypeFields`, `InputType`, `InputTypes`, `Interface`, `Interfaces`, `Union`, `Unions`, `CreateDataFetcherResult`, `CreateDataFetcherResultParams` and `DataFetcherResult`.
+Several named exports are also removed from the root of `@enonic-types/guillotine`, including `Field`, `Fields`, `CreationCallbacks`, `Enums`, `Type`, `Types`, `InputTypeField`, `InputTypeFields`, `InputType`, `InputTypes`, `Interface`, `Interfaces`, `Union`, `Unions`, `CreateDataFetcherResult`, `CreateDataFetcherResultParams` and `DataFetcherResult`. The `Permission` enum and the `Permissions` and `AccessControlEntry` types are removed along with the corresponding <<#permissions-migration, schema types>>.
 
 Use the exported `Extensions` type to derive types for individual properties, for example:
 

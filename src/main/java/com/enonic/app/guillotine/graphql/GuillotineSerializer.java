@@ -7,7 +7,6 @@ import graphql.execution.DataFetcherResult;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.mapper.ContentMapper;
 import com.enonic.app.guillotine.mapper.GuillotineMapGenerator;
-import com.enonic.app.guillotine.mapper.PermissionsMapper;
 import com.enonic.app.guillotine.mapper.SiteMapper;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.script.ScriptValue;
@@ -62,18 +61,6 @@ public final class GuillotineSerializer
         }
 
         return result;
-    }
-
-    public static Object serializePermissions( Content content )
-    {
-        if ( content == null )
-        {
-            return null;
-        }
-
-        GuillotineMapGenerator generator = new GuillotineMapGenerator();
-        new PermissionsMapper( content ).serialize( generator );
-        return generator.getRoot();
     }
 
     public static Object serialize( ScriptValue scriptValue )

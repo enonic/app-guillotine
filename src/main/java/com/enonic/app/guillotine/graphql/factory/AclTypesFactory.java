@@ -5,7 +5,6 @@ import java.util.List;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLFieldDefinition;
-import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLTypeReference;
 
@@ -27,8 +26,6 @@ public class AclTypesFactory
     public void create()
     {
         createPrincipalKeyType();
-        createAccessControlEntryType();
-        createPermissionsType();
     }
 
     private void createPrincipalKeyType()
@@ -59,27 +56,5 @@ public class AclTypesFactory
             PrincipalKey principalKey = PrincipalKey.from( env.getSource() );
             return principalKey.getId();
         } );
-    }
-
-    private void createAccessControlEntryType()
-    {
-        List<GraphQLFieldDefinition> fields = new ArrayList<>();
-
-        fields.add( outputField( "principal", GraphQLTypeReference.typeRef( "PrincipalKey" ) ) );
-        fields.add( outputField( "allow", new GraphQLList( GraphQLTypeReference.typeRef( "Permission" ) ) ) );
-        fields.add( outputField( "deny", new GraphQLList( GraphQLTypeReference.typeRef( "Permission" ) ) ) );
-
-        GraphQLObjectType outputObject = newObject( context.uniqueName( "AccessControlEntry" ), "Access control entry.", fields );
-        context.registerType( outputObject.getName(), outputObject );
-    }
-
-    private void createPermissionsType()
-    {
-        List<GraphQLFieldDefinition> fields = new ArrayList<>();
-
-        fields.add( outputField( "permissions", new GraphQLList( GraphQLTypeReference.typeRef( "AccessControlEntry" ) ) ) );
-
-        GraphQLObjectType outputObject = newObject( context.uniqueName( "Permissions" ), "Permissions.", fields );
-        context.registerType( outputObject.getName(), outputObject );
     }
 }

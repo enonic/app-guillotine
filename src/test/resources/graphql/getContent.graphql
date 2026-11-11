@@ -58,18 +58,6 @@ query {
                     }
                 }
             }
-            permissions {
-                permissions {
-                    principal {
-                        value
-                        type
-                        idProvider
-                        principalId
-                    }
-                    allow
-                    deny
-                }
-            }
         }
     }
 }

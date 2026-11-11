@@ -7,7 +7,6 @@ import type {
 	ComponentType,
 	FormItemType,
 	MediaIntentType,
-	Permission,
 	PrincipalType,
 } from './enumTypes'
 import type {
@@ -28,7 +27,6 @@ import type {
 
 // This is a value, do not add declare.
 export enum ObjectTypeName {
-	AccessControlEntry = 'AccessControlEntry',
 	Attachment = 'Attachment',
 	AttachmentUrl = 'AttachmentUrl',
 	base_Folder = 'base_Folder',
@@ -105,7 +103,6 @@ export enum ObjectTypeName {
 	PageUrl = 'PageUrl',
 	PartComponentData = 'PartComponentData',
 	PartComponentDataConfig = 'PartComponentDataConfig',
-	Permissions = 'Permissions',
 	portal_Fragment = 'portal_Fragment',
 	portal_PageTemplate = 'portal_PageTemplate',
 	portal_PageTemplate_Data = 'portal_PageTemplate_Data',
@@ -131,12 +128,6 @@ export enum ObjectTypeName {
 export declare type ObjectTypeNames = keyof typeof ObjectTypeName
 
 //──────────────────────────────────────────────────────────────────────────────
-
-export declare interface AccessControlEntry {
-	principal: PrincipalKey
-	allow: Permission[] // enum
-	deny: Permission[] // enum
-}
 
 export declare interface Attachment {
 	name: GraphQLString
@@ -186,7 +177,6 @@ export declare type Content<
 		pageTemplate: Content
 		pageUrl: PageUrl
 		parent: Content
-		permissions: Permissions
 		publish: PublishInfo
 		site: portal_Site
 		type: GraphQLString
@@ -299,7 +289,6 @@ export declare interface HeadlessCms {
 	get: Content
 	getChildren: Content[]
 	getChildrenConnection: ContentConnection
-	getPermissions: Permissions
 	getSite: portal_Site
 	queryDsl: Content[]
 	queryDslConnection: QueryDSLContentConnection
@@ -434,10 +423,6 @@ export declare interface PartComponentData {
 	descriptor: NonNull<GraphQLString>
 	configAsJson: GraphQLJson
 	config: Record<string, unknown> // PartComponentDataConfig, generated from installed applications
-}
-
-export declare interface Permissions {
-	permissions: AccessControlEntry[]
 }
 
 export declare type portal_Site = BrandGraphQLObjectType<
