@@ -450,6 +450,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#playground_at_the_graphql_endpoint">Playground at the GraphQL endpoint</a></li>
 <li><a href="#site-context-migration">Site context and relative paths</a></li>
 <li><a href="#metadata-migration">Schema metadata and publication timestamps</a></li>
+<li><a href="#permissions-migration">Content permissions</a></li>
 <li><a href="#extension-migration">Custom extensions</a></li>
 <li><a href="#gradual-migration">Migrating clients gradually</a></li>
 </ul>
@@ -832,6 +833,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
+<h3 id="permissions-migration"><a class="link" href="#permissions-migration">Content permissions</a></h3>
+<div class="paragraph">
+<p>The <code>permissions</code> field on <code>Content</code> and the <code>getPermissions</code> field on <code>HeadlessCms</code> are removed. The <code>Permissions</code> and <code>AccessControlEntry</code> types and the <code>Permission</code> enum are removed with them. <code>PrincipalKey</code>, used by <code>creator</code>, <code>modifier</code> and <code>owner</code>, remains available.</p>
+</div>
+<div class="paragraph">
+<p>Remove these selections from client queries. Content permissions still determine which content the caller can read.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="extension-migration"><a class="link" href="#extension-migration">Custom extensions</a></h3>
 <div class="paragraph">
 <p>Review these changes if your app provides <code>guillotine.ts</code> or <code>guillotine.js</code> extensions. The <code>extensions(graphQL)</code> entry point remains the same. Update any references to the removed fields, arguments and types described above, then verify schema generation and queries using your custom fields.</p>
@@ -898,7 +908,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Update generic arguments when migrating typed resolvers. Custom local-context types are no longer supplied through these generic parameters; describe the properties your resolver uses separately.</p>
 </div>
 <div class="paragraph">
-<p>Several named exports are also removed from the root of <code>@enonic-types/guillotine</code>, including <code>Field</code>, <code>Fields</code>, <code>CreationCallbacks</code>, <code>Enums</code>, <code>Type</code>, <code>Types</code>, <code>InputTypeField</code>, <code>InputTypeFields</code>, <code>InputType</code>, <code>InputTypes</code>, <code>Interface</code>, <code>Interfaces</code>, <code>Union</code>, <code>Unions</code>, <code>CreateDataFetcherResult</code>, <code>CreateDataFetcherResultParams</code> and <code>DataFetcherResult</code>.</p>
+<p>Several named exports are also removed from the root of <code>@enonic-types/guillotine</code>, including <code>Field</code>, <code>Fields</code>, <code>CreationCallbacks</code>, <code>Enums</code>, <code>Type</code>, <code>Types</code>, <code>InputTypeField</code>, <code>InputTypeFields</code>, <code>InputType</code>, <code>InputTypes</code>, <code>Interface</code>, <code>Interfaces</code>, <code>Union</code>, <code>Unions</code>, <code>CreateDataFetcherResult</code>, <code>CreateDataFetcherResultParams</code> and <code>DataFetcherResult</code>. The <code>Permission</code> enum and the <code>Permissions</code> and <code>AccessControlEntry</code> types are removed along with the corresponding <a href="#permissions-migration">schema types</a>.</p>
 </div>
 <div class="paragraph">
 <p>Use the exported <code>Extensions</code> type to derive types for individual properties, for example:</p>
@@ -930,7 +940,7 @@ type CreationCallbacks = NonNullable&lt;Extensions['creationCallbacks']&gt;;</co
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-17 08:03:14 UTC
+Last updated 2026-11-17 13:08:34 UTC
 </div>
 </div>
 </body>

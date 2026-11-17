@@ -509,7 +509,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Here <code>${scope}</code> is <code>/my-site/blog</code> and <code>${site}</code> is <code>/my-site</code>. When <code>scopeKey</code> names a site, both are its path. Without <code>scopeKey</code>, or with <code>scopeKey: "/"</code>, the project is the root and both are empty: <code>${site}/persons</code> becomes <code>/persons</code>, and <code>${site}</code> alone becomes <code>/</code>. <code>${site}</code> is also empty for a content outside any site.</p>
 </div>
 <div class="paragraph">
-<p>The placeholders can be used in the <code>key</code> argument of <code>get</code>, <code>getChildren</code>, <code>getChildrenConnection</code> and <code>getPermissions</code>. See <a href="../api.ahtml#headlesscms">HeadlessCms</a> for the field signatures.</p>
+<p>The placeholders can be used in the <code>key</code> argument of <code>get</code>, <code>getChildren</code> and <code>getChildrenConnection</code>. See <a href="../api.ahtml#headlesscms">HeadlessCms</a> for the field signatures.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -564,7 +564,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-17 08:03:14 UTC
+Last updated 2026-11-17 13:08:34 UTC
 </div>
 </div>
 </body>

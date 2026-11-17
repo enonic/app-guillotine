@@ -520,6 +520,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <dd>
 <p><code>ContentType.displayName</code> and several form metadata fields are removed. <code>PublishInfo.from</code>, <code>to</code> and <code>first</code> change from <code>String</code> to <code>DateTime</code>. See <a href="upgrade.ahtml#metadata-migration">Schema metadata and publication timestamps</a>.</p>
 </dd>
+<dt class="hdlist1">Content permissions</dt>
+<dd>
+<p>The <code>Content.permissions</code> and <code>HeadlessCms.getPermissions</code> fields are removed, along with the <code>Permissions</code> and <code>AccessControlEntry</code> types and the <code>Permission</code> enum. See <a href="upgrade.ahtml#permissions-migration">Content permissions</a>.</p>
+</dd>
 <dt class="hdlist1">Extension behavior and types</dt>
 <dd>
 <p>Resolver request context, macro discovery and TypeScript definitions have changed. See <a href="upgrade.ahtml#extension-migration">Custom extensions</a>.</p>
@@ -536,7 +540,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-17 08:03:14 UTC
+Last updated 2026-11-17 13:08:34 UTC
 </div>
 </div>
 </body>

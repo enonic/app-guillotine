@@ -1287,7 +1287,7 @@ export const extensions = (graphQL: GraphQL): Extensions =&gt; ({
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EnumTypeName</p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>Built-in enums, such as <code>ComponentType</code>, <code>FormItemType</code>, <code>Permission</code> and <code>PrincipalType</code>.</p>
+<p>Built-in enums, such as <code>ComponentType</code>, <code>FormItemType</code> and <code>PrincipalType</code>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -1334,12 +1334,6 @@ export const extensions = (graphQL: GraphQL): Extensions =&gt; ({
 <td class="tableblock halign-left valign-top"><p class="tableblock">MediaIntentType</p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p><code>download</code>, <code>inline</code></p>
-</div></div></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Permission</p></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p><code>READ</code>, <code>CREATE</code>, <code>MODIFY</code>, <code>DELETE</code>, <code>PUBLISH</code>, <code>READ_PERMISSIONS</code>, <code>WRITE_PERMISSIONS</code></p>
 </div></div></td>
 </tr>
 <tr>
@@ -1410,7 +1404,7 @@ export const extensions = (graphQL: GraphQL): Extensions =&gt; ({
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-17 08:03:14 UTC
+Last updated 2026-11-17 13:08:34 UTC
 </div>
 </div>
 </body>
