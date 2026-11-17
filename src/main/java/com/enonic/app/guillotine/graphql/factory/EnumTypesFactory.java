@@ -42,8 +42,6 @@ public class EnumTypesFactory
                                "mm", "millimeters", "cm", "centimeters", "mi", "miles" ) );
 
         registerEnum( "PrincipalType", "Principal type.", List.of( "user", "group", "role" ) );
-        registerEnum( "Permission", "Permission.",
-                      List.of( "READ", "CREATE", "MODIFY", "DELETE", "PUBLISH", "READ_PERMISSIONS", "WRITE_PERMISSIONS" ) );
 
         registerEnum( "FormItemType", "Form item type", List.of( "ItemSet", "Layout", "Input", "OptionSet" ) );
 

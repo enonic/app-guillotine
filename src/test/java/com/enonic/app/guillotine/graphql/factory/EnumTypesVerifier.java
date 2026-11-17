@@ -26,7 +26,6 @@ public class EnumTypesVerifier
         verifyHighlightOrderType();
         verifyDslGeoPointDistanceType();
         verifyPrincipalType();
-        verifyPermission();
         verifyFormItemType();
         verifyComponentType();
     }
@@ -140,21 +139,6 @@ public class EnumTypesVerifier
         verifyTypeValue( type, "user" );
         verifyTypeValue( type, "group" );
         verifyTypeValue( type, "role" );
-    }
-
-    private void verifyPermission()
-    {
-        GraphQLEnumType type = context.getEnumType( "Permission" );
-        assertEquals( "Permission.", type.getDescription() );
-
-        assertEquals( 7, type.getValues().size() );
-        verifyTypeValue( type, "READ" );
-        verifyTypeValue( type, "CREATE" );
-        verifyTypeValue( type, "MODIFY" );
-        verifyTypeValue( type, "DELETE" );
-        verifyTypeValue( type, "PUBLISH" );
-        verifyTypeValue( type, "READ_PERMISSIONS" );
-        verifyTypeValue( type, "WRITE_PERMISSIONS" );
     }
 
     private void verifyFormItemType()

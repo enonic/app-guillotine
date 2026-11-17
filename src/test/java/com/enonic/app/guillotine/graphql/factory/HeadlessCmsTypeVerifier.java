@@ -26,7 +26,7 @@ public class HeadlessCmsTypeVerifier
         GraphQLObjectType guillotineApiType = context.getOutputType( "HeadlessCms" );
         assertEquals( "Headless CMS", guillotineApiType.getDescription() );
 
-        assertEquals( 9, guillotineApiType.getFieldDefinitions().size() );
+        assertEquals( 8, guillotineApiType.getFieldDefinitions().size() );
 
         // verify get field
         GraphQLFieldDefinition getField = guillotineApiType.getFieldDefinition( "get" );
@@ -51,12 +51,6 @@ public class HeadlessCmsTypeVerifier
         assertEquals( Scalars.GraphQLString, getChildrenConnectionField.getArgument( "after" ).getType() );
         assertEquals( Scalars.GraphQLInt, getChildrenConnectionField.getArgument( "first" ).getType() );
         assertEquals( Scalars.GraphQLString, getChildrenConnectionField.getArgument( "sort" ).getType() );
-
-        // verify getPermission field
-        GraphQLFieldDefinition getPermissionsField = guillotineApiType.getFieldDefinition( "getPermissions" );
-        assertEquals( "Permissions", getNameForGraphQLTypeReference( getPermissionsField.getType() ) );
-        assertEquals( 1, getPermissionsField.getArguments().size() );
-        assertEquals( Scalars.GraphQLID, getPermissionsField.getArgument( "key" ).getType() );
 
         // verify getSite field
         GraphQLFieldDefinition getSiteField = guillotineApiType.getFieldDefinition( "getSite" );

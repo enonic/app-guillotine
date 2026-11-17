@@ -324,7 +324,7 @@ export const extensions = (graphQL: GraphQL): Extensions => ({
 | Name | Description
 | ObjectTypeName | Built-in object types, such as `Content`, `HeadlessCms`, `Query`, `RichText`, `Image`, `Link`, `PublishInfo` and the generated types for built-in content types like `+portal_Site+` and `+media_Image+`.
 | InputTypeName | Built-in input types, such as `QueryDSLInput`, `SortDslInput`, `AggregationInput` and `ProcessHtmlInput`.
-| EnumTypeName | Built-in enums, such as `ComponentType`, `FormItemType`, `Permission` and `PrincipalType`.
+| EnumTypeName | Built-in enums, such as `ComponentType`, `FormItemType` and `PrincipalType`.
 | ScalarTypeName | The scalar names `String`, `Int`, `Float`, `Boolean`, `ID`, `Json`, `Date`, `DateTime`, `LocalDateTime` and `LocalTime`.
 |===
 
@@ -342,7 +342,6 @@ The values of these built-in schema enums are exported as runtime enums, for com
 | ComponentType | `page`, `layout`, `image`, `part`, `text`, `fragment`
 | FormItemType | `Input`, `ItemSet`, `Layout`, `OptionSet`
 | MediaIntentType | `download`, `inline`
-| Permission | `READ`, `CREATE`, `MODIFY`, `DELETE`, `PUBLISH`, `+READ_PERMISSIONS+`, `+WRITE_PERMISSIONS+`
 | PrincipalType | `user`, `group`, `role`
 |===
 

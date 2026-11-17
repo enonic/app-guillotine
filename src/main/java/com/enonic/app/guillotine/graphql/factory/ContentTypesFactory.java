@@ -32,7 +32,6 @@ import com.enonic.app.guillotine.graphql.fetchers.GetContentChildrenConnectionDa
 import com.enonic.app.guillotine.graphql.fetchers.GetContentChildrenDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentFieldDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentParentDataFetcher;
-import com.enonic.app.guillotine.graphql.fetchers.GetContentPermissionsDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentProjectDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentReferencesDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentSiteDataFetcher;
@@ -294,7 +293,6 @@ public class ContentTypesFactory
         result.add( outputField( "childrenConnection", GraphQLTypeReference.typeRef( "ContentConnection" ),
                                  List.of( newArgument( "after", Scalars.GraphQLString ), newArgument( "first", Scalars.GraphQLInt ),
                                           newArgument( "sort", Scalars.GraphQLString ) ) ) );
-        result.add( outputField( "permissions", GraphQLTypeReference.typeRef( "Permissions" ) ) );
 
         context.registerDataFetcher( contentType, "contentType", new ContentTypeDataFetcher( serviceFacade.getCmsFormFragmentService(),
                                                                                              serviceFacade.getContentTypeService() ) );
@@ -320,9 +318,6 @@ public class ContentTypesFactory
         context.registerDataFetcher( contentType, "pageTemplate", new GetPageTemplateDataFetcher( serviceFacade ) );
 
         context.registerDataFetcher( contentType, "components", new GetComponentsDataFetcher( serviceFacade ) );
-
-        context.registerDataFetcher( contentType, "permissions",
-                                     new GetContentPermissionsDataFetcher( serviceFacade.getContentService() ) );
 
         context.registerDataFetcher( contentType, "site", new GetContentSiteDataFetcher( serviceFacade.getContentService() ) );
 

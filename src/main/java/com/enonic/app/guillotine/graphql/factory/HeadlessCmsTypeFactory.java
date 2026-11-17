@@ -15,7 +15,6 @@ import com.enonic.app.guillotine.graphql.GuillotineContext;
 import com.enonic.app.guillotine.graphql.fetchers.GetChildrenConnectionDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetChildrenDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetContentDataFetcher;
-import com.enonic.app.guillotine.graphql.fetchers.GetPermissionsDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetSiteDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetTypeDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetTypesDataFetcher;
@@ -56,10 +55,6 @@ public class HeadlessCmsTypeFactory
                                      new GetChildrenConnectionDataFetcher( serviceFacade.getContentService(),
                                                                            serviceFacade.getPortalUrlService() ) );
 
-        context.registerDataFetcher( headlessCms.getName(), "getPermissions",
-                                     new GetPermissionsDataFetcher( serviceFacade.getContentService(),
-                                                                    serviceFacade.getPortalUrlService() ) );
-
         context.registerDataFetcher( headlessCms.getName(), "getSite",
                                      new GetSiteDataFetcher( serviceFacade.getContentService(), serviceFacade.getPortalUrlService() ) );
 
@@ -92,9 +87,6 @@ public class HeadlessCmsTypeFactory
         fields.add( outputField( "getChildrenConnection", GraphQLTypeReference.typeRef( "ContentConnection" ),
                                  List.of( newArgument( "key", Scalars.GraphQLID ), newArgument( "after", Scalars.GraphQLString ),
                                           newArgument( "first", Scalars.GraphQLInt ), newArgument( "sort", Scalars.GraphQLString ) ) ) );
-
-        fields.add(
-            outputField( "getPermissions", GraphQLTypeReference.typeRef( "Permissions" ), newArgument( "key", Scalars.GraphQLID ) ) );
 
         fields.add( outputField( "getSite", GraphQLTypeReference.typeRef( "portal_Site" ) ) );
 

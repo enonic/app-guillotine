@@ -90,7 +90,6 @@ export type {
 } from './graphQL'
 
 export type {
-	AccessControlEntry,
 	Attachment,
 	AttachmentUrl,
 	EnumTypeNames,
@@ -136,7 +135,6 @@ export type {
 	PageInfo,
 	PageUrl,
 	PartComponentData,
-	Permissions,
 	portal_Site,
 	portal_Site_Data,
 	PrincipalKey,
@@ -164,7 +162,6 @@ export {
 	ComponentType,
 	FormItemType,
 	MediaIntentType,
-	Permission,
 	PrincipalType,
 } from './guillotine'
 
