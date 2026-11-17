@@ -8,7 +8,6 @@ export type {
 
 export type {
 	ObjectTypeNames,
-	AccessControlEntry,
 	Attachment,
 	AttachmentUrl,
 	Component,
@@ -50,7 +49,6 @@ export type {
 	PageInfo,
 	PageUrl,
 	PartComponentData,
-	Permissions,
 	portal_Site,
 	portal_Site_Data,
 	PrincipalKey,
@@ -74,7 +72,6 @@ export {
 	EnumTypeName,
 	FormItemType,
 	MediaIntentType,
-	Permission,
 	PrincipalType,
 } from './enumTypes'
 

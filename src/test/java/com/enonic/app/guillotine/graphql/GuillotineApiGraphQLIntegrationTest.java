@@ -3,7 +3,6 @@ package com.enonic.app.guillotine.graphql;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -135,30 +134,6 @@ public class GuillotineApiGraphQLIntegrationTest
         assertEquals( 3468, imageInfo.get( "imageHeight" ) );
         assertEquals( 3620112, imageInfo.get( "byteSize" ) );
 
-        Map<String, Object> permissionsField = CastHelper.cast( getField.get( "permissions" ) );
-
-        assertEquals( 1, permissionsField.size() );
-
-        List<Map<String, Object>> permissionsEntries = CastHelper.cast( permissionsField.get( "permissions" ) );
-
-        assertEquals( 2, permissionsEntries.size() );
-        permissionsEntries.forEach( entry -> {
-            Map<String, String> principal = CastHelper.cast( entry.get( "principal" ) );
-            if ( Objects.equals( "role:cms.admin", principal.get( "value" ) ) )
-            {
-                List<String> allow = CastHelper.cast( entry.get( "allow" ) );
-                assertEquals( 7, allow.size() );
-                List<String> deny = CastHelper.cast( entry.get( "deny" ) );
-                assertEquals( 0, deny.size() );
-            }
-            else
-            {
-                List<String> allow = CastHelper.cast( entry.get( "allow" ) );
-                assertEquals( 3, allow.size() );
-                List<String> deny = CastHelper.cast( entry.get( "deny" ) );
-                assertEquals( 2, deny.size() );
-            }
-        } );
     }
 
     @Test

@@ -166,7 +166,6 @@ export {
 	InputTypeName,
 	MediaIntentType,
 	ObjectTypeName,
-	Permission,
 	PrincipalType,
 	ScalarTypeName,
 } from './guillotine'

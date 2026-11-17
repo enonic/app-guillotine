@@ -44,7 +44,7 @@ Use `${scope}` in a content key to insert the path of the content `scopeKey` nam
 
 Here `${scope}` is `/my-site/blog` and `${site}` is `/my-site`. When `scopeKey` names a site, both are its path. Without `scopeKey`, or with `scopeKey: "/"`, the project is the root and both are empty: `${site}/persons` becomes `/persons`, and `${site}` alone becomes `/`. `${site}` is also empty for a content outside any site.
 
-The placeholders can be used in the `key` argument of `get`, `getChildren`, `getChildrenConnection` and `getPermissions`. See <<../api#headlesscms, HeadlessCms>> for the field signatures.
+The placeholders can be used in the `key` argument of `get`, `getChildren` and `getChildrenConnection`. See <<../api#headlesscms, HeadlessCms>> for the field signatures.
 
 NOTE: `${scope}` and `${site}` are Guillotine placeholders inside a GraphQL string. When writing the query in a JavaScript template literal, escape them as `\${scope}` and `\${site}` so JavaScript sends the placeholders unchanged.
 
