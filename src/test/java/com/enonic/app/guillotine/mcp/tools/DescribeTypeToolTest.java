@@ -1,9 +1,19 @@
 package com.enonic.app.guillotine.mcp.tools;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+
+import graphql.language.Document;
+import graphql.language.OperationDefinition;
+import graphql.parser.Parser;
+import graphql.schema.GraphQLInterfaceType;
+import graphql.schema.GraphQLNamedType;
+import graphql.schema.GraphQLObjectType;
+import graphql.schema.GraphQLSchema;
 
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.mcp.shape.McpJson;
@@ -12,10 +22,16 @@ import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
+import com.enonic.xp.form.FormItemSet;
+import com.enonic.xp.form.Input;
+import com.enonic.xp.inputtype.InputTypeName;
+import com.enonic.xp.schema.content.ContentType;
+import com.enonic.xp.schema.content.ContentTypeName;
 
 import static com.enonic.app.guillotine.mcp.McpResults.roundTrip;
 import static com.enonic.app.guillotine.mcp.McpResults.structured;
 import static com.enonic.app.guillotine.mcp.McpResults.text;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -28,6 +44,34 @@ import static org.mockito.Mockito.when;
 public class DescribeTypeToolTest
     extends ArticleSchemaTestSupport
 {
+    private static final String COLLECTION = DATASET_APP + ":collection";
+
+    @Override
+    protected List<ContentType> getCustomContentTypes()
+    {
+        final List<ContentType> result = new ArrayList<>( super.getCustomContentTypes() );
+        result.add( ContentType.create()
+                        .superType( ContentTypeName.structured() )
+                        .name( COLLECTION )
+                        .addFormItem( input( "related", InputTypeName.CONTENT_SELECTOR ) )
+                        .addFormItem( input( "gallery", InputTypeName.IMAGE_SELECTOR ) )
+                        .addFormItem( input( "tags", InputTypeName.TEXT_LINE ) )
+                        .addFormItem( FormItemSet.create()
+                                          .name( "sections" )
+                                          .label( "sections" )
+                                          .occurrences( 0, 0 )
+                                          .addFormItem( input( "heading", InputTypeName.TEXT_LINE ) )
+                                          .addFormItem( input( "links", InputTypeName.CONTENT_SELECTOR ) )
+                                          .build() )
+                        .build() );
+        return result;
+    }
+
+    private static Input input( final String name, final InputTypeName type )
+    {
+        return Input.create().name( name ).label( name ).inputType( type ).occurrences( 0, 0 ).build();
+    }
+
     private DescribeTypeTool tool()
     {
         return new DescribeTypeTool( schemaProvider, guillotineConfigService );
@@ -170,6 +214,36 @@ public class DescribeTypeToolTest
     }
 
     @Test
+    public void testEveryExampleQueryIsWithinTheQueryLimits()
+    {
+        final GraphQLSchema schema = schemaProvider.getSchema();
+        final List<String> checked = new ArrayList<>();
+        for ( final GraphQLObjectType type : schema.getImplementations( (GraphQLInterfaceType) schema.getType( "Content" ) ) )
+        {
+            final Map<String, Object> structured = structured( roundTrip( tool().execute( Map.of( "type", type.getName() ) ) ) );
+            if ( !( structured.get( "exampleQuery" ) instanceof String query ) )
+            {
+                continue;
+            }
+            final Document document = new Parser().parseDocument( query );
+            assertDoesNotThrow( () -> QueryLimits.check( document, document.getDefinitionsOfType( OperationDefinition.class ).get( 0 ),
+                                                         CastHelper.cast( structured.get( "exampleVariables" ) ),
+                                                         guillotineConfigService.getMcpMaxComplexity(), false, () -> schema ),
+                                query );
+            checked.add( String.valueOf( structured.get( "contentType" ) ) );
+        }
+        assertTrue( checked.containsAll( List.of( ARTICLE, COLLECTION ) ), checked::toString );
+
+        final String collection = (String) structured( tool().execute( Map.of( "type", COLLECTION ) ) ).get( "exampleQuery" );
+        assertTrue( collection.contains( "related(first: 3) {" ), collection );
+        assertTrue( collection.contains( "sections(first: 3) {" ), collection );
+        assertFalse( collection.contains( "tags(" ), collection );
+        final int first = (Integer) ( (Map<?, ?>) structured( tool().execute( Map.of( "type", COLLECTION ) ) ).get( "exampleVariables" ) )
+            .get( "first" );
+        assertTrue( first >= 1 && first < 10, String.valueOf( first ) );
+    }
+
+    @Test
     public void testLargeTypeIsCutToTheSdlLimit()
     {
         when( guillotineConfigService.getMcpMaxResultChars() ).thenReturn( 1000 );
@@ -179,6 +253,15 @@ public class DescribeTypeToolTest
         assertTrue( sdl.length() <= 500, () -> sdl.length() + " chars:\n" + sdl );
         assertTrue( sdl.startsWith( "type HeadlessCms {" ) || sdl.contains( "\ntype HeadlessCms {" ), sdl );
         assertTrue( sdl.endsWith( "\n  # more fields left out to stay within 500 characters\n}" ), sdl );
+    }
+
+    @Test
+    public void testCutKeepsTheTypeHeaderEvenWhenTheLimitIsSmaller()
+    {
+        final String sdl =
+            DescribeTypeTool.sdl( (GraphQLNamedType) schemaProvider.getSchema().getType( "HeadlessCms" ), Set.of(), 20, 2 ).text();
+
+        assertTrue( sdl.endsWith( "type HeadlessCms {\n  # more fields left out to stay within 20 characters\n}" ), sdl );
     }
 
     @Test

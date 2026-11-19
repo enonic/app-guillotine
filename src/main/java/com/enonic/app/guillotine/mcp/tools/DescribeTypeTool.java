@@ -15,6 +15,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import graphql.Scalars;
+import graphql.language.Document;
+import graphql.language.OperationDefinition;
+import graphql.parser.Parser;
 import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLEnumType;
 import graphql.schema.GraphQLFieldDefinition;
@@ -52,6 +55,13 @@ public final class DescribeTypeTool
     static final int MAX_NESTING = 2;
 
     static final int MAX_SDL_CHARS = 8000;
+
+    /**
+     * {@code first} of repeated object fields in the example query, which would otherwise count every occurrence for complexity.
+     */
+    private static final int EXAMPLE_FIRST = 3;
+
+    private static final int EXAMPLE_PAGE = 10;
 
     private static final String CONTENT_INTERFACE = "Content";
 
@@ -131,8 +141,9 @@ public final class DescribeTypeTool
 
         if ( resolved.contentType() != null )
         {
-            structured.put( "exampleQuery", exampleQuery( (GraphQLObjectType) resolved.type(), dataType ) );
-            structured.put( "exampleVariables", Map.of( "type", resolved.contentType(), "first", 10 ) );
+            final String exampleQuery = exampleQuery( (GraphQLObjectType) resolved.type(), dataType );
+            structured.put( "exampleQuery", exampleQuery );
+            structured.put( "exampleVariables", Map.of( "type", resolved.contentType(), "first", exampleFirst( exampleQuery, schema ) ) );
             structured.put( "usage", "Call query with {query: exampleQuery, variables: exampleVariables}; page with variables.after = " +
                 "pageInfo.endCursor." );
         }
@@ -243,9 +254,9 @@ public final class DescribeTypeTool
 
     /**
      * A content type is printed without the fields it shares with the {@code Content} interface, and a comment line in their place.
-     * A type too large for {@code maxChars} is cut after its last field that fits.
+     * A type too large for {@code maxChars} is cut after its last field that fits, keeping at least its header.
      */
-    private static Sdl sdl( final GraphQLNamedType type, final Set<String> shared, final int maxChars, final int maxNesting )
+    static Sdl sdl( final GraphQLNamedType type, final Set<String> shared, final int maxChars, final int maxNesting )
     {
         final GraphQLNamedType root = withoutContentFields( type );
         final StringBuilder text = new StringBuilder( PRINTER.print( root ).trim() );
@@ -264,8 +275,8 @@ public final class DescribeTypeTool
         if ( text.length() > maxChars )
         {
             final String cutLine = "\n  # more fields left out to stay within " + maxChars + " characters\n}";
-            final int end = text.lastIndexOf( "\n", Math.max( 0, maxChars - cutLine.length() ) );
-            text.setLength( Math.max( 0, end ) );
+            final int header = text.indexOf( "{\n" ) + 1;
+            text.setLength( Math.max( header, text.lastIndexOf( "\n", Math.max( 0, maxChars - cutLine.length() ) ) ) );
             text.append( cutLine );
         }
         final Set<String> seen = new HashSet<>( Set.of( root.getName() ) );
@@ -398,8 +409,32 @@ public final class DescribeTypeTool
     }
 
     /**
+     * The largest page size up to {@link #EXAMPLE_PAGE} for which {@code query} stays within {@code mcp.maxComplexity}, at least one.
+     */
+    private int exampleFirst( final String query, final GraphQLSchema schema )
+    {
+        final Document document = new Parser().parseDocument( query );
+        final OperationDefinition operation = document.getDefinitionsOfType( OperationDefinition.class ).get( 0 );
+        for ( int first = EXAMPLE_PAGE; first > 1; first-- )
+        {
+            try
+            {
+                QueryLimits.check( document, operation, Map.of( "first", first ), configService.getMcpMaxComplexity(), true,
+                                   () -> schema );
+                return first;
+            }
+            catch ( ToolError e )
+            {
+                // too complex at this page size
+            }
+        }
+        return 1;
+    }
+
+    /**
      * A selection set for {@code type}: scalar fields and nested types of the content type itself (named with {@code ownPrefix}) up
      * to {@code nesting} levels, only the first scalar of other types such as {@code RichText}, and id and path of referenced content.
+     * Repeated object fields get a small {@code first}.
      */
     private static String selection( final GraphQLType type, final String ownPrefix, final int nesting, final String indent )
     {
@@ -437,7 +472,8 @@ public final class DescribeTypeTool
             }
             else if ( !sharedType && ( nesting > 0 || isContent( fieldType ) ) )
             {
-                lines.add( field.getName() + " " + selection( fieldType, ownPrefix, nesting - 1, indent + "  " ) );
+                final String repeated = field.getArgument( QueryLimits.FIRST_ARG ) != null ? "(first: " + EXAMPLE_FIRST + ")" : "";
+                lines.add( field.getName() + repeated + " " + selection( fieldType, ownPrefix, nesting - 1, indent + "  " ) );
             }
         }
         if ( lines.isEmpty() )
@@ -476,7 +512,7 @@ public final class DescribeTypeTool
     {
     }
 
-    private record Sdl(String text, List<String> omitted, List<String> notExpanded)
+    record Sdl(String text, List<String> omitted, List<String> notExpanded)
     {
     }
 }
