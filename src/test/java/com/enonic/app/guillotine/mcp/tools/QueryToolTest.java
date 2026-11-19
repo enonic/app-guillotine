@@ -21,6 +21,8 @@ import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 
+import com.enonic.app.guillotine.graphql.ContentFixtures;
+import com.enonic.app.guillotine.graphql.ImageTransformations;
 import com.enonic.app.guillotine.graphql.SchemaProvider;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.mcp.shape.GraphQlErrors;
@@ -41,6 +43,8 @@ import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.security.User;
 import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.exception.ForbiddenAccessException;
+import com.enonic.xp.portal.PortalRequest;
+import com.enonic.xp.portal.PortalRequestAccessor;
 
 import static com.enonic.app.guillotine.mcp.McpResults.roundTrip;
 import static com.enonic.app.guillotine.mcp.McpResults.structured;
@@ -753,6 +757,39 @@ public class QueryToolTest
 
         assertEquals( "Access denied: the current user cannot read branch 'draft' of project 'myproject'. Anonymous callers can read " +
                           "only published content: omit branch or pass \"master\".", error.userMessage() );
+    }
+
+    @Test
+    public void testImageTransformationsFollowTheVirtualHostSetting()
+    {
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
+        final Map<String, Object> args = Map.of( "query", "{ guillotine { get(key: \"contentid\") { _id ... on media_Image { " +
+            "imageUrl(scale: \"block(10,10)\") { scale } } } } }" );
+        final String deniedMessage = "Image transformations are not allowed here: remove the 'scale' argument";
+
+        final Map<String, Object> denied = createAdminContext().callWith( () -> ContextBuilder.copyOf( ContextAccessor.current() )
+            .attribute( ImageTransformations.CONTEXT_ATTRIBUTE, "deny" )
+            .build()
+            .callWith( () -> tool().execute( args ) ) );
+        assertTrue( McpJson.write( denied ).contains( deniedMessage ), () -> McpJson.write( denied ) );
+
+        final PortalRequest previous = PortalRequestAccessor.get();
+        try
+        {
+            final PortalRequest mcpRequest = new PortalRequest();
+            mcpRequest.setBaseUri( "/api/system:mcp" );
+            PortalRequestAccessor.set( mcpRequest );
+            final Map<String, Object> viaApi = run( args );
+            assertFalse( McpJson.write( viaApi ).contains( deniedMessage ), () -> text( viaApi ) );
+
+            PortalRequestAccessor.remove();
+            final Map<String, Object> withoutRequest = run( args );
+            assertFalse( McpJson.write( withoutRequest ).contains( deniedMessage ), () -> text( withoutRequest ) );
+        }
+        finally
+        {
+            PortalRequestAccessor.set( previous );
+        }
     }
 
     @Test
