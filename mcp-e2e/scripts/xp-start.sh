@@ -22,11 +22,13 @@ mkdir -p "$XP_HOME/logs" "$XP_HOME/deploy"
 echo "XP_DIST=$XP_DIST XP_HOME=$XP_HOME engine=${XP_SCRIPT_ENGINE:-default}"
 JAVA_OPTS="-XX:-OmitStackTraceInFastThrow -XX:+AlwaysPreTouch -Djava.net.preferIPv4Stack=true${XP_SCRIPT_ENGINE:+ -Dxp.script-engine=$XP_SCRIPT_ENGINE}" \
     XP_HOME="$XP_HOME" nohup "$XP_DIST/bin/server.sh" > "$XP_HOME/logs/console.log" 2>&1 &
-echo $! > "$XP_PID_FILE"
+pid=$!
+# The start time identifies the process, so xp-stop.sh never signals a later process that reuses the PID.
+printf '%s\n%s\n' "$pid" "$(process_start "$pid")" > "$XP_PID_FILE"
 for i in $(seq 1 180); do
     if curl -s -o /dev/null "$XP_URL/"; then
         if [ "$(curl -s -o /dev/null -w '%{http_code}' -X POST "$MCP_URL" -H 'Content-Type: application/json' --data '{}')" != "000" ]; then
-            echo "XP is up (pid $(cat "$XP_PID_FILE")) after ${i}s"; exit 0
+            echo "XP is up (pid $pid) after ${i}s"; exit 0
         fi
     fi
     sleep 1

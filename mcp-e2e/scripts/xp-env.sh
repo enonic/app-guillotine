@@ -23,6 +23,11 @@ export ECHO_JAR="${ECHO_JAR:-$FIXTURE_BUILD_DIR/echo-app/libs/echo-app.jar}"
 export BROKEN_JAR="${BROKEN_JAR:-$FIXTURE_BUILD_DIR/broken-app/libs/broken-app.jar}"
 export DATASET_JAR="${DATASET_JAR:-$FIXTURE_BUILD_DIR/dataset-app/libs/dataset-app.jar}"
 
+process_start() {
+    # process_start <pid>: the start time of a running process, empty when there is none.
+    LC_ALL=C ps -o lstart= -p "$1" 2>/dev/null | sed 's/^ *//'
+}
+
 require_xp_expect() {
     case "$XP_EXPECT" in
         epic|fix) ;;

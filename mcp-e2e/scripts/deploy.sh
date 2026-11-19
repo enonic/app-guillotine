@@ -9,13 +9,19 @@ start=$(wc -l < "$XP_HOME/logs/console.log")
 cp "$GUILLOTINE_JAR" "$XP_HOME/deploy/guillotine.jar"
 cp "$ECHO_JAR" "$XP_HOME/deploy/echo-app.jar"
 if cmp -s "$DATASET_JAR" "$XP_HOME/deploy/dataset-app.jar"; then
-    echo "dataset-app.jar is already deployed unchanged"; exit 0
+    # Unchanged jar: XP does not restart the app, so the outcome of its last start (since XP started) decides.
+    echo "dataset-app.jar is already deployed unchanged"
+    start=0
+else
+    cp "$DATASET_JAR" "$XP_HOME/deploy/dataset-app.jar"
 fi
-cp "$DATASET_JAR" "$XP_HOME/deploy/dataset-app.jar"
 for _ in $(seq 1 120); do
-    if line=$(tail -n +"$((start + 1))" "$XP_HOME/logs/console.log" | grep -E '\[mcp-dataset\] (done|failed)'); then
+    if line=$(tail -n +"$((start + 1))" "$XP_HOME/logs/console.log" | grep -E '\[mcp-dataset\] (done|failed)' | tail -n 1) &&
+        [ -n "$line" ]; then
         echo "$line"
-        grep -q 'done' <<<"$line" && exit 0 || exit 1
+        grep -q '\[mcp-dataset\] done' <<<"$line" && exit 0
+        echo "Dataset creation failed; fix the cause, then rebuild or remove $XP_HOME/deploy/dataset-app.jar and deploy again" >&2
+        exit 1
     fi
     sleep 1
 done

@@ -41,9 +41,9 @@ All settings are environment variables with defaults in `scripts/xp-env.sh`.
 export XP_DIST=~/path/to/xp/modules/runtime/build/install XP_EXPECT=fix
 mcp-e2e/scripts/build-fixtures.sh     # dataset-app, echo-app, broken-app -> .tmp/mcp-e2e/build
 mcp-e2e/scripts/xp-start.sh           # refuses to start if 8080, 4848 or 2609 is in use
-mcp-e2e/scripts/deploy.sh             # deploys guillotine, dataset-app, echo-app; waits for "[mcp-dataset] done"
+mcp-e2e/scripts/deploy.sh             # deploys guillotine, dataset-app, echo-app; waits for "[mcp-dataset] done", fails on "failed"
 mcp-e2e/scripts/run-all.sh
-mcp-e2e/scripts/xp-stop.sh            # stops only the XP that xp-start.sh started
+mcp-e2e/scripts/xp-stop.sh            # stops only the XP that xp-start.sh started (same PID and start time)
 ```
 
 `run-all.sh` runs these suites, in this order:
@@ -52,10 +52,10 @@ mcp-e2e/scripts/xp-stop.sh            # stops only the XP that xp-start.sh start
 - `lifecycle`: removes and redeploys `guillotine.jar` and `echo-app.jar` without restarting XP, and checks that the tool list follows each change.
 - `broken-app`: deploys an app whose tool name is too long and checks what that does to the catalog.
 - `xp-smoke.sh`: the echo-app tools (dispatch, invalid arguments, a controller that throws, undeploy and redeploy).
-- `tools-list-projects.sh`, `tools-search.py`, `tools-references.py`: each tool's answers compared with `expected.json`.
+- `tools-list-projects.sh` (deploys `GUILLOTINE_JAR` if the deployed jar differs), `tools-search.py`, `tools-references.py`: each tool's answers compared with `expected.json`.
 - `dataset-check.py`: compares `expected.json` with Guillotine's HTTP GraphQL API, without going through MCP.
 
-The steps that change the deploy folder hold a lock, and on exit the script puts `guillotine.jar` and `echo-app.jar` back.
+The steps that change the deploy folder, from `lifecycle` to `tools-list-projects.sh`, hold a lock. Before the lock is released, also when the run is interrupted, the script puts `guillotine.jar` and `echo-app.jar` back.
 
 The read-only suites can also run on their own against any running XP that has the dataset, for example `python3 mcp-e2e/checks/tools-search.py`. These are `tools-all.py`, `tools-search.py`, `tools-references.py` and `dataset-check.py`. They read `XP_URL` and need nothing else.
 
@@ -77,7 +77,7 @@ mcp-e2e/scripts/run-client.sh q1-articles-per-author q6-broken-links
 
 Each prompt runs in a fresh `claude -p` process. Its only MCP server is the local XP, registered as `xp`, and every built-in tool is disabled. Your own Claude settings are not loaded. The caller is anonymous, so Guillotine reads the `master` branch of `mcp-test`. Each run has a budget cap of `CLAUDE_MAX_BUDGET_USD` (default 3). Set `CLAUDE_MODEL` to choose a model.
 
-The output goes to `.tmp/mcp-e2e/client-runs/<timestamp>/`. For each prompt there is `<name>.jsonl` (the raw stream), `<name>.stderr`, and `<name>.md` with the question, the tool calls and their results, and the final answer. Compare the final answer by hand with the `# expected:` lines at the top of the prompt file. Most of those lines point into `fixtures/expected.json`. Q2 and Q4 need a signed-in user, so for an anonymous caller the expected answer is that the model explains why it cannot answer.
+The output goes to `.tmp/mcp-e2e/client-runs/<timestamp>/`. For each prompt there is `<name>.jsonl` (the raw stream), `<name>.stderr`, and `<name>.md` with the question, the tool calls and their results, and the final answer. The script exits 1 when a prompt file is missing or a client run fails; it does not judge the answers. Compare the final answer by hand with the `# expected:` lines at the top of the prompt file. Most of those lines point into `fixtures/expected.json`. Q2 and Q4 need a signed-in user, so for an anonymous caller the expected answer is that the model explains why it cannot answer.
 
 ## Dataset
 

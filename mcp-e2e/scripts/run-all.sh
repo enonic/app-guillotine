@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Every E2E check on the running local XP, plus app lifecycle without restart. Exit 1 on any FAIL.
-# Deploy-folder changes run under a lock; guillotine.jar and echo-app.jar are always restored on exit.
+# Deploy-folder changes run under a lock; guillotine.jar and echo-app.jar are restored before it is released, also on interrupt.
 # Output is also written to $LOG_DIR/run-all-<timestamp>.log.
 set -uo pipefail
 source "$(dirname "$0")/xp-env.sh"
@@ -16,14 +16,12 @@ echo "      log: $LOG"
 for jar in "$ECHO_JAR" "$BROKEN_JAR"; do
     [ -f "$jar" ] || { echo "Missing $jar; run scripts/build-fixtures.sh" >&2; exit 2; }
 done
-cp "$DEPLOY/guillotine.jar" "$BACKUP/guillotine.jar" 2>/dev/null || cp "$GUILLOTINE_JAR" "$BACKUP/guillotine.jar"
 
 restore() {
     rm -f "$DEPLOY/broken-app.jar"
     [ -f "$DEPLOY/guillotine.jar" ] || cp "$BACKUP/guillotine.jar" "$DEPLOY/guillotine.jar"
     [ -f "$DEPLOY/echo-app.jar" ] || cp "$ECHO_JAR" "$DEPLOY/echo-app.jar"
 }
-trap restore EXIT INT TERM
 
 declare -a SUMMARY=()
 fail=0
@@ -102,12 +100,20 @@ lifecycle_and_smoke() {
 }
 
 suite "tools-all.py" python3 "$CHECKS/tools-all.py"
+# The backup and every deploy-folder change, including the restore on an interrupted run, happen while the lock is held.
 exec 9>"$LOCK"
 flock 9
+cp "$DEPLOY/guillotine.jar" "$BACKUP/guillotine.jar" 2>/dev/null || cp "$GUILLOTINE_JAR" "$BACKUP/guillotine.jar"
+trap restore EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 lifecycle_and_smoke
 restore
-flock -u 9
+# tools-list-projects.sh deploys GUILLOTINE_JAR when the deployed jar differs.
 suite "tools-list-projects.sh" "$CHECKS/tools-list-projects.sh"
+trap - EXIT INT TERM
+flock -u 9
+exec 9>&-
 suite "tools-search.py" python3 "$CHECKS/tools-search.py"
 suite "tools-references.py" python3 "$CHECKS/tools-references.py"
 suite "dataset-check.py" python3 "$CHECKS/dataset-check.py"
