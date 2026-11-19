@@ -52,7 +52,8 @@ public class ContentGraphQl
         final Map<String, Object> all = new LinkedHashMap<>( variables );
         all.put( ProjectBranchResolver.PROJECT_ARG, target.project() );
         all.put( ProjectBranchResolver.BRANCH_ARG, target.branch() );
-        return ProjectBranchResolver.runInProjectContext( target, () -> schemaProvider.executeToSpecification( document, all ) );
+        return ProjectBranchResolver.runInProjectContext( target, () -> schemaProvider.executeToSpecification(
+            document, all, null, GraphQlErrors.hideInternalErrors() ) );
     }
 
     /**

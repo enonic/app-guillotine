@@ -286,7 +286,7 @@ Arguments::
 `variables`::: Values of the document's variables, keyed by name without the `$`.
 `operationName`::: The operation to run when the document defines several.
 
-Returns:: `data`, as GraphQL returns it, and `errors` (each `message` and `path`) when some fields failed. Null fields stay null.
+Returns:: `data`, as GraphQL returns it, and `errors` (each `message` and `path`) when some fields failed. Null fields stay null. An error message says what to change when the cause is in the query, such as an invalid key or argument, missing content or denied access; any other failure, for example in an extension's resolver, reads `Internal error while resolving this field; see the server log.`
 
 The tool rejects mutations and subscriptions, and documents that exceed these limits:
 

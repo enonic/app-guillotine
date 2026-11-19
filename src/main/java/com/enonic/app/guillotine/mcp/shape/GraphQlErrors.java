@@ -1,15 +1,30 @@
 package com.enonic.app.guillotine.mcp.shape;
 
+import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import graphql.ExceptionWhileDataFetching;
+import graphql.ExecutionResult;
 import graphql.GraphQLError;
+import graphql.GraphqlErrorBuilder;
+import graphql.execution.instrumentation.Instrumentation;
+import graphql.execution.instrumentation.InstrumentationState;
+import graphql.execution.instrumentation.SimplePerformantInstrumentation;
+import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters;
+
+import com.enonic.xp.exception.ForbiddenAccessException;
+import com.enonic.xp.exception.NotFoundException;
 
 public final class GraphQlErrors
 {
@@ -54,8 +69,34 @@ public final class GraphQlErrors
 
     private static final Pattern FETCH_PREFIX = Pattern.compile( "^Exception while fetching data \\([^)]*\\)\\s*:\\s*" );
 
+    private static final Logger LOG = LoggerFactory.getLogger( GraphQlErrors.class );
+
+    private static final Instrumentation HIDE_INTERNAL_ERRORS = new HideInternalErrors();
+
     private GraphQlErrors()
     {
+    }
+
+    /**
+     * An instrumentation that replaces the message of a field that failed with an exception other than a caller error (see
+     * {@link #isCallerError(Throwable)}) by a generic text, and logs the exception. Resolvers of Guillotine extensions can throw
+     * anything, with any detail in the message.
+     */
+    public static Instrumentation hideInternalErrors()
+    {
+        return HIDE_INTERNAL_ERRORS;
+    }
+
+    /**
+     * Exceptions whose message tells the caller what to change: invalid arguments and keys, dates, missing content, denied access,
+     * and a search the index refused.
+     */
+    static boolean isCallerError( final Throwable exception )
+    {
+        return exception instanceof IllegalArgumentException || exception instanceof DateTimeException ||
+            exception instanceof NotFoundException || exception instanceof ForbiddenAccessException ||
+            exception instanceof IllegalAccessException ||
+            exception != null && exception.getMessage() != null && SEARCH_FAILED.matcher( exception.getMessage() ).lookingAt();
     }
 
     /**
@@ -164,5 +205,38 @@ public final class GraphQlErrors
                 .toList() );
         }
         return entry;
+    }
+
+    private static final class HideInternalErrors
+        extends SimplePerformantInstrumentation
+    {
+        @Override
+        public CompletableFuture<ExecutionResult> instrumentExecutionResult( final ExecutionResult executionResult,
+                                                                             final InstrumentationExecutionParameters parameters,
+                                                                             final InstrumentationState state )
+        {
+            if ( executionResult.getErrors().stream().noneMatch( HideInternalErrors::internal ) )
+            {
+                return CompletableFuture.completedFuture( executionResult );
+            }
+            final List<GraphQLError> errors = executionResult.getErrors().stream().map( error -> {
+                if ( !internal( error ) )
+                {
+                    return error;
+                }
+                LOG.warn( "MCP query field {} failed", error.getPath(), ( (ExceptionWhileDataFetching) error ).getException() );
+                return GraphqlErrorBuilder.newError()
+                    .message( INTERNAL_ERROR )
+                    .path( error.getPath() )
+                    .locations( error.getLocations() )
+                    .build();
+            } ).toList();
+            return CompletableFuture.completedFuture( executionResult.transform( builder -> builder.errors( errors ) ) );
+        }
+
+        private static boolean internal( final GraphQLError error )
+        {
+            return error instanceof ExceptionWhileDataFetching fetching && !isCallerError( fetching.getException() );
+        }
     }
 }

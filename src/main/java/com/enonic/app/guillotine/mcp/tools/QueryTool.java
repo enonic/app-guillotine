@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import graphql.execution.instrumentation.ChainedInstrumentation;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.language.Document;
 import graphql.language.OperationDefinition;
@@ -18,6 +19,7 @@ import graphql.validation.GoodFaithIntrospectionExceeded;
 import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.graphql.SchemaProvider;
 import com.enonic.app.guillotine.mcp.McpTool;
+import com.enonic.app.guillotine.mcp.shape.GraphQlErrors;
 import com.enonic.app.guillotine.mcp.shape.McpJson;
 import com.enonic.app.guillotine.mcp.shape.McpResult;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranch;
@@ -78,7 +80,8 @@ public final class QueryTool
                            schemaProvider::getSchema );
         final ProjectBranch projectBranch = resolver.resolve( args );
 
-        final Instrumentation limits = QueryLimits.depthLimit( configService.getMcpMaxDepth() );
+        final Instrumentation limits =
+            new ChainedInstrumentation( QueryLimits.depthLimit( configService.getMcpMaxDepth() ), GraphQlErrors.hideInternalErrors() );
         final Map<String, Object> response;
         try
         {

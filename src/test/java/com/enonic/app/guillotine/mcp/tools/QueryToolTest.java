@@ -822,6 +822,35 @@ public class QueryToolTest
     }
 
     @Test
+    public void testUnknownResolverExceptionMessageIsHidden()
+    {
+        when( contentService.getById( ContentId.from( "a1" ) ) ).thenThrow(
+            new IllegalStateException( "Database password: hunter2 at db.internal:5432" ) );
+
+        final Map<String, Object> result = run( Map.of( "query", "{ guillotine { get(key: \"a1\") { _id } } }" ) );
+
+        assertEquals( true, result.get( "isError" ) );
+        assertEquals( "Query failed: guillotine.get: Internal error while resolving this field; see the server log.", text( result ) );
+        assertFalse( McpJson.write( result ).contains( "hunter2" ) );
+    }
+
+    @Test
+    public void testCallerErrorMessagesStayNextToData()
+    {
+        when( contentService.getById( ContentId.from( "a1" ) ) ).thenReturn( article( "a1", "First" ) );
+
+        final Map<String, Object> result = run( Map.of( "query", "{ guillotine { a: get(key: \"a1\") { _id } " +
+            "b: get(key: \"articles/a-2\") { _id } } }" ) );
+
+        assertNull( result.get( "isError" ) );
+        final List<?> errors = (List<?>) structured( roundTrip( result ) ).get( "errors" );
+        assertEquals( 1, errors.size() );
+        final Map<?, ?> error = (Map<?, ?>) errors.get( 0 );
+        assertEquals( List.of( "guillotine", "b" ), error.get( "path" ) );
+        assertTrue( String.valueOf( error.get( "message" ) ).startsWith( "UUID format incorrect" ), String.valueOf( error ) );
+    }
+
+    @Test
     public void testImageTransformationsFollowTheVirtualHostSetting()
     {
         when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );

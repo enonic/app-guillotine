@@ -1,5 +1,6 @@
 package com.enonic.app.guillotine.mcp.shape;
 
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -10,6 +11,10 @@ import org.junit.jupiter.api.Test;
 
 import graphql.GraphqlErrorBuilder;
 import graphql.execution.ResultPath;
+
+import com.enonic.xp.exception.ForbiddenAccessException;
+import com.enonic.xp.node.NodeNotFoundException;
+import com.enonic.xp.repository.IndexException;
 
 import static com.enonic.app.guillotine.mcp.McpResults.text;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -190,6 +195,21 @@ public class McpResultTest
                                Map.of( "message", INTERNAL ) ), errors );
         assertTrue( GraphQlErrors.sanitize( null ).isEmpty() );
         assertEquals( "a: x", GraphQlErrors.describe( List.of( Map.of( "message", "x", "path", List.of( "a" ) ) ) ) );
+    }
+
+    @Test
+    public void testOnlyCallerErrorClassesKeepTheirMessage()
+    {
+        assertTrue( GraphQlErrors.isCallerError( new IllegalArgumentException( "first must be positive" ) ) );
+        assertTrue( GraphQlErrors.isCallerError( new DateTimeParseException( "bad date", "x", 0 ) ) );
+        assertTrue( GraphQlErrors.isCallerError( new NodeNotFoundException( "Node /a not found" ) ) );
+        assertTrue( GraphQlErrors.isCallerError( new ForbiddenAccessException( null ) ) );
+        assertTrue( GraphQlErrors.isCallerError( new IllegalAccessException( "Unauthorized" ) ) );
+        assertTrue( GraphQlErrors.isCallerError( new IndexException( "Search request failed, query: {}" ) ) );
+        assertFalse( GraphQlErrors.isCallerError( new IndexException( "Index [search-myproject] is closed" ) ) );
+        assertFalse( GraphQlErrors.isCallerError( new IllegalStateException( "secret" ) ) );
+        assertFalse( GraphQlErrors.isCallerError( new RuntimeException( new IllegalArgumentException( "wrapped" ) ) ) );
+        assertFalse( GraphQlErrors.isCallerError( null ) );
     }
 
     @Test
