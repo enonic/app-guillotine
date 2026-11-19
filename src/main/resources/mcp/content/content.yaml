@@ -1,0 +1,93 @@
+kind: MCP
+tools:
+  - name: list-projects
+    title: List content projects
+    description: >-
+      Lists the content projects visible to the caller, with the project and branch other tools use by default and who the
+      caller is (anonymous callers read only master). Call this first.
+    inputSchema:
+      type: object
+      properties: {}
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              displayName:
+                type: string
+              description:
+                type: string
+              language:
+                type: string
+              isDefault:
+                type: boolean
+            required: [name, displayName, isDefault]
+            additionalProperties: false
+        defaultProject:
+          type: string
+        defaultBranch:
+          type: string
+          enum: [draft, master]
+        caller:
+          type: object
+          properties:
+            anonymous:
+              type: boolean
+            key:
+              type: string
+            displayName:
+              type: string
+          required: [anonymous]
+          additionalProperties: false
+        truncated:
+          type: boolean
+        hint:
+          type: string
+      required: [projects, defaultBranch, caller]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+  - name: query
+    title: Run a GraphQL query
+    description: >-
+      Fallback for reads that search, get and describe-type do not cover: runs a read-only GraphQL query against the Guillotine
+      API. Start from the describe-type example query. Mutations are rejected; depth, complexity and size are limited. Null fields
+      stay null (get of a missing key gives null); null list items are dropped. Fields added by other applications' extensions
+      run their code.
+    inputSchema:
+      type: object
+      properties:
+        query:
+          type: string
+          description: >-
+            GraphQL document with query operations only. Do not pass project or branch to the guillotine field (use the tool
+            arguments); first is limited to 100, paginate with after.
+        variables:
+          type: object
+          description: Values of the document's variables, keyed by name without the $.
+        operationName:
+          type: string
+          description: Operation to run when the document defines several.
+        project:
+          type: string
+          description: Project from list-projects; defaults to defaultProject.
+        branch:
+          type: string
+          enum: [draft, master]
+          description: draft (latest, signed-in users with a project role) or master (published); defaults to defaultBranch.
+      required: [query]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
