@@ -302,7 +302,7 @@ public class ResultBudgetTest
     {
         final Map<String, Object> args = Map.of( "query", "news", "count", 30 );
         final ProjectBranch target = new ProjectBranch( "blog", "master" );
-        final Page page = Cursors.page( args, target, "only the total" );
+        final Page page = Cursors.page( "search", args, target, "only the total" );
         final List<Object> hits = new ArrayList<>();
         for ( int i = 0; i < 30; i++ )
         {
@@ -320,7 +320,7 @@ public class ResultBudgetTest
         assertTrue( kept < 30 );
         final Map<String, Object> nextArgs = new LinkedHashMap<>( args );
         nextArgs.put( "cursor", result.get( "nextCursor" ) );
-        assertEquals( kept, Cursors.page( nextArgs, target, "only the total" ).offset() );
+        assertEquals( kept, Cursors.page( "search", nextArgs, target, "only the total" ).offset() );
     }
 
     @Test

@@ -22,6 +22,8 @@ public class CursorsTest
 
     private static final String ZERO_COUNT = "only the total";
 
+    private static final String TOOL = "search";
+
     private static final Map<String, Object> QUERY = Map.of( "project", "blog", "branch", "master", "query", "news" );
 
     @Test
@@ -32,7 +34,7 @@ public class CursorsTest
         assertEquals( 50, count( 50 ) );
         assertEquals( 7, count( 7L ) );
         assertEquals( 7, count( 7.0 ) );
-        assertEquals( 5, Cursors.page( ARGS, TARGET, 5, 1 ).count() );
+        assertEquals( 5, Cursors.page( TOOL, ARGS, TARGET, 5, 1 ).count() );
     }
 
     @Test
@@ -45,8 +47,8 @@ public class CursorsTest
                               "the total.", error.userMessage() );
         }
         assertEquals( "Invalid count: 0. Use an integer from 1 to 50 (default 5).", assertThrows( ToolError.class, () -> Cursors.page(
-            with( ARGS, "count", 0 ), TARGET, 5, 1 ) ).userMessage() );
-        assertThrows( IllegalArgumentException.class, () -> Cursors.page( ARGS, TARGET, 10, 0 ) );
+            TOOL, with( ARGS, "count", 0 ), TARGET, 5, 1 ) ).userMessage() );
+        assertThrows( IllegalArgumentException.class, () -> Cursors.page( TOOL, ARGS, TARGET, 10, 0 ) );
     }
 
     @Test
@@ -56,7 +58,7 @@ public class CursorsTest
 
         assertEquals( 0, page.offset() );
         assertEquals( 10, page.count() );
-        assertEquals( Cursors.queryHash( QUERY ), page.queryHash() );
+        assertEquals( Cursors.queryHash( TOOL, QUERY ), page.queryHash() );
         assertEquals( 0, page( with( ARGS, "cursor", "" ) ).offset() );
     }
 
@@ -112,9 +114,12 @@ public class CursorsTest
     public void testCursorFromDifferentQueryIsRejected()
     {
         final String foreign = page( Map.of( "query", "sport" ) ).nextCursor( 100, 10 );
-        final String otherBranch = Cursors.page( ARGS, new ProjectBranch( "blog", "draft" ), ZERO_COUNT ).nextCursor( 100, 10 );
+        final String otherBranch = Cursors.page( TOOL, ARGS, new ProjectBranch( "blog", "draft" ), ZERO_COUNT ).nextCursor( 100, 10 );
 
         assertThrows( ToolError.class, () -> page( with( ARGS, "cursor", otherBranch ) ) );
+        final String otherTool = Cursors.page( "check-links", ARGS, TARGET, ZERO_COUNT ).nextCursor( 100, 10 );
+        assertTrue( assertThrows( ToolError.class, () -> page( with( ARGS, "cursor", otherTool ) ) ).userMessage()
+                        .contains( "cursor does not match this query" ) );
         final ToolError error = assertThrows( ToolError.class, () -> page( with( ARGS, "cursor", foreign ) ) );
         assertTrue( error.userMessage().contains( "cursor does not match this query; repeat the call without cursor" ),
                     error.userMessage() );
@@ -154,17 +159,18 @@ public class CursorsTest
         reordered.put( "cursor", "abc" );
         reordered.put( "sort", null );
 
-        assertEquals( Cursors.queryHash( QUERY ), Cursors.queryHash( reordered ) );
-        assertEquals( 16, Cursors.queryHash( QUERY ).length() );
-        assertNotEquals( Cursors.queryHash( QUERY ), Cursors.queryHash( with( QUERY, "query", "sport" ) ) );
-        assertEquals( Cursors.queryHash( Map.of( "filter", Map.of( "a", 1, "b", 2 ) ) ),
-                      Cursors.queryHash( Map.of( "filter", new LinkedHashMap<>( Map.of( "b", 2, "a", 1 ) ) ) ) );
+        assertEquals( Cursors.queryHash( TOOL, QUERY ), Cursors.queryHash( TOOL, reordered ) );
+        assertEquals( 16, Cursors.queryHash( TOOL, QUERY ).length() );
+        assertNotEquals( Cursors.queryHash( TOOL, QUERY ), Cursors.queryHash( "check-links", QUERY ) );
+        assertNotEquals( Cursors.queryHash( TOOL, QUERY ), Cursors.queryHash( TOOL, with( QUERY, "query", "sport" ) ) );
+        assertEquals( Cursors.queryHash( TOOL, Map.of( "filter", Map.of( "a", 1, "b", 2 ) ) ),
+                      Cursors.queryHash( TOOL, Map.of( "filter", new LinkedHashMap<>( Map.of( "b", 2, "a", 1 ) ) ) ) );
     }
 
     @Test
     public void testCursorIsUrlSafe()
     {
-        final String cursor = Cursors.encode( 123456, Cursors.queryHash( QUERY ) );
+        final String cursor = Cursors.encode( 123456, Cursors.queryHash( TOOL, QUERY ) );
 
         assertTrue( cursor.matches( "[A-Za-z0-9_-]+" ), cursor );
     }
@@ -172,7 +178,7 @@ public class CursorsTest
     @Test
     public void testPagePastTheSearchWindowIsRejected()
     {
-        final String deep = Cursors.encode( Cursors.MAX_WINDOW - 5, Cursors.queryHash( QUERY ) );
+        final String deep = Cursors.encode( Cursors.MAX_WINDOW - 5, Cursors.queryHash( TOOL, QUERY ) );
 
         assertEquals( Cursors.MAX_WINDOW - 5, page( with( with( ARGS, "count", 5 ), "cursor", deep ) ).offset() );
         final ToolError error =
@@ -183,7 +189,7 @@ public class CursorsTest
 
     private static Page page( final Map<String, Object> args )
     {
-        return Cursors.page( args, TARGET, ZERO_COUNT );
+        return Cursors.page( TOOL, args, TARGET, ZERO_COUNT );
     }
 
     private static int count( final Object count )

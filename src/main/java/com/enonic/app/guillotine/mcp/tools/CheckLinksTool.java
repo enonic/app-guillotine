@@ -79,7 +79,7 @@ public final class CheckLinksTool
             .queryFilter( ExistsFilter.create().fieldName( ContentLinks.REFERENCES ).build() );
 
         final ProjectBranch target = resolver.resolve( args );
-        final Page page = Cursors.page( args, target, DEFAULT_COUNT, 1 );
+        final Page page = Cursors.page( name(), args, target, DEFAULT_COUNT, 1 );
         if ( scope != null && links.get( target, scope ) == null )
         {
             throw new ToolError( "Path " + McpJson.write( scope ) + " not found or not readable in project '" + target.project() +

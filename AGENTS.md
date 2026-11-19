@@ -31,7 +31,7 @@ NODE_OPTIONS=--max-old-space-size=8192 ./gradlew test --tests 'com.enonic.app.gu
 - Every in-process GraphQL execution passes `GraphQlErrors.hideInternalErrors()`: a field that fails with an exception other than a caller error (`GraphQlErrors.isCallerError`) gets a generic message, and the exception goes to the log.
 - Every result whose size depends on data goes through a `ResultBudget` (`mcp.maxResultChars`). Paged results recompute `nextCursor` when items are dropped.
 - Except for the `query` tool's own document, user input reaches GraphQL only as variables of constant documents.
-- Structured results must not contain `null` inside arrays: XP drops such items.
+- Structured results must not contain `null` inside arrays: XP drops such items. The one exception is `query` data, which stays as GraphQL returned it (documented under Known limitations).
 
 ## End-to-end checks
 

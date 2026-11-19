@@ -30,34 +30,36 @@ public final class Cursors
     }
 
     /**
-     * Reads {@code count} and {@code cursor} from the tool arguments. All other arguments, with {@code target} in place of the
-     * project and branch passed, form the query the cursor is bound to. Rejects a page that reaches past {@link #MAX_WINDOW}.
-     * {@code count} may be 0, which {@code zeroCountReturns} describes for the caller, e.g. "only the total".
+     * Reads {@code count} and {@code cursor} from the arguments of {@code tool}. The tool and all other arguments, with
+     * {@code target} in place of the project and branch passed, form the query the cursor is bound to. Rejects a page that reaches
+     * past {@link #MAX_WINDOW}. {@code count} may be 0, which {@code zeroCountReturns} describes for the caller, e.g. "only the total".
      */
-    public static Page page( final Map<String, Object> args, final ProjectBranch target, final String zeroCountReturns )
+    public static Page page( final String tool, final Map<String, Object> args, final ProjectBranch target,
+                             final String zeroCountReturns )
     {
-        return page( args, target, DEFAULT_COUNT, 0, zeroCountReturns );
+        return page( tool, args, target, DEFAULT_COUNT, 0, zeroCountReturns );
     }
 
     /**
-     * Same as {@link #page(Map, ProjectBranch, String)} with {@code defaultCount} items per page when {@code count} is not passed,
-     * and at least {@code minCount}, which must be positive, when it is.
+     * Same as {@link #page(String, Map, ProjectBranch, String)} with {@code defaultCount} items per page when {@code count} is not
+     * passed, and at least {@code minCount}, which must be positive, when it is.
      */
-    public static Page page( final Map<String, Object> args, final ProjectBranch target, final int defaultCount, final int minCount )
+    public static Page page( final String tool, final Map<String, Object> args, final ProjectBranch target, final int defaultCount,
+                             final int minCount )
     {
         if ( minCount < 1 )
         {
             throw new IllegalArgumentException( "minCount must be positive; pass what count 0 returns instead" );
         }
-        return page( args, target, defaultCount, minCount, null );
+        return page( tool, args, target, defaultCount, minCount, null );
     }
 
-    private static Page page( final Map<String, Object> args, final ProjectBranch target, final int defaultCount, final int minCount,
-                              final String zeroCountReturns )
+    private static Page page( final String tool, final Map<String, Object> args, final ProjectBranch target, final int defaultCount,
+                              final int minCount, final String zeroCountReturns )
     {
         final Map<String, Object> query = target.putInto( new LinkedHashMap<>( args ) );
         final int count = count( query.get( COUNT_ARG ), defaultCount, minCount, zeroCountReturns );
-        final String queryHash = queryHash( query );
+        final String queryHash = queryHash( tool, query );
         final Page page = new Page( decode( query.get( CURSOR_ARG ), queryHash ), count, queryHash );
         if ( (long) page.offset() + page.count() > MAX_WINDOW )
         {
@@ -83,15 +85,15 @@ public final class Cursors
         return count;
     }
 
-    public static String queryHash( final Map<String, ?> args )
+    public static String queryHash( final String tool, final Map<String, ?> args )
     {
         final Map<String, Object> query = new LinkedHashMap<>( Nulls.clean( args ) );
         query.remove( CURSOR_ARG );
         query.remove( COUNT_ARG );
         try
         {
-            final byte[] digest =
-                MessageDigest.getInstance( "SHA-256" ).digest( McpJson.writeSorted( query ).getBytes( StandardCharsets.UTF_8 ) );
+            final byte[] digest = MessageDigest.getInstance( "SHA-256" )
+                .digest( ( tool + '\n' + McpJson.writeSorted( query ) ).getBytes( StandardCharsets.UTF_8 ) );
             return HexFormat.of().formatHex( digest, 0, 8 );
         }
         catch ( NoSuchAlgorithmException e )

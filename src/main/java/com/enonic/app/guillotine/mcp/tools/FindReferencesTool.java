@@ -113,7 +113,7 @@ public final class FindReferencesTool
         final List<String> types = ContentLinks.types( args.get( "types" ), unusedMedia );
 
         final ProjectBranch target = resolver.resolve( args );
-        final Page page = Cursors.page( args, target, "only the total" );
+        final Page page = Cursors.page( name(), args, target, "only the total" );
 
         return unusedMedia ? unused( target, types, page ) : references( target, key, direction, types, page );
     }

@@ -499,10 +499,10 @@ public class ReferenceToolsTest
         folder( "landings" );
         final Map<String, Object> inbound = args( "key", "img-1", "direction", "inbound" );
         final String inboundCursor =
-            Cursors.encode( Integer.MAX_VALUE, Cursors.queryHash( withTarget( inbound ) ) );
+            Cursors.encode( Integer.MAX_VALUE, Cursors.queryHash( "find-references", withTarget( inbound ) ) );
         inbound.put( "cursor", inboundCursor );
         final Map<String, Object> links = args( "path", "/landings" );
-        links.put( "cursor", Cursors.encode( 9995, Cursors.queryHash( withTarget( links ) ) ) );
+        links.put( "cursor", Cursors.encode( 9995, Cursors.queryHash( "check-links", withTarget( links ) ) ) );
 
         queries.clear();
         final String inboundError = error( inbound );

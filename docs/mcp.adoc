@@ -442,7 +442,7 @@ JSON is never cut in the middle. `get` without `fields` leaves out large data fi
 [#cursors]
 === Paging with cursors
 
-`search`, `find-references` (inbound and unused media) and `check-links` return pages. While more items are left, the result has `nextCursor`. To get the next page, repeat the call with the same arguments and `cursor` set to that value. `count` may change between pages; any other change makes the cursor invalid.
+`search`, `find-references` (inbound and unused media) and `check-links` return pages. While more items are left, the result has `nextCursor`. To get the next page, repeat the call to the same tool with the same arguments and `cursor` set to that value. `count` may change between pages; any other change, or another tool, makes the cursor invalid.
 
 Cursors are positions in the result, not snapshots. If content changes between calls, items can shift between pages. A listing can page through at most 10000 items; narrow it with `path`, `types` or `filters` to reach the rest.
 
@@ -474,7 +474,7 @@ A failed call returns a result with `isError: true` and one text message, so the
 |`Access denied: the current user cannot read branch 'draft'` |Anonymous callers and users without a project role read `master` only.
 |`mine requires an authenticated user` |`mine` was passed by an anonymous caller.
 |`Content "…" not found in project` |No content at that id or path on the branch. `master` holds only published content.
-|`Invalid cursor` |The cursor belongs to other arguments, is past the end of the results, or would page beyond 10000 items. Repeat the call without `cursor`.
+|`Invalid cursor` |The cursor belongs to other arguments or another tool, is past the end of the results, or would page beyond 10000 items. Repeat the call without `cursor`.
 |`Invalid …` |An argument has the wrong form; the message names the argument and the accepted values.
 |`Query failed` |The GraphQL document returned no data, for example because of an unknown field. Call `describe-type` for the fields of a type.
 |`Query complexity …` |The `query` document exceeds `mcp.maxComplexity`. Select fewer fields, pass a smaller `first` (also on repeated data fields), or ask for fewer aggregation buckets.

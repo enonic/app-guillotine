@@ -839,7 +839,7 @@ public class ContentToolsIntegrationTest
         final Map<String, Object> resolved = new LinkedHashMap<>( args );
         resolved.put( "project", "myproject" );
         resolved.put( "branch", "draft" );
-        args.put( "cursor", Cursors.encode( 9995, Cursors.queryHash( resolved ) ) );
+        args.put( "cursor", Cursors.encode( 9995, Cursors.queryHash( "search", resolved ) ) );
 
         final ToolError error = assertThrows( ToolError.class, () -> as( ALICE, () -> search.execute( args ) ) );
 

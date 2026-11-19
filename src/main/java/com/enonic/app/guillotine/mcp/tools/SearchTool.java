@@ -79,7 +79,7 @@ public final class SearchTool
     {
         final ProjectBranch target = resolver.resolve( args );
 
-        final Page page = Cursors.page( args, target, "only total and aggregations" );
+        final Page page = Cursors.page( name(), args, target, "only total and aggregations" );
 
         final boolean withPrincipals = ContentGraphQl.canReadPrincipals();
         final SearchQuery search = SearchQuery.from( args, currentUserKey(), withPrincipals );
