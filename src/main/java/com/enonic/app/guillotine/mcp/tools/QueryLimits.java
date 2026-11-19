@@ -61,9 +61,16 @@ final class QueryLimits
     static final int MAX_FIRST = 100;
 
     /**
-     * What Guillotine's list fields (queryDsl, children, their connections and others) return when {@code first} is not passed.
+     * What Guillotine's paged content lists (queryDsl, getChildren, children, their connections) return when {@code first} is not
+     * passed. They are the fields that take {@code sort} next to {@code first}.
      */
     static final int DEFAULT_FIRST = 10;
+
+    /**
+     * What a field that takes {@code first} but not {@code sort} counts without {@code first}: a repeated form item returns every
+     * occurrence then.
+     */
+    static final int UNPAGED_FIRST = MAX_FIRST;
 
     private static final String GUILLOTINE_FIELD = "guillotine";
 
@@ -72,6 +79,16 @@ final class QueryLimits
     private static final String SORT_ARG = "sort";
 
     private static final String SIZE_FIELD = "size";
+
+    private static final String AGGREGATIONS_ARG = "aggregations";
+
+    private static final String SUB_AGGREGATIONS_FIELD = "subAggregations";
+
+    private static final Set<String> RANGE_AGGREGATIONS = Set.of( "range", "dateRange", "geoDistance" );
+
+    private static final String TERMS_AGGREGATION = "terms";
+
+    private static final String RANGES_FIELD = "ranges";
 
     private static final String DATE_HISTOGRAM_FIELD = "dateHistogram";
 
@@ -137,8 +154,9 @@ final class QueryLimits
      * {@code dateHistogram} without {@code minDocCount}, principal fields (creator,
      * modifier, owner, permissions) in filters, aggregations, highlights and sorts unless {@code principalsAllowed}, and an
      * {@code operation} whose complexity exceeds {@code maxComplexity}. Variables resolve with the defaults of {@code operation}.
-     * A field costs one plus the cost of its selection multiplied by its {@code first} argument; a field of {@code schema} that takes
-     * {@code first} but is not given one counts with the argument's default, else {@link #DEFAULT_FIRST}. Every fragment spread counts.
+     * A field costs one plus the cost of its aggregations plus the cost of its selection multiplied by its {@code first} argument; a
+     * field of {@code schema} that takes {@code first} but is not given one counts with the argument's default, else
+     * {@link #DEFAULT_FIRST} when it also takes {@code sort}, else {@link #UNPAGED_FIRST}. Every fragment spread counts.
      * The schema is only fetched once the arguments are known to be acceptable.
      */
     static void check( final Document document, final OperationDefinition operation, final Map<String, Object> variables,
@@ -153,7 +171,8 @@ final class QueryLimits
         {
             throw new ToolError( "Query complexity " + ( complexity == Long.MAX_VALUE ? "overflow" : complexity ) +
                                      " exceeds the limit of " + max + " (mcp.maxComplexity); every field counts, multiplied by the " +
-                                     "first argument of the lists around it.",
+                                     "first argument of the lists around it (" + UNPAGED_FIRST + " for a repeated data field without " +
+                                     "first), and every aggregation bucket counts.",
                                  "Select fewer fields, use a smaller first and paginate, or split the query into several calls." );
         }
     }
@@ -323,7 +342,8 @@ final class QueryLimits
                 parent instanceof GraphQLFieldsContainer container ? container.getFieldDefinition( field.getName() ) : null;
             final GraphQLCompositeType type = definition != null &&
                 GraphQLTypeUtil.unwrapAll( definition.getType() ) instanceof GraphQLCompositeType composite ? composite : null;
-            return add( 1, multiply( cost( field.getSelectionSet(), type ), multiplier( field, definition ) ) );
+            return add( add( 1, aggregationCost( field ) ),
+                        multiply( cost( field.getSelectionSet(), type ), multiplier( field, definition ) ) );
         }
         if ( selection instanceof InlineFragment inlineFragment )
         {
@@ -370,7 +390,70 @@ final class QueryLimits
         final Object defaultValue = declared.isLiteral() && declared.getValue() instanceof IntValue intValue
             ? intValue.getValue()
             : declared.isExternal() ? declared.getValue() : null;
-        return defaultValue instanceof Number number ? Math.max( 1, number.longValue() ) : DEFAULT_FIRST;
+        if ( defaultValue instanceof Number number )
+        {
+            return Math.max( 1, number.longValue() );
+        }
+        return definition.getArgument( SORT_ARG ) != null ? DEFAULT_FIRST : UNPAGED_FIRST;
+    }
+
+    private long aggregationCost( final Field field )
+    {
+        long total = 0;
+        for ( final Argument argument : field.getArguments() )
+        {
+            if ( AGGREGATIONS_ARG.equals( argument.getName() ) )
+            {
+                total = add( total, aggregationCost( literal( argument.getValue() ) ) );
+            }
+        }
+        return total;
+    }
+
+    /**
+     * Each aggregation costs its number of buckets, each bucket one plus the cost of the sub-aggregations. Terms count their
+     * {@code size} (default {@link SearchQuery#DEFAULT_BUCKETS}), ranges their ranges, a date histogram
+     * {@link SearchQuery#MAX_BUCKETS}, and single-value aggregations one.
+     */
+    private static long aggregationCost( final Object aggregations )
+    {
+        if ( aggregations instanceof Map<?, ?> single )
+        {
+            return aggregationCost( List.of( single ) );
+        }
+        long total = 0;
+        if ( aggregations instanceof List<?> list )
+        {
+            for ( final Object item : list )
+            {
+                if ( item instanceof Map<?, ?> aggregation )
+                {
+                    total = add( total,
+                                 multiply( add( 1, aggregationCost( aggregation.get( SUB_AGGREGATIONS_FIELD ) ) ), buckets( aggregation ) ) );
+                }
+            }
+        }
+        return total;
+    }
+
+    private static long buckets( final Map<?, ?> aggregation )
+    {
+        if ( aggregation.get( TERMS_AGGREGATION ) instanceof Map<?, ?> terms )
+        {
+            return terms.get( SIZE_FIELD ) instanceof Number size ? Math.max( 1, size.longValue() ) : SearchQuery.DEFAULT_BUCKETS;
+        }
+        if ( aggregation.get( DATE_HISTOGRAM_FIELD ) != null )
+        {
+            return SearchQuery.MAX_BUCKETS;
+        }
+        for ( final String name : RANGE_AGGREGATIONS )
+        {
+            if ( aggregation.get( name ) instanceof Map<?, ?> range )
+            {
+                return range.get( RANGES_FIELD ) instanceof List<?> ranges ? Math.max( 1, ranges.size() ) : 1;
+            }
+        }
+        return 1;
     }
 
     private GraphQLCompositeType compositeType( final TypeName name )

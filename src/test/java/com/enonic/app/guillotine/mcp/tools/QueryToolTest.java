@@ -35,6 +35,10 @@ import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.content.GetContentByIdsParams;
+import com.enonic.xp.form.Input;
+import com.enonic.xp.inputtype.InputTypeName;
+import com.enonic.xp.schema.content.ContentType;
+import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.security.IdProviderKey;
@@ -70,6 +74,25 @@ public class QueryToolTest
         .build();
 
     private static final String DEEP_QUERY = "{ guillotine { get(key: \"a1\") { parent { parent { parent { _id } } } } } }";
+
+    @Override
+    protected List<ContentType> getCustomContentTypes()
+    {
+        final List<ContentType> result = new ArrayList<>( super.getCustomContentTypes() );
+        result.add( ContentType.create()
+                        .superType( ContentTypeName.structured() )
+                        .name( DATASET_APP + ":collection" )
+                        .addFormItem( Input.create()
+                                          .name( "related" )
+                                          .label( "related" )
+                                          .inputType( InputTypeName.CONTENT_SELECTOR )
+                                          .occurrences( 0, 0 )
+                                          .build() )
+                        .addFormItem(
+                            Input.create().name( "tags" ).label( "tags" ).inputType( InputTypeName.TEXT_LINE ).occurrences( 0, 0 ).build() )
+                        .build() );
+        return result;
+    }
 
     private QueryTool tool()
     {
@@ -159,8 +182,9 @@ public class QueryToolTest
         final ToolError error = assertThrows( ToolError.class, () -> run( Map.of( "query", "{ guillotine { " + aliases + " } }" ) ) );
 
         assertEquals( "Query complexity 21 exceeds the limit of 10 (mcp.maxComplexity); every field counts, multiplied by the first " +
-                          "argument of the lists around it. Select fewer fields, use a smaller first and paginate, or split the query " +
-                          "into several calls.", error.userMessage() );
+                          "argument of the lists around it (100 for a repeated data field without first), and every aggregation " +
+                          "bucket counts. Select fewer fields, use a smaller first and paginate, or split the query into several " +
+                          "calls.", error.userMessage() );
         verifyNoInteractions( contentService, resolver );
     }
 
@@ -798,30 +822,6 @@ public class QueryToolTest
     }
 
     @Test
-    public void testAllFieldsFailingIsAnError()
-    {
-        final Map<String, Object> result =
-            run( Map.of( "query", "{ guillotine { queryDsl(query: {matchAll: {}}, first: -5) { _id } } }" ) );
-
-        assertEquals( true, result.get( "isError" ) );
-        assertTrue( text( result ).startsWith( "Query failed: guillotine.queryDsl: " ), text( result ) );
-    }
-
-    @Test
-    public void testAccessDeniedWithoutDataGivesTheBranchHint()
-    {
-        when( contentService.find( any( ContentQuery.class ) ) ).thenThrow( new ForbiddenAccessException( null ) );
-
-        final ToolError error = assertThrows( ToolError.class, () -> ContextBuilder.create()
-            .authInfo( AuthenticationInfo.unAuthenticated() )
-            .build()
-            .callWith( () -> tool().execute( Map.of( "query", "{ guillotine { queryDsl(query: {matchAll: {}}) { _id } } }" ) ) ) );
-
-        assertEquals( "Access denied: the current user cannot read branch 'draft' of project 'myproject'. Anonymous callers can read " +
-                          "only published content: omit branch or pass \"master\".", error.userMessage() );
-    }
-
-    @Test
     public void testUnknownResolverExceptionMessageIsHidden()
     {
         when( contentService.getById( ContentId.from( "a1" ) ) ).thenThrow(
@@ -848,6 +848,30 @@ public class QueryToolTest
         final Map<?, ?> error = (Map<?, ?>) errors.get( 0 );
         assertEquals( List.of( "guillotine", "b" ), error.get( "path" ) );
         assertTrue( String.valueOf( error.get( "message" ) ).startsWith( "UUID format incorrect" ), String.valueOf( error ) );
+    }
+
+    @Test
+    public void testAllFieldsFailingIsAnError()
+    {
+        final Map<String, Object> result =
+            run( Map.of( "query", "{ guillotine { queryDsl(query: {matchAll: {}}, first: -5) { _id } } }" ) );
+
+        assertEquals( true, result.get( "isError" ) );
+        assertTrue( text( result ).startsWith( "Query failed: guillotine.queryDsl: " ), text( result ) );
+    }
+
+    @Test
+    public void testAccessDeniedWithoutDataGivesTheBranchHint()
+    {
+        when( contentService.find( any( ContentQuery.class ) ) ).thenThrow( new ForbiddenAccessException( null ) );
+
+        final ToolError error = assertThrows( ToolError.class, () -> ContextBuilder.create()
+            .authInfo( AuthenticationInfo.unAuthenticated() )
+            .build()
+            .callWith( () -> tool().execute( Map.of( "query", "{ guillotine { queryDsl(query: {matchAll: {}}) { _id } } }" ) ) ) );
+
+        assertEquals( "Access denied: the current user cannot read branch 'draft' of project 'myproject'. Anonymous callers can read " +
+                          "only published content: omit branch or pass \"master\".", error.userMessage() );
     }
 
     @Test
@@ -898,8 +922,59 @@ public class QueryToolTest
                             .startsWith( "Query complexity 5 exceeds the limit of 4" ) );
             assertDoesNotThrow( () -> checkLimits( "{ guillotine { items(first: 2) { _id } } }", schema, 4 ) );
         }
-        assertTrue( assertThrows( ToolError.class, () -> checkLimits( query, schemaWithItems( first -> {
-        } ), 11 ) ).userMessage().startsWith( "Query complexity 12 exceeds the limit of 11" ) );
+        final GraphQLSchema withoutDefault = schemaWithItems( first -> {
+        } );
+        assertTrue( assertThrows( ToolError.class, () -> checkLimits( "{ guillotine { pagedItems { _id } } }", withoutDefault, 11 ) )
+                        .userMessage()
+                        .startsWith( "Query complexity 12 exceeds the limit of 11" ) );
+        assertDoesNotThrow( () -> checkLimits( query, withoutDefault, 102 ) );
+        assertTrue( assertThrows( ToolError.class, () -> checkLimits( query, withoutDefault, 101 ) ).userMessage()
+                        .startsWith( "Query complexity 102 exceeds the limit of 101" ) );
+    }
+
+    @Test
+    public void testRepeatedDataFieldsWithoutFirstCountEveryOccurrence()
+    {
+        final String related = "{ guillotine { get(key: \"c1\") { ... on com_example_mcpdataset_Collection { data { " +
+            "related%s { _id displayName } tags } } } } }";
+        final GraphQLSchema schema = schemaProvider.getSchema();
+
+        assertDoesNotThrow( () -> checkLimits( related.formatted( "" ), schema, 205 ) );
+        assertTrue( assertThrows( ToolError.class, () -> checkLimits( related.formatted( "" ), schema, 204 ) ).userMessage()
+                        .startsWith( "Query complexity 205 exceeds the limit of 204" ) );
+        assertDoesNotThrow( () -> checkLimits( related.formatted( "(first: 5)" ), schema, 15 ) );
+        assertTrue( assertThrows( ToolError.class, () -> checkLimits( related.formatted( "(first: 5)" ), schema, 14 ) ).userMessage()
+                        .startsWith( "Query complexity 15 exceeds the limit of 14" ) );
+    }
+
+    @Test
+    public void testAggregationsCountTheirBuckets()
+    {
+        final String query = "query ($a: [AggregationInput]) { guillotine { queryDslConnection(query: {matchAll: {}}, first: 0, " +
+            "aggregations: $a) { totalCount } } }";
+        final GraphQLSchema schema = schemaProvider.getSchema();
+        final Map<String, Object> nested = Map.of( "name", "authors", "terms", Map.of( "field", "data.author", "size", 100 ),
+                                                   "subAggregations", List.of(
+                Map.of( "name", "tags", "terms", Map.of( "field", "data.tags", "size", 100 ) ) ) );
+
+        final ToolError error = assertThrows( ToolError.class, () -> checkLimits( query, schema, 500, Map.of( "a", List.of( nested ) ) ) );
+        assertTrue( error.userMessage().startsWith( "Query complexity 10103 exceeds the limit of 500" ), error.userMessage() );
+
+        final List<Map<String, Object>> mixed = List.of(
+            Map.of( "name", "authors", "terms", Map.of( "field", "data.author" ), "subAggregations",
+                    List.of( Map.of( "name", "s", "stats", Map.of( "field", "data.score" ) ) ) ),
+            Map.of( "name", "months", "dateHistogram", Map.of( "field", "modifiedTime", "interval", "1M", "minDocCount", 1 ) ),
+            Map.of( "name", "ranges", "range", Map.of( "field", "data.score", "ranges",
+                                                       List.of( Map.of( "to", 1 ), Map.of( "from", 1, "to", 5 ), Map.of( "from", 5 ) ) ) ) );
+        assertDoesNotThrow( () -> checkLimits( query, schema, 3 + 20 + 100 + 3, Map.of( "a", mixed ) ) );
+        assertTrue( assertThrows( ToolError.class, () -> checkLimits( query, schema, 3 + 20 + 100 + 2, Map.of( "a", mixed ) ) )
+                        .userMessage()
+                        .startsWith( "Query complexity 126 exceeds the limit of 125" ) );
+
+        final String literal = "{ guillotine { queryDslConnection(query: {matchAll: {}}, first: 0, aggregations: {name: \"t\", " +
+            "terms: {field: \"type\", size: 40}}) { totalCount } } }";
+        assertTrue( assertThrows( ToolError.class, () -> checkLimits( literal, schema, 42 ) ).userMessage()
+                        .startsWith( "Query complexity 43 exceeds the limit of 42" ) );
     }
 
     private void withoutChildren()
@@ -920,6 +995,11 @@ public class QueryToolTest
         final GraphQLObjectType guillotine = GraphQLObjectType.newObject()
             .name( "Guillotine" )
             .field( GraphQLFieldDefinition.newFieldDefinition().name( "items" ).argument( first ).type( GraphQLList.list( item ) ) )
+            .field( GraphQLFieldDefinition.newFieldDefinition()
+                        .name( "pagedItems" )
+                        .argument( first )
+                        .argument( GraphQLArgument.newArgument().name( "sort" ).type( Scalars.GraphQLString ) )
+                        .type( GraphQLList.list( item ) ) )
             .build();
         return GraphQLSchema.newSchema()
             .query( GraphQLObjectType.newObject()
@@ -930,9 +1010,15 @@ public class QueryToolTest
 
     private static void checkLimits( final String query, final GraphQLSchema schema, final int maxComplexity )
     {
+        checkLimits( query, schema, maxComplexity, Map.of() );
+    }
+
+    private static void checkLimits( final String query, final GraphQLSchema schema, final int maxComplexity,
+                                     final Map<String, Object> variables )
+    {
         final Document document = new Parser().parseDocument( query );
-        QueryLimits.check( document, document.getDefinitionsOfType( OperationDefinition.class ).get( 0 ), Map.of(), maxComplexity, true,
-                           () -> schema );
+        QueryLimits.check( document, document.getDefinitionsOfType( OperationDefinition.class ).get( 0 ), variables, maxComplexity,
+                           true, () -> schema );
     }
 
     @Test

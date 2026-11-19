@@ -291,7 +291,7 @@ Returns:: `data`, as GraphQL returns it, and `errors` (each `message` and `path`
 The tool rejects mutations and subscriptions, and documents that exceed these limits:
 
 * `first` at most 100, aggregation `size` at most 100, and `offset` or `after` plus `first` at most 10000.
-* Nesting depth up to `mcp.maxDepth` and complexity up to `mcp.maxComplexity`. Complexity counts every selected field, multiplied by the `first` argument of the lists around it; a list field without `first` counts with the argument's declared default, or 10 when it has none.
+* Nesting depth up to `mcp.maxDepth` and complexity up to `mcp.maxComplexity`. Complexity counts every selected field, multiplied by the `first` argument of the lists around it. Without `first`, a field counts with the argument's declared default; Guillotine's content lists (`queryDsl`, `getChildren`, `children` and their connections) count 10, and a repeated data field, which then returns every occurrence, counts 100. Aggregations add their buckets: `size` of a `terms` aggregation (default 10), the number of ranges, or 100 for a `dateHistogram`, each bucket multiplied by the cost of its `subAggregations`.
 * Up to `maxQueryTokens` tokens.
 
 Fields that other applications add through <<extending#, schema extensions>> run their resolvers, as they do for a query over HTTP.
@@ -477,7 +477,7 @@ A failed call returns a result with `isError: true` and one text message, so the
 |`Invalid cursor` |The cursor belongs to other arguments, is past the end of the results, or would page beyond 10000 items. Repeat the call without `cursor`.
 |`Invalid …` |An argument has the wrong form; the message names the argument and the accepted values.
 |`Query failed` |The GraphQL document returned no data, for example because of an unknown field. Call `describe-type` for the fields of a type.
-|`Query complexity …` |The `query` document exceeds `mcp.maxComplexity`. Select fewer fields or use a smaller `first`.
+|`Query complexity …` |The `query` document exceeds `mcp.maxComplexity`. Select fewer fields, pass a smaller `first` (also on repeated data fields), or ask for fewer aggregation buckets.
 |`Query failed: Query depth …` |The `query` document nests deeper than `mcp.maxDepth`. Select fewer nested fields or split the query.
 |`first must not exceed 100` |A `first` argument in the `query` document is above 100. Paginate with `after`.
 |`offset or after plus first must not exceed 10000` |The `query` document pages beyond what the search index can reach. Narrow the query instead.

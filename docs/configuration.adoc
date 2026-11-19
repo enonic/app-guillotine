@@ -65,7 +65,7 @@ Set this option: today it is required for the tools to work. XP's MCP endpoint d
 
 `mcp.maxDepth`:: Maximum nesting depth of a document passed to the MCP `query` tool. Default is `10`.
 
-`mcp.maxComplexity`:: Maximum complexity of a document passed to the MCP `query` tool: every selected field counts, multiplied by the `first` argument of the lists around it. Default is `500`.
+`mcp.maxComplexity`:: Maximum complexity of a document passed to the MCP `query` tool: every selected field counts, multiplied by the `first` argument of the lists around it (100 for a repeated data field without `first`), and every aggregation bucket counts. Default is `500`.
 
 The `maxQueryTokens` limit also applies to documents passed to the MCP `query` tool.
 
