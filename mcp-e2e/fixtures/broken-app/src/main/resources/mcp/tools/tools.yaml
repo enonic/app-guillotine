@@ -1,0 +1,12 @@
+kind: MCP
+tools:
+  - name: ok
+    description: A valid tool next to a broken one.
+    inputSchema:
+      type: object
+      additionalProperties: false
+  - name: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    description: Public name com.example.broken__tools__<120 x> is over 128 characters.
+    inputSchema:
+      type: object
+      additionalProperties: false

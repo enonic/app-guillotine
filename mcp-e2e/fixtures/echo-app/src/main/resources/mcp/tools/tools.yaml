@@ -1,0 +1,56 @@
+kind: MCP
+tools:
+  - name: echo
+    title: Echo a message
+    description: Return the supplied message.
+    inputSchema:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        message:
+          type: string
+        user:
+          type: string
+      required: [message]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      idempotentHint: true
+      openWorldHint: false
+  - name: undefined-field
+    description: Like echo, but leaves user undefined for anonymous callers.
+    inputSchema:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        message:
+          type: string
+        user:
+          type: string
+      required: [message]
+      additionalProperties: false
+  - name: args-probe
+    description: Reports whether JSON.stringify(args) works in this controller.
+    inputSchema:
+      type: object
+      properties:
+        message:
+          type: string
+      additionalProperties: false
+  - name: fail
+    description: Always throws, to exercise controller error mapping.
+    inputSchema:
+      type: object
+      additionalProperties: false

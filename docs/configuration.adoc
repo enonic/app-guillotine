@@ -41,6 +41,34 @@ maxQueryTokens=15000
 
 CORS controls which browser origins can read responses. Authentication and content permissions still determine which content the caller can access. See <<usage#troubleshooting, Troubleshooting>> when requests fail.
 
+[#mcp]
+== MCP content tools
+
+These options control the <<mcp#, MCP content tools>>. Add them to the same `com.enonic.app.guillotine.cfg` file:
+
+[source,properties]
+----
+mcp.enabled=true
+mcp.defaultProject=myproject
+mcp.maxResultChars=20000
+mcp.maxDepth=10
+mcp.maxComplexity=500
+----
+
+`mcp.enabled`:: Enables the read-only MCP content tools. With `false`, every tool call returns an error; the tools are still listed. Default is `true`.
+
+`mcp.defaultProject`:: Project the MCP tools use when a call passes no `project`. It must be readable by the caller. Default is empty: the caller's only visible project, if there is exactly one.
++
+Set this option: today it is required for the tools to work. XP's MCP endpoint does not support signing in yet, so every MCP client is an anonymous caller, and XP does not list projects to an anonymous caller, even projects whose published content is public. An anonymous client then sees no projects in `list-projects` and has no project to fall back to. The configured project is listed and used as long as the caller can read it. The fallback to the caller's only visible project applies to signed-in callers.
+
+`mcp.maxResultChars`:: Maximum size in characters of the result data of one MCP tool call, measured as compact JSON; larger results are cut down and marked `truncated`. The response carries this data twice, as structured content and escaped in its text next to a short summary, so a response can be up to about three and a quarter times this size. Values below `1000` count as `1000`, and values above `1000000` as `1000000`. Default is `20000`.
+
+`mcp.maxDepth`:: Maximum nesting depth of a document passed to the MCP `query` tool. Default is `10`.
+
+`mcp.maxComplexity`:: Maximum complexity of a document passed to the MCP `query` tool: every selected field counts, multiplied by the `first` argument of the lists around it. Default is `500`.
+
+The `maxQueryTokens` limit also applies to documents passed to the MCP `query` tool.
+
 [#image-transformations]
 == Image transformations
 
