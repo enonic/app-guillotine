@@ -1,0 +1,2 @@
+# expected: the 8 com.enonic.app.guillotine__content__* tools (TOOLS in checks/tools-all.py) plus the echo-app tools
+What MCP tools do you have from xp? List them.

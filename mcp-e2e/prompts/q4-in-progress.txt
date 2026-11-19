@@ -1,0 +1,3 @@
+# expected: anonymous caller -> draft is denied and master has none (expected.json inWork.master); the model must say it cannot answer.
+# with an authenticated caller: expected.json inWork.draft
+What content is currently in progress (workflow) in mcp-test?

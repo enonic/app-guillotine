@@ -1,0 +1,3 @@
+# expected: all 19 rows of expected.json articles.master (title, or displayName which drops " (edited)"); no article left out.
+# search returns 10 hits by default, so the model must follow nextCursor or raise count; tests paging, not a single page.
+I need the full list of article titles in mcp-test, every single one, not just the first few. How many are there?

@@ -1,0 +1,2 @@
+# expected: expected.json countPerType.master
+How many items of each content type are there in mcp-test?

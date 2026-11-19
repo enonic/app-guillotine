@@ -1,0 +1,2 @@
+# expected: expected.json brokenLinks (both landings)
+Are there any broken internal links on the landing pages in mcp-test?

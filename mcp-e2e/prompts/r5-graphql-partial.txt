@@ -1,0 +1,5 @@
+# expected: article-03 -> expected.json articles.master[path=/articles/article-03] (title "Article 03 (edited)", author Ada Lovelace);
+# article-09 (unpublished) and article-31 (never existed) -> not found on master: the anonymous caller cannot tell them apart.
+# A key without the leading / (e.g. "article-03") is read as an id: data comes back with null plus a "UUID format incorrect"
+# error per field, so the model must read the partial result and retry with /articles/<name> paths (or search first).
+Using a GraphQL query, get me the title and author of article-03, article-09 and article-31 in mcp-test.

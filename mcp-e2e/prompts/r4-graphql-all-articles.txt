@@ -1,0 +1,2 @@
+# expected: every master article, countPerType.master["com.example.mcpdataset:article"] = 19; a too-complex first query may be refused and retried
+With a single raw GraphQL query, show every article in mcp-test with its title, tags, author name, cover image path and the body text.

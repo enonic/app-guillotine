@@ -1,0 +1,2 @@
+# expected: query tool with Article data fields (title, tags, author via ContentSelector) for 3 articles
+Using a raw GraphQL query, list the title, tags and author name of 3 articles in mcp-test.

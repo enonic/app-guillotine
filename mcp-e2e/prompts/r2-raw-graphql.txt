@@ -1,0 +1,2 @@
+# expected: query tool with the guillotine root; 3 of the 4 persons (expected.json articlesPerAuthor.master[].displayName)
+Using a raw GraphQL query, list the display names of 3 persons in mcp-test.

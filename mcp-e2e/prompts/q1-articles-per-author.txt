@@ -1,0 +1,2 @@
+# expected: expected.json articlesPerAuthor.master (anonymous caller reads master)
+How many articles does each author have in the mcp-test project?

@@ -1,0 +1,7 @@
+# expected: /articles/article-07 -> "Article 07" (expected.json articles.master); 00000000-0000-4000-8000-00000000dead -> does not exist
+# (it is the missing image of /landings/landing-missing-image, expected.json brokenLinks); articles/article-03 -> "Article 03"
+# (displayName; data.title is "Article 03 (edited)").
+# One query with aliased get(key:) fields returns data plus an errors entry: "articles/article-03" has no leading / so Guillotine
+# reads it as an id ("UUID format incorrect"). The model must keep the partial data and retry that key as /articles/article-03.
+# (A bare name such as "article-03" gives null without an error, and data that is all null plus errors is an isError result.)
+I have three content keys from an old export: articles/article-03, /articles/article-07 and 00000000-0000-4000-8000-00000000dead. Using one GraphQL query, tell me the display name of each in mcp-test.

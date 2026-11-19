@@ -1,0 +1,2 @@
+# expected: expected.json unusedImages.master
+Which images in mcp-test are not used by any content?

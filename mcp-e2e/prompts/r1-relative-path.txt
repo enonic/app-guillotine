@@ -1,0 +1,3 @@
+# expected: the get tool returns /articles/article-01 with data.body; tests recovery when the path lacks the leading /
+# (dataset.json articles[name=article-01])
+Show me the content at articles/article-01 including its body.

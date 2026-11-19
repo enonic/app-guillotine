@@ -1,0 +1,3 @@
+# expected: anonymous caller -> search mine:true is refused (requires an authenticated user); the model must say so, not answer from master.
+# with an authenticated caller: expected.json recentlyModifiedByUser.<login>.draft
+Which content did I work on most recently?
