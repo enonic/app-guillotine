@@ -243,6 +243,7 @@ public final class DescribeTypeTool
 
     /**
      * A content type is printed without the fields it shares with the {@code Content} interface, and a comment line in their place.
+     * A type too large for {@code maxChars} is cut after its last field that fits.
      */
     private static Sdl sdl( final GraphQLNamedType type, final Set<String> shared, final int maxChars, final int maxNesting )
     {
@@ -259,6 +260,13 @@ public final class DescribeTypeTool
             {
                 text.insert( body + 2, CONTENT_FIELDS_LINE );
             }
+        }
+        if ( text.length() > maxChars )
+        {
+            final String cutLine = "\n  # more fields left out to stay within " + maxChars + " characters\n}";
+            final int end = text.lastIndexOf( "\n", Math.max( 0, maxChars - cutLine.length() ) );
+            text.setLength( Math.max( 0, end ) );
+            text.append( cutLine );
         }
         final Set<String> seen = new HashSet<>( Set.of( root.getName() ) );
         final Set<String> omitted = new LinkedHashSet<>();

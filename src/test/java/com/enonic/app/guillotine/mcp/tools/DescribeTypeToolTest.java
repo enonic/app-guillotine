@@ -170,6 +170,18 @@ public class DescribeTypeToolTest
     }
 
     @Test
+    public void testLargeTypeIsCutToTheSdlLimit()
+    {
+        when( guillotineConfigService.getMcpMaxResultChars() ).thenReturn( 1000 );
+
+        final String sdl = (String) structured( roundTrip( tool().execute( Map.of( "type", "HeadlessCms" ) ) ) ).get( "sdl" );
+
+        assertTrue( sdl.length() <= 500, () -> sdl.length() + " chars:\n" + sdl );
+        assertTrue( sdl.startsWith( "type HeadlessCms {" ) || sdl.contains( "\ntype HeadlessCms {" ), sdl );
+        assertTrue( sdl.endsWith( "\n  # more fields left out to stay within 500 characters\n}" ), sdl );
+    }
+
+    @Test
     public void testMeasureArticleDescription()
     {
         final Map<String, Object> result = tool().execute( Map.of( "type", ARTICLE ) );

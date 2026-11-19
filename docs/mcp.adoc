@@ -455,7 +455,7 @@ Cursors are positions in the result, not snapshots. If content changes between c
 |`search` |`count` 0–50, up to 20 `types`, 10 `filters`, 5 `aggregate` entries with 1–100 buckets each, 3 `sort` fields, `text` up to 500 characters. Bucket labels for the first 100 content ids.
 |`get` |Up to 50 `fields`. Up to 50 links per rich text value (`linksTruncated` beyond). Links resolved for the first 100 content ids.
 |`list-types` |Up to 1000 content types.
-|`describe-type` |SDL up to 8000 characters, and at most half of `mcp.maxResultChars`; nested types expanded two levels deep.
+|`describe-type` |SDL up to 8000 characters, and at most half of `mcp.maxResultChars`; nested types expanded two levels deep. A type larger than that is cut after its last field that fits.
 |`query` |`first` up to 100, `offset` or `after` plus `first` up to 10000, `mcp.maxDepth`, `mcp.maxComplexity`, `maxQueryTokens`. Up to 10 `errors`, each message up to 300 characters.
 |`find-references` |`count` 0–50. Outbound: up to 200 listed (`outboundTruncated` beyond). Unused media: the first 10000 media items by path are checked (`mediaLimitReached`); media that could not be decided within the query limit are counted in `unchecked`, marked `incomplete` and not listed.
 |`check-links` |`count` 1–50. Up to 50 broken links per source.
