@@ -56,6 +56,79 @@ tools:
       destructiveHint: false
       idempotentHint: true
       openWorldHint: false
+  - name: list-types
+    title: List content types in use
+    description: >-
+      Lists the content types that have content in a project branch, with item counts and display names.
+      Call it after list-projects and before filtering search by type; call describe-type to learn the data fields of a type.
+    inputSchema:
+      type: object
+      properties:
+        project:
+          type: string
+          description: Project from list-projects; defaults to defaultProject.
+        branch:
+          type: string
+          enum: [draft, master]
+          description: draft (latest, signed-in users with a project role) or master (published); defaults to defaultBranch.
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        project:
+          type: string
+        branch:
+          type: string
+        total:
+          type: integer
+        types:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              displayName:
+                type: string
+              count:
+                type: integer
+            required: [name, count]
+            additionalProperties: false
+        errors:
+          type: array
+          items:
+            type: object
+        note:
+          type: string
+        truncated:
+          type: boolean
+        hint:
+          type: string
+      required: [project, branch, types]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+  - name: describe-type
+    title: Describe a content type
+    description: >-
+      Returns compact GraphQL SDL for one content type or GraphQL type, its data fields, and a ready example query with variables.
+      The schema is the same for all projects. Call it on a name from sharedTypes or omittedTypes to see that type.
+    inputSchema:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Content type name from list-types ("app.key:article" or a unique "article"), or a GraphQL type name.
+      required: [type]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
   - name: query
     title: Run a GraphQL query
     description: >-
