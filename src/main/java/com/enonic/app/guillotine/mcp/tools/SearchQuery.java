@@ -273,7 +273,8 @@ final class SearchQuery
                 throw new ToolError( "Invalid " + where + ": pass either equals, or from and/or to.",
                                      "Example: {\"field\": \"modifiedTime\", \"from\": \"2026-01-01\"}." );
             }
-            if ( DATE_FIELDS.contains( field.toLowerCase( Locale.ROOT ) ) )
+            final boolean dateField = DATE_FIELDS.contains( field.toLowerCase( Locale.ROOT ) );
+            if ( dateField )
             {
                 requireDate( field, equals, where + ".equals" );
                 requireDate( field, from, where + ".from" );
@@ -281,7 +282,9 @@ final class SearchQuery
             }
             if ( equals != null )
             {
-                must.add( term( field, value( equals, where + ".equals" ) ) );
+                // XP indexes every date value as text as well, so the text form matches both text fields and date fields
+                final boolean text = !dateField && equals instanceof String date && DATE.matcher( date ).matches();
+                must.add( term( field, text ? stringValue( (String) equals ) : value( equals, where + ".equals" ) ) );
                 continue;
             }
             final Map<String, Object> range = new LinkedHashMap<>();
@@ -461,7 +464,8 @@ final class SearchQuery
     }
 
     /**
-     * A {@code DSLExpressionValueInput}: ISO date-times become {@code instant}, plain dates the start of that day in UTC.
+     * A {@code DSLExpressionValueInput}: ISO date-times become {@code instant}, plain dates the start of that day in UTC. Integers
+     * outside the int range become {@code double}, as the index stores every number.
      */
     private static Map<String, Object> value( final Object value, final String where )
     {

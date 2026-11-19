@@ -43,6 +43,8 @@ import com.enonic.xp.exception.ForbiddenAccessException;
 import com.enonic.xp.node.Node;
 import com.enonic.xp.node.NodePath;
 import com.enonic.xp.node.NodeService;
+import com.enonic.xp.page.Page;
+import com.enonic.xp.page.PageTemplateKey;
 import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.project.Projects;
 import com.enonic.xp.query.aggregation.AggregationQuery;
@@ -203,6 +205,30 @@ public class ReferenceToolsTest
         assertEquals( Map.of( "field", "data.body", "kind", "image", "_id", "dead-1", "missing", true ), outbound.get( 3 ) );
         assertNull( structured.get( "inbound" ) );
         assertNull( structured.get( "total" ) );
+    }
+
+    @Test
+    public void testPageTemplateIsAReference()
+    {
+        folder( "landings" );
+        content( "tpl-1", "/templates", "article-page", ContentTypeName.pageTemplate(), new PropertyTree() );
+        landing( "landing-1", "home", "", List.of() );
+        withTemplate( "landing-1", "tpl-1" );
+        landing( "landing-2", "stale", "", List.of() );
+        withTemplate( "landing-2", "tpl-gone" );
+
+        final Map<String, Object> home = successStructured( as( ALICE, () -> findReferences.execute(
+            args( "key", "landing-1", "direction", "outbound" ) ) ) );
+        assertEquals( List.of( Map.of( "field", "page.template", "kind", "content", "_id", "tpl-1", "_path", "/templates/article-page",
+                                       "displayName", "article-page", "type", "portal:page-template" ) ), list( home, "outbound" ) );
+
+        final Map<String, Object> template =
+            successStructured( as( ALICE, () -> findReferences.execute( args( "key", "tpl-1", "direction", "inbound" ) ) ) );
+        assertEquals( List.of( "/landings/home" ), paths( list( template, "inbound" ) ) );
+
+        final Map<String, Object> landings = successStructured( as( ALICE, () -> checkLinks.execute( args( "path", "/landings" ) ) ) );
+        assertEquals( List.of( Map.of( "source", "/landings/stale", "sourceId", "landing-2", "field", "page.template", "kind", "content",
+                                       "targetId", "tpl-gone", "reason", ContentLinks.MISSING_REASON ) ), list( landings, "broken" ) );
     }
 
     @Test
@@ -535,6 +561,25 @@ public class ReferenceToolsTest
         assertTrue( text( result ).startsWith( "/landings/many: listing the first " + listed + " of 250 items it references" ),
                     text( result ) );
         assertTrue( McpJson.length( structured ) <= 20000 );
+    }
+
+    @Test
+    public void testOutboundScanLimitIsNamedInTheHint()
+    {
+        final List<String> targets = new ArrayList<>();
+        for ( int i = 0; i <= FindReferencesTool.MAX_OUTBOUND_SCAN; i++ )
+        {
+            targets.add( "gone-" + i );
+        }
+        landing( "landing-1", "huge", "", targets );
+
+        final Map<String, Object> structured = successStructured( as( ALICE, () -> findReferences.execute(
+            args( "key", "landing-1", "direction", "outbound", "count", 0, "types", List.of( "article" ) ) ) ) );
+
+        assertEquals( FindReferencesTool.MAX_OUTBOUND_SCAN + 1, structured.get( "outboundTotal" ) );
+        assertEquals( true, structured.get( "outboundTruncated" ) );
+        assertEquals( "Only the first 5000 of 5001 references are checked, and at most 200 listed; types cannot reach beyond them. " +
+                          "Call check-links with path /landings/huge to list the broken ones.", structured.get( "outboundHint" ) );
     }
 
     @Test
@@ -884,6 +929,11 @@ public class ReferenceToolsTest
         put( Content.create( content ).data( data ).build() );
     }
 
+    private void withTemplate( final String id, final String template )
+    {
+        put( Content.create( store.get( id ) ).page( Page.create().template( PageTemplateKey.from( template ) ).build() ).build() );
+    }
+
     private void content( final String id, final String parent, final String name, final ContentTypeName type, final PropertyTree data )
     {
         put( Content.create()
@@ -897,7 +947,8 @@ public class ReferenceToolsTest
     }
 
     /**
-     * Stores the content and indexes its {@code _references} the way XP does: every reference value plus the processed references.
+     * Stores the content and indexes its {@code _references} the way XP does: every reference value, the page template and the processed
+     * references.
      */
     private void put( final Content content )
     {
@@ -906,6 +957,10 @@ public class ReferenceToolsTest
         final List<String> refs = new ArrayList<>();
         content.getData().getProperties( com.enonic.xp.data.ValueTypes.REFERENCE ).forEach( p -> refs.add( p.getReference().toString() ) );
         content.getProcessedReferences().forEach( ref -> refs.add( ref.toString() ) );
+        if ( content.getPage() != null && content.getPage().getTemplate() != null )
+        {
+            refs.add( content.getPage().getTemplate().toString() );
+        }
         index.put( id, refs );
     }
 

@@ -173,7 +173,8 @@ final class ContentLinks
 
     /**
      * Everything {@code content} references, in the order of its data: the values that XP indexes as {@code _references} (selector
-     * values in data, mixins and page, rich text links collected as processed references, and the variant source).
+     * values in data, mixins and page, the page template, rich text links collected as processed references, and the variant
+     * source).
      */
     static List<Ref> outbound( final Content content )
     {
@@ -196,6 +197,10 @@ final class ContentLinks
         final Page page = content.getPage();
         if ( page != null )
         {
+            if ( page.getTemplate() != null )
+            {
+                add( refs, new Ref( page.getTemplate().toString(), "page.template", null, null ) );
+            }
             references( page.getConfig(), "page", refs );
             components( page.getRegions(), refs );
             if ( page.getFragment() != null )

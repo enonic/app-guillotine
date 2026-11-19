@@ -618,6 +618,16 @@ public class ContentToolsIntegrationTest
     }
 
     @Test
+    public void testExternalImageIsAnExternalLink()
+    {
+        assertEquals( List.of( Map.of( "type", "external", "url", "https://cdn.example/a.png", "text", "remote" ),
+                               Map.of( "type", "image", "id", "img-1", "text", "local" ),
+                               Map.of( "type", "image", "id", "media-1" ) ),
+                      RichText.convert( "<img src=\"https://cdn.example/a.png\" alt=\"remote\"><img src=\"image://img-1\" alt=\"local\">" +
+                                            "<img src=\"media://media-1\">" ).get( "links" ) );
+    }
+
+    @Test
     public void testManyLinksAreCapped()
     {
         final String html = "<p>" + "<a href=\"https://example.com\">x</a>".repeat( RichText.MAX_LINKS + 3 ) + "</p>";
@@ -1058,6 +1068,25 @@ public class ContentToolsIntegrationTest
                       SearchQuery.from( args( "aggregate", List.of( args( "by", "type" ) ) ), null, true ).aggregations );
         assertEquals( List.of( Map.of( "field", "_score", "direction", "DESC" ), Map.of( "field", "_path", "direction", "ASC" ) ),
                       SearchQuery.from( args( "text", "x" ), null, true ).sort );
+    }
+
+    @Test
+    public void testPlainDateEqualsIsTextUnlessTheFieldIsADateField()
+    {
+        final List<Map<String, Object>> filters =
+            List.of( args( "field", "data.code", "equals", "2026-13-45" ), args( "field", "data.day", "equals", "2026-01-31" ),
+                     args( "field", "modifiedTime", "equals", "2026-01-31" ), args( "field", "data.day", "from", "2026-01-31" ),
+                     args( "field", "data.at", "equals", "2026-01-31T12:00:00Z" ) );
+        final Map<?, ?> bool = (Map<?, ?>) SearchQuery.from( args( "filters", filters ), null, true ).query.get( "boolean" );
+
+        assertEquals( List.of( Map.of( "term", Map.of( "field", "data.code", "value", Map.of( "string", "2026-13-45" ) ) ),
+                               Map.of( "term", Map.of( "field", "data.day", "value", Map.of( "string", "2026-01-31" ) ) ),
+                               Map.of( "term", Map.of( "field", "modifiedTime", "value", Map.of( "instant", "2026-01-31T00:00:00Z" ) ) ),
+                               Map.of( "range", Map.of( "field", "data.day", "gte", Map.of( "instant", "2026-01-31T00:00:00Z" ) ) ),
+                               Map.of( "term", Map.of( "field", "data.at", "value", Map.of( "instant", "2026-01-31T12:00:00Z" ) ) ) ),
+                      bool.get( "must" ) );
+        assertTrue( invalid( args( "filters", List.of( args( "field", "modifiedTime", "equals", "2026-13-45" ) ) ) ).startsWith(
+            "Invalid filters[0].equals: \"2026-13-45\" is not a valid date." ) );
     }
 
     private static Map<String, Object> filter( final String field )

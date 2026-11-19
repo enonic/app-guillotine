@@ -204,7 +204,8 @@ public final class FindReferencesTool
 
     /**
      * Puts {@code outbound} (at most {@link #MAX_OUTBOUND} entries) into {@code structured}, with {@code outboundTotal},
-     * {@code outboundTruncated} and {@code outboundHint} when more were found. Type filtering happens before the cut.
+     * {@code outboundTruncated} and {@code outboundHint} when more were found. Only the first {@link #MAX_OUTBOUND_SCAN} references
+     * are read and filtered by type; beyond them, {@code outboundTotal} counts every reference.
      */
     private void outbound( final ProjectBranch target, final Content content, final List<String> types,
                            final Map<String, Object> structured )
@@ -244,8 +245,12 @@ public final class FindReferencesTool
             structured.put( "outbound", result.subList( 0, Math.min( result.size(), MAX_OUTBOUND ) ) );
             structured.put( "outboundTotal", scanLimited ? refs.size() : result.size() );
             structured.put( "outboundTruncated", true );
-            structured.put( "outboundHint", "Only the first " + MAX_OUTBOUND + " references are listed; pass types to narrow them, " +
-                "or call check-links with path " + content.getPath() + " to list only the broken ones." );
+            structured.put( "outboundHint", scanLimited
+                ? "Only the first " + MAX_OUTBOUND_SCAN + " of " + refs.size() + " references are checked, and at most " + MAX_OUTBOUND +
+                " listed; types cannot reach beyond them. Call check-links with path " + content.getPath() +
+                " to list the broken ones."
+                : "Only the first " + MAX_OUTBOUND + " references are listed; pass types to narrow them, or call check-links with path " +
+                    content.getPath() + " to list only the broken ones." );
         }
         else
         {

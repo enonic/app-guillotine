@@ -166,7 +166,7 @@ Arguments::
 `path`::: Only content below this path, such as `/articles`. The item at the path itself is not included.
 `mine`::: `true` for content last modified by the caller. Needs a signed-in user.
 `workflow`::: `IN_PROGRESS` for work in progress, or `READY` for everything else, including content without workflow information.
-`filters`::: Up to 10 conditions that must all match, each `{field, equals}` or `{field, from, to}` (`from` inclusive, `to` exclusive). Date fields such as `modifiedTime` and `publish.from` take a date (`2026-01-31`) or a date-time with zone (`2026-01-31T12:00:00Z`). Reference fields, such as a content selector `data.author`, hold content ids.
+`filters`::: Up to 10 conditions that must all match, each `{field, equals}` or `{field, from, to}` (`from` inclusive, `to` exclusive). Date fields such as `modifiedTime` and `publish.from` take a date (`2026-01-31`) or a date-time with zone (`2026-01-31T12:00:00Z`). A date-time with zone is compared as a point in time on any field, and so is a plain date in `from` and `to`; a plain date in `equals` on a data field matches its text, which also matches date fields. Numbers are compared as the index stores them, as doubles: integers beyond 2^53^ lose precision. Reference fields, such as a content selector `data.author`, hold content ids.
 `sort`::: Up to 3 comma-separated `field [ASC|DESC]` items, such as `modifiedTime DESC` or `data.title ASC`. Default: relevance when `text` is given, otherwise `modifiedTime DESC`.
 `aggregate`::: Up to 5 groupings, each `{by, size, interval}`. `by` is a field such as `type`, `language` or `data.author`; `size` is the number of buckets, 1–100 (default 10); `interval` makes a date histogram, such as `1d`, `1w`, `1M` or `1y`.
 `count`::: Hits per page, 0–50 (default 10). `0` returns only the total and the aggregations.
@@ -332,7 +332,7 @@ Returns:: For `key`: `target`, `total` and `inbound` (each `_id`, `_path`, `disp
 }
 ----
 
-References are found through XP's reference index: content and image selectors, links and images in rich text, page components and configuration, and the variant source. References held by content the caller cannot read are neither listed nor counted.
+References are found through XP's reference index: content and image selectors, links and images in rich text, the page template, page components and configuration, and the variant source. References held by content the caller cannot read are neither listed nor counted.
 
 [#check-links]
 === check-links
@@ -457,7 +457,7 @@ Cursors are positions in the result, not snapshots. If content changes between c
 |`list-types` |Up to 1000 content types.
 |`describe-type` |SDL up to 8000 characters, and at most half of `mcp.maxResultChars`; nested types expanded two levels deep. A type larger than that is cut after its last field that fits.
 |`query` |`first` up to 100, `offset` or `after` plus `first` up to 10000, `mcp.maxDepth`, `mcp.maxComplexity`, `maxQueryTokens`. Up to 10 `errors`, each message up to 300 characters.
-|`find-references` |`count` 0–50. Outbound: up to 200 listed (`outboundTruncated` beyond). Unused media: the first 10000 media items by path are checked (`mediaLimitReached`); media that could not be decided within the query limit are counted in `unchecked`, marked `incomplete` and not listed.
+|`find-references` |`count` 0–50. Outbound: the first 5000 references are read and filtered by `types`, up to 200 listed (`outboundTruncated` beyond). Unused media: the first 10000 media items by path are checked (`mediaLimitReached`); media that could not be decided within the query limit are counted in `unchecked`, marked `incomplete` and not listed.
 |`check-links` |`count` 1–50. Up to 50 broken links per source.
 |===
 

@@ -118,7 +118,10 @@ final class RichText
                 continue;
             }
             final Map<String, Object> link = target( src );
-            link.put( "type", "image" );
+            if ( link.containsKey( "id" ) )
+            {
+                link.put( "type", "image" );
+            }
             final String alt = attribute( image.group( 1 ), "alt" );
             if ( alt != null && !alt.isBlank() )
             {
