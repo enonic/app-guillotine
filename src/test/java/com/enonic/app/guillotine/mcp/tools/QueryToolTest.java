@@ -45,6 +45,7 @@ import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.exception.ForbiddenAccessException;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
+import com.enonic.xp.repository.IndexException;
 
 import static com.enonic.app.guillotine.mcp.McpResults.roundTrip;
 import static com.enonic.app.guillotine.mcp.McpResults.structured;
@@ -779,6 +780,21 @@ public class QueryToolTest
                                                null, Map.of(), true ) );
         assertDoesNotThrow( () -> checkLimits( "{ guillotine { queryDslConnection(query: {matchAll: {}}, after: \"not a cursor\") " +
                                                    "{ totalCount } } }", null, Map.of(), true ) );
+    }
+
+    @Test
+    public void testSearchFailureDoesNotEchoTheIndexQuery()
+    {
+        when( contentService.find( any( ContentQuery.class ) ) ).thenThrow( new IndexException(
+            "Search request failed, query: [{ \"from\" : 9000, \"query\" : { \"bool\" : { \"must\" : [ { \"term\" : { \"_path._path\" " +
+                ": \"/content\" } } ] } } }]" ) );
+
+        final Map<String, Object> result =
+            run( Map.of( "query", "{ guillotine { queryDsl(query: {matchAll: {}}, offset: 9000) { _id } } }" ) );
+
+        assertEquals( true, result.get( "isError" ) );
+        assertEquals( "Query failed: guillotine.queryDsl: Search failed: offset or after reaches beyond the first 10000 results, or " +
+                          "the index cannot run this query. Page less deep, or narrow the query with a filter.", text( result ) );
     }
 
     @Test

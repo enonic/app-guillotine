@@ -218,6 +218,23 @@ public class McpResultTest
     }
 
     @Test
+    public void testSearchFailuresDoNotEchoTheIndexRequest()
+    {
+        final String failed = "Exception while fetching data (/guillotine/queryDsl) : Search request failed, query: [{ \"from\" : 50000, " +
+            "\"size\" : 10, \"query\" : { \"bool\" : { \"must\" : [ { \"term\" : { \"_nodetype\" : \"content\" } } ] } } }]";
+        final String timedOut = "com.enonic.xp.repository.IndexException: Search request failed after [30s], query: [{ \"query\" : " +
+            "{ \"match_all\" : { } } }]";
+
+        assertEquals( "Search failed: offset or after reaches beyond the first 10000 results, or the index cannot run this query. " +
+                          "Page less deep, or narrow the query with a filter.", GraphQlErrors.cleanMessage( failed ) );
+        assertEquals( "Search timed out. Narrow the query with a filter, or ask for fewer results or aggregations.",
+                      GraphQlErrors.cleanMessage( timedOut ) );
+        assertEquals( "Content \"Search request failed\" not found", GraphQlErrors.cleanMessage( "Content \"Search request failed\" not found" ) );
+        final String sanitized = McpJson.write( GraphQlErrors.sanitize( List.of( Map.of( "message", failed ) ) ) );
+        assertFalse( sanitized.contains( "_nodetype" ) || sanitized.contains( "50000" ), sanitized );
+    }
+
+    @Test
     public void testDottedNamesThatAreNotJavaNamesAreKept()
     {
         assertEquals( "Content type com.example.app:article is not allowed under /site",

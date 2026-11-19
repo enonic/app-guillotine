@@ -42,6 +42,16 @@ public final class GraphQlErrors
     public static final String VALIDATION_HINT =
         "The root field is `guillotine { ... }`; call describe-type to see the fields of a content type.";
 
+    private static final Pattern SEARCH_FAILED =
+        Pattern.compile( "^(?:(?:[a-z_$][\\w$]*\\.)*[A-Z][\\w$]*(?:Exception|Error):\\s*)?Search request failed( after)?" );
+
+    private static final String SEARCH_FAILED_MESSAGE =
+        "Search failed: offset or after reaches beyond the first 10000 results, or the index cannot run this query. " +
+            "Page less deep, or narrow the query with a filter.";
+
+    private static final String SEARCH_TIMED_OUT_MESSAGE =
+        "Search timed out. Narrow the query with a filter, or ask for fewer results or aggregations.";
+
     private static final Pattern FETCH_PREFIX = Pattern.compile( "^Exception while fetching data \\([^)]*\\)\\s*:\\s*" );
 
     private GraphQlErrors()
@@ -117,6 +127,12 @@ public final class GraphQlErrors
             return "Unknown error";
         }
         final String withoutPrefix = FETCH_PREFIX.matcher( String.valueOf( message ) ).replaceFirst( "" );
+        // the index error echoes the whole search request
+        final Matcher searchFailed = SEARCH_FAILED.matcher( withoutPrefix );
+        if ( searchFailed.lookingAt() )
+        {
+            return searchFailed.group( 1 ) != null ? SEARCH_TIMED_OUT_MESSAGE : SEARCH_FAILED_MESSAGE;
+        }
         if ( INTERNAL.matcher( withoutPrefix ).find() )
         {
             return INTERNAL_ERROR;
