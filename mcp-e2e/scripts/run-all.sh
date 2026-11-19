@@ -18,9 +18,9 @@ for jar in "$ECHO_JAR" "$BROKEN_JAR"; do
 done
 
 restore() {
-    rm -f "$DEPLOY/broken-app.jar"
-    [ -f "$DEPLOY/guillotine.jar" ] || cp "$BACKUP/guillotine.jar" "$DEPLOY/guillotine.jar"
-    [ -f "$DEPLOY/echo-app.jar" ] || cp "$ECHO_JAR" "$DEPLOY/echo-app.jar"
+    rm -f "$DEPLOY/broken-app.jar" "$DEPLOY"/*.jar.part
+    [ -f "$DEPLOY/guillotine.jar" ] || deploy_jar "$BACKUP/guillotine.jar" guillotine.jar
+    [ -f "$DEPLOY/echo-app.jar" ] || deploy_jar "$ECHO_JAR" echo-app.jar
 }
 
 declare -a SUMMARY=()
@@ -45,33 +45,39 @@ wait_count() { # prefix op value timeout
     local i; for i in $(seq 1 "$4"); do [ "$(count_prefix "$1")" "$2" "$3" ] && { echo "      $1* $2 $3 after ${i}s"; return 0; }; sleep 1; done; return 1; }
 echo_ok() { mcp_call tools/call "{\"name\":\"${E}echo\",\"arguments\":{\"message\":\"run-all\"}}" | grep -q '"structuredContent":{"message":"run-all"}'; }
 projects_ok() { mcp_call tools/call "{\"name\":\"${G}list-projects\",\"arguments\":{}}" | grep -q '"structuredContent":{"projects":'; }
+guillotine_ready() { [ "$(count_prefix "$G")" -eq 8 ] && projects_ok; }
+echo_ready() { [ "$(count_prefix "$E")" -eq 4 ] && echo_ok; }
 
 lifecycle() {
     echo "=== lifecycle (under lock)"
+    local start
     check "precondition: 8 guillotine tools and echo listed" "[ \$(count_prefix $G) -eq 8 ] && [ \$(count_prefix $E) -eq 4 ]"
     rm -f "$DEPLOY/guillotine.jar"
     check "undeploy guillotine: all $G* gone within 30s" "wait_count $G -eq 0 30"
     check "  ${E}echo still listed" "[ \$(count_prefix ${E}echo) -eq 1 ]"
     check "  ${E}echo still works" "echo_ok"
-    cp "$BACKUP/guillotine.jar" "$DEPLOY/guillotine.jar"
-    check "redeploy guillotine: 8 tools back within 60s" "wait_count $G -eq 8 60"
-    check "  list-projects works after redeploy" "projects_ok"
+    start=$(console_lines)
+    deploy_jar "$BACKUP/guillotine.jar" guillotine.jar
+    check "redeploy guillotine: settled with 8 tools and list-projects working within 60s" \
+        "wait_app_settled com.enonic.app.guillotine $start 60 guillotine_ready"
     rm -f "$DEPLOY/echo-app.jar"
     check "undeploy echo-app: echo tools gone within 30s" "wait_count $E -eq 0 30"
     check "  8 guillotine tools stay" "[ \$(count_prefix $G) -eq 8 ]"
     check "  list-projects still works" "projects_ok"
-    cp "$ECHO_JAR" "$DEPLOY/echo-app.jar"
-    check "redeploy echo-app: echo tools back within 30s" "wait_count $E -eq 4 30"
+    start=$(console_lines)
+    deploy_jar "$ECHO_JAR" echo-app.jar
+    check "redeploy echo-app: settled with 4 echo tools and echo working within 60s" \
+        "wait_app_settled com.example.echo $start 60 echo_ready"
 }
 
 broken_app() {
     # An extra app whose tool name gives a public name over 128 characters (fixtures/broken-app).
     echo "=== broken app (under lock, XP_EXPECT=$XP_EXPECT)"
-    local start i list call
-    start=$(wc -l < "$XP_HOME/logs/console.log")
-    cp "$BROKEN_JAR" "$DEPLOY/broken-app.jar"
-    for i in $(seq 1 60); do tail -n +"$((start + 1))" "$XP_HOME/logs/console.log" | grep -q 'com.example.broken' && break; sleep 1; done
-    sleep 3
+    local start list call
+    start=$(console_lines)
+    deploy_jar "$BROKEN_JAR" broken-app.jar
+    # The plain epic may break tools/list with this app, so only the log decides here; the checks below cover the tools.
+    check "broken app installed and settled within 60s" "wait_app_settled com.example.broken $start 60 true"
     list=$(mcp_call tools/list '{}')
     call=$(mcp_call tools/call "{\"name\":\"${G}list-projects\",\"arguments\":{}}")
     if [ "$XP_EXPECT" = fix ]; then

@@ -8,12 +8,12 @@ fail=0
 check() { if eval "$2"; then echo "PASS  $1"; else echo "FAIL  $1"; fail=1; fi; }
 has_tool() { mcp_call tools/list '{}' | grep -q "\"name\":\"$TOOL\""; }
 wait_tool() { for _ in $(seq 1 60); do has_tool && return 0; sleep 1; done; return 1; }
-log_lines() { wc -l < "$XP_HOME/logs/console.log"; }
+tool_ready() { has_tool && mcp_call tools/call "{\"name\":\"$TOOL\",\"arguments\":{}}" | grep -q '"structuredContent":{"projects":'; }
 
-start=$(log_lines)
+start=$(console_lines)
 if ! cmp -s "$JAR" "$XP_HOME/deploy/guillotine.jar"; then
-    cp "$JAR" "$XP_HOME/deploy/guillotine.jar"
-    sleep 3
+    deploy_jar "$JAR" guillotine.jar
+    check "deploy: guillotine settled with $TOOL working" "wait_app_settled com.enonic.app.guillotine $start 60 tool_ready"
 fi
 check "deploy: $TOOL is listed" "wait_tool"
 

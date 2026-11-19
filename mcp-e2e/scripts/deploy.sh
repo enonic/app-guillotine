@@ -5,9 +5,12 @@ source "$(dirname "$0")/xp-env.sh"
 for jar in "$GUILLOTINE_JAR" "$DATASET_JAR" "$ECHO_JAR"; do
     [ -f "$jar" ] || { echo "Missing $jar" >&2; exit 2; }
 done
-start=$(wc -l < "$XP_HOME/logs/console.log")
-cp "$GUILLOTINE_JAR" "$XP_HOME/deploy/guillotine.jar"
-cp "$ECHO_JAR" "$XP_HOME/deploy/echo-app.jar"
+G=$(mcp_name com.enonic.app.guillotine content list-projects)
+E=$(mcp_name com.example.echo tools echo)
+start=$(console_lines)
+copied=$start
+deploy_jar "$GUILLOTINE_JAR" guillotine.jar
+deploy_jar "$ECHO_JAR" echo-app.jar
 if cmp -s "$DATASET_JAR" "$XP_HOME/deploy/dataset-app.jar"; then
     # Unchanged jar: XP does not restart the app, so the outcome of its start in the running XP decides. xp-start.sh truncates
     # console.log when it starts XP, so the whole log belongs to the XP its pid file names.
@@ -21,8 +24,13 @@ if cmp -s "$DATASET_JAR" "$XP_HOME/deploy/dataset-app.jar"; then
     fi
     start=0
 else
-    cp "$DATASET_JAR" "$XP_HOME/deploy/dataset-app.jar"
+    deploy_jar "$DATASET_JAR" dataset-app.jar
+    wait_app_settled com.example.mcpdataset "$copied" 120 true
 fi
+wait_app_settled com.enonic.app.guillotine "$copied" 120 \
+    "mcp_call tools/call '{\"name\":\"$G\",\"arguments\":{}}' | grep -q '\"structuredContent\":{\"projects\":'"
+wait_app_settled com.example.echo "$copied" 120 \
+    "mcp_call tools/call '{\"name\":\"$E\",\"arguments\":{\"message\":\"deploy\"}}' | grep -q '\"structuredContent\":{\"message\":\"deploy\"}'"
 for _ in $(seq 1 120); do
     if line=$(tail -n +"$((start + 1))" "$XP_HOME/logs/console.log" | grep -E '\[mcp-dataset\] (done|failed)' | tail -n 1) &&
         [ -n "$line" ]; then

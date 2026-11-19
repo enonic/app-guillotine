@@ -13,12 +13,13 @@ check() { if eval "$2"; then echo "PASS  $1"; else echo "FAIL  $1"; fail=1; fi; 
 tool_count() { mcp_call tools/list '{}' | python3 -c 'import json,sys; print(len([t for t in json.load(sys.stdin)["result"]["tools"] if t["name"].startswith(sys.argv[1])]))' "$E"; }
 wait_count() { for _ in $(seq 1 30); do [ "$(tool_count)" = "$1" ] && return 0; sleep 1; done; return 1; }
 call() { mcp_call tools/call "{\"name\":\"$E$1\",\"arguments\":$2}"; }
+echo_ready() { [ "$(tool_count)" = 4 ] && call echo '{"message":"ready"}' | grep -q '"structuredContent":{"message":"ready"}'; }
+deploy_echo() { local start; start=$(console_lines); deploy_jar "$JAR" echo-app.jar && wait_app_settled com.example.echo "$start" 60 echo_ready; }
 
 discover=$(mcp_call server/discover '{}')
 check "server/discover advertises 2026-07-28" "grep -q '\"supportedVersions\":\[\"2026-07-28\"\]' <<<\"\$discover\""
 
-cp "$JAR" "$XP_HOME/deploy/"
-check "deploy: echo tools appear without restart" "wait_count 4"
+check "deploy: echo tools appear without restart" "deploy_echo"
 list=$(mcp_call tools/list '{}')
 check "tools/list contains ${E}echo" "grep -q '\"name\":\"${E}echo\"' <<<\"\$list\""
 
@@ -55,6 +56,5 @@ check "undeploy: echo tools disappear without restart" "wait_count 0"
 gone=$(call echo '{"message":"x"}')
 check "call to removed tool -> Unknown tool" "grep -q \"Unknown tool: ${E}echo\" <<<\"\$gone\""
 
-cp "$JAR" "$XP_HOME/deploy/"
-check "redeploy: echo tools come back" "wait_count 4"
+check "redeploy: echo tools come back" "deploy_echo"
 exit $fail

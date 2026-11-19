@@ -77,6 +77,35 @@ PY
     curl -sS "$MCP_URL" "${headers[@]}" --data "$body" "$@"
 }
 
+deploy_jar() {
+    # deploy_jar <jar> <file-name>: copies the jar into XP_HOME/deploy under a name the deploy monitor ignores, then renames it, so
+    # the monitor never sees a half-written jar and installs it a second time once the copy completes.
+    local dest="$XP_HOME/deploy/$2"
+    cp "$1" "$dest.part" && mv -f "$dest.part" "$dest"
+}
+
+console_lines() { wc -l < "$XP_HOME/logs/console.log" | tr -d ' '; }
+
+# Seconds without a new install/start log line before an app counts as settled. XP's deploy monitor polls every second
+# (com.enonic.xp.server.deploy interval) but an install blocks it, so a second install of one copy has logged ~5 s after the first.
+XP_SETTLE_QUIET="${XP_SETTLE_QUIET:-6}"
+
+wait_app_settled() {
+    # wait_app_settled <app-key> <console-line> <timeout-s> <ready-command>: after a jar copy, waits until the app has logged
+    # install/start lines after <console-line>, then none for XP_SETTLE_QUIET seconds, and <ready-command> (eval'd: a tool count,
+    # a probe call) succeeds. A tool count alone passes between two installs of the same jar.
+    local key="$1" from="$2" timeout="$3" ready="$4" i n=0 last=-1 quiet=0
+    for i in $(seq 1 "$timeout"); do
+        n=$(tail -n +"$((from + 1))" "$XP_HOME/logs/console.log" | grep -cF -e "application $key bundle " -e "application [$key]" || true)
+        if [ "$n" = "$last" ]; then quiet=$((quiet + 1)); else quiet=0; last=$n; fi
+        if [ "$n" -gt 0 ] && [ "$quiet" -ge "$XP_SETTLE_QUIET" ] && eval "$ready"; then
+            echo "      $key settled after ${i}s ($n install/start log lines)"; return 0
+        fi
+        sleep 1
+    done
+    echo "      $key did not settle within ${timeout}s ($n install/start log lines)"; return 1
+}
+
 mcp_name() {
     # mcp_name <app-key> <group> <local-name>: the public tool name XP's McpNames.qualify gives.
     python3 "$MCP_E2E_DIR/checks/mcpnames.py" "$@"
