@@ -736,6 +736,52 @@ public class QueryToolTest
     }
 
     @Test
+    public void testAggregationSizeIsCapped()
+    {
+        final String literal = "{ guillotine { queryDslConnection(query: {matchAll: {}}, aggregations: [{name: \"t\", terms: " +
+            "{field: \"type\", size: %d}}]) { totalCount } } }";
+        final String variable = "query ($a: [AggregationInput]) { guillotine { queryDslConnection(query: {matchAll: {}}, " +
+            "aggregations: $a) { totalCount } } }";
+
+        for ( final ToolError error : List.of(
+            assertThrows( ToolError.class, () -> checkLimits( literal.formatted( 101 ), null, Map.of(), true ) ),
+            assertThrows( ToolError.class, () -> checkLimits( variable, null, Map.of( "a", List.of(
+                Map.of( "name", "t", "terms", Map.of( "field", "type", "size", 100000 ) ) ) ), true ) ) ) )
+        {
+            assertEquals( "Aggregation size must not exceed 100 in this tool. Use size <= 100, or narrow the query so fewer buckets " +
+                              "are needed.", error.userMessage() );
+        }
+        assertDoesNotThrow( () -> checkLimits( literal.formatted( 100 ), null, Map.of(), true ) );
+    }
+
+    @Test
+    public void testPagingBeyondTheSearchWindowIsRejected()
+    {
+        final String after = java.util.Base64.getEncoder().encodeToString( "9999".getBytes() );
+        final List<ToolError> errors = List.of(
+            assertThrows( ToolError.class, () -> checkLimits( "{ guillotine { queryDsl(query: {matchAll: {}}, offset: 50000) { _id } } }",
+                                                              null, Map.of(), true ) ),
+            assertThrows( ToolError.class, () -> checkLimits(
+                "{ guillotine { queryDsl(query: {matchAll: {}}, offset: 9950, first: 100) { _id } } }", null, Map.of(), true ) ),
+            assertThrows( ToolError.class, () -> checkLimits(
+                "{ guillotine { queryDslConnection(query: {matchAll: {}}, after: \"" + after + "\") { totalCount } } }", null, Map.of(),
+                true ) ),
+            assertThrows( ToolError.class, () -> checkLimits(
+                "query ($o: Int) { guillotine { getChildren(key: \"/articles\", offset: $o) { _id } } }", null, Map.of( "o", 50000 ),
+                true ) ) );
+
+        for ( final ToolError error : errors )
+        {
+            assertEquals( "offset or after plus first must not exceed 10000 in this tool: the search index cannot page beyond that. " +
+                              "Narrow the query with a filter or a different sort instead of paging this deep.", error.userMessage() );
+        }
+        assertDoesNotThrow( () -> checkLimits( "{ guillotine { queryDsl(query: {matchAll: {}}, offset: 9900, first: 100) { _id } } }",
+                                               null, Map.of(), true ) );
+        assertDoesNotThrow( () -> checkLimits( "{ guillotine { queryDslConnection(query: {matchAll: {}}, after: \"not a cursor\") " +
+                                                   "{ totalCount } } }", null, Map.of(), true ) );
+    }
+
+    @Test
     public void testAllFieldsFailingIsAnError()
     {
         final Map<String, Object> result =
@@ -854,6 +900,32 @@ public class QueryToolTest
                           "present too often. Ask for one __type per query, or call describe-type to see a content type.",
                       error.userMessage() );
         assertNull( run( Map.of( "query", "{ __type(name: \"Query\") { name } }" ) ).get( "isError" ) );
+    }
+
+    @Test
+    public void testDateHistogramWithoutMinDocCountIsRejected()
+    {
+        final String literal = "{ guillotine { queryDslConnection(query: {matchAll: {}}, aggregations: [{name: \"d\", dateHistogram: " +
+            "{field: \"modifiedTime\", interval: \"1M\"%s}}]) { totalCount } } }";
+        final String variable = "query ($a: [AggregationInput]) { guillotine { queryDslConnection(query: {matchAll: {}}, " +
+            "aggregations: $a) { totalCount } } }";
+        final Map<String, Object> histogram = Map.of( "field", "modifiedTime", "interval", "1M" );
+
+        for ( final boolean principalsAllowed : List.of( false, true ) )
+        {
+            for ( final ToolError error : List.of(
+                assertThrows( ToolError.class, () -> checkLimits( literal.formatted( "" ), null, Map.of(), principalsAllowed ) ),
+                assertThrows( ToolError.class, () -> checkLimits( variable, null, Map.of( "a", List.of(
+                    Map.of( "name", "d", "dateHistogram", histogram ) ) ), principalsAllowed ) ),
+                assertThrows( ToolError.class, () -> checkLimits( literal.formatted( ", minDocCount: $m" ).replace( "{ guillotine",
+                                                                                                                   "query ($m: Int) { guillotine" ),
+                                                                  null, Map.of(), principalsAllowed ) ) ) )
+            {
+                assertEquals( "dateHistogram needs minDocCount in this tool. Pass minDocCount in each dateHistogram, e.g. " +
+                                  "{field: \"modifiedTime\", interval: \"1M\", minDocCount: 1}.", error.userMessage() );
+            }
+            assertDoesNotThrow( () -> checkLimits( literal.formatted( ", minDocCount: 0" ), null, Map.of(), principalsAllowed ) );
+        }
     }
 
     private void checkLimits( final String query, final String operationName, final Map<String, Object> variables,

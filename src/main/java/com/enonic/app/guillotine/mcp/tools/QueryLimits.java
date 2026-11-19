@@ -44,6 +44,8 @@ import graphql.schema.GraphQLSchema;
 import graphql.schema.GraphQLTypeUtil;
 import graphql.schema.InputValueWithState;
 
+import com.enonic.app.guillotine.graphql.helper.ConnectionHelper;
+import com.enonic.app.guillotine.mcp.shape.Cursors;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranchResolver;
 import com.enonic.app.guillotine.mcp.shape.ToolError;
 
@@ -69,6 +71,12 @@ final class QueryLimits
 
     private static final String SORT_ARG = "sort";
 
+    private static final String SIZE_FIELD = "size";
+
+    private static final String DATE_HISTOGRAM_FIELD = "dateHistogram";
+
+    private static final String MIN_DOC_COUNT_FIELD = "minDocCount";
+
     /**
      * Input fields of Guillotine's query DSL, aggregation, highlight and sort inputs that name an index field.
      */
@@ -79,6 +87,8 @@ final class QueryLimits
      * such as {@code geoDistance('owner', ...)} hide a field.
      */
     private static final Pattern SORT_TOKEN = Pattern.compile( "[A-Za-z0-9_.^*?]+" );
+
+    private static final Set<String> WINDOW_ARGS = Set.of( "offset", "after" );
 
     private static final String PRINCIPAL_HINT =
         "Filter, aggregate and sort on other fields; only CMS users and administrators may use creator, modifier, owner and " +
@@ -122,8 +132,10 @@ final class QueryLimits
 
     /**
      * Rejects {@code project}/{@code branch} arguments of the {@code guillotine} field (they would bypass the resolved project and its
-     * access check), {@code first} above {@link #MAX_FIRST}, principal fields (creator, modifier, owner, permissions) in filters,
-     * aggregations, highlights and sorts unless {@code principalsAllowed}, and an
+     * access check), {@code first} above {@link #MAX_FIRST}, {@code offset} or {@code after} plus {@code first} beyond
+     * {@link Cursors#MAX_WINDOW}, an aggregation {@code size} above {@link SearchQuery#MAX_BUCKETS}, a
+     * {@code dateHistogram} without {@code minDocCount}, principal fields (creator,
+     * modifier, owner, permissions) in filters, aggregations, highlights and sorts unless {@code principalsAllowed}, and an
      * {@code operation} whose complexity exceeds {@code maxComplexity}. Variables resolve with the defaults of {@code operation}.
      * A field costs one plus the cost of its selection multiplied by its {@code first} argument; a field of {@code schema} that takes
      * {@code first} but is not given one counts with the argument's default, else {@link #DEFAULT_FIRST}. Every fragment spread counts.
@@ -174,6 +186,7 @@ final class QueryLimits
                         checkSort( sort );
                     }
                 }
+                checkWindow( field );
             }
             else if ( node instanceof ObjectField objectField )
             {
@@ -212,6 +225,19 @@ final class QueryLimits
                 checkFieldName( value );
             }
         }
+        else if ( DATE_HISTOGRAM_FIELD.equals( name ) && value instanceof Map<?, ?> histogram &&
+            histogram.get( MIN_DOC_COUNT_FIELD ) == null )
+        {
+            throw new ToolError( "dateHistogram needs minDocCount in this tool.",
+                                 "Pass minDocCount in each dateHistogram, e.g. {field: \"modifiedTime\", interval: \"1M\", minDocCount: " +
+                                     SearchQuery.DATE_HISTOGRAM_MIN_DOC_COUNT + "}." );
+        }
+        else if ( SIZE_FIELD.equals( name ) && value instanceof Number size &&
+            new BigDecimal( size.toString() ).compareTo( BigDecimal.valueOf( SearchQuery.MAX_BUCKETS ) ) > 0 )
+        {
+            throw new ToolError( "Aggregation size must not exceed " + SearchQuery.MAX_BUCKETS + " in this tool.",
+                                 "Use size <= " + SearchQuery.MAX_BUCKETS + ", or narrow the query so fewer buckets are needed." );
+        }
     }
 
     private void checkFieldName( final Object value )
@@ -229,6 +255,50 @@ final class QueryLimits
         {
             SearchQuery.checkPrincipal( token.group(), "sort", principalsAllowed, PRINCIPAL_HINT );
         }
+    }
+
+    private void checkWindow( final Field field )
+    {
+        long start = 0;
+        Object first = null;
+        for ( final Argument argument : field.getArguments() )
+        {
+            if ( WINDOW_ARGS.contains( argument.getName() ) )
+            {
+                start = Math.max( start, windowStart( argument.getName(), literal( argument.getValue() ) ) );
+            }
+            else if ( FIRST_ARG.equals( argument.getName() ) )
+            {
+                first = value( argument.getValue() );
+            }
+        }
+        final long size = first instanceof Number number ? Math.max( 0, number.longValue() ) : DEFAULT_FIRST;
+        if ( start > 0 && start > Cursors.MAX_WINDOW - size )
+        {
+            throw new ToolError( "offset or after plus first must not exceed " + Cursors.MAX_WINDOW +
+                                     " in this tool: the search index cannot page beyond that.",
+                                 "Narrow the query with a filter or a different sort instead of paging this deep." );
+        }
+    }
+
+    private static long windowStart( final String argument, final Object value )
+    {
+        if ( "offset".equals( argument ) )
+        {
+            return value instanceof Number number ? Math.max( 0, number.longValue() ) : 0;
+        }
+        if ( value instanceof String cursor )
+        {
+            try
+            {
+                return Long.parseLong( ConnectionHelper.decodeCursor( cursor ).strip() ) + 1;
+            }
+            catch ( IllegalArgumentException e )
+            {
+                return 0;
+            }
+        }
+        return 0;
     }
 
     private long cost( final SelectionSet selectionSet, final GraphQLCompositeType parent )
