@@ -570,9 +570,9 @@ public class QueryToolTest
 
         for ( final String document : List.of( small + " " + large, large + " " + small ) )
         {
-            final ToolError error = assertThrows( ToolError.class, () -> checkLimits( document, "B", Map.of() ), document );
+            final ToolError error = assertThrows( ToolError.class, () -> checkLimits( document, "B", Map.of(), false ), document );
             assertTrue( error.userMessage().startsWith( "first must not exceed 100 in this tool." ), error.userMessage() );
-            assertDoesNotThrow( () -> checkLimits( document, "A", Map.of() ), document );
+            assertDoesNotThrow( () -> checkLimits( document, "A", Map.of(), false ), document );
         }
     }
 
@@ -653,6 +653,85 @@ public class QueryToolTest
     }
 
     @Test
+    public void testPrincipalFieldsAreRejectedForNonCmsCallers()
+    {
+        final List<Map<String, Object>> forms = List.of(
+            Map.of( "query", "{ guillotine { queryDsl(query: {term: {field: \"modifier\", value: \"user:system:alice\"}}) { _id } } }" ),
+            Map.of( "query", "{ guillotine { queryDsl(query: {like: {field: \"owner\", value: \"*carol*\"}}) { _id } } }" ),
+            Map.of( "query", "{ guillotine { queryDsl(query: {boolean: {must: [{exists: {field: \"Creator._orderby\"}}]}}) { _id } } }" ),
+            Map.of( "query", "{ guillotine { queryDsl(query: {fulltext: {fields: [\"displayName\", \"owner^2\"], query: \"a\"}}) " +
+                "{ _id } } }" ),
+            Map.of( "query", "{ guillotine { queryDslConnection(query: {matchAll: {}}, first: 0, aggregations: [{name: \"m\", " +
+                "terms: {field: \"modifier\"}}]) { totalCount } } }" ),
+            Map.of( "query", "{ guillotine { queryDslConnection(query: {matchAll: {}}, first: 0, aggregations: [{name: \"t\", " +
+                "terms: {field: \"type\"}, subAggregations: [{name: \"o\", terms: {field: \"owner._orderby\"}}]}]) { totalCount } } }" ),
+            Map.of( "query", "{ guillotine { queryDslConnection(query: {matchAll: {}}, highlight: {properties: [{propertyName: " +
+                "\"modifier\"}]}) { totalCount } } }" ),
+            Map.of( "query", "{ guillotine { queryDsl(query: {matchAll: {}}, sort: [{field: \"creator\", direction: DESC}]) { _id } } }" ),
+            Map.of( "query", "{ guillotine { getChildren(key: \"/\", sort: \"_name ASC, modifier DESC\") { _id } } }" ),
+            Map.of( "query", "{ guillotine { queryDsl(query: {term: {field: \"_permissions_read\", value: \"role:everyone\"}}) " +
+                "{ _id } } }" ),
+            Map.of( "query", "query ($q: QueryDSLInput) { guillotine { queryDsl(query: $q) { _id } } }", "variables",
+                    Map.of( "q", Map.of( "term", Map.of( "field", "modifier._orderby", "value", "x" ) ) ) ),
+            Map.of( "query", "query ($f: String!) { guillotine { queryDsl(query: {term: {field: $f, value: \"x\"}}) { _id } } }",
+                    "variables", Map.of( "f", "owner" ) ),
+            Map.of( "query", "query ($s: String) { guillotine { getChildren(key: \"/\", sort: $s) { _id } } }", "variables",
+                    Map.of( "s", "modifier DESC" ) ),
+            Map.of( "query", "query ($a: [AggregationInput]) { guillotine { queryDslConnection(query: {matchAll: {}}, " +
+                "aggregations: $a) { totalCount } } }", "variables",
+                    Map.of( "a", List.of( Map.of( "name", "m", "terms", Map.of( "field", "modifier" ) ) ) ) ),
+            Map.of( "query", "query ($q: QueryDSLInput = {term: {field: \"owner\", value: \"x\"}}) { guillotine { queryDsl(query: $q) " +
+                "{ _id } } }" ) );
+
+        for ( final AuthenticationInfo caller : List.of( AuthenticationInfo.unAuthenticated(), ALICE ) )
+        {
+            for ( final Map<String, Object> args : forms )
+            {
+                final ToolError error = assertThrows( ToolError.class, () -> ContextBuilder.create()
+                    .authInfo( caller )
+                    .build()
+                    .callWith( () -> tool().execute( args ) ), () -> args.toString() );
+                assertTrue( error.userMessage().contains( "holds user keys, which the current caller may not see." ), error.userMessage() );
+            }
+        }
+        verifyNoInteractions( contentService, resolver );
+
+        for ( final Map<String, Object> args : forms )
+        {
+            final Map<String, Object> variables = CastHelper.cast( args.getOrDefault( "variables", Map.of() ) );
+            assertDoesNotThrow( () -> checkLimits( (String) args.get( "query" ), null, variables, true ), () -> args.toString() );
+        }
+    }
+
+    @Test
+    public void testPrincipalSortFieldsAreFoundWhateverTheSeparator()
+    {
+        final String query = "query ($s: String) { guillotine { getChildren(key: \"/\", sort: $s) { _id } } }";
+        for ( final String sort : List.of( "owner\u2028DESC", "owner\u3000DESC", "owner\u2009DESC", "owner\u001fDESC", "owner\tDESC",
+                                           "_name ASC,modifier DESC", "_name ASC ,\u00a0creator", "geoDistance('owner','1,2')",
+                                           "geoDistance(\"data.location\", \"1,2\"), modifier._orderby ASC" ) )
+        {
+            final ToolError error =
+                assertThrows( ToolError.class, () -> checkLimits( query, null, Map.of( "s", sort ), false ), () -> sort );
+            assertTrue( error.userMessage().startsWith( "Invalid sort: " ) &&
+                            error.userMessage().contains( "holds user keys, which the current caller may not see." ), error.userMessage() );
+        }
+        for ( final String sort : List.of( "_name ASC, modifiedTime\u3000DESC", "geoDistance('data.location','1,2') ASC",
+                                           "displayName\tdesc" ) )
+        {
+            assertDoesNotThrow( () -> checkLimits( query, null, Map.of( "s", sort ), false ), sort );
+        }
+    }
+
+    @Test
+    public void testPrincipalCheckKeepsOtherFields()
+    {
+        assertDoesNotThrow( () -> checkLimits( "{ guillotine { queryDslConnection(query: {term: {field: \"data.owner\", value: " +
+                                                   "\"x\"}}, aggregations: [{name: \"t\", terms: {field: \"ownership\"}}], " +
+                                                   "sort: [{field: \"modifiedTime\"}]) { totalCount } } }", null, Map.of(), false ) );
+    }
+
+    @Test
     public void testAllFieldsFailingIsAnError()
     {
         final Map<String, Object> result =
@@ -724,7 +803,8 @@ public class QueryToolTest
     private static void checkLimits( final String query, final GraphQLSchema schema, final int maxComplexity )
     {
         final Document document = new Parser().parseDocument( query );
-        QueryLimits.check( document, document.getDefinitionsOfType( OperationDefinition.class ).get( 0 ), Map.of(), maxComplexity, () -> schema );
+        QueryLimits.check( document, document.getDefinitionsOfType( OperationDefinition.class ).get( 0 ), Map.of(), maxComplexity, true,
+                           () -> schema );
     }
 
     @Test
@@ -739,7 +819,8 @@ public class QueryToolTest
         assertNull( run( Map.of( "query", "{ __type(name: \"Query\") { name } }" ) ).get( "isError" ) );
     }
 
-    private void checkLimits( final String query, final String operationName, final Map<String, Object> variables )
+    private void checkLimits( final String query, final String operationName, final Map<String, Object> variables,
+                              final boolean principalsAllowed )
     {
         final Document document = new Parser().parseDocument( query );
         final OperationDefinition operation = document.getDefinitionsOfType( OperationDefinition.class )
@@ -747,7 +828,7 @@ public class QueryToolTest
             .filter( definition -> operationName == null || operationName.equals( definition.getName() ) )
             .findFirst()
             .orElseThrow();
-        QueryLimits.check( document, operation, variables, 1_000_000, schemaProvider::getSchema );
+        QueryLimits.check( document, operation, variables, 1_000_000, principalsAllowed, schemaProvider::getSchema );
     }
 
     private Map<String, Object> run( final QueryTool tool, final Map<String, Object> args )

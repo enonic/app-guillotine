@@ -74,7 +74,8 @@ public final class QueryTool
 
         final Document document = parse( query );
         final OperationDefinition operation = selectOperation( document, operationName );
-        QueryLimits.check( document, operation, variables, configService.getMcpMaxComplexity(), schemaProvider::getSchema );
+        QueryLimits.check( document, operation, variables, configService.getMcpMaxComplexity(), ContentGraphQl.canReadPrincipals(),
+                           schemaProvider::getSchema );
         final ProjectBranch projectBranch = resolver.resolve( args );
 
         final Instrumentation limits = QueryLimits.depthLimit( configService.getMcpMaxDepth() );

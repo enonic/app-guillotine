@@ -4,25 +4,35 @@ import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import graphql.analysis.MaxQueryDepthInstrumentation;
 import graphql.execution.AbortExecutionException;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.language.Argument;
+import graphql.language.ArrayValue;
 import graphql.language.Document;
 import graphql.language.Field;
+import graphql.language.FloatValue;
 import graphql.language.FragmentDefinition;
 import graphql.language.FragmentSpread;
 import graphql.language.InlineFragment;
 import graphql.language.IntValue;
 import graphql.language.Node;
+import graphql.language.ObjectField;
+import graphql.language.ObjectValue;
 import graphql.language.OperationDefinition;
 import graphql.language.Selection;
 import graphql.language.SelectionSet;
+import graphql.language.StringValue;
 import graphql.language.Value;
 import graphql.language.TypeName;
 import graphql.language.VariableReference;
@@ -57,11 +67,30 @@ final class QueryLimits
 
     private static final Set<String> SCOPE_ARGS = Set.of( ProjectBranchResolver.PROJECT_ARG, ProjectBranchResolver.BRANCH_ARG );
 
+    private static final String SORT_ARG = "sort";
+
+    /**
+     * Input fields of Guillotine's query DSL, aggregation, highlight and sort inputs that name an index field.
+     */
+    private static final Set<String> FIELD_NAME_KEYS = Set.of( "field", "fields", "propertyName" );
+
+    /**
+     * Every name-like run in a sort string, so that neither the separators XP accepts (any Unicode whitespace) nor function forms
+     * such as {@code geoDistance('owner', ...)} hide a field.
+     */
+    private static final Pattern SORT_TOKEN = Pattern.compile( "[A-Za-z0-9_.^*?]+" );
+
+    private static final String PRINCIPAL_HINT =
+        "Filter, aggregate and sort on other fields; only CMS users and administrators may use creator, modifier, owner and " +
+            "permissions.";
+
     private final Document document;
 
     private final Map<String, Object> variables;
 
     private final GraphQLSchema schema;
+
+    private final boolean principalsAllowed;
 
     private final Map<String, Value<?>> defaults = new HashMap<>();
 
@@ -72,11 +101,12 @@ final class QueryLimits
     private final Set<String> visiting = new HashSet<>();
 
     private QueryLimits( final Document document, final OperationDefinition operation, final Map<String, Object> variables,
-                         final GraphQLSchema schema )
+                         final GraphQLSchema schema, final boolean principalsAllowed )
     {
         this.document = document;
         this.variables = variables;
         this.schema = schema;
+        this.principalsAllowed = principalsAllowed;
         operation.getVariableDefinitions()
             .stream()
             .filter( definition -> definition.getDefaultValue() != null )
@@ -92,17 +122,18 @@ final class QueryLimits
 
     /**
      * Rejects {@code project}/{@code branch} arguments of the {@code guillotine} field (they would bypass the resolved project and its
-     * access check), {@code first} above {@link #MAX_FIRST}, and an {@code operation} whose complexity exceeds {@code maxComplexity}.
-     * Variables resolve with the defaults of {@code operation}. A field costs one plus the cost of its selection multiplied by its
-     * {@code first} argument; a field of {@code schema} that takes {@code first} but is not given one counts with the argument's
-     * default, else {@link #DEFAULT_FIRST}. Every fragment spread counts. The schema is only fetched once the arguments are known to
-     * be acceptable.
+     * access check), {@code first} above {@link #MAX_FIRST}, principal fields (creator, modifier, owner, permissions) in filters,
+     * aggregations, highlights and sorts unless {@code principalsAllowed}, and an
+     * {@code operation} whose complexity exceeds {@code maxComplexity}. Variables resolve with the defaults of {@code operation}.
+     * A field costs one plus the cost of its selection multiplied by its {@code first} argument; a field of {@code schema} that takes
+     * {@code first} but is not given one counts with the argument's default, else {@link #DEFAULT_FIRST}. Every fragment spread counts.
+     * The schema is only fetched once the arguments are known to be acceptable.
      */
     static void check( final Document document, final OperationDefinition operation, final Map<String, Object> variables,
-                       final int maxComplexity, final Supplier<GraphQLSchema> schema )
+                       final int maxComplexity, final boolean principalsAllowed, final Supplier<GraphQLSchema> schema )
     {
-        new QueryLimits( document, operation, variables, null ).checkArguments();
-        final QueryLimits limits = new QueryLimits( document, operation, variables, schema.get() );
+        new QueryLimits( document, operation, variables, null, principalsAllowed ).checkArguments();
+        final QueryLimits limits = new QueryLimits( document, operation, variables, schema.get(), principalsAllowed );
 
         final long complexity = limits.cost( operation.getSelectionSet(), limits.schema != null ? limits.schema.getQueryType() : null );
         final int max = Math.max( 1, maxComplexity );
@@ -138,9 +169,65 @@ final class QueryLimits
                                              "Use first <= " + MAX_FIRST +
                                                  " and paginate with after, or use the search tool for paging." );
                     }
+                    if ( SORT_ARG.equals( argument.getName() ) && literal( argument.getValue() ) instanceof String sort )
+                    {
+                        checkSort( sort );
+                    }
                 }
             }
+            else if ( node instanceof ObjectField objectField )
+            {
+                checkInput( objectField.getName(), literal( objectField.getValue() ) );
+            }
             node.getChildren().forEach( nodes::add );
+        }
+        checkInputs( variables );
+    }
+
+    private void checkInputs( final Object value )
+    {
+        if ( value instanceof Map<?, ?> map )
+        {
+            map.forEach( ( key, item ) -> {
+                checkInput( String.valueOf( key ), item );
+                checkInputs( item );
+            } );
+        }
+        else if ( value instanceof List<?> list )
+        {
+            list.forEach( this::checkInputs );
+        }
+    }
+
+    private void checkInput( final String name, final Object value )
+    {
+        if ( FIELD_NAME_KEYS.contains( name ) )
+        {
+            if ( value instanceof List<?> list )
+            {
+                list.forEach( this::checkFieldName );
+            }
+            else
+            {
+                checkFieldName( value );
+            }
+        }
+    }
+
+    private void checkFieldName( final Object value )
+    {
+        if ( value instanceof String name )
+        {
+            SearchQuery.checkPrincipal( name, "field", principalsAllowed, PRINCIPAL_HINT );
+        }
+    }
+
+    private void checkSort( final String sort )
+    {
+        final Matcher token = SORT_TOKEN.matcher( sort );
+        while ( token.find() )
+        {
+            SearchQuery.checkPrincipal( token.group(), "sort", principalsAllowed, PRINCIPAL_HINT );
         }
     }
 
@@ -219,6 +306,47 @@ final class QueryLimits
     private GraphQLCompositeType compositeType( final TypeName name )
     {
         return schema != null && name != null && schema.getType( name.getName() ) instanceof GraphQLCompositeType type ? type : null;
+    }
+
+    /**
+     * The value of {@code value} as a variable would hold it: strings, numbers, booleans, lists and maps; a variable resolves to its
+     * value, else to the default of the checked operation.
+     */
+    private Object literal( final Value<?> value )
+    {
+        if ( value instanceof VariableReference reference )
+        {
+            if ( variables.containsKey( reference.getName() ) )
+            {
+                return variables.get( reference.getName() );
+            }
+            return literal( defaults.get( reference.getName() ) );
+        }
+        if ( value instanceof StringValue string )
+        {
+            return string.getValue();
+        }
+        if ( value instanceof IntValue intValue )
+        {
+            return intValue.getValue();
+        }
+        if ( value instanceof FloatValue floatValue )
+        {
+            return floatValue.getValue();
+        }
+        if ( value instanceof ArrayValue array )
+        {
+            final List<Object> result = new ArrayList<>();
+            array.getValues().forEach( item -> result.add( literal( item ) ) );
+            return result;
+        }
+        if ( value instanceof ObjectValue object )
+        {
+            final Map<String, Object> result = new LinkedHashMap<>();
+            object.getObjectFields().forEach( objectField -> result.put( objectField.getName(), literal( objectField.getValue() ) ) );
+            return result;
+        }
+        return null;
     }
 
     private Object value( final Value<?> value )
