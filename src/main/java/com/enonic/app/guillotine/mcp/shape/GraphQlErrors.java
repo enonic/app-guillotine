@@ -89,10 +89,16 @@ public final class GraphQlErrors
 
     /**
      * Exceptions whose message tells the caller what to change: invalid arguments and keys, dates, missing content, denied access,
-     * and a search the index refused.
+     * and a search the index refused. A plain {@link RuntimeException} that only wraps its cause, as some Guillotine resolvers throw,
+     * is judged by that cause.
      */
     static boolean isCallerError( final Throwable exception )
     {
+        if ( exception != null && exception.getClass() == RuntimeException.class && exception.getCause() != null &&
+            ( exception.getMessage() == null || exception.getMessage().equals( exception.getCause().toString() ) ) )
+        {
+            return isCallerError( exception.getCause() );
+        }
         return exception instanceof IllegalArgumentException || exception instanceof DateTimeException ||
             exception instanceof NotFoundException || exception instanceof ForbiddenAccessException ||
             exception instanceof IllegalAccessException ||

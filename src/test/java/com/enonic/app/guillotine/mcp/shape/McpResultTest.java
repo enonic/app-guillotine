@@ -208,7 +208,12 @@ public class McpResultTest
         assertTrue( GraphQlErrors.isCallerError( new IndexException( "Search request failed, query: {}" ) ) );
         assertFalse( GraphQlErrors.isCallerError( new IndexException( "Index [search-myproject] is closed" ) ) );
         assertFalse( GraphQlErrors.isCallerError( new IllegalStateException( "secret" ) ) );
-        assertFalse( GraphQlErrors.isCallerError( new RuntimeException( new IllegalArgumentException( "wrapped" ) ) ) );
+        // RichTextDataFetcher wraps every failure, caller errors included, in new RuntimeException( e )
+        assertTrue( GraphQlErrors.isCallerError( new RuntimeException( new IllegalArgumentException( "wrapped" ) ) ) );
+        assertTrue( GraphQlErrors.isCallerError( new RuntimeException( new RuntimeException( new IllegalArgumentException( "x" ) ) ) ) );
+        assertFalse( GraphQlErrors.isCallerError( new RuntimeException( new IllegalStateException( "secret" ) ) ) );
+        assertFalse( GraphQlErrors.isCallerError( new RuntimeException( "secret context", new IllegalArgumentException( "x" ) ) ) );
+        assertFalse( GraphQlErrors.isCallerError( new IllegalStateException( new IllegalArgumentException( "x" ) ) ) );
         assertFalse( GraphQlErrors.isCallerError( null ) );
     }
 

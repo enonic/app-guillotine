@@ -28,6 +28,7 @@ import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.mcp.shape.GraphQlErrors;
 import com.enonic.app.guillotine.mcp.shape.McpJson;
 import com.enonic.app.guillotine.mcp.shape.ToolError;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentQuery;
@@ -35,6 +36,7 @@ import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.FindContentByParentParams;
 import com.enonic.xp.content.FindContentIdsByParentResult;
 import com.enonic.xp.content.GetContentByIdsParams;
+import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.schema.content.ContentType;
@@ -832,6 +834,27 @@ public class QueryToolTest
         assertEquals( true, result.get( "isError" ) );
         assertEquals( "Query failed: guillotine.get: Internal error while resolving this field; see the server log.", text( result ) );
         assertFalse( McpJson.write( result ).contains( "hunter2" ) );
+    }
+
+    @Test
+    public void testWrappedCallerErrorFromRichTextKeepsItsMessage()
+    {
+        final Content withBody = article( "a1", "First" );
+        final PropertyTree data = withBody.getData().copy();
+        data.setString( "body", "<p>Hello</p>" );
+        when( contentService.getById( ContentId.from( "a1" ) ) ).thenReturn( Content.create( withBody ).data( data ).build() );
+        final Map<String, Object> args = Map.of( "query", "{ guillotine { get(key: \"a1\") { ... on com_example_mcpdataset_Article { " +
+            "data { body(processHtml: {imageWidths: [100]}) { processedHtml } } } } } }" );
+
+        final Map<String, Object> denied = createAdminContext().callWith( () -> ContextBuilder.copyOf( ContextAccessor.current() )
+            .attribute( ImageTransformations.CONTEXT_ATTRIBUTE, "deny" )
+            .build()
+            .callWith( () -> tool().execute( args ) ) );
+
+        final String written = McpJson.write( denied );
+        assertTrue( written.contains( "Image transformations are not allowed here: remove the 'processHtml.imageWidths' argument" ),
+                    written );
+        assertFalse( written.contains( "Internal error" ), written );
     }
 
     @Test
