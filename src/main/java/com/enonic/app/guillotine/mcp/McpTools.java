@@ -14,11 +14,15 @@ import com.enonic.app.guillotine.mcp.shape.McpJson;
 import com.enonic.app.guillotine.mcp.shape.McpResult;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranchResolver;
 import com.enonic.app.guillotine.mcp.shape.ToolError;
+import com.enonic.app.guillotine.mcp.tools.CheckLinksTool;
 import com.enonic.app.guillotine.mcp.tools.ContentGraphQl;
 import com.enonic.app.guillotine.mcp.tools.DescribeTypeTool;
+import com.enonic.app.guillotine.mcp.tools.FindReferencesTool;
+import com.enonic.app.guillotine.mcp.tools.GetTool;
 import com.enonic.app.guillotine.mcp.tools.ListProjectsTool;
 import com.enonic.app.guillotine.mcp.tools.ListTypesTool;
 import com.enonic.app.guillotine.mcp.tools.QueryTool;
+import com.enonic.app.guillotine.mcp.tools.SearchTool;
 
 public final class McpTools
 {
@@ -48,8 +52,14 @@ public final class McpTools
         final ContentGraphQl graphQl = new ContentGraphQl( schemaProvider, serviceFacade.getContentService() );
         return List.of( new ListProjectsTool( serviceFacade.getProjectService(), configService, resolver ),
                         new ListTypesTool( graphQl, resolver, configService, serviceFacade.getContentTypeService() ),
+                        new SearchTool( graphQl, resolver, configService, serviceFacade.getContentService(),
+                                        serviceFacade.getContentTypeService() ),
+                        new GetTool( graphQl, resolver, configService, serviceFacade.getContentTypeService(),
+                                     serviceFacade.getCmsFormFragmentService() ),
                         new DescribeTypeTool( schemaProvider, configService ),
-                        new QueryTool( schemaProvider, configService, resolver ) );
+                        new QueryTool( schemaProvider, configService, resolver ),
+                        new FindReferencesTool( serviceFacade.getContentService(), resolver, configService ),
+                        new CheckLinksTool( serviceFacade.getContentService(), resolver, configService ) );
     }
 
     public Map<String, Object> run( final String name, final String argsJson )

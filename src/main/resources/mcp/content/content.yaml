@@ -111,6 +111,141 @@ tools:
       destructiveHint: false
       idempotentHint: true
       openWorldHint: false
+  - name: search
+    title: Search content
+    description: >-
+      Finds content by text, type, path, author, workflow state and field filters, with sorting, paging and aggregations
+      (count 0 with aggregate answers "how many per X" in one call; buckets keyed by content ids get a label with path and displayName).
+      Call list-types first to get type names and describe-type to learn data field names for filters, sort and aggregate.
+    inputSchema:
+      type: object
+      properties:
+        project:
+          type: string
+          description: Project from list-projects; defaults to defaultProject.
+        branch:
+          type: string
+          enum: [draft, master]
+          description: draft (latest, signed-in users with a project role) or master (published); defaults to defaultBranch.
+        text:
+          type: string
+          description: >-
+            Full-text query over displayName, name and all text fields; all words must match.
+        types:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+          description: >-
+            Content type names from list-types, e.g. com.example.app:article, or article for that name in any application.
+        path:
+          type: string
+          description: >-
+            Only content below this path, not the item at the path itself, e.g. /articles.
+        mine:
+          type: boolean
+          description: >-
+            Only content last modified by the current user; requires a signed-in user.
+        workflow:
+          type: string
+          enum: [IN_PROGRESS, READY]
+          description: >-
+            IN_PROGRESS for work in progress; READY for everything else, including content without workflow info.
+        filters:
+          type: array
+          maxItems: 10
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Indexed field, e.g. modifiedTime, publish.from, language or data.title.
+              equals:
+                type: [string, number, boolean]
+              from:
+                type: [string, number]
+                description: Inclusive lower bound.
+              to:
+                type: [string, number]
+                description: Exclusive upper bound.
+            required: [field]
+            additionalProperties: false
+          description: >-
+            All must match; each is {field, equals} or {field, from, to}. Reference fields (type Content in describe-type, e.g.
+            data.author) hold content _id values: filter by _id, or aggregate on the field to get ids with labels. createdTime,
+            modifiedTime, archivedTime and publish.from/to/first take a date or a date-time with zone, e.g. 2026-01-31 or
+            2026-01-31T12:00:00Z. Principal fields (modifier, owner, creator) need a CMS user; use mine for your own changes.
+        sort:
+          type: string
+          description: >-
+            Comma-separated "field [ASC|DESC]", e.g. "modifiedTime DESC" or "data.title ASC". Default is relevance when text is
+            given, otherwise modifiedTime DESC.
+        aggregate:
+          type: array
+          maxItems: 5
+          items:
+            type: object
+            properties:
+              by:
+                type: string
+                description: Field to group by, e.g. type, language or data.author.
+              size:
+                type: integer
+                minimum: 1
+                maximum: 100
+                description: Number of buckets (default 10), largest first.
+              interval:
+                type: string
+                description: For date fields, a histogram interval such as 1d, 1w, 1M or 1y.
+            required: [by]
+            additionalProperties: false
+        count:
+          type: integer
+          minimum: 0
+          maximum: 50
+          description: Hits per page (default 10); 0 returns only total and aggregations.
+        cursor:
+          type: string
+          description: nextCursor from the previous page, with the same other arguments.
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+  - name: get
+    title: Get content
+    description: >-
+      Reads one content item by id or path with its metadata and data fields; rich text comes back as plain text plus its
+      links and images, resolved to paths. Content and image selector values are content _id values; get them to resolve.
+    inputSchema:
+      type: object
+      properties:
+        project:
+          type: string
+          description: Project from list-projects; defaults to defaultProject.
+        branch:
+          type: string
+          enum: [draft, master]
+          description: draft (latest, signed-in users with a project role) or master (published); defaults to defaultBranch.
+        key:
+          type: string
+          description: Content _id, or _path such as /articles/my-article, as returned by search.
+        fields:
+          type: array
+          maxItems: 50
+          items:
+            type: string
+          description: >-
+            Data fields to return, e.g. [title, body]; dotted names reach into item sets. Default is all data fields that fit;
+            larger ones are listed in omittedFields.
+      required: [key]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
   - name: describe-type
     title: Describe a content type
     description: >-
@@ -158,6 +293,93 @@ tools:
           enum: [draft, master]
           description: draft (latest, signed-in users with a project role) or master (published); defaults to defaultBranch.
       required: [query]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+  - name: find-references
+    title: Find references
+    description: >-
+      Lists what references a content item (inbound: selectors, rich text links and images in other content) and what it
+      references (outbound, with missing targets flagged), or with unusedMedia lists media items that no content references.
+      Use it before deleting or moving content and to clean up media; find the key with search first.
+    inputSchema:
+      type: object
+      properties:
+        project:
+          type: string
+          description: Project from list-projects; defaults to defaultProject.
+        branch:
+          type: string
+          enum: [draft, master]
+          description: draft (latest, signed-in users with a project role) or master (published); defaults to defaultBranch.
+        key:
+          type: string
+          description: >-
+            Content _id or _path, as returned by search; required unless unusedMedia. A deleted _id still works inbound.
+        direction:
+          type: string
+          enum: [inbound, outbound, both]
+          description: >-
+            inbound (what references key, paged), outbound (what key references, complete up to 200) or both (default).
+        unusedMedia:
+          type: boolean
+          description: true lists media items (paged, by path) that no readable content references; pass it without key.
+        types:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+          description: Content type names that limit the listed items; with unusedMedia, media types such as media:image.
+        count:
+          type: integer
+          minimum: 0
+          maximum: 50
+          description: Inbound or unused items per page (default 10); 0 returns only the total.
+        cursor:
+          type: string
+          description: nextCursor from the previous page, with the same other arguments.
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+  - name: check-links
+    title: Check internal links
+    description: >-
+      Scans content for internal links, images and selector values whose target does not exist on the branch (or is not
+      readable), page by page in path order; external URLs are not checked. brokenOnPage counts this page only: until complete
+      is true, call again with nextCursor before concluding.
+    inputSchema:
+      type: object
+      properties:
+        project:
+          type: string
+          description: Project from list-projects; defaults to defaultProject.
+        branch:
+          type: string
+          enum: [draft, master]
+          description: draft (latest, signed-in users with a project role) or master (published); defaults to defaultBranch.
+        path:
+          type: string
+          description: Scans the content at this path, such as /landings, and everything below it. Default is the whole project.
+        types:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+          description: Content type names of the content to scan, e.g. com.example.app:landing or landing.
+        count:
+          type: integer
+          minimum: 1
+          maximum: 50
+          description: Content items with references to scan per page (default 50).
+        cursor:
+          type: string
+          description: nextCursor from the previous page, with the same other arguments.
       additionalProperties: false
     annotations:
       readOnlyHint: true
