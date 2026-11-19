@@ -20,7 +20,7 @@ fi
     echo "mcp.defaultProject=mcp-test" > "$XP_HOME/config/com.enonic.app.guillotine.cfg"
 mkdir -p "$XP_HOME/logs" "$XP_HOME/deploy"
 echo "XP_DIST=$XP_DIST XP_HOME=$XP_HOME engine=${XP_SCRIPT_ENGINE:-default}"
-JAVA_OPTS="-XX:-OmitStackTraceInFastThrow -XX:+AlwaysPreTouch -Djava.net.preferIPv4Stack=true${XP_SCRIPT_ENGINE:+ -Dxp.script-engine=$XP_SCRIPT_ENGINE}" \
+JAVA_OPTS="-XX:-OmitStackTraceInFastThrow -XX:+AlwaysPreTouch -Djava.net.preferIPv4Stack=true -Dxp.home=$XP_HOME${XP_SCRIPT_ENGINE:+ -Dxp.script-engine=$XP_SCRIPT_ENGINE}" \
     XP_HOME="$XP_HOME" nohup "$XP_DIST/bin/server.sh" > "$XP_HOME/logs/console.log" 2>&1 &
 pid=$!
 # The start time identifies the process, so xp-stop.sh never signals a later process that reuses the PID.

@@ -41,9 +41,9 @@ All settings are environment variables with defaults in `scripts/xp-env.sh`.
 export XP_DIST=~/path/to/xp/modules/runtime/build/install XP_EXPECT=fix
 mcp-e2e/scripts/build-fixtures.sh     # dataset-app, echo-app, broken-app -> .tmp/mcp-e2e/build
 mcp-e2e/scripts/xp-start.sh           # refuses to start if 8080, 4848 or 2609 is in use
-mcp-e2e/scripts/deploy.sh             # deploys guillotine, dataset-app, echo-app; waits for "[mcp-dataset] done", fails on "failed"
+mcp-e2e/scripts/deploy.sh             # deploys guillotine, dataset-app, echo-app; waits for "[mcp-dataset] done", fails on "failed"; with an unchanged dataset jar it reads the log of the XP that xp-start.sh started
 mcp-e2e/scripts/run-all.sh
-mcp-e2e/scripts/xp-stop.sh            # stops only the XP that xp-start.sh started (same PID and start time)
+mcp-e2e/scripts/xp-stop.sh            # stops only the XP that xp-start.sh started (same PID and start time; keeps the pid file otherwise)
 ```
 
 `run-all.sh` runs these suites, in this order:

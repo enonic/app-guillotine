@@ -24,8 +24,27 @@ export BROKEN_JAR="${BROKEN_JAR:-$FIXTURE_BUILD_DIR/broken-app/libs/broken-app.j
 export DATASET_JAR="${DATASET_JAR:-$FIXTURE_BUILD_DIR/dataset-app/libs/dataset-app.jar}"
 
 process_start() {
-    # process_start <pid>: the start time of a running process, empty when there is none.
-    LC_ALL=C ps -o lstart= -p "$1" 2>/dev/null | sed 's/^ *//'
+    # process_start <pid>: the start time of a running process, empty when there is none. Linux: clock ticks after boot (field 22
+    # of /proc/<pid>/stat, counted after the command name, which may hold spaces); elsewhere: ps lstart, to the second.
+    if [ -r "/proc/$1/stat" ]; then
+        sed 's/^.*) //' "/proc/$1/stat" 2>/dev/null | cut -d' ' -f20
+    else
+        LC_ALL=C ps -o lstart= -p "$1" 2>/dev/null | sed 's/^ *//'
+    fi
+}
+
+is_local_xp() {
+    # is_local_xp <pid>: whether the process is an XP java process with this XP_HOME (-Dxp.home, or the work dir of older starts).
+    local args
+    args=$(ps -o args= -p "$1" 2>/dev/null) || return 1
+    case "$args" in
+        *java*com.enonic.xp.launcher.LauncherMain*) ;;
+        *) return 1 ;;
+    esac
+    case "$args" in
+        *"-Dxp.home=$XP_HOME "*|*"-Djava.io.tmpdir=$XP_HOME/work "*) return 0 ;;
+    esac
+    return 1
 }
 
 require_xp_expect() {
