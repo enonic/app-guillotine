@@ -102,6 +102,37 @@ public class ResultBudgetTest
     }
 
     @Test
+    public void testFitListDropsTrailingItemsWithoutACursor()
+    {
+        final List<Object> projects = new ArrayList<>();
+        for ( int i = 0; i < 10; i++ )
+        {
+            projects.add( Map.of( "name", "project-" + i, "description", "x".repeat( 150 ) ) );
+        }
+        final Map<String, Object> input = new LinkedHashMap<>();
+        input.put( "defaultBranch", "draft" );
+        input.put( "projects", projects );
+
+        final Map<String, Object> result = structured( BUDGET.withNarrowHint( "Pass a project name." ).fitList( input, "projects" ) );
+
+        final List<?> kept = (List<?>) result.get( "projects" );
+        assertTrue( kept.size() > 0 && kept.size() < 10, () -> "kept " + kept.size() );
+        assertEquals( projects.subList( 0, kept.size() ), kept );
+        assertEquals( "draft", result.get( "defaultBranch" ) );
+        assertFalse( result.containsKey( "nextCursor" ) );
+        assertEquals( "Result truncated to fit 1000 characters: dropped " + ( 10 - kept.size() ) + " trailing item(s) of 'projects'. " +
+                          "Pass a project name.", result.get( "hint" ) );
+        assertTrue( McpJson.length( result ) <= 1000 );
+        assertEquals( Map.of( "projects", List.of( 1 ) ), structured( BUDGET.fitList( Map.of( "projects", List.of( 1 ) ), "projects" ) ) );
+
+        final Map<String, Object> emptied =
+            structured( BUDGET.fitList( Map.of( "caller", "alice", "projects", List.of( "x".repeat( 2000 ) ) ), "projects" ) );
+        assertEquals( Map.of( "caller", "alice", "projects", List.of(), "truncated", true, "hint",
+                              "Result truncated to fit 1000 characters: dropped 1 trailing item(s) of 'projects'. Narrow the request." ),
+                      emptied );
+    }
+
+    @Test
     public void testFitPageMeasuresWithoutNulls()
     {
         final Map<String, Object> hit = new LinkedHashMap<>();

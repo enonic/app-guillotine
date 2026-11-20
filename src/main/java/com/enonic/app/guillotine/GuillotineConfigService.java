@@ -19,6 +19,8 @@ public class GuillotineConfigService
 
     private String mcpDefaultProject;
 
+    private boolean mcpAllowAnonymous;
+
     private int mcpMaxResultChars;
 
     @Activate
@@ -29,6 +31,7 @@ public class GuillotineConfigService
         this.maxQueryTokens = config.maxQueryTokens();
         this.mcpEnabled = config.mcp_enabled();
         this.mcpDefaultProject = config.mcp_defaultProject().trim();
+        this.mcpAllowAnonymous = config.mcp_allowAnonymous();
         this.mcpMaxResultChars = Math.clamp( config.mcp_maxResultChars(), MIN_MCP_RESULT_CHARS, MAX_MCP_RESULT_CHARS );
     }
 
@@ -50,6 +53,11 @@ public class GuillotineConfigService
     public String getMcpDefaultProject()
     {
         return mcpDefaultProject;
+    }
+
+    public boolean isMcpAllowAnonymous()
+    {
+        return mcpAllowAnonymous;
     }
 
     public int getMcpMaxResultChars()

@@ -3,6 +3,7 @@ package com.enonic.app.guillotine;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -16,6 +17,7 @@ public class GuillotineConfigServiceTest
 
         assertTrue( service.isMcpEnabled() );
         assertEquals( "", service.getMcpDefaultProject() );
+        assertFalse( service.isMcpAllowAnonymous() );
         assertEquals( 20000, service.getMcpMaxResultChars() );
     }
 
@@ -26,6 +28,15 @@ public class GuillotineConfigServiceTest
         when( config.mcp_defaultProject() ).thenReturn( "  blog " );
 
         assertEquals( "blog", activate( config ).getMcpDefaultProject() );
+    }
+
+    @Test
+    public void testAllowAnonymous()
+    {
+        final GuillotineConfig config = defaults();
+        when( config.mcp_allowAnonymous() ).thenReturn( true );
+
+        assertTrue( activate( config ).isMcpAllowAnonymous() );
     }
 
     @Test
