@@ -134,11 +134,15 @@ public class ProjectBranchResolver
         final PropertyTree data = contentRoot.data();
         final PropertySet projectData = data.getSet( ContentPropertyNames.DATA );
         final String language = data.getString( ContentPropertyNames.LANGUAGE );
-        return Project.create()
+        final Project.Builder project = Project.create()
             .name( name )
             .displayName( data.getString( ContentPropertyNames.DISPLAY_NAME ) )
             .description( projectData != null ? projectData.getString( ProjectConstants.PROJECT_DESCRIPTION_PROPERTY ) : null )
-            .language( language != null ? Locale.forLanguageTag( language ) : null )
-            .build();
+            .language( language != null ? Locale.forLanguageTag( language ) : null );
+        if ( projectData != null )
+        {
+            projectData.getStrings( ProjectConstants.PROJECT_PARENTS_PROPERTY ).forEach( parent -> project.addParent( ProjectName.from( parent ) ) );
+        }
+        return project.build();
     }
 }
