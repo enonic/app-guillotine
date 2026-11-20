@@ -8,6 +8,13 @@ import java.util.concurrent.Callable;
 
 import org.junit.jupiter.api.Test;
 
+import graphql.Scalars;
+import graphql.schema.GraphQLCodeRegistry;
+import graphql.schema.GraphQLFieldDefinition;
+import graphql.schema.GraphQLInterfaceType;
+import graphql.schema.GraphQLObjectType;
+import graphql.schema.GraphQLSchema;
+
 import com.enonic.app.guillotine.GuillotineConfig;
 import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.ServiceFacade;
@@ -25,6 +32,12 @@ import com.enonic.xp.node.NodeService;
 import com.enonic.xp.project.Project;
 import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.project.Projects;
+import com.enonic.xp.form.Input;
+import com.enonic.xp.inputtype.InputTypeName;
+import com.enonic.xp.schema.content.ContentType;
+import com.enonic.xp.schema.content.ContentTypeName;
+import com.enonic.xp.schema.content.ContentTypeService;
+import com.enonic.xp.schema.content.GetContentTypeParams;
 import com.enonic.xp.script.ScriptValue;
 import com.enonic.xp.security.IdProviderKey;
 import com.enonic.xp.security.PrincipalKey;
@@ -96,6 +109,21 @@ public class McpControllerScriptTest
             return Map.of( "data", echo );
         } );
 
+        when( schemaProvider.getSchema() ).thenReturn( articleSchema() );
+        final ContentTypeService contentTypeService = mock( ContentTypeService.class );
+        when( contentTypeService.getByName( any( GetContentTypeParams.class ) ) ).thenReturn( ContentType.create()
+                                                                                              .superType( ContentTypeName.structured() )
+                                                                                              .name( "app:article" )
+                                                                                              .title( "Article" )
+                                                                                              .addFormItem( Input.create()
+                                                                                                                .name( "title" )
+                                                                                                                .label( "Title" )
+                                                                                                                .inputType(
+                                                                                                                    InputTypeName.TEXT_LINE )
+                                                                                                                .build() )
+                                                                                              .build() );
+        when( serviceFacade.getContentTypeService() ).thenReturn( contentTypeService );
+
         when( projectService.list() ).thenReturn( Projects.from(
             List.of( Project.create().name( ProjectName.from( "blog" ) ).displayName( "Blog" ).parent( ProjectName.from( "base" ) ).build() ) ) );
         when( contentService.find( any( ContentQuery.class ) ) ).thenReturn(
@@ -119,6 +147,29 @@ public class McpControllerScriptTest
         assertEquals( normalized( asAlice( () -> new McpTools( serviceFacade, schemaProvider, configService ).run( "content", "list-projects", "{}" ) ) ),
                       normalized( result ) );
         assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.CONTENT, "list-projects", structured ) );
+    }
+
+    @Test
+    public void testListTypesAndDescribeTypeThroughTheControllerAreTheToolResults()
+    {
+        for ( final Map.Entry<String, Map<String, Object>> call : Map.of( "list-types", Map.<String, Object>of(), "describe-type",
+                                                                          Map.<String, Object>of( "type", "app:article" ) ).entrySet() )
+        {
+            final Map<String, Object> result = asAlice( () -> execute( CONTENT_CONTROLLER, call.getKey(), call.getValue() ) );
+
+            final Map<String, Object> structured = structured( result );
+            assertEquals( "blog", structured.get( "project" ), call.getKey() );
+            assertEquals( normalized( asAlice( () -> new McpTools( serviceFacade, schemaProvider, configService ).run( "content",
+                                                                                                                    call.getKey(),
+                                                                                                                    write(
+                                                                                                                        call.getValue() ) ) ) ),
+                          normalized( result ) );
+            assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.CONTENT, call.getKey(), structured ) );
+        }
+        final Map<String, Object> described =
+            structured( asAlice( () -> execute( CONTENT_CONTROLLER, "describe-type", Map.of( "type", "Article" ) ) ) );
+        assertEquals( "app_Article", described.get( "graphqlType" ) );
+        assertEquals( List.of( Map.of( "name", "title", "path", "data.title", "input", "TextLine" ) ), described.get( "fields" ) );
     }
 
     @Test
@@ -219,6 +270,36 @@ public class McpControllerScriptTest
     private static Map<String, Object> normalized( final Object value )
     {
         return read( write( value ) );
+    }
+
+    /**
+     * A Guillotine-like schema with one content type, {@code app:article}, whose GraphQL type is {@code app_Article}.
+     */
+    private static GraphQLSchema articleSchema()
+    {
+        final GraphQLInterfaceType content = GraphQLInterfaceType.newInterface()
+            .name( "Content" )
+            .field( GraphQLFieldDefinition.newFieldDefinition().name( "_id" ).type( Scalars.GraphQLID ) )
+            .build();
+        final GraphQLObjectType data = GraphQLObjectType.newObject()
+            .name( "app_Article_Data" )
+            .field( GraphQLFieldDefinition.newFieldDefinition().name( "title" ).type( Scalars.GraphQLString ) )
+            .build();
+        final GraphQLObjectType article = GraphQLObjectType.newObject()
+            .name( "app_Article" )
+            .description( "Article - app:article" )
+            .withInterface( content )
+            .field( GraphQLFieldDefinition.newFieldDefinition().name( "_id" ).type( Scalars.GraphQLID ) )
+            .field( GraphQLFieldDefinition.newFieldDefinition().name( "data" ).type( data ) )
+            .build();
+        final GraphQLObjectType query = GraphQLObjectType.newObject()
+            .name( "Query" )
+            .field( GraphQLFieldDefinition.newFieldDefinition().name( "article" ).type( article ) )
+            .build();
+        return GraphQLSchema.newSchema()
+            .query( query )
+            .codeRegistry( GraphQLCodeRegistry.newCodeRegistry().typeResolver( "Content", env -> article ).build() )
+            .build();
     }
 
     private static <T> T asAlice( final Callable<T> callable )

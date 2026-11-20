@@ -24,6 +24,11 @@ public final class ContentAwareDataFetcher
         this.delegate = delegate;
     }
 
+    public DataFetcher<?> getDelegate()
+    {
+        return delegate;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public Object get( final DataFetchingEnvironment environment )

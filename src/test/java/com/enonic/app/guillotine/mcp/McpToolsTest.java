@@ -137,12 +137,12 @@ public class McpToolsTest
     }
 
     @Test
-    public void testRealRegistryHasListProjectsInContentAndQueryInGraphql()
+    public void testRealRegistryHasTheContentToolsAndQueryInGraphql()
     {
         final McpTools real = new McpTools( mock( com.enonic.app.guillotine.ServiceFacade.class ),
                                             mock( com.enonic.app.guillotine.graphql.SchemaProvider.class ), configService );
 
-        assertEquals( Map.of( McpGroup.CONTENT, List.of( "list-projects" ), McpGroup.GRAPHQL, List.of( "query" ) ), real.names() );
+        assertEquals( Map.of( McpGroup.CONTENT, List.of( "list-projects", "list-types", "describe-type" ), McpGroup.GRAPHQL, List.of( "query" ) ), real.names() );
     }
 
     private static String errorText( final Map<String, Object> result )

@@ -266,8 +266,8 @@ public class QueryToolTest
             Map.of( "query", "{ a: __type(name: \"Query\") { name } b: __type(name: \"Content\") { name } }" ) ) );
 
         assertTrue( error.userMessage().startsWith( "Introspection limit exceeded: " ), error.userMessage() );
-        assertTrue( error.userMessage().contains( "too often. Ask" ), error.userMessage() );
-        assertTrue( error.userMessage().endsWith( "Ask for one __type(name: ...) per query instead of the whole schema." ),
+        assertTrue( error.userMessage().contains( "too often. Call" ), error.userMessage() );
+        assertTrue( error.userMessage().endsWith( "Call describe-type for the fields of one content type instead of introspecting the schema." ),
                     error.userMessage() );
         assertEquals( Map.of( "__type", Map.of( "name", "Query" ) ),
                       structured( run( Map.of( "query", "{ __type(name: \"Query\") { name } }" ) ) ).get( "data" ) );
