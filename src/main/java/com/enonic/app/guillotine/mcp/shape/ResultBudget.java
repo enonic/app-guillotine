@@ -95,13 +95,27 @@ public final class ResultBudget
      * Trailing items are dropped until the result fits. The list must hold no {@code null} items: they are removed before counting,
      * so the cursor would move back.
      */
-    @SuppressWarnings("unchecked")
     public Map<String, Object> fitPage( final Map<String, ?> structured, final String listKey, final Page page, final long total )
+    {
+        return fitItems( structured, listKey, page, total );
+    }
+
+    /**
+     * The MCP result for the whole list under {@code listKey}, for a tool that takes no cursor: trailing items are dropped until the
+     * result fits, and the {@code hint} says how many. Unlike a page, an emptied list keeps the other fields when they fit.
+     */
+    public Map<String, Object> fitList( final Map<String, ?> structured, final String listKey )
+    {
+        return fitItems( structured, listKey, null, 0 );
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> fitItems( final Map<String, ?> structured, final String listKey, final Page page, final long total )
     {
         final Map<String, Object> result = copy( structured );
         final List<Object> items = result.get( listKey ) instanceof List<?> list ? (List<Object>) list : new ArrayList<>();
         result.put( listKey, items );
-        putOrRemove( result, NEXT_CURSOR, page.nextCursor( total, items.size() ) );
+        putOrRemove( result, NEXT_CURSOR, page != null ? page.nextCursor( total, items.size() ) : null );
         if ( fits( result ) )
         {
             return McpResult.envelope( result );
@@ -117,16 +131,20 @@ public final class ResultBudget
                 removed += McpJson.length( items.remove( items.size() - 1 ) ) + 1;
                 dropped++;
             }
-            if ( items.isEmpty() )
+            if ( items.isEmpty() && page != null )
             {
                 break;
             }
-            putOrRemove( result, NEXT_CURSOR, page.nextCursor( total, items.size() ) );
+            putOrRemove( result, NEXT_CURSOR, page != null ? page.nextCursor( total, items.size() ) : null );
             markTruncated( result, "dropped " + dropped + " trailing item(s) of '" + listKey + "'" );
             length = McpJson.length( result );
             if ( length <= maxResultChars )
             {
                 return McpResult.envelope( result );
+            }
+            if ( items.isEmpty() )
+            {
+                break;
             }
         }
         return McpResult.envelope( fallback( result, listKey ) );

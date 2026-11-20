@@ -9,6 +9,7 @@ import com.enonic.xp.content.ContentService;
 import com.enonic.xp.node.NodeService;
 import com.enonic.xp.page.PageTemplateService;
 import com.enonic.xp.portal.url.PortalUrlService;
+import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.schema.content.CmsFormFragmentService;
 import com.enonic.xp.schema.content.ContentTypeService;
 
@@ -29,12 +30,15 @@ public class ServiceFacade
 
     private final PageTemplateService pageTemplateService;
 
+    private final ProjectService projectService;
+
     @Activate
     public ServiceFacade( final @Reference ContentService contentService, final @Reference ContentTypeService contentTypeService,
                           final @Reference ComponentDescriptorService componentDescriptorService,
                           final @Reference PortalUrlService portalUrlService, final @Reference NodeService nodeService,
                           final @Reference CmsFormFragmentService cmsFormFragmentService,
-                          final @Reference PageTemplateService pageTemplateService )
+                          final @Reference PageTemplateService pageTemplateService,
+                          final @Reference ProjectService projectService )
     {
         this.contentService = contentService;
         this.contentTypeService = contentTypeService;
@@ -43,6 +47,7 @@ public class ServiceFacade
         this.nodeService = nodeService;
         this.cmsFormFragmentService = cmsFormFragmentService;
         this.pageTemplateService = pageTemplateService;
+        this.projectService = projectService;
     }
 
     public ContentService getContentService()
@@ -78,5 +83,10 @@ public class ServiceFacade
     public PageTemplateService getPageTemplateService()
     {
         return pageTemplateService;
+    }
+
+    public ProjectService getProjectService()
+    {
+        return projectService;
     }
 }

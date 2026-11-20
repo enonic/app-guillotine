@@ -1,0 +1,67 @@
+kind: MCP
+allow:
+  - role:system.authenticated
+tools:
+  - name: list-projects
+    title: List content projects
+    description: >-
+      Call this first. Returns who the caller is, the content projects they have a role in plus the configured default project
+      (with parent layer, language and number of content items) and the project and branch other tools use when none is given.
+      Anonymous callers read only published content (master).
+    inputSchema:
+      type: object
+      properties: {}
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        caller:
+          type: object
+          properties:
+            anonymous:
+              type: boolean
+            key:
+              type: string
+            displayName:
+              type: string
+          required: [anonymous]
+          additionalProperties: false
+        defaultProject:
+          type: string
+        defaultBranch:
+          type: string
+          enum: [draft, master]
+        projects:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              displayName:
+                type: string
+              description:
+                type: string
+              language:
+                type: string
+              parent:
+                type: string
+                description: Parent project this layer inherits content from.
+              itemCount:
+                type: integer
+                description: Content items the caller can read on defaultBranch.
+            required: [name, displayName, itemCount]
+            additionalProperties: false
+        truncated:
+          type: boolean
+        hint:
+          type: string
+      required: [projects]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+    _meta:
+      anthropic/alwaysLoad: true
