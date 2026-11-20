@@ -20,6 +20,7 @@ import com.enonic.xp.form.FormOptionSet;
 import com.enonic.xp.form.FormOptionSetOption;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.inputtype.InputTypeName;
+import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.util.GenericValue;
 
 /**
@@ -86,6 +87,27 @@ final class TypeFields
         {
             return SELECTORS.contains( input );
         }
+    }
+
+    /**
+     * The data fields of {@code contentType}, whose GraphQL type {@code type} is; none when either is {@code null}.
+     */
+    static List<Field> of( final ContentType contentType, final GraphQLObjectType type )
+    {
+        if ( contentType == null || type == null )
+        {
+            return List.of();
+        }
+        return of( contentType.getForm(), dataType( type ), contentType.getName().getApplicationKey().toString() );
+    }
+
+    /**
+     * The GraphQL type of the {@code data} field of a content type's GraphQL type, or {@code null}.
+     */
+    static GraphQLObjectType dataType( final GraphQLObjectType type )
+    {
+        return type.getFieldDefinition( "data" ) != null &&
+            GraphQLTypeUtil.unwrapAll( type.getFieldDefinition( "data" ).getType() ) instanceof GraphQLObjectType data ? data : null;
     }
 
     static List<Field> of( final Iterable<? extends FormItem> form, final GraphQLObjectType dataType, final String applicationKey )
