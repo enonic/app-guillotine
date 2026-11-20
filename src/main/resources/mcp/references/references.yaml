@@ -1,0 +1,169 @@
+kind: MCP
+allow:
+  - role:system.authenticated
+tools:
+  - name: find-unreferenced
+    title: Find unreferenced content
+    description: >-
+      Unused content, such as unused images or media: items of the given types (default: all media) that no content the caller can
+      read references, in data, page and component configs, mixins or rich text. Lists the first items by path with the total
+      found. Covers only content the caller can read. Each call runs many backend queries, so it needs a signed-in caller and
+      checks at most 10,000 items; incomplete is true when it stopped early.
+    inputSchema:
+      type: object
+      properties:
+        types:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+          description: Content type names from list-types, such as media:image; default all media types.
+        path:
+          type: string
+          description: This item and everything below it, such as /images.
+        count:
+          type: integer
+          minimum: 0
+          maximum: 50
+          description: Items to list; default 20. 0 returns the totals only.
+        project:
+          type: string
+          description: Project from list-projects; defaults to defaultProject.
+        branch:
+          type: string
+          enum: [draft, master]
+          description: draft (latest, signed-in users with a project role) or master (published); defaults to defaultBranch.
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        project:
+          type: string
+        branch:
+          type: string
+          enum: [draft, master]
+        total:
+          type: integer
+          description: Unreferenced items found among those checked.
+        checked:
+          type: integer
+          description: Items checked, the first by path.
+        candidates:
+          type: integer
+          description: Items of the types in scope.
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+              _path:
+                type: string
+              displayName:
+                type: string
+              type:
+                type: string
+            required: [_id, _path, type]
+            additionalProperties: false
+        incomplete:
+          type: boolean
+          description: Not every item in scope was checked.
+        note:
+          type: string
+        truncated:
+          type: boolean
+        hint:
+          type: string
+      required: [total, items]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+  - name: find-broken-references
+    title: Find broken references
+    description: >-
+      Broken links and references: content under a path or of given types that references content which is missing or which the
+      caller cannot read, in data, page and component configs, mixins or rich text. Lists each such item with the missing ids.
+      External URLs and URL strings in component configs are not checked. Each call reads up to 100 items and runs many backend
+      queries, so it needs a signed-in caller; continue with nextCursor.
+    inputSchema:
+      type: object
+      properties:
+        path:
+          type: string
+          description: This item and everything below it, such as /landings.
+        types:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+          description: Content type names from list-types; a local name such as landing matches it in any application.
+        cursor:
+          type: string
+          description: nextCursor of the previous call; keep the other arguments.
+        project:
+          type: string
+          description: Project from list-projects; defaults to defaultProject.
+        branch:
+          type: string
+          enum: [draft, master]
+          description: draft (latest, signed-in users with a project role) or master (published); defaults to defaultBranch.
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        project:
+          type: string
+        branch:
+          type: string
+          enum: [draft, master]
+        total:
+          type: integer
+          description: Items in scope that the caller can read.
+        checked:
+          type: integer
+          description: Items checked in this call, by path.
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+              _path:
+                type: string
+              displayName:
+                type: string
+              type:
+                type: string
+              missing:
+                type: array
+                items:
+                  type: string
+                description: Referenced ids that are missing or not readable, up to 20.
+              missingCount:
+                type: integer
+                description: All missing ids when more than 20.
+            required: [_id, _path, type, missing]
+            additionalProperties: false
+        nextCursor:
+          type: string
+        incomplete:
+          type: boolean
+          description: Items in scope remain unchecked; continue with nextCursor.
+        note:
+          type: string
+        truncated:
+          type: boolean
+        hint:
+          type: string
+      required: [total, items]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
