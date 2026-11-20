@@ -1,6 +1,9 @@
 package com.enonic.app.guillotine.mcp.shape;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public final class McpJson
@@ -23,6 +26,29 @@ public final class McpJson
         {
             throw new IllegalStateException( "Cannot serialize MCP result", e );
         }
+    }
+
+    /**
+     * The JSON object in {@code json}; {@link IllegalArgumentException} when it is not one.
+     */
+    public static Map<String, Object> readObject( final String json )
+    {
+        final Map<String, Object> value;
+        try
+        {
+            value = MAPPER.readValue( json, new TypeReference<>()
+            {
+            } );
+        }
+        catch ( JsonProcessingException e )
+        {
+            throw new IllegalArgumentException( "Not a JSON object", e );
+        }
+        if ( value == null )
+        {
+            throw new IllegalArgumentException( "Not a JSON object" );
+        }
+        return value;
     }
 
     public static int length( final Object value )

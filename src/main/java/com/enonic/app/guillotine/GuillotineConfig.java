@@ -10,5 +10,7 @@ public @interface GuillotineConfig
 
     String mcp_defaultProject() default "";
 
+    boolean mcp_allowAnonymous() default false;
+
     int mcp_maxResultChars() default 20000;
 }
