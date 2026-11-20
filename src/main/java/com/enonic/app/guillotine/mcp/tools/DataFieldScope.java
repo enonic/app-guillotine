@@ -3,6 +3,7 @@ package com.enonic.app.guillotine.mcp.tools;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +39,10 @@ final class DataFieldScope
 
     private final Map<String, String> byName = new LinkedHashMap<>();
 
+    private final Set<String> types = new LinkedHashSet<>();
+
+    private final Map<String, Set<String>> declaring = new HashMap<>();
+
     private final Map<String, Set<String>> references = new HashMap<>();
 
     private final Map<String, Set<String>> richText = new HashMap<>();
@@ -62,6 +67,7 @@ final class DataFieldScope
             final String name = contentType.getName().toString();
             if ( contentTypes == null || contentTypes.contains( name ) )
             {
+                scope.types.add( name );
                 TypeFields.of( contentType, index.byContentType( name ) ).forEach( field -> scope.add( name, field ) );
             }
         }
@@ -71,6 +77,7 @@ final class DataFieldScope
     private void add( final String contentType, final TypeFields.Field field )
     {
         byPath.putIfAbsent( field.path(), field );
+        declaring.computeIfAbsent( field.path(), path -> new LinkedHashSet<>() ).add( contentType );
         if ( field.isReference() )
         {
             references.computeIfAbsent( contentType, type -> new HashSet<>() ).add( field.path() );
@@ -83,9 +90,12 @@ final class DataFieldScope
         byName.putIfAbsent( field.name(), field.path() );
     }
 
-    boolean isEmpty()
+    /**
+     * Whether none of the types searched is installed, so their fields are unknown and {@code data.*} names cannot be checked.
+     */
+    boolean isUnknown()
     {
-        return byPath.isEmpty();
+        return types.isEmpty();
     }
 
     /**
@@ -97,7 +107,7 @@ final class DataFieldScope
         if ( field.startsWith( DATA_PREFIX ) )
         {
             final String path = dataPath( field.substring( DATA_PREFIX.length() ) );
-            if ( path != null || isEmpty() )
+            if ( path != null || isUnknown() )
             {
                 return path != null ? path : field;
             }
@@ -136,6 +146,23 @@ final class DataFieldScope
     }
 
     /**
+     * The types in scope that declare {@code path} as a selector, in registration order.
+     */
+    List<String> referenceTypes( final String path )
+    {
+        return declaring.getOrDefault( path, Set.of() ).stream().filter( type -> referencePaths( type ).contains( path ) ).toList();
+    }
+
+    /**
+     * Whether every type in scope that has {@code path} declares it as a selector, so that any value of it is a content id.
+     */
+    boolean isReferenceEverywhere( final String path )
+    {
+        final Set<String> types = declaring.getOrDefault( path, Set.of() );
+        return !types.isEmpty() && referenceTypes( path ).size() == types.size();
+    }
+
+    /**
      * The selector paths that {@code contentType} declares; types sharing a field name may give it different input types.
      */
     Set<String> referencePaths( final String contentType )
@@ -160,6 +187,10 @@ final class DataFieldScope
     private ToolError unknown( final String field, final String where )
     {
         final String message = "Invalid " + where + ": " + McpJson.preview( field ) + " is not a data field of " + description + ".";
+        if ( isUnknown() )
+        {
+            return new ToolError( message, "No installed content type matches types, so its fields are unknown; call list-types." );
+        }
         if ( byPath.isEmpty() )
         {
             return new ToolError( message, "These types have no data fields; filter on index fields such as displayName or modifiedTime." );

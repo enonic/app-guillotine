@@ -174,6 +174,11 @@ public final class SearchTool
         {
             notes.add( "Display names were looked up for the first " + ContentLookup.MAX_LABELS + " content ids only." );
         }
+        if ( total > Cursors.MAX_WINDOW && page.count() > 0 )
+        {
+            notes.add( "Paging stops at the first " + Cursors.MAX_WINDOW + " of " + total + " matches; narrow the search to reach the " +
+                           "rest." );
+        }
         if ( total == 0 )
         {
             notes.addAll( emptyNotes( target, args, requestedTypes, index ) );
@@ -265,15 +270,15 @@ public final class SearchTool
     }
 
     /**
-     * Whether the bucket key is a content id: any key of a reference field or {@code _references}, else a key shaped like a
-     * generated id.
+     * Whether the bucket key is a content id: any key of {@code _references} or of a field that every type searched declares as a
+     * selector, else a key shaped like a generated id.
      */
     private static boolean isContentId( final Map<String, Object> aggregation, final Map<String, Object> bucket,
                                         final DataFieldScope scope )
     {
         final String by = (String) aggregation.get( "by" );
         return bucket.get( "key" ) instanceof String key &&
-            ( SearchQuery.REFERENCES_FIELD.equals( by ) || scope.isReference( by ) || ContentKeys.isUuid( key ) );
+            ( SearchQuery.REFERENCES_FIELD.equals( by ) || scope.isReferenceEverywhere( by ) || ContentKeys.isUuid( key ) );
     }
 
     private static void label( final Map<String, Object> aggregation, final Map<String, Map<String, Object>> labels,

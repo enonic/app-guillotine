@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import com.enonic.app.guillotine.mcp.McpGroup;
 import com.enonic.app.guillotine.mcp.ToolDescriptor;
+import com.enonic.app.guillotine.mcp.shape.Cursors;
 import com.enonic.app.guillotine.mcp.shape.McpJson;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranch;
 import com.enonic.app.guillotine.mcp.shape.ToolError;
@@ -337,6 +338,56 @@ public class SearchToolTest
         assertEquals( Map.of( "author", "John Smith" ), hits.get( 1 ).get( "data" ) );
         assertTrue( invalid( args( "types", List.of( NOTE ), "filters", List.of( args( "field", "author", "references", uuid( 1 ) ) ) ) )
                         .startsWith( "Invalid filters[0].field: data.author does not hold references." ) );
+        assertEquals( unwrap( Map.of( "boolean", Map.of( "must", List.of( Map.of( "boolean", Map.of( "must", List.of(
+                          Map.of( "term", Map.of( "field", "data.author", "value", uuid( 1 ) ) ),
+                          Map.of( "in", Map.of( "field", "type", "values", List.of( ARTICLE ) ) ) ) ) ) ) ) ) ),
+                      dsl( searches.get( 1 ) ) );
+    }
+
+    @Test
+    public void testBucketsOfAFieldThatIsPlainTextInSomeTypeAreLabelledOnlyWhenTheyLookLikeIds()
+    {
+        persons();
+        aggregations = Aggregations.create()
+            .add( BucketAggregation.bucketAggregation( "a0" )
+                      .buckets( Buckets.create()
+                                    .add( Bucket.create().key( "John Smith" ).docCount( 2 ).build() )
+                                    .add( Bucket.create().key( uuid( 1 ) ).docCount( 1 ).build() )
+                                    .build() )
+                      .build() )
+            .build();
+
+        final Map<?, ?> aggregation =
+            (Map<?, ?>) ( (List<?>) run( args( "aggregate", List.of( args( "by", "author" ) ), "count", 0 ) ).get( "aggregations" ) ).get( 0 );
+
+        assertEquals( List.of( Map.of( "key", "John Smith", "count", 2 ),
+                               Map.of( "key", uuid( 1 ), "count", 1, "displayName", "Ada lovelace", "_path", "/persons/ada-lovelace" ) ),
+                      aggregation.get( "buckets" ) );
+    }
+
+    @Test
+    public void testDataFieldsOfAnInstalledTypeWithoutFieldsAreCheckedButUnknownTypesPassThrough()
+    {
+        folders( 1 );
+
+        assertTrue( invalid( args( "types", List.of( "base:folder" ), "filters", List.of( args( "field", "data.titel", "exists", false ) ) ) )
+                        .startsWith( "Invalid filters[0].field: \"data.titel\" is not a data field of base:folder. These types have no " +
+                                         "data fields" ) );
+        run( args( "types", List.of( "com.example.gone:thing" ), "filters", List.of( args( "field", "data.titel", "exists", true ) ) ) );
+        assertTrue( invalid( args( "types", List.of( "com.example.gone:thing" ), "fields", List.of( "titel" ) ) ).contains(
+            "No installed content type matches types" ) );
+    }
+
+    @Test
+    public void testPagingBeyondTheWindowIsNoted()
+    {
+        for ( int i = 0; i < Cursors.MAX_WINDOW + 5; i++ )
+        {
+            searchable.add( uuid( 20000 + i ) );
+        }
+
+        assertEquals( "Paging stops at the first 10000 of 10005 matches; narrow the search to reach the rest.",
+                      run( args( "count", 1 ) ).get( "note" ) );
     }
 
     @Test
