@@ -203,7 +203,9 @@ public class ProjectBranchResolverTest
         data.setString( "displayName", "Public site" );
         data.setString( "language", "nb-NO" );
         data.addSet( "data" ).setString( "description", "Open content" );
+        data.getSet( "data" ).addStrings( "parents", "base" );
         readableRoots.put( "public/master", contentRoot( data ) );
+        readable( "base", "master" );
 
         final Project project = anonymous( () -> resolver.readableProject( "public", "master" ) );
 
@@ -211,6 +213,8 @@ public class ProjectBranchResolverTest
         assertEquals( "Public site", project.getDisplayName() );
         assertEquals( "Open content", project.getDescription() );
         assertEquals( Locale.forLanguageTag( "nb-NO" ), project.getLanguage() );
+        assertEquals( "base", project.getParent().toString() );
+        assertNull( anonymous( () -> resolver.readableProject( "base", "master" ) ).getParent() );
         assertNull( resolver.readableProject( null, "master" ) );
     }
 

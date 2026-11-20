@@ -103,8 +103,22 @@ public final class ListProjectsTool
         }
         caller.put( "anonymous", false );
         caller.put( "key", user.getKey().toString() );
-        caller.put( "displayName", McpJson.shorten( user.getDisplayName(), McpJson.PREVIEW_CHARS ) );
+        caller.put( "displayName", displayName( user.getDisplayName() ) );
         return caller;
+    }
+
+    /**
+     * {@code name} cut so that its JSON, escapes included, takes at most {@link McpJson#PREVIEW_CHARS} characters, which keeps the
+     * caller within any result budget.
+     */
+    static String displayName( final String name )
+    {
+        String shortened = McpJson.shorten( name, McpJson.PREVIEW_CHARS );
+        while ( shortened != null && McpJson.length( shortened ) > McpJson.PREVIEW_CHARS )
+        {
+            shortened = McpJson.shorten( shortened, shortened.length() - 1 );
+        }
+        return shortened;
     }
 
     /**
