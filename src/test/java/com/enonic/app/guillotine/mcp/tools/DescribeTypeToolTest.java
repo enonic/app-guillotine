@@ -51,6 +51,8 @@ public class DescribeTypeToolTest
 
     private static final String WIDE = DATASET_APP + ":wide";
 
+    private static final String UNTYPED = "other.app:thing";
+
     private final AtomicReference<String> queriedIn = new AtomicReference<>();
 
     @Override
@@ -110,6 +112,12 @@ public class DescribeTypeToolTest
                         .addFormItem( Input.create().name( "body" ).label( "Body" ).inputType( InputTypeName.HTML_AREA ).build() )
                         .build() );
         result.add( ContentType.create().superType( ContentTypeName.structured() ).name( "myapplication:person" ).title( "Person" ).build() );
+        result.add( ContentType.create()
+                        .superType( ContentTypeName.structured() )
+                        .name( UNTYPED )
+                        .title( "Thing" )
+                        .addFormItem( Input.create().name( "size" ).label( "Size" ).inputType( InputTypeName.TEXT_LINE ).build() )
+                        .build() );
         final ContentType.Builder wide = ContentType.create().superType( ContentTypeName.structured() ).name( WIDE ).title( "Wide" );
         for ( int i = 0; i < 300; i++ )
         {
@@ -209,6 +217,20 @@ public class DescribeTypeToolTest
     }
 
     @Test
+    public void testTypeWithoutAGraphQlTypeOfItsOwnIsDescribedAsUntypedContent()
+    {
+        final Map<String, Object> structured = describe( UNTYPED );
+
+        assertEquals( UNTYPED, structured.get( "contentType" ) );
+        assertEquals( "Thing", structured.get( "title" ) );
+        assertEquals( "UntypedContent", structured.get( "graphqlType" ) );
+        assertEquals( List.of(), structured.get( "fields" ) );
+        assertTrue( ( (String) structured.get( "sdl" ) ).startsWith( "type UntypedContent implements Content {" ),
+                    (String) structured.get( "sdl" ) );
+        assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.CONTENT, "describe-type", structured ) );
+    }
+
+    @Test
     public void testAmbiguousLocalNameAsksForTheFullName()
     {
         final ToolError error = assertThrows( ToolError.class, () -> tool().execute( Map.of( "type", "person" ) ) );
@@ -222,7 +244,7 @@ public class DescribeTypeToolTest
     {
         final QueryTool query = new QueryTool( schemaProvider, guillotineConfigService, resolver );
         final Parser parser = new Parser();
-        for ( final String type : List.of( ARTICLE, PERSON, LANDING, WIDE, "base:folder", "media:image" ) )
+        for ( final String type : List.of( ARTICLE, PERSON, LANDING, WIDE, UNTYPED, "base:folder", "media:image" ) )
         {
             @SuppressWarnings("unchecked") final List<Map<String, Object>> examples =
                 (List<Map<String, Object>>) describe( type ).get( "examples" );
@@ -250,7 +272,7 @@ public class DescribeTypeToolTest
         final List<Map<String, Object>> article = (List<Map<String, Object>>) describe( ARTICLE ).get( "examples" );
         assertEquals( "{ guillotine { queryDslConnection(query: {term: {field: \"type\", value: {string: \"" + ARTICLE + "\"}}}, " +
                           "sort: {field: \"modifiedTime\", direction: DESC}, first: 5) { totalCount edges { node { _id _path displayName " +
-                          "modifiedTime ... on " + ARTICLE_TYPE + " { data { title author { _path displayName } tags } } } } " +
+                          "modifiedTime ... on " + ARTICLE_TYPE + " { data { title author { _path displayName } tags(first: 3) } } } } " +
                           "pageInfo { endCursor hasNext } } } }", article.get( 0 ).get( "query" ) );
         assertTrue( ( (String) article.get( 1 ).get( "query" ) ).contains( "{exists: {field: \"data.author\"}}" ) );
         assertTrue( ( (String) article.get( 1 ).get( "use" ) ).contains( "term with value {string: \"<its _id>\"} instead of exists" ) );
@@ -263,7 +285,7 @@ public class DescribeTypeToolTest
         assertTrue( ( (String) landing.get( 2 ).get( "query" ) ).contains( "terms: {field: \"_parentPath\"" ) );
 
         final List<Map<String, Object>> image = (List<Map<String, Object>>) describe( "media:image" ).get( "examples" );
-        assertTrue( ( (String) image.get( 0 ).get( "query" ) ).contains( "{ data { altText artist copyright } }" ),
+        assertTrue( ( (String) image.get( 0 ).get( "query" ) ).contains( "{ data { altText artist(first: 3) copyright } }" ),
                     (String) image.get( 0 ).get( "query" ) );
         assertTrue( ( (String) image.get( 2 ).get( "query" ) ).contains( "terms: {field: \"data.artist\"" ),
                     (String) image.get( 2 ).get( "query" ) );

@@ -99,7 +99,7 @@ final class TypeExamples
             final GraphQLType type = GraphQLTypeUtil.unwrapAll( field.type() );
             if ( type instanceof GraphQLScalarType || type instanceof GraphQLEnumType )
             {
-                selected.add( field.name() );
+                selected.add( field.name() + ( field.repeated() ? "(first: " + SELECTOR_FIRST + ")" : "" ) );
             }
             else if ( field.isReference() )
             {
