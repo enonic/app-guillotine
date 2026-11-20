@@ -294,6 +294,13 @@ final class SearchQuery
                 throw new ToolError( "Invalid " + where + ".field: " + field + " does not hold references.",
                                      "Pass a content, image or media selector field, or omit field to match any reference." );
             }
+            if ( inputs.scope().isDataField( field ) && !inputs.scope().isReferenceEverywhere( field ) )
+            {
+                // other types hold plain values under the same name, which could equal the id
+                return Map.of( "boolean", Map.of( "must", List.of( term( field, id ), Map.of( "in", map( "field", "type", "stringValues",
+                                                                                                          inputs.scope()
+                                                                                                              .referenceTypes( field ) ) ) ) ) );
+            }
         }
         return term( field, id );
     }
