@@ -254,12 +254,12 @@ public class GraphQLApi
 
     /**
      * Executes {@code operationName} of {@code query} with an extra {@code instrumentation}, which may be {@code null}. Image
-     * transformations are always allowed.
+     * transformations are allowed as {@link ImageTransformations#ofRequest()} decides, as for a query received over HTTP.
      */
     public Map<String, Object> executeToSpecification( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables,
                                                        String operationName, Instrumentation instrumentation )
     {
-        return executeInternal( graphQLSchema, query, variables == null ? Map.of() : variables, ImageTransformations.ALLOWED,
+        return executeInternal( graphQLSchema, query, variables == null ? Map.of() : variables, ImageTransformations.ofRequest(),
                                 operationName, instrumentation ).toSpecification();
     }
 
