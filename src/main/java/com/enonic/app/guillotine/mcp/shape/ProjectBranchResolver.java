@@ -112,7 +112,7 @@ public class ProjectBranchResolver
         final List<Project> listed = projectService.list().stream().toList();
         if ( listed.size() == 1 )
         {
-            return listed.get( 0 ).getName().toString();
+            return requireReadable( listed.get( 0 ).getName().toString(), branch );
         }
         throw new ToolError( "Project is required: pass the project argument.",
                              "Call list-projects to see project names, or ask the administrator to set mcp.defaultProject " +
