@@ -24,8 +24,8 @@ import com.enonic.xp.schema.content.ContentTypeService;
  * Content under a path or of given types that references content which is missing or which the caller cannot read. Each item in scope
  * is read, by path, through XP's outbound dependencies (data, page and component configs, mixins, rich text and the original of a
  * variant), and the targets are looked up as the caller. One call checks at most {@link #SOURCES_PER_CALL} items and
- * {@link #MAX_TARGETS} distinct targets; {@code nextCursor} continues with the next item. URL strings are not references and are not
- * checked.
+ * {@link #MAX_TARGETS} distinct targets, except that the first item is always checked so that every call moves on; {@code nextCursor}
+ * continues with the next item. URL strings are not references and are not checked.
  */
 public final class FindBrokenReferencesTool
     implements McpTool
@@ -56,13 +56,22 @@ public final class FindBrokenReferencesTool
 
     private final ProjectBranchResolver resolver;
 
-    public FindBrokenReferencesTool( final ContentService contentService, final ContentTypeService contentTypeService,
-                                     final GuillotineConfigService configService, final ProjectBranchResolver resolver )
+    private final int maxTargets;
+
+    FindBrokenReferencesTool( final ContentService contentService, final ContentTypeService contentTypeService,
+                              final GuillotineConfigService configService, final ProjectBranchResolver resolver, final int maxTargets )
     {
         this.contentService = contentService;
         this.contentTypeService = contentTypeService;
         this.configService = configService;
         this.resolver = resolver;
+        this.maxTargets = maxTargets;
+    }
+
+    public FindBrokenReferencesTool( final ContentService contentService, final ContentTypeService contentTypeService,
+                                     final GuillotineConfigService configService, final ProjectBranchResolver resolver )
+    {
+        this( contentService, contentTypeService, configService, resolver, MAX_TARGETS );
     }
 
     @Override
@@ -95,11 +104,12 @@ public final class FindBrokenReferencesTool
         int scanned = 0;
         for ( final String id : sources.ids() )
         {
-            if ( targets.size() >= MAX_TARGETS )
+            final List<String> references = queries.outbound( id );
+            if ( scanned > 0 && references != null &&
+                targets.size() + references.stream().filter( ref -> !targets.contains( ref ) ).distinct().count() > maxTargets )
             {
                 break;
             }
-            final List<String> references = queries.outbound( id );
             scanned++;
             if ( references != null && !references.isEmpty() )
             {
@@ -152,11 +162,12 @@ public final class FindBrokenReferencesTool
         structured.put( ResultBudget.TOTAL, sources.total() );
         structured.put( "checked", checked );
         structured.put( ITEMS, items );
-        if ( nextCursor != null )
+        final boolean incomplete = page.offset() + checked < sources.total();
+        if ( incomplete )
         {
             structured.put( "incomplete", true );
         }
-        structured.put( ResultBudget.NOTE, note( sources.total(), page.offset(), checked, nextCursor != null ) );
+        structured.put( ResultBudget.NOTE, note( sources.total(), page.offset(), checked, incomplete, nextCursor != null ) );
         return ResultBudget.fromConfig( configService )
             .withNarrowHint( NARROW_HINT )
             .fitPage( structured, ITEMS, returned -> returned >= positions.size()
@@ -164,14 +175,17 @@ public final class FindBrokenReferencesTool
                 : page.nextCursor( sources.total(), positions.get( returned ) ) );
     }
 
-    private static String note( final long total, final int offset, final int checked, final boolean more )
+    private static String note( final long total, final int offset, final int checked, final boolean incomplete,
+                                final boolean more )
     {
         if ( total == 0 )
         {
             return "No content in scope that the caller can read. " + SCOPE_NOTE;
         }
         final String range = checked == 0 ? "none" : ( offset + 1 ) + "-" + ( offset + checked );
-        return "Checked items " + range + " of " + total + " by path" + ( more ? "; continue with nextCursor for the rest. " : ". " ) +
-            SCOPE_NOTE;
+        final String rest = !incomplete ? ". "
+            : more ? "; continue with nextCursor for the rest. "
+            : "; the rest is beyond the " + Cursors.MAX_WINDOW + " items a listing can page through: narrow with path or types. ";
+        return "Checked items " + range + " of " + total + " by path" + rest + SCOPE_NOTE;
     }
 }

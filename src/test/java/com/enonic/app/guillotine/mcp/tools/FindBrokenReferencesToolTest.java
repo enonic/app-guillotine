@@ -113,6 +113,41 @@ public class FindBrokenReferencesToolTest
     }
 
     @Test
+    public void testTheTargetCapLeavesTheItemThatWouldExceedItForTheNextCall()
+    {
+        item( uuid( 10 ), "/pages", "a", LANDING, List.of( uuid( 900 ), uuid( 901 ), uuid( 902 ), uuid( 903 ) ), List.of() );
+        item( uuid( 11 ), "/pages", "b", LANDING, List.of( uuid( 904 ) ), List.of() );
+        item( uuid( 12 ), "/pages", "c", LANDING, List.of( uuid( 905 ) ), List.of() );
+        final FindBrokenReferencesTool tool =
+            new FindBrokenReferencesTool( contentService, serviceFacade.getContentTypeService(), guillotineConfigService, resolver, 3 );
+
+        final Map<String, Object> first = structured( as( ALICE, () -> tool.execute( args() ) ) );
+        assertEquals( 1, first.get( "checked" ), "the first item is checked even when it alone exceeds the cap" );
+        assertEquals( List.of( "/pages/a" ), paths( first ) );
+        assertEquals( true, first.get( "incomplete" ) );
+        assertEquals( Cursors.encode( 1 ), first.get( "nextCursor" ) );
+
+        final Map<String, Object> second = structured( as( ALICE, () -> tool.execute( args( "cursor", first.get( "nextCursor" ) ) ) ) );
+        assertEquals( 2, second.get( "checked" ) );
+        assertEquals( List.of( "/pages/b", "/pages/c" ), paths( second ) );
+        assertNull( second.get( "incomplete" ) );
+    }
+
+    @Test
+    public void testItemsBeyondThePagingWindowAreReportedAsUnchecked()
+    {
+        IntStream.range( 0, Cursors.MAX_WINDOW + 1 )
+            .forEach( n -> put( uuid( 10000 + n ), "/pages", "page-%05d".formatted( n ), LANDING, null, false ) );
+
+        final Map<String, Object> last = run( args( "cursor", Cursors.encode( Cursors.MAX_WINDOW - 100 ) ) );
+
+        assertEquals( 100, last.get( "checked" ) );
+        assertNull( last.get( "nextCursor" ) );
+        assertEquals( true, last.get( "incomplete" ) );
+        assertTrue( ( (String) last.get( "note" ) ).contains( "narrow with path or types" ), last::toString );
+    }
+
+    @Test
     public void testManyMissingTargetsAreCountedAndTheFirstListed()
     {
         final List<String> missing = IntStream.range( 0, 25 ).mapToObj( n -> uuid( 900 + n ) ).toList();
