@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntFunction;
 
 import com.enonic.app.guillotine.GuillotineConfigService;
 
@@ -97,7 +98,16 @@ public final class ResultBudget
      */
     public Map<String, Object> fitPage( final Map<String, ?> structured, final String listKey, final Page page, final long total )
     {
-        return fitItems( structured, listKey, page, total );
+        return fitItems( structured, listKey, returned -> page.nextCursor( total, returned ) );
+    }
+
+    /**
+     * {@link #fitPage(Map, String, Page, long)} for a page whose items do not map one to one to positions in the listing, such as the
+     * matches found among the items scanned: {@code nextCursor} gives the cursor when the first {@code returned} items are kept.
+     */
+    public Map<String, Object> fitPage( final Map<String, ?> structured, final String listKey, final IntFunction<String> nextCursor )
+    {
+        return fitItems( structured, listKey, nextCursor );
     }
 
     /**
@@ -106,16 +116,16 @@ public final class ResultBudget
      */
     public Map<String, Object> fitList( final Map<String, ?> structured, final String listKey )
     {
-        return fitItems( structured, listKey, null, 0 );
+        return fitItems( structured, listKey, null );
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, Object> fitItems( final Map<String, ?> structured, final String listKey, final Page page, final long total )
+    private Map<String, Object> fitItems( final Map<String, ?> structured, final String listKey, final IntFunction<String> nextCursor )
     {
         final Map<String, Object> result = copy( structured );
         final List<Object> items = result.get( listKey ) instanceof List<?> list ? (List<Object>) list : new ArrayList<>();
         result.put( listKey, items );
-        putOrRemove( result, NEXT_CURSOR, page != null ? page.nextCursor( total, items.size() ) : null );
+        putOrRemove( result, NEXT_CURSOR, nextCursor != null ? nextCursor.apply( items.size() ) : null );
         if ( fits( result ) )
         {
             return McpResult.envelope( result );
@@ -131,11 +141,11 @@ public final class ResultBudget
                 removed += McpJson.length( items.remove( items.size() - 1 ) ) + 1;
                 dropped++;
             }
-            if ( items.isEmpty() && page != null )
+            if ( items.isEmpty() && nextCursor != null )
             {
                 break;
             }
-            putOrRemove( result, NEXT_CURSOR, page != null ? page.nextCursor( total, items.size() ) : null );
+            putOrRemove( result, NEXT_CURSOR, nextCursor != null ? nextCursor.apply( items.size() ) : null );
             markTruncated( result, "dropped " + dropped + " trailing item(s) of '" + listKey + "'" );
             length = McpJson.length( result );
             if ( length <= maxResultChars )
