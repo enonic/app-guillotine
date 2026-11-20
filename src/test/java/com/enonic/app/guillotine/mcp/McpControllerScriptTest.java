@@ -11,6 +11,12 @@ import org.junit.jupiter.api.Test;
 import com.enonic.app.guillotine.GuillotineConfig;
 import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.ServiceFacade;
+import com.enonic.app.guillotine.graphql.SchemaProvider;
+import com.enonic.xp.content.ContentConstants;
+import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.data.PropertyTree;
+import com.enonic.xp.node.Node;
+import com.enonic.xp.node.NodePath;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
@@ -34,6 +40,9 @@ import static com.enonic.app.guillotine.mcp.McpResults.write;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -48,6 +57,8 @@ public class McpControllerScriptTest
 {
     private static final String CONTENT_CONTROLLER = "/mcp/content/content.js";
 
+    private static final String GRAPHQL_CONTROLLER = "/mcp/graphql/graphql.js";
+
     private static final AuthenticationInfo ALICE = AuthenticationInfo.create()
         .user( User.create().key( PrincipalKey.ofUser( IdProviderKey.system(), "alice" ) ).login( "alice" ).displayName( "Alice" ).build() )
         .principals( RoleKeys.AUTHENTICATED )
@@ -56,6 +67,8 @@ public class McpControllerScriptTest
     private GuillotineConfigService configService;
 
     private ServiceFacade serviceFacade;
+
+    private SchemaProvider schemaProvider;
 
     @Override
     protected void initialize()
@@ -69,7 +82,19 @@ public class McpControllerScriptTest
         serviceFacade = mock( ServiceFacade.class );
         when( serviceFacade.getProjectService() ).thenReturn( projectService );
         when( serviceFacade.getContentService() ).thenReturn( contentService );
-        when( serviceFacade.getNodeService() ).thenReturn( mock( NodeService.class ) );
+        final NodeService nodeService = mock( NodeService.class );
+        when( nodeService.getByPath( ContentConstants.CONTENT_ROOT_PATH ) ).thenReturn(
+            Node.create().name( "content" ).parentPath( NodePath.ROOT ).data( new PropertyTree() ).build() );
+        when( serviceFacade.getNodeService() ).thenReturn( nodeService );
+
+        schemaProvider = mock( SchemaProvider.class );
+        when( schemaProvider.executeToSpecification( anyString(), anyMap(), isNull(), any() ) ).thenAnswer( invocation -> {
+            final Map<String, Object> echo = new LinkedHashMap<>();
+            echo.put( "variables", invocation.getArgument( 1 ) );
+            echo.put( "where", ContextAccessor.current().getRepositoryId() + "@" + ContextAccessor.current().getBranch() );
+            echo.put( "missing", null );
+            return Map.of( "data", echo );
+        } );
 
         when( projectService.list() ).thenReturn( Projects.from(
             List.of( Project.create().name( ProjectName.from( "blog" ) ).displayName( "Blog" ).parent( ProjectName.from( "base" ) ).build() ) ) );
@@ -78,6 +103,7 @@ public class McpControllerScriptTest
 
         addService( ServiceFacade.class, serviceFacade );
         addService( GuillotineConfigService.class, configService );
+        addService( SchemaProvider.class, schemaProvider );
     }
 
     @Test
@@ -90,7 +116,7 @@ public class McpControllerScriptTest
                               "defaultProject", "blog", "defaultBranch", "draft", "projects",
                               List.of( Map.of( "name", "blog", "displayName", "Blog", "parent", "base", "itemCount", 12 ) ) ),
                       structured );
-        assertEquals( normalized( asAlice( () -> new McpTools( serviceFacade, configService ).run( "content", "list-projects", "{}" ) ) ),
+        assertEquals( normalized( asAlice( () -> new McpTools( serviceFacade, schemaProvider, configService ).run( "content", "list-projects", "{}" ) ) ),
                       normalized( result ) );
         assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.CONTENT, "list-projects", structured ) );
     }
@@ -108,6 +134,51 @@ public class McpControllerScriptTest
         final Map<String, Object> structured = structured( execute( CONTENT_CONTROLLER, "list-projects", Map.of() ) );
         assertEquals( Map.of( "anonymous", true ), structured.get( "caller" ) );
         assertEquals( "master", structured.get( "defaultBranch" ) );
+    }
+
+    @Test
+    public void testQueryThroughTheGraphqlControllerIsTheToolResult()
+    {
+        final Map<String, Object> nested = new LinkedHashMap<>();
+        nested.put( "key", "a1" );
+        nested.put( "filter", Map.of( "in", Arrays.asList( "x", "y" ), "n", 3 ) );
+        final Map<String, Object> args = Map.of( "query", "query ($key: ID) { guillotine { get(key: $key) { _id } } }", "variables",
+                                                 nested, "branch", "master" );
+
+        final Map<String, Object> result = asAlice( () -> execute( GRAPHQL_CONTROLLER, "query", args ) );
+
+        final Map<String, Object> data = new LinkedHashMap<>();
+        data.put( "variables", nested );
+        data.put( "where", "com.enonic.cms.blog@master" );
+        data.put( "missing", null );
+        assertEquals( Map.of( "project", "blog", "branch", "master", "data", data ), structured( result ) );
+        assertEquals(
+            normalized( asAlice( () -> new McpTools( serviceFacade, schemaProvider, configService ).run( "graphql", "query", write( args ) ) ) ),
+            normalized( result ) );
+    }
+
+    @Test
+    public void testQueryRefusesAnonymousCallersUntilTheOperatorOptsIn()
+    {
+        final Map<String, Object> args = Map.of( "query", "{ guillotine { getSite { _id } } }" );
+
+        final Map<String, Object> refused = execute( GRAPHQL_CONTROLLER, "query", args );
+        assertEquals( true, refused.get( "isError" ) );
+        assertTrue( text( refused ).contains( "mcp.allowAnonymous=true" ), () -> text( refused ) );
+
+        doReturn( true ).when( configService ).isMcpAllowAnonymous();
+
+        assertEquals( "master", structured( execute( GRAPHQL_CONTROLLER, "query", args ) ).get( "branch" ) );
+    }
+
+    @Test
+    public void testQueryErrorThroughTheControllerIsAnErrorResult()
+    {
+        final Map<String, Object> result =
+            asAlice( () -> execute( GRAPHQL_CONTROLLER, "query", Map.of( "query", "mutation { delete(key: \"a\") }" ) ) );
+
+        assertEquals( true, result.get( "isError" ) );
+        assertTrue( text( result ).startsWith( "Only query operations are allowed" ), () -> text( result ) );
     }
 
     @Test

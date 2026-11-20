@@ -13,10 +13,10 @@ import com.enonic.app.guillotine.mcp.shape.McpJson;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranch;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranchResolver;
 import com.enonic.app.guillotine.mcp.shape.ResultBudget;
+import com.enonic.app.guillotine.mcp.shape.ToolError;
 import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
-import com.enonic.xp.exception.ForbiddenAccessException;
 import com.enonic.xp.project.Project;
 import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.security.User;
@@ -179,7 +179,7 @@ public final class ListProjectsTool
             return new ProjectBranch( project, branch ).callWith(
                 () -> contentService.find( ContentQuery.create().size( 0 ).build() ).getTotalHits() );
         }
-        catch ( ForbiddenAccessException e )
+        catch ( ToolError e )
         {
             return null;
         }

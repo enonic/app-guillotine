@@ -1,0 +1,40 @@
+kind: MCP
+allow:
+  - role:system.authenticated
+tools:
+  - name: query
+    title: Run a GraphQL query
+    description: >-
+      GraphQL query on content: runs one read-only query against the Guillotine API of a project, for reads the other tools do not
+      cover (nested data fields, references, several items or branches in one call). Returns data plus up to 10 errors with their
+      path; null fields stay null. Limits: first at most 100, about 2,000 content items and 1,000 aggregation buckets per query,
+      10 nested levels. Terms aggregations without order return the smallest buckets first: pass order: "_count DESC" for a
+      top N. Fields added by other applications run their code and may apply their own access rules.
+    inputSchema:
+      type: object
+      properties:
+        query:
+          type: string
+          description: >-
+            GraphQL document with query operations only, e.g. { guillotine { queryDsl(query: {matchAll: {}}, first: 5) { _path
+            displayName } } }. Do not pass project or branch to the guillotine field; use the tool arguments.
+        variables:
+          type: object
+          description: Values of the document's variables, keyed by name without the $.
+        operationName:
+          type: string
+          description: Operation to run when the document defines several.
+        project:
+          type: string
+          description: Project from list-projects; defaults to defaultProject.
+        branch:
+          type: string
+          enum: [draft, master]
+          description: draft (latest, signed-in users with a project role) or master (published); defaults to defaultBranch.
+      required: [query]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false

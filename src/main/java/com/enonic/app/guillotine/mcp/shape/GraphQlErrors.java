@@ -46,6 +46,10 @@ public final class GraphQlErrors
 
     static final String SEARCH_TIMED_OUT = "Search timed out. Narrow the query with a filter, or ask for fewer results or aggregations.";
 
+    static final String ACCESS_DENIED = "Access denied: the caller cannot read this content.";
+
+    private static final String ACCESS_DENIED_PREFIX = "Access denied:";
+
     private static final String SEARCH_FAILED_PREFIX = "Search request failed";
 
     private static final int MAX_PATH_SEGMENT_CHARS = 100;
@@ -73,14 +77,20 @@ public final class GraphQlErrors
     /**
      * The errors of a GraphQL response that has data, reduced to {@code {message, path}}: at most {@link #MAX_ERRORS}, each message
      * cut to {@link #MAX_MESSAGE_CHARS}, with a last {@code {message: "and N more errors"}} for the rest. A response with errors and
-     * no data (see {@link #hasData}) is a {@link ToolError} instead.
+     * no data (see {@link #hasData}) is a {@link ToolError} instead; when access was denied, its message alone.
      */
     public static List<Map<String, Object>> partialErrors( final Object data, final List<?> errors )
     {
         final List<Map<String, Object>> reduced = reduce( errors );
         if ( !reduced.isEmpty() && !hasData( data ) )
         {
-            throw new ToolError( "Query failed: " + describe( reduced ) + ".", null );
+            final String denied = reduced.stream()
+                .map( error -> String.valueOf( error.get( "message" ) ) )
+                .filter( message -> message.startsWith( ACCESS_DENIED_PREFIX ) )
+                .findFirst()
+                .orElse( null );
+            final String failed = "Query failed: " + describe( reduced );
+            throw new ToolError( denied != null ? denied : failed.endsWith( "." ) ? failed : failed + ".", null );
         }
         return reduced;
     }
@@ -174,10 +184,15 @@ public final class GraphQlErrors
 
     /**
      * The message a caller error shows. The index echoes the whole search request in its message, so a refused search reads as a
-     * fixed text.
+     * fixed text; XP names the user in a denied access, so that reads as {@link ProjectBranch#accessDenied()} of the context.
      */
     static String callerMessage( final Throwable exception )
     {
+        if ( exception instanceof ForbiddenAccessException )
+        {
+            final ProjectBranch target = ProjectBranch.current();
+            return target != null ? target.accessDenied().userMessage() : ACCESS_DENIED;
+        }
         if ( isSearchFailure( exception ) )
         {
             return exception.getMessage().startsWith( SEARCH_FAILED_PREFIX + " after" ) ? SEARCH_TIMED_OUT : SEARCH_FAILED;

@@ -12,6 +12,7 @@ import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.ParseAndValidate;
 import graphql.Scalars;
+import graphql.execution.instrumentation.Instrumentation;
 import graphql.execution.preparsed.PreparsedDocumentEntry;
 import graphql.execution.preparsed.PreparsedDocumentProvider;
 import graphql.language.Document;
@@ -251,8 +252,26 @@ public class GraphQLApi
                                 ImageTransformations.ALLOWED ).toSpecification();
     }
 
+    /**
+     * Executes {@code operationName} of {@code query} with an extra {@code instrumentation}, which may be {@code null}. Image
+     * transformations are always allowed.
+     */
+    public Map<String, Object> executeToSpecification( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables,
+                                                       String operationName, Instrumentation instrumentation )
+    {
+        return executeInternal( graphQLSchema, query, variables == null ? Map.of() : variables, ImageTransformations.ALLOWED,
+                                operationName, instrumentation ).toSpecification();
+    }
+
     private ExecutionResult executeInternal( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables,
                                              ImageTransformations imageTransformations )
+    {
+        return executeInternal( graphQLSchema, query, variables, imageTransformations, null, null );
+    }
+
+    private ExecutionResult executeInternal( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables,
+                                             ImageTransformations imageTransformations, String operationName,
+                                             Instrumentation instrumentation )
     {
         final PreparsedDocumentProvider preparsedProvider = ( executionInput, parseAndValidateFunction ) -> {
             PreparsedDocumentEntry entry;
@@ -278,10 +297,16 @@ public class GraphQLApi
             return CompletableFuture.completedFuture( entry );
         };
 
-        final GraphQL graphQL = GraphQL.newGraphQL( graphQLSchema ).preparsedDocumentProvider( preparsedProvider ).build();
+        final GraphQL.Builder graphQLBuilder = GraphQL.newGraphQL( graphQLSchema ).preparsedDocumentProvider( preparsedProvider );
+        if ( instrumentation != null )
+        {
+            graphQLBuilder.instrumentation( instrumentation );
+        }
+        final GraphQL graphQL = graphQLBuilder.build();
 
         final ExecutionInput executionInput = ExecutionInput.newExecutionInput()
             .query( query )
+            .operationName( operationName )
             .variables( variables )
             .graphQLContext( Map.of( ImageTransformations.class, imageTransformations ) )
             .build();

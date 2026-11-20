@@ -6,6 +6,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import graphql.execution.instrumentation.Instrumentation;
 import graphql.schema.GraphQLSchema;
 
 import com.enonic.app.guillotine.GuillotineConfigService;
@@ -42,6 +43,16 @@ public class SchemaProvider
     public Map<String, Object> executeToSpecification( final String query, final Map<String, Object> variables )
     {
         return graphQLApi.executeToSpecification( getSchema(), query, variables );
+    }
+
+    /**
+     * Executes one operation of {@code query} with an extra {@code instrumentation} (for example query limits), which may be
+     * {@code null}. The other execute methods never add instrumentation.
+     */
+    public Map<String, Object> executeToSpecification( final String query, final Map<String, Object> variables,
+                                                       final String operationName, final Instrumentation instrumentation )
+    {
+        return graphQLApi.executeToSpecification( getSchema(), query, variables, operationName, instrumentation );
     }
 
     public GraphQLSchema getSchema()
