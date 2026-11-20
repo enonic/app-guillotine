@@ -155,8 +155,22 @@ public class ProjectBranchResolverTest
     public void testOnlyListedProjectIsUsed()
     {
         when( projectService.list() ).thenReturn( Projects.from( List.of( project( "only" ) ) ) );
+        readable( "only", "draft" );
 
         assertEquals( new ProjectBranch( "only", "draft" ), asEditor( () -> resolver.resolve( Map.of() ) ) );
+    }
+
+    @Test
+    public void testOnlyListedProjectUnreadableOnBranchIsToolError()
+    {
+        when( projectService.list() ).thenReturn( Projects.from( List.of( project( "only" ) ) ) );
+        readable( "only", "draft" );
+
+        final ToolError error =
+            assertThrows( ToolError.class, () -> asEditor( () -> resolver.resolve( Map.of( "branch", "master" ) ) ) );
+
+        assertEquals( "Project 'only' not found or not readable on master. Call list-projects to see available projects.",
+                      error.userMessage() );
     }
 
     @Test

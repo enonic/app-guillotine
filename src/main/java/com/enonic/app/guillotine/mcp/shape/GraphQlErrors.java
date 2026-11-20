@@ -2,6 +2,7 @@ package com.enonic.app.guillotine.mcp.shape;
 
 import java.time.DateTimeException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import graphql.execution.instrumentation.InstrumentationState;
 import graphql.execution.instrumentation.SimplePerformantInstrumentation;
 import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters;
 
+import com.enonic.app.guillotine.graphql.fetchers.DynamicDataFetcher;
 import com.enonic.xp.exception.ForbiddenAccessException;
 import com.enonic.xp.exception.NotFoundException;
 import com.enonic.xp.query.QueryException;
@@ -47,6 +49,8 @@ public final class GraphQlErrors
     private static final String SEARCH_FAILED_PREFIX = "Search request failed";
 
     private static final int MAX_PATH_SEGMENT_CHARS = 100;
+
+    private static final String EXTENSION_RESOLVER = DynamicDataFetcher.class.getName();
 
     private static final Logger LOG = LoggerFactory.getLogger( GraphQlErrors.class );
 
@@ -148,7 +152,8 @@ public final class GraphQlErrors
     /**
      * The exception whose message tells the caller what to change, or {@code null}: invalid arguments, keys and dates, a query
      * expression XP cannot parse, missing content, denied access, and a search the index refused. A plain {@link RuntimeException}
-     * that only wraps its cause, as some Guillotine resolvers throw, is judged by that cause.
+     * that only wraps its cause, as some Guillotine resolvers throw, is judged by that cause. An invalid argument thrown while an
+     * extension resolver ran is the extension's failure, not the caller's: its message can name Java classes.
      */
     static Throwable callerError( final Throwable exception )
     {
@@ -161,8 +166,8 @@ public final class GraphQlErrors
         {
             return callerError( exception.getCause() );
         }
-        final boolean caller = exception instanceof IllegalArgumentException || exception instanceof DateTimeException ||
-            exception instanceof NotFoundException || exception instanceof ForbiddenAccessException ||
+        final boolean caller = ( exception instanceof IllegalArgumentException && !fromExtensionResolver( exception ) ) ||
+            exception instanceof DateTimeException || exception instanceof NotFoundException || exception instanceof ForbiddenAccessException ||
             exception instanceof IllegalAccessException || exception instanceof QueryException || isSearchFailure( exception );
         return caller ? exception : null;
     }
@@ -179,6 +184,11 @@ public final class GraphQlErrors
         }
         final String message = exception.getMessage();
         return message == null || message.isBlank() ? "Invalid request for this field." : message;
+    }
+
+    private static boolean fromExtensionResolver( final Throwable exception )
+    {
+        return Arrays.stream( exception.getStackTrace() ).anyMatch( frame -> EXTENSION_RESOLVER.equals( frame.getClassName() ) );
     }
 
     private static boolean isSearchFailure( final Throwable exception )
