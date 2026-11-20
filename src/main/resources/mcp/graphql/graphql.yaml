@@ -6,10 +6,11 @@ tools:
     title: Run a GraphQL query
     description: >-
       GraphQL query on content: runs one read-only query against the Guillotine API of a project, for reads the other tools do not
-      cover (nested data fields, references, several items or branches in one call). Returns data plus up to 10 errors with their
-      path; null fields stay null. Limits: first at most 100, about 2,000 content items and 1,000 aggregation buckets per query,
-      10 nested levels. Terms aggregations without order return the smallest buckets first: pass order: "_count DESC" for a
-      top N. Fields added by other applications run their code and may apply their own access rules.
+      cover (nested data fields, references, several items or branches in one call). Call describe-type first for a content
+      type's fields, index paths and example queries. Returns data plus up to 10 errors with their path; null fields stay null.
+      Limits: first at most 100, about 2,000 content items and 1,000 aggregation buckets per query, 10 nested levels. Terms
+      aggregations without order return the smallest buckets first: pass order: "_count DESC" for a top N. Fields added by other
+      applications run their code and may apply their own access rules.
     inputSchema:
       type: object
       properties:

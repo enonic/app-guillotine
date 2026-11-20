@@ -65,3 +65,166 @@ tools:
       openWorldHint: false
     _meta:
       anthropic/alwaysLoad: true
+  - name: list-types
+    title: List content types in use
+    description: >-
+      Content types in use: the content types that have content in a project, most used first, with title, item count and the
+      GraphQL type their content has in query results. Call describe-type with a name for its fields and example queries.
+    inputSchema:
+      type: object
+      properties:
+        project:
+          type: string
+          description: Project from list-projects; defaults to defaultProject.
+        branch:
+          type: string
+          enum: [draft, master]
+          description: draft (latest, signed-in users with a project role) or master (published); defaults to defaultBranch.
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        project:
+          type: string
+        branch:
+          type: string
+          enum: [draft, master]
+        total:
+          type: integer
+          description: Content items the caller can read in the project and branch.
+        types:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Content type name, the value of the index field type.
+              title:
+                type: string
+              graphqlType:
+                type: string
+                description: GraphQL type of this content in query results, for inline fragments (... on Type).
+              count:
+                type: integer
+            required: [name, graphqlType, count]
+            additionalProperties: false
+        note:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+        truncated:
+          type: boolean
+        hint:
+          type: string
+      required: [project, branch, total, types]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+  - name: describe-type
+    title: Describe a content type
+    description: >-
+      Fields of a content type: compact GraphQL SDL; each data field with its index path for filters, sorts and aggregations, label,
+      help text, input type and allowed selector targets; index fields the schema does not show; fields added by other applications;
+      and three example queries ready for the query tool. Pass a name from list-types.
+    inputSchema:
+      type: object
+      properties:
+        type:
+          type: string
+          description: >-
+            Content type name from list-types (com.example.app:article), its GraphQL type name, or a local name (article) that only
+            one content type has.
+        project:
+          type: string
+          description: Project from list-projects; defaults to defaultProject.
+        branch:
+          type: string
+          enum: [draft, master]
+          description: draft (latest, signed-in users with a project role) or master (published); defaults to defaultBranch.
+      required: [type]
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        project:
+          type: string
+        branch:
+          type: string
+          enum: [draft, master]
+        contentType:
+          type: string
+        title:
+          type: string
+        graphqlType:
+          type: string
+        count:
+          type: integer
+          description: Items of this type the caller can read in the project and branch.
+        sdl:
+          type: string
+        fields:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: GraphQL field below data; dots separate set levels.
+              path:
+                type: string
+                description: Index path for filters, sorts and aggregations.
+              label:
+                type: string
+              help:
+                type: string
+              input:
+                type: string
+              repeated:
+                type: boolean
+              required:
+                type: boolean
+              targets:
+                type: array
+                items:
+                  type: string
+                description: Content types, or name patterns, a selector accepts; absent means any.
+            required: [name, path, input]
+            additionalProperties: false
+        appFields:
+          type: array
+          items:
+            type: string
+        appFieldsNote:
+          type: string
+        indexFields:
+          type: object
+          additionalProperties:
+            type: string
+        examples:
+          type: array
+          items:
+            type: object
+            properties:
+              use:
+                type: string
+              query:
+                type: string
+            required: [use, query]
+            additionalProperties: false
+        truncated:
+          type: boolean
+        hint:
+          type: string
+      required: [project, branch, contentType, graphqlType, count, sdl, fields, indexFields, examples]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false

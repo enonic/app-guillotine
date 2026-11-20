@@ -15,7 +15,9 @@ import com.enonic.app.guillotine.mcp.shape.McpJson;
 import com.enonic.app.guillotine.mcp.shape.McpResult;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranchResolver;
 import com.enonic.app.guillotine.mcp.shape.ToolError;
+import com.enonic.app.guillotine.mcp.tools.DescribeTypeTool;
 import com.enonic.app.guillotine.mcp.tools.ListProjectsTool;
+import com.enonic.app.guillotine.mcp.tools.ListTypesTool;
 import com.enonic.app.guillotine.mcp.tools.QueryTool;
 
 /**
@@ -48,6 +50,8 @@ public final class McpTools
             new ProjectBranchResolver( serviceFacade.getProjectService(), serviceFacade.getNodeService(), configService );
         return List.of(
             new ListProjectsTool( serviceFacade.getProjectService(), serviceFacade.getContentService(), configService, resolver ),
+            new ListTypesTool( schemaProvider, serviceFacade.getContentTypeService(), configService, resolver ),
+            new DescribeTypeTool( schemaProvider, serviceFacade.getContentTypeService(), configService, resolver ),
             new QueryTool( schemaProvider, configService, resolver ) );
     }
 
