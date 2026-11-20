@@ -258,8 +258,29 @@ public class ListProjectsToolTest
         assertEquals( "draft", structured.get( "defaultBranch" ) );
         final Map<?, ?> caller = (Map<?, ?>) structured.get( "caller" );
         assertEquals( "user:system:alice", caller.get( "key" ) );
-        assertEquals( McpJson.PREVIEW_CHARS, ( (String) caller.get( "displayName" ) ).length() );
+        assertEquals( McpJson.PREVIEW_CHARS - 2, ( (String) caller.get( "displayName" ) ).length() );
         assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.CONTENT, "list-projects", structured ) );
+    }
+
+    @Test
+    public void testDisplayNameIsBoundedAsJsonEscapesIncluded()
+    {
+        final String control = ListProjectsTool.displayName( "\u0001".repeat( 500 ) );
+
+        assertTrue( McpJson.length( control ) <= McpJson.PREVIEW_CHARS, String.valueOf( McpJson.length( control ) ) );
+        assertTrue( control.endsWith( "…" ) && control.length() > 10, control );
+        assertEquals( "Alice", ListProjectsTool.displayName( "Alice" ) );
+        assertNull( ListProjectsTool.displayName( null ) );
+    }
+
+    @Test
+    public void testReadableDefaultLayerKeepsItsParent()
+    {
+        when( configService.getMcpDefaultProject() ).thenReturn( "public-no" );
+        when( projectService.list() ).thenReturn( Projects.empty() );
+        when( resolver.readableProject( "public-no", "master" ) ).thenReturn( layer( "public-no", "Public (NO)", null, null, "public" ) );
+
+        assertEquals( "public", projects( execute() ).get( 0 ).get( "parent" ) );
     }
 
     @Test
