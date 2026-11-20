@@ -76,6 +76,8 @@ public class McpControllerScriptTest
 
     private static final String GRAPHQL_CONTROLLER = "/mcp/graphql/graphql.js";
 
+    private static final String REFERENCES_CONTROLLER = "/mcp/references/references.js";
+
     private static final AuthenticationInfo ALICE = AuthenticationInfo.create()
         .user( User.create().key( PrincipalKey.ofUser( IdProviderKey.system(), "alice" ) ).login( "alice" ).displayName( "Alice" ).build() )
         .principals( RoleKeys.AUTHENTICATED )
@@ -264,6 +266,39 @@ public class McpControllerScriptTest
         doReturn( true ).when( configService ).isMcpAllowAnonymous();
 
         assertEquals( "master", structured( execute( GRAPHQL_CONTROLLER, "query", args ) ).get( "branch" ) );
+    }
+
+    @Test
+    public void testReferenceScansThroughTheReferencesControllerAreTheToolResults()
+    {
+        for ( final Map.Entry<String, Map<String, Object>> call : Map.of( "find-unreferenced",
+                                                                          Map.<String, Object>of( "types", List.of( "media:image" ) ),
+                                                                          "find-broken-references",
+                                                                          Map.<String, Object>of( "path", "/landings" ) ).entrySet() )
+        {
+            final Map<String, Object> result = asAlice( () -> execute( REFERENCES_CONTROLLER, call.getKey(), call.getValue() ) );
+
+            final Map<String, Object> structured = structured( result );
+            assertEquals( "blog", structured.get( "project" ), call.getKey() );
+            assertEquals( 12, ( (Number) structured.getOrDefault( "candidates", structured.get( "total" ) ) ).intValue(), call.getKey() );
+            assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.REFERENCES, call.getKey(), structured ), call.getKey() );
+            assertEquals( normalized( asAlice( () -> new McpTools( serviceFacade, schemaProvider, configService ).run( "references",
+                                                                                                                    call.getKey(),
+                                                                                                                    write(
+                                                                                                                        call.getValue() ) ) ) ),
+                          normalized( result ) );
+        }
+    }
+
+    @Test
+    public void testReferenceScansRefuseAnonymousCallersEvenWhenTheOperatorOptsIn()
+    {
+        doReturn( true ).when( configService ).isMcpAllowAnonymous();
+
+        final Map<String, Object> refused = execute( REFERENCES_CONTROLLER, "find-broken-references", Map.of() );
+
+        assertEquals( true, refused.get( "isError" ) );
+        assertTrue( text( refused ).contains( "Anonymous callers cannot use the references tools" ), () -> text( refused ) );
     }
 
     @Test

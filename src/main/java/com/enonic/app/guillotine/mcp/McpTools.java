@@ -16,6 +16,8 @@ import com.enonic.app.guillotine.mcp.shape.McpResult;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranchResolver;
 import com.enonic.app.guillotine.mcp.shape.ToolError;
 import com.enonic.app.guillotine.mcp.tools.DescribeTypeTool;
+import com.enonic.app.guillotine.mcp.tools.FindBrokenReferencesTool;
+import com.enonic.app.guillotine.mcp.tools.FindUnreferencedTool;
 import com.enonic.app.guillotine.mcp.tools.GetTool;
 import com.enonic.app.guillotine.mcp.tools.ListProjectsTool;
 import com.enonic.app.guillotine.mcp.tools.ListTypesTool;
@@ -58,7 +60,10 @@ public final class McpTools
                             resolver ),
             new GetTool( schemaProvider, serviceFacade.getContentService(), serviceFacade.getContentTypeService(), configService,
                          resolver ),
-            new QueryTool( schemaProvider, configService, resolver ) );
+            new QueryTool( schemaProvider, configService, resolver ),
+            new FindUnreferencedTool( serviceFacade.getContentService(), serviceFacade.getContentTypeService(), configService, resolver ),
+            new FindBrokenReferencesTool( serviceFacade.getContentService(), serviceFacade.getContentTypeService(), configService,
+                                          resolver ) );
     }
 
     /**
