@@ -21,10 +21,12 @@ import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLScalarType;
 import graphql.schema.GraphQLSchema;
 
+import com.enonic.app.guillotine.graphql.fetchers.DynamicDataFetcher;
 import com.enonic.xp.exception.ForbiddenAccessException;
 import com.enonic.xp.node.NodeNotFoundException;
 import com.enonic.xp.query.QueryException;
 import com.enonic.xp.repository.IndexException;
+import com.enonic.xp.script.ScriptValue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -32,6 +34,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class GraphQlErrorsTest
 {
@@ -113,6 +118,17 @@ public class GraphQlErrorsTest
     }
 
     @Test
+    public void testInvalidArgumentFromExtensionResolverIsInternalError()
+    {
+        final Map<String, Object> response = execute( "{ ok extension }" );
+
+        final List<Map<String, Object>> errors =
+            GraphQlErrors.partialErrors( response.get( "data" ), (List<?>) response.get( "errors" ) );
+
+        assertEquals( List.of( Map.of( "message", GraphQlErrors.INTERNAL_ERROR, "path", List.of( "extension" ) ) ), errors );
+    }
+
+    @Test
     public void testErrorsWithoutDataAreToolError()
     {
         final Map<String, Object> response = execute( "{ fail(kind: \"argument\") }" );
@@ -189,7 +205,13 @@ public class GraphQlErrorsTest
 
     private static Map<String, Object> execute( final String query )
     {
+        final ScriptValue extensionResolver = mock( ScriptValue.class );
+        when( extensionResolver.call( any() ) ).thenAnswer( invocation -> {
+            throw new IllegalArgumentException( "Unsupported type \"org.openjdk.nashorn.api.scripting.ScriptObjectMirror\". " +
+                                                    "Type of value must be String, Double, Integer or Boolean." );
+        } );
         final GraphQLCodeRegistry registry = GraphQLCodeRegistry.newCodeRegistry()
+            .dataFetcher( FieldCoordinates.coordinates( "Query", "extension" ), new DynamicDataFetcher( extensionResolver ) )
             .dataFetcher( FieldCoordinates.coordinates( "Query", "ok" ), (DataFetcher<?>) environment -> "fine" )
             .dataFetcher( FieldCoordinates.coordinates( "Query", "date" ), (DataFetcher<?>) environment -> "2024-13-45" )
             .dataFetcher( FieldCoordinates.coordinates( "Query", "fail" ), (DataFetcher<?>) environment -> {
@@ -200,6 +222,7 @@ public class GraphQlErrorsTest
             .name( "Query" )
             .field( field -> field.name( "ok" ).type( Scalars.GraphQLString ) )
             .field( field -> field.name( "date" ).type( STORED_DATE ) )
+            .field( field -> field.name( "extension" ).type( Scalars.GraphQLString ) )
             .field( field -> field.name( "fail" )
                 .type( Scalars.GraphQLString )
                 .argument( argument -> argument.name( "kind" ).type( Scalars.GraphQLString ) ) )
