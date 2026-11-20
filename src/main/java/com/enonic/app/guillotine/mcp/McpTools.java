@@ -16,9 +16,11 @@ import com.enonic.app.guillotine.mcp.shape.McpResult;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranchResolver;
 import com.enonic.app.guillotine.mcp.shape.ToolError;
 import com.enonic.app.guillotine.mcp.tools.DescribeTypeTool;
+import com.enonic.app.guillotine.mcp.tools.GetTool;
 import com.enonic.app.guillotine.mcp.tools.ListProjectsTool;
 import com.enonic.app.guillotine.mcp.tools.ListTypesTool;
 import com.enonic.app.guillotine.mcp.tools.QueryTool;
+import com.enonic.app.guillotine.mcp.tools.SearchTool;
 
 /**
  * Runs one tool call: checks {@code mcp.enabled} and the caller, reads the arguments and turns every failure into an {@code isError}
@@ -52,6 +54,10 @@ public final class McpTools
             new ListProjectsTool( serviceFacade.getProjectService(), serviceFacade.getContentService(), configService, resolver ),
             new ListTypesTool( schemaProvider, serviceFacade.getContentTypeService(), configService, resolver ),
             new DescribeTypeTool( schemaProvider, serviceFacade.getContentTypeService(), configService, resolver ),
+            new SearchTool( schemaProvider, serviceFacade.getContentService(), serviceFacade.getContentTypeService(), configService,
+                            resolver ),
+            new GetTool( schemaProvider, serviceFacade.getContentService(), serviceFacade.getContentTypeService(), configService,
+                         resolver ),
             new QueryTool( schemaProvider, configService, resolver ) );
     }
 

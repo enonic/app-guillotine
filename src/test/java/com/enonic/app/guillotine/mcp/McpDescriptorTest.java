@@ -46,7 +46,7 @@ public class McpDescriptorTest
             assertNotNull( getClass().getResource( controller ), controller );
             assertEquals( tools, ToolDescriptor.tools( group ).stream().map( tool -> tool.get( "name" ) ).toList(), group.groupName() );
         }
-        assertEquals( List.of( "list-projects", "list-types", "describe-type" ), registered.get( McpGroup.CONTENT ) );
+        assertEquals( List.of( "list-projects", "list-types", "describe-type", "search", "get" ), registered.get( McpGroup.CONTENT ) );
         assertEquals( List.of( "query" ), registered.get( McpGroup.GRAPHQL ) );
     }
 
