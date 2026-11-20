@@ -8,6 +8,8 @@ import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
+import com.enonic.app.guillotine.graphql.ContentFixtures;
+import com.enonic.app.guillotine.graphql.ImageTransformations;
 import com.enonic.app.guillotine.graphql.SchemaProvider;
 import com.enonic.app.guillotine.mcp.shape.McpJson;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranch;
@@ -16,6 +18,8 @@ import com.enonic.xp.content.ContentId;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.exception.ForbiddenAccessException;
+import com.enonic.xp.portal.PortalRequest;
+import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.security.IdProviderKey;
 import com.enonic.xp.security.PrincipalKey;
 import com.enonic.xp.security.RoleKeys;
@@ -341,6 +345,39 @@ public class QueryToolTest
         final Map<String, Object> limited =
             createAdminContext().callWith( () -> schemaProvider.executeToSpecification( deep, null, null, QueryLimits.depthLimit() ) );
         assertTrue( String.valueOf( limited.get( "errors" ) ).contains( "exceeds the limit of 10" ) );
+    }
+
+    @Test
+    public void testImageTransformationsFollowTheVirtualHostSetting()
+    {
+        when( contentService.getById( ContentId.from( "contentid" ) ) ).thenReturn( ContentFixtures.createMediaContent() );
+        final Map<String, Object> args = Map.of( "query", "{ guillotine { get(key: \"contentid\") { _id ... on media_Image { " +
+            "imageUrl(scale: \"block(10,10)\") { scale } } } } }" );
+        final String denied = "Image transformations are not allowed here: remove the 'scale' argument";
+
+        final Map<String, Object> withDeny = createAdminContext().callWith( () -> ContextBuilder.copyOf( ContextAccessor.current() )
+            .attribute( ImageTransformations.CONTEXT_ATTRIBUTE, "deny" )
+            .build()
+            .callWith( () -> tool().execute( args ) ) );
+        assertTrue( McpJson.write( withDeny ).contains( denied ), () -> McpJson.write( withDeny ) );
+
+        final PortalRequest previous = PortalRequestAccessor.get();
+        try
+        {
+            final PortalRequest mcpRequest = new PortalRequest();
+            mcpRequest.setBaseUri( "/api/system:mcp" );
+            PortalRequestAccessor.set( mcpRequest );
+            final Map<String, Object> viaApi = run( args );
+            assertFalse( McpJson.write( viaApi ).contains( denied ), () -> McpJson.write( viaApi ) );
+
+            PortalRequestAccessor.remove();
+            final Map<String, Object> withoutRequest = run( args );
+            assertFalse( McpJson.write( withoutRequest ).contains( denied ), () -> McpJson.write( withoutRequest ) );
+        }
+        finally
+        {
+            PortalRequestAccessor.set( previous );
+        }
     }
 
     private static <T> T asAlice( final java.util.concurrent.Callable<T> callable )
