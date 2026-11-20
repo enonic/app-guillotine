@@ -1,6 +1,8 @@
 package com.enonic.app.guillotine.mcp.tools;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -17,10 +19,17 @@ import graphql.schema.GraphQLSchema;
 
 import com.enonic.app.guillotine.graphql.fetchers.ContentAwareDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.DynamicDataFetcher;
+import com.enonic.app.guillotine.graphql.helper.NamingHelper;
+import com.enonic.app.guillotine.graphql.helper.StringNormalizer;
+import com.enonic.xp.schema.content.ContentType;
+import com.enonic.xp.schema.content.ContentTypeName;
+import com.enonic.xp.schema.content.ContentTypeService;
+import com.enonic.xp.schema.content.ContentTypes;
 
 /**
  * The GraphQL object type of each content type in a Guillotine schema. Guillotine describes the type it generates for a content type
- * as {@code "<title> - <app:name>"}; content of a type without one resolves to {@link #UNTYPED_CONTENT}.
+ * as {@code "<title> - <app:name>"} and names it after the content type; content of a type without one resolves to
+ * {@link #UNTYPED_CONTENT}.
  */
 final class ContentTypeIndex
 {
@@ -36,21 +45,61 @@ final class ContentTypeIndex
 
     private final Map<String, String> byLowerCaseName = new HashMap<>();
 
-    ContentTypeIndex( final GraphQLSchema schema )
+    /**
+     * The index of {@code schema} for the content types in {@code registered}. A type whose description an extension replaced is found
+     * by the name Guillotine generates for it; a registered type without a GraphQL type of its own maps to {@link #UNTYPED_CONTENT}.
+     */
+    ContentTypeIndex( final GraphQLSchema schema, final Iterable<ContentTypeName> registered )
     {
         this.schema = schema;
+        final Set<GraphQLObjectType> implementations = new HashSet<>();
         if ( schema.getType( CONTENT ) instanceof GraphQLInterfaceType contentInterface )
         {
             for ( final GraphQLObjectType type : schema.getImplementations( contentInterface ) )
             {
+                implementations.add( type );
                 final String name = contentTypeName( type );
                 if ( name != null )
                 {
-                    byContentType.putIfAbsent( name, type );
-                    byLowerCaseName.putIfAbsent( name.toLowerCase( Locale.ROOT ), name );
+                    put( name, type );
                 }
             }
         }
+        final Set<GraphQLObjectType> mapped = new HashSet<>( byContentType.values() );
+        final GraphQLObjectType untyped = schema.getType( UNTYPED_CONTENT ) instanceof GraphQLObjectType type ? type : null;
+        for ( final ContentTypeName name : registered != null ? registered : List.<ContentTypeName>of() )
+        {
+            if ( byContentType.containsKey( name.toString() ) )
+            {
+                continue;
+            }
+            final GraphQLObjectType generated = schema.getType( generatedName( name ) ) instanceof GraphQLObjectType type &&
+                implementations.contains( type ) && !mapped.contains( type ) ? type : untyped;
+            if ( generated != null )
+            {
+                put( name.toString(), generated );
+            }
+        }
+    }
+
+    private void put( final String name, final GraphQLObjectType type )
+    {
+        if ( byContentType.putIfAbsent( name, type ) == null )
+        {
+            byLowerCaseName.putIfAbsent( name.toLowerCase( Locale.ROOT ), name );
+        }
+    }
+
+    private static String generatedName( final ContentTypeName name )
+    {
+        return StringNormalizer.create( name.getApplicationKey().toString() ) + "_" +
+            NamingHelper.camelCase( StringNormalizer.create( name.getLocalName() ) );
+    }
+
+    static List<ContentTypeName> registeredNames( final ContentTypeService contentTypeService )
+    {
+        final ContentTypes all = contentTypeService.getAll();
+        return all == null ? List.of() : all.stream().map( ContentType::getName ).toList();
     }
 
     GraphQLSchema schema()
@@ -91,12 +140,16 @@ final class ContentTypeIndex
      */
     String contentTypeOf( final String graphQlType )
     {
-        if ( schema.getType( graphQlType ) instanceof GraphQLObjectType type )
+        if ( UNTYPED_CONTENT.equals( graphQlType ) )
         {
-            final String name = contentTypeName( type );
-            return name != null && byContentType.get( name ) == type ? name : null;
+            return null;
         }
-        return null;
+        return byContentType.entrySet()
+            .stream()
+            .filter( entry -> entry.getValue().getName().equals( graphQlType ) )
+            .map( Map.Entry::getKey )
+            .findFirst()
+            .orElse( null );
     }
 
     /**
