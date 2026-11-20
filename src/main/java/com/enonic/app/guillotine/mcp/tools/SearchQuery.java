@@ -115,8 +115,7 @@ final class SearchQuery
         final String path = ContentKeys.scopePath( args.get( "path" ) instanceof String value ? value : null );
         if ( path != null )
         {
-            must.add( Map.of( "pathMatch", map( "field", "_path", "path", "/content" + path, "minimumMatch",
-                                                path.substring( 1 ).split( "/" ).length + 1 ) ) );
+            must.add( pathMatch( path ) );
         }
         if ( Boolean.TRUE.equals( args.get( "mine" ) ) )
         {
@@ -163,6 +162,24 @@ final class SearchQuery
      */
     static Map<String, Object> types( final List<?> requested, final Function<String, String> spelling )
     {
+        return types( requested, spelling, "stringValues" );
+    }
+
+    /**
+     * The clause that matches {@code path}, a scope path from {@link ContentKeys#scopePath}, and everything below it.
+     */
+    static Map<String, Object> pathMatch( final String path )
+    {
+        return Map.of( "pathMatch", map( "field", "_path", "path", "/content" + path, "minimumMatch",
+                                         path.substring( 1 ).split( "/" ).length + 1 ) );
+    }
+
+    /**
+     * {@link #types(List, Function)} with the values of its {@code in} clause under {@code valuesKey}: {@code stringValues} in
+     * Guillotine's query DSL input, {@code values} in XP's query DSL.
+     */
+    static Map<String, Object> types( final List<?> requested, final Function<String, String> spelling, final String valuesKey )
+    {
         final List<String> fullNames = new ArrayList<>();
         final List<Map<String, Object>> clauses = new ArrayList<>();
         for ( final Object item : requested )
@@ -179,7 +196,7 @@ final class SearchQuery
         }
         if ( !fullNames.isEmpty() )
         {
-            clauses.add( 0, Map.of( "in", map( "field", "type", "stringValues", fullNames ) ) );
+            clauses.add( 0, Map.of( "in", map( "field", "type", valuesKey, fullNames ) ) );
         }
         if ( clauses.isEmpty() )
         {
