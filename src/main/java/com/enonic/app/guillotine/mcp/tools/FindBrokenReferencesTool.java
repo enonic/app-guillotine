@@ -1,0 +1,177 @@
+package com.enonic.app.guillotine.mcp.tools;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.enonic.app.guillotine.GuillotineConfigService;
+import com.enonic.app.guillotine.mcp.McpGroup;
+import com.enonic.app.guillotine.mcp.McpTool;
+import com.enonic.app.guillotine.mcp.shape.Cursors;
+import com.enonic.app.guillotine.mcp.shape.Page;
+import com.enonic.app.guillotine.mcp.shape.ProjectBranch;
+import com.enonic.app.guillotine.mcp.shape.ProjectBranchResolver;
+import com.enonic.app.guillotine.mcp.shape.ResultBudget;
+import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentService;
+import com.enonic.xp.schema.content.ContentTypeService;
+
+/**
+ * Content under a path or of given types that references content which is missing or which the caller cannot read. Each item in scope
+ * is read, by path, through XP's outbound dependencies (data, page and component configs, mixins, rich text and the original of a
+ * variant), and the targets are looked up as the caller. One call checks at most {@link #SOURCES_PER_CALL} items and
+ * {@link #MAX_TARGETS} distinct targets; {@code nextCursor} continues with the next item. URL strings are not references and are not
+ * checked.
+ */
+public final class FindBrokenReferencesTool
+    implements McpTool
+{
+    static final int SOURCES_PER_CALL = 100;
+
+    static final int MAX_TARGETS = 5000;
+
+    static final int TARGET_BATCH = 500;
+
+    static final int MAX_LISTED = 20;
+
+    static final String ITEMS = "items";
+
+    static final String MISSING = "missing";
+
+    static final String SCOPE_NOTE = "missing lists referenced ids that are missing or that the caller cannot read. Checked: " +
+        "references to content in data, page and component configs, mixins and rich text. Not checked: external URLs and URL strings " +
+        "in component configs. To see where a reference sits, call get on the item (data and rich text) or query (page components).";
+
+    private static final String NARROW_HINT = "Narrow with path or types.";
+
+    private final ContentService contentService;
+
+    private final ContentTypeService contentTypeService;
+
+    private final GuillotineConfigService configService;
+
+    private final ProjectBranchResolver resolver;
+
+    public FindBrokenReferencesTool( final ContentService contentService, final ContentTypeService contentTypeService,
+                                     final GuillotineConfigService configService, final ProjectBranchResolver resolver )
+    {
+        this.contentService = contentService;
+        this.contentTypeService = contentTypeService;
+        this.configService = configService;
+        this.resolver = resolver;
+    }
+
+    @Override
+    public McpGroup group()
+    {
+        return McpGroup.REFERENCES;
+    }
+
+    @Override
+    public String name()
+    {
+        return "find-broken-references";
+    }
+
+    @Override
+    public Map<String, Object> execute( final Map<String, Object> args )
+    {
+        final ProjectBranch target = resolver.resolve( args );
+        final String path = ContentKeys.scopePath( args.get( "path" ) instanceof String value ? value : null );
+        final List<?> types = args.get( "types" ) instanceof List<?> list ? list : List.of();
+        final Page page = Cursors.page( Collections.singletonMap( Cursors.CURSOR_ARG, args.get( Cursors.CURSOR_ARG ) ), SOURCES_PER_CALL );
+
+        final ReferenceQueries queries = new ReferenceQueries( contentService, target, Integer.MAX_VALUE );
+        final ReferenceQueries.Ids sources =
+            queries.ids( ReferenceQueries.scope( types, null, path, contentTypeService ), page.offset(), page.count() );
+        page.requireWithin( sources.total() );
+
+        final Map<String, List<String>> outbound = new LinkedHashMap<>();
+        final Set<String> targets = new LinkedHashSet<>();
+        int scanned = 0;
+        for ( final String id : sources.ids() )
+        {
+            if ( targets.size() >= MAX_TARGETS )
+            {
+                break;
+            }
+            final List<String> references = queries.outbound( id );
+            scanned++;
+            if ( references != null && !references.isEmpty() )
+            {
+                outbound.put( id, references );
+                targets.addAll( references );
+            }
+        }
+
+        final Set<String> readable = new LinkedHashSet<>();
+        final List<String> all = List.copyOf( targets );
+        for ( int from = 0; from < all.size(); from += TARGET_BATCH )
+        {
+            queries.readable( all.subList( from, Math.min( all.size(), from + TARGET_BATCH ) ) )
+                .keySet()
+                .forEach( id -> readable.add( ReferenceQueries.normalize( id ) ) );
+        }
+
+        final Map<String, List<String>> broken = new LinkedHashMap<>();
+        outbound.forEach( ( source, references ) -> {
+            final List<String> missing =
+                references.stream().filter( id -> !readable.contains( ReferenceQueries.normalize( id ) ) ).distinct().toList();
+            if ( !missing.isEmpty() )
+            {
+                broken.put( source, missing );
+            }
+        } );
+
+        final Map<String, Content> labelled = broken.isEmpty() ? Map.of() : queries.readable( broken.keySet() );
+        final List<Map<String, Object>> items = new ArrayList<>();
+        final List<Integer> positions = new ArrayList<>();
+        broken.forEach( ( source, missing ) -> {
+            final Content content = labelled.get( source );
+            if ( content == null )
+            {
+                return;
+            }
+            final Map<String, Object> item = ReferenceQueries.item( content );
+            item.put( MISSING, missing.subList( 0, Math.min( MAX_LISTED, missing.size() ) ) );
+            if ( missing.size() > MAX_LISTED )
+            {
+                item.put( "missingCount", missing.size() );
+            }
+            items.add( item );
+            positions.add( sources.ids().indexOf( source ) );
+        } );
+
+        final int checked = scanned;
+        final String nextCursor = page.nextCursor( sources.total(), checked );
+        final Map<String, Object> structured = target.putInto( new LinkedHashMap<>() );
+        structured.put( ResultBudget.TOTAL, sources.total() );
+        structured.put( "checked", checked );
+        structured.put( ITEMS, items );
+        if ( nextCursor != null )
+        {
+            structured.put( "incomplete", true );
+        }
+        structured.put( ResultBudget.NOTE, note( sources.total(), page.offset(), checked, nextCursor != null ) );
+        return ResultBudget.fromConfig( configService )
+            .withNarrowHint( NARROW_HINT )
+            .fitPage( structured, ITEMS, returned -> returned >= positions.size()
+                ? nextCursor
+                : page.nextCursor( sources.total(), positions.get( returned ) ) );
+    }
+
+    private static String note( final long total, final int offset, final int checked, final boolean more )
+    {
+        if ( total == 0 )
+        {
+            return "No content in scope that the caller can read. " + SCOPE_NOTE;
+        }
+        final String range = checked == 0 ? "none" : ( offset + 1 ) + "-" + ( offset + checked );
+        return "Checked items " + range + " of " + total + " by path" + ( more ? "; continue with nextCursor for the rest. " : ". " ) +
+            SCOPE_NOTE;
+    }
+}
