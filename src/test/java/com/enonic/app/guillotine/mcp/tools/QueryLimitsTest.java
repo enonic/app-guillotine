@@ -72,13 +72,28 @@ public class QueryLimitsTest
         final String related = "{ guillotine { queryDsl(" + ARTICLES + ", first: 100) { ... on " + ARTICLE_TYPE + " { data { " +
             "related%s { _id } } } } } }";
 
-        assertDoesNotThrow( () -> check( related.formatted( "" ) ) );
         assertDoesNotThrow( () -> check( related.formatted( "(first: 19)" ) ) );
         assertEquals( "Query reads up to 10100 " + ROWS_LIMIT, firstSentences( rejected( related.formatted( "(first: 100)" ) ) ) );
+        assertEquals( "Query reads up to 10100 " + ROWS_LIMIT, firstSentences( rejected( related.formatted( "" ) ) ) );
+        assertDoesNotThrow( () -> check( "{ guillotine { get(key: \"a1\") { ... on " + ARTICLE_TYPE + " { data { related { _id } } } } } }" ) );
 
-        final String nested = "{ guillotine { queryDsl(" + ARTICLES + ", first: 100) { ... on " + ARTICLE_TYPE + " { data { related { " +
-            "... on " + ARTICLE_TYPE + " { data { related { ... on " + ARTICLE_TYPE + " { data { related { _id } } } } } } } } } } } }";
-        assertEquals( "Query reads up to 111100 " + ROWS_LIMIT, firstSentences( rejected( nested ) ) );
+        final String nested = "{ guillotine { queryDsl(" + ARTICLES + ", first: 2) { ... on " + ARTICLE_TYPE + " { data { related(first: 5) { " +
+            "... on " + ARTICLE_TYPE + " { data { related(first: 5) { ... on " + ARTICLE_TYPE + " { data { related { _id } } } } } } } } } } } }";
+        assertEquals( "Query reads up to 5062 " + ROWS_LIMIT, firstSentences( rejected( nested ) ) );
+    }
+
+    @Test
+    public void testItemSetsMultiplyTheContentTheyReference()
+    {
+        final String links = "{ guillotine { queryDsl(" + ARTICLES + ", first: 10) { ... on " + ARTICLE_TYPE + " { data { " +
+            "links%s { %s } } } } } }";
+
+        assertDoesNotThrow( () -> check( links.formatted( "", "label" ) ) );
+        assertDoesNotThrow( () -> check( links.formatted( "(first: 10)", "target(first: 19) { _id }" ) ) );
+        assertEquals( "Query reads up to 2010 " + ROWS_LIMIT,
+                      firstSentences( rejected( links.formatted( "(first: 10)", "target(first: 20) { _id }" ) ) ) );
+        assertEquals( "Query reads up to 2010 " + ROWS_LIMIT,
+                      firstSentences( rejected( links.formatted( "", "target(first: 2) { _id }" ) ) ) );
     }
 
     @Test
@@ -220,15 +235,17 @@ public class QueryLimitsTest
     @Test
     public void testDateHistogramsNeedMinDocCount()
     {
-        assertEquals( "dateHistogram needs minDocCount in this tool. Pass minDocCount in each dateHistogram, e.g. minDocCount: 1 to " +
-                          "leave out empty buckets.", rejected( NESTED_TERMS, Map.of( "a", List.of(
+        final String refused = "dateHistogram needs minDocCount of at least 1 in this tool. Pass minDocCount in each dateHistogram, " +
+            "e.g. minDocCount: 1 to leave out empty buckets.";
+        assertEquals( refused, rejected( NESTED_TERMS, Map.of( "a", List.of(
             Map.of( "name", "d", "dateHistogram", Map.of( "field", "modifiedTime", "interval", "1M" ) ) ) ) ) );
-        assertEquals( "dateHistogram needs minDocCount in this tool. Pass minDocCount in each dateHistogram, e.g. minDocCount: 1 to " +
-                          "leave out empty buckets.", rejected( "{ guillotine { queryDslConnection(query: {matchAll: {}}, " +
+        assertEquals( refused, rejected( NESTED_TERMS, Map.of( "a", List.of(
+            Map.of( "name", "d", "dateHistogram", Map.of( "field", "modifiedTime", "interval", "1M", "minDocCount", 0 ) ) ) ) ) );
+        assertEquals( refused, rejected( "{ guillotine { queryDslConnection(query: {matchAll: {}}, " +
                                                                     "aggregations: [{name: \"d\", dateHistogram: {field: " +
                                                                     "\"modifiedTime\", interval: \"1d\"}}]) { totalCount } } }" ) );
         assertDoesNotThrow( () -> check( "{ guillotine { queryDslConnection(query: {matchAll: {}}, aggregations: [{name: \"d\", " +
-                                             "dateHistogram: {field: \"modifiedTime\", interval: \"1M\", minDocCount: 0}}]) { " +
+                                             "dateHistogram: {field: \"modifiedTime\", interval: \"1M\", minDocCount: 1}}]) { " +
                                              "totalCount } } }" ) );
     }
 
