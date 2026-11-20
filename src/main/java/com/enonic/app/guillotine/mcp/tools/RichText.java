@@ -1,6 +1,7 @@
 package com.enonic.app.guillotine.mcp.tools;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,13 +31,20 @@ final class RichText
 
     private static final Pattern IMAGE = Pattern.compile( "(?is)<img\\b([^<>]*)>" );
 
-    private static final Pattern ENTITY = Pattern.compile( "&(#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6}|[a-zA-Z]{2,8});" );
+    private static final Pattern ENTITY = Pattern.compile( "&(#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6}|[a-zA-Z][a-zA-Z0-9]{1,7});" );
 
     private static final Pattern INTERNAL = Pattern.compile( "(content|media|image)://(?:(?:download|inline)/)?([^?#\"'\\s]+).*" );
 
-    private static final Map<String, String> ENTITIES =
-        Map.of( "amp", "&", "lt", "<", "gt", ">", "quot", "\"", "apos", "'", "nbsp", " ", "mdash", "\u2014", "ndash", "\u2013", "hellip",
-                "\u2026" );
+    /**
+     * HTML 4 Latin-1 entity names, in code point order from U+00A0.
+     */
+    private static final String LATIN_1 = "nbsp iexcl cent pound curren yen brvbar sect uml copy ordf laquo not shy reg macr deg " +
+        "plusmn sup2 sup3 acute micro para middot cedil sup1 ordm raquo frac14 frac12 frac34 iquest Agrave Aacute Acirc Atilde Auml " +
+        "Aring AElig Ccedil Egrave Eacute Ecirc Euml Igrave Iacute Icirc Iuml ETH Ntilde Ograve Oacute Ocirc Otilde Ouml times Oslash " +
+        "Ugrave Uacute Ucirc Uuml Yacute THORN szlig agrave aacute acirc atilde auml aring aelig ccedil egrave eacute ecirc euml igrave " +
+        "iacute icirc iuml eth ntilde ograve oacute ocirc otilde ouml divide oslash ugrave uacute ucirc uuml yacute thorn yuml";
+
+    private static final Map<String, String> ENTITIES = entities();
 
     private RichText()
     {
@@ -173,6 +181,29 @@ final class RichText
         }
         matcher.appendTail( result );
         return result.toString();
+    }
+
+    private static Map<String, String> entities()
+    {
+        final Map<String, String> entities = new HashMap<>();
+        final String[] latin1 = LATIN_1.split( " " );
+        for ( int i = 0; i < latin1.length; i++ )
+        {
+            entities.put( latin1[i], String.valueOf( (char) ( 0xA0 + i ) ) );
+        }
+        entities.put( "nbsp", " " );
+        final String[] other = {"amp", "&", "lt", "<", "gt", ">", "quot", "\"", "apos", "'", "ndash", "\u2013", "mdash", "\u2014",
+            "lsquo", "\u2018", "rsquo", "\u2019", "sbquo", "\u201A", "ldquo", "\u201C", "rdquo", "\u201D", "bdquo", "\u201E", "bull",
+            "\u2022", "hellip", "\u2026", "prime", "\u2032", "lsaquo", "\u2039", "rsaquo", "\u203A", "euro", "\u20AC", "trade",
+            "\u2122", "larr", "\u2190", "rarr", "\u2192", "uarr", "\u2191", "darr", "\u2193", "minus", "\u2212", "le", "\u2264",
+            "ge", "\u2265", "ne", "\u2260", "OElig", "\u0152", "oelig", "\u0153", "Scaron", "\u0160", "scaron", "\u0161", "Yuml",
+            "\u0178", "zwnj", "\u200C", "zwj", "\u200D", "thinsp", "\u2009", "ensp", "\u2002", "emsp", "\u2003", "dagger",
+            "\u2020", "Dagger", "\u2021", "permil", "\u2030"};
+        for ( int i = 0; i < other.length; i += 2 )
+        {
+            entities.put( other[i], other[i + 1] );
+        }
+        return Map.copyOf( entities );
     }
 
     private static String entity( final String name, final String original )

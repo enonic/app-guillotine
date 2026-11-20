@@ -30,6 +30,13 @@ public class RichTextTest
     }
 
     @Test
+    public void testNamedEntitiesAreDecodedAndUnknownOnesKept()
+    {
+        assertEquals( "café © ½ – “quoted” € &nosuch;",
+                      RichText.text( "<p>caf&eacute; &copy; &frac12; &ndash; &ldquo;quoted&rdquo; &euro; &nosuch;</p>" ) );
+    }
+
+    @Test
     public void testImagesAreLinksWithTheirAltText()
     {
         assertEquals( List.of( Map.of( "type", "external", "url", "https://cdn.example/a.png", "text", "remote" ),
