@@ -48,6 +48,7 @@ public class McpDescriptorTest
         }
         assertEquals( List.of( "list-projects", "list-types", "describe-type", "search", "get" ), registered.get( McpGroup.CONTENT ) );
         assertEquals( List.of( "query" ), registered.get( McpGroup.GRAPHQL ) );
+        assertEquals( List.of( "find-unreferenced", "find-broken-references" ), registered.get( McpGroup.REFERENCES ) );
     }
 
     @Test
