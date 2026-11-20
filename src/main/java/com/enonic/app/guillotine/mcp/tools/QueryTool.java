@@ -99,7 +99,7 @@ public final class QueryTool
         {
             throw new ToolError( "Introspection limit exceeded: " + withoutPeriod(
                 McpJson.shorten( e.toBadFaithError().getMessage(), McpJson.PREVIEW_CHARS ) ) + ".",
-                                 "Ask for one __type(name: ...) per query instead of the whole schema." );
+                                 "Call describe-type for the fields of one content type instead of introspecting the schema." );
         }
 
         final Object data = response.get( DATA );

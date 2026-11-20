@@ -17,6 +17,7 @@ import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.security.PrincipalKey;
+import com.enonic.xp.util.GenericValue;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -61,7 +62,16 @@ public abstract class ArticleSchemaTestSupport
                         .name( ARTICLE )
                         .title( "Article" )
                         .addFormItem( input( "title", InputTypeName.TEXT_LINE, 1, 1 ) )
-                        .addFormItem( input( "author", InputTypeName.CONTENT_SELECTOR, 0, 1 ) )
+                        .addFormItem( Input.create()
+                                          .name( "author" )
+                                          .label( "Written by" )
+                                          .helpText( "The person who wrote the article." )
+                                          .inputType( InputTypeName.CONTENT_SELECTOR )
+                                          .occurrences( 0, 1 )
+                                          .inputTypeProperty( "allowContentType", GenericValue.newList()
+                                              .add( GenericValue.stringValue( "${app}:person" ) )
+                                              .build() )
+                                          .build() )
                         .addFormItem( input( "tags", InputTypeName.TEXT_LINE, 0, 0 ) )
                         .addFormItem( input( "related", InputTypeName.CONTENT_SELECTOR, 0, 0 ) )
                         .addFormItem( input( "cover", InputTypeName.IMAGE_SELECTOR, 0, 1 ) )
