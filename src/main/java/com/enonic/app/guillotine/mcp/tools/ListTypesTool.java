@@ -75,7 +75,7 @@ public final class ListTypesTool
             GraphQlErrors.partialErrors( data, response.get( McpResult.ERRORS ) instanceof List<?> list ? list : List.of() );
 
         final Map<String, Object> connection = connection( data );
-        final ContentTypeIndex index = new ContentTypeIndex( schemaProvider.getSchema() );
+        final ContentTypeIndex index = new ContentTypeIndex( schemaProvider.getSchema(), ContentTypeIndex.registeredNames( contentTypeService ) );
         final List<Map<String, Object>> types = new ArrayList<>();
         for ( final Object item : buckets( connection ) )
         {

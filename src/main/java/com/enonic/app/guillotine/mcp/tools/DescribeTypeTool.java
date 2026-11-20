@@ -101,7 +101,7 @@ public final class DescribeTypeTool
         {
             throw new ToolError( "type is required.", "Pass a content type name from list-types, such as \"com.example.app:article\"." );
         }
-        final ContentTypeIndex index = new ContentTypeIndex( schemaProvider.getSchema() );
+        final ContentTypeIndex index = new ContentTypeIndex( schemaProvider.getSchema(), ContentTypeIndex.registeredNames( contentTypeService ) );
         final String contentType = resolve( index, requested.trim() );
         final GraphQLObjectType type = index.byContentType( contentType );
         final ProjectBranch target = resolver.resolve( args );
