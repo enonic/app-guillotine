@@ -57,10 +57,11 @@ import com.enonic.app.guillotine.mcp.shape.ToolError;
  * <p>
  * The cost bound counts what the backend does, not how many fields are selected. A field reads content rows when it takes
  * {@code first} and either takes {@code sort} (queryDsl, getChildren, children and their connections) or lists content (a repeated
- * content, image or media selector, which loads each referenced item); it reads its page size of rows, once per item of every such
- * list around it. Lists that only hold the values of an item, such as a repeated text field, an item set or the edges of a
- * connection, multiply nothing. Each aggregation counts its buckets, multiplied by the buckets of the aggregations around it and by
- * the items of the lists around the field that runs it. Every fragment spread counts.
+ * content, image or media selector, which loads each referenced item); it reads its page size of rows, once per item of every list
+ * around it. Every field that takes {@code first} multiplies what is below it by its page size, so a repeated item set counts once
+ * per item for the selectors inside it; a list of plain values, such as a repeated text field, has nothing below it and costs
+ * nothing. Each aggregation counts its buckets, multiplied by the buckets of the aggregations around it and by the items of the
+ * lists around the field that runs it. Every fragment spread counts.
  */
 final class QueryLimits
 {
@@ -75,10 +76,15 @@ final class QueryLimits
     static final long MAX_BUCKETS = 1_000;
 
     /**
-     * What Guillotine's index lists return when {@code first} is not passed, and what a content selector without {@code first}
-     * counts: it returns every stored reference, a number the query does not show.
+     * What Guillotine's index lists return when {@code first} is not passed.
      */
     static final int DEFAULT_FIRST = 10;
+
+    /**
+     * What a repeated form item without {@code first} counts. It returns every stored value, a number the query does not show, so this
+     * is an estimate: the most {@code first} could ask for, not a bound on what is stored.
+     */
+    static final int UNPAGED_FIRST = MAX_FIRST;
 
     /**
      * What a terms aggregation returns when {@code size} is not passed.
@@ -86,7 +92,8 @@ final class QueryLimits
     static final int DEFAULT_TERMS_SIZE = 10;
 
     /**
-     * What a date histogram counts: its number of buckets depends on the data, not on the query.
+     * What a date histogram counts. Its number of buckets depends on the data and the interval, not on the query, so this is an
+     * estimate; {@code minDocCount} of at least one keeps out the empty buckets that would otherwise fill the whole range.
      */
     static final int HISTOGRAM_BUCKETS = 100;
 
@@ -148,7 +155,7 @@ final class QueryLimits
     /**
      * Throws a {@link ToolError} for: {@code project} or {@code branch} on the {@code guillotine} field, {@code first} above
      * {@link #MAX_FIRST}, {@code offset} or {@code after} plus {@code first} beyond {@link Cursors#MAX_WINDOW}, an aggregation
-     * {@code size} above {@link #MAX_AGGREGATION_SIZE}, a {@code dateHistogram} without {@code minDocCount}, and more than {@link #MAX_ROWS} rows
+     * {@code size} above {@link #MAX_AGGREGATION_SIZE}, a {@code dateHistogram} without {@code minDocCount} of at least 1, and more than {@link #MAX_ROWS} rows
      * or {@link #MAX_BUCKETS} buckets. Variables resolve to the values passed, else to the defaults of {@code operation}. The schema is
      * fetched only once the arguments pass.
      *
@@ -165,9 +172,9 @@ final class QueryLimits
         if ( cost.rows > MAX_ROWS )
         {
             throw new ToolError( "Query reads up to " + count( cost.rows ) + " content items; the limit is " + MAX_ROWS +
-                                     ". Each content list, including repeated content selectors, counts its first (" + DEFAULT_FIRST +
-                                     " when not given), once per item of the content lists around it; lists of values inside an " +
-                                     "item count nothing.",
+                                     ". Each content list, including a repeated content selector, counts its first (when not given, " +
+                                     DEFAULT_FIRST + " for a search list and " + UNPAGED_FIRST + " for a repeated field), once per " +
+                                     "item of every list around it; lists of plain values count nothing.",
                                  "Use a smaller first on the outer lists and page with after, or split the query into several " +
                                      "calls." );
         }
@@ -257,9 +264,10 @@ final class QueryLimits
 
     private void checkInput( final String name, final Object value )
     {
-        if ( DATE_HISTOGRAM.equals( name ) && value instanceof Map<?, ?> histogram && histogram.get( MIN_DOC_COUNT ) == null )
+        if ( DATE_HISTOGRAM.equals( name ) && value instanceof Map<?, ?> histogram &&
+            !( histogram.get( MIN_DOC_COUNT ) instanceof Number minDocCount && minDocCount.longValue() >= 1 ) )
         {
-            throw new ToolError( "dateHistogram needs minDocCount in this tool.",
+            throw new ToolError( "dateHistogram needs minDocCount of at least 1 in this tool.",
                                  "Pass minDocCount in each dateHistogram, e.g. minDocCount: 1 to leave out empty buckets." );
         }
         if ( TERMS.equals( name ) && value instanceof Map<?, ?> terms )
@@ -322,12 +330,12 @@ final class QueryLimits
                     : null;
             final Cost below = cost( field.getSelectionSet(), type );
             final Cost own = new Cost( 0, aggregationBuckets( field ) );
-            if ( !readsContent( definition ) )
+            if ( definition == null || definition.getArgument( FIRST_ARG ) == null )
             {
                 return own.plus( below );
             }
-            final long rows = pageSize( field, definition );
-            return own.plus( new Cost( rows, 0 ) ).plus( below.times( rows ) );
+            final long items = pageSize( field, definition );
+            return own.plus( new Cost( readsContent( definition ) ? items : 0, 0 ) ).plus( below.times( items ) );
         }
         if ( selection instanceof InlineFragment inlineFragment )
         {
@@ -356,8 +364,7 @@ final class QueryLimits
 
     private static boolean readsContent( final GraphQLFieldDefinition definition )
     {
-        return definition != null && definition.getArgument( FIRST_ARG ) != null &&
-            ( definition.getArgument( SORT_ARG ) != null || isContent( GraphQLTypeUtil.unwrapAll( definition.getType() ) ) );
+        return definition.getArgument( SORT_ARG ) != null || isContent( GraphQLTypeUtil.unwrapAll( definition.getType() ) );
     }
 
     private static boolean isContent( final GraphQLType type )
@@ -381,7 +388,11 @@ final class QueryLimits
         final Object value = declared.isLiteral() && declared.getValue() instanceof IntValue intValue
             ? intValue.getValue()
             : declared.isExternal() ? declared.getValue() : null;
-        return value instanceof Number number ? Math.max( 0, number.longValue() ) : DEFAULT_FIRST;
+        if ( value instanceof Number number )
+        {
+            return Math.max( 0, number.longValue() );
+        }
+        return definition.getArgument( SORT_ARG ) != null ? DEFAULT_FIRST : UNPAGED_FIRST;
     }
 
     private long aggregationBuckets( final Field field )

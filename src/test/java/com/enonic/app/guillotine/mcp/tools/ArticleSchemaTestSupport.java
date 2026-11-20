@@ -11,6 +11,7 @@ import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.data.PropertyTree;
+import com.enonic.xp.form.FormItemSet;
 import com.enonic.xp.form.Input;
 import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.schema.content.ContentType;
@@ -65,6 +66,13 @@ public abstract class ArticleSchemaTestSupport
                         .addFormItem( input( "related", InputTypeName.CONTENT_SELECTOR, 0, 0 ) )
                         .addFormItem( input( "cover", InputTypeName.IMAGE_SELECTOR, 0, 1 ) )
                         .addFormItem( input( "body", InputTypeName.HTML_AREA, 0, 1 ) )
+                        .addFormItem( FormItemSet.create()
+                                          .name( "links" )
+                                          .label( "links" )
+                                          .occurrences( 0, 0 )
+                                          .addFormItem( input( "label", InputTypeName.TEXT_LINE, 0, 1 ) )
+                                          .addFormItem( input( "target", InputTypeName.CONTENT_SELECTOR, 0, 0 ) )
+                                          .build() )
                         .build() );
         return result;
     }
