@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLCodeRegistry;
@@ -37,6 +38,7 @@ import com.enonic.xp.inputtype.InputTypeName;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
+import com.enonic.xp.schema.content.ContentTypes;
 import com.enonic.xp.schema.content.GetContentTypeParams;
 import com.enonic.xp.script.ScriptValue;
 import com.enonic.xp.security.IdProviderKey;
@@ -56,9 +58,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -122,6 +126,9 @@ public class McpControllerScriptTest
                                                                                                                     InputTypeName.TEXT_LINE )
                                                                                                                 .build() )
                                                                                               .build() );
+        final ContentTypes registered =
+            ContentTypes.from( contentTypeService.getByName( GetContentTypeParams.from( ContentTypeName.from( "app:article" ) ) ) );
+        when( contentTypeService.getAll() ).thenReturn( registered );
         when( serviceFacade.getContentTypeService() ).thenReturn( contentTypeService );
 
         when( projectService.list() ).thenReturn( Projects.from(
@@ -170,6 +177,43 @@ public class McpControllerScriptTest
             structured( asAlice( () -> execute( CONTENT_CONTROLLER, "describe-type", Map.of( "type", "Article" ) ) ) );
         assertEquals( "app_Article", described.get( "graphqlType" ) );
         assertEquals( List.of( Map.of( "name", "title", "path", "data.title", "input", "TextLine" ) ), described.get( "fields" ) );
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testSearchAndGetThroughTheContentControllerAreTheToolResults()
+    {
+        final Map<String, Object> args = new LinkedHashMap<>();
+        args.put( "filters", List.of( Map.of( "field", "title", "equals", "x" ), Map.of( "field", "modifiedTime", "from", "2026-01-01" ) ) );
+        args.put( "aggregate", List.of( Map.of( "by", "type", "size", 3 ) ) );
+        args.put( "count", 0 );
+
+        final Map<String, Object> result = asAlice( () -> execute( CONTENT_CONTROLLER, "search", args ) );
+
+        final Map<String, Object> structured = structured( result );
+        assertEquals( Map.of( "project", "blog", "branch", "draft", "total", 0, "hits", List.of(), "aggregations",
+                              List.of( Map.of( "by", "type", "buckets", List.of() ) ) ), structured );
+        assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.CONTENT, "search", structured ) );
+        assertEquals( normalized( asAlice( () -> new McpTools( serviceFacade, schemaProvider, configService ).run( "content", "search",
+                                                                                                                write( args ) ) ) ),
+                      normalized( result ) );
+        final ArgumentCaptor<Map<String, Object>> variables = ArgumentCaptor.forClass( Map.class );
+        verify( schemaProvider, atLeastOnce() ).executeToSpecification( anyString(), variables.capture(), isNull(), any() );
+        assertEquals( Map.of( "query", Map.of( "boolean", Map.of( "must", List.of(
+                          Map.of( "term", Map.of( "field", "data.title", "value", Map.of( "string", "x" ) ) ),
+                          Map.of( "range", Map.of( "field", "modifiedTime", "gte", Map.of( "instant", "2026-01-01T00:00:00Z" ) ) ) ) ) ),
+                              "first", 0, "sort", List.of( Map.of( "field", "modifiedTime", "direction", "DESC" ),
+                                                           Map.of( "field", "_path", "direction", "ASC" ) ), "aggregations",
+                              List.of( Map.of( "name", "a0", "terms", Map.of( "field", "type", "size", 3, "order", "_count DESC" ) ) ) ),
+                      normalized( variables.getAllValues().get( 0 ) ) );
+
+        final Map<String, Object> get = Map.of( "key", "/articles/a", "fields", List.of( "title" ) );
+        final Map<String, Object> missing = asAlice( () -> execute( CONTENT_CONTROLLER, "get", get ) );
+        assertEquals( true, missing.get( "isError" ) );
+        assertTrue( text( missing ).startsWith( "No content at \"/articles/a\" in project blog on branch draft" ), () -> text( missing ) );
+        assertEquals( normalized( asAlice( () -> new McpTools( serviceFacade, schemaProvider, configService ).run( "content", "get",
+                                                                                                                write( get ) ) ) ),
+                      normalized( missing ) );
     }
 
     @Test
