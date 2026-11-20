@@ -22,7 +22,14 @@ import graphql.schema.GraphQLScalarType;
 import graphql.schema.GraphQLSchema;
 
 import com.enonic.app.guillotine.graphql.fetchers.DynamicDataFetcher;
+import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.exception.ForbiddenAccessException;
+import com.enonic.xp.security.IdProviderKey;
+import com.enonic.xp.security.PrincipalKey;
+import com.enonic.xp.security.RoleKeys;
+import com.enonic.xp.security.User;
+import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.node.NodeNotFoundException;
 import com.enonic.xp.query.QueryException;
 import com.enonic.xp.repository.IndexException;
@@ -69,6 +76,8 @@ public class GraphQlErrorsTest
         FAILURES.put( "blank", new IllegalArgumentException() );
         FAILURES.put( "search", new IndexException( "Search request failed, query: [{ \"from\" : 50000, \"query\" : { \"_nodetype\" : 1 } }]" ) );
         FAILURES.put( "timeout", new IndexException( "Search request failed after [30s], query: [{ \"match_all\" : { } }]" ) );
+        FAILURES.put( "forbidden", new ForbiddenAccessException(
+            User.create().key( PrincipalKey.ofUser( IdProviderKey.system(), "alice" ) ).login( "alice" ).build() ) );
     }
 
     @Test
@@ -87,6 +96,31 @@ public class GraphQlErrorsTest
         assertEquals( "Invalid request for this field.", message( "blank" ) );
         assertEquals( GraphQlErrors.SEARCH_FAILED, message( "search" ) );
         assertEquals( GraphQlErrors.SEARCH_TIMED_OUT, message( "timeout" ) );
+        assertEquals( GraphQlErrors.ACCESS_DENIED, message( "forbidden" ) );
+    }
+
+    @Test
+    public void testDeniedAccessNamesTheProjectAndBranchOfTheContext()
+    {
+        final AuthenticationInfo alice = AuthenticationInfo.create()
+            .user( User.create().key( PrincipalKey.ofUser( IdProviderKey.system(), "alice" ) ).login( "alice" ).build() )
+            .principals( RoleKeys.AUTHENTICATED )
+            .build();
+        final String expected = "Access denied: the caller cannot read branch draft of project blog. Pass branch master to read " +
+            "published content, or ask an administrator for a role in project blog.";
+
+        final String partial = ContextBuilder.copyOf( ContextAccessor.current() ).authInfo( alice ).build().callWith(
+            () -> new ProjectBranch( "blog", "draft" ).callWith( () -> message( "forbidden" ) ) );
+        assertEquals( expected, partial );
+
+        final ToolError failed = assertThrows( ToolError.class, () -> ContextBuilder.copyOf( ContextAccessor.current() )
+            .authInfo( alice )
+            .build()
+            .callWith( () -> new ProjectBranch( "blog", "draft" ).callWith( () -> {
+                final Map<String, Object> response = execute( "{ fail(kind: \"forbidden\") }" );
+                return GraphQlErrors.partialErrors( response.get( "data" ), (List<?>) response.get( "errors" ) );
+            } ) ) );
+        assertEquals( expected, failed.userMessage() );
     }
 
     @Test

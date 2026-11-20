@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.ServiceFacade;
+import com.enonic.app.guillotine.graphql.SchemaProvider;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -27,7 +28,7 @@ public class McpDescriptorTest
     private static final Set<String> ALWAYS_LOADED = Set.of( "list-projects", "search" );
 
     private final Map<McpGroup, List<String>> registered =
-        new McpTools( mock( ServiceFacade.class ), mock( GuillotineConfigService.class ) ).names();
+        new McpTools( mock( ServiceFacade.class ), mock( SchemaProvider.class ), mock( GuillotineConfigService.class ) ).names();
 
     @Test
     public void testEachGroupWithToolsHasADescriptorAndControllerDeclaringExactlyThem()
@@ -46,6 +47,7 @@ public class McpDescriptorTest
             assertEquals( tools, ToolDescriptor.tools( group ).stream().map( tool -> tool.get( "name" ) ).toList(), group.groupName() );
         }
         assertEquals( List.of( "list-projects" ), registered.get( McpGroup.CONTENT ) );
+        assertEquals( List.of( "query" ), registered.get( McpGroup.GRAPHQL ) );
     }
 
     @Test

@@ -10,11 +10,13 @@ import org.slf4j.LoggerFactory;
 
 import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.ServiceFacade;
+import com.enonic.app.guillotine.graphql.SchemaProvider;
 import com.enonic.app.guillotine.mcp.shape.McpJson;
 import com.enonic.app.guillotine.mcp.shape.McpResult;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranchResolver;
 import com.enonic.app.guillotine.mcp.shape.ToolError;
 import com.enonic.app.guillotine.mcp.tools.ListProjectsTool;
+import com.enonic.app.guillotine.mcp.tools.QueryTool;
 
 /**
  * Runs one tool call: checks {@code mcp.enabled} and the caller, reads the arguments and turns every failure into an {@code isError}
@@ -28,9 +30,9 @@ public final class McpTools
 
     private final Map<McpGroup, Map<String, McpTool>> tools = new LinkedHashMap<>();
 
-    public McpTools( final ServiceFacade serviceFacade, final GuillotineConfigService configService )
+    public McpTools( final ServiceFacade serviceFacade, final SchemaProvider schemaProvider, final GuillotineConfigService configService )
     {
-        this( configService, tools( serviceFacade, configService ) );
+        this( configService, tools( serviceFacade, schemaProvider, configService ) );
     }
 
     McpTools( final GuillotineConfigService configService, final List<McpTool> tools )
@@ -39,12 +41,14 @@ public final class McpTools
         tools.forEach( tool -> this.tools.computeIfAbsent( tool.group(), group -> new LinkedHashMap<>() ).put( tool.name(), tool ) );
     }
 
-    private static List<McpTool> tools( final ServiceFacade serviceFacade, final GuillotineConfigService configService )
+    private static List<McpTool> tools( final ServiceFacade serviceFacade, final SchemaProvider schemaProvider,
+                                        final GuillotineConfigService configService )
     {
         final ProjectBranchResolver resolver =
             new ProjectBranchResolver( serviceFacade.getProjectService(), serviceFacade.getNodeService(), configService );
         return List.of(
-            new ListProjectsTool( serviceFacade.getProjectService(), serviceFacade.getContentService(), configService, resolver ) );
+            new ListProjectsTool( serviceFacade.getProjectService(), serviceFacade.getContentService(), configService, resolver ),
+            new QueryTool( schemaProvider, configService, resolver ) );
     }
 
     /**
