@@ -108,12 +108,8 @@ public final class DescribeTypeTool
         final long count = count( target, contentType );
 
         final ContentType schema = contentTypeSchema( contentType );
-        final GraphQLObjectType dataType = type.getFieldDefinition( "data" ) != null &&
-            GraphQLTypeUtil.unwrapAll( type.getFieldDefinition( "data" ).getType() ) instanceof GraphQLObjectType data ? data : null;
-        final List<TypeFields.Field> fields = schema != null ? TypeFields.of( schema.getForm(), dataType,
-                                                                             ContentTypeName.from( contentType )
-                                                                                 .getApplicationKey()
-                                                                                 .toString() ) : List.of();
+        final GraphQLObjectType dataType = TypeFields.dataType( type );
+        final List<TypeFields.Field> fields = TypeFields.of( schema, type );
 
         final Map<String, Object> structured = target.putInto( new LinkedHashMap<>() );
         structured.put( "contentType", contentType );
