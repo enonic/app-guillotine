@@ -93,6 +93,9 @@ FAILURES = [
      ["Pass project and branch as tool arguments"]),
     ("graphql", "query", {"query": "query($n: Int) { guillotine { queryDsl(query: {matchAll: {}}, first: $n) { _id } } }",
                           "variables": {"n": 1000}}, ["first must not exceed 100"]),
+    ("graphql", "query", {"query": "query($c: String) { guillotine { queryDslConnection(query: {matchAll: {}}, after: $c) "
+                                   "{ totalCount } } }", "variables": {"c": "abc"}},
+     ["after is not a cursor from a previous result", "endCursor"]),
     ("graphql", "query", {"query": "query A { guillotine { getSite { _id } } } query B { guillotine { getSite { _id } } }"},
      ["operationName", "A", "B"]),
     ("graphql", "query", {"query": open(os.path.join(E2E_DIR, "checks/introspection.graphql")).read()},

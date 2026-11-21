@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.enonic.app.guillotine.graphql.ContentFixtures;
 import com.enonic.app.guillotine.graphql.ImageTransformations;
 import com.enonic.app.guillotine.graphql.SchemaProvider;
+import com.enonic.app.guillotine.graphql.helper.ConnectionHelper;
 import com.enonic.app.guillotine.mcp.shape.McpJson;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranch;
 import com.enonic.app.guillotine.mcp.shape.ToolError;
@@ -287,6 +288,27 @@ public class QueryToolTest
 
         assertEquals( QueryLimits.UNORDERED_TERMS_NOTE, structured.get( "note" ) );
         assertEquals( Map.of( "guillotine", Map.of( "queryDslConnection", Map.of( "totalCount", 0 ) ) ), structured.get( "data" ) );
+    }
+
+    @Test
+    public void testMalformedAfterCursorSaysWhatToPass()
+    {
+        when( contentService.getById( ContentId.from( "a1" ) ) ).thenReturn( article( "a1", "First" ) );
+        final String expected = "after is not a cursor from a previous result. Drop after to start from the first item, or pass " +
+            "the endCursor (or an edge cursor) of the page before.";
+        final String search = "query ($c: String) { guillotine { queryDslConnection(query: {matchAll: {}}, after: $c) { totalCount } } }";
+        final String children = "query ($c: String) { guillotine { getChildrenConnection(key: \"/\", after: $c) { totalCount } } }";
+        final String nested = "query ($c: String) { guillotine { get(key: \"a1\") { childrenConnection(after: $c) { totalCount } } } }";
+
+        for ( final String query : List.of( search, children, nested ) )
+        {
+            for ( final String cursor : List.of( "abc", "%%%", ConnectionHelper.encodeCursor( " 5" ), ConnectionHelper.encodeCursor( "x" ) ) )
+            {
+                final ToolError error =
+                    assertThrows( ToolError.class, () -> run( Map.of( "query", query, "variables", Map.of( "c", cursor ) ) ), query + " " + cursor );
+                assertEquals( expected, error.userMessage(), query + " " + cursor );
+            }
+        }
     }
 
     @Test
