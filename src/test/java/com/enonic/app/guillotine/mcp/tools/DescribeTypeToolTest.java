@@ -19,6 +19,7 @@ import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
+import com.enonic.xp.content.WorkflowState;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.form.FormOptionSet;
 import com.enonic.xp.form.FormOptionSetOption;
@@ -168,6 +169,12 @@ public class DescribeTypeToolTest
                                Map.of( "name", "links.target", "path", "data.links.target", "input", "ContentSelector", "repeated",
                                        true ) ), structured.get( "fields" ) );
         assertEquals( DescribeTypeTool.INDEX_FIELDS, structured.get( "indexFields" ) );
+        final String workflow = DescribeTypeTool.INDEX_FIELDS.get( "workflow.state" );
+        for ( final WorkflowState state : WorkflowState.values() )
+        {
+            assertTrue( workflow.contains( state.name() ), state + " in " + workflow );
+        }
+        assertTrue( workflow.contains( "lower case in buckets" ), workflow );
         assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.CONTENT, "describe-type", structured ) );
     }
 
@@ -312,7 +319,7 @@ public class DescribeTypeToolTest
         final Map<String, Object> structured = describe( ARTICLE );
         final int chars = McpJson.length( structured );
 
-        assertTrue( chars < 3600, () -> "describe-type article is " + chars + " characters" );
+        assertTrue( chars < 3700, () -> "describe-type article is " + chars + " characters" );
     }
 
     @Test

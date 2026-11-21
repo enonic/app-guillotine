@@ -245,7 +245,8 @@ public final class DescribeTypeTool
         fields.put( "type", "content type name" );
         fields.put( "_path, _parentPath", "path with /content in front" );
         fields.put( "_references", "_id of each item this one references" );
-        fields.put( "workflow.state", "IN_PROGRESS or READY" );
+        fields.put( "workflow.state", "IN_PROGRESS, PENDING_APPROVAL, REJECTED or READY; may be unset, so match ready items by " +
+            "excluding the other three; lower case in buckets" );
         fields.put( "creator, modifier, owner", "principal key, e.g. user:system:alice" );
         fields.put( "createdTime, modifiedTime, publish.from, publish.to, publish.first", "instant" );
         return fields;
