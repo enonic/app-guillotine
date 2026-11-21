@@ -7,6 +7,7 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
+import com.enonic.app.guillotine.graphql.Elevation;
 import com.enonic.app.guillotine.graphql.GuillotineSerializer;
 import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.helper.CastHelper;
@@ -44,7 +45,7 @@ public abstract class BasePageDataFetcher
         {
             if ( page.isEmpty() )
             {
-                return getDefaultPageTemplate( contentAsMap );
+                return getDefaultPageTemplate( contentAsMap, Elevation.of( environment ) );
             }
 
             if ( page.get( "template" ) != null )
@@ -57,9 +58,9 @@ public abstract class BasePageDataFetcher
         return null;
     }
 
-    private Map<String, Object> getDefaultPageTemplate( Map<String, Object> contentAsMap )
+    private Map<String, Object> getDefaultPageTemplate( Map<String, Object> contentAsMap, Elevation elevation )
     {
-        return adminContext( () -> {
+        final Callable<Map<String, Object>> resolve = () -> {
             Site nearestSite = serviceFacade.getContentService().getNearestSite( ContentId.from( contentAsMap.get( "_id" ) ) );
 
             if ( nearestSite != null )
@@ -79,7 +80,8 @@ public abstract class BasePageDataFetcher
             }
 
             return null;
-        } );
+        };
+        return elevation == Elevation.NONE ? ContextAccessor.current().callWith( resolve ) : adminContext( resolve );
     }
 
     private <T> T adminContext( final Callable<T> callable )
