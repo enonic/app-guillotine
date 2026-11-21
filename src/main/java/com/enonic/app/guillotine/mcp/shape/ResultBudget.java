@@ -164,7 +164,8 @@ public final class ResultBudget
 
     /**
      * An emptied page. When {@code first} alone does not fit even next to only project, branch and total, no page can ever return it,
-     * so {@code nextCursor} moves past it instead of repeating the same page; the other fields stay when they fit. Otherwise the
+     * so {@code nextCursor} moves past it instead of repeating the same page; the other fields stay when they fit, else only project,
+     * branch and total stay next to the cursor. Otherwise the
      * other fields are what crowd it out, and skipping would lose items, so the result is the {@link #fallback}.
      */
     private Map<String, Object> skipFirst( final Map<String, Object> result, final String listKey, final Object first,
@@ -178,11 +179,18 @@ public final class ResultBudget
             return fallback( result, listKey );
         }
         final String skip = nextCursor.apply( 1 );
+        final String hint = "Result truncated to fit " + maxResultChars + " characters: the first item of '" + listKey + "' alone is " +
+            "larger, so this page has no items. " + narrowHint + ( skip != null ? " Continue with nextCursor to skip that item." : "" );
+        final Map<String, Object> skipped = fits( withSkip( result, skip, hint ) ) ? result : fallback( result, listKey );
+        return withSkip( skipped, skip, hint );
+    }
+
+    private static Map<String, Object> withSkip( final Map<String, Object> result, final String skip, final String hint )
+    {
         putOrRemove( result, NEXT_CURSOR, skip );
         result.put( TRUNCATED, true );
-        result.put( HINT, "Result truncated to fit " + maxResultChars + " characters: the first item of '" + listKey + "' alone is " +
-            "larger, so this page has no items. " + narrowHint + ( skip != null ? " Continue with nextCursor to skip that item." : "" ) );
-        return fits( result ) ? result : fallback( result, listKey );
+        result.put( HINT, hint );
+        return result;
     }
 
     /**
