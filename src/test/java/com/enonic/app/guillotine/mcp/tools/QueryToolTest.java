@@ -172,6 +172,15 @@ public class QueryToolTest
         assertTrue( content.contains( "Content has _id, _name, _path" ), content );
         assertTrue( content.contains( "Fields of one content type, such as data, need an inline fragment: ... on <graphqlType from " +
                                           "list-types>." ), content );
+        final String wrapped = assertThrows( ToolError.class, () -> run(
+            Map.of( "query", "{ guillotine { queryDsl(query: {matchAll: {}}) } }" ) ) ).userMessage();
+        assertTrue( wrapped.contains( "Content has _id" ), wrapped );
+
+        final String form = assertThrows( ToolError.class, () -> run(
+            Map.of( "query", "{ guillotine { getType(name: \"base:folder\") { form { inputType } } } }" ) ) ).userMessage();
+        assertTrue( form.contains( "FormItem has" ), form );
+        assertTrue( form.contains( "inline fragment on one of" ) && form.contains( "FormInput" ), form );
+        assertFalse( form.contains( "list-types" ), form );
         assertNull( QueryTool.selectionHint( List.of( "Validation error (FieldUndefined@[guillotine/nope]) : Field 'nope' in type " +
                                                           "'NoSuchType' is undefined" ), schemaProvider.getSchema() ) );
     }
