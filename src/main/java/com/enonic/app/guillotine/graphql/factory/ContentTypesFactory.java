@@ -159,7 +159,9 @@ public class ContentTypesFactory
         List<FormItem> formItems = FormItemTypesHelper.getFilteredFormItems( contentType.getForm() );
         if ( !formItems.isEmpty() )
         {
-            GraphQLObjectType dataObject = generateContentDataType( typeName, typeDescription, formItems );
+            GraphQLObjectType dataObject = generateContentDataType( typeName, typeDescription, formItems,
+                                                                    FormItemDescription.data(
+                                                                        contentType.getName().getApplicationKey().toString() ) );
             if ( dataObject != null )
             {
                 fields.add( outputField( "data", dataObject ) );
@@ -200,7 +202,8 @@ public class ContentTypesFactory
         return arguments;
     }
 
-    private GraphQLObjectType generateContentDataType( String parentTypeName, String parentDescription, List<FormItem> formItems )
+    private GraphQLObjectType generateContentDataType( String parentTypeName, String parentDescription, List<FormItem> formItems,
+                                                       FormItemDescription scope )
     {
         String typeName = context.uniqueName( parentTypeName + "_Data" );
         String description = parentDescription + " data";
@@ -212,17 +215,18 @@ public class ContentTypesFactory
             try
             {
                 String normalizedFieldName = StringNormalizer.create( rawFieldName );
+                FormItemDescription fieldScope = scope.child( rawFieldName );
 
                 GraphQLOutputType formItemObject =
-                    (GraphQLOutputType) formItemTypesFactory.generateFormItemObject( parentTypeName, formItem );
+                    (GraphQLOutputType) formItemTypesFactory.generateFormItemObject( parentTypeName, formItem, fieldScope );
 
                 if ( formItemObject == null )
                 {
                     continue;
                 }
 
-                GraphQLFieldDefinition field =
-                    outputField( normalizedFieldName, formItemObject, formItemTypesFactory.generateFormItemArguments( formItem ) );
+                GraphQLFieldDefinition field = outputField( normalizedFieldName, fieldScope.describe( formItem ), formItemObject,
+                                                            formItemTypesFactory.generateFormItemArguments( formItem ) );
 
                 context.registerDataFetcher( typeName, normalizedFieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
 
