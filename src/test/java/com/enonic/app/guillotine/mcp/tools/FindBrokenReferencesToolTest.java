@@ -2,6 +2,7 @@ package com.enonic.app.guillotine.mcp.tools;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.LongSupplier;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.enonic.app.guillotine.mcp.McpGroup;
 import com.enonic.app.guillotine.mcp.ToolDescriptor;
 import com.enonic.app.guillotine.mcp.shape.Cursors;
+import com.enonic.app.guillotine.mcp.shape.Deadline;
 import com.enonic.app.guillotine.mcp.shape.ToolError;
 import com.enonic.xp.context.Context;
 
@@ -28,6 +30,8 @@ public class FindBrokenReferencesToolTest
 
     private static final String NEVER = "00000000-0000-4000-8000-00000000dead";
 
+    private static final long SECOND = 1_000_000_000L;
+
     private FindBrokenReferencesTool tool()
     {
         return new FindBrokenReferencesTool( contentService, serviceFacade.getContentTypeService(), guillotineConfigService, resolver );
@@ -35,7 +39,12 @@ public class FindBrokenReferencesToolTest
 
     private Map<String, Object> run( final Map<String, Object> args )
     {
-        final Map<String, Object> structured = structured( as( ALICE, () -> tool().execute( args ) ) );
+        return run( tool(), args );
+    }
+
+    private Map<String, Object> run( final FindBrokenReferencesTool tool, final Map<String, Object> args )
+    {
+        final Map<String, Object> structured = structured( as( ALICE, () -> tool.execute( args ) ) );
         assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.REFERENCES, "find-broken-references", structured ) );
         return structured;
     }
@@ -119,7 +128,8 @@ public class FindBrokenReferencesToolTest
         item( uuid( 11 ), "/pages", "b", LANDING, List.of( uuid( 904 ) ), List.of() );
         item( uuid( 12 ), "/pages", "c", LANDING, List.of( uuid( 905 ) ), List.of() );
         final FindBrokenReferencesTool tool =
-            new FindBrokenReferencesTool( contentService, serviceFacade.getContentTypeService(), guillotineConfigService, resolver, 3 );
+            new FindBrokenReferencesTool( contentService, serviceFacade.getContentTypeService(), guillotineConfigService, resolver, 3,
+                                          System::nanoTime );
 
         final Map<String, Object> first = structured( as( ALICE, () -> tool.execute( args() ) ) );
         assertEquals( 1, first.get( "checked" ), "the first item is checked even when it alone exceeds the cap" );
@@ -131,6 +141,74 @@ public class FindBrokenReferencesToolTest
         assertEquals( 2, second.get( "checked" ) );
         assertEquals( List.of( "/pages/b", "/pages/c" ), paths( second ) );
         assertNull( second.get( "incomplete" ) );
+    }
+
+    private FindBrokenReferencesTool timed( final LongSupplier nanoTime )
+    {
+        return new FindBrokenReferencesTool( contentService, serviceFacade.getContentTypeService(), guillotineConfigService, resolver,
+                                             FindBrokenReferencesTool.MAX_TARGETS, nanoTime );
+    }
+
+    @Test
+    public void testASlowBackendStopsAtTheDeadlineAndContinuesWithTheCursor()
+    {
+        IntStream.range( 0, 50 ).forEach( n -> item( uuid( 100 + n ), "/pages", "page-%02d".formatted( n ), LANDING,
+                                                     n == 2 ? List.of( DELETED ) : List.of(), List.of() ) );
+        final LongSupplier oneSecondPerCall = () -> backendCalls * SECOND;
+
+        final Map<String, Object> structured = run( timed( oneSecondPerCall ), args( "path", "/pages" ) );
+
+        final int checked = (Integer) structured.get( "checked" );
+        assertEquals( Deadline.LIMIT_SECONDS - 1, checked, "one source query, then one outbound read per item until 20 s" );
+        assertEquals( Deadline.LIMIT_SECONDS + 2, backendCalls, "after the deadline only one target lookup and the label lookup run" );
+        assertEquals( true, structured.get( "incomplete" ) );
+        assertEquals( Cursors.encode( checked ), structured.get( "nextCursor" ) );
+        assertEquals( List.of( "/pages/page-02" ), paths( structured ) );
+        assertTrue( ( (String) structured.get( "note" ) ).startsWith(
+            "Checked items 1-19 of 50 by path (stopped at the per-call time limit of 20 seconds); continue with nextCursor" ),
+                    structured::toString );
+    }
+
+    @Test
+    public void testTheDeadlineDuringTargetLookupsKeepsOnlyFullyCheckedItems()
+    {
+        for ( int n = 0; n < 3; n++ )
+        {
+            final int base = 1000 + n * 300;
+            item( uuid( 10 + n ), "/pages", "page-" + n, LANDING, IntStream.range( base, base + 300 ).mapToObj( ContentStoreTestSupport::uuid )
+                .toList(), List.of() );
+        }
+        final int beforeTargetLookups = 4;
+        final LongSupplier passedAfterFirstBatch =
+            () -> backendCalls > beforeTargetLookups ? Deadline.LIMIT_SECONDS * SECOND : 0;
+
+        final Map<String, Object> structured = run( timed( passedAfterFirstBatch ), args() );
+
+        assertEquals( 1, structured.get( "checked" ), "the first batch covers page-0 and part of page-1" );
+        assertEquals( List.of( "/pages/page-0" ), paths( structured ) );
+        assertEquals( Cursors.encode( 1 ), structured.get( "nextCursor" ) );
+        assertEquals( true, structured.get( "incomplete" ) );
+    }
+
+    @Test
+    public void testAnInterruptedCallChecksOnlyTheFirstItem()
+    {
+        landings();
+        Thread.currentThread().interrupt();
+        final Map<String, Object> structured;
+        try
+        {
+            structured = run( args( "path", "/landings" ) );
+        }
+        finally
+        {
+            assertTrue( Thread.interrupted(), "the interrupt flag is kept" );
+        }
+
+        assertEquals( 1, structured.get( "checked" ) );
+        assertEquals( List.of( "/landings/broken" ), paths( structured ) );
+        assertEquals( Cursors.encode( 1 ), structured.get( "nextCursor" ) );
+        assertEquals( List.of( uuid( 10 ) ), outboundCalls );
     }
 
     @Test
