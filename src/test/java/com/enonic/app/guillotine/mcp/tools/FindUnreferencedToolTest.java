@@ -2,12 +2,14 @@ package com.enonic.app.guillotine.mcp.tools;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.LongSupplier;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
 import com.enonic.app.guillotine.mcp.McpGroup;
 import com.enonic.app.guillotine.mcp.ToolDescriptor;
+import com.enonic.app.guillotine.mcp.shape.Deadline;
 import com.enonic.xp.context.Context;
 
 import static com.enonic.app.guillotine.mcp.McpResults.structured;
@@ -28,8 +30,14 @@ public class FindUnreferencedToolTest
 
     private Map<String, Object> run( final Map<String, Object> args, final int maxBuckets )
     {
+        return run( args, maxBuckets, System::nanoTime );
+    }
+
+    private Map<String, Object> run( final Map<String, Object> args, final int maxBuckets, final LongSupplier nanoTime )
+    {
         final FindUnreferencedTool tool =
-            new FindUnreferencedTool( contentService, serviceFacade.getContentTypeService(), guillotineConfigService, resolver, maxBuckets );
+            new FindUnreferencedTool( contentService, serviceFacade.getContentTypeService(), guillotineConfigService, resolver, maxBuckets,
+                                      nanoTime );
         final Map<String, Object> structured = structured( as( ALICE, () -> tool.execute( args ) ) );
         assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.REFERENCES, "find-unreferenced", structured ) );
         return structured;
@@ -119,9 +127,7 @@ public class FindUnreferencedToolTest
     @Test
     public void testCallCapLeavesTheRestUncheckedAndSaysSo()
     {
-        IntStream.rangeClosed( 1, 60 ).forEach( n -> item( uuid( n ), "/images", "img-%02d".formatted( n ), IMAGE, List.of(), List.of() ) );
-        item( uuid( 100 ), "/articles", "gallery", ARTICLE, IntStream.rangeClosed( 1, 59 ).mapToObj( ContentStoreTestSupport::uuid ).toList(),
-              List.of() );
+        gallery();
 
         final Map<String, Object> structured = run( args(), 1 );
 
@@ -130,9 +136,67 @@ public class FindUnreferencedToolTest
         final int checked = (Integer) structured.get( "checked" );
         assertTrue( checked < 60, structured::toString );
         assertEquals( FindUnreferencedTool.MAX_CALLS, queries.size() + 1, "every call but the label lookup is a query" );
-        assertTrue( ( (String) structured.get( "note" ) ).contains( "Incomplete: checked the first " + checked + " of 60 items" ),
-                    structured::toString );
+        assertTrue( ( (String) structured.get( "note" ) ).contains( "Incomplete: checked the first " + checked + " of 60 items by path " +
+                                                                        "within the per-call limit;" ), structured::toString );
         assertEquals( List.of(), structured.get( "items" ), "the one unreferenced image is not reached" );
+    }
+
+    /**
+     * Sixty images, of which a gallery references all but the last.
+     */
+    private void gallery()
+    {
+        IntStream.rangeClosed( 1, 60 ).forEach( n -> item( uuid( n ), "/images", "img-%02d".formatted( n ), IMAGE, List.of(), List.of() ) );
+        item( uuid( 100 ), "/articles", "gallery", ARTICLE, IntStream.rangeClosed( 1, 59 ).mapToObj( ContentStoreTestSupport::uuid ).toList(),
+              List.of() );
+    }
+
+    @Test
+    public void testASlowBackendStopsAtTheDeadlineAndSaysSo()
+    {
+        gallery();
+        final LongSupplier oneSecondPerCall = () -> backendCalls * 1_000_000_000L;
+
+        final Map<String, Object> structured = run( args(), 1, oneSecondPerCall );
+
+        assertEquals( true, structured.get( "incomplete" ) );
+        assertTrue( (Integer) structured.get( "checked" ) < 60, structured::toString );
+        assertEquals( Deadline.LIMIT_SECONDS, queries.size(), "queries stop at 20 s, before the cap of " + FindUnreferencedTool.MAX_CALLS );
+        assertTrue( ( (String) structured.get( "note" ) ).contains( "within the per-call time limit of 20 seconds" ), structured::toString );
+    }
+
+    @Test
+    public void testTheNoteNamesTheCapWhenItRanOutBeforeTheDeadline()
+    {
+        gallery();
+        final LongSupplier passedOnceTheCapIsUsed =
+            () -> backendCalls >= FindUnreferencedTool.MAX_CALLS - 1 ? Deadline.LIMIT_SECONDS * 1_000_000_000L : 0;
+
+        final Map<String, Object> structured = run( args(), 1, passedOnceTheCapIsUsed );
+
+        assertEquals( true, structured.get( "incomplete" ) );
+        final String note = (String) structured.get( "note" );
+        assertTrue( note.contains( "within the per-call limit;" ) && !note.contains( "time limit" ), note );
+    }
+
+    @Test
+    public void testAnInterruptedCallChecksNothingAndKeepsTheFlag()
+    {
+        images();
+        Thread.currentThread().interrupt();
+        final Map<String, Object> structured;
+        try
+        {
+            structured = run( args() );
+        }
+        finally
+        {
+            assertTrue( Thread.interrupted(), "the interrupt flag is kept" );
+        }
+
+        assertEquals( true, structured.get( "incomplete" ) );
+        assertEquals( 0, structured.get( "checked" ) );
+        assertEquals( 1, queries.size(), "only the candidate listing runs" );
     }
 
     @Test
