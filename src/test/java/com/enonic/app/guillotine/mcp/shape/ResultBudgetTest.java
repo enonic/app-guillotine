@@ -137,6 +137,23 @@ public class ResultBudgetTest
     }
 
     @Test
+    public void testFitPageKeepsTheSkipCursorWhenTheOtherFieldsDoNotFitEither()
+    {
+        final Map<String, Object> input = new LinkedHashMap<>();
+        new ProjectBranch( "blog", "master" ).putInto( input );
+        input.put( "total", 30 );
+        input.put( "aggregations", "x".repeat( 900 ) );
+        input.put( "hits", List.of( "y".repeat( 2000 ), "small" ) );
+
+        final Map<String, Object> result = structured( BUDGET.fitPage( input, "hits", new Page( 0, 2 ), 30 ) );
+
+        assertEquals( Map.of( "project", "blog", "branch", "master", "total", 30, "hits", List.of(), "nextCursor", Cursors.encode( 1 ),
+                              "truncated", true, "hint", "Result truncated to fit 1000 characters: the first item of 'hits' alone is " +
+                                  "larger, so this page has no items. Narrow the request. Continue with nextCursor to skip that item." ),
+                      result );
+    }
+
+    @Test
     public void testFitPageDoesNotSkipASmallFirstItemCrowdedOutByOtherFields()
     {
         final Map<String, Object> input = new LinkedHashMap<>();
