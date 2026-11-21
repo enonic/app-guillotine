@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +15,7 @@ import com.enonic.app.guillotine.graphql.helper.ConnectionHelper;
 import com.enonic.app.guillotine.mcp.McpGroup;
 import com.enonic.app.guillotine.mcp.McpTool;
 import com.enonic.app.guillotine.mcp.shape.Cursors;
+import com.enonic.app.guillotine.mcp.shape.McpJson;
 import com.enonic.app.guillotine.mcp.shape.McpResult;
 import com.enonic.app.guillotine.mcp.shape.Page;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranch;
@@ -48,9 +50,15 @@ public final class SearchTool
 
     static final String HIT_FIELDS = "_id _path displayName type modifiedTime";
 
+    static final String PUBLISH_FIELDS = " publish { from to first }";
+
     static final String QUERY = QUERY_TEMPLATE.formatted( HIT_FIELDS );
 
     static final String QUERY_WITH_DATA = QUERY_TEMPLATE.formatted( HIT_FIELDS + " dataAsJson" );
+
+    static final String QUERY_WITH_PUBLISH = QUERY_TEMPLATE.formatted( HIT_FIELDS + PUBLISH_FIELDS );
+
+    static final String QUERY_WITH_DATA_AND_PUBLISH = QUERY_TEMPLATE.formatted( HIT_FIELDS + PUBLISH_FIELDS + " dataAsJson" );
 
     private static final String NARROW_HINT = "Narrow with text, types, path or filters; ask for fewer fields, a smaller count, or fewer " +
         "or smaller aggregations (count 0 returns aggregations alone).";
@@ -114,8 +122,9 @@ public final class SearchTool
         {
             variables.put( "aggregations", search.aggregations );
         }
-        final ContentLookup.Response response =
-            lookup.execute( target, search.fields.isEmpty() ? QUERY : QUERY_WITH_DATA, variables );
+        final String document = search.fields.isEmpty() ? search.publish ? QUERY_WITH_PUBLISH : QUERY
+            : search.publish ? QUERY_WITH_DATA_AND_PUBLISH : QUERY_WITH_DATA;
+        final ContentLookup.Response response = lookup.execute( target, document, variables );
         final Map<?, ?> connection = response.object( "queryDslConnection" );
         final long total = connection != null && connection.get( "totalCount" ) instanceof Number number ? number.longValue() : 0;
         page.requireWithin( total );
@@ -136,6 +145,20 @@ public final class SearchTool
             if ( state != null && !"READY".equals( state ) )
             {
                 hit.put( "workflow", state );
+            }
+            if ( search.publish && node.get( "publish" ) instanceof Map<?, ?> publish )
+            {
+                final Map<String, Object> dates = new LinkedHashMap<>();
+                publish.forEach( ( key, value ) -> {
+                    if ( value != null )
+                    {
+                        dates.put( String.valueOf( key ), value );
+                    }
+                } );
+                if ( !dates.isEmpty() )
+                {
+                    hit.put( "publish", dates );
+                }
             }
             if ( !search.fields.isEmpty() )
             {
@@ -170,6 +193,10 @@ public final class SearchTool
             structured.put( McpResult.ERRORS, response.errors() );
         }
         final List<String> notes = new ArrayList<>();
+        if ( !search.notReturned.isEmpty() )
+        {
+            notes.add( notReturnedNote( search.notReturned ) );
+        }
         if ( ids.size() > ContentLookup.MAX_LABELS )
         {
             notes.add( "Display names were looked up for the first " + ContentLookup.MAX_LABELS + " content ids only." );
@@ -188,6 +215,21 @@ public final class SearchTool
             structured.put( ResultBudget.NOTE, String.join( " ", notes ) );
         }
         return ResultBudget.fromConfig( configService ).withNarrowHint( NARROW_HINT ).fitPage( structured, HITS, page, total );
+    }
+
+    /**
+     * Index fields asked for in {@code fields} are left out rather than failing the call: hits have the common metadata, and the
+     * rest can still be filtered or sorted on.
+     */
+    private static String notReturnedNote( final List<String> names )
+    {
+        final boolean principals = names.stream()
+            .map( name -> name.split( "\\.", 2 )[0].toLowerCase( Locale.ROOT ) )
+            .anyMatch( root -> root.equals( "creator" ) || root.equals( "modifier" ) || root.equals( "owner" ) );
+        return "fields returns data fields and publish only, so " +
+            String.join( ", ", names.stream().map( name -> McpJson.shorten( name, McpJson.PREVIEW_CHARS ) ).toList() ) + " " +
+            ( names.size() == 1 ? "was" : "were" ) + " left out; filters and sort take index fields, and get returns createdTime and " +
+            "language." + ( principals ? " For the caller's own edits pass mine." : "" );
     }
 
     private List<ContentType> registered()

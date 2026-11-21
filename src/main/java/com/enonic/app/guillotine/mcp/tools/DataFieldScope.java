@@ -113,9 +113,17 @@ final class DataFieldScope
             }
             throw unknown( field, where );
         }
-        final String root = field.split( "[.^]", 2 )[0].toLowerCase( Locale.ROOT );
-        final String path = INDEX_ROOTS.contains( root ) ? null : dataPath( field );
+        final String path = isIndexField( field ) ? null : dataPath( field );
         return path != null ? path : field;
+    }
+
+    /**
+     * Whether {@code field} starts with the name of an index field that is not a data field, such as {@code publish.to} or
+     * {@code displayName}; {@code data.*} names count too.
+     */
+    static boolean isIndexField( final String field )
+    {
+        return INDEX_ROOTS.contains( field.split( "[.^]", 2 )[0].toLowerCase( Locale.ROOT ) );
     }
 
     /**
@@ -130,6 +138,14 @@ final class DataFieldScope
             throw unknown( field, where );
         }
         return path;
+    }
+
+    /**
+     * The index path of the data field {@code name} (without {@code data.}) names in scope, or {@code null}.
+     */
+    String dataFieldPath( final String name )
+    {
+        return dataPath( name );
     }
 
     boolean isDataField( final String path )
