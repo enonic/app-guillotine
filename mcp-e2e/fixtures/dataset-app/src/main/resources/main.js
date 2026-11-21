@@ -39,21 +39,31 @@ function ensureUsers() {
     });
 }
 
+function projectPermissions() {
+    const permissions = {};
+    dataset.users.forEach(function (u) {
+        if (u.projectRole) {
+            (permissions[u.projectRole] = permissions[u.projectRole] || []).push(userKey(u.login));
+        }
+    });
+    return permissions;
+}
+
 function ensureProject() {
-    const editors = dataset.users.map(function (u) { return userKey(u.login); });
+    const permissions = projectPermissions();
     if (!projectLib.get({id: PROJECT})) {
         projectLib.create({
             id: PROJECT,
             displayName: dataset.project.displayName,
             language: dataset.project.language,
-            permissions: {editor: editors},
+            permissions: permissions,
             // ACL is copied to both branches; draft stays closed to anonymous because ContentService
             // requires a project role (or admin) for any read on the draft branch.
             publicRead: true
         });
         log.info(LOG_PREFIX + 'created project ' + PROJECT);
     } else {
-        projectLib.addPermissions({id: PROJECT, permissions: {editor: editors}});
+        projectLib.addPermissions({id: PROJECT, permissions: permissions});
         if (!projectLib.get({id: PROJECT}).publicRead) {
             projectLib.setPublicRead({id: PROJECT, publicRead: true});
             log.info(LOG_PREFIX + 'set publicRead on ' + PROJECT);
@@ -259,6 +269,77 @@ function ensureWorkflow() {
     });
 }
 
+const ALL_PERMISSIONS = ['READ', 'CREATE', 'MODIFY', 'DELETE', 'PUBLISH', 'READ_PERMISSIONS', 'WRITE_PERMISSIONS'];
+
+function restrictedAcl(folder) {
+    return [{principal: 'role:system.admin', allow: ALL_PERMISSIONS, deny: []}].concat(folder.readers.map(function (login) {
+        return {principal: userKey(login), allow: ['READ'], deny: []};
+    }));
+}
+
+function aclKey(entries) {
+    return JSON.stringify((entries || []).map(function (e) {
+        return e.principal + '=' + (e.allow || []).slice().sort().join(',') + '/' + (e.deny || []).slice().sort().join(',');
+    }).sort());
+}
+
+// Created by su with the project's default ACL, then the ACL of each restricted folder replaces it on the whole subtree,
+// on draft and master.
+function ensureRestricted() {
+    const r = dataset.restricted;
+    r.folders.forEach(function (f) {
+        createIfMissing('su', path(f.name), function () {
+            return contentLib.create({
+                parentPath: '/', name: f.name, displayName: f.displayName, contentType: 'base:folder', data: {}
+            });
+        });
+    });
+    r.images.forEach(function (img) {
+        createIfMissing(img.user, path(img.parent, img.name), function () {
+            return contentLib.createMedia({
+                parentPath: '/' + img.parent, name: img.name,
+                data: ioLib.getResource('/dataset/images/' + img.file).getStream()
+            });
+        });
+    });
+    r.articles.forEach(function (a) {
+        const p = path(a.parent, a.name);
+        if (asAdmin('draft', function () { return existing(p); })) {
+            return;
+        }
+        const body = '<p>Body of ' + a.title + '.</p>' + a.bodyImages.map(function (i) {
+            return imgTag(idOf('/' + i), 'picture');
+        }).join('') + a.links.map(function (l) {
+            return '<p><a href="content://' + idOf('/' + l) + '">Read more</a></p>';
+        }).join('');
+        const data = {title: a.title, author: idOf(path('persons', a.author)), tags: a.tags, cover: idOf('/' + a.cover), body: body};
+        createIfMissing(a.user, p, function () {
+            return contentLib.create({
+                parentPath: '/' + a.parent, name: a.name, displayName: a.title,
+                contentType: APP + ':article', data: data, workflow: {state: 'READY', checks: {}}
+            });
+        });
+    });
+    r.folders.forEach(function (f) {
+        const acl = restrictedAcl(f);
+        const subtree = asAdmin('draft', function () {
+            return [existing(path(f.name))].concat(contentLib.query({
+                count: 100, query: {like: {field: '_path', value: '/content' + path(f.name) + '/*'}}
+            }).hits);
+        });
+        const applied = subtree.every(function (c) {
+            return aclKey(asAdmin('draft', function () { return contentLib.getPermissions({key: c._id}).permissions; })) ===
+                   aclKey(acl);
+        });
+        if (!applied) {
+            asAdmin('draft', function () {
+                contentLib.applyPermissions({key: path(f.name), scope: 'TREE', permissions: acl});
+            });
+            log.info(LOG_PREFIX + 'applied ACL of ' + path(f.name) + ' to ' + subtree.length + ' items');
+        }
+    });
+}
+
 function publishPaths() {
     const paths = [];
     dataset.folders.forEach(function (f) { if (f.publish) { paths.push(path(f.name)); } });
@@ -266,6 +347,10 @@ function publishPaths() {
     dataset.images.forEach(function (i) { if (i.publish) { paths.push(path('images', i.name)); } });
     dataset.articles.forEach(function (a) { if (a.publish) { paths.push(path('articles', a.name)); } });
     dataset.landings.forEach(function (l) { if (l.publish) { paths.push(path('landings', l.name)); } });
+    const r = dataset.restricted;
+    r.folders.forEach(function (f) { paths.push(path(f.name)); });
+    r.images.forEach(function (i) { paths.push(path(i.parent, i.name)); });
+    r.articles.forEach(function (a) { paths.push(path(a.parent, a.name)); });
     return paths;
 }
 
@@ -281,7 +366,7 @@ function ensurePublished() {
         // publishing a folder pushes its whole subtree unless its descendants are excluded
         return contentLib.publish({
             keys: keys,
-            excludeDescendantsOf: dataset.folders.map(function (f) { return idOf(path(f.name)); }),
+            excludeDescendantsOf: dataset.folders.concat(dataset.restricted.folders).map(function (f) { return idOf(path(f.name)); }),
             includeDependencies: false,
             message: 'mcp dataset'
         });
@@ -334,6 +419,7 @@ function run() {
     ensureLandings();
     ensureModifications();
     ensureWorkflow();
+    ensureRestricted();
     ensurePublished();
     selfCheck();
     log.info(LOG_PREFIX + 'done in ' + (Date.now() - started) + ' ms');
