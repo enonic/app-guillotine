@@ -52,6 +52,9 @@ public final class GraphQlErrors
     static final String UNREADABLE_ARGUMENT = "An argument of this field could not be read as a number or a cursor. Check the " +
         "arguments; an after must be a cursor from a previous result.";
 
+    public static final String PRINCIPAL_DENIED =
+        "Unauthorized: creator, modifier and owner need Content Studio access or an administrator role.";
+
     private static final String ACCESS_DENIED_PREFIX = "Access denied:";
 
     private static final String SEARCH_FAILED_PREFIX = "Search request failed";
@@ -85,6 +88,14 @@ public final class GraphQlErrors
      */
     public static List<Map<String, Object>> partialErrors( final Object data, final List<?> errors )
     {
+        return partialErrors( data, errors, null );
+    }
+
+    /**
+     * {@link #partialErrors(Object, List)} whose {@link ToolError} for a response without data carries {@code hint}.
+     */
+    public static List<Map<String, Object>> partialErrors( final Object data, final List<?> errors, final String hint )
+    {
         final List<Map<String, Object>> reduced = reduce( errors );
         if ( !reduced.isEmpty() && !hasData( data ) )
         {
@@ -94,7 +105,7 @@ public final class GraphQlErrors
                 .findFirst()
                 .orElse( null );
             final String failed = "Query failed: " + describe( reduced );
-            throw new ToolError( denied != null ? denied : failed.endsWith( "." ) ? failed : failed + ".", null );
+            throw denied != null ? new ToolError( denied, null ) : new ToolError( failed.endsWith( "." ) ? failed : failed + ".", hint );
         }
         return reduced;
     }
@@ -112,6 +123,24 @@ public final class GraphQlErrors
                 .anyMatch( value -> value instanceof Map<?, ?> object ? object.values().stream().anyMatch( Objects::nonNull ) : value != null );
         }
         return data != null;
+    }
+
+    /**
+     * The messages of GraphQL errors, as {@link GraphQLError}s or as maps of a specification response.
+     */
+    public static List<String> messages( final List<?> errors )
+    {
+        final List<String> result = new ArrayList<>();
+        for ( final Object error : errors == null ? List.of() : errors )
+        {
+            final Object message = error instanceof GraphQLError graphQLError ? graphQLError.getMessage()
+                : error instanceof Map<?, ?> map ? map.get( "message" ) : null;
+            if ( message != null )
+            {
+                result.add( message.toString() );
+            }
+        }
+        return result;
     }
 
     static List<Map<String, Object>> reduce( final List<?> errors )
@@ -188,7 +217,9 @@ public final class GraphQlErrors
 
     /**
      * The message a caller error shows. The index echoes the whole search request in its message, so a refused search reads as a
-     * fixed text; XP names the user in a denied access, so that reads as {@link ProjectBranch#accessDenied()} of the context. A number
+     * fixed text; XP names the user in a denied access, so that reads as {@link ProjectBranch#accessDenied()} of the context. Guillotine
+     * refuses creator, modifier and owner to callers without Content Studio access with a bare "Unauthorized", which reads as
+     * {@link #PRINCIPAL_DENIED}. A number
      * or Base64 text the JDK could not parse, such as a malformed cursor, carries only JDK wording, so it reads as a fixed text too.
      */
     static String callerMessage( final Throwable exception )
@@ -201,6 +232,10 @@ public final class GraphQlErrors
         if ( isSearchFailure( exception ) )
         {
             return exception.getMessage().startsWith( SEARCH_FAILED_PREFIX + " after" ) ? SEARCH_TIMED_OUT : SEARCH_FAILED;
+        }
+        if ( exception instanceof IllegalAccessException && "Unauthorized".equals( exception.getMessage() ) )
+        {
+            return PRINCIPAL_DENIED;
         }
         if ( exception instanceof NumberFormatException || thrownBy( exception, Base64.class ) )
         {
