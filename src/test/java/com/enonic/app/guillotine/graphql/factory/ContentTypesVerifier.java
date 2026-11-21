@@ -56,10 +56,14 @@ public class ContentTypesVerifier
         GraphQLObjectType mySetDataType = (GraphQLObjectType) dataType.getFieldDefinition( "mySet" ).getType();
         assertEquals( "com_enonic_app_testapp_MyType_MySet", mySetDataType.getName() );
 
-        assertEquals( 1, mySetDataType.getFieldDefinitions().size() );
+        assertEquals( 2, mySetDataType.getFieldDefinitions().size() );
         assertEquals( Scalars.GraphQLString, mySetDataType.getFieldDefinition( "myInput" ).getType() );
+        assertEquals( "Index path: data.mySet", dataType.getFieldDefinition( "mySet" ).getDescription() );
+        assertEquals( "Input\nIndex path: data.mySet.myInput", mySetDataType.getFieldDefinition( "myInput" ).getDescription() );
+        assertEquals( "First name\nIndex path: data.mySet.first-name", mySetDataType.getFieldDefinition( "first_name" ).getDescription() );
 
         assertEquals( ExtendedScalars.GraphQLLong, dataType.getFieldDefinition( "longType" ).getType() );
+        assertEquals( "Long Type\nIndex path: data.longType", dataType.getFieldDefinition( "longType" ).getDescription() );
 
         assertEquals( ExtendedScalars.Date, dataType.getFieldDefinition( "dateOfBirth" ).getType() );
 
@@ -72,11 +76,14 @@ public class ContentTypesVerifier
         assertEquals( "com_enonic_app_testapp_MyType_Blocks_OptionEnum", optionEnum.getName() );
         assertEquals( "text", optionEnum.getValue( "text" ).getValue() );
         assertEquals( "icon", optionEnum.getValue( "icon" ).getValue() );
+        assertEquals( "Index path: data.blocks._selected", blocksType.getFieldDefinition( "_selected" ).getDescription() );
+        assertEquals( "Index path: data.blocks.icon", blocksType.getFieldDefinition( "icon" ).getDescription() );
 
         GraphQLObjectType iconFieldType = (GraphQLObjectType) blocksType.getFieldDefinition( "icon" ).getType();
         assertEquals( "com_enonic_app_testapp_MyType_Icon", iconFieldType.getName() );
         assertEquals( 1, iconFieldType.getFieldDefinitions().size() );
         assertEquals( "Attachment", getNameForGraphQLTypeReference( iconFieldType.getFieldDefinition( "icon" ).getType() ) );
+        assertEquals( "Icon\nIndex path: data.blocks.icon.icon", iconFieldType.getFieldDefinition( "icon" ).getDescription() );
 
         GraphQLObjectType textFieldType = (GraphQLObjectType) blocksType.getFieldDefinition( "text" ).getType();
         assertEquals( "com_enonic_app_testapp_MyType_Text", textFieldType.getName() );
@@ -92,12 +99,17 @@ public class ContentTypesVerifier
 
         GraphQLFieldDefinition actorField = castObjectType.getFieldDefinition( "actor" );
         assertEquals( "Content", getNameForGraphQLTypeReference( actorField.getType() ) );
+        assertEquals( "Actor\nIndex path: data.cast.actor\nAllowed content types: com.enonic.app.testapp:person",
+                      actorField.getDescription() );
+        assertEquals( "Cast\nIndex path: data.cast", dataType.getFieldDefinition( "cast" ).getDescription() );
 
         assertEquals( Scalars.GraphQLString, castObjectType.getFieldDefinition( "abstract" ).getType() );
 
         GraphQLType photosType = castObjectType.getFieldDefinition( "photos" ).getType();
         assertTrue( photosType instanceof GraphQLList );
         assertEquals( "Content", getNameForGraphQLTypeReference( ( (GraphQLList) photosType ).getWrappedType() ) );
+        assertEquals( "Photos\nIndex path: data.cast.photos\nAllowed content types: media:image, media:vector",
+                      castObjectType.getFieldDefinition( "photos" ).getDescription() );
     }
 
     private void verifyQueryDSLContentConnection()
