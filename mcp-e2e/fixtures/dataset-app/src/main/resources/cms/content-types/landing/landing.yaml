@@ -1,0 +1,10 @@
+kind: "ContentType"
+title: "Landing"
+superType: "base:structured"
+form:
+  - type: "HtmlArea"
+    name: "body"
+    label: "Body"
+    occurrences:
+      min: 0
+      max: 1
