@@ -191,6 +191,27 @@ public class FindBrokenReferencesToolTest
     }
 
     @Test
+    public void testTheDeadlineStillFinishesTheFirstItemsTargetLookups()
+    {
+        for ( int n = 0; n < 3; n++ )
+        {
+            final int base = 1000 + n * 600;
+            item( uuid( 10 + n ), "/pages", "page-" + n, LANDING, IntStream.range( base, base + 600 ).mapToObj( ContentStoreTestSupport::uuid )
+                .toList(), List.of() );
+        }
+        final int beforeTargetLookups = 4;
+        final LongSupplier passedAfterFirstBatch =
+            () -> backendCalls > beforeTargetLookups ? Deadline.LIMIT_SECONDS * SECOND : 0;
+
+        final Map<String, Object> structured = run( timed( passedAfterFirstBatch ), args() );
+
+        assertEquals( 1, structured.get( "checked" ), "page-0 needs two batches of 500, and both run" );
+        assertEquals( List.of( "/pages/page-0" ), paths( structured ) );
+        assertEquals( Cursors.encode( 1 ), structured.get( "nextCursor" ) );
+        assertEquals( beforeTargetLookups + 3, backendCalls, "two target batches and the label lookup" );
+    }
+
+    @Test
     public void testAnInterruptedCallChecksOnlyTheFirstItem()
     {
         landings();
