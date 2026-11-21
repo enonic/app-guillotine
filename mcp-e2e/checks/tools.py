@@ -51,6 +51,12 @@ SUCCESS = [
     ("content", "search", {"types": ["article"], "fields": ["title", "author"], "count": 3},
      lambda s: len(s.get("hits", [])) == 3 and all("title" in h.get("data", {}) and "_path" in h["data"].get("author", {})
                                                     for h in s["hits"])),
+    ("content", "search", {"types": ["article"], "fields": ["displayName", "_path", "publish", "title", "creator"], "count": 3},
+     lambda s: len(s.get("hits", [])) == 3 and all("title" in h.get("data", {}) for h in s["hits"]) and
+     any(h.get("publish", {}).get("from") for h in s["hits"]) and "creator" in s.get("note", "")),
+    ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 2) { _path creator { value } } } }"},
+     lambda s: len(s.get("errors", [])) == 2 and all("Content Studio" in e["message"] for e in s["errors"]) and
+     "search with mine" in s.get("note", "")),
     ("content", "get", {"key": "/articles/article-01"}, lambda s: s.get("_path") == "/articles/article-01" and
      s.get("type") == "com.example.mcpdataset:article" and isinstance(s.get("data", {}).get("body"), dict) and
      "<" not in s["data"]["body"].get("text", "<")),
@@ -89,6 +95,10 @@ FAILURES = [
     ("content", "get", {"key": "articles/article-01"}, ["relative path", "starts with /"]),
     ("graphql", "query", {"query": "{ bogus }"}, ["bogus"]),
     ("graphql", "query", {"query": "mutation { x }"}, ["mutation", "read-only"]),
+    ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 1) { modifier } } }"},
+     ["PrincipalKey has value, type, idProvider, principalId", "search with mine"]),
+    ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 1) { data } } }"},
+     ["Content has", "... on <graphqlType from list-types>"]),
     ("graphql", "query", {"query": "{ guillotine(project: \"other\") { get(key: \"/\") { _id } } }"},
      ["Pass project and branch as tool arguments"]),
     ("graphql", "query", {"query": "query($n: Int) { guillotine { queryDsl(query: {matchAll: {}}, first: $n) { _id } } }",
@@ -119,6 +129,10 @@ for group, tool, arguments, words in FAILURES:
     errors[tool] = errors.get(tool, 0) + (1 if good else 0)
 for tool, count in errors.items():
     check("failure: %s has at least two readable isError cases" % tool, count >= 2, count)
+
+# valid is a filter field: valid and invalid content add up to every item
+counts = [sc(call("content", "search", {"count": 0, "filters": [{"field": "valid", "equals": v}]})).get("total") for v in (True, False)]
+check("search filter valid true + valid false == total %d" % TOTAL, None not in counts and sum(counts) == TOTAL, counts)
 
 # Paging and cursors
 hits, pages, results, error = walk("content", "search", {"count": 7}, "hits")
