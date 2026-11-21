@@ -50,7 +50,9 @@ public final class DescribeTypeTool
      * Index fields every content item has but the GraphQL schema does not show, as their paths read in filters, sorts and
      * aggregations.
      */
-    static final Map<String, String> INDEX_FIELDS = indexFields();
+    static final Map<String, String> INDEX_FIELDS = indexFields( false );
+
+    static final Map<String, String> ANONYMOUS_INDEX_FIELDS = indexFields( true );
 
     static final String APP_DEFINED_NOTE = "Added by another application: runs its code, which may apply its own access rules and " +
         "limits; check counts with queryDslConnection.";
@@ -124,7 +126,7 @@ public final class DescribeTypeTool
             structured.put( "appFields", appFields );
             structured.put( "appFieldsNote", APP_DEFINED_NOTE );
         }
-        structured.put( "indexFields", INDEX_FIELDS );
+        structured.put( "indexFields", ProjectBranchResolver.isAuthenticated() ? INDEX_FIELDS : ANONYMOUS_INDEX_FIELDS );
         structured.put( "examples", TypeExamples.of( contentType, type.getName(), fields ) );
         final ResultBudget budget = ResultBudget.fromConfig( configService );
         final Map<String, Object> withoutFields = new LinkedHashMap<>( structured );
@@ -239,7 +241,7 @@ public final class DescribeTypeTool
             content.getFieldDefinition( field.getName() ) != null;
     }
 
-    private static Map<String, String> indexFields()
+    private static Map<String, String> indexFields( final boolean anonymous )
     {
         final Map<String, String> fields = new LinkedHashMap<>();
         fields.put( "type", "content type name" );
@@ -247,7 +249,8 @@ public final class DescribeTypeTool
         fields.put( "_references", "_id of each item this one references" );
         fields.put( "workflow.state", "IN_PROGRESS, PENDING_APPROVAL, REJECTED or READY; may be unset, so match ready items by " +
             "excluding the other three; lower case in buckets" );
-        fields.put( "creator, modifier, owner", "principal key, e.g. user:system:alice" );
+        fields.put( "creator, modifier, owner", "principal key, e.g. user:system:alice" +
+            ( anonymous ? "; filters, sorts and aggregations on them need a signed-in caller" : "" ) );
         fields.put( "createdTime, modifiedTime, publish.from, publish.to, publish.first", "instant" );
         return fields;
     }
