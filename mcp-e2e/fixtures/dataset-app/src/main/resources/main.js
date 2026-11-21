@@ -375,6 +375,78 @@ function ensurePublished() {
              JSON.stringify(result.failed.map(function (f) { return f.id + ':' + f.reason; })));
 }
 
+const SEC = dataset.security;
+const SEC_REPO = 'com.enonic.cms.' + SEC.project.id;
+
+function asAdminIn(repo, fn) {
+    return contextLib.run({
+        repository: repo, branch: 'draft', user: {login: 'su', idProvider: 'system'}, principals: ['role:system.admin']
+    }, fn);
+}
+
+function secCreateIfMissing(p, createFn) {
+    const found = asAdminIn(SEC_REPO, function () { return existing(p); });
+    if (found) {
+        return found;
+    }
+    const created = asAdminIn(SEC_REPO, createFn);
+    log.info(LOG_PREFIX + 'created ' + SEC.project.id + ':' + p);
+    return created;
+}
+
+// A site whose default page template the viewer mcp-frank cannot read, for the checks of code that resolves templates.
+function ensureSecurity() {
+    const viewers = SEC.viewers.map(userKey);
+    asAdmin('draft', function () {
+        if (!projectLib.get({id: SEC.project.id})) {
+            projectLib.create({
+                id: SEC.project.id, displayName: SEC.project.displayName, language: SEC.project.language,
+                permissions: {viewer: viewers}, publicRead: false
+            });
+            log.info(LOG_PREFIX + 'created project ' + SEC.project.id);
+        } else {
+            projectLib.addPermissions({id: SEC.project.id, permissions: {viewer: viewers}});
+        }
+    });
+    const site = path(SEC.site.name);
+    secCreateIfMissing(site, function () {
+        return contentLib.create({parentPath: '/', name: SEC.site.name, displayName: SEC.site.displayName, contentType: 'portal:site',
+            data: {}});
+    });
+    const templates = path(SEC.site.name, '_templates');
+    secCreateIfMissing(path(SEC.site.name, '_templates', SEC.template.name), function () {
+        return contentLib.create({
+            parentPath: templates, name: SEC.template.name, displayName: SEC.template.displayName,
+            contentType: 'portal:page-template', data: {supports: APP + ':article'},
+            page: {descriptor: APP + ':' + SEC.template.page, config: {heading: SEC.template.heading}, regions: {main: {components: []}}}
+        });
+    });
+    secCreateIfMissing(path(SEC.site.name, SEC.article.name), function () {
+        return contentLib.create({parentPath: site, name: SEC.article.name, displayName: SEC.article.title,
+            contentType: APP + ':article', data: {title: SEC.article.title}});
+    });
+    const acl = [
+        {principal: 'role:system.admin', allow: ALL_PERMISSIONS, deny: []},
+        {principal: 'role:cms.admin', allow: ALL_PERMISSIONS, deny: []}
+    ].concat(SEC.templateReaders.map(function (login) {
+        return {principal: userKey(login), allow: ['READ'], deny: []};
+    }));
+    const subtree = asAdminIn(SEC_REPO, function () {
+        return [existing(templates)].concat(contentLib.query({
+            count: 100, query: {like: {field: '_path', value: '/content' + templates + '/*'}}
+        }).hits);
+    });
+    const applied = subtree.every(function (c) {
+        return aclKey(asAdminIn(SEC_REPO, function () { return contentLib.getPermissions({key: c._id}).permissions; })) === aclKey(acl);
+    });
+    if (!applied) {
+        asAdminIn(SEC_REPO, function () {
+            contentLib.applyPermissions({key: templates, scope: 'TREE', permissions: acl});
+        });
+        log.info(LOG_PREFIX + 'applied ACL of ' + SEC.project.id + ':' + templates + ' to ' + subtree.length + ' items');
+    }
+}
+
 function countByType(branch) {
     const result = asAdmin(branch, function () {
         return contentLib.query({count: 0, aggregations: {byType: {terms: {field: 'type', size: 20}}}});
@@ -421,6 +493,7 @@ function run() {
     ensureWorkflow();
     ensureRestricted();
     ensurePublished();
+    ensureSecurity();
     selfCheck();
     log.info(LOG_PREFIX + 'done in ' + (Date.now() - started) + ' ms');
 }
