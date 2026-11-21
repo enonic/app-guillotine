@@ -3,6 +3,7 @@ package com.enonic.app.guillotine.mcp.tools;
 import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import graphql.analysis.MaxQueryDepthInstrumentation;
 import graphql.execution.AbortExecutionException;
@@ -136,6 +139,17 @@ final class QueryLimits
 
     private static final Set<String> RANGES = Set.of( "range", "dateRange", "geoDistance" );
 
+    /**
+     * Argument and input field names of Guillotine's query DSL, aggregation, highlight and sort inputs that name an index field.
+     */
+    private static final Set<String> FIELD_NAME_KEYS = Set.of( "field", "fields", "propertyName" );
+
+    /**
+     * Every name-like run in a sort string, so that neither separators nor function forms such as {@code geoDistance('owner', ...)}
+     * hide a field.
+     */
+    private static final Pattern SORT_TOKEN = Pattern.compile( "[A-Za-z0-9_.^*?-]+" );
+
     private final Map<String, Object> variables;
 
     private final Map<String, Value<?>> defaults = new HashMap<>();
@@ -146,13 +160,17 @@ final class QueryLimits
 
     private final Set<String> visiting = new HashSet<>();
 
+    private final boolean anonymous;
+
     private GraphQLSchema schema;
 
     private boolean unorderedTerms;
 
-    private QueryLimits( final Document document, final OperationDefinition operation, final Map<String, Object> variables )
+    private QueryLimits( final Document document, final OperationDefinition operation, final Map<String, Object> variables,
+                         final boolean anonymous )
     {
         this.variables = variables;
+        this.anonymous = anonymous;
         operation.getVariableDefinitions()
             .stream()
             .filter( definition -> definition.getDefaultValue() != null )
@@ -164,16 +182,17 @@ final class QueryLimits
      * Throws a {@link ToolError} for: {@code project} or {@code branch} on the {@code guillotine} field, {@code first} above
      * {@link #MAX_FIRST}, {@code offset} or {@code after} plus {@code first} beyond {@link Cursors#MAX_WINDOW}, an aggregation
      * {@code size} above {@link #MAX_AGGREGATION_SIZE}, a {@code dateHistogram} without {@code minDocCount} of at least 1, an
-     * {@code after} of a Guillotine connection that is not one of its cursors, and more than {@link #MAX_ROWS} rows
-     * or {@link #MAX_BUCKETS} buckets. Variables resolve to the values passed, else to the defaults of {@code operation}. The schema is
-     * fetched only once the arguments pass.
+     * {@code after} of a Guillotine connection that is not one of its cursors, more than {@link #MAX_ROWS} rows
+     * or {@link #MAX_BUCKETS} buckets, and, when {@code anonymous}, a principal field ({@link PrincipalFields}) in a field name or sort
+     * string of any input. Variables resolve to the values passed, else to the defaults of {@code operation}. The schema is fetched only
+     * once the arguments pass.
      *
      * @return notes for the result: a terms aggregation without {@code order}
      */
     static List<String> check( final Document document, final OperationDefinition operation, final Map<String, Object> variables,
-                               final Supplier<GraphQLSchema> schema )
+                               final boolean anonymous, final Supplier<GraphQLSchema> schema )
     {
-        final QueryLimits limits = new QueryLimits( document, operation, variables );
+        final QueryLimits limits = new QueryLimits( document, operation, variables, anonymous );
         limits.checkArguments( document );
         limits.schema = schema.get();
 
@@ -247,6 +266,11 @@ final class QueryLimits
             {
                 start = Math.max( start, windowStart( name, literal( argument.getValue() ) ) );
             }
+            if ( SORT_ARG.equals( name ) && literal( argument.getValue() ) instanceof String sort )
+            {
+                checkSort( sort );
+            }
+            checkFieldNames( name, literal( argument.getValue() ) );
         }
         if ( start > 0 && start > Cursors.MAX_WINDOW - first )
         {
@@ -273,6 +297,7 @@ final class QueryLimits
 
     private void checkInput( final String name, final Object value )
     {
+        checkFieldNames( name, value );
         if ( DATE_HISTOGRAM.equals( name ) && value instanceof Map<?, ?> histogram &&
             !( histogram.get( MIN_DOC_COUNT ) instanceof Number minDocCount && minDocCount.longValue() >= 1 ) )
         {
@@ -291,6 +316,34 @@ final class QueryLimits
             {
                 unorderedTerms = true;
             }
+        }
+    }
+
+    private void checkFieldNames( final String name, final Object value )
+    {
+        if ( !anonymous || !FIELD_NAME_KEYS.contains( name ) )
+        {
+            return;
+        }
+        for ( final Object item : value instanceof List<?> list ? list : Collections.singletonList( value ) )
+        {
+            if ( item instanceof String field )
+            {
+                PrincipalFields.requireAllowed( field, name, true );
+            }
+        }
+    }
+
+    private void checkSort( final String sort )
+    {
+        if ( !anonymous )
+        {
+            return;
+        }
+        final Matcher token = SORT_TOKEN.matcher( sort );
+        while ( token.find() )
+        {
+            PrincipalFields.requireAllowed( token.group(), SORT_ARG, true );
         }
     }
 

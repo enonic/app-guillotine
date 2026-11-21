@@ -11,7 +11,7 @@ tools:
       Limits: first at most 100, about 2,000 content items and 1,000 aggregation buckets per query, 10 nested levels. Terms
       aggregations without order return the smallest buckets first: pass order: "_count DESC" for a top N. The fields creator,
       modifier and owner need Content Studio access or an administrator role; filters, sorts and aggregations on those index
-      fields do not (for the caller's own edits, search with mine). Fields added by other applications run their code and may
+      fields do not, but need a signed-in caller (for the caller's own edits, search with mine). Fields added by other applications run their code and may
       apply their own access rules.
     inputSchema:
       type: object
