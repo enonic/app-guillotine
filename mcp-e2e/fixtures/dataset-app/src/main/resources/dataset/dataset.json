@@ -689,5 +689,34 @@
         "user": "su"
       }
     ]
+  },
+  "securityNote": "A second project for the checks of elevated code paths, so that the counts of mcp-test stay as they are. mcp-frank and mcp-carol are its viewers; the site and its article have the project's default ACL, and the templates folder with everything below it is readable only by its readers, administrators and Content Studio administrators. Draft only, created by su.",
+  "security": {
+    "project": {
+      "id": "mcp-sec",
+      "displayName": "MCP security",
+      "language": "en"
+    },
+    "viewers": [
+      "mcp-frank",
+      "mcp-carol"
+    ],
+    "site": {
+      "name": "site",
+      "displayName": "Security site"
+    },
+    "templateReaders": [
+      "mcp-carol"
+    ],
+    "template": {
+      "name": "hidden-template",
+      "displayName": "Hidden template",
+      "page": "main",
+      "heading": "Hidden template heading"
+    },
+    "article": {
+      "name": "site-article",
+      "title": "Site article"
+    }
   }
 }

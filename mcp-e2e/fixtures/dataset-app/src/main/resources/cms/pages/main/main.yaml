@@ -1,0 +1,11 @@
+kind: "Page"
+title: "Main"
+form:
+  - type: "TextLine"
+    name: "heading"
+    label: "Heading"
+    occurrences:
+      min: 0
+      max: 1
+regions:
+  - "main"

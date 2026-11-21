@@ -91,6 +91,7 @@ for caller in anonymous signed-in; do
 done
 suite "access open" env MCP_CALLER=both ACCESS_COOKIE="$SIGNED" LOGOUT_COOKIE="$SIGNED_OUT" python3 "$CHECKS/access.py" open
 suite "permissions" python3 "$CHECKS/permissions.py"
+suite "elevation" python3 "$CHECKS/elevation.py"
 
 write_cfg "mcp.defaultProject=mcp-test"
 if wait_for 30 anonymous_refused; then
