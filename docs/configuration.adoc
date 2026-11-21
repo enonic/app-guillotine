@@ -41,6 +41,29 @@ maxQueryTokens=15000
 
 CORS controls which browser origins can read responses. Authentication and content permissions still determine which content the caller can access. See <<usage#troubleshooting, Troubleshooting>> when requests fail.
 
+[#mcp]
+== MCP tools
+
+These options control the <<mcp#, MCP tools>>. Add them to the same `com.enonic.app.guillotine.cfg` file; XP applies a change without restarting the application.
+
+[source,properties]
+----
+mcp.enabled=true
+mcp.defaultProject=myproject
+mcp.maxResultChars=20000
+mcp.allowAnonymous=false
+----
+
+`mcp.enabled`:: Enables the MCP tools. With `false`, every tool call returns an error that says the tools are disabled; XP still lists the tools. Default is `true`.
+
+`mcp.defaultProject`:: Project the MCP tools use when a call passes no `project`. It must be readable by the caller on the branch the call reads, or the call fails and asks for `project`. `list-projects` lists it, also to callers without a role in it, when they can read it. Default is empty: the caller's only listed project, if there is exactly one. XP lists projects only to callers with a role in them, so anonymous use needs this option.
+
+`mcp.maxResultChars`:: Maximum size in characters of the data of one MCP tool result, measured as compact JSON; larger results are cut and marked `truncated`. The response carries this data twice, as structured content and as text, so a whole response is about twice this size, plus escaping. Values below `1000` count as `1000`, and values above `1000000` as `1000000`. Default is `20000`.
+
+`mcp.allowAnonymous`:: With `true`, anonymous callers may use the tools of the `content` and `graphql` groups. They read what is public, normally published content on `master`. The `references` tools always need a signed-in caller. Default is `false`: every tool refuses anonymous calls.
+
+The `maxQueryTokens` limit also applies to documents passed to the MCP `query` tool.
+
 [#image-transformations]
 == Image transformations
 
