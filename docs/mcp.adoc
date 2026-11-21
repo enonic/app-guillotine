@@ -1,0 +1,510 @@
+= MCP tools
+
+Guillotine contributes read-only tools to XP's MCP server, so AI assistants and agents can discover the content model of a project and look up, count and check its content.
+
+== Introduction
+
+The https://modelcontextprotocol.io[Model Context Protocol] (MCP) lets an AI client, such as Claude Code or another MCP-capable assistant, call tools on a server. Guillotine adds eight tools to XP's MCP endpoint. With them, a client that knows nothing about your site can answer questions such as:
+
+* How many articles does each author have?
+* Which content did I work on last?
+* Which images are not used anywhere?
+* Which content is still in progress?
+* How many items of each content type are there?
+* Are there broken links on the landing pages?
+
+The tools only read: none of them creates, changes, publishes or deletes content. Every call runs with the caller's own permissions, the same way a <<usage#, GraphQL query>> does.
+
+[#prerequisites]
+== Prerequisites
+
+WARNING: XP's MCP server is in development and is not part of a released XP version yet. The tools work only on an XP 8 build from the XP MCP epic (`epic/12627-xp-mcp-server`, see https://github.com/enonic/xp/issues/12626[enonic/xp#12626]). Details on this page may change before release.
+
+* An XP build with the MCP endpoint `/api/system:mcp`.
+* Guillotine installed on that XP. The tools are on by default; see <<configuration#mcp, MCP configuration>>.
+* An MCP client that supports protocol revision `2026-07-28` over HTTP.
+* For signed-in use, which most questions need: the standard ID provider app, which every XP distribution installs, to get a session; see <<#sign-in, Signing in>>.
+
+[#tools-overview]
+== Tools and groups
+
+XP names each tool after the application, the tool group and the tool, separated by double underscores. Guillotine has three groups:
+
+[%header,cols="1,2,3"]
+|===
+|Group |Tools |Purpose
+|`content` |`list-projects`, `list-types`, `describe-type`, `search`, `get` |Find out who you are and which projects you can read, discover the content model, and find, count and read content.
+|`graphql` |`query` |Run one bounded, read-only GraphQL query for reads the other tools do not cover.
+|`references` |`find-unreferenced`, `find-broken-references` |Scan XP's reference index: content nothing refers to, and references to content that is missing or not readable. Each call runs many backend queries.
+|===
+
+The public name of `search` is therefore `+com.enonic.app.guillotine__content__search+`. Clients may rename tools further: Claude Code adds `+mcp__<server>__+` in front and replaces the dots with underscores, so on a server named `xp` it is `+mcp__xp__com_enonic_app_guillotine__content__search+`. This page uses the short names.
+
+All tools are annotated as read-only, non-destructive, idempotent and closed-world. `list-projects` and `search` carry `_meta` `anthropic/alwaysLoad: true`, a hint for clients that load tools on demand, such as Claude Code with tool search, to load these two up front.
+
+[#access]
+== Access
+
+Who may call:: Each group's descriptor declares `allow: role:system.authenticated`: the tools are meant for signed-in users. XP does not enforce `allow` yet, so Guillotine checks it itself and refuses anonymous callers with an error that says so. An operator can open the `content` and `graphql` groups to anonymous callers with <<configuration#mcp, `mcp.allowAnonymous=true`>>. The `references` group stays signed-in only, because each of its calls is costly.
+
+What a caller can read:: Every call runs with the caller's own XP permissions; the tools never elevate them. Reading the `draft` branch needs a role in the project. An anonymous caller reads what is public, normally published content on `master`, and a request for `draft` fails. Searches and aggregations on `creator`, `modifier` and `owner` behave as in the GraphQL API: with `mcp.allowAnonymous=true`, an anonymous caller can see the user keys of the people who changed published content, as an anonymous GraphQL query over HTTP can.
+
+[#connect]
+== Connecting a client
+
+XP serves one MCP endpoint for all installed applications, on the Web endpoint at `/api/system:mcp`. With a local sandbox on the default port, that is:
+
+[source,text]
+----
+http://localhost:8080/api/system:mcp
+----
+
+[#sign-in]
+=== Signing in
+
+XP's MCP endpoint does not offer an MCP sign-in (OAuth) yet. Until it does, a client signs in by sending an XP session cookie with every request. Get one from the standard ID provider of the `system` ID provider:
+
+[source,shell]
+----
+curl -i http://localhost:8080/_/idprovider/system \
+  -H 'Content-Type: application/json' \
+  --data '{"action":"login","user":"alice","password":"..."}'
+----
+
+The response says `"authenticated":true` and sets a cookie such as `JSESSIONID=1gsqizxckew1211yv4aaxdkxti9`. Every MCP request that sends it as a `Cookie` header runs as that user. The session ends when it expires or when you sign out:
+
+[source,shell]
+----
+curl http://localhost:8080/_/idprovider/system/logout -H 'Cookie: JSESSIONID=...'
+----
+
+Treat the cookie like a password: anyone who has it acts as you until the session ends.
+
+[#claude-code]
+=== Claude Code
+
+Register the endpoint as an HTTP MCP server with the session cookie as a header:
+
+[source,shell]
+----
+claude mcp add --transport http xp http://localhost:8080/api/system:mcp \
+  --header "Cookie: JSESSIONID=1gsqizxckew1211yv4aaxdkxti9"
+----
+
+`xp` is the name the client gives the server; any name works. Add `--scope user` to make the server available in all your projects. When the session ends, the calls are anonymous again: the tools refuse them, or, with `mcp.allowAnonymous=true`, read published content only and `list-projects` reports `anonymous: true`. Sign in again, then remove the server with `claude mcp remove xp` and add it with the new cookie.
+
+Without `--header`, Claude Code calls as an anonymous user, which works only where `mcp.allowAnonymous=true` is set.
+
+To check the endpoint without a client, list its tools with cURL (add `-H 'Cookie: ...'` to call as a signed-in user):
+
+[source,shell]
+----
+curl http://localhost:8080/api/system:mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H 'MCP-Protocol-Version: 2026-07-28' \
+  -H 'Mcp-Method: tools/list' \
+  --data '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientInfo":{"name":"curl","version":"1.0"},"io.modelcontextprotocol/clientCapabilities":{}}}}'
+----
+
+[#results]
+== Results
+
+A successful call returns `structuredContent` and one text content whose text is the same object as compact JSON, so a client that shows the model only one of them loses nothing. Except in `query` data, fields without a value are left out. All tools except `query` declare an `outputSchema`.
+
+A failed call returns `isError: true` and one text that says what was wrong and what to do next; see <<#errors, Errors>>.
+
+The examples below show only `structuredContent`. They use a test project, `mcp-test`, with articles, persons, images and landing pages. Content ids are shortened.
+
+[#tools]
+== Tools
+
+Every tool except `list-projects` takes two optional arguments:
+
+`project`:: Project name, as returned by `list-projects`. Default: see <<#project-and-branch, Project and branch>>.
+`branch`:: `draft` (latest changes, signed-in users with a role in the project) or `master` (published). Default: `draft` for signed-in callers, `master` for anonymous ones.
+
+Arguments that name a field take an index path such as `data.author` or `modifiedTime`. A data field can also be named without `data.` or by its GraphQL name; `describe-type` lists both. A name under `data.` that none of the content types in scope has fails with a list of the fields it could be.
+
+[#list-projects]
+=== list-projects
+
+Who the caller is, the projects they can read, and the project and branch the other tools use when a call names none. Call it first.
+
+Arguments:: None.
+
+Returns:: `caller` (`anonymous`, plus `key` and `displayName` for a signed-in user), `defaultProject`, `defaultBranch` and `projects`, each with `name`, `displayName`, `description`, `language`, `parent` (the project a layer inherits from) and `itemCount` (items the caller can read on `defaultBranch`). The projects are those the caller has a role in, plus the configured default project when the caller can read it. A project the caller cannot query on `defaultBranch`, such as one without a role on `draft`, is left out.
+
+[source,json]
+----
+{
+  "caller": { "anonymous": false, "key": "user:system:mcp-alice", "displayName": "Alice Editor" },
+  "defaultProject": "mcp-test",
+  "defaultBranch": "draft",
+  "projects": [
+    { "name": "mcp-test", "displayName": "MCP test dataset", "language": "en", "itemCount": 52 }
+  ]
+}
+----
+
+[#list-types]
+=== list-types
+
+The content types that have content in a project branch, most used first, with title, item count and the GraphQL type their content has in `query` results.
+
+Arguments:: `project`, `branch`.
+
+Returns:: `total` (items the caller can read) and `types`, each with `name`, `title`, `graphqlType` and `count`. At most 1000 types are listed.
+
+[source,json]
+----
+{
+  "project": "mcp-test",
+  "branch": "master",
+  "total": 39,
+  "types": [
+    { "name": "com.example.mcpdataset:article", "title": "Article", "graphqlType": "com_example_mcpdataset_Article", "count": 19 },
+    { "name": "media:image", "title": "Image", "graphqlType": "media_Image", "count": 10 },
+    { "name": "base:folder", "title": "Folder", "graphqlType": "base_Folder", "count": 4 },
+    { "name": "com.example.mcpdataset:person", "title": "Person", "graphqlType": "com_example_mcpdataset_Person", "count": 4 },
+    { "name": "com.example.mcpdataset:landing", "title": "Landing", "graphqlType": "com_example_mcpdataset_Landing", "count": 2 }
+  ]
+}
+----
+
+[#describe-type]
+=== describe-type
+
+The fields of one content type, in the form the other tools need them, and three example queries for `query`.
+
+Arguments::
+`type`::: Required. A content type name from `list-types` (`com.example.app:article`), its GraphQL type name, or a local name (`article`) that only one content type has.
+`project`, `branch`::: Used for `count`.
+
+Returns::
+* `contentType`, `title`, `graphqlType` and `count` (items of this type the caller can read).
+* `sdl`: the GraphQL type as compact SDL, up to 4000 characters and at most a quarter of `mcp.maxResultChars`.
+* `fields`: each data field with `name` (the GraphQL field below `data`; dots separate item-set levels), `path` (the index path for filters, sorts and aggregations), `label`, `help`, `input` (the input type), `repeated`, `required`, and for selectors `targets`, the content types it accepts.
+* `appFields` and `appFieldsNote`: fields that other applications add to the type through <<extending#, schema extensions>>. They run that application's code, which may apply its own access rules and limits.
+* `indexFields`: index fields every item has but the schema does not show, such as `workflow.state` and `_references`.
+* `examples`: three queries for this type, each with `use` and `query`: newest first with paging, a count filtered on one of its fields, and the top values of a field as an aggregation with an explicit order.
+
+When the description does not fit `mcp.maxResultChars` even without `fields`, the call fails and asks to raise the limit; when only some `fields` do not fit, the trailing ones are left out and the result is marked `truncated`.
+
+[#search]
+=== search
+
+Finds, filters, sorts, counts and aggregates content in one project. With `count: 0` and `aggregate`, one call answers a "how many per X" question.
+
+Arguments::
+`text`::: Words that must all match the display name, the name or any text field. At most 500 characters. The text is read as XP full-text syntax: `"two words"` matches a phrase, `word*` a prefix, and `-word` excludes items that contain the word.
+`types`::: Up to 20 content type names from `list-types`. A local name such as `article` matches that name in any application.
+`path`::: The item at this path and everything below it, such as `/articles`.
+`mine`::: `true` for content the caller modified last. Needs a signed-in caller.
+`workflow`::: `IN_PROGRESS` for work in progress, found on `draft`, or `READY` for everything not in progress, pending approval or rejected.
+`filters`::: Up to 10 conditions that must all match. Each is one of:
++
+--
+* `{field, equals}`: an exact value. On a date field such as `modifiedTime`, `equals` takes a day (`2026-01-31`) and matches that whole day in UTC.
+* `{field, from, to}`: a range, `from` inclusive and `to` exclusive. Dates are `2026-01-31` (start of that day in UTC) or `2026-01-31T12:00:00Z`.
+* `{field, exists}`: `true` for items that have a value in the field, `false` for items that do not.
+* `{references, field}`: items that refer to the content at this `_path` or `_id`; with `field`, only through that selector field.
+--
+`sort`::: Up to 3 comma-separated `field [ASC|DESC]` items, such as `modifiedTime DESC` or `data.title ASC`. Fields: `displayName`, `name`, `path`, `type`, `language`, `createdTime`, `modifiedTime`, `publish.from`, `publish.to`, `publish.first`, `score`, `workflow.state`, `creator`, `modifier`, `owner`, data fields and `x.` fields. Default: relevance with `text`, otherwise `modifiedTime DESC`.
+`aggregate`::: Up to 5 groupings, each `{by, size}`: counts per value of the field `by`, largest first, in `size` buckets (1–100, default 10). Bucket keys are the values as the index stores them, so text values, such as titles or `workflow.state`, come in lower case.
+`fields`::: Up to 10 data fields to return with each hit, such as `["title", "author"]`.
+`count`::: Hits per page, 0–50 (default 10). `0` returns the total and the aggregations only.
+`cursor`::: `nextCursor` of the previous page; keep the other arguments.
+
+Returns:: `total`, `hits` and `nextCursor` while more hits are left, and `aggregations`, each with `by` and `buckets` of `key` and `count`. A hit has `_id`, `_path`, `displayName`, `type`, `modifiedTime`, `workflow` when it is not `READY`, and `data` with the fields asked for. Reference values in `data`, and bucket keys that are content ids, come with the target's `displayName` and `_path`, or `missing: true` when the target is missing or not readable. When nothing matches and the arguments explain why, such as an unknown type name, a path with no content, or `IN_PROGRESS` on `master`, a `note` says so.
+
+Articles per author, in one call:
+
+[source,json]
+----
+{ "types": ["article"], "aggregate": [{ "by": "data.author" }], "count": 0 }
+----
+
+[source,json]
+----
+{
+  "project": "mcp-test",
+  "branch": "draft",
+  "total": 30,
+  "hits": [],
+  "aggregations": [
+    {
+      "by": "data.author",
+      "buckets": [
+        { "key": "6779…", "count": 12, "displayName": "Ada Lovelace", "_path": "/persons/ada-lovelace" },
+        { "key": "eafa…", "count": 9, "displayName": "Alan Turing", "_path": "/persons/alan-turing" },
+        { "key": "bea3…", "count": 6, "displayName": "Grace Hopper", "_path": "/persons/grace-hopper" },
+        { "key": "5869…", "count": 3, "displayName": "Linus Torvalds", "_path": "/persons/linus-torvalds" }
+      ]
+    }
+  ]
+}
+----
+
+An item with several authors in a repeated selector counts once for each of them.
+
+[#get]
+=== get
+
+Reads one content item by `_id` or `_path`: metadata, workflow state and data fields.
+
+Arguments::
+`key`::: Required. Content `_id`, or `_path` such as `/articles/article-01`.
+`fields`::: Up to 10 data fields to return, such as `["title", "body"]`. Default: all data fields that fit.
+
+Returns:: `_id`, `_path`, `_name`, `displayName`, `type`, `language`, `createdTime`, `modifiedTime`, `publish` (`from`, `to`, `first`), `workflow` and `data`. Rich text fields come as `{text, links}`: plain text, plus the links and images it holds (up to 50, `linksTruncated` beyond), each with `type` (`content`, `media`, `image` or `external`), `id` or `url`, and `text`. Internal link targets and reference fields come with the target's `displayName` and `_path`, or `missing: true` when the target is missing or not readable.
+
+[source,json]
+----
+{ "key": "/landings/landing-deleted-link", "fields": ["body"] }
+----
+
+[source,json]
+----
+{
+  "project": "mcp-test",
+  "branch": "draft",
+  "_id": "89b4…",
+  "_path": "/landings/landing-deleted-link",
+  "_name": "landing-deleted-link",
+  "displayName": "Landing with deleted link",
+  "type": "com.example.mcpdataset:landing",
+  "language": "en",
+  "createdTime": "2026-11-19T17:59:41.066Z",
+  "modifiedTime": "2026-11-19T17:59:41.066Z",
+  "publish": { "from": "2026-11-19T17:59:42.485Z", "first": "2026-11-19T17:59:42.485Z" },
+  "workflow": "READY",
+  "data": {
+    "body": {
+      "text": "Landing with deleted link\nLink to article-01\nLink to deleted-article",
+      "links": [
+        { "type": "content", "id": "f557…", "text": "Link to article-01", "displayName": "Article 01", "_path": "/articles/article-01" },
+        { "type": "content", "id": "b5a1…", "text": "Link to deleted-article", "missing": true },
+        { "type": "image", "id": "0e01…", "text": "img-08.png", "displayName": "img-08", "_path": "/images/img-08.png" }
+      ]
+    }
+  }
+}
+----
+
+When a few fields of many items are enough, `search` with `fields` takes one call instead of one per item. For page components and x-data, use `query`.
+
+[#query]
+=== query
+
+Runs one read-only GraphQL query against the Guillotine API of a project, for reads the other tools do not cover: nested data fields, references, several items or branches in one call. Call `describe-type` first; its examples are ready to run.
+
+Arguments::
+`query`::: Required. A GraphQL document with query operations only. Do not pass `project` or `branch` to the `guillotine` field; use the tool arguments. `scopeKey` is allowed.
+`variables`::: Values of the document's variables, keyed by name without the `$`.
+`operationName`::: The operation to run when the document defines several.
+
+Returns:: `data`, as GraphQL returns it, with null fields kept; `errors` (up to 10, each `message` and `path`) when some fields failed; and a `note` when the document has a terms aggregation without `order`, which returns the smallest buckets first. A message says what to change when the cause is in the query, such as an invalid argument, missing content or denied access; any other failure, for example in an extension's resolver, reads `Internal error while resolving this field; see the server log.`
+
+The tool rejects mutations and subscriptions, and documents beyond these limits, before it runs them:
+
+* `first` at most 100, aggregation `size` at most 100, and `offset` or `after` plus `first` at most 10000.
+* About 2000 content items per query. Each content list counts its `first` (10 when not given for a search list, 100 for a repeated content selector), once per item of every list around it.
+* About 1000 aggregation buckets per query. A terms aggregation counts its `size` (10 when not given), a `dateHistogram` 100, and `subAggregations` once per bucket around them. A `dateHistogram` needs `minDocCount` of at least 1.
+* 10 nested levels, `maxQueryTokens` tokens, and GraphQL's introspection limits; `describe-type` replaces introspecting the schema.
+
+Image transformations in `imageUrl` and `processHtml` follow the same <<configuration#image-transformations, virtual host setting>> as a query sent to Guillotine's API endpoint over HTTP.
+
+Fields that other applications add through <<extending#, schema extensions>> run their resolvers, as they do over HTTP. `describe-type` lists them as `appFields`.
+
+[#find-unreferenced]
+=== find-unreferenced
+
+Content of the given types, all media by default, that no content the caller can read references: in data, page and component configs, mixins or rich text. A reference of an item to itself does not count.
+
+Arguments::
+`types`::: Up to 20 content type names, such as `media:image`. Default: all media types.
+`path`::: The item at this path and everything below it, such as `/images`.
+`count`::: Items to list, 0–50 (default 20). `0` returns the totals only.
+
+Returns:: `total` (unreferenced items found), `checked`, `candidates` (items of the types in scope), `items` (the first `count` by path, each `_id`, `_path`, `displayName`, `type`), `incomplete: true` when not every candidate was checked, and a `note`.
+
+[source,json]
+----
+{ "types": ["media:image"] }
+----
+
+[source,json]
+----
+{
+  "project": "mcp-test",
+  "branch": "draft",
+  "total": 4,
+  "checked": 12,
+  "candidates": 12,
+  "items": [
+    { "_id": "3b4d…", "_path": "/images/img-09.png", "displayName": "img-09", "type": "media:image" },
+    { "_id": "ea44…", "_path": "/images/img-10.png", "displayName": "img-10", "type": "media:image" },
+    { "_id": "bba3…", "_path": "/images/img-11.png", "displayName": "img-11", "type": "media:image" },
+    { "_id": "7f34…", "_path": "/images/img-12.png", "displayName": "img-12", "type": "media:image" }
+  ],
+  "note": "Covers only content the caller can read: a reference held by content the caller cannot read is not seen, so a listed item may still be in use."
+}
+----
+
+One call checks the first 10000 candidates by path, with at most 50 backend queries. Candidates left over make the result `incomplete`; narrow it with `path` or `types` to check the rest.
+
+[#find-broken-references]
+=== find-broken-references
+
+Content under a path or of given types that references content which is missing or which the caller cannot read, in data, page and component configs, mixins or rich text.
+
+Arguments::
+`path`::: The item at this path and everything below it, such as `/landings`. Default: the whole project.
+`types`::: Up to 20 content type names; a local name such as `landing` matches it in any application.
+`cursor`::: `nextCursor` of the previous call; keep the other arguments.
+
+Returns:: `total` (items in scope the caller can read), `checked` (items checked in this call, by path), `items` (each with `_id`, `_path`, `displayName`, `type` and `missing`, the referenced ids that are missing or not readable, up to 20, with `missingCount` beyond), `nextCursor` and `incomplete: true` while items are left, and a `note` that says which items were checked and what is not checked.
+
+[source,json]
+----
+{ "path": "/landings" }
+----
+
+[source,json]
+----
+{
+  "project": "mcp-test",
+  "branch": "draft",
+  "total": 3,
+  "checked": 3,
+  "items": [
+    { "_id": "89b4…", "_path": "/landings/landing-deleted-link", "displayName": "Landing with deleted link", "type": "com.example.mcpdataset:landing", "missing": ["b5a1…"] },
+    { "_id": "ca6f…", "_path": "/landings/landing-missing-image", "displayName": "Landing with missing image", "type": "com.example.mcpdataset:landing", "missing": ["00000000-0000-4000-8000-00000000dead"] }
+  ],
+  "note": "Checked items 1-3 of 3 by path. missing lists referenced ids that are missing or that the caller cannot read. Checked: references to content in data, page and component configs, mixins and rich text. Not checked: external URLs and URL strings in component configs. To see where a reference sits, call get on the item (data and rich text) or query (page components)."
+}
+----
+
+One call checks up to 100 items and 5000 distinct referenced ids. Until `nextCursor` is gone, call again before you conclude that there are no more broken references. Links stored as URL strings, such as a URL field in a part config, and all external URLs are not references and are never checked.
+
+[#workflows]
+== Typical workflows
+
+A client chooses tools by itself, but these are the paths the tools are designed for. Each starts with `list-projects` when the project is not known yet.
+
+[%header,cols="2,3"]
+|===
+|Question |Tools
+|How many articles does each author have?
+|`list-types` for the type name, `describe-type` for the author field when it is not known, then `search` with `types`, `aggregate: [{by: "data.author"}]` and `count: 0`. Buckets carry the authors' names. A co-authored article counts once for each author.
+|Which content did I work on last?
+|`search` with `mine: true`; the default sort is `modifiedTime DESC`, and on `draft` it includes unpublished changes. `mine` matches the last modifier. Needs a signed-in caller.
+|Which images are not used?
+|`find-unreferenced` with `types: ["media:image"]`. Needs a signed-in caller.
+|Which content is in progress?
+|`search` with `workflow: "IN_PROGRESS"` on `draft`. Needs a signed-in caller with a role in the project.
+|How many items of each content type are there?
+|`list-types`. For one type, `search` with `types` and `count: 0`.
+|Are there broken links on the landing pages?
+|`find-broken-references` with `path` or `types`, repeated with `nextCursor` until it is gone, then `get` on an item to see which link is broken. Links stored as URL strings are not checked. Needs a signed-in caller.
+|===
+
+For anything else, `describe-type` gives the fields of a type and example queries, and `query` runs a variant of one.
+
+[#project-and-branch]
+== Project and branch
+
+Each call reads one project and one branch.
+
+Project:: The `project` argument, when given. Otherwise the project set in <<configuration#mcp, `mcp.defaultProject`>>. Otherwise the caller's only listed project, when there is exactly one. Otherwise the call fails and asks for `project`. A project must be readable by the caller on the branch, or the call fails with `not found or not readable`.
++
+XP lists projects only to callers with a role in them, so an anonymous caller has no listed project. Anonymous use therefore needs `mcp.defaultProject`, or a `project` argument in every call.
+
+Branch:: The `branch` argument, when given. Otherwise `draft` for a signed-in caller and `master` for an anonymous one. `list-projects` reports it as `defaultBranch`.
+
+[#limits]
+== Limits, truncation and paging
+
+[#budget]
+=== Result size
+
+Each result is kept within <<configuration#mcp, `mcp.maxResultChars`>> characters of compact JSON (default 20000). The text content repeats that JSON, so a whole response is about twice that size, plus escaping. When data does not fit, the tool cuts it instead of failing:
+
+* In lists, trailing items are dropped, and `nextCursor` then points right after the last item returned.
+* In `get` and `query`, trailing list items and fields are dropped, and large values become `{"truncated": true, "chars": N}`.
+* The result gets `truncated: true` and a `hint` that names what was cut and how to ask for less.
+
+JSON is never cut in the middle.
+
+[#cursors]
+=== Paging with cursors
+
+`search` and `find-broken-references` return pages. While more items are left, the result has `nextCursor`. To get the next page, repeat the call with the same arguments and `cursor` set to that value. A cursor holds only a position: with other arguments it reads that position of another result. If content changes between calls, items can shift between pages, and a cursor past the end of the results fails. A listing can page through at most 10000 items; narrow it with `path`, `types` or `filters` to reach the rest.
+
+[#other-limits]
+=== Other limits
+
+[%header,cols="1,3"]
+|===
+|Tool |Limits
+|`list-types` |Up to 1000 content types.
+|`describe-type` |SDL up to 4000 characters and a quarter of `mcp.maxResultChars`; up to 20 `appFields`.
+|`search` |`count` 0–50, `text` up to 500 characters, up to 20 `types`, 10 `filters`, 3 `sort` fields, 5 `aggregate` entries of 1–100 buckets, 10 `fields`. Names and paths are looked up for the first 100 content ids.
+|`get` |Up to 10 `fields`, 50 links per rich text value. Names and paths are looked up for the first 100 content ids.
+|`query` |`first` up to 100; `offset` or `after` plus `first` up to 10000; about 2000 content items and 1000 aggregation buckets; 10 nested levels; `maxQueryTokens`; up to 10 `errors`, each message up to 300 characters.
+|`find-unreferenced` |`count` 0–50; the first 10000 candidates by path; 50 backend queries per call.
+|`find-broken-references` |100 items and 5000 distinct referenced ids per call; up to 20 `missing` ids per item.
+|===
+
+[#errors]
+== Errors
+
+A failed call returns `isError: true` and one text: what was wrong, then what to do next. Common ones:
+
+[%header,cols="2,3"]
+|===
+|Message starts with |Meaning
+|`This tool needs a signed-in caller` |The call is anonymous. For `content` and `graphql`, sign in or ask the administrator to set `mcp.allowAnonymous=true`; `references` needs a signed-in caller in any case.
+|`Access denied: the caller cannot read branch draft` |Anonymous callers and users without a role in the project read `master` only.
+|`Project is required` |There is no `mcp.defaultProject` and not exactly one listed project. Pass `project`.
+|`Project '…' not found or not readable` |The project does not exist, or the caller cannot read it on that branch.
+|`The default project '…' (mcp.defaultProject) is not readable` |The configured default project does not exist or the caller cannot read it on that branch.
+|`mine needs a signed-in caller` |`mine` was passed by an anonymous caller.
+|`No content at …` |`get` found no readable content at that id or path on the branch. `master` holds published content only.
+|`Invalid cursor` |The cursor was changed, points past the end of the results, or would page beyond 10000 items. Repeat the call without `cursor`.
+|`Invalid …` |An argument has the wrong form; the message names the argument and what it accepts, such as the data fields of the types searched.
+|`Invalid arguments: Validation failed` |XP checked the arguments against the tool's input schema before Guillotine ran, for example an unknown argument or a `count` above the maximum.
+|`Unknown content type` |`describe-type` got a name no installed application defines. The message suggests similar names.
+|`Query failed` |The GraphQL document returned no data, for example because of an unknown field or a document nested deeper than 10 levels.
+|`Query reads up to …` / `Query asks for up to …` |The `query` document may read more than about 2000 content items or 1000 aggregation buckets. Select less, or pass a smaller `first` or `size`.
+|`first must not exceed 100` |A `first` in the `query` document is above 100. Page with `after`.
+|`Pass project and branch as tool arguments` |The `query` document sets `project` or `branch` on the `guillotine` field.
+|`Only query operations are allowed` |The `query` document contains a mutation or subscription.
+|`The description of … does not fit mcp.maxResultChars` |`describe-type` cannot describe the type within the configured result size.
+|`Guillotine MCP tools are disabled by configuration` |`mcp.enabled` is `false`.
+|`Internal error in …` |An unexpected failure. The message has an error id to look up in the server log.
+|===
+
+When a search or query returns data but some fields failed, the result is not an error: the data comes with an `errors` list of `{message, path}`. A call to a tool name that does not exist gets a protocol error from XP instead.
+
+[#configuration]
+== Configuration
+
+The tools are configured in `com.enonic.app.guillotine.cfg` with the `mcp.*` options described in <<configuration#mcp, Configuration>>: turning the tools off, the default project, the result size and anonymous access.
+
+[#limitations]
+== Known limitations
+
+XP's MCP server is a development preview:
+
+* XP has no MCP sign-in yet (OAuth is planned); a session cookie is the way to call as a user. XP does not enforce a group's `allow` yet, so anonymous clients see all eight tools in `tools/list`, and Guillotine refuses their calls itself.
+* XP drops `null` items from arrays in tool results, so a list in `query` data can be shorter than GraphQL returned, and positions can shift.
+
+In Guillotine:
+
+* The tools only read. There are no tools to create, edit, publish or delete content.
+* Results cover what the caller can read. An image used only by content the caller cannot read is reported as unreferenced, and a reference to content the caller cannot read is reported as missing.
+* `find-broken-references` checks references to content only, not URL strings or external URLs.
+* `mine` matches the last modifier of the content, not everyone who edited it.
+* One call reads one project.
