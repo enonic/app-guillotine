@@ -7,7 +7,8 @@ sys.dont_write_bytecode = True  # keep __pycache__ out of the source tree
 from xpmcp import SIGNED_IN, call, check, check_sizes, finish, leaf, load_expected, ok, readable_error, sc, show, walk  # noqa: E402
 
 expected = load_expected()
-USER = "mcp-alice"
+CALLER_KEY = sc(call("content", "list-projects", {})).get("caller", {}).get("key", "")
+USER = CALLER_KEY.rsplit(":", 1)[-1]
 BRANCHES = ["draft", "master"] if SIGNED_IN else ["master"]
 
 for branch in BRANCHES:
@@ -24,7 +25,7 @@ for branch in BRANCHES:
                                  "hits")
         got = [h["_path"] for h in hits]
         check("Q2 %s mine, newest first == expected.recentlyModifiedByUser.%s.%s" % (branch, USER, branch),
-              not error and got == expected["recentlyModifiedByUser"][USER][branch], error or got)
+              not error and got == expected["recentlyModifiedByUser"].get(USER, {}).get(branch), error or got)
     else:
         r = call("content", "search", {"mine": True})
         check("Q2 anonymous mine -> isError asking to sign in", readable_error(r, "signed-in", "sign in"), show(r))
