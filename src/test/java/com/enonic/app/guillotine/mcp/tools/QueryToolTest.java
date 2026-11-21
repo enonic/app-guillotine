@@ -1,5 +1,6 @@
 package com.enonic.app.guillotine.mcp.tools;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +17,12 @@ import com.enonic.app.guillotine.mcp.shape.McpJson;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranch;
 import com.enonic.app.guillotine.mcp.shape.ToolError;
 import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentNotFoundException;
+import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.exception.ForbiddenAccessException;
+import com.enonic.xp.page.PageTemplateService;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalRequestAccessor;
 import com.enonic.xp.security.IdProviderKey;
@@ -31,6 +35,7 @@ import static com.enonic.app.guillotine.mcp.McpResults.structured;
 import static com.enonic.app.guillotine.mcp.McpResults.text;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -470,6 +475,47 @@ public class QueryToolTest
         {
             PortalRequestAccessor.set( previous );
         }
+    }
+
+    @Test
+    public void testDefaultPageTemplateIsResolvedWithoutElevation()
+    {
+        when( contentService.getById( ContentId.from( "a1" ) ) ).thenReturn( article( "a1", "First" ) );
+        final PageTemplateService pageTemplateService = mock( PageTemplateService.class );
+        when( serviceFacade.getPageTemplateService() ).thenReturn( pageTemplateService );
+        final List<Boolean> elevated = new ArrayList<>();
+        when( contentService.getNearestSite( ContentId.from( "a1" ) ) ).thenAnswer( invocation -> {
+            elevated.add( ContextAccessor.current().getAuthInfo().hasRole( RoleKeys.CONTENT_MANAGER_ADMIN ) );
+            return null;
+        } );
+        final String query = "{ guillotine { get(key: \"a1\") { pageTemplate { _id } } } }";
+
+        final Object viaHttp = createAdminContext().callWith(
+            () -> asAlice( () -> getBean().execute( schemaProvider.getSchema(), query, null, ImageTransformations.ALLOWED ) ) );
+        assertNotNull( viaHttp );
+        assertEquals( List.of( true ), elevated );
+
+        elevated.clear();
+        final Map<String, Object> viaMcp = createAdminContext().callWith( () -> asAlice( () -> tool().execute( Map.of( "query", query ) ) ) );
+        assertEquals( List.of( false ), elevated, () -> McpJson.write( viaMcp ) );
+        assertEquals( Map.of( "guillotine", Map.of( "get", java.util.Collections.singletonMap( "pageTemplate", null ) ) ),
+                      structured( viaMcp ).get( "data" ) );
+    }
+
+    @Test
+    public void testScopeIsCheckedWithTheCallersPermissions()
+    {
+        when( contentService.getById( ContentId.from( "a1" ) ) ).thenReturn( article( "a1", "First" ) );
+        when( contentService.contentExists( ContentPath.from( "/hidden" ) ) ).thenReturn( true );
+        when( contentService.getByPath( ContentPath.from( "/hidden" ) ) ).thenThrow(
+            ContentNotFoundException.create().contentPath( ContentPath.from( "/hidden" ) ).build() );
+        final String query = "{ guillotine(scopeKey: \"/hidden\") { get(key: \"a1\") { _id } } }";
+
+        final Map<String, Object> viaHttp = executeQuery( schemaProvider.getSchema(), query );
+        assertFalse( viaHttp.containsKey( "errors" ), () -> String.valueOf( viaHttp.get( "errors" ) ) );
+
+        final ToolError viaMcp = assertThrows( ToolError.class, () -> run( Map.of( "query", query ) ) );
+        assertEquals( "Query failed: guillotine: Content for the \"scopeKey\" argument not found: \"/hidden\".", viaMcp.getMessage() );
     }
 
     private static <T> T asAlice( final java.util.concurrent.Callable<T> callable )

@@ -94,6 +94,13 @@ For every caller and every tool:
 
 One exception comes from XP: it builds page and media URLs with an administrator role. In a `query` document, `processedHtml` of a rich text field and `pageUrl` of its `links` therefore show the path of an unreadable link target and the file name of an unreadable image that a readable item embeds. Guillotine's GraphQL API over HTTP does the same. The `get` tool does not use these fields.
 
+Guillotine's own code never reads with more rights than the caller in MCP calls. The GraphQL API over HTTP keeps two places where it does, and `query` reads both with the caller's permissions only:
+
+* The default page template of an item without a page: over HTTP Guillotine looks it up with the Content Studio administrator role. In `query` it is the first template for the item's type that the caller can read, so it can differ from the HTTP answer when an earlier one is unreadable. With none readable, `pageTemplate` is `null`, and `pageAsJson` and `components` with `resolveTemplate: true` return the item's own page.
+* The `scopeKey` argument of `guillotine`: over HTTP XP's existence check also finds content the caller cannot read. In `query`, such a scope fails exactly like one that does not exist.
+
+Fields that other applications add run that application's code and answer in `query` exactly as over HTTP (see <<query>>).
+
 [#connect]
 == Connecting a client
 
@@ -231,7 +238,7 @@ Returns::
 * `sdl`: the GraphQL type as compact SDL, up to 4000 characters and at most a quarter of `mcp.maxResultChars`.
 * `fields`: each data field with `name` (the GraphQL field below `data`; dots separate item-set levels), `path` (the index path for filters, sorts and aggregations), `label`, `help`, `input` (the input type), `repeated`, `required`, and for selectors `targets`, the content types it accepts.
 * `appFields` and `appFieldsNote`: fields that other applications add to the type through <<extending#, schema extensions>>. They run that application's code, which may apply its own access rules and limits.
-* `indexFields`: index fields every item has but the schema does not show, such as `workflow.state` and `_references`.
+* `indexFields`: index fields every item has but the schema does not show, such as `workflow.state` and `_references`. For anonymous callers the entry for `creator`, `modifier` and `owner` adds that filters, sorts and aggregations on them need a signed-in caller.
 * `examples`: three queries for this type, each with `use` and `query`: newest first with paging, a count filtered on one of its fields, and the top values of a field as an aggregation with an explicit order.
 
 When the description does not fit `mcp.maxResultChars` even without `fields`, the call fails and asks to raise the limit; when only some `fields` do not fit, the trailing ones are left out and the result is marked `truncated`.
@@ -363,7 +370,7 @@ The tool rejects mutations and subscriptions, and documents beyond these limits,
 
 Image transformations in `imageUrl` and `processHtml` follow the same <<configuration#image-transformations, virtual host setting>> as a query sent to Guillotine's API endpoint over HTTP.
 
-Fields that other applications add through <<extending#, schema extensions>> run their resolvers, as they do over HTTP. `describe-type` lists them as `appFields`.
+Fields that other applications add through <<extending#, schema extensions>> run their resolvers with the caller's identity and permissions, as they do over HTTP. What such a resolver reads is up to that application: if it reads with an administrator role, MCP callers get the same answer as HTTP callers. `describe-type` lists these fields as `appFields`.
 
 [#find-unreferenced]
 === find-unreferenced
@@ -559,6 +566,7 @@ In Guillotine:
 * The tools only read. There are no tools to create, edit, publish or delete content.
 * Results cover what the caller can read. An image used only by content the caller cannot read is reported as unreferenced, and a reference to content the caller cannot read is reported as missing.
 * In `query`, `processedHtml` and the `pageUrl` of rich text links show paths and image file names of link targets the caller cannot read, because XP builds URLs with an administrator role (see <<permissions>>).
+* Fields that other applications add to the schema run that application's code. Guillotine does not limit what it reads, so a resolver that reads with an administrator role answers MCP callers as it answers HTTP callers (see <<query>>).
 * `find-broken-references` checks references to content only, not URL strings or external URLs.
 * `mine` matches the last modifier of the content, not everyone who edited it.
 * One call reads one project.

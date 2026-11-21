@@ -47,7 +47,8 @@ public class SchemaProvider
 
     /**
      * Executes one operation of {@code query} with an extra {@code instrumentation} (for example query limits), which may be
-     * {@code null}. The other execute methods never add instrumentation.
+     * {@code null}, for the MCP tools: data fetchers never elevate ({@link Elevation#NONE}). The other execute methods never add
+     * instrumentation and keep the HTTP behaviour.
      */
     public Map<String, Object> executeToSpecification( final String query, final Map<String, Object> variables,
                                                        final String operationName, final Instrumentation instrumentation )
