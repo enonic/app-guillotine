@@ -136,6 +136,47 @@ public class QueryToolTest
     }
 
     @Test
+    public void testPrincipalFieldsDeniedToNonAdminsSayWhatToUseInstead()
+    {
+        when( contentService.getById( ContentId.from( "a1" ) ) ).thenReturn( article( "a1", "First" ) );
+
+        final Map<String, Object> structured = structured( asAlice( () -> tool().execute(
+            Map.of( "query", "{ guillotine { get(key: \"a1\") { _id creator { value } } } }" ) ) ) );
+
+        assertEquals( List.of( Map.of( "message", "Unauthorized: creator, modifier and owner need Content Studio access or an " +
+                          "administrator role.", "path", List.of( "guillotine", "get", "creator" ) ) ), structured.get( "errors" ) );
+        assertEquals( "Filters, sorts and aggregations on the modifier, creator and owner index fields work without that role: for " +
+                          "the caller's own edits use search with mine, and to count per person aggregate on modifier.",
+                      structured.get( "note" ) );
+
+        final Map<String, Object> admin =
+            structured( run( Map.of( "query", "{ guillotine { get(key: \"a1\") { creator { value } } } }" ) ) );
+        assertEquals( Map.of( "guillotine", Map.of( "get", Map.of( "creator", Map.of( "value", "user:system:anonymous" ) ) ) ),
+                      admin.get( "data" ) );
+        assertNull( admin.get( "errors" ) );
+    }
+
+    @Test
+    public void testSelectionErrorsNameTheFieldsOfTheType()
+    {
+        final String principal = assertThrows( ToolError.class, () -> run(
+            Map.of( "query", "{ guillotine { get(key: \"a1\") { modifier creator { id } } } }" ) ) ).userMessage();
+
+        assertTrue( principal.contains( "PrincipalKey has value, type, idProvider, principalId. Its values need Content Studio access " +
+                                            "or an administrator role. Filters, sorts and aggregations on the modifier" ),
+                    principal );
+        assertEquals( 1, principal.split( "PrincipalKey has" ).length - 1, principal );
+
+        final String content = assertThrows( ToolError.class, () -> run(
+            Map.of( "query", "{ guillotine { get(key: \"a1\") { _id data } } }" ) ) ).userMessage();
+        assertTrue( content.contains( "Content has _id, _name, _path" ), content );
+        assertTrue( content.contains( "Fields of one content type, such as data, need an inline fragment: ... on <graphqlType from " +
+                                          "list-types>." ), content );
+        assertNull( QueryTool.selectionHint( List.of( "Validation error (FieldUndefined@[guillotine/nope]) : Field 'nope' in type " +
+                                                          "'NoSuchType' is undefined" ), schemaProvider.getSchema() ) );
+    }
+
+    @Test
     public void testDeniedReadForAnAnonymousCallerPointsToMaster()
     {
         when( contentService.getById( ContentId.from( "a1" ) ) ).thenThrow( new ForbiddenAccessException( User.anonymous() ) );
