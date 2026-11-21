@@ -30,6 +30,16 @@ expected = load_expected()
 with open(os.path.join(E2E_DIR, "fixtures/dataset-app/src/main/resources/dataset/dataset.json")) as f:
     dataset = json.load(f)
 PASSWORDS = {u["login"]: u["password"] for u in dataset["users"]}
+# the same overrides the dataset app applies: password.<login>=... in its config file, then MCP_E2E_PASSWORD for MCP_E2E_USER
+DATASET_CFG = os.path.join(os.environ.get("XP_HOME", ""), "config", "com.example.mcpdataset.cfg")
+if os.environ.get("XP_HOME") and os.path.isfile(DATASET_CFG):
+    with open(DATASET_CFG) as f:
+        for line in f:
+            key, _, value = line.strip().partition("=")
+            if key.strip().startswith("password.") and value:
+                PASSWORDS[key.strip()[len("password."):]] = value.strip()
+if os.environ.get("MCP_E2E_USER") and os.environ.get("MCP_E2E_PASSWORD"):
+    PASSWORDS[os.environ["MCP_E2E_USER"]] = os.environ["MCP_E2E_PASSWORD"]
 PASSWORDS["su"] = os.environ.get("XP_SU_PASSWORD", "mcp-e2e-local")
 READERS = {folder["name"]: set(folder["readers"]) | {"su"} for folder in dataset["restricted"]["folders"]}
 DRAFT_READERS = {"mcp-erin", "mcp-alice", "mcp-frank", "mcp-carol", "su"}
@@ -275,9 +285,10 @@ def run(caller, branch):
     if caller == "su":
         check("query creator/modifier/owner for an administrator", (hit.get("creator") or {}).get("value", "").startswith("user:"), show(r))
     else:
-        messages = {e.get("message") for e in sc(r).get("errors", [])}
-        check("query creator/modifier/owner denied with the Content Studio message",
-              hit.get("creator") is None and hit.get("owner") is None and messages == {PRINCIPAL_ERROR}, show(r))
+        errors = {(e.get("path") or [""])[-1]: e.get("message") for e in sc(r).get("errors", [])}
+        check("query creator/modifier/owner each denied with the Content Studio message",
+              all(hit.get(field) is None for field in ("creator", "modifier", "owner")) and
+              errors == {field: PRINCIPAL_ERROR for field in ("creator", "modifier", "owner")}, show(r))
     by_modifier = {b["key"]: b["docCount"] for b in modifiers}
     r = tool("graphql", "query", {"query": '{ guillotine { queryDslConnection(query: {term: {field: "modifier", value: {string: '
                                            '"user:system:su"}}}, first: 0) { totalCount } } }'})
