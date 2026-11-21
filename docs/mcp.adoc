@@ -208,15 +208,16 @@ Arguments::
 * `{field, equals}`: an exact value. On a date field such as `modifiedTime`, `equals` takes a day (`2026-01-31`) and matches that whole day in UTC.
 * `{field, from, to}`: a range, `from` inclusive and `to` exclusive. Dates are `2026-01-31` (start of that day in UTC) or `2026-01-31T12:00:00Z`.
 * `{field, exists}`: `true` for items that have a value in the field, `false` for items that do not.
+* `{field: "valid", equals: false}`: content that fails validation, such as a required field left empty. `find-broken-references` does not check this.
 * `{references, field}`: items that refer to the content at this `_path` or `_id`; with `field`, only through that selector field.
 --
 `sort`::: Up to 3 comma-separated `field [ASC|DESC]` items, such as `modifiedTime DESC` or `data.title ASC`. Fields: `displayName`, `name`, `path`, `type`, `language`, `createdTime`, `modifiedTime`, `publish.from`, `publish.to`, `publish.first`, `score`, `workflow.state`, `creator`, `modifier`, `owner`, data fields and `x.` fields. Default: relevance with `text`, otherwise `modifiedTime DESC`.
 `aggregate`::: Up to 5 groupings, each `{by, size}`: counts per value of the field `by`, largest first, in `size` buckets (1–100, default 10). Bucket keys are the values as the index stores them, so text values, such as titles or `workflow.state`, come in lower case.
-`fields`::: Up to 10 data fields to return with each hit, such as `["title", "author"]`.
+`fields`::: Up to 10 data fields to return with each hit, such as `["title", "author"]`. `publish` (or `publish.from`, `publish.to`, `publish.first`) adds the hit's publish dates. A data field of the types searched wins over a metadata name; use `data.<name>` to be explicit. Otherwise, names of fields every hit has, such as `displayName` or `_path`, are ignored; other index fields, such as `creator` or `language`, are left out with a `note` instead of failing the call.
 `count`::: Hits per page, 0–50 (default 10). `0` returns the total and the aggregations only.
 `cursor`::: `nextCursor` of the previous page; keep the other arguments.
 
-Returns:: `total`, `hits` and `nextCursor` while more hits are left, and `aggregations`, each with `by` and `buckets` of `key` and `count`. A hit has `_id`, `_path`, `displayName`, `type`, `modifiedTime`, `workflow` when it is not `READY`, and `data` with the fields asked for. Reference values in `data`, and bucket keys that are content ids, come with the target's `displayName` and `_path`, or `missing: true` when the target is missing or not readable. When nothing matches and the arguments explain why, such as an unknown type name, a path with no content, or `IN_PROGRESS` on `master`, a `note` says so.
+Returns:: `total`, `hits` and `nextCursor` while more hits are left, and `aggregations`, each with `by` and `buckets` of `key` and `count`. A hit has `_id`, `_path`, `displayName`, `type`, `modifiedTime`, `workflow` when it is not `READY`, `publish` with the dates that are set when `fields` asks for it, and `data` with the fields asked for. Reference values in `data`, and bucket keys that are content ids, come with the target's `displayName` and `_path`, or `missing: true` when the target is missing or not readable. When nothing matches and the arguments explain why, such as an unknown type name, a path with no content, or `IN_PROGRESS` on `master`, a `note` says so.
 
 Articles per author, in one call:
 
@@ -304,7 +305,9 @@ Arguments::
 `variables`::: Values of the document's variables, keyed by name without the `$`.
 `operationName`::: The operation to run when the document defines several.
 
-Returns:: `data`, as GraphQL returns it, with null fields kept; `errors` (up to 10, each `message` and `path`) when some fields failed; and a `note` when the document has a terms aggregation without `order`, which returns the smallest buckets first. A message says what to change when the cause is in the query, such as an invalid argument, missing content or denied access; any other failure, for example in an extension's resolver, reads `Internal error while resolving this field; see the server log.`
+Returns:: `data`, as GraphQL returns it, with null fields kept; `errors` (up to 10, each `message` and `path`) when some fields failed; and a `note` when the document has a terms aggregation without `order`, which returns the smallest buckets first. A message says what to change when the cause is in the query, such as an invalid argument, missing content or denied access; any other failure, for example in an extension's resolver, reads `Internal error while resolving this field; see the server log.` When the document selects a field its type does not have, or no subfields of an object field, the error lists that type's fields; on the `Content` interface it also points to the inline fragment (`... on <graphqlType>`) that type-specific fields need.
+
+`creator`, `modifier` and `owner` resolve only for callers with Content Studio access (`cms.cm.app`) or an administrator role, as in the GraphQL API. For other callers each such field fails with `Unauthorized: creator, modifier and owner need Content Studio access or an administrator role.` and the result's `note` says that filters, sorts and aggregations on those index fields still work: `search` with `mine` for the caller's own edits, or an aggregation on `modifier` to count per person.
 
 The tool rejects mutations and subscriptions, and documents beyond these limits, before it runs them:
 
@@ -357,7 +360,7 @@ One call checks the first 10000 candidates by path, with at most 50 backend quer
 [#find-broken-references]
 === find-broken-references
 
-Content under a path or of given types that references content which is missing or which the caller cannot read, in data, page and component configs, mixins or rich text.
+Content under a path or of given types that references content which is missing or which the caller cannot read, in data, page and component configs, mixins or rich text. It does not check validation; for invalid content, use `search` with the filter `{field: "valid", equals: false}`.
 
 Arguments::
 `path`::: The item at this path and everything below it, such as `/landings`. Default: the whole project.
@@ -406,6 +409,10 @@ A client chooses tools by itself, but these are the paths the tools are designed
 |`search` with `workflow: "IN_PROGRESS"` on `draft`. Needs a signed-in caller with a role in the project.
 |How many items of each content type are there?
 |`list-types`. For one type, `search` with `types` and `count: 0`.
+|Which content is invalid?
+|`search` with `filters: [{field: "valid", equals: false}]`. `find-broken-references` checks references, not validation.
+|Which posts go offline in the next 30 days?
+|`search` with `filters: [{field: "publish.to", from: <today>, to: <in 30 days>}]` and `fields: ["publish"]` for the dates.
 |Are there broken links on the landing pages?
 |`find-broken-references` with `path` or `types`, repeated with `nextCursor` until it is gone, then `get` on an item to see which link is broken. Links stored as URL strings are not checked. Needs a signed-in caller.
 |===
@@ -467,7 +474,7 @@ A failed call returns `isError: true` and one text: what was wrong, then what to
 |Message starts with |Meaning
 |`This tool needs a signed-in caller` |The call is anonymous. For `content` and `graphql`, sign in or ask the administrator to set `mcp.allowAnonymous=true`; `references` needs a signed-in caller in any case.
 |`Access denied: the caller cannot read branch draft` |Anonymous callers and users without a role in the project read `master` only.
-|`Project is required` |There is no `mcp.defaultProject` and not exactly one listed project. Pass `project`.
+|`Project is required` |There is no `mcp.defaultProject` and not exactly one listed project. Pass `project`, a name from `list-projects`.
 |`Project '…' not found or not readable` |The project does not exist, or the caller cannot read it on that branch.
 |`The default project '…' (mcp.defaultProject) is not readable` |The configured default project does not exist or the caller cannot read it on that branch.
 |`mine needs a signed-in caller` |`mine` was passed by an anonymous caller.
