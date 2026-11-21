@@ -13,7 +13,8 @@ import com.enonic.app.guillotine.GuillotineConfigService;
  * that JSON, so the whole result is about twice the budget, plus escaping. A cut result gets top-level {@code truncated: true} and a
  * {@code hint}; JSON is never cut mid-way.
  * <p>
- * Paged results drop trailing items and move {@code nextCursor} to the first item not returned. Tools that return one free-form
+ * Paged results drop trailing items and move {@code nextCursor} to the first item not returned; when the first item alone does not
+ * fit, the page is empty and {@code nextCursor} skips that item. Tools that return one free-form
  * object instead ({@code get}, {@code query}) call {@link #fitSubtrees}, which cuts the value under one key top-down: lists lose
  * trailing items and large values become {@code {"truncated": true, "chars": N}} markers. A result that still does not fit keeps only
  * project, branch and total.
@@ -131,6 +132,7 @@ public final class ResultBudget
             return McpResult.envelope( result );
         }
 
+        final Object first = items.isEmpty() ? null : items.get( 0 );
         int dropped = 0;
         int length = McpJson.length( result );
         while ( true )
@@ -143,7 +145,7 @@ public final class ResultBudget
             }
             if ( items.isEmpty() && nextCursor != null )
             {
-                break;
+                return McpResult.envelope( skipFirst( result, listKey, first, nextCursor ) );
             }
             putOrRemove( result, NEXT_CURSOR, nextCursor != null ? nextCursor.apply( items.size() ) : null );
             markTruncated( result, "dropped " + dropped + " trailing item(s) of '" + listKey + "'" );
@@ -158,6 +160,29 @@ public final class ResultBudget
             }
         }
         return McpResult.envelope( fallback( result, listKey ) );
+    }
+
+    /**
+     * An emptied page. When {@code first} alone does not fit even next to only project, branch and total, no page can ever return it,
+     * so {@code nextCursor} moves past it instead of repeating the same page; the other fields stay when they fit. Otherwise the
+     * other fields are what crowd it out, and skipping would lose items, so the result is the {@link #fallback}.
+     */
+    private Map<String, Object> skipFirst( final Map<String, Object> result, final String listKey, final Object first,
+                                           final IntFunction<String> nextCursor )
+    {
+        final Map<String, Object> alone = new LinkedHashMap<>();
+        KEPT_KEYS.stream().filter( result::containsKey ).forEach( key -> alone.put( key, result.get( key ) ) );
+        alone.put( listKey, first == null ? List.of() : List.of( first ) );
+        if ( first == null || fits( alone ) )
+        {
+            return fallback( result, listKey );
+        }
+        final String skip = nextCursor.apply( 1 );
+        putOrRemove( result, NEXT_CURSOR, skip );
+        result.put( TRUNCATED, true );
+        result.put( HINT, "Result truncated to fit " + maxResultChars + " characters: the first item of '" + listKey + "' alone is " +
+            "larger, so this page has no items. " + narrowHint + ( skip != null ? " Continue with nextCursor to skip that item." : "" ) );
+        return fits( result ) ? result : fallback( result, listKey );
     }
 
     /**
