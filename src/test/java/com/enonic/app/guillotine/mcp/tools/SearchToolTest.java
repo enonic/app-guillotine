@@ -1,5 +1,6 @@
 package com.enonic.app.guillotine.mcp.tools;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,7 +19,9 @@ import com.enonic.xp.aggregation.Aggregations;
 import com.enonic.xp.aggregation.Bucket;
 import com.enonic.xp.aggregation.BucketAggregation;
 import com.enonic.xp.aggregation.Buckets;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentConstants;
+import com.enonic.xp.content.ContentPublishInfo;
 import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.context.Context;
 import com.enonic.xp.data.PropertySet;
@@ -54,6 +57,7 @@ public class SearchToolTest
             .name( NOTE )
             .title( "Note" )
             .addFormItem( Input.create().name( "author" ).label( "Author" ).inputType( InputTypeName.TEXT_LINE ).build() )
+            .addFormItem( Input.create().name( "language" ).label( "Language" ).inputType( InputTypeName.TEXT_LINE ).build() )
             .build() );
         return result;
     }
@@ -469,6 +473,61 @@ public class SearchToolTest
         assertTrue( invalid( args( "filters", List.of( args( "field", "publish.from", "to", "2026-02-30" ) ) ) ).startsWith(
             "Invalid filters[0].to: \"2026-02-30\" is not a valid date." ) );
         assertTrue( invalid( args( "sort", "title sideways" ) ).startsWith( "Invalid sort direction: \"sideways\"." ) );
+    }
+
+    @Test
+    public void testIndexFieldsInFieldsDoNotFailTheCallAndPublishDatesComeWhenAsked()
+    {
+        persons();
+        articles( 1 );
+        final Content article = store.get( uuid( 100 ) );
+        store.put( uuid( 100 ), Content.create( article )
+            .publishInfo( ContentPublishInfo.create()
+                              .from( Instant.parse( "2026-01-02T00:00:00Z" ) )
+                              .to( Instant.parse( "2026-02-01T00:00:00Z" ) )
+                              .build() )
+            .build() );
+
+        final Map<String, Object> structured = run(
+            args( "types", List.of( "article" ), "fields", List.of( "displayName", "_path", "publish.to", "title", "creator", "language" ) ) );
+
+        final Map<String, Object> hit = hits( structured ).get( 0 );
+        assertEquals( Map.of( "from", "2026-01-02T00:00:00.000Z", "to", "2026-02-01T00:00:00.000Z" ), hit.get( "publish" ) );
+        assertEquals( Map.of( "title", "Title 0" ), hit.get( "data" ) );
+        assertEquals( "fields returns data fields and publish only, so creator, language were left out; filters and sort take index " +
+                          "fields, and get returns createdTime and language. For the caller's own edits pass mine.", structured.get( "note" ) );
+
+        final Map<String, Object> plain = hits( run( args( "types", List.of( "article" ), "fields", List.of( "publish", "_id" ) ) ) ).get( 0 );
+        assertEquals( Map.of( "from", "2026-01-02T00:00:00.000Z", "to", "2026-02-01T00:00:00.000Z" ), plain.get( "publish" ) );
+        assertFalse( plain.containsKey( "data" ) );
+        assertFalse( hits( run( args( "types", List.of( "article" ) ) ) ).get( 0 ).containsKey( "publish" ) );
+        assertTrue( invalid( args( "types", List.of( ARTICLE ), "fields", List.of( "data.publish" ) ) ).startsWith(
+            "Invalid fields: \"data.publish\" is not a data field of " + ARTICLE + "." ) );
+    }
+
+    @Test
+    public void testADataFieldNamedLikeAnIndexFieldIsReturnedAsData()
+    {
+        final PropertyTree data = new PropertyTree();
+        data.addString( "language", "Norwegian" );
+        put( uuid( 700 ), "/notes", "note-1", NOTE, data, false );
+        searchable.add( uuid( 700 ) );
+
+        final Map<String, Object> structured = run( args( "types", List.of( NOTE ), "fields", List.of( "language", "type" ) ) );
+
+        assertEquals( Map.of( "language", "Norwegian" ), hits( structured ).get( 0 ).get( "data" ) );
+        assertNull( structured.get( "note" ) );
+    }
+
+    @Test
+    public void testValidIsAFilterField()
+    {
+        folders( 1 );
+
+        run( args( "filters", List.of( args( "field", "valid", "equals", false ) ) ) );
+
+        assertEquals( Map.of( "term", Map.of( "field", "valid", "value", false ) ),
+                      ( (Map<?, ?>) dsl( searches.get( 0 ) ).get( "boolean" ) ).get( "must" ) );
     }
 
     @Test

@@ -87,8 +87,9 @@ tools:
     description: >-
       Broken links and references: content under a path or of given types that references content which is missing or which the
       caller cannot read, in data, page and component configs, mixins or rich text. Lists each such item with the missing ids.
-      External URLs and URL strings in component configs are not checked. Each call reads up to 100 items and runs many backend
-      queries, so it needs a signed-in caller; continue with nextCursor.
+      External URLs and URL strings in component configs are not checked, nor is validation: for invalid content, search with the
+      filter {field: valid, equals: false}. Each call reads up to 100 items and runs many backend queries, so it needs a signed-in
+      caller; continue with nextCursor.
     inputSchema:
       type: object
       properties:
