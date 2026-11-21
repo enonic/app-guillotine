@@ -31,6 +31,8 @@ Query examples:: Reference examples for <<usage/content-queries#, content querie
 
 Extending:: <<extending#, Customize the schema and add resolvers>> in TypeScript, and learn how Guillotine executes your extensions.
 
+MCP tools:: <<mcp#, Let AI assistants discover and read your content>> through XP's MCP server.
+
 API reference:: <<api#, Look up built-in GraphQL fields, arguments and types>>.
 
 Configuration:: <<configuration#, Configure Guillotine>>, including CORS and schema extension behavior.

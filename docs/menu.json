@@ -81,6 +81,10 @@
       ]
     },
     {
+      "title": "MCP tools",
+      "document": "mcp"
+    },
+    {
       "title": "API",
       "document": "api"
     },
