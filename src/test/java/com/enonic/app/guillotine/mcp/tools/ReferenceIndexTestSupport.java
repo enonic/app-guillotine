@@ -50,18 +50,28 @@ public abstract class ReferenceIndexTestSupport
 
     protected final List<String> outboundCalls = new ArrayList<>();
 
+    /**
+     * Calls of {@code find}, {@code getByIds} and {@code getOutboundDependencies}, for a test clock that advances with them.
+     */
+    protected int backendCalls;
+
     @Override
     protected void initialize()
         throws Exception
     {
         super.initialize();
-        doAnswer( invocation -> evaluate( invocation.getArgument( 0 ) ) ).when( contentService ).find( any( ContentQuery.class ) );
         doAnswer( invocation -> {
+            backendCalls++;
+            return evaluate( invocation.getArgument( 0 ) );
+        } ).when( contentService ).find( any( ContentQuery.class ) );
+        doAnswer( invocation -> {
+            backendCalls++;
             contexts.add( ContextAccessor.current() );
             final GetContentByIdsParams params = invocation.getArgument( 0 );
             return Contents.from( params.getIds().stream().map( id -> readable( id.toString() ) ).filter( c -> c != null ).toList() );
         } ).when( contentService ).getByIds( any( GetContentByIdsParams.class ) );
         doAnswer( invocation -> {
+            backendCalls++;
             contexts.add( ContextAccessor.current() );
             final ContentId id = invocation.getArgument( 0 );
             outboundCalls.add( id.toString() );

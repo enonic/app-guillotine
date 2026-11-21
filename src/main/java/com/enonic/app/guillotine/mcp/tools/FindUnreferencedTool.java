@@ -6,10 +6,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.LongSupplier;
 
 import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.mcp.McpGroup;
 import com.enonic.app.guillotine.mcp.McpTool;
+import com.enonic.app.guillotine.mcp.shape.Deadline;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranch;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranchResolver;
 import com.enonic.app.guillotine.mcp.shape.ResultBudget;
@@ -20,7 +22,8 @@ import com.enonic.xp.schema.content.ContentTypeService;
  * Content of the given types, media by default, that no content the caller can read references. Candidates are read by path, up to
  * {@link #MAX_CANDIDATES}, and checked in chunks against the {@code _references} index field, which holds every reference XP stores:
  * data, page and component configs, mixins and rich text. A reference of an item to itself does not count. One call makes at most
- * {@link #MAX_CALLS} backend queries; candidates left unchecked make the result {@code incomplete}.
+ * {@link #MAX_CALLS} backend queries and stops starting new ones at the {@link Deadline}; candidates left unchecked make the result
+ * {@code incomplete}.
  */
 public final class FindUnreferencedTool
     implements McpTool
@@ -53,20 +56,24 @@ public final class FindUnreferencedTool
 
     private final int maxBuckets;
 
+    private final LongSupplier nanoTime;
+
     FindUnreferencedTool( final ContentService contentService, final ContentTypeService contentTypeService,
-                          final GuillotineConfigService configService, final ProjectBranchResolver resolver, final int maxBuckets )
+                          final GuillotineConfigService configService, final ProjectBranchResolver resolver, final int maxBuckets,
+                          final LongSupplier nanoTime )
     {
         this.contentService = contentService;
         this.contentTypeService = contentTypeService;
         this.configService = configService;
         this.resolver = resolver;
         this.maxBuckets = maxBuckets;
+        this.nanoTime = nanoTime;
     }
 
     public FindUnreferencedTool( final ContentService contentService, final ContentTypeService contentTypeService,
                                  final GuillotineConfigService configService, final ProjectBranchResolver resolver )
     {
-        this( contentService, contentTypeService, configService, resolver, MAX_BUCKETS );
+        this( contentService, contentTypeService, configService, resolver, MAX_BUCKETS, System::nanoTime );
     }
 
     @Override
@@ -84,12 +91,13 @@ public final class FindUnreferencedTool
     @Override
     public Map<String, Object> execute( final Map<String, Object> args )
     {
+        final Deadline deadline = Deadline.start( nanoTime );
         final ProjectBranch target = resolver.resolve( args );
         final int count = args.get( "count" ) instanceof Number number ? Math.clamp( number.intValue(), 0, MAX_COUNT ) : DEFAULT_COUNT;
         final String path = ContentKeys.scopePath( args.get( "path" ) instanceof String value ? value : null );
         final List<?> types = args.get( "types" ) instanceof List<?> list ? list : List.of();
 
-        final ReferenceQueries queries = new ReferenceQueries( contentService, target, MAX_CALLS );
+        final ReferenceQueries queries = new ReferenceQueries( contentService, target, MAX_CALLS, deadline );
         final ReferenceQueries.Ids candidates =
             queries.ids( ReferenceQueries.scope( types, MEDIA, path, contentTypeService ), 0, MAX_CANDIDATES );
 
@@ -113,19 +121,20 @@ public final class FindUnreferencedTool
         {
             structured.put( "incomplete", true );
         }
-        structured.put( ResultBudget.NOTE, note( unreferenced.size(), count, checked, candidates.total() ) );
+        structured.put( ResultBudget.NOTE, note( unreferenced.size(), count, checked, candidates.total(), queries.timedOut() ) );
         return ResultBudget.fromConfig( configService ).withNarrowHint( NARROW_HINT ).fitList( structured, ITEMS );
     }
 
-    private static String note( final int total, final int count, final int checked, final long candidates )
+    private static String note( final int total, final int count, final int checked, final long candidates, final boolean timedOut )
     {
         final List<String> notes = new ArrayList<>();
         notes.add( "Covers only content the caller can read: a reference held by content the caller cannot read is not seen, so a " +
                        "listed item may still be in use." );
         if ( checked < candidates )
         {
-            notes.add( "Incomplete: checked the first " + checked + " of " + candidates + " items by path within the per-call limit; " +
-                           "narrow with path or types to check the rest." );
+            notes.add( "Incomplete: checked the first " + checked + " of " + candidates + " items by path within the per-call " +
+                           ( timedOut ? "time limit of " + Deadline.LIMIT_SECONDS + " seconds" : "limit" ) +
+                           "; narrow with path or types to check the rest." );
         }
         if ( count > 0 && total > count )
         {

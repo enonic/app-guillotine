@@ -355,7 +355,7 @@ Returns:: `total` (unreferenced items found), `checked`, `candidates` (items of 
 }
 ----
 
-One call checks the first 10000 candidates by path, with at most 50 backend queries. Candidates left over make the result `incomplete`; narrow it with `path` or `types` to check the rest.
+One call checks the first 10000 candidates by path, with at most 50 backend queries, and starts no new query after 20 seconds; only the names of the items found are still looked up, in one call. Candidates left over make the result `incomplete`, and the `note` says which limit stopped the call; narrow it with `path` or `types` to check the rest.
 
 [#find-broken-references]
 === find-broken-references
@@ -389,7 +389,7 @@ Returns:: `total` (items in scope the caller can read), `checked` (items checked
 }
 ----
 
-One call checks up to 100 items and 5000 distinct referenced ids. Until `nextCursor` is gone, call again before you conclude that there are no more broken references. Links stored as URL strings, such as a URL field in a part config, and all external URLs are not references and are never checked.
+One call checks up to 100 items and 5000 distinct referenced ids, and reads no new item after 20 seconds. After that it still looks up the targets of the first item, one batch of up to 500 targets of the items already read, and the names of the items it lists, so that the items read so far give a result. Until `nextCursor` is gone, call again before you conclude that there are no more broken references. Links stored as URL strings, such as a URL field in a part config, and all external URLs are not references and are never checked.
 
 [#workflows]
 == Typical workflows
@@ -460,8 +460,8 @@ JSON is never cut in the middle.
 |`search` |`count` 0–50, `text` up to 500 characters, up to 20 `types`, 10 `filters`, 3 `sort` fields, 5 `aggregate` entries of 1–100 buckets, 10 `fields`. Names and paths are looked up for the first 100 content ids.
 |`get` |Up to 10 `fields`, 50 links per rich text value. Names and paths are looked up for the first 100 content ids.
 |`query` |`first` up to 100; `offset` or `after` plus `first` up to 10000; about 2000 content items and 1000 aggregation buckets; 10 nested levels; `maxQueryTokens`; up to 10 `errors`, each message up to 300 characters.
-|`find-unreferenced` |`count` 0–50; the first 10000 candidates by path; 50 backend queries per call.
-|`find-broken-references` |100 items and 5000 distinct referenced ids per call; up to 20 `missing` ids per item.
+|`find-unreferenced` |`count` 0–50; the first 10000 candidates by path; 50 backend queries and 20 seconds per call.
+|`find-broken-references` |100 items, 5000 distinct referenced ids and 20 seconds per call; up to 20 `missing` ids per item.
 |===
 
 [#errors]
