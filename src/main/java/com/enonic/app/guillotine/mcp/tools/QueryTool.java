@@ -22,6 +22,7 @@ import graphql.parser.ParserOptions;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLFieldsContainer;
 import graphql.schema.GraphQLInterfaceType;
+import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import graphql.validation.GoodFaithIntrospectionExceeded;
 
@@ -70,9 +71,12 @@ public final class QueryTool
 
     /**
      * The type in GraphQL validation errors about selections: "Field 'x' in type 'T' is undefined" and "Subselection required for
-     * type 'T' of field 'x'".
+     * type 'T' of field 'x'", where T may carry list and non-null wrappers such as [Content]!.
      */
-    private static final Pattern SELECTION_ERROR_TYPE = Pattern.compile( "(?:FieldUndefined|SubselectionRequired)@.*?type '(\\w+)'" );
+    private static final Pattern SELECTION_ERROR_TYPE =
+        Pattern.compile( "(?:FieldUndefined|SubselectionRequired)@.*?type '([\\[\\]!\\w]+)'" );
+
+    private static final String CONTENT_TYPE = "Content";
 
     private final SchemaProvider schemaProvider;
 
@@ -154,7 +158,7 @@ public final class QueryTool
 
     /**
      * For a document that selects a field its type does not have, or selects nothing below an object field: the fields of those types.
-     * A content interface also gets the inline fragment its type-specific fields need, and PrincipalKey the rights its values need.
+     * The Content interface also gets the inline fragment its type-specific fields need, and PrincipalKey the rights its values need.
      */
     static String selectionHint( final List<String> messages, final GraphQLSchema schema )
     {
@@ -164,7 +168,7 @@ public final class QueryTool
             final Matcher matcher = SELECTION_ERROR_TYPE.matcher( message );
             while ( matcher.find() && types.size() < MAX_HINTED_TYPES )
             {
-                types.add( matcher.group( 1 ) );
+                types.add( matcher.group( 1 ).replaceAll( "[\\[\\]!]", "" ) );
             }
         }
         final List<String> parts = new ArrayList<>();
@@ -176,9 +180,15 @@ public final class QueryTool
                 parts.add( name + " has " + String.join( ", ", fields.subList( 0, Math.min( fields.size(), MAX_LISTED_FIELDS ) ) ) +
                                ( fields.size() > MAX_LISTED_FIELDS ? " and " + ( fields.size() - MAX_LISTED_FIELDS ) + " more" : "" ) +
                                "." );
-                if ( container instanceof GraphQLInterfaceType )
+                if ( CONTENT_TYPE.equals( name ) )
                 {
                     parts.add( "Fields of one content type, such as data, need an inline fragment: ... on <graphqlType from list-types>." );
+                }
+                else if ( container instanceof GraphQLInterfaceType type )
+                {
+                    final List<String> implementations = schema.getImplementations( type ).stream().map( GraphQLObjectType::getName ).toList();
+                    parts.add( "Fields of one implementation need an inline fragment on one of " + String.join( ", ",
+                        implementations.subList( 0, Math.min( implementations.size(), MAX_LISTED_FIELDS ) ) ) + "." );
                 }
                 if ( PRINCIPAL_KEY_TYPE.equals( name ) )
                 {
