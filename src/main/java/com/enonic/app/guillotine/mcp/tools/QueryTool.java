@@ -1,9 +1,14 @@
 package com.enonic.app.guillotine.mcp.tools;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import graphql.execution.instrumentation.ChainedInstrumentation;
@@ -14,6 +19,10 @@ import graphql.parser.InvalidSyntaxException;
 import graphql.parser.Parser;
 import graphql.parser.ParserEnvironment;
 import graphql.parser.ParserOptions;
+import graphql.schema.GraphQLFieldDefinition;
+import graphql.schema.GraphQLFieldsContainer;
+import graphql.schema.GraphQLInterfaceType;
+import graphql.schema.GraphQLSchema;
 import graphql.validation.GoodFaithIntrospectionExceeded;
 
 import com.enonic.app.guillotine.GuillotineConfigService;
@@ -50,6 +59,21 @@ public final class QueryTool
 
     private static final int MAX_NAME_CHARS = 100;
 
+    private static final int MAX_LISTED_FIELDS = 30;
+
+    private static final int MAX_HINTED_TYPES = 3;
+
+    private static final String PRINCIPAL_KEY_TYPE = "PrincipalKey";
+
+    private static final String PRINCIPAL_ADVICE = "Filters, sorts and aggregations on the modifier, creator and owner index " +
+        "fields work without that role: for the caller's own edits use search with mine, and to count per person aggregate on modifier.";
+
+    /**
+     * The type in GraphQL validation errors about selections: "Field 'x' in type 'T' is undefined" and "Subselection required for
+     * type 'T' of field 'x'".
+     */
+    private static final Pattern SELECTION_ERROR_TYPE = Pattern.compile( "(?:FieldUndefined|SubselectionRequired)@.*?type '(\\w+)'" );
+
     private final SchemaProvider schemaProvider;
 
     private final GuillotineConfigService configService;
@@ -85,7 +109,7 @@ public final class QueryTool
 
         final Document document = parse( query );
         final OperationDefinition operation = selectOperation( document, operationName );
-        final List<String> notes = QueryLimits.check( document, operation, variables, schemaProvider::getSchema );
+        final List<String> notes = new ArrayList<>( QueryLimits.check( document, operation, variables, schemaProvider::getSchema ) );
         final ProjectBranch projectBranch = resolver.resolve( args );
 
         final Instrumentation instrumentation = new ChainedInstrumentation( QueryLimits.depthLimit(), GraphQlErrors.hideInternalErrors() );
@@ -103,8 +127,14 @@ public final class QueryTool
         }
 
         final Object data = response.get( DATA );
+        final List<?> rawErrors = response.get( McpResult.ERRORS ) instanceof List<?> list ? list : List.of();
+        final List<String> messages = GraphQlErrors.messages( rawErrors );
         final List<Map<String, Object>> errors =
-            GraphQlErrors.partialErrors( data, response.get( McpResult.ERRORS ) instanceof List<?> list ? list : List.of() );
+            GraphQlErrors.partialErrors( data, rawErrors, selectionHint( messages, schemaProvider.getSchema() ) );
+        if ( messages.contains( GraphQlErrors.PRINCIPAL_DENIED ) )
+        {
+            notes.add( PRINCIPAL_ADVICE );
+        }
 
         final Map<String, Object> structured = projectBranch.putInto( new LinkedHashMap<>() );
         structured.put( DATA, data );
@@ -120,6 +150,43 @@ public final class QueryTool
             .keepingNullFields()
             .withNarrowHint( "Select fewer fields or pass a smaller first." )
             .fitSubtrees( structured, DATA );
+    }
+
+    /**
+     * For a document that selects a field its type does not have, or selects nothing below an object field: the fields of those types.
+     * A content interface also gets the inline fragment its type-specific fields need, and PrincipalKey the rights its values need.
+     */
+    static String selectionHint( final List<String> messages, final GraphQLSchema schema )
+    {
+        final Set<String> types = new LinkedHashSet<>();
+        for ( final String message : messages )
+        {
+            final Matcher matcher = SELECTION_ERROR_TYPE.matcher( message );
+            while ( matcher.find() && types.size() < MAX_HINTED_TYPES )
+            {
+                types.add( matcher.group( 1 ) );
+            }
+        }
+        final List<String> parts = new ArrayList<>();
+        for ( final String name : types )
+        {
+            if ( schema.getType( name ) instanceof GraphQLFieldsContainer container )
+            {
+                final List<String> fields = container.getFieldDefinitions().stream().map( GraphQLFieldDefinition::getName ).toList();
+                parts.add( name + " has " + String.join( ", ", fields.subList( 0, Math.min( fields.size(), MAX_LISTED_FIELDS ) ) ) +
+                               ( fields.size() > MAX_LISTED_FIELDS ? " and " + ( fields.size() - MAX_LISTED_FIELDS ) + " more" : "" ) +
+                               "." );
+                if ( container instanceof GraphQLInterfaceType )
+                {
+                    parts.add( "Fields of one content type, such as data, need an inline fragment: ... on <graphqlType from list-types>." );
+                }
+                if ( PRINCIPAL_KEY_TYPE.equals( name ) )
+                {
+                    parts.add( "Its values need Content Studio access or an administrator role. " + PRINCIPAL_ADVICE );
+                }
+            }
+        }
+        return parts.isEmpty() ? null : String.join( " ", parts );
     }
 
     private static String requireQuery( final Object query )
