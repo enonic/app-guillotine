@@ -13,6 +13,18 @@
     {
       "login": "mcp-carol",
       "userKey": "user:system:mcp-carol"
+    },
+    {
+      "login": "mcp-dave",
+      "userKey": "user:system:mcp-dave"
+    },
+    {
+      "login": "mcp-erin",
+      "userKey": "user:system:mcp-erin"
+    },
+    {
+      "login": "mcp-frank",
+      "userKey": "user:system:mcp-frank"
     }
   ],
   "articlesPerAuthor": {
@@ -473,6 +485,21 @@
         "/images/img-05.png",
         "/images/img-02.png"
       ]
+    },
+    "mcp-dave": {
+      "userKey": "user:system:mcp-dave",
+      "draft": [],
+      "master": []
+    },
+    "mcp-erin": {
+      "userKey": "user:system:mcp-erin",
+      "draft": [],
+      "master": []
+    },
+    "mcp-frank": {
+      "userKey": "user:system:mcp-frank",
+      "draft": [],
+      "master": []
     }
   },
   "recentlyModifiedNote": "Order is deterministic: creates in dataset order (folders by su, persons, images, articles, landings), then declared modifications in article order. Exact timestamps are not.",
