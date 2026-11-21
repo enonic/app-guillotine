@@ -66,9 +66,11 @@ restore() {
 
 exec 9>"$LOCK"
 flock 9
-cp "$DEPLOY/guillotine.jar" "$BACKUP/guillotine.jar"
-rm -f "$BACKUP/guillotine.cfg"
-[ -f "$GUILLOTINE_CFG" ] && cp "$GUILLOTINE_CFG" "$BACKUP/guillotine.cfg"
+cp "$DEPLOY/guillotine.jar" "$BACKUP/guillotine.jar" || { echo "Cannot back up guillotine.jar to $BACKUP" >&2; exit 2; }
+rm -f "$BACKUP/guillotine.cfg" || { echo "Cannot remove the old config backup in $BACKUP" >&2; exit 2; }
+if [ -f "$GUILLOTINE_CFG" ]; then
+    cp "$GUILLOTINE_CFG" "$BACKUP/guillotine.cfg" || { echo "Cannot back up $GUILLOTINE_CFG" >&2; exit 2; }
+fi
 trap restore EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
@@ -77,7 +79,8 @@ START=$(console_lines)
 write_cfg "$BASE_CFG"
 wait_for 30 anonymous_open || { echo "Guillotine does not answer anonymous calls with $BASE_CFG" >&2; exit 1; }
 SIGNED=$("$MCP_E2E_DIR/scripts/login.sh") || { echo "Sign-in failed; is the standard ID provider deployed (scripts/deploy.sh)?" >&2; exit 1; }
-SIGNED_OUT=$("$MCP_E2E_DIR/scripts/login.sh") && "$MCP_E2E_DIR/scripts/login.sh" logout "$SIGNED_OUT"
+SIGNED_OUT=$("$MCP_E2E_DIR/scripts/login.sh") && "$MCP_E2E_DIR/scripts/login.sh" logout "$SIGNED_OUT" ||
+    { echo "Could not prepare a signed-out session" >&2; exit 1; }
 echo "      signed-in caller: $MCP_E2E_USER"
 
 for caller in anonymous signed-in; do

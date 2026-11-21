@@ -154,6 +154,15 @@ function ensureArticles() {
 function ensureLandings() {
     dataset.landings.forEach(function (l) {
         if (asAdmin('draft', function () { return existing(path('landings', l.name)); })) {
+            // a run that stopped between creating the landing and deleting its temporary targets left them behind
+            l.links.filter(function (link) { return link.deleted; }).forEach(function (link) {
+                const spec = dataset.deletedContent.filter(function (d) { return d.name === link.target; })[0];
+                const tmpPath = path(spec.parent, spec.name);
+                if (asAdmin('draft', function () { return existing(tmpPath); })) {
+                    asAdmin('draft', function () { contentLib.delete({key: tmpPath}); });
+                    log.info(LOG_PREFIX + 'deleted leftover ' + tmpPath);
+                }
+            });
             return;
         }
         const parts = ['<h1>' + l.displayName + '</h1>'];
