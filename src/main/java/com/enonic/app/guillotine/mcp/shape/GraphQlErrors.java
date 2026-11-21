@@ -3,6 +3,7 @@ package com.enonic.app.guillotine.mcp.shape;
 import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,9 @@ public final class GraphQlErrors
     static final String SEARCH_TIMED_OUT = "Search timed out. Narrow the query with a filter, or ask for fewer results or aggregations.";
 
     static final String ACCESS_DENIED = "Access denied: the caller cannot read this content.";
+
+    static final String UNREADABLE_ARGUMENT = "An argument of this field could not be read as a number or a cursor. Check the " +
+        "arguments; an after must be a cursor from a previous result.";
 
     private static final String ACCESS_DENIED_PREFIX = "Access denied:";
 
@@ -184,7 +188,8 @@ public final class GraphQlErrors
 
     /**
      * The message a caller error shows. The index echoes the whole search request in its message, so a refused search reads as a
-     * fixed text; XP names the user in a denied access, so that reads as {@link ProjectBranch#accessDenied()} of the context.
+     * fixed text; XP names the user in a denied access, so that reads as {@link ProjectBranch#accessDenied()} of the context. A number
+     * or Base64 text the JDK could not parse, such as a malformed cursor, carries only JDK wording, so it reads as a fixed text too.
      */
     static String callerMessage( final Throwable exception )
     {
@@ -197,6 +202,10 @@ public final class GraphQlErrors
         {
             return exception.getMessage().startsWith( SEARCH_FAILED_PREFIX + " after" ) ? SEARCH_TIMED_OUT : SEARCH_FAILED;
         }
+        if ( exception instanceof NumberFormatException || thrownBy( exception, Base64.class ) )
+        {
+            return UNREADABLE_ARGUMENT;
+        }
         final String message = exception.getMessage();
         return message == null || message.isBlank() ? "Invalid request for this field." : message;
     }
@@ -204,6 +213,12 @@ public final class GraphQlErrors
     private static boolean fromExtensionResolver( final Throwable exception )
     {
         return Arrays.stream( exception.getStackTrace() ).anyMatch( frame -> EXTENSION_RESOLVER.equals( frame.getClassName() ) );
+    }
+
+    private static boolean thrownBy( final Throwable exception, final Class<?> type )
+    {
+        final StackTraceElement[] trace = exception.getStackTrace();
+        return trace.length > 0 && trace[0].getClassName().startsWith( type.getName() );
     }
 
     private static boolean isSearchFailure( final Throwable exception )
