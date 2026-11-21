@@ -192,7 +192,7 @@ public class GenericTypesVerifier
 
         List<GraphQLFieldDefinition> fields = type.getFieldDefinitions();
 
-        assertEquals( 16, fields.size() );
+        assertEquals( 17, fields.size() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "name" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "title" ).getType() );
         assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "titleI18nKey" ).getType() );
@@ -209,6 +209,7 @@ public class GenericTypesVerifier
         assertEquals( "Icon", getNameForGraphQLTypeReference( type.getFieldDefinition( "icon" ).getType() ) );
         assertEquals( "FormItem", getNameForGraphQLTypeReference( getOriginalTypeFromGraphQLList( type, "form" ) ) );
         assertEquals( ExtendedScalars.Json, type.getFieldDefinition( "formAsJson" ).getType() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "graphqlTypeName" ).getType() );
     }
 
     private void verifyIcon()

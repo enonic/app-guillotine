@@ -745,6 +745,9 @@ Representation of a content type definition
 |formAsJson: JSON
 |Content type fields schema as JSON
 
+|graphqlTypeName: String
+|Name of the GraphQL type that content of this type has in query results (its `__typename`), for example `portal_Site`. `UntypedContent` when Guillotine generated no type for it
+
 |===
 
 === FormItem
@@ -1212,7 +1215,7 @@ Aggregations enable extracting statistical data from search results. Only one of
 |The property path
 
 |order: String
-|How to order the results, type and direction. Supports _term (Alphabetic ordering of bucket keys) and _count (Numeric ordering of bucket sizes) types. Defaults to _term ASC.
+|How to order the results, type and direction. Supports _term (Alphabetic ordering of bucket keys) and _count (Numeric ordering of bucket sizes) types. Without `order`, buckets are sorted by ascending document count, smallest first; use `_count DESC` to get the largest buckets. When only the type is given, the direction is `ASC`.
 
 |size: Int
 |Bucket size, ordered by the given orderType and orderDirection. Defaults to 10.
@@ -1356,7 +1359,7 @@ Aggregations enable extracting statistical data from search results. Only one of
 |Date/time format for buckets. Defaults to `yyyy-MM-dd’T’HH:mm:ss.SSSZ`.
 
 |minDocCount: Int
-|Only include bucket in result if number of hits is equal or greater than `minDocCount`.
+|Only include bucket in result if number of hits is equal or greater than `minDocCount`. Defaults to 1.
 
 |===
 

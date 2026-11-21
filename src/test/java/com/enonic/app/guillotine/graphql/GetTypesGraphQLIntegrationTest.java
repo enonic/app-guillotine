@@ -55,6 +55,9 @@ public class GetTypesGraphQLIntegrationTest
 
         List<Map<String, Object>> getTypesField = CastHelper.cast( getFieldFromGuillotine( result, "getTypes" ) );
 
+        getTypesField.forEach( getTypeField -> assertNotNull(
+            graphQLSchema.getObjectType( Objects.toString( getTypeField.get( "graphqlTypeName" ) ) ) ) );
+
         getTypesField.forEach( getTypeField -> {
             if ( Objects.equals( "portal:site", getTypeField.get( "name" ) ) )
             {
@@ -70,6 +73,7 @@ public class GetTypesGraphQLIntegrationTest
                 assertNull( getTypeField.get( "displayNameListExpression" ) );
                 assertNull( getTypeField.get( "displayNamePlaceholder" ) );
                 assertNull( getTypeField.get( "displayNamePlaceholderI18nKey" ) );
+                assertEquals( "portal_Site", getTypeField.get( "graphqlTypeName" ) );
             }
         } );
     }
@@ -104,6 +108,7 @@ public class GetTypesGraphQLIntegrationTest
         assertNull( getTypeField.get( "displayNameListExpression" ) );
         assertNull( getTypeField.get( "displayNamePlaceholder" ) );
         assertNull( getTypeField.get( "displayNamePlaceholderI18nKey" ) );
+        assertEquals( "portal_Site", getTypeField.get( "graphqlTypeName" ) );
         assertNotNull( getTypeField.get( "formAsJson" ) );
 
         List<Map<String, Object>> formField = CastHelper.cast( getTypeField.get( "form" ) );
