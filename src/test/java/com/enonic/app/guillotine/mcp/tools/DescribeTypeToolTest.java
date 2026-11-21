@@ -261,7 +261,7 @@ public class DescribeTypeToolTest
                 final String document = (String) example.get( "query" );
                 final Document parsed = parser.parseDocument( document );
                 final List<String> notes =
-                    QueryLimits.check( parsed, parsed.getDefinitionsOfType( OperationDefinition.class ).get( 0 ), Map.of(),
+                    QueryLimits.check( parsed, parsed.getDefinitionsOfType( OperationDefinition.class ).get( 0 ), Map.of(), false,
                                        schemaProvider::getSchema );
                 assertEquals( List.of(), notes, document );
 

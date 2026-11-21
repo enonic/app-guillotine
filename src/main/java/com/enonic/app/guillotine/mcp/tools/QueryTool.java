@@ -69,6 +69,9 @@ public final class QueryTool
     private static final String PRINCIPAL_ADVICE = "Filters, sorts and aggregations on the modifier, creator and owner index " +
         "fields work without that role: for the caller's own edits use search with mine, and to count per person aggregate on modifier.";
 
+    private static final String ANONYMOUS_PRINCIPAL_ADVICE = "Filters, sorts and aggregations on the modifier, creator and owner " +
+        "index fields need a signed-in caller too.";
+
     /**
      * The type in GraphQL validation errors about selections: "Field 'x' in type 'T' is undefined" and "Subselection required for
      * type 'T' of field 'x'", where T may carry list and non-null wrappers such as [Content]!.
@@ -113,7 +116,9 @@ public final class QueryTool
 
         final Document document = parse( query );
         final OperationDefinition operation = selectOperation( document, operationName );
-        final List<String> notes = new ArrayList<>( QueryLimits.check( document, operation, variables, schemaProvider::getSchema ) );
+        final boolean anonymous = !ProjectBranchResolver.isAuthenticated();
+        final List<String> notes =
+            new ArrayList<>( QueryLimits.check( document, operation, variables, anonymous, schemaProvider::getSchema ) );
         final ProjectBranch projectBranch = resolver.resolve( args );
 
         final Instrumentation instrumentation = new ChainedInstrumentation( QueryLimits.depthLimit(), GraphQlErrors.hideInternalErrors() );
@@ -137,7 +142,7 @@ public final class QueryTool
             GraphQlErrors.partialErrors( data, rawErrors, selectionHint( messages, schemaProvider.getSchema() ) );
         if ( messages.contains( GraphQlErrors.PRINCIPAL_DENIED ) )
         {
-            notes.add( PRINCIPAL_ADVICE );
+            notes.add( principalAdvice() );
         }
 
         final Map<String, Object> structured = projectBranch.putInto( new LinkedHashMap<>() );
@@ -192,11 +197,16 @@ public final class QueryTool
                 }
                 if ( PRINCIPAL_KEY_TYPE.equals( name ) )
                 {
-                    parts.add( "Its values need Content Studio access or an administrator role. " + PRINCIPAL_ADVICE );
+                    parts.add( "Its values need Content Studio access or an administrator role. " + principalAdvice() );
                 }
             }
         }
         return parts.isEmpty() ? null : String.join( " ", parts );
+    }
+
+    private static String principalAdvice()
+    {
+        return ProjectBranchResolver.isAuthenticated() ? PRINCIPAL_ADVICE : ANONYMOUS_PRINCIPAL_ADVICE;
     }
 
     private static String requireQuery( final Object query )

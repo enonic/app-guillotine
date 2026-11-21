@@ -3,6 +3,7 @@ package com.enonic.app.guillotine.mcp.tools;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,6 +59,7 @@ public class SearchToolTest
             .title( "Note" )
             .addFormItem( Input.create().name( "author" ).label( "Author" ).inputType( InputTypeName.TEXT_LINE ).build() )
             .addFormItem( Input.create().name( "language" ).label( "Language" ).inputType( InputTypeName.TEXT_LINE ).build() )
+            .addFormItem( Input.create().name( "owner" ).label( "Owner" ).inputType( InputTypeName.TEXT_LINE ).build() )
             .build() );
         return result;
     }
@@ -175,6 +177,47 @@ public class SearchToolTest
         assertEquals( "mine needs a signed-in caller, and this call is anonymous. Ask the user to sign in to Enonic XP, or omit mine.",
                       error.userMessage() );
         assertTrue( searches.isEmpty() );
+    }
+
+    @Test
+    public void testAnonymousCallersCannotFilterSortOrAggregateOnPrincipalFields()
+    {
+        final String refusal = " holds user keys, and this call is anonymous; filters, sorts and aggregations on creator, modifier " +
+            "and owner need a signed-in caller. Use other fields (data.<name> for a data field of that name), or ask the user to sign in to Enonic XP.";
+        final Map<Map<String, Object>, String> refused = new LinkedHashMap<>();
+        refused.put( args( "filters", List.of( args( "field", "modifier", "equals", "user:system:su" ) ) ),
+                     "Invalid filters[0].field: \"modifier\"" );
+        refused.put( args( "filters", List.of( args( "field", "creator._orderby", "exists", true ) ) ),
+                     "Invalid filters[0].field: \"creator._orderby\"" );
+        refused.put( args( "filters", List.of( args( "references", "/folders", "field", "Owner" ) ) ),
+                     "Invalid filters[0].field: \"Owner\"" );
+        refused.put( args( "sort", "displayName, creator DESC" ), "Invalid sort: \"creator\"" );
+        refused.put( args( "aggregate", List.of( args( "by", "\u0001modifier" ) ), "count", 0 ),
+                     "Invalid aggregate[0].by: \"\\u0001modifier\"" );
+        refused.put( args( "filters", List.of( args( "field", "\u001fowner", "exists", true ) ) ),
+                     "Invalid filters[0].field: \"owner\"" );
+        refused.put( args( "aggregate", List.of( args( "by", "modifier" ) ), "count", 0 ), "Invalid aggregate[0].by: \"modifier\"" );
+        refused.put( args( "types", List.of( NOTE ), "aggregate", List.of( args( "by", "owner" ) ), "count", 0 ),
+                     "Invalid aggregate[0].by: \"owner\"" );
+        refused.forEach( ( arguments, message ) -> assertEquals(
+            message + refusal, assertThrows( ToolError.class, () -> as( AuthenticationInfo.unAuthenticated(),
+                                                                        () -> tool().execute( arguments ) ) ).userMessage(),
+            arguments::toString ) );
+        assertTrue( searches.isEmpty() );
+    }
+
+    @Test
+    public void testPrincipalFieldsWorkForSignedInCallersAndDataFieldsNamedLikeThemForAnyone()
+    {
+        run( args( "filters", List.of( args( "field", "modifier", "equals", "user:system:su" ) ), "sort", "owner DESC",
+                   "aggregate", List.of( args( "by", "creator" ) ), "count", 0 ) );
+        as( AuthenticationInfo.unAuthenticated(), () -> tool().execute(
+            args( "types", List.of( NOTE ), "filters", List.of( args( "field", "data.owner", "equals", "modifier" ) ), "sort",
+                  "data.owner", "aggregate", List.of( args( "by", "data.owner" ) ), "count", 0 ) ) );
+
+        assertEquals( 2, searches.size() );
+        assertEquals( List.of( "owner DESC", "_path ASC" ), sort( searches.get( 0 ) ) );
+        assertEquals( List.of( "data.owner ASC", "_path ASC" ), sort( searches.get( 1 ) ) );
     }
 
     @Test
@@ -496,6 +539,12 @@ public class SearchToolTest
         assertEquals( Map.of( "title", "Title 0" ), hit.get( "data" ) );
         assertEquals( "fields returns data fields and publish only, so creator, language were left out; filters and sort take index " +
                           "fields, and get returns createdTime and language. For the caller's own edits pass mine.", structured.get( "note" ) );
+
+        final Map<String, Object> anonymous = structured( as( AuthenticationInfo.unAuthenticated(), () -> tool().execute(
+            args( "types", List.of( "article" ), "fields", List.of( "creator" ) ) ) ) );
+        assertEquals( "fields returns data fields and publish only, so creator was left out; filters and sort take index fields, and " +
+                          "get returns createdTime and language. Anonymous callers cannot filter, sort or aggregate on creator, modifier " +
+                          "or owner.", anonymous.get( "note" ) );
 
         final Map<String, Object> plain = hits( run( args( "types", List.of( "article" ), "fields", List.of( "publish", "_id" ) ) ) ).get( 0 );
         assertEquals( Map.of( "from", "2026-01-02T00:00:00.000Z", "to", "2026-02-01T00:00:00.000Z" ), plain.get( "publish" ) );

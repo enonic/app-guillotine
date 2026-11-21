@@ -156,8 +156,10 @@ final class SearchQuery
         }
         filters( list( args.get( "filters" ) ), must, mustNot, inputs );
 
-        final List<Map<String, Object>> sort = sort( args.get( "sort" ) instanceof String value ? value : null, text != null, scope );
-        final List<Aggregate> aggregates = aggregates( list( args.get( "aggregate" ) ), scope );
+        final boolean anonymous = inputs.caller() == null;
+        final List<Map<String, Object>> sort =
+            sort( args.get( "sort" ) instanceof String value ? value : null, text != null, scope, anonymous );
+        final List<Aggregate> aggregates = aggregates( list( args.get( "aggregate" ) ), scope, anonymous );
         final Set<String> fields = new LinkedHashSet<>();
         final Set<String> notReturned = new LinkedHashSet<>();
         boolean publish = false;
@@ -278,6 +280,7 @@ final class SearchQuery
                 throw new ToolError( "Invalid " + where + ": field is required.", FILTER_HINT );
             }
             final String field = inputs.scope().resolve( name.strip(), where + ".field" );
+            PrincipalFields.requireAllowed( field, where + ".field", inputs.caller() == null );
             if ( exists != null )
             {
                 ( Boolean.TRUE.equals( exists ) ? must : mustNot ).add( Map.of( "exists", Map.of( "field", field ) ) );
@@ -339,6 +342,9 @@ final class SearchQuery
      */
     private static Map<String, Object> references( final Object value, final Object rawField, final String where, final Inputs inputs )
     {
+        final boolean anyField = !( rawField instanceof String name && !name.isBlank() && !REFERENCES_FIELD.equals( name.strip() ) );
+        final String field = anyField ? REFERENCES_FIELD : inputs.scope().resolve( ( (String) rawField ).strip(), where + ".field" );
+        PrincipalFields.requireAllowed( field, where + ".field", inputs.caller() == null );
         final String key = ContentKeys.key( value, where + ".references" );
         final String id = ContentKeys.isPath( key ) ? inputs.idOf().apply( key ) : key;
         if ( id == null )
@@ -346,10 +352,8 @@ final class SearchQuery
             throw new ToolError( "Invalid " + where + ".references: no content at " + McpJson.preview( key ) +
                                      " that the caller can read.", "Find the item with search and pass its _path or _id." );
         }
-        String field = REFERENCES_FIELD;
-        if ( rawField instanceof String name && !name.isBlank() && !REFERENCES_FIELD.equals( name.strip() ) )
+        if ( !anyField )
         {
-            field = inputs.scope().resolve( name.strip(), where + ".field" );
             if ( inputs.scope().isDataField( field ) && !inputs.scope().isReference( field ) )
             {
                 throw new ToolError( "Invalid " + where + ".field: " + field + " does not hold references.",
@@ -366,7 +370,8 @@ final class SearchQuery
         return term( field, id );
     }
 
-    private static List<Map<String, Object>> sort( final String value, final boolean hasText, final DataFieldScope scope )
+    private static List<Map<String, Object>> sort( final String value, final boolean hasText, final DataFieldScope scope,
+                                                   final boolean anonymous )
     {
         final List<Map<String, Object>> result = new ArrayList<>();
         if ( value == null || value.isBlank() )
@@ -389,6 +394,7 @@ final class SearchQuery
                 }
                 final String requested = matcher.group( 1 );
                 final String field = scope.resolve( SORT_ALIASES.getOrDefault( requested, requested ), "sort" );
+                PrincipalFields.requireAllowed( field, "sort", anonymous );
                 if ( !SORT_FIELDS.contains( field ) && !field.startsWith( DataFieldScope.DATA_PREFIX ) && !field.startsWith( "x." ) )
                 {
                     throw new ToolError( "Invalid sort field: " + McpJson.preview( requested ) + ".", SORT_HINT );
@@ -410,7 +416,7 @@ final class SearchQuery
         return result;
     }
 
-    private static List<Aggregate> aggregates( final List<?> requested, final DataFieldScope scope )
+    private static List<Aggregate> aggregates( final List<?> requested, final DataFieldScope scope, final boolean anonymous )
     {
         final List<Aggregate> result = new ArrayList<>();
         for ( int i = 0; i < requested.size(); i++ )
@@ -422,7 +428,9 @@ final class SearchQuery
                 throw new ToolError( "Invalid " + where + ": by is required.", "Name the field to group by, such as data.author." );
             }
             final int size = item.get( "size" ) instanceof Number number ? number.intValue() : DEFAULT_BUCKETS;
-            result.add( new Aggregate( "a" + i, scope.resolve( by.strip(), where + ".by" ), size ) );
+            final String field = scope.resolve( by.strip(), where + ".by" );
+            PrincipalFields.requireAllowed( field, where + ".by", anonymous );
+            result.add( new Aggregate( "a" + i, field, size ) );
         }
         return result;
     }

@@ -47,12 +47,12 @@ All tools are annotated as read-only, non-destructive, idempotent and closed-wor
 
 Who may call:: Each group's descriptor declares `allow: role:system.authenticated`: the tools are meant for signed-in users. XP does not enforce `allow` yet, so Guillotine checks it itself and refuses anonymous callers with an error that says so. An operator can open the `content` and `graphql` groups to anonymous callers with <<configuration#mcp, `mcp.allowAnonymous=true`>>. The `references` group stays signed-in only, because each of its calls is costly.
 
-What a caller can read:: Every call runs with the caller's own XP permissions; the tools never elevate them. Reading the `draft` branch needs a role in the project. An anonymous caller reads what is public, normally published content on `master`, and a request for `draft` fails. Searches and aggregations on `creator`, `modifier` and `owner` behave as in the GraphQL API: with `mcp.allowAnonymous=true`, an anonymous caller can see the user keys of the people who changed published content, as an anonymous GraphQL query over HTTP can.
+What a caller can read:: Every call runs with the caller's own XP permissions; the tools never elevate them. Reading the `draft` branch needs a role in the project. An anonymous caller reads what is public, normally published content on `master`, and a request for `draft` fails. Filters, sorts and aggregations on `creator`, `modifier` and `owner` need a signed-in caller: they would tell an anonymous caller who changed which content, so `search` and `query` refuse them for anonymous calls (see <<permissions>>).
 
 [#permissions]
 === Permissions
 
-XP's content permissions, the ACL of each item, decide what every tool returns on both branches. Guillotine adds no rule of its own, apart from refusing anonymous callers where `mcp.allowAnonymous` is not set.
+XP's content permissions, the ACL of each item, decide what every tool returns on both branches. Guillotine adds two rules of its own for anonymous callers: it refuses them where `mcp.allowAnonymous` is not set, and it refuses their filters, sorts and aggregations on `creator`, `modifier` and `owner`.
 
 [cols="2,3,3,2",options="header"]
 |===
@@ -90,7 +90,7 @@ For every caller and every tool:
 * An unreadable item looks exactly like a missing one. `get` by its id or path, `search` with its path or with it as a `references` target, and `get` or `getChildren` in `query` answer as they do for an id or path that does not exist.
 * A reference from a readable item to an unreadable one shows only the target id, which the readable item holds anyway: `{_id, missing: true}` in `get` and `search`, a bucket with `missing: true` and no name, and an entry in `missing` of `find-broken-references`, the same as for a deleted target.
 * `find-unreferenced` sees only references held by readable items, so an item that only unreadable content uses is listed; its `note` says so.
-* `creator`, `modifier` and `owner` as `query` fields resolve only for Content Studio users and administrators (see <<query>>). Filters and aggregations on those index fields work for every caller and count readable items only.
+* `creator`, `modifier` and `owner` as `query` fields resolve only for Content Studio users and administrators (see <<query>>). Filters, sorts and aggregations on those index fields, on their subfields such as `modifier._orderby`, and through wildcards that match them, work for every signed-in caller and count readable items only. An anonymous caller gets an error instead: in `search` for `filters`, `sort` and `aggregate`, and in `query` for any `field`, `fields` or `propertyName` input and any `sort` string that names one of them, also through variables. Data fields with the same name, such as `data.owner`, are not affected. The GraphQL API over HTTP does not have this rule.
 
 One exception comes from XP: it builds page and media URLs with an administrator role. In a `query` document, `processedHtml` of a rich text field and `pageUrl` of its `links` therefore show the path of an unreadable link target and the file name of an unreadable image that a readable item embeds. Guillotine's GraphQL API over HTTP does the same. The `get` tool does not use these fields.
 
@@ -256,7 +256,7 @@ Arguments::
 * `{field: "valid", equals: false}`: content that fails validation, such as a required field left empty. `find-broken-references` does not check this.
 * `{references, field}`: items that refer to the content at this `_path` or `_id`; with `field`, only through that selector field.
 --
-`sort`::: Up to 3 comma-separated `field [ASC|DESC]` items, such as `modifiedTime DESC` or `data.title ASC`. Fields: `displayName`, `name`, `path`, `type`, `language`, `createdTime`, `modifiedTime`, `publish.from`, `publish.to`, `publish.first`, `score`, `workflow.state`, `creator`, `modifier`, `owner`, data fields and `x.` fields. Default: relevance with `text`, otherwise `modifiedTime DESC`.
+`sort`::: Up to 3 comma-separated `field [ASC|DESC]` items, such as `modifiedTime DESC` or `data.title ASC`. Fields: `displayName`, `name`, `path`, `type`, `language`, `createdTime`, `modifiedTime`, `publish.from`, `publish.to`, `publish.first`, `score`, `workflow.state`, `creator`, `modifier`, `owner` (signed-in callers only, as in filters and `aggregate`), data fields and `x.` fields. Default: relevance with `text`, otherwise `modifiedTime DESC`.
 `aggregate`::: Up to 5 groupings, each `{by, size}`: counts per value of the field `by`, largest first, in `size` buckets (1–100, default 10). Bucket keys are the values as the index stores them, so text values, such as titles or `workflow.state`, come in lower case.
 `fields`::: Up to 10 data fields to return with each hit, such as `["title", "author"]`. `publish` (or `publish.from`, `publish.to`, `publish.first`) adds the hit's publish dates. A data field of the types searched wins over a metadata name; use `data.<name>` to be explicit. Otherwise, names of fields every hit has, such as `displayName` or `_path`, are ignored; other index fields, such as `creator` or `language`, are left out with a `note` instead of failing the call.
 `count`::: Hits per page, 0–50 (default 10). `0` returns the total and the aggregations only.
@@ -352,7 +352,7 @@ Arguments::
 
 Returns:: `data`, as GraphQL returns it, with null fields kept; `errors` (up to 10, each `message` and `path`) when some fields failed; and a `note` when the document has a terms aggregation without `order`, which returns the smallest buckets first. A message says what to change when the cause is in the query, such as an invalid argument, missing content or denied access; any other failure, for example in an extension's resolver, reads `Internal error while resolving this field; see the server log.` When the document selects a field its type does not have, or no subfields of an object field, the error lists that type's fields; on the `Content` interface it also points to the inline fragment (`... on <graphqlType>`) that type-specific fields need.
 
-`creator`, `modifier` and `owner` resolve only for callers with Content Studio access (`cms.cm.app`) or an administrator role, as in the GraphQL API. For other callers each such field fails with `Unauthorized: creator, modifier and owner need Content Studio access or an administrator role.` and the result's `note` says that filters, sorts and aggregations on those index fields still work: `search` with `mine` for the caller's own edits, or an aggregation on `modifier` to count per person.
+`creator`, `modifier` and `owner` resolve only for callers with Content Studio access (`cms.cm.app`) or an administrator role, as in the GraphQL API. For other callers each such field fails with `Unauthorized: creator, modifier and owner need Content Studio access or an administrator role.` and the result's `note` says that filters, sorts and aggregations on those index fields still work for signed-in callers: `search` with `mine` for the caller's own edits, or an aggregation on `modifier` to count per person. Anonymous callers cannot use those fields at all (see <<permissions>>).
 
 The tool rejects mutations and subscriptions, and documents beyond these limits, before it runs them:
 
@@ -523,6 +523,7 @@ A failed call returns `isError: true` and one text: what was wrong, then what to
 |`Project '…' not found or not readable` |The project does not exist, or the caller cannot read it on that branch.
 |`The default project '…' (mcp.defaultProject) is not readable` |The configured default project does not exist or the caller cannot read it on that branch.
 |`mine needs a signed-in caller` |`mine` was passed by an anonymous caller.
+|`Invalid …: "modifier" holds user keys, and this call is anonymous` |An anonymous caller filtered, sorted or aggregated on `creator`, `modifier` or `owner`. Use other fields, or sign in.
 |`No content at …` |`get` found no readable content at that id or path on the branch. `master` holds published content only.
 |`Invalid cursor` |The cursor was changed, points past the end of the results, or would page beyond 10000 items. Repeat the call without `cursor`.
 |`Invalid …` |An argument has the wrong form; the message names the argument and what it accepts, such as the data fields of the types searched.
