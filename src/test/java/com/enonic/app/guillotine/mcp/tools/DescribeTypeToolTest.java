@@ -11,6 +11,7 @@ import graphql.language.Document;
 import graphql.language.OperationDefinition;
 import graphql.parser.Parser;
 
+import com.enonic.app.guillotine.graphql.helper.CastHelper;
 import com.enonic.app.guillotine.mcp.McpGroup;
 import com.enonic.app.guillotine.mcp.ToolDescriptor;
 import com.enonic.app.guillotine.mcp.shape.McpJson;
@@ -21,6 +22,7 @@ import com.enonic.xp.content.ContentQuery;
 import com.enonic.xp.content.FindContentIdsByQueryResult;
 import com.enonic.xp.content.WorkflowState;
 import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.form.FormOptionSet;
 import com.enonic.xp.form.FormOptionSetOption;
 import com.enonic.xp.form.Input;
@@ -31,6 +33,7 @@ import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.GetContentTypeParams;
+import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.util.GenericValue;
 
 import static com.enonic.app.guillotine.mcp.McpResults.structured;
@@ -311,6 +314,19 @@ public class DescribeTypeToolTest
         assertTrue( ( (String) structured.get( "sdl" ) ).contains( "\n  wordCount: Int" + TypeSdl.APP_DEFINED + "\n" ),
                     (String) structured.get( "sdl" ) );
         assertNull( describe( PERSON ).get( "appFields" ) );
+    }
+
+    @Test
+    public void testAnonymousCallerIsToldPrincipalIndexFieldsNeedSignIn()
+    {
+        final Map<String, Object> anonymous = structured( createAdminContext().callWith(
+            () -> ContextBuilder.copyOf( ContextAccessor.current() ).authInfo( AuthenticationInfo.unAuthenticated() ).build().callWith(
+                () -> tool().execute( Map.of( "type", ARTICLE ) ) ) ) );
+
+        assertEquals( "principal key, e.g. user:system:alice; filters, sorts and aggregations on them need a signed-in caller",
+                      CastHelper.<Map<String, Object>>cast( anonymous.get( "indexFields" ) ).get( "creator, modifier, owner" ) );
+        assertEquals( "principal key, e.g. user:system:alice", DescribeTypeTool.INDEX_FIELDS.get( "creator, modifier, owner" ) );
+        assertTrue( McpJson.length( anonymous ) < 3800, () -> "describe-type article is " + McpJson.length( anonymous ) + " characters" );
     }
 
     @Test
