@@ -21,7 +21,7 @@ NODE_OPTIONS=--max-old-space-size=8192 ./gradlew test --tests 'com.enonic.app.gu
   - `McpTools`: dispatch, the `mcp.enabled` check, the anonymous check (`McpGroup.anonymousOptIn` plus `mcp.allowAnonymous`), and turning exceptions into error results. A new tool is an `McpTool` (group, name, execute) registered in `McpTools.tools(...)` and declared in its group's descriptor.
   - `McpGroup`: the three groups and which of them `mcp.allowAnonymous` may open.
   - `tools/`: one class per tool (`ListProjectsTool`, `ListTypesTool`, `DescribeTypeTool`, `SearchTool`, `GetTool`, `QueryTool`, `FindUnreferencedTool`, `FindBrokenReferencesTool`), plus helpers that know about content: `ContentLookup` (constant GraphQL reads, labels, workflow states), `ContentKeys` (ids and paths), `ContentTypeIndex`, `DataFieldScope`, `DataValues`, `TypeFields`, `TypeSdl`, `TypeExamples`, `SearchQuery`, `QueryLimits`, `ReferenceQueries` (the reference index and outbound dependencies), `RichText`.
-  - `shape/`: tool-independent plumbing: result envelope (`McpResult`), size budget (`ResultBudget`), paging (`Cursors`, `Page`), project/branch resolution (`ProjectBranch`, `ProjectBranchResolver`), `ToolError`, GraphQL error cleanup (`GraphQlErrors`), `McpJson`, `Nulls`. `shape/` must not depend on `tools/`.
+  - `shape/`: tool-independent plumbing: result envelope (`McpResult`), size budget (`ResultBudget`), paging (`Cursors`, `Page`), the per-call time limit (`Deadline`), project/branch resolution (`ProjectBranch`, `ProjectBranchResolver`), `ToolError`, GraphQL error cleanup (`GraphQlErrors`), `McpJson`, `Nulls`. `shape/` must not depend on `tools/`.
 - Settings are `mcp.*` in `GuillotineConfig` / `GuillotineConfigService` (`enabled`, `defaultProject`, `maxResultChars`, `allowAnonymous`), documented in `docs/configuration.adoc` (`[#mcp]`).
 
 ## Rules
@@ -30,6 +30,7 @@ NODE_OPTIONS=--max-old-space-size=8192 ./gradlew test --tests 'com.enonic.app.gu
 - Tools are read-only and run with the caller's permissions. Never elevate the context.
 - A caller mistake throws `ToolError` with a message that says what to change (the hint); it becomes an `isError` result. Never let an exception text or Java class name reach the model.
 - Every result whose size depends on data goes through a `ResultBudget` (`mcp.maxResultChars`). Paged results recompute `nextCursor` when items are dropped.
+- A tool whose number of backend calls depends on data checks a `Deadline` between calls and returns a partial result with `incomplete: true` when it passes. After the deadline it starts only the calls needed to report what it already read.
 - Except for the `query` tool's own document, user input reaches GraphQL only as variables of constant documents.
 - Structured results must not contain `null` inside arrays: XP drops such items.
 

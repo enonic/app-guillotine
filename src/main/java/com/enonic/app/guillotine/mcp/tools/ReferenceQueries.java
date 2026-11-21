@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import com.enonic.app.guillotine.mcp.shape.Deadline;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranch;
 import com.enonic.xp.aggregation.Aggregation;
 import com.enonic.xp.aggregation.Bucket;
@@ -31,7 +32,7 @@ import com.enonic.xp.schema.content.ContentTypeService;
 
 /**
  * Backend reads of the {@code references} tools, in one project and branch with the caller's permissions, counted against a fixed
- * number of calls per tool call. Queries are XP query DSL built from constants and checked arguments; they return content ids only.
+ * number of calls and a {@link Deadline} per tool call. Queries are XP query DSL built from constants and checked arguments; they return content ids only.
  */
 final class ReferenceQueries
 {
@@ -45,21 +46,43 @@ final class ReferenceQueries
 
     private final ProjectBranch target;
 
+    private final Deadline deadline;
+
     private int callsLeft;
 
-    ReferenceQueries( final ContentService contentService, final ProjectBranch target, final int maxCalls )
+    private boolean timedOut;
+
+    ReferenceQueries( final ContentService contentService, final ProjectBranch target, final int maxCalls, final Deadline deadline )
     {
         this.contentService = contentService;
         this.target = target;
         this.callsLeft = maxCalls;
+        this.deadline = deadline;
     }
 
     /**
-     * Whether {@code calls} more backend calls fit in this tool call's cap.
+     * Whether {@code calls} more backend calls fit in this tool call's cap and the deadline has not passed.
      */
     boolean canCall( final int calls )
     {
-        return callsLeft >= calls;
+        if ( callsLeft < calls )
+        {
+            return false;
+        }
+        if ( deadline.passed() )
+        {
+            timedOut = true;
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Whether {@link #canCall} refused a call because the deadline had passed while the cap still had room.
+     */
+    boolean timedOut()
+    {
+        return timedOut;
     }
 
     /**
