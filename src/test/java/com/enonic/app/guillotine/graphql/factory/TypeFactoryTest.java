@@ -92,6 +92,12 @@ public class TypeFactoryTest
                                                 .label( "Input" )
                                                 .inputType( InputTypeName.TEXT_LINE )
                                                 .build()
+                              )
+                              .addFormItem( Input.create()
+                                                .name( "first-name" )
+                                                .label( "First name" )
+                                                .inputType( InputTypeName.TEXT_LINE )
+                                                .build()
                               ).build()
             ).build();
 

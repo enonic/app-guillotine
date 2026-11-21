@@ -63,7 +63,12 @@ public class GraphQLHelper
 
     public static GraphQLFieldDefinition outputField( String name, Object type, List<GraphQLArgument> arguments )
     {
-        GraphQLFieldDefinition.Builder builder = GraphQLFieldDefinition.newFieldDefinition().name( name );
+        return outputField( name, null, type, arguments );
+    }
+
+    public static GraphQLFieldDefinition outputField( String name, String description, Object type, List<GraphQLArgument> arguments )
+    {
+        GraphQLFieldDefinition.Builder builder = GraphQLFieldDefinition.newFieldDefinition().name( name ).description( description );
 
         if ( type instanceof GraphQLTypeReference )
         {

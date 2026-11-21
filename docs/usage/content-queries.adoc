@@ -54,6 +54,8 @@ This example assumes a `com.example.myapp:post` content type with a `title` fiel
 
 Use an inline fragment (`... on TypeName`) to select fields belonging to a particular content type. Check the generated type and field names in <<../playground#, Playground>> when adapting the query to your model.
 
+Each field under `data` is described with its form label and help text, the index path to use in `queryDsl` filters, sorting and aggregations (for example `data.title`, or `data.address.street` inside an item set), and, for selectors, the content types they accept, as Content Studio offers them: a content selector lists its `allowContentType` setting, a media selector lists the `media:` types in that setting or `media:*` without them, and an image selector always lists `media:image` and `media:vector`. The descriptions show in Playground and in schema introspection.
+
 == Pagination
 
 List fields such as `getChildren` and `queryDsl` accept `first` to limit the number of items and `offset` to skip items. For example, this requests the second group of ten children, sorted by display name:

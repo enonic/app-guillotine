@@ -57,15 +57,24 @@ public class FormItemTypesFactory
 
     public GraphQLType generateFormItemObject( String parentTypeName, FormItem formItem )
     {
+        return generateFormItemObject( parentTypeName, formItem, null );
+    }
+
+    /**
+     * Like {@link #generateFormItemObject(String, FormItem)}, and describes the fields of the types it generates when {@code description}
+     * is the scope of {@code formItem}.
+     */
+    GraphQLType generateFormItemObject( String parentTypeName, FormItem formItem, FormItemDescription description )
+    {
         GraphQLType formItemObject;
 
         if ( formItem instanceof FormItemSet )
         {
-            formItemObject = generateItemSetObjectType( parentTypeName, (FormItemSet) formItem );
+            formItemObject = generateItemSetObjectType( parentTypeName, (FormItemSet) formItem, description );
         }
         else if ( formItem instanceof FormOptionSet )
         {
-            formItemObject = generateOptionSetObjectType( parentTypeName, (FormOptionSet) formItem );
+            formItemObject = generateOptionSetObjectType( parentTypeName, (FormOptionSet) formItem, description );
         }
         else if ( formItem instanceof Input )
         {
@@ -86,7 +95,7 @@ public class FormItemTypesFactory
         return occurrences.getMaximum() == 1 ? formItemObject : new GraphQLList( formItemObject );
     }
 
-    private GraphQLType generateItemSetObjectType( String parentTypeName, FormItemSet formItemSet )
+    private GraphQLType generateItemSetObjectType( String parentTypeName, FormItemSet formItemSet, FormItemDescription scope )
     {
         String typeName =
             context.uniqueName( parentTypeName + "_" + NamingHelper.camelCase( StringNormalizer.create( formItemSet.getName() ) ) );
@@ -99,15 +108,18 @@ public class FormItemTypesFactory
             try
             {
                 final String fieldName = StringNormalizer.create( rawFieldName );
+                final FormItemDescription childScope = scope != null ? scope.child( rawFieldName ) : null;
 
-                GraphQLOutputType formItemObject = (GraphQLOutputType) generateFormItemObject( parentTypeName, formItem );
+                GraphQLOutputType formItemObject = (GraphQLOutputType) generateFormItemObject( parentTypeName, formItem, childScope );
 
                 if ( formItemObject == null )
                 {
                     return;
                 }
 
-                GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
+                GraphQLFieldDefinition field =
+                    outputField( fieldName, childScope != null ? childScope.describe( formItem ) : null, formItemObject,
+                                 generateFormItemArguments( formItem ) );
 
                 context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
 
@@ -130,7 +142,8 @@ public class FormItemTypesFactory
         return objectType;
     }
 
-    private GraphQLObjectType generateOptionSetObjectType( String parentTypeName, FormOptionSet formOptionSet )
+    private GraphQLObjectType generateOptionSetObjectType( String parentTypeName, FormOptionSet formOptionSet,
+                                                           FormItemDescription scope )
     {
         String typeName = parentTypeName + "_" + NamingHelper.camelCase( StringNormalizer.create( formOptionSet.getName() ) );
         String uniqueTypeName = context.uniqueName( typeName );
@@ -144,7 +157,8 @@ public class FormItemTypesFactory
         }
 
         GraphQLFieldDefinition selectedField =
-            outputField( "_selected", formOptionSet.getMultiselection().getMaximum() == 1 ? enumType : new GraphQLList( enumType ) );
+            outputField( "_selected", scope != null ? "Index path: " + scope.child( "_selected" ).indexPath() : null,
+                         formOptionSet.getMultiselection().getMaximum() == 1 ? enumType : new GraphQLList( enumType ), null );
 
         List<GraphQLFieldDefinition> fields = new ArrayList<>();
         fields.add( selectedField );
@@ -161,14 +175,15 @@ public class FormItemTypesFactory
             try
             {
                 String optionName = StringNormalizer.create( rawOptionName );
-                GraphQLType type = generateOptionObjectType( parentTypeName, option );
+                final FormItemDescription optionScope = scope != null ? scope.child( rawOptionName ) : null;
+                GraphQLType type = generateOptionObjectType( parentTypeName, option, optionScope );
 
                 if ( type == null )
                 {
                     return;
                 }
 
-                fields.add( outputField( optionName, type ) );
+                fields.add( outputField( optionName, optionScope != null ? optionScope.describe( option ) : null, type, null ) );
 
                 context.registerDataFetcher( uniqueTypeName, optionName, new FormItemDataFetcher( option, serviceFacade ) );
             }
@@ -302,7 +317,8 @@ public class FormItemTypesFactory
         return enumType;
     }
 
-    private GraphQLObjectType generateOptionSetObjectType( String parentTypeName, FormOptionSetOption formOptionSet )
+    private GraphQLObjectType generateOptionSetObjectType( String parentTypeName, FormOptionSetOption formOptionSet,
+                                                           FormItemDescription scope )
     {
         String typeName =
             context.uniqueName( parentTypeName + "_" + NamingHelper.camelCase( StringNormalizer.create( formOptionSet.getName() ) ) );
@@ -315,15 +331,18 @@ public class FormItemTypesFactory
             try
             {
                 final String fieldName = StringNormalizer.create( rawFieldName );
+                final FormItemDescription childScope = scope != null ? scope.child( rawFieldName ) : null;
 
-                GraphQLOutputType formItemObject = (GraphQLOutputType) generateFormItemObject( parentTypeName, formItem );
+                GraphQLOutputType formItemObject = (GraphQLOutputType) generateFormItemObject( parentTypeName, formItem, childScope );
 
                 if ( formItemObject == null )
                 {
                     return;
                 }
 
-                GraphQLFieldDefinition field = outputField( fieldName, formItemObject, generateFormItemArguments( formItem ) );
+                GraphQLFieldDefinition field =
+                    outputField( fieldName, childScope != null ? childScope.describe( formItem ) : null, formItemObject,
+                                 generateFormItemArguments( formItem ) );
 
                 context.registerDataFetcher( typeName, fieldName, new FormItemDataFetcher( formItem, serviceFacade ) );
 
@@ -346,8 +365,8 @@ public class FormItemTypesFactory
         return objectType;
     }
 
-    private GraphQLType generateOptionObjectType( String parentTypeName, FormOptionSetOption option )
+    private GraphQLType generateOptionObjectType( String parentTypeName, FormOptionSetOption option, FormItemDescription scope )
     {
-        return option.iterator().hasNext() ? generateOptionSetObjectType( parentTypeName, option ) : Scalars.GraphQLString;
+        return option.iterator().hasNext() ? generateOptionSetObjectType( parentTypeName, option, scope ) : Scalars.GraphQLString;
     }
 }
