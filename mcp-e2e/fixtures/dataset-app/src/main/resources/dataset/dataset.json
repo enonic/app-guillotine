@@ -33,19 +33,43 @@
       "login": "mcp-alice",
       "displayName": "Alice Editor",
       "email": "alice@mcp.test",
-      "password": "alice-local-only!"
+      "password": "alice-local-only!",
+      "projectRole": "editor"
     },
     {
       "login": "mcp-bob",
       "displayName": "Bob Writer",
       "email": "bob@mcp.test",
-      "password": "bob-local-only!"
+      "password": "bob-local-only!",
+      "projectRole": "editor"
     },
     {
       "login": "mcp-carol",
       "displayName": "Carol Reviewer",
       "email": "carol@mcp.test",
-      "password": "carol-local-only!"
+      "password": "carol-local-only!",
+      "projectRole": "editor"
+    },
+    {
+      "login": "mcp-dave",
+      "displayName": "Dave Outsider",
+      "email": "dave@mcp.test",
+      "password": "dave-local-only!",
+      "projectRole": null
+    },
+    {
+      "login": "mcp-erin",
+      "displayName": "Erin Viewer",
+      "email": "erin@mcp.test",
+      "password": "erin-local-only!",
+      "projectRole": "viewer"
+    },
+    {
+      "login": "mcp-frank",
+      "displayName": "Frank Restricted",
+      "email": "frank@mcp.test",
+      "password": "frank-local-only!",
+      "projectRole": "editor"
     }
   ],
   "persons": [
@@ -597,5 +621,73 @@
         }
       ]
     }
-  ]
+  ],
+  "restrictedNote": "Content with its own ACL for the permission checks, created by su so that no test user's own edits change. Each folder and everything below it is readable only by its readers and administrators, not by project roles or everyone. All of it is published.",
+  "restricted": {
+    "folders": [
+      {
+        "name": "team",
+        "displayName": "Team only",
+        "readers": [
+          "mcp-carol",
+          "mcp-frank"
+        ]
+      },
+      {
+        "name": "restricted",
+        "displayName": "Restricted",
+        "readers": [
+          "mcp-carol"
+        ]
+      }
+    ],
+    "images": [
+      {
+        "name": "team-image.png",
+        "file": "img-01.png",
+        "parent": "team",
+        "user": "su"
+      },
+      {
+        "name": "secret-image.png",
+        "file": "img-02.png",
+        "parent": "restricted",
+        "user": "su"
+      }
+    ],
+    "articles": [
+      {
+        "name": "secret-note",
+        "parent": "restricted",
+        "title": "Secret note",
+        "author": "grace-hopper",
+        "tags": [
+          "secret"
+        ],
+        "cover": "restricted/secret-image.png",
+        "bodyImages": [
+          "team/team-image.png"
+        ],
+        "links": [],
+        "user": "su"
+      },
+      {
+        "name": "team-article",
+        "parent": "team",
+        "title": "Team article",
+        "author": "ada-lovelace",
+        "tags": [
+          "team"
+        ],
+        "cover": "restricted/secret-image.png",
+        "bodyImages": [
+          "restricted/secret-image.png"
+        ],
+        "links": [
+          "restricted/secret-note"
+        ],
+        "user": "su"
+      }
+    ]
+  }
 }
