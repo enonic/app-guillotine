@@ -223,13 +223,13 @@ public final class SearchTool
      */
     private static String notReturnedNote( final List<String> names )
     {
-        final boolean principals = names.stream()
-            .map( name -> name.split( "\\.", 2 )[0].toLowerCase( Locale.ROOT ) )
-            .anyMatch( root -> root.equals( "creator" ) || root.equals( "modifier" ) || root.equals( "owner" ) );
+        final boolean signedIn = ProjectBranchResolver.isAuthenticated();
+        final boolean principals = names.stream().anyMatch( PrincipalFields::isPrincipal );
         return "fields returns data fields and publish only, so " +
             String.join( ", ", names.stream().map( name -> McpJson.shorten( name, McpJson.PREVIEW_CHARS ) ).toList() ) + " " +
             ( names.size() == 1 ? "was" : "were" ) + " left out; filters and sort take index fields, and get returns createdTime and " +
-            "language." + ( principals ? " For the caller's own edits pass mine." : "" );
+            "language." + ( !principals ? "" : signedIn ? " For the caller's own edits pass mine."
+            : " Anonymous callers cannot filter, sort or aggregate on creator, modifier or owner." );
     }
 
     private List<ContentType> registered()

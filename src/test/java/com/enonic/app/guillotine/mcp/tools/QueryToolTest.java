@@ -157,6 +157,26 @@ public class QueryToolTest
     }
 
     @Test
+    public void testAnonymousCallersCannotUsePrincipalFieldsAtAll()
+    {
+        when( contentService.getById( ContentId.from( "a1" ) ) ).thenReturn( article( "a1", "First" ) );
+
+        final Map<String, Object> structured = structured( asAnonymous( () -> tool().execute(
+            Map.of( "query", "{ guillotine { get(key: \"a1\") { _id creator { value } } } }", "branch", "master" ) ) ) );
+        assertEquals( "Filters, sorts and aggregations on the modifier, creator and owner index fields need a signed-in caller too.",
+                      structured.get( "note" ) );
+
+        final ToolError refused = assertThrows( ToolError.class, () -> asAnonymous( () -> tool().execute(
+            Map.of( "query", "query($a: [AggregationInput]) { guillotine { queryDslConnection(query: {matchAll: {}}, first: 0, " +
+                "aggregations: $a) { totalCount } } }", "variables", Map.of( "a", List.of( Map.of( "name", "m", "terms",
+                                                                                                    Map.of( "field", "modifier" ) ) ) ),
+                    "branch", "master" ) ) ) );
+        assertEquals( "Invalid field: \"modifier\" holds user keys, and this call is anonymous; filters, sorts and aggregations on " +
+                          "creator, modifier and owner need a signed-in caller. Use other fields (data.<name> for a data field of that name), or ask the user to sign in to Enonic XP.",
+                      refused.userMessage() );
+    }
+
+    @Test
     public void testSelectionErrorsNameTheFieldsOfTheType()
     {
         final String principal = assertThrows( ToolError.class, () -> run(
@@ -455,5 +475,10 @@ public class QueryToolTest
     private static <T> T asAlice( final java.util.concurrent.Callable<T> callable )
     {
         return ContextBuilder.copyOf( ContextAccessor.current() ).authInfo( ALICE ).build().callWith( callable );
+    }
+
+    private static <T> T asAnonymous( final java.util.concurrent.Callable<T> callable )
+    {
+        return ContextBuilder.copyOf( ContextAccessor.current() ).authInfo( AuthenticationInfo.unAuthenticated() ).build().callWith( callable );
     }
 }

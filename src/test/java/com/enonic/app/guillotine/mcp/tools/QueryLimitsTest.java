@@ -293,6 +293,55 @@ public class QueryLimitsTest
         assertDoesNotThrow( () -> check( "{ guillotine(scopeKey: \"/site\") { getSite { _id } } }" ) );
     }
 
+    @Test
+    public void testAnonymousCallersCannotFilterSortOrAggregateOnPrincipalFields()
+    {
+        final String refusal = "holds user keys, and this call is anonymous; filters, sorts and aggregations on creator, modifier " +
+            "and owner need a signed-in caller. Use other fields (data.<name> for a data field of that name), or ask the user to sign in to Enonic XP.";
+        final List<String> queries = List.of(
+            "{ guillotine { queryDslConnection(query: {matchAll: {}}, first: 0, aggregations: [{name: \"m\", terms: {field: \"modifier\"}}]) { totalCount } } }",
+            "{ guillotine { queryDsl(query: {term: {field: \"Creator\", value: {string: \"user:system:su\"}}}) { _path } } }",
+            "{ guillotine { queryDsl(query: {fulltext: {fields: [\"displayName\", \"owner^2\"], query: \"su\"}}) { _path } } }",
+            "{ guillotine { queryDsl(query: {exists: {field: \"mod*\"}}) { _path } } }",
+            "{ guillotine { queryDsl(query: {matchAll: {}}, sort: [{field: \"modifier._orderby\", direction: DESC}]) { _path } } }",
+            "{ guillotine { getChildren(key: \"/a\", sort: \"owner DESC\") { _path } } }",
+            "{ guillotine { get(key: \"/a\") { children(sort: \"_name ASC,creator\") { _path } } } }",
+            "{ guillotine { queryDslConnection(query: {matchAll: {}}, highlight: {properties: [{propertyName: \"modifier\"}]}) { totalCount } } }",
+            "query($f: String = \"modifier\") { guillotine { queryDsl(query: {exists: {field: $f}}) { _path } } }",
+            "{ guillotine { queryDsl(query: {exists: {field: \"\\u0001modifier\"}}) { _path } } }",
+            "{ guillotine { queryDsl(query: {fulltext: {fields: [\"owner ^2\"], query: \"su\"}}) { _path } } }",
+            "{ guillotine { queryDsl(query: {exists: {field: \"ow*rby\"}}) { _path } } }" );
+        for ( final String query : queries )
+        {
+            assertDoesNotThrow( () -> check( query, Map.of(), false ), query );
+            assertTrue( assertThrows( ToolError.class, () -> check( query, Map.of(), true ), query ).userMessage().endsWith( refusal ),
+                        query );
+        }
+
+        final String withVariables = "query($q: QueryDSLInput!, $s: String, $a: [AggregationInput]) { guillotine { " +
+            "queryDslConnection(query: $q, first: 0, aggregations: $a) { totalCount } getChildren(key: \"/a\", sort: $s) { _path } } }";
+        final Map<String, Object> matchAll = Map.of( "matchAll", Map.of() );
+        for ( final Map<String, Object> variables : List.of(
+            Map.<String, Object>of( "q", Map.of( "term", Map.of( "field", "modifier", "value", Map.of( "string", "user:system:su" ) ) ) ),
+            Map.of( "q", matchAll, "s", "geoDistance('owner', '59,10')" ),
+            Map.of( "q", matchAll, "a", List.of( Map.of( "name", "m", "terms", Map.of( "field", "creator" ) ) ) ) ) )
+        {
+            assertDoesNotThrow( () -> check( withVariables, variables, false ), variables::toString );
+            assertTrue( assertThrows( ToolError.class, () -> check( withVariables, variables, true ), variables::toString ).userMessage()
+                            .endsWith( refusal ), variables::toString );
+        }
+    }
+
+    @Test
+    public void testAnonymousCallersCanUseDataFieldsNamedLikePrincipals()
+    {
+        assertDoesNotThrow( () -> check( "{ guillotine { queryDslConnection(query: {term: {field: \"data.owner\", value: {string: " +
+                                             "\"modifier\"}}}, first: 0, aggregations: [{name: \"o\", terms: {field: \"data.owner\"}}], " +
+                                             "sort: [{field: \"data.creator\"}]) { totalCount } getChildren(key: \"/a\", sort: " +
+                                             "\"data.modifier DESC, data.co-owner, x.com-acme-creator.meta.f\") { _path } } }", Map.of(),
+                                         true ) );
+    }
+
     private List<String> check( final String query )
     {
         return check( query, Map.of() );
@@ -301,6 +350,13 @@ public class QueryLimitsTest
     private List<String> check( final String query, final Map<String, Object> variables )
     {
         return check( query, variables, schemaProvider.getSchema() );
+    }
+
+    private List<String> check( final String query, final Map<String, Object> variables, final boolean anonymous )
+    {
+        final Document document = new Parser().parseDocument( query );
+        return QueryLimits.check( document, document.getDefinitionsOfType( OperationDefinition.class ).get( 0 ), variables, anonymous,
+                                  schemaProvider::getSchema );
     }
 
     private void check( final String query, final GraphQLSchema schema )
@@ -312,7 +368,7 @@ public class QueryLimitsTest
     {
         final Document document = new Parser().parseDocument( query );
         final OperationDefinition operation = document.getDefinitionsOfType( OperationDefinition.class ).get( 0 );
-        return QueryLimits.check( document, operation, variables, () -> schema );
+        return QueryLimits.check( document, operation, variables, false, () -> schema );
     }
 
     private String rejected( final String query )

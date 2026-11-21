@@ -17,7 +17,7 @@ import urllib.request
 
 sys.dont_write_bytecode = True  # keep __pycache__ out of the source tree
 import xpmcp  # noqa: E402
-from xpmcp import E2E_DIR, XP_URL, call, check, error_text, finish, info, load_expected, ok, sc, show  # noqa: E402
+from xpmcp import E2E_DIR, XP_URL, call, check, error_text, finish, info, load_expected, ok, readable_error, sc, show  # noqa: E402
 
 PROJECT = "mcp-test"
 ARTICLE = "com.example.mcpdataset:article"
@@ -25,6 +25,7 @@ FOLDER = "base:folder"
 IMAGE = "media:image"
 PRINCIPAL_ERROR = "Unauthorized: creator, modifier and owner need Content Studio access or an administrator role."
 MISSING_ID = "00000000-0000-4000-8000-000000000000"
+PRINCIPAL_REFUSAL = "holds user keys, and this call is anonymous"
 
 expected = load_expected()
 with open(os.path.join(E2E_DIR, "fixtures/dataset-app/src/main/resources/dataset/dataset.json")) as f:
@@ -254,14 +255,13 @@ def run(caller, branch):
 
     # query: the caller's own GraphQL document
     document = ('query($k: ID) { guillotine { get(key: $k) { _path } getChildren(key: "/restricted") { _path } '
-                'queryDslConnection(query: {matchAll: {}}, first: 0, aggregations: [{name: "tags", terms: {field: "data.tags", size: 20}}, '
-                '{name: "modifier", terms: {field: "modifier", size: 20}}]) { totalCount aggregationsAsJson } } }')
+                'queryDslConnection(query: {matchAll: {}}, first: 0, aggregations: [{name: "tags", terms: {field: "data.tags", size: 20}}]) '
+                '{ totalCount aggregationsAsJson } } }')
     r = tool("graphql", "query", {"query": document, "variables": {"k": SECRET_NOTE}})
     g = sc(r).get("data", {}).get("guillotine", {})
     connection = g.get("queryDslConnection") or {}
     aggs = connection.get("aggregationsAsJson") or {}
     tag_keys = {b["key"] for b in (aggs.get("tags") or {}).get("buckets", [])}
-    modifiers = (aggs.get("modifier") or {}).get("buckets", [])
     check("query without errors", ok(r) and not sc(r).get("errors"), show(r))
     check("query totalCount %d" % total, connection.get("totalCount") == total, show(r))
     check("query get(secret-note) %s" % ("returns it" if restricted else "is null"),
@@ -276,8 +276,6 @@ def run(caller, branch):
               not missing.get("errors") and (mg.get("get"), mg.get("getChildren")) == (g.get("get"), g.get("getChildren")),
               missing)
     check("query tag buckets: secret %s" % restricted, ("secret" in tag_keys) == restricted, sorted(tag_keys))
-    check("query aggregation on modifier works and counts readable items only",
-          bool(modifiers) and sum(b["docCount"] for b in modifiers) == total, modifiers)
     r = tool("graphql", "query", {"query": '{ guillotine { queryDsl(query: {term: {field: "_path", value: {string: '
                                            '"/content/articles/article-01"}}}, first: 1) { _path creator { value } modifier { value } '
                                            'owner { value } } } }'})
@@ -289,12 +287,44 @@ def run(caller, branch):
         check("query creator/modifier/owner each denied with the Content Studio message",
               all(hit.get(field) is None for field in ("creator", "modifier", "owner")) and
               errors == {field: PRINCIPAL_ERROR for field in ("creator", "modifier", "owner")}, show(r))
-    by_modifier = {b["key"]: b["docCount"] for b in modifiers}
-    r = tool("graphql", "query", {"query": '{ guillotine { queryDslConnection(query: {term: {field: "modifier", value: {string: '
-                                           '"user:system:su"}}}, first: 0) { totalCount } } }'})
-    count = (sc(r).get("data", {}).get("guillotine", {}).get("queryDslConnection") or {}).get("totalCount")
-    check("query filter on modifier su counts readable items only (%s, as its bucket)" % by_modifier.get("user:system:su"),
-          count is not None and count == by_modifier.get("user:system:su") and count > 0, show(r))
+    # principal index fields: signed-in callers filter and aggregate on them; anonymous callers are refused in search and query
+    by_modifier_query = ('{ guillotine { queryDslConnection(query: {matchAll: {}}, first: 0, aggregations: [{name: "modifier", '
+                         'terms: {field: "modifier", size: 20}}]) { aggregationsAsJson } } }')
+    su_query = ('query($f: String!) { guillotine { queryDslConnection(query: {term: {field: $f, value: {string: "user:system:su"}}}, '
+                'first: 0) { totalCount } } }')
+    principal_calls = [
+        ("query aggregation on modifier", "graphql", "query", {"query": by_modifier_query}),
+        ("query filter on modifier through a variable", "graphql", "query", {"query": su_query, "variables": {"f": "modifier"}}),
+        ("query sort on owner", "graphql", "query", {"query": '{ guillotine { getChildren(key: "/articles", sort: "owner DESC") '
+                                                              '{ _path } } }'}),
+        ("search aggregate by modifier", "content", "search", {"count": 0, "aggregate": [{"by": "modifier", "size": 20}]}),
+        ("search filter on creator", "content", "search", {"count": 0, "filters": [{"field": "creator", "exists": True}]}),
+        ("search sort on owner", "content", "search", {"count": 1, "sort": "owner DESC"}),
+    ]
+    if caller == "anonymous":
+        for label, group, name, arguments in principal_calls:
+            r = tool(group, name, arguments)
+            check("%s is refused for anonymous callers" % label,
+                  readable_error(r, PRINCIPAL_REFUSAL, "need a signed-in caller"), show(r))
+        r = tool("content", "search", {"count": 0, "aggregate": [{"by": "data.author", "size": 20}]})
+        check("search aggregate by a data field still works for anonymous callers", ok(r) and not r.get("isError"), show(r))
+    else:
+        r = tool("graphql", "query", {"query": by_modifier_query})
+        modifiers = (((sc(r).get("data", {}).get("guillotine", {}).get("queryDslConnection") or {}).get("aggregationsAsJson") or {})
+                     .get("modifier") or {}).get("buckets", [])
+        check("query aggregation on modifier works and counts readable items only",
+              bool(modifiers) and sum(b["docCount"] for b in modifiers) == total, show(r))
+        by_modifier = {b["key"]: b["docCount"] for b in modifiers}
+        r = tool("graphql", "query", {"query": su_query, "variables": {"f": "modifier"}})
+        count = (sc(r).get("data", {}).get("guillotine", {}).get("queryDslConnection") or {}).get("totalCount")
+        check("query filter on modifier su counts readable items only (%s, as its bucket)" % by_modifier.get("user:system:su"),
+              count is not None and count == by_modifier.get("user:system:su") and count > 0, show(r))
+        for label, group, name, arguments in principal_calls[2:]:
+            r = tool(group, name, arguments)
+            check("%s works for a signed-in caller" % label, ok(r) and not r.get("isError") and not sc(r).get("errors"), show(r))
+        r = tool("content", "search", {"count": 0, "aggregate": [{"by": "modifier", "size": 20}]})
+        search_modifiers = {b["key"]: b["count"] for b in buckets(r, "modifier").values()}
+        check("search aggregate by modifier matches the query buckets", search_modifiers == by_modifier, search_modifiers)
     if team and not restricted:
         # Known XP behaviour, not a Guillotine check: XP builds page and media URLs as administrator.
         r = call("graphql", "query", dict(base, query='query($k: ID) { guillotine { get(key: $k) { ... on com_example_mcpdataset_Article '
