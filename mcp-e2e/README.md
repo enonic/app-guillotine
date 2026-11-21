@@ -67,7 +67,7 @@ mcp-e2e/scripts/xp-stop.sh            # stops only the XP that xp-start.sh start
 
 Config and deploy-folder changes hold a lock. When the run ends, also when it is interrupted, Guillotine's config file and `guillotine.jar` are put back as they were.
 
-The suites can also run on their own against any running XP with the dataset and `mcp.allowAnonymous=true`, for example `python3 mcp-e2e/checks/answers.py`. They read `XP_URL`; set `MCP_COOKIE` to the output of `scripts/login.sh` to run them signed in. `access.py` needs `ACCESS_COOKIE` instead, `permissions.py` signs in by itself (`su` with `XP_SU_PASSWORD`), and `budget.py` needs `mcp.maxResultChars=2000`.
+The suites can also run on their own against any running XP with the dataset and `mcp.allowAnonymous=true`, for example `python3 mcp-e2e/checks/answers.py`. They read `XP_URL`; set `MCP_COOKIE` to the output of `scripts/login.sh` to run them signed in. `access.py` needs `ACCESS_COOKIE` instead, `permissions.py` signs in by itself (dataset passwords with the same overrides as the dataset app, `su` with `XP_SU_PASSWORD`), and `budget.py` needs `mcp.maxResultChars=2000`.
 
 ### Reading the output
 
