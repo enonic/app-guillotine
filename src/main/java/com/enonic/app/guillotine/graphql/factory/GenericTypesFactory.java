@@ -44,6 +44,7 @@ public class GenericTypesFactory
         createMediaUploaderType();
         createSiteConfiguratorType();
         createPublishInfoType();
+        createWorkflowInfoType();
         createAttachmentType();
         createIconType();
         createContentTypeType();
@@ -125,6 +126,16 @@ public class GenericTypesFactory
         fields.add( outputField( "time", ExtendedScalars.DateTime ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "PublishInfo" ), "Publish information.", fields );
+        context.registerType( outputObject.getName(), outputObject );
+    }
+
+    private void createWorkflowInfoType()
+    {
+        List<GraphQLFieldDefinition> fields = new ArrayList<>();
+
+        fields.add( outputField( "state", Scalars.GraphQLString ) );
+
+        GraphQLObjectType outputObject = newObject( context.uniqueName( "WorkflowInfo" ), "Workflow information.", fields );
         context.registerType( outputObject.getName(), outputObject );
     }
 

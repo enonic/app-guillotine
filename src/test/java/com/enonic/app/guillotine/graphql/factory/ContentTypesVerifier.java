@@ -42,7 +42,7 @@ public class ContentTypesVerifier
     private void verifyDynamicallyCreatedContentType()
     {
         GraphQLObjectType type = context.getOutputType( "com_enonic_app_testapp_MyType" );
-        assertEquals( 31, type.getFieldDefinitions().size() );
+        assertEquals( 32, type.getFieldDefinitions().size() );
 
         GraphQLFieldDefinition dataField = type.getFieldDefinition( "data" );
 
@@ -190,6 +190,7 @@ public class ContentTypesVerifier
 
         assertEquals( "Attachment", getNameForGraphQLTypeReference( getOriginalTypeFromGraphQLList( type, "attachments" ) ) );
         assertEquals( "PublishInfo", getNameForGraphQLTypeReference( type.getField( "publish" ).getType() ) );
+        assertEquals( "WorkflowInfo", getNameForGraphQLTypeReference( type.getField( "workflow" ).getType() ) );
 
         assertEquals( "portal_Site", getNameForGraphQLTypeReference( type.getField( "site" ).getType() ) );
 
@@ -251,6 +252,7 @@ public class ContentTypesVerifier
 
         assertEquals( "Attachment", getNameForGraphQLTypeReference( getOriginalTypeFromGraphQLList( type, "attachments" ) ) );
         assertEquals( "PublishInfo", getNameForGraphQLTypeReference( type.getField( "publish" ).getType() ) );
+        assertEquals( "WorkflowInfo", getNameForGraphQLTypeReference( type.getField( "workflow" ).getType() ) );
 
         assertEquals( "portal_Site", getNameForGraphQLTypeReference( type.getField( "site" ).getType() ) );
 

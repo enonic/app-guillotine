@@ -283,6 +283,7 @@ public class ContentTypesFactory
                                           newArgument( "resolveFragment", Scalars.GraphQLBoolean ) ) ) );
         result.add( outputField( "attachments", new GraphQLList( GraphQLTypeReference.typeRef( "Attachment" ) ) ) );
         result.add( outputField( "publish", GraphQLTypeReference.typeRef( "PublishInfo" ) ) );
+        result.add( outputField( "workflow", GraphQLTypeReference.typeRef( "WorkflowInfo" ) ) );
         result.add( outputField( "site", GraphQLTypeReference.typeRef( "portal_Site" ) ) );
         result.add( outputField( "pageUrl", GraphQLTypeReference.typeRef( "PageUrl" ),
                                  List.of( newArgument( "params", ExtendedScalars.Json ) ) ) );

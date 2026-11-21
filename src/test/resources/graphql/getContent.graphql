@@ -25,6 +25,9 @@ query {
                 first
                 time
             }
+            workflow {
+                state
+            }
             creator {
                 value
                 type

@@ -101,6 +101,9 @@ public class GuillotineApiGraphQLIntegrationTest
         assertEquals( "2016-11-03T10:00:00.000Z", publishField.get( "time" ) );
         assertNull( publishField.get( "first" ) );
 
+        Map<String, Object> workflowField = CastHelper.cast( getField.get( "workflow" ) );
+        assertEquals( "IN_PROGRESS", workflowField.get( "state" ) );
+
         assertEquals( "1970-01-01T00:00:00.000Z", getField.get( "createdTime" ) );
         assertEquals( "1970-01-01T00:00:00.000Z", getField.get( "modifiedTime" ) );
 
