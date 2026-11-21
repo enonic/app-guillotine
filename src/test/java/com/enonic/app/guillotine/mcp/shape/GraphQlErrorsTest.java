@@ -2,6 +2,7 @@ package com.enonic.app.guillotine.mcp.shape;
 
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -74,6 +75,8 @@ public class GraphQlErrorsTest
         FAILURES.put( "query", new QueryException( "Unexpected token at line 1, column 9" ) );
         FAILURES.put( "percent", new IllegalArgumentException( "100% sure" ) );
         FAILURES.put( "blank", new IllegalArgumentException() );
+        FAILURES.put( "number", new NumberFormatException( "For input string: \"abc\"" ) );
+        FAILURES.put( "base64", base64Failure() );
         FAILURES.put( "search", new IndexException( "Search request failed, query: [{ \"from\" : 50000, \"query\" : { \"_nodetype\" : 1 } }]" ) );
         FAILURES.put( "timeout", new IndexException( "Search request failed after [30s], query: [{ \"match_all\" : { } }]" ) );
         FAILURES.put( "forbidden", new ForbiddenAccessException(
@@ -94,6 +97,8 @@ public class GraphQlErrorsTest
         assertEquals( "Unexpected token at line 1, column 9", message( "query" ) );
         assertEquals( "100% sure", message( "percent" ) );
         assertEquals( "Invalid request for this field.", message( "blank" ) );
+        assertEquals( GraphQlErrors.UNREADABLE_ARGUMENT, message( "number" ) );
+        assertEquals( GraphQlErrors.UNREADABLE_ARGUMENT, message( "base64" ) );
         assertEquals( GraphQlErrors.SEARCH_FAILED, message( "search" ) );
         assertEquals( GraphQlErrors.SEARCH_TIMED_OUT, message( "timeout" ) );
         assertEquals( GraphQlErrors.ACCESS_DENIED, message( "forbidden" ) );
@@ -132,7 +137,7 @@ public class GraphQlErrorsTest
             final String json =
                 McpJson.write( GraphQlErrors.partialErrors( response.get( "data" ), (List<?>) response.get( "errors" ) ) );
 
-            for ( final String leak : List.of( "Exception", "java.", "com.enonic", "Foo.java", "_nodetype", "50000", "fetching data",
+            for ( final String leak : List.of( "Exception", "java.", "For input string", "base64", "com.enonic", "Foo.java", "_nodetype", "50000", "fetching data",
                                                "locations", "extensions" ) )
             {
                 assertFalse( json.contains( leak ), () -> leak + " in " + json );
@@ -225,6 +230,19 @@ public class GraphQlErrorsTest
             new RuntimeException( new RuntimeException( new IllegalArgumentException( "x" ) ) ) ) instanceof IllegalArgumentException );
         assertNull( GraphQlErrors.callerError( new IllegalStateException( new IllegalArgumentException( "x" ) ) ) );
         assertNull( GraphQlErrors.callerError( null ) );
+    }
+
+    private static IllegalArgumentException base64Failure()
+    {
+        try
+        {
+            Base64.getDecoder().decode( "%%%" );
+            throw new AssertionError( "decoded" );
+        }
+        catch ( IllegalArgumentException e )
+        {
+            return e;
+        }
     }
 
     private static String message( final String kind )

@@ -110,7 +110,15 @@ final class QueryLimits
 
     private static final Set<String> SCOPE_ARGS = Set.of( ProjectBranch.PROJECT, ProjectBranch.BRANCH );
 
-    private static final Set<String> WINDOW_ARGS = Set.of( "offset", "after" );
+    private static final String AFTER_ARG = "after";
+
+    private static final Set<String> WINDOW_ARGS = Set.of( "offset", AFTER_ARG );
+
+    /**
+     * Types of Guillotine's own connections, whose {@code after} is a cursor of a previous page; an extension field may take an
+     * {@code after} that means something else.
+     */
+    private static final Set<String> CURSOR_CONNECTIONS = Set.of( "ContentConnection", "QueryDSLContentConnection" );
 
     private static final String AGGREGATIONS_ARG = "aggregations";
 
@@ -155,7 +163,8 @@ final class QueryLimits
     /**
      * Throws a {@link ToolError} for: {@code project} or {@code branch} on the {@code guillotine} field, {@code first} above
      * {@link #MAX_FIRST}, {@code offset} or {@code after} plus {@code first} beyond {@link Cursors#MAX_WINDOW}, an aggregation
-     * {@code size} above {@link #MAX_AGGREGATION_SIZE}, a {@code dateHistogram} without {@code minDocCount} of at least 1, and more than {@link #MAX_ROWS} rows
+     * {@code size} above {@link #MAX_AGGREGATION_SIZE}, a {@code dateHistogram} without {@code minDocCount} of at least 1, an
+     * {@code after} of a Guillotine connection that is not one of its cursors, and more than {@link #MAX_ROWS} rows
      * or {@link #MAX_BUCKETS} buckets. Variables resolve to the values passed, else to the defaults of {@code operation}. The schema is
      * fetched only once the arguments pass.
      *
@@ -291,18 +300,42 @@ final class QueryLimits
         {
             return value instanceof Number number ? Math.max( 0, number.longValue() ) : 0;
         }
-        if ( value instanceof String cursor )
+        final Integer index = value instanceof String cursor ? cursorIndex( cursor ) : null;
+        return index != null ? index + 1L : 0;
+    }
+
+    /**
+     * The index a Guillotine cursor points at, parsed as its connection resolvers parse it, or {@code null} when it is not a cursor.
+     * A negative index parses there too, but Guillotine never returns one, so it is refused here.
+     */
+    private static Integer cursorIndex( final String cursor )
+    {
+        try
         {
-            try
+            final int index = Integer.parseInt( ConnectionHelper.decodeCursor( cursor ) );
+            return index >= 0 ? index : null;
+        }
+        catch ( IllegalArgumentException e )
+        {
+            return null;
+        }
+    }
+
+    private void checkCursor( final Field field, final GraphQLFieldDefinition definition )
+    {
+        if ( definition.getArgument( AFTER_ARG ) == null ||
+            !( GraphQLTypeUtil.unwrapAll( definition.getType() ) instanceof GraphQLObjectType type && CURSOR_CONNECTIONS.contains( type.getName() ) ) )
+        {
+            return;
+        }
+        for ( final Argument argument : field.getArguments() )
+        {
+            if ( AFTER_ARG.equals( argument.getName() ) && literal( argument.getValue() ) instanceof String cursor && cursorIndex( cursor ) == null )
             {
-                return Long.parseLong( ConnectionHelper.decodeCursor( cursor ).strip() ) + 1;
-            }
-            catch ( IllegalArgumentException e )
-            {
-                return 0;
+                throw new ToolError( "after is not a cursor from a previous result.",
+                                     "Drop after to start from the first item, or pass the endCursor (or an edge cursor) of the page before." );
             }
         }
-        return 0;
     }
 
     private Cost cost( final SelectionSet selectionSet, final GraphQLCompositeType parent )
@@ -328,6 +361,10 @@ final class QueryLimits
                 definition != null && GraphQLTypeUtil.unwrapAll( definition.getType() ) instanceof GraphQLCompositeType composite
                     ? composite
                     : null;
+            if ( definition != null )
+            {
+                checkCursor( field, definition );
+            }
             final Cost below = cost( field.getSelectionSet(), type );
             final Cost own = new Cost( 0, aggregationBuckets( field ) );
             if ( definition == null || definition.getArgument( FIRST_ARG ) == null )

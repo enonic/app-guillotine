@@ -233,6 +233,37 @@ public class QueryLimitsTest
     }
 
     @Test
+    public void testAfterOfAGuillotineConnectionMustBeACursor()
+    {
+        final String connection = "query ($c: String) { guillotine { queryDslConnection(query: {matchAll: {}}, after: $c, first: 1) { " +
+            "totalCount } } }";
+        final String refused = "after is not a cursor from a previous result. Drop after to start from the first item, or pass the " +
+            "endCursor (or an edge cursor) of the page before.";
+
+        assertDoesNotThrow( () -> check( connection, Map.of( "c", ConnectionHelper.encodeCursor( "9" ) ) ) );
+        assertDoesNotThrow( () -> check( connection, Map.of() ) );
+        for ( final String cursor : List.of( "abc", "%%%", "", ConnectionHelper.encodeCursor( "-1" ), ConnectionHelper.encodeCursor( "9999999999" ) ) )
+        {
+            assertEquals( refused, rejected( connection, Map.of( "c", cursor ) ), cursor );
+        }
+        assertEquals( refused, rejected( "{ guillotine { get(key: \"a1\") { childrenConnection(after: \"abc\") { totalCount } } } }" ) );
+    }
+
+    @Test
+    public void testAfterOfAnotherFieldIsNotJudgedAsACursor()
+    {
+        final GraphQLObjectType query = GraphQLObjectType.newObject()
+            .name( "Query" )
+            .field( GraphQLFieldDefinition.newFieldDefinition()
+                        .name( "events" )
+                        .argument( GraphQLArgument.newArgument().name( "after" ).type( Scalars.GraphQLString ) )
+                        .type( Scalars.GraphQLString ) )
+            .build();
+
+        assertDoesNotThrow( () -> check( "{ events(after: \"2024-01-01\") }", Map.of(), GraphQLSchema.newSchema().query( query ).build() ) );
+    }
+
+    @Test
     public void testDateHistogramsNeedMinDocCount()
     {
         final String refused = "dateHistogram needs minDocCount of at least 1 in this tool. Pass minDocCount in each dateHistogram, " +
