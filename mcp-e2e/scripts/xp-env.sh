@@ -20,7 +20,7 @@ export DATASET_JAR="${DATASET_JAR:-$FIXTURE_BUILD_DIR/dataset-app/libs/dataset-a
 # The standard ID provider app serves the sign-in endpoint /_/idprovider/system that login.sh uses. XP development builds do not
 # bundle it; an XP SDK distribution downloaded by the Enonic CLI has it in system/40.
 if [ -z "${IDPROVIDER_JAR:-}" ]; then
-    IDPROVIDER_JAR=$(ls -1 "$HOME"/.enonic/distributions/*/system/40/app-standardidprovider-*.jar 2>/dev/null | sort -V | tail -n 1)
+    IDPROVIDER_JAR=$(ls -1 "$HOME"/.enonic/distributions/*/system/40/app-standardidprovider-*.jar 2>/dev/null | sort -V | tail -n 1 || true)
 fi
 export IDPROVIDER_JAR
 # Signed-in runs use this dataset user, an editor on mcp-test. The password is the local-only value from dataset.json.

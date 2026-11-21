@@ -8,6 +8,10 @@ source "$(dirname "$0")/xp-env.sh"
 for jar in "$GUILLOTINE_JAR" "$DATASET_JAR"; do
     [ -f "$jar" ] || { echo "Missing $jar" >&2; exit 2; }
 done
+# run-all.sh changes the same config and deploy folder under this lock.
+mkdir -p "$MCP_E2E_WORK"
+exec 9>"$MCP_E2E_WORK/xp.lock"
+flock 9
 [ -f "$GUILLOTINE_CFG" ] || write_cfg "$BASE_CFG"
 start=$(console_lines)
 copied=$start
