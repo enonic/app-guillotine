@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Who may call which group. usage: access.py open|closed
-open:   mcp.allowAnonymous=true. Anonymous callers use content and graphql on master; references stays signed-in only.
+open:   mcp.allowAnonymous=true. Anonymous callers use content and graphql on master, without filters, sorts and aggregations on
+        creator, modifier and owner; references stays signed-in only.
 closed: mcp.allowAnonymous unset. Anonymous callers are refused in every group; signed-in callers are not affected.
 Signed-in calls use the cookie in ACCESS_COOKIE; a second session, signed out with LOGOUT_COOKIE, must count as anonymous."""
 import os
@@ -52,6 +53,17 @@ if MODE == "open":
     for group, tool, arguments in CALLS[1:3]:
         r = call(group, tool, dict(arguments, branch="draft"), cookie="")
         check("open: anonymous %s on draft -> isError, only published content" % tool, readable_error(r, "draft", "master"), show(r))
+    principals = [
+        ("content", "search", {"count": 0, "aggregate": [{"by": "modifier"}]}),
+        ("graphql", "query", {"query": '{ guillotine { queryDslConnection(query: {matchAll: {}}, first: 0, aggregations: '
+                                       '[{name: "m", terms: {field: "modifier"}}]) { totalCount } } }'}),
+    ]
+    for group, tool, arguments in principals:
+        r = call(group, tool, arguments, cookie=SIGNED)
+        check("open: signed-in %s aggregates on modifier" % tool, ok(r) and not sc(r).get("errors"), show(r))
+        r = call(group, tool, arguments, cookie="")
+        check("open: anonymous %s on modifier -> isError, needs a signed-in caller" % tool,
+              readable_error(r, "holds user keys, and this call is anonymous", "need a signed-in caller"), show(r))
 
 logged_out = os.environ.get("LOGOUT_COOKIE", "")
 if logged_out:

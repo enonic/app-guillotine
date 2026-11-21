@@ -12,6 +12,8 @@ from xpmcp import (CALLER, E2E_DIR, SIGNED_IN, call, check, check_sizes, error_t
 
 expected = load_expected()
 BRANCH = "draft" if SIGNED_IN else "master"
+# what a denied creator/modifier/owner field points to instead; anonymous callers cannot filter or aggregate on them either
+PRINCIPAL_ADVICE = "search with mine" if SIGNED_IN else "need a signed-in caller too"
 TOTAL = expected["totalItems"][BRANCH]
 
 
@@ -56,7 +58,7 @@ SUCCESS = [
      any(h.get("publish", {}).get("from") for h in s["hits"]) and "creator" in s.get("note", "")),
     ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 2) { _path creator { value } } } }"},
      lambda s: len(s.get("errors", [])) == 2 and all("Content Studio" in e["message"] for e in s["errors"]) and
-     "search with mine" in s.get("note", "")),
+     PRINCIPAL_ADVICE in s.get("note", "")),
     ("content", "get", {"key": "/articles/article-01"}, lambda s: s.get("_path") == "/articles/article-01" and
      s.get("type") == "com.example.mcpdataset:article" and isinstance(s.get("data", {}).get("body"), dict) and
      "<" not in s["data"]["body"].get("text", "<")),
@@ -96,7 +98,7 @@ FAILURES = [
     ("graphql", "query", {"query": "{ bogus }"}, ["bogus"]),
     ("graphql", "query", {"query": "mutation { x }"}, ["mutation", "read-only"]),
     ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 1) { modifier } } }"},
-     ["PrincipalKey has value, type, idProvider, principalId", "search with mine"]),
+     ["PrincipalKey has value, type, idProvider, principalId", PRINCIPAL_ADVICE]),
     ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 1) { data } } }"},
      ["Content has", "... on <graphqlType from list-types>"]),
     ("graphql", "query", {"query": "{ guillotine(project: \"other\") { get(key: \"/\") { _id } } }"},
