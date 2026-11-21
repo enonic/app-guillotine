@@ -98,7 +98,57 @@ public class ResultBudgetTest
             structured( BUDGET.fitPage( Map.of( "hits", List.of( "x".repeat( 2000 ) ) ), "hits", new Page( 0, 10 ), 1 ) );
         assertEquals( List.of(), single.get( "hits" ) );
         assertNull( single.get( "nextCursor" ) );
-        assertEquals( "Result does not fit 1000 characters. Narrow the request.", single.get( "hint" ) );
+        assertEquals( "Result truncated to fit 1000 characters: the first item of 'hits' alone is larger, so this page has no items. " +
+                          "Narrow the request.", single.get( "hint" ) );
+    }
+
+    @Test
+    public void testFitPageSkipsAFirstItemLargerThanTheBudgetWithACursorPastIt()
+    {
+        final Map<String, Object> input = new LinkedHashMap<>();
+        new ProjectBranch( "blog", "master" ).putInto( input );
+        input.put( "total", 30 );
+        input.put( "hits", List.of( "x".repeat( 2000 ), "small", "small" ) );
+
+        final Map<String, Object> result = structured( BUDGET.fitPage( input, "hits", new Page( 20, 3 ), 30 ) );
+
+        assertEquals( List.of(), result.get( "hits" ) );
+        assertEquals( Cursors.encode( 21 ), result.get( "nextCursor" ) );
+        assertEquals( 30, result.get( "total" ) );
+        assertEquals( "blog", result.get( "project" ) );
+        assertEquals( true, result.get( "truncated" ) );
+        assertEquals( "Result truncated to fit 1000 characters: the first item of 'hits' alone is larger, so this page has no items. " +
+                          "Narrow the request. Continue with nextCursor to skip that item.", result.get( "hint" ) );
+        assertTrue( McpJson.length( result ) <= 1000 );
+    }
+
+    @Test
+    public void testFitPageFallsBackWhenTheOtherFieldsAloneDoNotFit()
+    {
+        final Map<String, Object> input = new LinkedHashMap<>();
+        input.put( "total", 30 );
+        input.put( "aggregations", "x".repeat( 2000 ) );
+        input.put( "hits", List.of( "small", "small" ) );
+
+        final Map<String, Object> result = structured( BUDGET.fitPage( input, "hits", new Page( 0, 2 ), 30 ) );
+
+        assertEquals( Map.of( "total", 30, "hits", List.of(), "truncated", true, "hint",
+                              "Result does not fit 1000 characters. Narrow the request." ), result );
+    }
+
+    @Test
+    public void testFitPageDoesNotSkipASmallFirstItemCrowdedOutByOtherFields()
+    {
+        final Map<String, Object> input = new LinkedHashMap<>();
+        input.put( "total", 30 );
+        input.put( "aggregations", "x".repeat( 900 ) );
+        input.put( "hits", List.of( "y".repeat( 150 ), "small" ) );
+
+        final Map<String, Object> result = structured( BUDGET.fitPage( input, "hits", new Page( 0, 2 ), 30 ) );
+
+        assertNull( result.get( "nextCursor" ) );
+        assertEquals( Map.of( "total", 30, "hits", List.of(), "truncated", true, "hint",
+                              "Result does not fit 1000 characters. Narrow the request." ), result );
     }
 
     @Test
