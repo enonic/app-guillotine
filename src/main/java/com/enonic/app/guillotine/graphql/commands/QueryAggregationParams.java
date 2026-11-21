@@ -190,7 +190,7 @@ final class QueryAggregationParams
         final Long interval = getLong( paramsMap, "interval" );
         final Long extendedBoundMin = getLong( paramsMap, "extendedBoundMin" );
         final Long extendedBoundMax = getLong( paramsMap, "extendedBoundMax" );
-        final Long mindDocCount = getLong( paramsMap, "minDocCount" );
+        final Long minDocCount = getLong( paramsMap, "minDocCount" );
 
         HistogramAggregationQuery.Order histogramOrder = KEY_ASC;
         if ( !orderExpr.isEmpty() )
@@ -209,8 +209,23 @@ final class QueryAggregationParams
             }
         }
 
-        return HistogramAggregationQuery.create( name ).fieldName( fieldName ).interval( interval ).extendedBoundMin(
-            extendedBoundMin ).extendedBoundMax( extendedBoundMax ).minDocCount( mindDocCount ).order( histogramOrder );
+        final HistogramAggregationQuery.Builder builder =
+            HistogramAggregationQuery.create( name ).fieldName( fieldName ).interval( interval ).order( histogramOrder );
+
+        if ( extendedBoundMin != null )
+        {
+            builder.extendedBoundMin( extendedBoundMin );
+        }
+        if ( extendedBoundMax != null )
+        {
+            builder.extendedBoundMax( extendedBoundMax );
+        }
+        if ( minDocCount != null )
+        {
+            builder.minDocCount( minDocCount );
+        }
+
+        return builder;
     }
 
     private DateHistogramAggregationQuery.Builder dateHistogramAggregationFromParams( final String name,
@@ -218,11 +233,18 @@ final class QueryAggregationParams
     {
         final String fieldName = (String) paramsMap.get( "field" );
         final String interval = (String) paramsMap.getOrDefault( "interval", "" );
-        final Long mindDocCount = getLong( paramsMap, "minDocCount" );
+        final Long minDocCount = getLong( paramsMap, "minDocCount" );
         final String format = (String) paramsMap.get( "format" );
 
-        return DateHistogramAggregationQuery.create( name ).fieldName( fieldName ).interval( interval ).minDocCount( mindDocCount ).format(
-            format );
+        final DateHistogramAggregationQuery.Builder builder =
+            DateHistogramAggregationQuery.create( name ).fieldName( fieldName ).interval( interval ).format( format );
+
+        if ( minDocCount != null )
+        {
+            builder.minDocCount( minDocCount );
+        }
+
+        return builder;
     }
 
     private NumericRangeAggregationQuery.Builder numericRangeAggregationFromParams( final String name, final Map<String, Object> paramsMap )

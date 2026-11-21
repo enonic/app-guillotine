@@ -18,6 +18,7 @@ import com.enonic.app.guillotine.graphql.commands.GetContentCommand;
 import com.enonic.app.guillotine.graphql.fetchers.GetAttachmentUrlByNameDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetLinkPageUrlDataFetcher;
 import com.enonic.app.guillotine.graphql.fetchers.GetFieldAsJsonDataFetcher;
+import com.enonic.app.guillotine.graphql.fetchers.GetGraphQLTypeNameDataFetcher;
 
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newArgument;
 import static com.enonic.app.guillotine.graphql.helper.GraphQLHelper.newObject;
@@ -189,11 +190,13 @@ public class GenericTypesFactory
         fields.add( outputField( "icon", GraphQLTypeReference.typeRef( "Icon" ) ) );
         fields.add( outputField( "form", new GraphQLList( GraphQLTypeReference.typeRef( "FormItem" ) ) ) );
         fields.add( outputField( "formAsJson", ExtendedScalars.Json ) );
+        fields.add( outputField( "graphqlTypeName", Scalars.GraphQLString ) );
 
         GraphQLObjectType outputObject = newObject( context.uniqueName( "ContentType" ), "Content type.", fields );
         context.registerType( outputObject.getName(), outputObject );
 
         context.registerDataFetcher( outputObject.getName(), "formAsJson", new GetFieldAsJsonDataFetcher( "form" ) );
+        context.registerDataFetcher( outputObject.getName(), "graphqlTypeName", new GetGraphQLTypeNameDataFetcher( context ) );
     }
 
     private void createImageStyleType()
