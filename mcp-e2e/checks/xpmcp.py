@@ -31,6 +31,47 @@ def load_expected():
         return json.load(f)
 
 
+def load_dataset():
+    with open(os.path.join(E2E_DIR, "fixtures/dataset-app/src/main/resources/dataset/dataset.json")) as f:
+        return json.load(f)
+
+
+def passwords():
+    """Passwords of the dataset users and su, with the same overrides the dataset app applies: password.<login>=... in its config
+    file, then MCP_E2E_PASSWORD for MCP_E2E_USER."""
+    result = {u["login"]: u["password"] for u in load_dataset()["users"]}
+    dataset_cfg = os.path.join(os.environ.get("XP_HOME", ""), "config", "com.example.mcpdataset.cfg")
+    if os.environ.get("XP_HOME") and os.path.isfile(dataset_cfg):
+        with open(dataset_cfg) as f:
+            for line in f:
+                key, _, value = line.strip().partition("=")
+                if key.strip().startswith("password.") and value:
+                    result[key.strip()[len("password."):]] = value.strip()
+    if os.environ.get("MCP_E2E_USER") and os.environ.get("MCP_E2E_PASSWORD"):
+        result[os.environ["MCP_E2E_USER"]] = os.environ["MCP_E2E_PASSWORD"]
+    result["su"] = os.environ.get("XP_SU_PASSWORD", "mcp-e2e-local")
+    return result
+
+
+def login(user, password=None):
+    """Signs a user in to the system ID provider; returns the session cookie."""
+    body = json.dumps({"action": "login", "user": user, "password": password or passwords()[user]}).encode()
+    request = urllib.request.Request(XP_URL + "/_/idprovider/system", body, {"Content-Type": "application/json"})
+    with urllib.request.urlopen(request) as response:
+        answer = json.load(response)
+        cookies = [v.split(";", 1)[0] for k, v in response.getheaders() if k.lower() == "set-cookie" and v.startswith("JSESSIONID=")]
+    if not answer.get("authenticated") or not cookies:
+        sys.exit("Sign-in as %s failed: %s" % (user, answer))
+    return cookies[-1]
+
+
+def logout(cookie):
+    try:
+        urllib.request.urlopen(urllib.request.Request(XP_URL + "/_/idprovider/system/logout", headers={"Cookie": cookie})).read()
+    except urllib.error.HTTPError:
+        pass  # the logout redirect lands on a page that needs a session; the session is ended either way
+
+
 def check(name, ok, detail=""):
     global failures
     print(("PASS  " if ok else "FAIL  ") + "[" + CALLER + "] " + name +

@@ -60,6 +60,7 @@ mcp-e2e/scripts/xp-stop.sh            # stops only the XP that xp-start.sh start
 - `answers.py`, anonymous and signed-in: the six questions (articles per author, my recent content, unused images, content in progress, items per type, broken links on landing pages) compared with `expected.json`, on `draft` and `master` when signed in and on `master` when anonymous.
 - `access.py open` and, after the config is rewritten without `mcp.allowAnonymous`, `access.py closed`: anonymous callers use `content` and `graphql` only with the opt-in and never `references`; signed-in callers are not affected; a signed-out session counts as anonymous.
 - `permissions.py`, with `mcp.allowAnonymous=true`: the permission matrix. It signs in as each dataset user and as `su` itself and calls all eight tools on `draft` and `master` as anonymous, `mcp-dave` (no project role), `mcp-erin` (viewer), `mcp-alice` (editor), `mcp-frank` (editor who cannot read `/restricted`), `mcp-carol` (editor who can read `/team` and `/restricted`) and `su`. Counts, buckets, labels and references cover only what the caller can read, and a hidden item answers exactly like one that does not exist.
+- `elevation.py`, with `mcp.allowAnonymous=true`: the code paths that elevate over HTTP and the extension fields. Each document goes to the `query` tool and to Guillotine's HTTP endpoint with the same session. The query tool never shows more than HTTP; for `mcp-frank` it shows no default page template he cannot read and treats an unreadable `scopeKey` as missing, while HTTP still elevates (printed, not checked). URLs that XP builds with an administrator role must equal the HTTP answer; what they show is printed. The dataset app's extension resolvers see the caller and answer as over HTTP, and `describe-type` lists them under `appFields`.
 - `budget.py`, anonymous and signed-in, with `mcp.maxResultChars=2000`: cut results, hints and the `nextCursor` after a cut.
 - `redeploy`: removes `guillotine.jar` and puts it back without restarting XP; the tools and the HTTP GraphQL API go and come back.
 - `dataset-check.py`: compares `expected.json` with Guillotine's HTTP GraphQL API, without going through MCP.
@@ -67,7 +68,7 @@ mcp-e2e/scripts/xp-stop.sh            # stops only the XP that xp-start.sh start
 
 Config and deploy-folder changes hold a lock. When the run ends, also when it is interrupted, Guillotine's config file and `guillotine.jar` are put back as they were.
 
-The suites can also run on their own against any running XP with the dataset and `mcp.allowAnonymous=true`, for example `python3 mcp-e2e/checks/answers.py`. They read `XP_URL`; set `MCP_COOKIE` to the output of `scripts/login.sh` to run them signed in. `access.py` needs `ACCESS_COOKIE` instead, `permissions.py` signs in by itself (dataset passwords with the same overrides as the dataset app, `su` with `XP_SU_PASSWORD`), and `budget.py` needs `mcp.maxResultChars=2000`.
+The suites can also run on their own against any running XP with the dataset and `mcp.allowAnonymous=true`, for example `python3 mcp-e2e/checks/answers.py`. They read `XP_URL`; set `MCP_COOKIE` to the output of `scripts/login.sh` to run them signed in. `access.py` needs `ACCESS_COOKIE` instead, `permissions.py` and `elevation.py` sign in by themselves (dataset passwords with the same overrides as the dataset app, `su` with `XP_SU_PASSWORD`), and `budget.py` needs `mcp.maxResultChars=2000`.
 
 ### Reading the output
 
@@ -99,7 +100,10 @@ mcp-e2e/scripts/login.sh logout "$cookie"
 
 - 2 restricted folders with their own ACL, for `permissions.py`, created by `su` and published. `/team` (a folder, `team-article` and `team-image.png`) is readable by `mcp-carol` and `mcp-frank`; `/restricted` (a folder, `secret-note` and `secret-image.png`) only by `mcp-carol`. Project roles and anonymous callers read neither, administrators read both. `team-article` uses `secret-image.png` as cover and in its body and links to `secret-note`; `secret-note` is the only item that uses `team-image.png`.
 
-The project is public on `master`. Anonymous callers and users without a project role cannot read `draft`.
+- A page descriptor `main` and schema extensions in `guillotine/guillotine.js`, for `elevation.py`: `viewer` on articles (the caller's key), and `readableArticleCount` and `articleCountAsAdmin` on `guillotine`, the second of which counts as administrator on purpose.
+- A second project, `mcp-sec`, for `elevation.py`, so that `mcp-test` stays as `expected.json` describes it: `mcp-frank` and `mcp-carol` are its viewers. It has the site `/site` with the article `site-article` and the page template `_templates/hidden-template` for articles, on `draft` only. The templates folder and everything below it is readable only by `mcp-carol`, administrators and Content Studio administrators.
+
+`mcp-test` is public on `master`. Anonymous callers and users without a project role cannot read `draft`.
 
 `expected.json` describes the content outside `/team` and `/restricted`, which is what anonymous callers and `mcp-alice` see; `permissions.py` adds the restricted items per caller.
 
