@@ -232,9 +232,9 @@ tools:
     title: Search content
     description: >-
       Find, filter, sort, count and aggregate content in one project: by text, type, path, field values, what an item links to,
-      workflow state or the caller's own edits. Hits give _id, _path, displayName, type, modifiedTime and the data fields named in
-      fields; reference values and aggregation buckets of content ids come with the target's displayName and _path. For which types
-      exist and how many, use list-types; for a type's field names, describe-type.
+      workflow state, validity or the caller's own edits. Hits give _id, _path, displayName, type, modifiedTime and the data fields
+      named in fields; reference values and aggregation buckets of content ids come with the target's displayName and _path. For
+      which types exist and how many, use list-types; for a type's field names, describe-type.
     inputSchema:
       type: object
       properties:
@@ -281,7 +281,9 @@ tools:
             additionalProperties: false
           description: >-
             All must match. Each is {field, equals}, {field, from, to} (from inclusive, to exclusive; dates such as 2026-01-31),
-            {field, exists} or {references, field?}: content that links to the item with this _id or _path, in field or anywhere. field is an index path: data.<name> from describe-type, or modifiedTime, publish.from, language, type.
+            {field, exists} or {references, field?}: content that links to the item with this _id or _path, in field or anywhere.
+            field is an index path: data.<name> from describe-type, or modifiedTime, publish.from, publish.to, language, type, or
+            valid ({field: valid, equals: false} finds content that fails validation).
         sort:
           type: string
           description: >-
@@ -307,7 +309,9 @@ tools:
           maxItems: 10
           items:
             type: string
-          description: Data fields to return with each hit, such as [title, author].
+          description: >-
+            Data fields to return with each hit, such as [title, author]; publish adds the hit's publish.from, publish.to and
+            publish.first.
         count:
           type: integer
           minimum: 0
@@ -353,6 +357,17 @@ tools:
               workflow:
                 type: string
                 description: Workflow state when it is not READY.
+              publish:
+                type: object
+                description: The publish dates that are set, when fields asks for publish.
+                properties:
+                  from:
+                    type: string
+                  to:
+                    type: string
+                  first:
+                    type: string
+                additionalProperties: false
               data:
                 type: object
                 description: The fields asked for, keyed by name; references as {_id, displayName, _path} or {_id, missing}.
