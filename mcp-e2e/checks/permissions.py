@@ -10,14 +10,12 @@ unreadable content never shows up by id, path, display name, count, bucket, labe
 same answer as asking for one that does not exist. The suite signs the users in itself and signs them out at the end."""
 import atexit
 import json
-import os
 import sys
-import urllib.error
-import urllib.request
 
 sys.dont_write_bytecode = True  # keep __pycache__ out of the source tree
 import xpmcp  # noqa: E402
-from xpmcp import E2E_DIR, XP_URL, call, check, error_text, finish, info, load_expected, ok, readable_error, sc, show  # noqa: E402
+from xpmcp import (call, check, error_text, finish, info, load_dataset, load_expected, login, logout, ok, readable_error,  # noqa: E402
+                   sc, show)
 
 PROJECT = "mcp-test"
 ARTICLE = "com.example.mcpdataset:article"
@@ -28,41 +26,12 @@ MISSING_ID = "00000000-0000-4000-8000-000000000000"
 PRINCIPAL_REFUSAL = "holds user keys, and this call is anonymous"
 
 expected = load_expected()
-with open(os.path.join(E2E_DIR, "fixtures/dataset-app/src/main/resources/dataset/dataset.json")) as f:
-    dataset = json.load(f)
-PASSWORDS = {u["login"]: u["password"] for u in dataset["users"]}
-# the same overrides the dataset app applies: password.<login>=... in its config file, then MCP_E2E_PASSWORD for MCP_E2E_USER
-DATASET_CFG = os.path.join(os.environ.get("XP_HOME", ""), "config", "com.example.mcpdataset.cfg")
-if os.environ.get("XP_HOME") and os.path.isfile(DATASET_CFG):
-    with open(DATASET_CFG) as f:
-        for line in f:
-            key, _, value = line.strip().partition("=")
-            if key.strip().startswith("password.") and value:
-                PASSWORDS[key.strip()[len("password."):]] = value.strip()
-if os.environ.get("MCP_E2E_USER") and os.environ.get("MCP_E2E_PASSWORD"):
-    PASSWORDS[os.environ["MCP_E2E_USER"]] = os.environ["MCP_E2E_PASSWORD"]
-PASSWORDS["su"] = os.environ.get("XP_SU_PASSWORD", "mcp-e2e-local")
+dataset = load_dataset()
 READERS = {folder["name"]: set(folder["readers"]) | {"su"} for folder in dataset["restricted"]["folders"]}
 DRAFT_READERS = {"mcp-erin", "mcp-alice", "mcp-frank", "mcp-carol", "su"}
+SEC_PROJECT = dataset["security"]["project"]["id"]
+SEC_READERS = set(dataset["security"]["viewers"]) | {"su"}
 CALLERS = ["anonymous", "mcp-dave", "mcp-erin", "mcp-alice", "mcp-frank", "mcp-carol", "su"]
-
-
-def login(user):
-    body = json.dumps({"action": "login", "user": user, "password": PASSWORDS[user]}).encode()
-    request = urllib.request.Request(XP_URL + "/_/idprovider/system", body, {"Content-Type": "application/json"})
-    with urllib.request.urlopen(request) as response:
-        answer = json.load(response)
-        cookies = [v.split(";", 1)[0] for k, v in response.getheaders() if k.lower() == "set-cookie" and v.startswith("JSESSIONID=")]
-    if not answer.get("authenticated") or not cookies:
-        sys.exit("Sign-in as %s failed: %s" % (user, answer))
-    return cookies[-1]
-
-
-def logout(cookie):
-    try:
-        urllib.request.urlopen(urllib.request.Request(XP_URL + "/_/idprovider/system/logout", headers={"Cookie": cookie})).read()
-    except urllib.error.HTTPError:
-        pass  # the logout redirect lands on a page that needs a session; the session is ended either way
 
 
 def paths_by_id():
@@ -369,7 +338,10 @@ for caller in CALLERS:
               s.get("projects") == [] and branch == "draft", show(r))
     else:
         check("list-projects: %s with its readable item count" % PROJECT,
-              [(p["name"], p["itemCount"]) for p in s.get("projects", [])] == [(PROJECT, expected_counts(caller, branch)[0])], show(r))
+              [(p["name"], p["itemCount"]) for p in s.get("projects", []) if p["name"] != SEC_PROJECT] ==
+              [(PROJECT, expected_counts(caller, branch)[0])], show(r))
+        check("list-projects: %s only for its viewers and su" % SEC_PROJECT,
+              any(p["name"] == SEC_PROJECT for p in s.get("projects", [])) == (caller in SEC_READERS), show(r))
     for branch in ("draft", "master"):
         run(caller, branch)
     xpmcp.CALLER = caller
