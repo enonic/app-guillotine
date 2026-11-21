@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Stops only the XP instance started by xp-start.sh.
+set -uo pipefail
+source "$(dirname "$0")/xp-env.sh"
+[ -f "$XP_PID_FILE" ] || { echo "No pid file at $XP_PID_FILE"; exit 0; }
+pid=$(sed -n 1p "$XP_PID_FILE")
+started=$(sed -n 2p "$XP_PID_FILE")
+if [ -n "$started" ]; then
+    if [ "$(process_start "$pid")" != "$started" ]; then
+        echo "PID $pid is not the XP that xp-start.sh started (it exited, or the PID was reused); not stopping it." \
+            "Remove $XP_PID_FILE once XP is down." >&2
+        exit 1
+    fi
+elif ! is_local_xp "$pid"; then
+    # A pid file from an older xp-start.sh holds no start time.
+    echo "PID $pid is not an XP with XP_HOME=$XP_HOME; not stopping it. Remove $XP_PID_FILE once XP is down." >&2
+    exit 1
+fi
+pkill -TERM -P "$pid" 2>/dev/null; kill "$pid" 2>/dev/null
+# Wait for the process itself, not only the port: a JVM still shutting down keeps writing to console.log.
+for _ in $(seq 1 60); do
+    if ! kill -0 "$pid" 2>/dev/null && ! lsof -ti :8080 -sTCP:LISTEN >/dev/null; then
+        rm -f "$XP_PID_FILE"; echo "XP stopped"; exit 0
+    fi
+    sleep 1
+done
+if kill -0 "$pid" 2>/dev/null; then
+    echo "XP (pid $pid) is still running 60s after SIGTERM; kept $XP_PID_FILE. Run xp-stop.sh again, or kill -9 $pid." >&2
+else
+    echo "XP (pid $pid) exited, but port 8080 is still in use by PID $(lsof -ti :8080 -sTCP:LISTEN | tr '\n' ' ')." >&2
+    rm -f "$XP_PID_FILE"
+fi
+exit 1

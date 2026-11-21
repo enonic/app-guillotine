@@ -1,0 +1,534 @@
+{
+  "project": "mcp-test",
+  "note": "Content ids are random; everything is keyed by path. Paths are relative to the project content root.",
+  "users": [
+    {
+      "login": "mcp-alice",
+      "userKey": "user:system:mcp-alice"
+    },
+    {
+      "login": "mcp-bob",
+      "userKey": "user:system:mcp-bob"
+    },
+    {
+      "login": "mcp-carol",
+      "userKey": "user:system:mcp-carol"
+    }
+  ],
+  "articlesPerAuthor": {
+    "draft": [
+      {
+        "author": "ada-lovelace",
+        "authorPath": "/persons/ada-lovelace",
+        "displayName": "Ada Lovelace",
+        "count": 12
+      },
+      {
+        "author": "alan-turing",
+        "authorPath": "/persons/alan-turing",
+        "displayName": "Alan Turing",
+        "count": 9
+      },
+      {
+        "author": "grace-hopper",
+        "authorPath": "/persons/grace-hopper",
+        "displayName": "Grace Hopper",
+        "count": 6
+      },
+      {
+        "author": "linus-torvalds",
+        "authorPath": "/persons/linus-torvalds",
+        "displayName": "Linus Torvalds",
+        "count": 3
+      }
+    ],
+    "master": [
+      {
+        "author": "ada-lovelace",
+        "authorPath": "/persons/ada-lovelace",
+        "displayName": "Ada Lovelace",
+        "count": 8
+      },
+      {
+        "author": "alan-turing",
+        "authorPath": "/persons/alan-turing",
+        "displayName": "Alan Turing",
+        "count": 6
+      },
+      {
+        "author": "grace-hopper",
+        "authorPath": "/persons/grace-hopper",
+        "displayName": "Grace Hopper",
+        "count": 3
+      },
+      {
+        "author": "linus-torvalds",
+        "authorPath": "/persons/linus-torvalds",
+        "displayName": "Linus Torvalds",
+        "count": 2
+      }
+    ]
+  },
+  "articles": {
+    "draft": [
+      {
+        "path": "/articles/article-01",
+        "displayName": "Article 01",
+        "title": "Article 01",
+        "author": "Alan Turing"
+      },
+      {
+        "path": "/articles/article-02",
+        "displayName": "Article 02",
+        "title": "Article 02",
+        "author": "Alan Turing"
+      },
+      {
+        "path": "/articles/article-03",
+        "displayName": "Article 03",
+        "title": "Article 03 (edited)",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-04",
+        "displayName": "Article 04",
+        "title": "Article 04",
+        "author": "Grace Hopper"
+      },
+      {
+        "path": "/articles/article-05",
+        "displayName": "Article 05",
+        "title": "Article 05",
+        "author": "Grace Hopper"
+      },
+      {
+        "path": "/articles/article-06",
+        "displayName": "Article 06",
+        "title": "Article 06",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-07",
+        "displayName": "Article 07",
+        "title": "Article 07",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-08",
+        "displayName": "Article 08",
+        "title": "Article 08 (edited)",
+        "author": "Alan Turing"
+      },
+      {
+        "path": "/articles/article-09",
+        "displayName": "Article 09",
+        "title": "Article 09",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-10",
+        "displayName": "Article 10",
+        "title": "Article 10",
+        "author": "Alan Turing"
+      },
+      {
+        "path": "/articles/article-11",
+        "displayName": "Article 11",
+        "title": "Article 11 (edited)",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-12",
+        "displayName": "Article 12",
+        "title": "Article 12",
+        "author": "Grace Hopper"
+      },
+      {
+        "path": "/articles/article-13",
+        "displayName": "Article 13",
+        "title": "Article 13",
+        "author": "Linus Torvalds"
+      },
+      {
+        "path": "/articles/article-14",
+        "displayName": "Article 14",
+        "title": "Article 14",
+        "author": "Grace Hopper"
+      },
+      {
+        "path": "/articles/article-15",
+        "displayName": "Article 15",
+        "title": "Article 15 (edited)",
+        "author": "Alan Turing"
+      },
+      {
+        "path": "/articles/article-16",
+        "displayName": "Article 16",
+        "title": "Article 16",
+        "author": "Linus Torvalds"
+      },
+      {
+        "path": "/articles/article-17",
+        "displayName": "Article 17",
+        "title": "Article 17",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-18",
+        "displayName": "Article 18",
+        "title": "Article 18",
+        "author": "Alan Turing"
+      },
+      {
+        "path": "/articles/article-19",
+        "displayName": "Article 19",
+        "title": "Article 19",
+        "author": "Alan Turing"
+      },
+      {
+        "path": "/articles/article-20",
+        "displayName": "Article 20",
+        "title": "Article 20 (edited)",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-21",
+        "displayName": "Article 21",
+        "title": "Article 21",
+        "author": "Alan Turing"
+      },
+      {
+        "path": "/articles/article-22",
+        "displayName": "Article 22",
+        "title": "Article 22",
+        "author": "Linus Torvalds"
+      },
+      {
+        "path": "/articles/article-23",
+        "displayName": "Article 23",
+        "title": "Article 23",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-24",
+        "displayName": "Article 24",
+        "title": "Article 24",
+        "author": "Grace Hopper"
+      },
+      {
+        "path": "/articles/article-25",
+        "displayName": "Article 25",
+        "title": "Article 25 (edited)",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-26",
+        "displayName": "Article 26",
+        "title": "Article 26",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-27",
+        "displayName": "Article 27",
+        "title": "Article 27",
+        "author": "Grace Hopper"
+      },
+      {
+        "path": "/articles/article-28",
+        "displayName": "Article 28",
+        "title": "Article 28",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-29",
+        "displayName": "Article 29",
+        "title": "Article 29",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-30",
+        "displayName": "Article 30",
+        "title": "Article 30",
+        "author": "Alan Turing"
+      }
+    ],
+    "master": [
+      {
+        "path": "/articles/article-01",
+        "displayName": "Article 01",
+        "title": "Article 01",
+        "author": "Alan Turing"
+      },
+      {
+        "path": "/articles/article-02",
+        "displayName": "Article 02",
+        "title": "Article 02",
+        "author": "Alan Turing"
+      },
+      {
+        "path": "/articles/article-03",
+        "displayName": "Article 03",
+        "title": "Article 03 (edited)",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-05",
+        "displayName": "Article 05",
+        "title": "Article 05",
+        "author": "Grace Hopper"
+      },
+      {
+        "path": "/articles/article-07",
+        "displayName": "Article 07",
+        "title": "Article 07",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-08",
+        "displayName": "Article 08",
+        "title": "Article 08 (edited)",
+        "author": "Alan Turing"
+      },
+      {
+        "path": "/articles/article-10",
+        "displayName": "Article 10",
+        "title": "Article 10",
+        "author": "Alan Turing"
+      },
+      {
+        "path": "/articles/article-11",
+        "displayName": "Article 11",
+        "title": "Article 11 (edited)",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-12",
+        "displayName": "Article 12",
+        "title": "Article 12",
+        "author": "Grace Hopper"
+      },
+      {
+        "path": "/articles/article-14",
+        "displayName": "Article 14",
+        "title": "Article 14",
+        "author": "Grace Hopper"
+      },
+      {
+        "path": "/articles/article-15",
+        "displayName": "Article 15",
+        "title": "Article 15 (edited)",
+        "author": "Alan Turing"
+      },
+      {
+        "path": "/articles/article-16",
+        "displayName": "Article 16",
+        "title": "Article 16",
+        "author": "Linus Torvalds"
+      },
+      {
+        "path": "/articles/article-19",
+        "displayName": "Article 19",
+        "title": "Article 19",
+        "author": "Alan Turing"
+      },
+      {
+        "path": "/articles/article-20",
+        "displayName": "Article 20",
+        "title": "Article 20 (edited)",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-22",
+        "displayName": "Article 22",
+        "title": "Article 22",
+        "author": "Linus Torvalds"
+      },
+      {
+        "path": "/articles/article-23",
+        "displayName": "Article 23",
+        "title": "Article 23",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-25",
+        "displayName": "Article 25",
+        "title": "Article 25 (edited)",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-26",
+        "displayName": "Article 26",
+        "title": "Article 26",
+        "author": "Ada Lovelace"
+      },
+      {
+        "path": "/articles/article-28",
+        "displayName": "Article 28",
+        "title": "Article 28",
+        "author": "Ada Lovelace"
+      }
+    ]
+  },
+  "recentlyModifiedByUser": {
+    "mcp-alice": {
+      "userKey": "user:system:mcp-alice",
+      "draft": [
+        "/articles/article-25",
+        "/articles/article-20",
+        "/landings/landing-deleted-link",
+        "/articles/article-30",
+        "/articles/article-27",
+        "/articles/article-24",
+        "/articles/article-21",
+        "/articles/article-18",
+        "/articles/article-12",
+        "/articles/article-09",
+        "/articles/article-06",
+        "/images/img-12.png",
+        "/images/img-09.png",
+        "/images/img-06.png",
+        "/images/img-03.png",
+        "/persons/alan-turing",
+        "/persons/ada-lovelace"
+      ],
+      "master": [
+        "/articles/article-25",
+        "/articles/article-20",
+        "/landings/landing-deleted-link",
+        "/articles/article-12",
+        "/images/img-09.png",
+        "/images/img-06.png",
+        "/images/img-03.png",
+        "/persons/alan-turing",
+        "/persons/ada-lovelace"
+      ]
+    },
+    "mcp-bob": {
+      "userKey": "user:system:mcp-bob",
+      "draft": [
+        "/articles/article-11",
+        "/articles/article-08",
+        "/landings/landing-missing-image",
+        "/articles/article-28",
+        "/articles/article-22",
+        "/articles/article-19",
+        "/articles/article-16",
+        "/articles/article-13",
+        "/articles/article-10",
+        "/articles/article-07",
+        "/articles/article-04",
+        "/articles/article-01",
+        "/images/img-10.png",
+        "/images/img-07.png",
+        "/images/img-04.png",
+        "/images/img-01.png",
+        "/persons/linus-torvalds",
+        "/persons/grace-hopper"
+      ],
+      "master": [
+        "/articles/article-11",
+        "/articles/article-08",
+        "/landings/landing-missing-image",
+        "/articles/article-28",
+        "/articles/article-22",
+        "/articles/article-19",
+        "/articles/article-16",
+        "/articles/article-10",
+        "/articles/article-07",
+        "/articles/article-01",
+        "/images/img-10.png",
+        "/images/img-07.png",
+        "/images/img-04.png",
+        "/images/img-01.png",
+        "/persons/linus-torvalds",
+        "/persons/grace-hopper"
+      ]
+    },
+    "mcp-carol": {
+      "userKey": "user:system:mcp-carol",
+      "draft": [
+        "/articles/article-15",
+        "/articles/article-03",
+        "/articles/article-29",
+        "/articles/article-26",
+        "/articles/article-23",
+        "/articles/article-17",
+        "/articles/article-14",
+        "/articles/article-05",
+        "/articles/article-02",
+        "/images/img-11.png",
+        "/images/img-08.png",
+        "/images/img-05.png",
+        "/images/img-02.png"
+      ],
+      "master": [
+        "/articles/article-15",
+        "/articles/article-03",
+        "/articles/article-26",
+        "/articles/article-23",
+        "/articles/article-14",
+        "/articles/article-05",
+        "/articles/article-02",
+        "/images/img-08.png",
+        "/images/img-05.png",
+        "/images/img-02.png"
+      ]
+    }
+  },
+  "recentlyModifiedNote": "Order is deterministic: creates in dataset order (folders by su, persons, images, articles, landings), then declared modifications in article order. Exact timestamps are not.",
+  "unusedImages": {
+    "draft": [
+      "/images/img-09.png",
+      "/images/img-10.png",
+      "/images/img-11.png",
+      "/images/img-12.png"
+    ],
+    "master": [
+      "/images/img-07.png",
+      "/images/img-09.png",
+      "/images/img-10.png"
+    ]
+  },
+  "inWork": {
+    "draft": [
+      "/articles/article-06",
+      "/articles/article-18",
+      "/articles/article-29"
+    ],
+    "master": []
+  },
+  "countPerType": {
+    "draft": {
+      "base:folder": 4,
+      "com.example.mcpdataset:article": 30,
+      "com.example.mcpdataset:landing": 2,
+      "com.example.mcpdataset:person": 4,
+      "media:image": 12
+    },
+    "master": {
+      "base:folder": 4,
+      "com.example.mcpdataset:article": 19,
+      "com.example.mcpdataset:landing": 2,
+      "com.example.mcpdataset:person": 4,
+      "media:image": 10
+    }
+  },
+  "totalItems": {
+    "draft": 52,
+    "master": 39
+  },
+  "brokenLinks": [
+    {
+      "landing": "/landings/landing-deleted-link",
+      "kind": "content",
+      "target": "/articles/deleted-article",
+      "reason": "target content deleted"
+    },
+    {
+      "landing": "/landings/landing-missing-image",
+      "kind": "image",
+      "targetId": "00000000-0000-4000-8000-00000000dead",
+      "reason": "image id never existed"
+    }
+  ]
+}

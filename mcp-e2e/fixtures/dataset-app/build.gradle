@@ -1,0 +1,22 @@
+plugins {
+    id 'com.enonic.xp.app'
+}
+
+if (findProperty('fixtureBuildDir')) {
+    layout.buildDirectory = file(findProperty('fixtureBuildDir'))
+}
+
+dependencies {
+    implementation xplibs.api.core
+    include xplibs.context
+    include xplibs.content
+    include xplibs.project
+    include xplibs.auth
+    include xplibs.io
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    xp.enonicRepo( 'dev' )
+}

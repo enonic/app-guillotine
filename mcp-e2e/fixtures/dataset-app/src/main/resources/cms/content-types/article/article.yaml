@@ -1,0 +1,36 @@
+kind: "ContentType"
+title: "Article"
+superType: "base:structured"
+form:
+  - type: "TextLine"
+    name: "title"
+    label: "Title"
+    occurrences:
+      min: 1
+      max: 1
+  - type: "ContentSelector"
+    name: "author"
+    label: "Author"
+    occurrences:
+      min: 0
+      max: 1
+    allowContentType:
+      - "com.example.mcpdataset:person"
+  - type: "TextLine"
+    name: "tags"
+    label: "Tags"
+    occurrences:
+      min: 0
+      max: 0
+  - type: "ImageSelector"
+    name: "cover"
+    label: "Cover"
+    occurrences:
+      min: 0
+      max: 1
+  - type: "HtmlArea"
+    name: "body"
+    label: "Body"
+    occurrences:
+      min: 0
+      max: 1
