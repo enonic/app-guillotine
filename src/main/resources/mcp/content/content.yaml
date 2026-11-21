@@ -241,7 +241,9 @@ tools:
         text:
           type: string
           maxLength: 500
-          description: Words that must all match the name or any text field.
+          description: >-
+            XP full-text query over the display name, the name and any text field. Every plain word must match; "two words"
+            matches a phrase, word* a prefix, and -word excludes items that contain the word.
         types:
           type: array
           maxItems: 20

@@ -197,7 +197,7 @@ When the description does not fit `mcp.maxResultChars` even without `fields`, th
 Finds, filters, sorts, counts and aggregates content in one project. With `count: 0` and `aggregate`, one call answers a "how many per X" question.
 
 Arguments::
-`text`::: Words that must all match the display name, the name or any text field. At most 500 characters. The text is read as XP full-text syntax: `"two words"` matches a phrase, `word*` a prefix, and `-word` excludes items that contain the word.
+`text`::: XP full-text query over the display name, the name and any text field, at most 500 characters. Every plain word must match; `"two words"` matches a phrase, `word*` a prefix, and `-word` excludes items that contain the word.
 `types`::: Up to 20 content type names from `list-types`. A local name such as `article` matches that name in any application.
 `path`::: The item at this path and everything below it, such as `/articles`.
 `mine`::: `true` for content the caller modified last. Needs a signed-in caller.
