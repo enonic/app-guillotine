@@ -30,6 +30,7 @@ public class GenericTypesVerifier
         verifyMediaUploader();
         verifySiteConfigurator();
         verifyPublishInfo();
+        verifyWorkflowInfo();
         verifyAttachment();
         verifyIcon();
         verifyContentType();
@@ -259,6 +260,15 @@ public class GenericTypesVerifier
         assertEquals( ExtendedScalars.DateTime, type.getFieldDefinition( "to" ).getType() );
         assertEquals( ExtendedScalars.DateTime, type.getFieldDefinition( "first" ).getType() );
         assertEquals( ExtendedScalars.DateTime, type.getFieldDefinition( "time" ).getType() );
+    }
+
+    private void verifyWorkflowInfo()
+    {
+        GraphQLObjectType type = context.getOutputType( "WorkflowInfo" );
+
+        assertEquals( "Workflow information.", type.getDescription() );
+        assertEquals( 1, type.getFieldDefinitions().size() );
+        assertEquals( Scalars.GraphQLString, type.getFieldDefinition( "state" ).getType() );
     }
 
     private void verifySiteConfigurator()
