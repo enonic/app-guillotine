@@ -253,24 +253,25 @@ public class GraphQLApi
     }
 
     /**
-     * Executes {@code operationName} of {@code query} with an extra {@code instrumentation}, which may be {@code null}. Image
-     * transformations are allowed as {@link ImageTransformations#ofRequest()} decides, as for a query received over HTTP.
+     * Executes {@code operationName} of {@code query} with an extra {@code instrumentation}, which may be {@code null}, for the MCP
+     * tools. Image transformations are allowed as {@link ImageTransformations#ofRequest()} decides, as for a query received over
+     * HTTP; unlike over HTTP, data fetchers never elevate ({@link Elevation#NONE}).
      */
     public Map<String, Object> executeToSpecification( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables,
                                                        String operationName, Instrumentation instrumentation )
     {
         return executeInternal( graphQLSchema, query, variables == null ? Map.of() : variables, ImageTransformations.ofRequest(),
-                                operationName, instrumentation ).toSpecification();
+                                Elevation.NONE, operationName, instrumentation ).toSpecification();
     }
 
     private ExecutionResult executeInternal( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables,
                                              ImageTransformations imageTransformations )
     {
-        return executeInternal( graphQLSchema, query, variables, imageTransformations, null, null );
+        return executeInternal( graphQLSchema, query, variables, imageTransformations, Elevation.ALLOWED, null, null );
     }
 
     private ExecutionResult executeInternal( GraphQLSchema graphQLSchema, String query, Map<String, Object> variables,
-                                             ImageTransformations imageTransformations, String operationName,
+                                             ImageTransformations imageTransformations, Elevation elevation, String operationName,
                                              Instrumentation instrumentation )
     {
         final PreparsedDocumentProvider preparsedProvider = ( executionInput, parseAndValidateFunction ) -> {
@@ -308,7 +309,7 @@ public class GraphQLApi
             .query( query )
             .operationName( operationName )
             .variables( variables )
-            .graphQLContext( Map.of( ImageTransformations.class, imageTransformations ) )
+            .graphQLContext( Map.of( ImageTransformations.class, imageTransformations, Elevation.class, elevation ) )
             .build();
 
         return graphQL.execute( executionInput );

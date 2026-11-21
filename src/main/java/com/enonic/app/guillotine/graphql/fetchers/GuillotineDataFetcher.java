@@ -11,7 +11,9 @@ import graphql.schema.DataFetchingEnvironment;
 
 import com.enonic.app.guillotine.ServiceFacade;
 import com.enonic.app.guillotine.graphql.Constants;
+import com.enonic.app.guillotine.graphql.Elevation;
 import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.context.ContextAccessor;
@@ -54,14 +56,14 @@ public class GuillotineDataFetcher
         final String scopeKey = environment.getArgument( Constants.SCOPE_ARG );
         if ( scopeKey != null && !scopeKey.isBlank() )
         {
-            requireScopeExists( projectName, branch, scopeKey );
+            requireScopeExists( projectName, branch, scopeKey, Elevation.of( environment ) );
             localContext.putIfAbsent( Constants.SCOPE_ARG, scopeKey );
         }
 
         return DataFetcherResult.newResult().data( new Object() ).localContext( Collections.unmodifiableMap( localContext ) ).build();
     }
 
-    private void requireScopeExists( final String projectName, final String branch, final String scopeKey )
+    private void requireScopeExists( final String projectName, final String branch, final String scopeKey, final Elevation elevation )
     {
         if ( "/".equals( scopeKey ) )
         {
@@ -77,11 +79,17 @@ public class GuillotineDataFetcher
                 final ContentService contentService = serviceFacadeSupplier.get().getContentService();
                 try
                 {
+                    if ( elevation == Elevation.NONE )
+                    {
+                        return scopeKey.startsWith( "/" )
+                            ? contentService.getByPath( ContentPath.from( scopeKey ) ) != null
+                            : contentService.getById( ContentId.from( scopeKey ) ) != null;
+                    }
                     return scopeKey.startsWith( "/" )
                         ? contentService.contentExists( ContentPath.from( scopeKey ) )
                         : contentService.contentExists( ContentId.from( scopeKey ) );
                 }
-                catch ( IllegalArgumentException e )
+                catch ( IllegalArgumentException | ContentNotFoundException e )
                 {
                     return false;
                 }

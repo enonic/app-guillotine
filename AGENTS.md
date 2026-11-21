@@ -27,7 +27,10 @@ NODE_OPTIONS=--max-old-space-size=8192 ./gradlew test --tests 'com.enonic.app.gu
 ## Rules
 
 - Do not change the behaviour of the GraphQL HTTP API. MCP reuses `SchemaProvider`/`GraphQLApi` in-process; additions there must be opt-in for MCP callers only.
-- Tools are read-only and run with the caller's permissions. Never elevate the context.
+- Tools are read-only and run with the caller's permissions. Guillotine's own code never elevates on a path an MCP call reaches: no admin context, `runAsAdmin` or added principals.
+  - Two core paths elevate over HTTP, and MCP runs them without: the default page template in `BasePageDataFetcher` (Content Studio administrator role) and the `scopeKey` check in `GuillotineDataFetcher` (XP's `contentExists` ignores read permissions). The MCP entry `SchemaProvider.executeToSpecification(query, variables, operationName, instrumentation)` sets `Elevation.NONE`, and both check `Elevation.of(environment)`. A core path that elevates must do the same.
+  - Outside Guillotine, and the same over MCP as over HTTP: XP's `PortalUrlServiceImpl` builds page, image and attachment URLs and processed rich text with `role:system.admin`, and other apps' extension resolvers run with whatever context their app sets.
+  - `mcp-e2e/checks/elevation.py` runs each of these over MCP and HTTP with the same session.
 - A caller mistake throws `ToolError` with a message that says what to change (the hint); it becomes an `isError` result. Never let an exception text or Java class name reach the model.
 - Every result whose size depends on data goes through a `ResultBudget` (`mcp.maxResultChars`). Paged results recompute `nextCursor` when items are dropped.
 - A tool whose number of backend calls depends on data checks a `Deadline` between calls and returns a partial result with `incomplete: true` when it passes. After the deadline it starts only the calls needed to report what it already read.
