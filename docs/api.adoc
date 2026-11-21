@@ -223,6 +223,9 @@ a|Flattened list of page components
 |publish: <<PublishInfo>>
 |Publication information
 
+|workflow: <<WorkflowInfo>>
+|Workflow information
+
 |pageUrl(params: JSON): <<PageUrl>>
 |Page link components for the scope selected with `scopeKey`, or for the project without it; see <<PageUrl>> and <<usage/images-and-urls#base-urls, Base URLs>>
 
@@ -1117,6 +1120,18 @@ Direct Known Subtypes: FormInput
 
 |time: DateTime
 |Publication marker. On draft content, its presence indicates that the draft matches the published version; its absence indicates unpublished changes. Use its presence rather than interpreting the timestamp as a publication date
+
+|===
+
+=== WorkflowInfo
+
+==== Fields
+
+|===
+|Name(Arguments):Type | Description
+
+|state: String
+|Workflow state of the content: `IN_PROGRESS`, `PENDING_APPROVAL`, `REJECTED` or `READY`, or `null` when the content has no workflow information
 
 |===
 
