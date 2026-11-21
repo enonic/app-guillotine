@@ -1,0 +1,601 @@
+{
+  "project": {
+    "id": "mcp-test",
+    "displayName": "MCP test dataset",
+    "language": "en"
+  },
+  "app": "com.example.mcpdataset",
+  "folders": [
+    {
+      "name": "persons",
+      "displayName": "Persons",
+      "publish": true
+    },
+    {
+      "name": "images",
+      "displayName": "Images",
+      "publish": true
+    },
+    {
+      "name": "articles",
+      "displayName": "Articles",
+      "publish": true
+    },
+    {
+      "name": "landings",
+      "displayName": "Landings",
+      "publish": true
+    }
+  ],
+  "usersNote": "Throwaway passwords for a local test XP only. Override per user with password.<login> in com.example.mcpdataset.cfg.",
+  "users": [
+    {
+      "login": "mcp-alice",
+      "displayName": "Alice Editor",
+      "email": "alice@mcp.test",
+      "password": "alice-local-only!"
+    },
+    {
+      "login": "mcp-bob",
+      "displayName": "Bob Writer",
+      "email": "bob@mcp.test",
+      "password": "bob-local-only!"
+    },
+    {
+      "login": "mcp-carol",
+      "displayName": "Carol Reviewer",
+      "email": "carol@mcp.test",
+      "password": "carol-local-only!"
+    }
+  ],
+  "persons": [
+    {
+      "name": "ada-lovelace",
+      "displayName": "Ada Lovelace",
+      "user": "mcp-alice",
+      "publish": true
+    },
+    {
+      "name": "alan-turing",
+      "displayName": "Alan Turing",
+      "user": "mcp-alice",
+      "publish": true
+    },
+    {
+      "name": "grace-hopper",
+      "displayName": "Grace Hopper",
+      "user": "mcp-bob",
+      "publish": true
+    },
+    {
+      "name": "linus-torvalds",
+      "displayName": "Linus Torvalds",
+      "user": "mcp-bob",
+      "publish": true
+    }
+  ],
+  "images": [
+    {
+      "name": "img-01.png",
+      "file": "img-01.png",
+      "user": "mcp-bob",
+      "publish": true
+    },
+    {
+      "name": "img-02.png",
+      "file": "img-02.png",
+      "user": "mcp-carol",
+      "publish": true
+    },
+    {
+      "name": "img-03.png",
+      "file": "img-03.png",
+      "user": "mcp-alice",
+      "publish": true
+    },
+    {
+      "name": "img-04.png",
+      "file": "img-04.png",
+      "user": "mcp-bob",
+      "publish": true
+    },
+    {
+      "name": "img-05.png",
+      "file": "img-05.png",
+      "user": "mcp-carol",
+      "publish": true
+    },
+    {
+      "name": "img-06.png",
+      "file": "img-06.png",
+      "user": "mcp-alice",
+      "publish": true
+    },
+    {
+      "name": "img-07.png",
+      "file": "img-07.png",
+      "user": "mcp-bob",
+      "publish": true
+    },
+    {
+      "name": "img-08.png",
+      "file": "img-08.png",
+      "user": "mcp-carol",
+      "publish": true
+    },
+    {
+      "name": "img-09.png",
+      "file": "img-09.png",
+      "user": "mcp-alice",
+      "publish": true
+    },
+    {
+      "name": "img-10.png",
+      "file": "img-10.png",
+      "user": "mcp-bob",
+      "publish": true
+    },
+    {
+      "name": "img-11.png",
+      "file": "img-11.png",
+      "user": "mcp-carol",
+      "publish": false
+    },
+    {
+      "name": "img-12.png",
+      "file": "img-12.png",
+      "user": "mcp-alice",
+      "publish": false
+    }
+  ],
+  "articles": [
+    {
+      "name": "article-01",
+      "title": "Article 01",
+      "author": "alan-turing",
+      "tags": [
+        "tech",
+        "news"
+      ],
+      "cover": "img-02.png",
+      "bodyImages": [],
+      "user": "mcp-bob",
+      "workflow": "READY",
+      "publish": true
+    },
+    {
+      "name": "article-02",
+      "title": "Article 02",
+      "author": "alan-turing",
+      "tags": [
+        "history"
+      ],
+      "cover": "img-03.png",
+      "bodyImages": [],
+      "user": "mcp-carol",
+      "workflow": "READY",
+      "publish": true
+    },
+    {
+      "name": "article-03",
+      "title": "Article 03",
+      "author": "ada-lovelace",
+      "tags": [
+        "tech"
+      ],
+      "cover": "img-04.png",
+      "bodyImages": [],
+      "user": "mcp-alice",
+      "workflow": "READY",
+      "publish": true,
+      "modifiedBy": "mcp-carol"
+    },
+    {
+      "name": "article-04",
+      "title": "Article 04",
+      "author": "grace-hopper",
+      "tags": [],
+      "cover": "img-05.png",
+      "bodyImages": [
+        "img-07.png"
+      ],
+      "user": "mcp-bob",
+      "workflow": "READY",
+      "publish": false
+    },
+    {
+      "name": "article-05",
+      "title": "Article 05",
+      "author": "grace-hopper",
+      "tags": [
+        "science",
+        "history"
+      ],
+      "cover": null,
+      "bodyImages": [],
+      "user": "mcp-carol",
+      "workflow": "READY",
+      "publish": true
+    },
+    {
+      "name": "article-06",
+      "title": "Article 06",
+      "author": "ada-lovelace",
+      "tags": [
+        "news"
+      ],
+      "cover": "img-01.png",
+      "bodyImages": [],
+      "user": "mcp-alice",
+      "workflow": "IN_PROGRESS",
+      "publish": false
+    },
+    {
+      "name": "article-07",
+      "title": "Article 07",
+      "author": "ada-lovelace",
+      "tags": [
+        "tech",
+        "news"
+      ],
+      "cover": "img-02.png",
+      "bodyImages": [],
+      "user": "mcp-bob",
+      "workflow": "READY",
+      "publish": true
+    },
+    {
+      "name": "article-08",
+      "title": "Article 08",
+      "author": "alan-turing",
+      "tags": [
+        "history"
+      ],
+      "cover": "img-03.png",
+      "bodyImages": [],
+      "user": "mcp-carol",
+      "workflow": "READY",
+      "publish": true,
+      "modifiedBy": "mcp-bob"
+    },
+    {
+      "name": "article-09",
+      "title": "Article 09",
+      "author": "ada-lovelace",
+      "tags": [
+        "tech"
+      ],
+      "cover": "img-04.png",
+      "bodyImages": [],
+      "user": "mcp-alice",
+      "workflow": "READY",
+      "publish": false
+    },
+    {
+      "name": "article-10",
+      "title": "Article 10",
+      "author": "alan-turing",
+      "tags": [],
+      "cover": null,
+      "bodyImages": [],
+      "user": "mcp-bob",
+      "workflow": "READY",
+      "publish": true
+    },
+    {
+      "name": "article-11",
+      "title": "Article 11",
+      "author": "ada-lovelace",
+      "tags": [
+        "science",
+        "history"
+      ],
+      "cover": "img-06.png",
+      "bodyImages": [],
+      "user": "mcp-carol",
+      "workflow": "READY",
+      "publish": true,
+      "modifiedBy": "mcp-bob"
+    },
+    {
+      "name": "article-12",
+      "title": "Article 12",
+      "author": "grace-hopper",
+      "tags": [
+        "news"
+      ],
+      "cover": "img-01.png",
+      "bodyImages": [],
+      "user": "mcp-alice",
+      "workflow": "READY",
+      "publish": true
+    },
+    {
+      "name": "article-13",
+      "title": "Article 13",
+      "author": "linus-torvalds",
+      "tags": [
+        "tech",
+        "news"
+      ],
+      "cover": "img-02.png",
+      "bodyImages": [],
+      "user": "mcp-bob",
+      "workflow": "READY",
+      "publish": false
+    },
+    {
+      "name": "article-14",
+      "title": "Article 14",
+      "author": "grace-hopper",
+      "tags": [
+        "history"
+      ],
+      "cover": "img-03.png",
+      "bodyImages": [],
+      "user": "mcp-carol",
+      "workflow": "READY",
+      "publish": true
+    },
+    {
+      "name": "article-15",
+      "title": "Article 15",
+      "author": "alan-turing",
+      "tags": [
+        "tech"
+      ],
+      "cover": null,
+      "bodyImages": [],
+      "user": "mcp-alice",
+      "workflow": "READY",
+      "publish": true,
+      "modifiedBy": "mcp-carol"
+    },
+    {
+      "name": "article-16",
+      "title": "Article 16",
+      "author": "linus-torvalds",
+      "tags": [],
+      "cover": "img-05.png",
+      "bodyImages": [],
+      "user": "mcp-bob",
+      "workflow": "READY",
+      "publish": true
+    },
+    {
+      "name": "article-17",
+      "title": "Article 17",
+      "author": "ada-lovelace",
+      "tags": [
+        "science",
+        "history"
+      ],
+      "cover": "img-06.png",
+      "bodyImages": [],
+      "user": "mcp-carol",
+      "workflow": "READY",
+      "publish": false
+    },
+    {
+      "name": "article-18",
+      "title": "Article 18",
+      "author": "alan-turing",
+      "tags": [
+        "news"
+      ],
+      "cover": "img-01.png",
+      "bodyImages": [],
+      "user": "mcp-alice",
+      "workflow": "IN_PROGRESS",
+      "publish": false
+    },
+    {
+      "name": "article-19",
+      "title": "Article 19",
+      "author": "alan-turing",
+      "tags": [
+        "tech",
+        "news"
+      ],
+      "cover": "img-02.png",
+      "bodyImages": [],
+      "user": "mcp-bob",
+      "workflow": "READY",
+      "publish": true
+    },
+    {
+      "name": "article-20",
+      "title": "Article 20",
+      "author": "ada-lovelace",
+      "tags": [
+        "history"
+      ],
+      "cover": null,
+      "bodyImages": [],
+      "user": "mcp-carol",
+      "workflow": "READY",
+      "publish": true,
+      "modifiedBy": "mcp-alice"
+    },
+    {
+      "name": "article-21",
+      "title": "Article 21",
+      "author": "alan-turing",
+      "tags": [
+        "tech"
+      ],
+      "cover": "img-04.png",
+      "bodyImages": [],
+      "user": "mcp-alice",
+      "workflow": "READY",
+      "publish": false
+    },
+    {
+      "name": "article-22",
+      "title": "Article 22",
+      "author": "linus-torvalds",
+      "tags": [],
+      "cover": "img-05.png",
+      "bodyImages": [],
+      "user": "mcp-bob",
+      "workflow": "READY",
+      "publish": true
+    },
+    {
+      "name": "article-23",
+      "title": "Article 23",
+      "author": "ada-lovelace",
+      "tags": [
+        "science",
+        "history"
+      ],
+      "cover": "img-06.png",
+      "bodyImages": [],
+      "user": "mcp-carol",
+      "workflow": "READY",
+      "publish": true
+    },
+    {
+      "name": "article-24",
+      "title": "Article 24",
+      "author": "grace-hopper",
+      "tags": [
+        "news"
+      ],
+      "cover": "img-01.png",
+      "bodyImages": [],
+      "user": "mcp-alice",
+      "workflow": "READY",
+      "publish": false
+    },
+    {
+      "name": "article-25",
+      "title": "Article 25",
+      "author": "ada-lovelace",
+      "tags": [
+        "tech",
+        "news"
+      ],
+      "cover": null,
+      "bodyImages": [],
+      "user": "mcp-bob",
+      "workflow": "READY",
+      "publish": true,
+      "modifiedBy": "mcp-alice"
+    },
+    {
+      "name": "article-26",
+      "title": "Article 26",
+      "author": "ada-lovelace",
+      "tags": [
+        "history"
+      ],
+      "cover": "img-03.png",
+      "bodyImages": [],
+      "user": "mcp-carol",
+      "workflow": "READY",
+      "publish": true
+    },
+    {
+      "name": "article-27",
+      "title": "Article 27",
+      "author": "grace-hopper",
+      "tags": [
+        "tech"
+      ],
+      "cover": "img-04.png",
+      "bodyImages": [],
+      "user": "mcp-alice",
+      "workflow": "READY",
+      "publish": false
+    },
+    {
+      "name": "article-28",
+      "title": "Article 28",
+      "author": "ada-lovelace",
+      "tags": [],
+      "cover": "img-05.png",
+      "bodyImages": [],
+      "user": "mcp-bob",
+      "workflow": "READY",
+      "publish": true
+    },
+    {
+      "name": "article-29",
+      "title": "Article 29",
+      "author": "ada-lovelace",
+      "tags": [
+        "science",
+        "history"
+      ],
+      "cover": "img-06.png",
+      "bodyImages": [],
+      "user": "mcp-carol",
+      "workflow": "IN_PROGRESS",
+      "publish": false
+    },
+    {
+      "name": "article-30",
+      "title": "Article 30",
+      "author": "alan-turing",
+      "tags": [
+        "news"
+      ],
+      "cover": null,
+      "bodyImages": [],
+      "user": "mcp-alice",
+      "workflow": "READY",
+      "publish": false
+    }
+  ],
+  "deletedContent": [
+    {
+      "name": "deleted-article",
+      "parent": "articles",
+      "title": "Deleted article",
+      "author": "ada-lovelace",
+      "user": "mcp-alice"
+    }
+  ],
+  "landings": [
+    {
+      "name": "landing-deleted-link",
+      "displayName": "Landing with deleted link",
+      "user": "mcp-alice",
+      "publish": true,
+      "links": [
+        {
+          "kind": "content",
+          "target": "article-01"
+        },
+        {
+          "kind": "content",
+          "target": "deleted-article",
+          "deleted": true
+        }
+      ],
+      "images": [
+        "img-08.png"
+      ]
+    },
+    {
+      "name": "landing-missing-image",
+      "displayName": "Landing with missing image",
+      "user": "mcp-bob",
+      "publish": true,
+      "links": [
+        {
+          "kind": "content",
+          "target": "article-02"
+        }
+      ],
+      "images": [],
+      "missingImages": [
+        {
+          "id": "00000000-0000-4000-8000-00000000dead",
+          "label": "missing-image"
+        }
+      ]
+    }
+  ]
+}
