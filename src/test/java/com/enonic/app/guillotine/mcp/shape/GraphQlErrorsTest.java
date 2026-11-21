@@ -226,6 +226,7 @@ public class GraphQlErrorsTest
     {
         assertTrue( GraphQlErrors.callerError( new ForbiddenAccessException( null ) ) instanceof ForbiddenAccessException );
         assertTrue( GraphQlErrors.callerError( new IllegalAccessException( "Unauthorized" ) ) instanceof IllegalAccessException );
+        assertEquals( GraphQlErrors.PRINCIPAL_DENIED, GraphQlErrors.callerMessage( new IllegalAccessException( "Unauthorized" ) ) );
         assertTrue( GraphQlErrors.callerError(
             new RuntimeException( new RuntimeException( new IllegalArgumentException( "x" ) ) ) ) instanceof IllegalArgumentException );
         assertNull( GraphQlErrors.callerError( new IllegalStateException( new IllegalArgumentException( "x" ) ) ) );
