@@ -46,6 +46,14 @@ final class SearchQuery
     private static final Set<String> DATE_FIELDS =
         Set.of( "createdtime", "modifiedtime", "archivedtime", "publish.from", "publish.to", "publish.first" );
 
+    /**
+     * Names in {@code fields} that every hit carries anyway, lower case.
+     */
+    private static final Set<String> HIT_FIELDS = Set.of( "_id", "_path", "displayname", "type", "modifiedtime", "workflow",
+                                                          "workflow.state" );
+
+    private static final Set<String> PUBLISH_FIELDS = Set.of( "publish", "publish.from", "publish.to", "publish.first" );
+
     private static final Map<String, String> SORT_ALIASES = Map.of( "name", "_name", "path", "_path", "score", "_score" );
 
     private static final Set<String> SORT_FIELDS =
@@ -71,6 +79,16 @@ final class SearchQuery
 
     final List<String> fields;
 
+    /**
+     * Whether {@code fields} asked for the publish dates.
+     */
+    final boolean publish;
+
+    /**
+     * Index field names in {@code fields} that hits do not carry, as given.
+     */
+    final List<String> notReturned;
+
     record Aggregate(String name, String by, int size)
     {
     }
@@ -88,8 +106,10 @@ final class SearchQuery
     }
 
     private SearchQuery( final Map<String, Object> query, final List<Map<String, Object>> sort, final List<Aggregate> aggregates,
-                         final List<String> fields )
+                         final List<String> fields, final boolean publish, final List<String> notReturned )
     {
+        this.publish = publish;
+        this.notReturned = notReturned;
         this.query = query;
         this.sort = sort;
         this.aggregates = aggregates;
@@ -138,10 +158,34 @@ final class SearchQuery
 
         final List<Map<String, Object>> sort = sort( args.get( "sort" ) instanceof String value ? value : null, text != null, scope );
         final List<Aggregate> aggregates = aggregates( list( args.get( "aggregate" ) ), scope );
-        final List<String> fields = new ArrayList<>( new LinkedHashSet<>( list( args.get( "fields" ) ).stream()
-                                                                            .map( field -> scope.resolveDataField(
-                                                                                String.valueOf( field ), "fields" ) )
-                                                                            .toList() ) );
+        final Set<String> fields = new LinkedHashSet<>();
+        final Set<String> notReturned = new LinkedHashSet<>();
+        boolean publish = false;
+        for ( final Object item : list( args.get( "fields" ) ) )
+        {
+            final String field = String.valueOf( item ).strip();
+            final String lower = field.toLowerCase( Locale.ROOT );
+            final String dataPath = field.startsWith( DataFieldScope.DATA_PREFIX ) ? null : scope.dataFieldPath( field );
+            if ( dataPath != null )
+            {
+                fields.add( dataPath );
+            }
+            else if ( PUBLISH_FIELDS.contains( lower ) )
+            {
+                publish = true;
+            }
+            else if ( !HIT_FIELDS.contains( lower ) )
+            {
+                if ( DataFieldScope.isIndexField( field ) && !field.startsWith( DataFieldScope.DATA_PREFIX ) )
+                {
+                    notReturned.add( field );
+                }
+                else
+                {
+                    fields.add( scope.resolveDataField( field, "fields" ) );
+                }
+            }
+        }
 
         if ( must.isEmpty() )
         {
@@ -153,7 +197,7 @@ final class SearchQuery
         {
             bool.put( "mustNot", mustNot );
         }
-        return new SearchQuery( Map.of( "boolean", bool ), sort, aggregates, fields );
+        return new SearchQuery( Map.of( "boolean", bool ), sort, aggregates, List.copyOf( fields ), publish, List.copyOf( notReturned ) );
     }
 
     /**
