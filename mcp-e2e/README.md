@@ -19,19 +19,19 @@ Everything the scripts write (XP home, fixture jar, logs) goes to `.tmp/mcp-e2e/
 
 ## Settings
 
-All settings are environment variables with defaults in `scripts/xp-env.sh`.
+All settings are environment variables with defaults in `scripts/xp-env.sh`. The scripts never read `XP_HOME` or `XP_URL` from the environment, so a shell that exports them for your own XP does not redirect the run there; they set both from `MCP_E2E_XP_HOME` and `MCP_E2E_XP_URL`.
 
 | Variable | Default | Meaning |
 |---|---|---|
 | `XP_DIST` | none, required by `xp-start.sh` | XP install dir |
 | `XP_SCRIPT_ENGINE` | empty (Nashorn) | `GraalJS` starts XP with `-Dxp.script-engine=GraalJS` |
-| `XP_HOME` | `.tmp/mcp-e2e/xp-home` | XP home; created from `$XP_DIST/home` on the first start |
-| `XP_URL` | `http://localhost:8080` | XP base URL; the MCP endpoint is `$XP_URL/api/system:mcp` |
+| `MCP_E2E_XP_HOME` | `.tmp/mcp-e2e/xp-home` | XP home, exported as `XP_HOME`; created from `$XP_DIST/home` on the first start |
+| `MCP_E2E_XP_URL` | `http://localhost:8080` | XP base URL, exported as `XP_URL`; the MCP endpoint is `$XP_URL/api/system:mcp` |
 | `GUILLOTINE_JAR` | `build/libs/guillotine.jar` | jar that `deploy.sh` deploys |
 | `IDPROVIDER_JAR` | newest `~/.enonic/distributions/*/system/40/app-standardidprovider-*.jar` | standard ID provider jar |
 | `FIXTURE_BUILD_DIR` | `.tmp/mcp-e2e/build` | where `build-fixtures.sh` writes the dataset app jar |
 | `MCP_E2E_USER`, `MCP_E2E_PASSWORD` | `mcp-alice` and her password from `dataset.json` | the signed-in caller |
-| `XP_SU_PASSWORD` | `mcp-e2e-local` | su password written into a new `XP_HOME`; for local use only |
+| `XP_SU_PASSWORD` | `mcp-e2e-local` | su password written into a new XP home; for local use only |
 
 `xp-start.sh` and `deploy.sh` write `$XP_HOME/config/com.enonic.app.guillotine.cfg` when it is missing:
 
@@ -68,7 +68,7 @@ mcp-e2e/scripts/xp-stop.sh            # stops only the XP that xp-start.sh start
 
 Config and deploy-folder changes hold a lock. When the run ends, also when it is interrupted, Guillotine's config file and `guillotine.jar` are put back as they were.
 
-The suites can also run on their own against any running XP with the dataset and `mcp.allowAnonymous=true`, for example `python3 mcp-e2e/checks/answers.py`. They read `XP_URL`; set `MCP_COOKIE` to the output of `scripts/login.sh` to run them signed in. `access.py` needs `ACCESS_COOKIE` instead, `permissions.py` and `elevation.py` sign in by themselves (dataset passwords with the same overrides as the dataset app, `su` with `XP_SU_PASSWORD`), and `budget.py` needs `mcp.maxResultChars=2000`.
+The suites can also run on their own against any running XP with the dataset and `mcp.allowAnonymous=true`, for example `python3 -B mcp-e2e/checks/answers.py` (`-B` keeps `__pycache__` out of the source tree). Run on their own, they read `XP_URL` and `XP_HOME` from the environment; set `MCP_COOKIE` to the output of `scripts/login.sh` to run them signed in. `access.py` needs `ACCESS_COOKIE` instead, `permissions.py` and `elevation.py` sign in by themselves (dataset passwords with the same overrides as the dataset app, `su` with `XP_SU_PASSWORD`), and `budget.py` needs `mcp.maxResultChars=2000`.
 
 ### Reading the output
 
@@ -82,7 +82,7 @@ The suites can also run on their own against any running XP with the dataset and
 
 ```sh
 cookie=$(mcp-e2e/scripts/login.sh)              # JSESSIONID=...; or: login.sh <user> <password>
-MCP_COOKIE="$cookie" python3 mcp-e2e/checks/tools.py
+MCP_COOKIE="$cookie" python3 -B mcp-e2e/checks/tools.py
 mcp-e2e/scripts/login.sh logout "$cookie"
 ```
 

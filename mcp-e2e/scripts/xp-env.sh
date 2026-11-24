@@ -1,4 +1,5 @@
-# Shared settings for local XP runs. Source it; every value below can be overridden from the environment.
+# Shared settings for local XP runs. Source it; the values read from the environment can be overridden there. XP_HOME, XP_URL and
+# MCP_URL are set from MCP_E2E_* variables only: a shell that exports them for a real XP must not point these scripts at it.
 MCP_E2E_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO_ROOT="$(cd "$MCP_E2E_DIR/.." && pwd)"
 # Scratch area for XP home, built fixture jars and logs. Nothing here is committed.
@@ -7,11 +8,15 @@ export MCP_E2E_WORK="${MCP_E2E_WORK:-$REPO_ROOT/.tmp/mcp-e2e}"
 export XP_DIST="${XP_DIST:-}"
 # Script engine for xp-start.sh: empty = XP default (Nashorn), or GraalJS.
 export XP_SCRIPT_ENGINE="${XP_SCRIPT_ENGINE:-}"
-export XP_HOME="${XP_HOME:-$MCP_E2E_WORK/xp-home}"
-export XP_URL="${XP_URL:-http://localhost:8080}"
-export MCP_URL="${MCP_URL:-$XP_URL/api/system:mcp}"
-export XP_PID_FILE="${XP_PID_FILE:-$MCP_E2E_WORK/xp.pid}"
-export LOG_DIR="${LOG_DIR:-$MCP_E2E_WORK/logs}"
+export MCP_E2E_XP_HOME="${MCP_E2E_XP_HOME:-$MCP_E2E_WORK/xp-home}"
+export XP_HOME="$MCP_E2E_XP_HOME"
+export MCP_E2E_XP_URL="${MCP_E2E_XP_URL:-http://localhost:8080}"
+export XP_URL="$MCP_E2E_XP_URL"
+export MCP_URL="$XP_URL/api/system:mcp"
+export XP_PID_FILE="$MCP_E2E_WORK/xp.pid"
+export LOG_DIR="$MCP_E2E_WORK/logs"
+# The checks run from the source tree; keep Python from writing __pycache__ there.
+export PYTHONDONTWRITEBYTECODE=1
 # Local-only throwaway su password, written into a fresh XP_HOME by xp-start.sh. Never reuse it anywhere real.
 export XP_SU_PASSWORD="${XP_SU_PASSWORD:-mcp-e2e-local}"
 export GUILLOTINE_JAR="${GUILLOTINE_JAR:-$REPO_ROOT/build/libs/guillotine.jar}"
