@@ -68,7 +68,7 @@ mcp-e2e/scripts/xp-stop.sh            # stops only the XP that xp-start.sh start
 
 Config and deploy-folder changes hold a lock. When the run ends, also when it is interrupted, Guillotine's config file and `guillotine.jar` are put back as they were.
 
-The suites can also run on their own against any running XP with the dataset and `mcp.allowAnonymous=true`, for example `python3 -B mcp-e2e/checks/answers.py` (`-B` keeps `__pycache__` out of the source tree). Run on their own, they read `XP_URL` and `XP_HOME` from the environment; set `MCP_COOKIE` to the output of `scripts/login.sh` to run them signed in. `access.py` needs `ACCESS_COOKIE` instead, `permissions.py` and `elevation.py` sign in by themselves (dataset passwords with the same overrides as the dataset app, `su` with `XP_SU_PASSWORD`), and `budget.py` needs `mcp.maxResultChars=2000`.
+The suites can also run on their own against any running XP with the dataset and `mcp.allowAnonymous=true`, for example `python3 -B mcp-e2e/checks/answers.py` (`-B` keeps `__pycache__` out of the source tree). Run on their own, they read `XP_URL`, `MCP_URL` and `XP_HOME` from the environment, unlike `login.sh`, so point `XP_URL` at the same XP when you pass them a cookie (see below); set `MCP_COOKIE` to the output of `scripts/login.sh` to run them signed in. `access.py` needs `ACCESS_COOKIE` instead, `permissions.py` and `elevation.py` sign in by themselves (dataset passwords with the same overrides as the dataset app, `su` with `XP_SU_PASSWORD`), and `budget.py` needs `mcp.maxResultChars=2000`.
 
 ### Reading the output
 
@@ -82,7 +82,7 @@ The suites can also run on their own against any running XP with the dataset and
 
 ```sh
 cookie=$(mcp-e2e/scripts/login.sh)              # JSESSIONID=...; or: login.sh <user> <password>
-MCP_COOKIE="$cookie" python3 -B mcp-e2e/checks/tools.py
+env -u MCP_URL MCP_COOKIE="$cookie" XP_URL="${MCP_E2E_XP_URL:-http://localhost:8080}" python3 -B mcp-e2e/checks/tools.py
 mcp-e2e/scripts/login.sh logout "$cookie"
 ```
 
