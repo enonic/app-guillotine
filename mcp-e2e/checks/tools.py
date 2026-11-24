@@ -7,8 +7,8 @@ import os
 import sys
 
 sys.dont_write_bytecode = True  # keep __pycache__ out of the source tree
-from xpmcp import (CALLER, E2E_DIR, SIGNED_IN, call, check, check_sizes, error_text, finish, info, load_expected, ok,  # noqa: E402
-                   readable_error, sc, show, walk)
+from xpmcp import (CALLER, E2E_DIR, MAX_RESULT_CHARS, SIGNED_IN, call, check, check_sizes, error_text, finish, info,  # noqa: E402
+                   load_expected, ok, readable_error, sc, show, walk)
 
 expected = load_expected()
 BRANCH = "draft" if SIGNED_IN else "master"
@@ -163,6 +163,29 @@ if SIGNED_IN:
     check("find-unreferenced count 1 lists the first by path and says how many there are",
           ok(r) and [i["_path"] for i in s.get("items", [])] == expected["unusedImages"]["draft"][:1] and
           s.get("total") == len(expected["unusedImages"]["draft"]) and "Listed the first 1 of" in s.get("note", ""), show(r))
+
+# describe-type on every dataset type and branch the caller reads; each example query runs as given through the query tool
+BRANCHES = ["draft", "master"] if SIGNED_IN else ["master"]
+for type_name in ("article", "person", "landing"):
+    for branch in BRANCHES:
+        r = call("content", "describe-type", {"type": type_name, "branch": branch})
+        s = sc(r)
+        examples = s.get("examples", [])
+        check("describe-type %s on %s: 3 examples" % (type_name, branch),
+              ok(r) and s.get("contentType") == "com.example.mcpdataset:" + type_name and s.get("branch") == branch and
+              len(examples) == 3 and not s.get("truncated"), show(r))
+        for i, example in enumerate(examples):
+            q = call("graphql", "query", {"query": example["query"], "branch": branch})
+            qs = sc(q)
+            size = len(json.dumps(qs, separators=(",", ":"), ensure_ascii=False))
+            check("  example %d (%s) on %s: no errors, %d <= %d chars, not truncated"
+                  % (i + 1, example["use"][:40], branch, size, MAX_RESULT_CHARS),
+                  ok(q) and qs.get("branch") == branch and "errors" not in qs and bool(qs.get("data")) and
+                  size <= MAX_RESULT_CHARS and not qs.get("truncated"), show(q))
+            if i == 0:
+                total = qs.get("data", {}).get("guillotine", {}).get("queryDslConnection", {}).get("totalCount")
+                check("  example 1 totalCount %s == describe-type count %s" % (total, s.get("count")),
+                      total is not None and total == s.get("count"))
 
 check_sizes()
 info("caller %s, default branch %s" % (CALLER, BRANCH))
