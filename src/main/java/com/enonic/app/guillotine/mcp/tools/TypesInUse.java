@@ -8,8 +8,6 @@ import java.util.Map;
 
 import com.enonic.app.guillotine.GuillotineConfigService;
 import com.enonic.app.guillotine.graphql.SchemaProvider;
-import com.enonic.app.guillotine.mcp.McpGroup;
-import com.enonic.app.guillotine.mcp.McpTool;
 import com.enonic.app.guillotine.mcp.shape.GraphQlErrors;
 import com.enonic.app.guillotine.mcp.shape.McpResult;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranch;
@@ -22,18 +20,17 @@ import com.enonic.xp.schema.content.GetContentTypeParams;
 
 /**
  * The content types that have content the caller can read in one project and branch, most used first, with the GraphQL type their
- * content has in {@code query} results.
+ * content has in {@code query} results: what describe-type returns without a type.
  */
-public final class ListTypesTool
-    implements McpTool
+final class TypesInUse
 {
     static final int MAX_TYPES = 1000;
 
-    static final String QUERY = "query McpListTypes { guillotine { queryDslConnection(query: {matchAll: {}}, first: 0, " +
+    static final String QUERY = "query McpTypesInUse { guillotine { queryDslConnection(query: {matchAll: {}}, first: 0, " +
         "aggregations: [{name: \"types\", terms: {field: \"type\", size: " + MAX_TYPES + ", order: \"_count DESC\"}}]) " +
         "{ totalCount aggregationsAsJson } } }";
 
-    private static final String TYPES = "types";
+    static final String TYPES = "types";
 
     private final SchemaProvider schemaProvider;
 
@@ -43,8 +40,8 @@ public final class ListTypesTool
 
     private final ProjectBranchResolver resolver;
 
-    public ListTypesTool( final SchemaProvider schemaProvider, final ContentTypeService contentTypeService,
-                          final GuillotineConfigService configService, final ProjectBranchResolver resolver )
+    TypesInUse( final SchemaProvider schemaProvider, final ContentTypeService contentTypeService,
+                final GuillotineConfigService configService, final ProjectBranchResolver resolver )
     {
         this.schemaProvider = schemaProvider;
         this.contentTypeService = contentTypeService;
@@ -52,32 +49,20 @@ public final class ListTypesTool
         this.resolver = resolver;
     }
 
-    @Override
-    public McpGroup group()
+    /**
+     * The types with the given note after any of their own, cut to {@code mcp.maxResultChars}.
+     */
+    Map<String, Object> read( final Map<String, Object> args, final String note )
     {
-        return McpGroup.CONTENT;
-    }
-
-    @Override
-    public String name()
-    {
-        return "list-types";
-    }
-
-    @Override
-    public Map<String, Object> execute( final Map<String, Object> args )
-    {
-        return fit( typesInUse( args ) );
-    }
-
-    Map<String, Object> fit( final Map<String, Object> structured )
-    {
+        final Map<String, Object> structured = types( args );
+        final Object own = structured.get( ResultBudget.NOTE );
+        structured.put( ResultBudget.NOTE, ( own != null ? own + " " : "" ) + note );
         return ResultBudget.fromConfig( configService )
             .withNarrowHint( "Count one type with query and a term filter on the field type." )
             .fitList( structured, TYPES );
     }
 
-    Map<String, Object> typesInUse( final Map<String, Object> args )
+    private Map<String, Object> types( final Map<String, Object> args )
     {
         final ProjectBranch target = resolver.resolve( args );
         final Map<String, Object> response =

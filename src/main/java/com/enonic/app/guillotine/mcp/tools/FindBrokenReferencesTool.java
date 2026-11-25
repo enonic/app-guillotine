@@ -46,7 +46,8 @@ public final class FindBrokenReferencesTool
 
     static final String SCOPE_NOTE = "missing lists referenced ids that are missing or that the caller cannot read. Checked: " +
         "references to content in data, page and component configs, mixins and rich text. Not checked: external URLs and URL strings " +
-        "in component configs. To see where a reference sits, call get on the item (data and rich text) or query (page components).";
+        "in component configs. To see where a reference sits, run query with get(key: <_id>) on the item and select dataAsJson, " +
+        "pageAsJson or components.";
 
     private static final String NARROW_HINT = "Narrow with path or types.";
 

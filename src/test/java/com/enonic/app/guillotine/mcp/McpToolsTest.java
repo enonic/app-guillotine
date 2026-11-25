@@ -127,7 +127,7 @@ public class McpToolsTest
     {
         final Map<String, Object> result = asEditor( () -> tools.run( "content", "fail", "{\"kind\":\"tool\"}" ) );
 
-        assertEquals( "Bad type. Call list-types.", errorText( result ) );
+        assertEquals( "Bad type. Call describe-type.", errorText( result ) );
         assertFalse( result.containsKey( "structuredContent" ) );
     }
 
@@ -147,7 +147,7 @@ public class McpToolsTest
         final McpTools real = new McpTools( mock( com.enonic.app.guillotine.ServiceFacade.class ),
                                             mock( com.enonic.app.guillotine.graphql.SchemaProvider.class ), configService );
 
-        assertEquals( Map.of( McpGroup.CONTENT, List.of( "list-projects", "list-types", "describe-type", "search", "get" ), McpGroup.GRAPHQL, List.of( "query" ),
+        assertEquals( Map.of( McpGroup.CONTENT, List.of( "list-projects", "describe-type" ), McpGroup.GRAPHQL, List.of( "query" ),
                               McpGroup.REFERENCES, List.of( "find-unreferenced", "find-broken-references" ) ), real.names() );
     }
 
@@ -215,7 +215,7 @@ public class McpToolsTest
         {
             if ( "tool".equals( args.get( "kind" ) ) )
             {
-                throw new ToolError( "Bad type.", "Call list-types." );
+                throw new ToolError( "Bad type.", "Call describe-type." );
             }
             throw new IllegalStateException( "secret internal detail" );
         }

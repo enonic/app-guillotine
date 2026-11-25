@@ -103,7 +103,7 @@ public final class DescribeTypeTool
         final Object typeArg = args.get( TYPE_ARG );
         if ( typeArg == null || typeArg instanceof String blank && blank.isBlank() )
         {
-            return typesInUse( args );
+            return new TypesInUse( schemaProvider, contentTypeService, configService, resolver ).read( args, TYPES_NOTE );
         }
         if ( !( typeArg instanceof String requested ) )
         {
@@ -147,19 +147,6 @@ public final class DescribeTypeTool
             ? " For every data field name, run query with { __type(name: \"" + dataType.getName() + "\") { fields { name } } }."
             : "";
         return budget.withNarrowHint( "Fields left out may be missing from the SDL too." + fieldNames ).fitList( structured, FIELDS );
-    }
-
-    /**
-     * Without a type: the content types in use, as list-types returns them, so that a model with only this tool and query can find the
-     * type names.
-     */
-    private Map<String, Object> typesInUse( final Map<String, Object> args )
-    {
-        final ListTypesTool listTypes = new ListTypesTool( schemaProvider, contentTypeService, configService, resolver );
-        final Map<String, Object> types = listTypes.typesInUse( args );
-        final Object note = types.get( ResultBudget.NOTE );
-        types.put( ResultBudget.NOTE, ( note != null ? note + " " : "" ) + TYPES_NOTE );
-        return listTypes.fit( types );
     }
 
     private static String resolve( final ContentTypeIndex index, final String requested )

@@ -198,7 +198,7 @@ public final class FindUnreferencedTool
                     return;
                 }
                 final List<String> selfReferencing = queries.ids(
-                    ReferenceQueries.and( List.of( ReferenceQueries.in( ContentLookup.ID, found ),
+                    ReferenceQueries.and( List.of( ReferenceQueries.in( ReferenceQueries.ID, found ),
                                                    ReferenceQueries.in( ReferenceQueries.REFERENCES, chunk ) ), List.of() ), 0,
                     found.size() ).ids();
                 exact.addAll( selfReferencing.stream().map( ReferenceQueries::normalize ).filter( byKey::containsKey ).map( byKey::get )
@@ -225,7 +225,7 @@ public final class FindUnreferencedTool
                     undecided.add( id );
                 }
                 else if ( queries.count( ReferenceQueries.and( List.of( ReferenceQueries.in( ReferenceQueries.REFERENCES, List.of( id ) ) ),
-                                                               List.of( ReferenceQueries.in( ContentLookup.ID, List.of( id ) ) ) ) ) ==
+                                                               List.of( ReferenceQueries.in( ReferenceQueries.ID, List.of( id ) ) ) ) ) ==
                     0 )
                 {
                     unreferenced.add( id );

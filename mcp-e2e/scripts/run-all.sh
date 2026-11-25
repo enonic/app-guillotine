@@ -47,15 +47,15 @@ anonymous_refused() {
     MCP_COOKIE= mcp_call tools/call "{\"name\":\"${GUILLOTINE_PREFIX}content__list-projects\",\"arguments\":{}}" |
         grep -q 'mcp.allowAnonymous=true'
 }
-search_truncated() {
-    MCP_COOKIE= mcp_call tools/call "{\"name\":\"${GUILLOTINE_PREFIX}content__search\",\"arguments\":{\"count\":50}}" |
+query_truncated() {
+    MCP_COOKIE= mcp_call tools/call "{\"name\":\"${GUILLOTINE_PREFIX}graphql__query\",\"arguments\":{\"query\":\"{ guillotine { queryDsl(query: {matchAll: {}}, first: 100) { _path displayName } } }\"}}" |
         grep -q '"truncated":true'
 }
 graphql_up() {
     curl -s "$XP_URL/api/com.enonic.app.guillotine:graphql" -H 'Content-Type: application/json' --data '{"query":"{__typename}"}' |
         grep -q '"__typename":"Query"'
 }
-guillotine_ready() { [ "$(tool_count)" = 8 ] && anonymous_open && MCP_COOKIE="$SIGNED" projects_ok; }
+guillotine_ready() { [ "$(tool_count)" = 5 ] && anonymous_open && MCP_COOKIE="$SIGNED" projects_ok; }
 
 restore() {
     rm -f "$DEPLOY"/*.jar.part "$GUILLOTINE_CFG.part"
@@ -101,7 +101,7 @@ else
 fi
 
 write_cfg "$BASE_CFG"$'\nmcp.maxResultChars=2000'
-if wait_for 30 search_truncated; then
+if wait_for 30 query_truncated; then
     for caller in anonymous signed-in; do
         cookie=""; [ "$caller" = signed-in ] && cookie="$SIGNED"
         suite "budget [$caller]" env MCP_COOKIE="$cookie" MCP_MAX_RESULT_CHARS=2000 python3 "$CHECKS/budget.py"
@@ -110,17 +110,17 @@ else
     SUMMARY+=("FAIL  budget (mcp.maxResultChars=2000 not applied within 30s)"); fail=1
 fi
 write_cfg "$BASE_CFG"
-wait_for 30 '! search_truncated && anonymous_open' || { echo "FAIL  config $BASE_CFG not applied again within 30s"; fail=1; }
+wait_for 30 '! query_truncated && anonymous_open' || { echo "FAIL  config $BASE_CFG not applied again within 30s"; fail=1; }
 
 redeploy() {
     local start
-    check "precondition: 8 Guillotine tools listed" "[ \"\$(tool_count)\" = 8 ]"
+    check "precondition: 5 Guillotine tools listed" "[ \"\$(tool_count)\" = 5 ]"
     rm -f "$DEPLOY/guillotine.jar"
-    check "undeploy guillotine.jar: all 8 tools gone within 30s" "wait_for 30 '[ \"\$(tool_count)\" = 0 ]'"
+    check "undeploy guillotine.jar: all 5 tools gone within 30s" "wait_for 30 '[ \"\$(tool_count)\" = 0 ]'"
     check "  Guillotine's HTTP GraphQL API is gone with it" "wait_for 30 '! graphql_up'"
     start=$(console_lines)
     deploy_jar "$BACKUP/guillotine.jar" guillotine.jar
-    check "redeploy without XP restart: settled with 8 tools, anonymous and signed-in calls working within 90s" \
+    check "redeploy without XP restart: settled with 5 tools, anonymous and signed-in calls working within 90s" \
         "wait_app_settled com.enonic.app.guillotine $start 90 guillotine_ready"
     check "  Guillotine's HTTP GraphQL API answers again" "graphql_up"
 }

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import com.enonic.app.guillotine.mcp.shape.Deadline;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranch;
@@ -39,6 +40,12 @@ final class ReferenceQueries
     static final String REFERENCES = "_references";
 
     static final String TYPE = "type";
+
+    static final String ID = "_id";
+
+    static final String PATH = "_path";
+
+    static final String DISPLAY_NAME = "displayName";
 
     private static final String BUCKETS = "referenced";
 
@@ -96,9 +103,8 @@ final class ReferenceQueries
         final Map<String, String> spellings = new HashMap<>();
         ContentTypeIndex.registeredNames( contentTypeService )
             .forEach( name -> spellings.putIfAbsent( name.toString().toLowerCase( Locale.ROOT ), name.toString() ) );
-        final Map<String, Object> typeClause = SearchQuery.types( types != null ? types : List.of(),
-                                                                  name -> spellings.getOrDefault( name.toLowerCase( Locale.ROOT ), name ),
-                                                                  "values" );
+        final Map<String, Object> typeClause = types( types != null ? types : List.of(),
+                                                      name -> spellings.getOrDefault( name.toLowerCase( Locale.ROOT ), name ) );
         if ( typeClause != null )
         {
             must.add( typeClause );
@@ -109,9 +115,49 @@ final class ReferenceQueries
         }
         if ( path != null )
         {
-            must.add( SearchQuery.pathMatch( path ) );
+            must.add( pathMatch( path ) );
         }
         return must.isEmpty() ? Map.of( "matchAll", Map.of() ) : Map.of( "boolean", Map.of( "must", must ) );
+    }
+
+    /**
+     * The clause for a {@code types} argument: full names as given, matched against registered spellings by {@code spelling}, and
+     * local names such as {@code article} in any application. {@code null} for no types.
+     */
+    private static Map<String, Object> types( final List<?> requested, final Function<String, String> spelling )
+    {
+        final List<String> fullNames = new ArrayList<>();
+        final List<Map<String, Object>> clauses = new ArrayList<>();
+        for ( final Object item : requested )
+        {
+            final String type = String.valueOf( item ).strip();
+            if ( type.contains( ":" ) )
+            {
+                fullNames.add( spelling.apply( type ) );
+            }
+            else if ( !type.isEmpty() )
+            {
+                clauses.add( Map.of( "like", Map.of( "field", TYPE, "value", "*:" + type ) ) );
+            }
+        }
+        if ( !fullNames.isEmpty() )
+        {
+            clauses.add( 0, in( TYPE, fullNames ) );
+        }
+        if ( clauses.isEmpty() )
+        {
+            return null;
+        }
+        return clauses.size() == 1 ? clauses.get( 0 ) : Map.of( "boolean", Map.of( "should", clauses ) );
+    }
+
+    /**
+     * The clause that matches {@code path}, a scope path from {@link ContentKeys#scopePath}, and everything below it.
+     */
+    private static Map<String, Object> pathMatch( final String path )
+    {
+        return Map.of( "pathMatch", Map.of( "field", PATH, "path", "/content" + path, "minimumMatch",
+                                            path.substring( 1 ).split( "/" ).length + 1 ) );
     }
 
     static Map<String, Object> in( final String field, final Collection<String> values )
@@ -239,9 +285,9 @@ final class ReferenceQueries
     static Map<String, Object> item( final Content content )
     {
         final Map<String, Object> item = new LinkedHashMap<>();
-        item.put( ContentLookup.ID, content.getId().toString() );
-        item.put( ContentLookup.PATH, content.getPath().toString() );
-        item.put( ContentLookup.DISPLAY_NAME, content.getDisplayName() );
+        item.put( ID, content.getId().toString() );
+        item.put( PATH, content.getPath().toString() );
+        item.put( DISPLAY_NAME, content.getDisplayName() );
         item.put( TYPE, content.getType().toString() );
         return item;
     }
