@@ -96,10 +96,15 @@ public class McpToolsTest
     @Test
     public void testReferencesAreNeverOpenToAnonymousCallers()
     {
-        when( configService.isMcpAllowAnonymous() ).thenReturn( true );
-
         assertEquals( "This tool needs a signed-in caller, and this call is anonymous. Do not retry; ask the user to sign in to " +
                           "Enonic XP. Anonymous callers cannot use the references tools.",
+                      errorText( tools.run( "references", "scan", "{}" ) ) );
+
+        when( configService.isMcpAllowAnonymous() ).thenReturn( true );
+
+        assertEquals( "This tool needs a signed-in caller, and this call is anonymous. Do not retry this tool; anonymous callers " +
+                          "cannot use the references tools. The query tool reads published content anonymously: items that use X " +
+                          "match a term on the index field _references with X's _id. Or ask the user to sign in to Enonic XP.",
                       errorText( tools.run( "references", "scan", "{}" ) ) );
         assertTrue( calls.isEmpty() );
         assertEquals( "references", structured( asEditor( () -> tools.run( "references", "scan", "{}" ) ) ).get( "group" ) );

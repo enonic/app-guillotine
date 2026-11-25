@@ -17,8 +17,11 @@ import com.enonic.app.guillotine.mcp.shape.McpJson;
 import com.enonic.app.guillotine.mcp.shape.ProjectBranch;
 import com.enonic.app.guillotine.mcp.shape.ToolError;
 import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.content.ContentQuery;
+import com.enonic.xp.content.FindContentIdsByQueryResult;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.exception.ForbiddenAccessException;
@@ -151,7 +154,8 @@ public class QueryToolTest
         assertEquals( List.of( Map.of( "message", "Unauthorized: creator, modifier and owner need Content Studio access or an " +
                           "administrator role.", "path", List.of( "guillotine", "get", "creator" ) ) ), structured.get( "errors" ) );
         assertEquals( "Filters, sorts and aggregations on the modifier, creator and owner index fields work without that role: for " +
-                          "the caller's own edits use search with mine, and to count per person aggregate on modifier.",
+                          "the caller's own edits filter on modifier with caller.key from list-projects, and to count per person aggregate on " +
+                          "modifier.",
                       structured.get( "note" ) );
 
         final Map<String, Object> admin =
@@ -196,7 +200,7 @@ public class QueryToolTest
             Map.of( "query", "{ guillotine { get(key: \"a1\") { _id data } } }" ) ) ).userMessage();
         assertTrue( content.contains( "Content has _id, _name, _path" ), content );
         assertTrue( content.contains( "Fields of one content type, such as data, need an inline fragment: ... on <graphqlType from " +
-                                          "list-types>." ), content );
+                                          "describe-type>." ), content );
         final String wrapped = assertThrows( ToolError.class, () -> run(
             Map.of( "query", "{ guillotine { queryDsl(query: {matchAll: {}}) } }" ) ) ).userMessage();
         assertTrue( wrapped.contains( "Content has _id" ), wrapped );
@@ -208,6 +212,95 @@ public class QueryToolTest
         assertFalse( form.contains( "list-types" ), form );
         assertNull( QueryTool.selectionHint( List.of( "Validation error (FieldUndefined@[guillotine/nope]) : Field 'nope' in type " +
                                                           "'NoSuchType' is undefined" ), schemaProvider.getSchema() ) );
+    }
+
+    @Test
+    public void testUntypedDslValuesAndMisplacedAggregationsGetTheirSyntax()
+    {
+        final String value = assertThrows( ToolError.class, () -> run( Map.of( "query",
+            "{ guillotine { queryDsl(query: {term: {field: \"type\", value: \"base:folder\"}}) { _id } } }" ) ) ).userMessage();
+        assertTrue( value.contains( QueryTool.DSL_VALUE_HINT ), value );
+
+        final String inValues = assertThrows( ToolError.class, () -> run( Map.of( "query",
+            "{ guillotine { queryDsl(query: {in: {field: \"type\", values: [{string: \"a\"}]}}) { _id } } }" ) ) ).userMessage();
+        assertTrue( inValues.contains( QueryTool.IN_HINT ) && !inValues.contains( QueryTool.DSL_VALUE_HINT ), inValues );
+
+        final String range = assertThrows( ToolError.class, () -> run( Map.of( "query",
+            "{ guillotine { queryDsl(query: {range: {field: \"publish.to\", instant: {gte: \"2026-11-24T00:00:00Z\"}}}) { _id } } }" ) ) )
+            .userMessage();
+        assertTrue( range.contains( QueryTool.DSL_VALUE_HINT ), range );
+
+        final String onList = assertThrows( ToolError.class, () -> run( Map.of( "query",
+            "{ guillotine { queryDsl(query: {matchAll: {}}, aggregations: [{name: \"n\", terms: {field: \"type\"}}]) { _id } } }" ) ) )
+            .userMessage();
+        assertTrue( onList.contains( QueryTool.AGGREGATION_HINT ), onList );
+
+        final String singular = assertThrows( ToolError.class, () -> run( Map.of( "query",
+            "{ guillotine { queryDslConnection(query: {matchAll: {}}, aggregation: {name: \"n\"}) { totalCount } } }" ) ) )
+            .userMessage();
+        assertTrue( singular.contains( QueryTool.AGGREGATION_HINT ), singular );
+        assertFalse( singular.contains( QueryTool.DSL_VALUE_HINT ), singular );
+
+        final String nested = assertThrows( ToolError.class, () -> run( Map.of( "query",
+            "{ guillotine { queryDsl(query: {boolean: {filter: [{in: {field: \"type\", values: [\"a\"]}}]}}) { _id } } }" ) ) )
+            .userMessage();
+        assertTrue( nested.contains( QueryTool.IN_HINT ), nested );
+
+        final String count = assertThrows( ToolError.class, () -> run( Map.of( "query",
+            "{ guillotine { queryDsl(query: {matchAll: {}}) { totalCount } } }" ) ) ).userMessage();
+        assertTrue( count.contains( QueryTool.CONNECTION_HINT ), count );
+
+        final String references = assertThrows( ToolError.class, () -> run( Map.of( "query",
+            "{ guillotine { queryDsl(query: {matchAll: {}}) { _id _references } } }" ) ) ).userMessage();
+        assertTrue( references.contains( "_references is content: select its fields, as in _references { _id _path displayName }." ),
+                    references );
+
+        final String inSelection = assertThrows( ToolError.class, () -> run( Map.of( "query",
+            "{ guillotine { queryDslConnection(query: {matchAll: {}}) { totalCount aggregations: [{name: \"n\"}] } } }" ) ) )
+            .userMessage();
+        assertTrue( inSelection.startsWith( "Invalid GraphQL document" ) && inSelection.contains( QueryTool.AGGREGATION_HINT ),
+                    inSelection );
+    }
+
+    @Test
+    public void testPathFilterWithoutTheContentRootGetsANote()
+    {
+        when( contentService.find( any( ContentQuery.class ) ) ).thenReturn(
+            FindContentIdsByQueryResult.create().contents( ContentIds.empty() ).totalHits( 0 ).build() );
+        final Map<String, Object> missing = structured( run( Map.of( "query",
+            "{ guillotine { queryDsl(query: {term: {field: \"_parentPath\", value: {string: \"/site\"}}}) { _id } } }" ) ) );
+        assertEquals( QueryTool.PATH_NOTE, missing.get( "note" ) );
+
+        final Map<String, Object> like = structured( run( Map.of( "query",
+            "{ guillotine { queryDsl(query: {like: {field: \"_path\", value: \"/site/*\"}}) { _id } } }" ) ) );
+        assertEquals( QueryTool.PATH_NOTE, like.get( "note" ) );
+
+        final String typedLike = assertThrows( ToolError.class, () -> run( Map.of( "query",
+            "{ guillotine { queryDsl(query: {like: {field: \"_path\", value: {string: \"/content/site/*\"}}}) { _id } } }" ) ) )
+            .userMessage();
+        assertTrue( typedLike.contains( QueryTool.LIKE_HINT ) && !typedLike.contains( QueryTool.DSL_VALUE_HINT ), typedLike );
+
+        final Map<String, Object> rooted = structured( run( Map.of( "query",
+            "{ guillotine { queryDsl(query: {term: {field: \"_parentPath\", value: {string: \"/content/site\"}}}) { _id } } }" ) ) );
+        assertNull( rooted.get( "note" ) );
+    }
+
+    @Test
+    public void testGuessedTypeNamesAndMisplacedIntrospectionGetTheRightSpelling()
+    {
+        final String guessed = assertThrows( ToolError.class, () -> run( Map.of( "query",
+            "{ guillotine { queryDsl(query: {matchAll: {}}) { ... on PortalSite { _id } ... on BaseFolder { _id } } } }" ) ) )
+            .userMessage();
+        assertTrue( guessed.contains( "Did you mean portal_Site, base_Folder? describe-type without type" ), guessed );
+
+        final String placeholder = assertThrows( ToolError.class, () -> run( Map.of( "query",
+            "{ guillotine { queryDsl(query: {matchAll: {}}) { ... on X { _id } } } }" ) ) ).userMessage();
+        assertTrue( placeholder.contains( "describe-type without type gives the graphqlType" ) &&
+                        !placeholder.contains( "Did you mean" ), placeholder );
+
+        final String introspection = assertThrows( ToolError.class, () -> run( Map.of( "query",
+            "{ guillotine { __type(name: \"Content\") { name } } }" ) ) ).userMessage();
+        assertTrue( introspection.contains( QueryTool.INTROSPECTION_HINT ), introspection );
     }
 
     @Test

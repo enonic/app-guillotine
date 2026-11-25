@@ -5,14 +5,26 @@ tools:
   - name: query
     title: Run a GraphQL query
     description: >-
-      GraphQL query on content: runs one read-only query against the Guillotine API of a project, for reads the other tools do not
-      cover (nested data fields, references, several items or branches in one call). Call describe-type first for a content
-      type's fields, index paths and example queries. Returns data plus up to 10 errors with their path; null fields stay null.
-      Limits: first at most 100, about 2,000 content items and 1,000 aggregation buckets per query, 10 nested levels. Terms
-      aggregations without order return the smallest buckets first: pass order: "_count DESC" for a top N. The fields creator,
-      modifier and owner need Content Studio access or an administrator role; filters, sorts and aggregations on those index
-      fields do not, but need a signed-in caller (for the caller's own edits, search with mine). Fields added by other applications run their code and may
-      apply their own access rules.
+      GraphQL query on content: runs one read-only query against the Guillotine API of a project. Call describe-type first:
+      without type it lists the content types in use with their graphqlType; with one it gives that type's fields, index paths
+      and example queries. Returns data plus up to 10 errors with their path; null fields stay null. Query DSL values of term and
+      range are typed: {term: {field: "type", value: {string: "com.example.app:article"}}}, also long, double, boolean, instant;
+      range takes gt, gte, lt, lte: {range: {field: "publish.from", gte: {instant: "2026-01-01T00:00:00Z"}}}; in takes plain values
+      under a typed key: {in: {field: "_id", stringValues: ["a", "b"]}}; like takes a plain string with * wildcards; combine with
+      {boolean: {filter: [...], mustNot: [...]}}; other clauses are exists, fulltext, matchAll. Data fields of a type need an
+      inline fragment: ... on <graphqlType> { data { ... } }. totalCount, edges { node { ... } } and aggregationsAsJson belong to
+      queryDslConnection, not queryDsl; aggregations are its argument: queryDslConnection(query: {...}, first: 0, aggregations: [{name: "n", terms: {field:
+      "data.author", size: 100, order: "_count DESC"}}]) { totalCount aggregationsAsJson }; without order, terms return the
+      smallest buckets first. Index fields on every item: type, _path and _parentPath (index values start with /content: children of /site match a term
+      on _parentPath with /content/site), _references (the _id of every item it links
+      to from data, rich text and page or part config: items using X match a term on _references with X's _id; selected, it is
+      a list of Content: _references { _id _path }), workflow.state,
+      creator, modifier, owner, createdTime, modifiedTime, publish.from, publish.to. The caller's own edits: term on modifier
+      with caller.key from list-projects, sorted by modifiedTime DESC. Limits: first and each aggregation's size at most 100,
+      about 2,000 content items and 1,000 aggregation buckets per query, 10 nested levels. creator, modifier and owner are
+      objects selected as modifier { value }; selecting them needs Content Studio access or an administrator role; filters, sorts and aggregations on
+      those index fields do not, but need a signed-in caller. Fields added by other applications run their code and may apply
+      their own access rules.
     inputSchema:
       type: object
       properties:
@@ -29,7 +41,9 @@ tools:
           description: Operation to run when the document defines several.
         project:
           type: string
-          description: Project from list-projects; defaults to defaultProject.
+          description: >-
+            Project from list-projects; defaults to defaultProject. When the user named none and there is no defaultProject, ask
+            the user which project to use.
         branch:
           type: string
           enum: [draft, master]

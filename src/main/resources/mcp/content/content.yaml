@@ -7,7 +7,8 @@ tools:
     description: >-
       Call this first. Returns who the caller is, the content projects they have a role in plus the configured default project
       (with parent layer, language and number of content items) and the project and branch other tools use when none is given.
-      Anonymous callers read only published content (master).
+      Anonymous callers read only published content (master). When the user has not named a project and there is no
+      defaultProject, ask the user which project to use instead of guessing.
     inputSchema:
       type: object
       properties: {}
@@ -52,6 +53,8 @@ tools:
                 description: Content items the caller can read on defaultBranch.
             required: [name, displayName, itemCount]
             additionalProperties: false
+        note:
+          type: string
         truncated:
           type: boolean
         hint:
@@ -131,15 +134,15 @@ tools:
     description: >-
       Fields of a content type: compact GraphQL SDL; each data field with its index path for filters, sorts and aggregations, label,
       help text, input type and allowed selector targets; index fields the schema does not show; fields added by other applications;
-      and three example queries ready for the query tool. Pass a name from list-types.
+      and three example queries ready for the query tool. Without type: the content types in use, as list-types returns them.
     inputSchema:
       type: object
       properties:
         type:
           type: string
           description: >-
-            Content type name from list-types (com.example.app:article), its GraphQL type name, or a local name (article) that only
-            one content type has.
+            Content type name (com.example.app:article), its GraphQL type name, or a local name (article) that only one content
+            type has. Leave it out to list the content types in use with their names.
         project:
           type: string
           description: Project from list-projects; defaults to defaultProject.
@@ -147,7 +150,6 @@ tools:
           type: string
           enum: [draft, master]
           description: draft (latest, signed-in users with a project role) or master (published); defaults to defaultBranch.
-      required: [type]
       additionalProperties: false
     outputSchema:
       type: object
@@ -157,6 +159,31 @@ tools:
         branch:
           type: string
           enum: [draft, master]
+        total:
+          type: integer
+          description: Without type, content items the caller can read in the project and branch.
+        types:
+          type: array
+          description: Without type, the content types in use, most used first.
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              title:
+                type: string
+              graphqlType:
+                type: string
+              count:
+                type: integer
+            required: [name, graphqlType, count]
+            additionalProperties: false
+        note:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
         contentType:
           type: string
         title:
@@ -221,7 +248,7 @@ tools:
           type: boolean
         hint:
           type: string
-      required: [project, branch, contentType, graphqlType, count, sdl, fields, indexFields, examples]
+      required: [project, branch]
       additionalProperties: false
     annotations:
       readOnlyHint: true

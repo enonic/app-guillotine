@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,6 +23,7 @@ import graphql.parser.ParserOptions;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLFieldsContainer;
 import graphql.schema.GraphQLInterfaceType;
+import graphql.schema.GraphQLNamedType;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import graphql.validation.GoodFaithIntrospectionExceeded;
@@ -67,7 +69,7 @@ public final class QueryTool
     private static final String PRINCIPAL_KEY_TYPE = "PrincipalKey";
 
     private static final String PRINCIPAL_ADVICE = "Filters, sorts and aggregations on the modifier, creator and owner index " +
-        "fields work without that role: for the caller's own edits use search with mine, and to count per person aggregate on modifier.";
+        "fields work without that role: for the caller's own edits filter on modifier with caller.key from list-projects, and to count per person aggregate on modifier.";
 
     private static final String ANONYMOUS_PRINCIPAL_ADVICE = "Filters, sorts and aggregations on the modifier, creator and owner " +
         "index fields need a signed-in caller too.";
@@ -80,6 +82,61 @@ public final class QueryTool
         Pattern.compile( "(?:FieldUndefined|SubselectionRequired)@.*?type '([\\[\\]!\\w]+)'" );
 
     private static final String CONTENT_TYPE = "Content";
+
+    /**
+     * An object field selected without subfields: "Subselection required for type '[Content]' of field '_references'".
+     */
+    private static final Pattern CONTENT_WITHOUT_SUBFIELDS =
+        Pattern.compile( "SubselectionRequired@.*?type '\\[?Content]?!?' of field '(\\w+)'" );
+
+    /**
+     * A term or range clause whose shape or value type is wrong. graphql-java names the clause, not the value, and cuts the
+     * value short, as in "argument 'query.boolean.filter[0].range' with value 'ObjectValue{...".
+     */
+    private static final Pattern DSL_VALUE_ERROR = Pattern.compile( "WrongType@.*?argument 'query[\\w.\\[\\]]*\\b(?:term|range)(?:\\.\\w+)?'" );
+
+    private static final Pattern IN_ERROR = Pattern.compile( "WrongType@.*?argument 'query[\\w.\\[\\]]*\\bin(?:\\.\\w+)?'" );
+
+    private static final Pattern CONNECTION_FIELD_ERROR =
+        Pattern.compile( "FieldUndefined@.*?Field '(?:totalCount|aggregationsAsJson|edges|pageInfo)' in type 'Content'" );
+
+    private static final Pattern AGGREGATION_ERROR =
+        Pattern.compile( "(?:WrongType@.*?argument 'aggregations'|UnknownArgument@.*?argument 'aggregations?')" );
+
+    private static final Pattern LIKE_VALUE_ERROR = Pattern.compile( "WrongType@.*?argument '[\\w.\\[\\]]*like\\.value'" );
+
+    static final String LIKE_HINT = "like takes a plain string with * wildcards: {like: {field: \"_path\", value: \"/content/site/*\"}}.";
+
+    static final String DSL_VALUE_HINT = "term and range values are typed objects: {term: {field: \"type\", value: {string: \"x\"}}}, " +
+        "also long, double, boolean, instant; range takes gt, gte, lt, lte: {range: {field: \"publish.from\", gte: {instant: " +
+        "\"2026-01-01T00:00:00Z\"}}}.";
+
+    static final String IN_HINT = "in takes a list of plain values under a typed key: {in: {field: \"_id\", stringValues: [\"a\", \"b\"]}}, " +
+        "also longValues, doubleValues, booleanValues, instantValues.";
+
+    static final String CONNECTION_HINT = "totalCount, edges and aggregationsAsJson are fields of queryDslConnection, not queryDsl: " +
+        "queryDslConnection(query: {matchAll: {}}, first: 10) { totalCount edges { node { _path displayName } } }.";
+
+    static final String AGGREGATION_HINT = "Aggregations are an argument of queryDslConnection, as a list: " +
+        "queryDslConnection(query: {matchAll: {}}, first: 0, aggregations: [{name: \"n\", terms: {field: \"data.author\", size: 100, " +
+        "order: \"_count DESC\"}}]) { totalCount aggregationsAsJson }.";
+
+    static final String INTROSPECTION_HINT = "Introspection fields go at the document root, outside guillotine: " +
+        "{ __type(name: \"T\") { fields { name } } }.";
+
+    private static final Pattern INTROSPECTION_ERROR = Pattern.compile( "FieldUndefined@.*?Field '__\\w+' in type" );
+
+    private static final Pattern UNKNOWN_TYPE = Pattern.compile( "UnknownType@.*?Unknown type '(\\w+)'" );
+
+    /**
+     * A filter on _path or _parentPath whose value lacks the /content prefix that the index stores, so it matches nothing.
+     */
+    private static final Pattern PATH_WITHOUT_CONTENT_ROOT =
+        Pattern.compile( "field\\s*:\\s*\"_(?:parentPath|path)\"[^}]*?value\\s*:\\s*(?:\\{\\s*string\\s*:\\s*)?\"(?!/content(?:/|\"))" );
+
+    static final String PATH_NOTE = "Index values of _path and _parentPath start with /content: filter on /content/site, not /site.";
+
+    private static final Pattern AGGREGATION_IN_SELECTION = Pattern.compile( "\\baggregations\\s*:\\s*\\[" );
 
     private final SchemaProvider schemaProvider;
 
@@ -120,6 +177,10 @@ public final class QueryTool
         final List<String> notes =
             new ArrayList<>( QueryLimits.check( document, operation, variables, anonymous, schemaProvider::getSchema ) );
         final ProjectBranch projectBranch = resolver.resolve( args );
+        if ( PATH_WITHOUT_CONTENT_ROOT.matcher( query ).find() )
+        {
+            notes.add( PATH_NOTE );
+        }
 
         final Instrumentation instrumentation = new ChainedInstrumentation( QueryLimits.depthLimit(), GraphQlErrors.hideInternalErrors() );
         final Map<String, Object> response;
@@ -177,6 +238,38 @@ public final class QueryTool
             }
         }
         final List<String> parts = new ArrayList<>();
+        if ( messages.stream().anyMatch( message -> DSL_VALUE_ERROR.matcher( message ).find() ) )
+        {
+            parts.add( DSL_VALUE_HINT );
+        }
+        if ( messages.stream().anyMatch( message -> IN_ERROR.matcher( message ).find() ) )
+        {
+            parts.add( IN_HINT );
+        }
+        if ( messages.stream().anyMatch( message -> CONNECTION_FIELD_ERROR.matcher( message ).find() ) )
+        {
+            parts.add( CONNECTION_HINT );
+        }
+        if ( messages.stream().anyMatch( message -> LIKE_VALUE_ERROR.matcher( message ).find() ) )
+        {
+            parts.add( LIKE_HINT );
+        }
+        if ( messages.stream().anyMatch( message -> AGGREGATION_ERROR.matcher( message ).find() ) )
+        {
+            parts.add( AGGREGATION_HINT );
+        }
+        messages.stream()
+            .map( CONTENT_WITHOUT_SUBFIELDS::matcher )
+            .filter( Matcher::find )
+            .map( matcher -> matcher.group( 1 ) )
+            .distinct()
+            .limit( MAX_HINTED_TYPES )
+            .forEach( field -> parts.add( field + " is content: select its fields, as in " + field + " { _id _path displayName }." ) );
+        if ( messages.stream().anyMatch( message -> INTROSPECTION_ERROR.matcher( message ).find() ) )
+        {
+            parts.add( INTROSPECTION_HINT );
+        }
+        unknownTypeHint( messages, schema ).ifPresent( parts::add );
         for ( final String name : types )
         {
             if ( schema.getType( name ) instanceof GraphQLFieldsContainer container )
@@ -187,7 +280,7 @@ public final class QueryTool
                                "." );
                 if ( CONTENT_TYPE.equals( name ) )
                 {
-                    parts.add( "Fields of one content type, such as data, need an inline fragment: ... on <graphqlType from list-types>." );
+                    parts.add( "Fields of one content type, such as data, need an inline fragment: ... on <graphqlType from describe-type>." );
                 }
                 else if ( container instanceof GraphQLInterfaceType type )
                 {
@@ -202,6 +295,42 @@ public final class QueryTool
             }
         }
         return parts.isEmpty() ? null : String.join( " ", parts );
+    }
+
+    /**
+     * For a guessed type name such as ComEnonicAppMarketApplication: the schema's types with the same letters and digits, such as
+     * com_enonic_app_market_Application.
+     */
+    private static Optional<String> unknownTypeHint( final List<String> messages, final GraphQLSchema schema )
+    {
+        final Set<String> similar = new LinkedHashSet<>();
+        boolean unknown = false;
+        for ( final String message : messages )
+        {
+            final Matcher matcher = UNKNOWN_TYPE.matcher( message );
+            while ( matcher.find() )
+            {
+                unknown = true;
+                final String wanted = letters( matcher.group( 1 ) );
+                schema.getAllTypesAsList()
+                    .stream()
+                    .map( GraphQLNamedType::getName )
+                    .filter( name -> !name.startsWith( "__" ) && letters( name ).equals( wanted ) )
+                    .limit( MAX_HINTED_TYPES )
+                    .forEach( similar::add );
+            }
+        }
+        if ( !unknown )
+        {
+            return Optional.empty();
+        }
+        return Optional.of( ( similar.isEmpty() ? "" : "Did you mean " + String.join( ", ", similar ) + "? " ) +
+                                "describe-type without type gives the graphqlType of each content type in use." );
+    }
+
+    private static String letters( final String name )
+    {
+        return name.replaceAll( "[^A-Za-z0-9]", "" ).toLowerCase( Locale.ROOT );
     }
 
     private static String principalAdvice()
@@ -259,7 +388,9 @@ public final class QueryTool
         catch ( InvalidSyntaxException e )
         {
             throw new ToolError( "Invalid GraphQL document: " + withoutPeriod( McpJson.shorten( e.getMessage(), McpJson.PREVIEW_CHARS ) ) +
-                                     ".", "Fix the syntax and send the query again." );
+                                     ".", AGGREGATION_IN_SELECTION.matcher( query ).find()
+                ? "Fix the syntax and send the query again. " + AGGREGATION_HINT
+                : "Fix the syntax and send the query again." );
         }
     }
 

@@ -185,7 +185,7 @@ Who the caller is, the projects they can read, and the project and branch the ot
 
 Arguments:: None.
 
-Returns:: `caller` (`anonymous`, plus `key` and `displayName` for a signed-in user), `defaultProject`, `defaultBranch` and `projects`, each with `name`, `displayName`, `description`, `language`, `parent` (the project a layer inherits from) and `itemCount` (items the caller can read on `defaultBranch`). The projects are those the caller has a role in, plus the configured default project when the caller can read it. A project the caller cannot query on `defaultBranch`, such as one without a role on `draft`, is left out.
+Returns:: `caller` (`anonymous`, plus `key` and `displayName` for a signed-in user), `defaultProject`, `defaultBranch` and `projects`, each with `name`, `displayName`, `description`, `language`, `parent` (the project a layer inherits from) and `itemCount` (items the caller can read on `defaultBranch`). The projects are those the caller has a role in, plus the configured default project when the caller can read it. A project the caller cannot query on `defaultBranch`, such as one without a role on `draft`, is left out. A `note` says what to do when the list may not hold the project the user means: without a default project and with several listed, ask the user which one to use unless the question names it; with one listed, pass the name of another project the user means, or ask for it; with none listed, ask the user for the project name. A project readable only through public content is not listed but can be read by name.
 
 [source,json]
 ----
@@ -227,11 +227,11 @@ Returns:: `total` (items the caller can read) and `types`, each with `name`, `ti
 [#describe-type]
 === describe-type
 
-The fields of one content type, in the form the other tools need them, and three example queries for `query`.
+The fields of one content type, in the form the other tools need them, and three example queries for `query`. Without `type`, the content types in use, as <<list-types>> returns them, with a `note` to call again with one of their names; a client that has only `describe-type` and `query` can find the type names this way.
 
 Arguments::
-`type`::: Required. A content type name from `list-types` (`com.example.app:article`), its GraphQL type name, or a local name (`article`) that only one content type has.
-`project`, `branch`::: Used for `count`.
+`type`::: A content type name (`com.example.app:article`), its GraphQL type name, or a local name (`article`) that only one content type has. Leave it out for the content types in use.
+`project`, `branch`::: Used for `count`, and for the content types in use.
 
 Returns::
 * `contentType`, `title`, `graphqlType` and `count` (items of this type the caller can read).
@@ -357,9 +357,9 @@ Arguments::
 `variables`::: Values of the document's variables, keyed by name without the `$`.
 `operationName`::: The operation to run when the document defines several.
 
-Returns:: `data`, as GraphQL returns it, with null fields kept; `errors` (up to 10, each `message` and `path`) when some fields failed; and a `note` when the document has a terms aggregation without `order`, which returns the smallest buckets first. A message says what to change when the cause is in the query, such as an invalid argument, missing content or denied access; any other failure, for example in an extension's resolver, reads `Internal error while resolving this field; see the server log.` When the document selects a field its type does not have, or no subfields of an object field, the error lists that type's fields; on the `Content` interface it also points to the inline fragment (`... on <graphqlType>`) that type-specific fields need.
+Returns:: `data`, as GraphQL returns it, with null fields kept; `errors` (up to 10, each `message` and `path`) when some fields failed; and a `note` when the document has a terms aggregation without `order`, which returns the smallest buckets first. A message says what to change when the cause is in the query, such as an invalid argument, missing content or denied access; any other failure, for example in an extension's resolver, reads `Internal error while resolving this field; see the server log.` When the document selects a field its type does not have, or no subfields of an object field, the error lists that type's fields; on the `Content` interface it also points to the inline fragment (`... on <graphqlType>`) that type-specific fields need. Other common mistakes get the correct form in the hint: a `term` or `range` clause with a plain value where it wants a typed one (`value: {string: "x"}`, `gte: {instant: "..."}`), an `in` clause without its typed list key (`stringValues: ["a", "b"]`), a typed value for `like`, which takes a plain string, `totalCount` or `aggregationsAsJson` on `queryDsl` instead of `queryDslConnection`, a content field such as `_references` selected without subfields, aggregations outside the arguments of `queryDslConnection`, an introspection field inside `guillotine`, and an unknown GraphQL type name, for which the hint points to `describe-type` and names the schema type with the same letters when there is one. A filter on `_path` or `_parentPath` whose value does not start with `/content`, which the index stores in front of every path, gets a `note`.
 
-`creator`, `modifier` and `owner` resolve only for callers with Content Studio access (`cms.cm.app`) or an administrator role, as in the GraphQL API. For other callers each such field fails with `Unauthorized: creator, modifier and owner need Content Studio access or an administrator role.` and the result's `note` says that filters, sorts and aggregations on those index fields still work for signed-in callers: `search` with `mine` for the caller's own edits, or an aggregation on `modifier` to count per person. Anonymous callers cannot use those fields at all (see <<permissions>>).
+`creator`, `modifier` and `owner` resolve only for callers with Content Studio access (`cms.cm.app`) or an administrator role, as in the GraphQL API. For other callers each such field fails with `Unauthorized: creator, modifier and owner need Content Studio access or an administrator role.` and the result's `note` says that filters, sorts and aggregations on those index fields still work for signed-in callers: a filter on `modifier` with the caller's key from `list-projects` for the caller's own edits, or an aggregation on `modifier` to count per person. Anonymous callers cannot use those fields at all (see <<permissions>>).
 
 The tool rejects mutations and subscriptions, and documents beyond these limits, before it runs them:
 
@@ -476,9 +476,9 @@ For anything else, `describe-type` gives the fields of a type and example querie
 
 Each call reads one project and one branch.
 
-Project:: The `project` argument, when given. Otherwise the project set in <<configuration#mcp, `mcp.defaultProject`>>. Otherwise the caller's only listed project, when there is exactly one. Otherwise the call fails and asks for `project`. A project must be readable by the caller on the branch, or the call fails with `not found or not readable`.
+Project:: The `project` argument, when given. Otherwise the project set in <<configuration#mcp, `mcp.defaultProject`>>. Otherwise the caller's only listed project, when there is exactly one. Otherwise the call fails, and the hint says to ask the user which project to use when the question names none. A project must be readable by the caller on the branch, or the call fails with `not found or not readable`.
 +
-XP lists projects only to callers with a role in them, so an anonymous caller has no listed project. Anonymous use therefore needs `mcp.defaultProject`, or a `project` argument in every call.
+XP lists projects only to callers with a role in them, so an anonymous caller has no listed project. Anonymous use therefore needs `mcp.defaultProject`, or a `project` argument in every call; without a default project, `list-projects` tells the model to ask the user for the project name.
 
 Branch:: The `branch` argument, when given. Otherwise `draft` for a signed-in caller and `master` for an anonymous one. `list-projects` reports it as `defaultBranch`.
 
@@ -524,9 +524,9 @@ A failed call returns `isError: true` and one text: what was wrong, then what to
 [%header,cols="2,3"]
 |===
 |Message starts with |Meaning
-|`This tool needs a signed-in caller` |The call is anonymous. For `content` and `graphql`, sign in or ask the administrator to set `mcp.allowAnonymous=true`; `references` needs a signed-in caller in any case.
+|`This tool needs a signed-in caller` |The call is anonymous. For `content` and `graphql`, sign in or ask the administrator to set `mcp.allowAnonymous=true`; `references` needs a signed-in caller in any case; with `mcp.allowAnonymous=true` the hint points anonymous callers to `query` and the `_references` index field instead.
 |`Access denied: the caller cannot read branch draft` |Anonymous callers and users without a role in the project read `master` only.
-|`Project is required` |There is no `mcp.defaultProject` and not exactly one listed project. Pass `project`, a name from `list-projects`.
+|`Project is required` |There is no `mcp.defaultProject` and not exactly one listed project. Pass `project`; when the user named none, the model should ask which one.
 |`Project '…' not found or not readable` |The project does not exist, or the caller cannot read it on that branch.
 |`The default project '…' (mcp.defaultProject) is not readable` |The configured default project does not exist or the caller cannot read it on that branch.
 |`mine needs a signed-in caller` |`mine` was passed by an anonymous caller.

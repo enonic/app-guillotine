@@ -178,8 +178,9 @@ public class ProjectBranchResolverTest
     {
         when( projectService.list() ).thenReturn( Projects.from( List.of( project( "a" ), project( "b" ) ) ) );
         final ToolError several = assertThrows( ToolError.class, () -> asEditor( () -> resolver.resolve( Map.of() ) ) );
-        assertEquals( "Project is required: there is no default project, so pass the project argument. Call list-projects and " +
-                          "pass one of its project names as project.", several.userMessage() );
+        assertEquals( "Project is required: there is no default project, so pass the project argument. If the user named no " +
+                          "project, ask which one to use; list-projects shows the projects the caller has a role in.",
+                      several.userMessage() );
 
         when( projectService.list() ).thenReturn( Projects.empty() );
         assertThrows( ToolError.class, () -> anonymous( () -> resolver.resolve( Map.of() ) ) );

@@ -48,8 +48,8 @@ check("inputSchema: project and branch (enum draft, master) on every tool that r
           for n, t in ours.items() if local(n) in SCOPED))
 check("inputSchema: list-projects takes no arguments",
       ours.get(PREFIX + "content__list-projects", {}).get("inputSchema", {}).get("properties") == {})
-check("inputSchema: required arguments (describe-type type, get key, query query)",
-      ours[PREFIX + "content__describe-type"]["inputSchema"].get("required") == ["type"] and
+check("inputSchema: required arguments (get key, query query; describe-type none, it lists types without one)",
+      ours[PREFIX + "content__describe-type"]["inputSchema"].get("required") is None and
       ours[PREFIX + "content__get"]["inputSchema"].get("required") == ["key"] and
       ours[PREFIX + "graphql__query"]["inputSchema"].get("required") == ["query"])
 

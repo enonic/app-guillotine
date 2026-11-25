@@ -38,7 +38,7 @@ for group, tool, arguments in CALLS:
               readable_error(r, "signed-in", "mcp.allowAnonymous=true"), show(r))
     else:
         check("%s: anonymous %s -> isError, references tools are signed-in only" % (MODE, tool),
-              readable_error(r, "signed-in", "Anonymous callers cannot use the references tools") and
+              readable_error(r, "signed-in", "allers cannot use the references tools") and
               "allowAnonymous" not in show(r), show(r))
 
 r = call("content", "list-projects", {}, cookie=SIGNED)

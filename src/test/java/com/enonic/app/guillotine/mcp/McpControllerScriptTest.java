@@ -1,6 +1,7 @@
 package com.enonic.app.guillotine.mcp;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,10 +150,12 @@ public class McpControllerScriptTest
         final Map<String, Object> result = asAlice( () -> execute( CONTENT_CONTROLLER, "list-projects", Map.of() ) );
 
         final Map<String, Object> structured = structured( result );
+        final Map<String, Object> withoutNote = new HashMap<>( structured );
+        assertTrue( ( (String) withoutNote.remove( "note" ) ).startsWith( "Only projects the caller has a role in" ), structured.toString() );
         assertEquals( Map.of( "caller", Map.of( "anonymous", false, "key", "user:system:alice", "displayName", "Alice" ),
                               "defaultProject", "blog", "defaultBranch", "draft", "projects",
                               List.of( Map.of( "name", "blog", "displayName", "Blog", "parent", "base", "itemCount", 12 ) ) ),
-                      structured );
+                      withoutNote );
         assertEquals( normalized( asAlice( () -> new McpTools( serviceFacade, schemaProvider, configService ).run( "content", "list-projects", "{}" ) ) ),
                       normalized( result ) );
         assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.CONTENT, "list-projects", structured ) );
@@ -298,7 +301,7 @@ public class McpControllerScriptTest
         final Map<String, Object> refused = execute( REFERENCES_CONTROLLER, "find-broken-references", Map.of() );
 
         assertEquals( true, refused.get( "isError" ) );
-        assertTrue( text( refused ).contains( "Anonymous callers cannot use the references tools" ), () -> text( refused ) );
+        assertTrue( text( refused ).contains( "anonymous callers cannot use the references tools" ), () -> text( refused ) );
     }
 
     @Test

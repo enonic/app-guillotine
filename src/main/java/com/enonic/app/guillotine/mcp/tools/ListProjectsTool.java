@@ -86,10 +86,35 @@ public final class ListProjectsTool
         structured.put( "defaultProject", defaultProject( projects ) );
         structured.put( "defaultBranch", branch );
         structured.put( PROJECTS, items );
+        final String note = note( projects, structured.get( "defaultProject" ) != null );
+        if ( note != null )
+        {
+            structured.put( ResultBudget.NOTE, note );
+        }
 
         return ResultBudget.fromConfig( configService )
             .withNarrowHint( "Pass a project name directly to the tools that need it." )
             .fitList( structured, PROJECTS );
+    }
+
+    /**
+     * What to do when the listed projects may not be the one the user means: a project readable only through public content is not
+     * listed, so with none or one listed the name of another can only come from the user.
+     */
+    static String note( final List<Project> projects, final boolean hasDefault )
+    {
+        if ( projects.isEmpty() )
+        {
+            return "No projects are listed: only projects the caller has a role in, and the default project, are listed, and there " +
+                "is no default project. Ask the user for the project name; a project with published public content can be read by " +
+                "passing its name as project.";
+        }
+        if ( projects.size() == 1 )
+        {
+            return "Only projects the caller has a role in, and the default project, are listed. When the user means another " +
+                "project, pass its name as project, or ask the user for it; a project with published public content is readable that way.";
+        }
+        return hasDefault ? null : "There is no default project. Unless the user named the project, ask which of these projects to use.";
     }
 
     private static Map<String, Object> caller()

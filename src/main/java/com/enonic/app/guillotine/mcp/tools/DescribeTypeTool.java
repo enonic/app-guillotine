@@ -54,6 +54,8 @@ public final class DescribeTypeTool
 
     static final Map<String, String> ANONYMOUS_INDEX_FIELDS = indexFields( true );
 
+    static final String TYPES_NOTE = "Call describe-type again with one of these names as type for its fields and example queries.";
+
     static final String APP_DEFINED_NOTE = "Added by another application: runs its code, which may apply its own access rules and " +
         "limits; check counts with queryDslConnection.";
 
@@ -99,9 +101,13 @@ public final class DescribeTypeTool
     public Map<String, Object> execute( final Map<String, Object> args )
     {
         final Object typeArg = args.get( TYPE_ARG );
-        if ( !( typeArg instanceof String requested ) || requested.isBlank() )
+        if ( typeArg == null || typeArg instanceof String blank && blank.isBlank() )
         {
-            throw new ToolError( "type is required.", "Pass a content type name from list-types, such as \"com.example.app:article\"." );
+            return typesInUse( args );
+        }
+        if ( !( typeArg instanceof String requested ) )
+        {
+            throw new ToolError( "type must be a string.", "Pass a content type name, or leave type out for the content types in use." );
         }
         final ContentTypeIndex index = new ContentTypeIndex( schemaProvider.getSchema(), ContentTypeIndex.registeredNames( contentTypeService ) );
         final String contentType = resolve( index, requested.trim() );
@@ -143,6 +149,19 @@ public final class DescribeTypeTool
         return budget.withNarrowHint( "Fields left out may be missing from the SDL too." + fieldNames ).fitList( structured, FIELDS );
     }
 
+    /**
+     * Without a type: the content types in use, as list-types returns them, so that a model with only this tool and query can find the
+     * type names.
+     */
+    private Map<String, Object> typesInUse( final Map<String, Object> args )
+    {
+        final ListTypesTool listTypes = new ListTypesTool( schemaProvider, contentTypeService, configService, resolver );
+        final Map<String, Object> types = listTypes.typesInUse( args );
+        final Object note = types.get( ResultBudget.NOTE );
+        types.put( ResultBudget.NOTE, ( note != null ? note + " " : "" ) + TYPES_NOTE );
+        return listTypes.fit( types );
+    }
+
     private static String resolve( final ContentTypeIndex index, final String requested )
     {
         if ( index.byContentType( index.spelling( requested ) ) != null )
@@ -179,7 +198,7 @@ public final class DescribeTypeTool
             .toList();
         throw new ToolError( "Unknown content type '" + McpJson.shorten( requested, McpJson.PREVIEW_CHARS ) + "'.",
                              ( similar.isEmpty() ? "" : "Similar: " + String.join( ", ", similar ) + ". " ) +
-                                 "Call list-types for the content types in use and pass one of their names." );
+                                 "Call describe-type without type for the content types in use and pass one of their names." );
     }
 
     private long count( final ProjectBranch target, final String contentType )

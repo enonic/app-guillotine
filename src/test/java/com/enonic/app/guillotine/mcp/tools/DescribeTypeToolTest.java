@@ -222,8 +222,21 @@ public class DescribeTypeToolTest
             () -> tool().execute( Map.of( "type", "other.app:article" ) ) ) );
 
         assertEquals( "Unknown content type 'other.app:article'. Similar: " + ARTICLE +
-                          ". Call list-types for the content types in use and pass one of their names.", error.userMessage() );
-        assertThrows( ToolError.class, () -> tool().execute( Map.of( "type", " " ) ) );
+                          ". Call describe-type without type for the content types in use and pass one of their names.",
+                      error.userMessage() );
+        assertThrows( ToolError.class, () -> createAdminContext().callWith( () -> tool().execute( Map.of( "type", 3 ) ) ) );
+    }
+
+    @Test
+    public void testWithoutTypeListsTheTypesInUseAndSaysToPassOne()
+    {
+        final Map<String, Object> structured = structured( createAdminContext().callWith( () -> tool().execute( Map.of() ) ) );
+
+        assertEquals( "myproject", structured.get( "project" ) );
+        assertEquals( 7, structured.get( "total" ) );
+        assertEquals( List.of(), structured.get( "types" ) );
+        assertEquals( DescribeTypeTool.TYPES_NOTE, structured.get( "note" ) );
+        assertEquals( structured, structured( createAdminContext().callWith( () -> tool().execute( Map.of( "type", " " ) ) ) ) );
     }
 
     @Test

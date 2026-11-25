@@ -115,7 +115,8 @@ public class ProjectBranchResolver
             return requireReadable( listed.get( 0 ).getName().toString(), branch );
         }
         throw new ToolError( "Project is required: there is no default project, so pass the project argument.",
-                             "Call list-projects and pass one of its project names as project." );
+                             "If the user named no project, ask which one to use; list-projects shows the projects the caller has " +
+                                 "a role in." );
     }
 
     private String requireReadable( final String name, final String branch )

@@ -67,6 +67,18 @@ public final class ListTypesTool
     @Override
     public Map<String, Object> execute( final Map<String, Object> args )
     {
+        return fit( typesInUse( args ) );
+    }
+
+    Map<String, Object> fit( final Map<String, Object> structured )
+    {
+        return ResultBudget.fromConfig( configService )
+            .withNarrowHint( "Count one type with query and a term filter on the field type." )
+            .fitList( structured, TYPES );
+    }
+
+    Map<String, Object> typesInUse( final Map<String, Object> args )
+    {
         final ProjectBranch target = resolver.resolve( args );
         final Map<String, Object> response =
             target.callWith( () -> schemaProvider.executeToSpecification( QUERY, Map.of(), null, GraphQlErrors.hideInternalErrors() ) );
@@ -105,9 +117,7 @@ public final class ListTypesTool
         {
             structured.put( McpResult.ERRORS, errors );
         }
-        return ResultBudget.fromConfig( configService )
-            .withNarrowHint( "Count one type with query and a term filter on the field type." )
-            .fitList( structured, TYPES );
+        return structured;
     }
 
     private static Map<String, Object> connection( final Object data )

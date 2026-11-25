@@ -96,7 +96,9 @@ public class ListProjectsToolTest
     {
         when( projectService.list() ).thenReturn( Projects.empty() );
 
-        assertEquals( Map.of( "caller", Map.of( "anonymous", true ), "defaultBranch", "master", "projects", List.of() ), execute() );
+        assertEquals( Map.of( "caller", Map.of( "anonymous", true ), "defaultBranch", "master", "projects", List.of(), "note",
+                              ListProjectsTool.note( List.of(), false ) ), execute() );
+        assertTrue( ListProjectsTool.note( List.of(), false ).contains( "Ask the user for the project name" ) );
     }
 
     @Test
@@ -127,6 +129,8 @@ public class ListProjectsToolTest
         assertEquals( List.of( Map.of( "name", "alpha", "displayName", "Alpha", "itemCount", 0 ),
                                Map.of( "name", "zeta", "displayName", "Zeta", "itemCount", 3 ) ), structured.get( "projects" ) );
         assertEquals( List.of( "com.enonic.cms.alpha@master", "com.enonic.cms.zeta@master" ), countedIn );
+        assertEquals( "There is no default project. Unless the user named the project, ask which of these projects to use.",
+                      structured.get( "note" ) );
     }
 
     @Test
@@ -136,7 +140,9 @@ public class ListProjectsToolTest
         when( projectService.list() ).thenReturn(
             Projects.from( List.of( project( "alpha", "Alpha", null, null ), project( "zeta", "Zeta", null, null ) ) ) );
 
-        assertEquals( "zeta", execute().get( "defaultProject" ) );
+        final Map<String, Object> structured = execute();
+        assertEquals( "zeta", structured.get( "defaultProject" ) );
+        assertNull( structured.get( "note" ) );
     }
 
     @Test
@@ -164,6 +170,8 @@ public class ListProjectsToolTest
         assertEquals( "public", structured.get( "defaultProject" ) );
         assertEquals( List.of( Map.of( "name", "public", "displayName", "Public site", "language", "en", "itemCount", 7 ) ),
                       structured.get( "projects" ) );
+        assertTrue( ( (String) structured.get( "note" ) ).contains( "When the user means another project, pass its name as project" ),
+                    structured.toString() );
     }
 
     @Test

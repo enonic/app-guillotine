@@ -13,7 +13,7 @@ from xpmcp import (CALLER, E2E_DIR, MAX_RESULT_CHARS, SIGNED_IN, call, check, ch
 expected = load_expected()
 BRANCH = "draft" if SIGNED_IN else "master"
 # what a denied creator/modifier/owner field points to instead; anonymous callers cannot filter or aggregate on them either
-PRINCIPAL_ADVICE = "search with mine" if SIGNED_IN else "need a signed-in caller too"
+PRINCIPAL_ADVICE = "caller.key from list-projects" if SIGNED_IN else "need a signed-in caller too"
 TOTAL = expected["totalItems"][BRANCH]
 
 
@@ -47,6 +47,8 @@ SUCCESS = [
     ("content", "list-types", {}, lambda s: s.get("branch") == BRANCH and s.get("total") == TOTAL and
      any(t["name"] == "com.example.mcpdataset:article" and t.get("title") == "Article" and
          t.get("graphqlType") == "com_example_mcpdataset_Article" for t in s.get("types", []))),
+    ("content", "describe-type", {}, lambda s: s.get("branch") == BRANCH and s.get("total") == TOTAL and
+     any(t["name"] == "com.example.mcpdataset:article" for t in s.get("types", [])) and "describe-type again" in s.get("note", "")),
     ("content", "describe-type", {"type": "article"}, lambda s: s.get("contentType") == "com.example.mcpdataset:article" and
      any(f["name"] == "author" and f["path"] == "data.author" and f.get("targets") for f in s.get("fields", [])) and
      len(s.get("examples", [])) == 3 and "sdl" in s),
@@ -83,8 +85,8 @@ FAILURES = [
     ("content", "list-projects", {"count": 5}, ["count"]),
     ("content", "list-types", {"project": "no-such-project"}, ["no-such-project", "list-projects"]),
     ("content", "list-types", {"branch": "live"}, ["branch"]),
-    ("content", "describe-type", {"type": "nope"}, ["nope", "list-types"]),
-    ("content", "describe-type", {}, ["type"]),
+    ("content", "describe-type", {"type": "nope"}, ["nope", "describe-type without type"]),
+    ("content", "describe-type", {"type": 3}, ["type"]),
     ("content", "describe-type", {"type": "article", "project": "no-such-project"}, ["no-such-project"]),
     ("content", "search", {"count": 500}, ["count"]),
     ("content", "search", {"cursor": "%%%not-a-cursor"}, ["cursor", "without cursor"]),
@@ -100,7 +102,7 @@ FAILURES = [
     ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 1) { modifier } } }"},
      ["PrincipalKey has value, type, idProvider, principalId", PRINCIPAL_ADVICE]),
     ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 1) { data } } }"},
-     ["Content has", "... on <graphqlType from list-types>"]),
+     ["Content has", "... on <graphqlType from describe-type>"]),
     ("graphql", "query", {"query": "{ guillotine(project: \"other\") { get(key: \"/\") { _id } } }"},
      ["Pass project and branch as tool arguments"]),
     ("graphql", "query", {"query": "query($n: Int) { guillotine { queryDsl(query: {matchAll: {}}, first: $n) { _id } } }",
