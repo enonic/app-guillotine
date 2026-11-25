@@ -15,11 +15,11 @@ NODE_OPTIONS=--max-old-space-size=8192 ./gradlew test --tests 'com.enonic.app.gu
 
 ## MCP code
 
-- `src/main/resources/mcp/<group>/<group>.yaml` and `<group>.js`, for the groups `content`, `graphql` and `references`: one descriptor and one controller per group. Names, descriptions and input/output schemas in the descriptors are what the model sees; keep them in sync with the Java code and `docs/mcp.adoc`. Every descriptor declares `allow: role:system.authenticated`. `McpDescriptorTest` checks that descriptors, controllers and registered tools match.
+- `src/main/resources/mcp/<group>/<group>.yaml` and `<group>.js`, for the groups `content`, `graphql` and `references`: one descriptor and one controller per group. Names, descriptions and input/output schemas in the descriptors are what the model sees; keep them in sync with the Java code and `docs/mcp.adoc`. Every descriptor declares `allow: role:system.everyone`. `McpDescriptorTest` checks that descriptors, controllers and registered tools match.
 - Each controller passes the call to `McpToolsBean.run(group, name, args)`.
 - `src/main/java/com/enonic/app/guillotine/mcp/`
-  - `McpTools`: dispatch, the `mcp.enabled` check, the anonymous check (`McpGroup.anonymousOptIn` plus `mcp.allowAnonymous`), and turning exceptions into error results. A new tool is an `McpTool` (group, name, execute) registered in `McpTools.tools(...)` and declared in its group's descriptor.
-  - `McpGroup`: the three groups and which of them `mcp.allowAnonymous` may open.
+  - `McpTools`: dispatch, the `mcp.enabled` check, the anonymous check (`mcp.allowAnonymous`), and turning exceptions into error results. A new tool is an `McpTool` (group, name, execute) registered in `McpTools.tools(...)` and declared in its group's descriptor.
+  - `McpGroup`: the three groups.
   - `tools/`: one class per tool (`ListProjectsTool`, `DescribeTypeTool`, `QueryTool`, `FindUnreferencedTool`, `FindBrokenReferencesTool`), plus helpers that know about content: `TypesInUse` (describe-type without a type), `ContentKeys` (scope paths), `ContentTypeIndex`, `TypeFields`, `TypeSdl`, `TypeExamples`, `QueryLimits`, `PrincipalFields`, `ReferenceQueries` (the reference index and outbound dependencies).
   - `shape/`: tool-independent plumbing: result envelope (`McpResult`), size budget (`ResultBudget`), paging (`Cursors`, `Page`), the per-call time limit (`Deadline`), project/branch resolution (`ProjectBranch`, `ProjectBranchResolver`), `ToolError`, GraphQL error cleanup (`GraphQlErrors`), `McpJson`, `Nulls`. `shape/` must not depend on `tools/`.
 - Settings are `mcp.*` in `GuillotineConfig` / `GuillotineConfigService` (`enabled`, `defaultProject`, `maxResultChars`, `allowAnonymous`), documented in `docs/configuration.adoc` (`[#mcp]`).

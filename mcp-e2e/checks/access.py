@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Who may call which group. usage: access.py open|closed
-open:   mcp.allowAnonymous=true. Anonymous callers use content and graphql on master, without filters, sorts and aggregations on
-        creator, modifier and owner; references stays signed-in only.
-closed: mcp.allowAnonymous unset. Anonymous callers are refused in every group; signed-in callers are not affected.
+open:   mcp.allowAnonymous unset (default true). Anonymous callers use every group on master, without filters, sorts and
+        aggregations on creator, modifier and owner.
+closed: mcp.allowAnonymous=false. Anonymous callers are refused in every group; signed-in callers are not affected.
 Signed-in calls use the cookie in ACCESS_COOKIE; a second session, signed out with LOGOUT_COOKIE, must count as anonymous."""
 import os
 import sys
@@ -24,22 +24,16 @@ CALLS = [
     ("references", "find-unreferenced", {"count": 1}),
     ("references", "find-broken-references", {"path": "/landings"}),
 ]
-OPT_IN = ("content", "graphql")
-
 for group, tool, arguments in CALLS:
     r = call(group, tool, arguments, cookie=SIGNED)
     check("%s: signed-in %s works" % (MODE, tool), ok(r), show(r))
 
     r = call(group, tool, arguments, cookie="")
-    if MODE == "open" and group in OPT_IN:
+    if MODE == "open":
         check("open: anonymous %s works on master" % tool, ok(r) and sc(r).get("branch", "master") == "master", show(r))
-    elif group in OPT_IN:
-        check("closed: anonymous %s -> isError naming mcp.allowAnonymous" % tool,
-              readable_error(r, "signed-in", "mcp.allowAnonymous=true"), show(r))
     else:
-        check("%s: anonymous %s -> isError, references tools are signed-in only" % (MODE, tool),
-              readable_error(r, "signed-in", "allers cannot use the references tools") and
-              "allowAnonymous" not in show(r), show(r))
+        check("closed: anonymous %s -> isError naming mcp.allowAnonymous=false" % tool,
+              readable_error(r, "signed-in", "mcp.allowAnonymous=false"), show(r))
 
 r = call("content", "list-projects", {}, cookie=SIGNED)
 caller = sc(r).get("caller", {})
@@ -50,7 +44,7 @@ if MODE == "open":
     r = call("content", "list-projects", {}, cookie="")
     check("open: anonymous list-projects says anonymous and defaults to master",
           sc(r).get("caller") == {"anonymous": True} and sc(r).get("defaultBranch") == "master", show(r))
-    for group, tool, arguments in CALLS[1:3]:
+    for group, tool, arguments in CALLS[1:]:
         r = call(group, tool, dict(arguments, branch="draft"), cookie="")
         check("open: anonymous %s on draft -> isError, only published content" % tool, readable_error(r, "draft", "master"), show(r))
     principals = [
@@ -66,7 +60,8 @@ if MODE == "open":
 
 logged_out = os.environ.get("LOGOUT_COOKIE", "")
 if logged_out:
-    r = call("references", "find-unreferenced", {}, cookie=logged_out)
-    check("%s: a signed-out session counts as anonymous" % MODE, readable_error(r, "anonymous"), show(r))
+    r = call("content", "list-projects", {}, cookie=logged_out)
+    check("%s: a signed-out session counts as anonymous" % MODE,
+          sc(r).get("caller") == {"anonymous": True} if MODE == "open" else readable_error(r, "anonymous"), show(r))
 
 finish("access " + MODE)

@@ -51,7 +51,7 @@ These options control the <<mcp#, MCP tools>>. Add them to the same `com.enonic.
 mcp.enabled=true
 mcp.defaultProject=myproject
 mcp.maxResultChars=20000
-mcp.allowAnonymous=false
+mcp.allowAnonymous=true
 ----
 
 `mcp.enabled`:: Enables the MCP tools. With `false`, every tool call returns an error that says the tools are disabled; XP still lists the tools. Default is `true`.
@@ -60,7 +60,7 @@ mcp.allowAnonymous=false
 
 `mcp.maxResultChars`:: Maximum size in characters of the data of one MCP tool result, measured as compact JSON; larger results are cut and marked `truncated`. The response carries this data twice, as structured content and as text, so a whole response is about twice this size, plus escaping. Values below `1000` count as `1000`, and values above `1000000` as `1000000`. Default is `20000`.
 
-`mcp.allowAnonymous`:: With `true`, anonymous callers may use the tools of the `content` and `graphql` groups. They read what is public, normally published content on `master`. The `references` tools always need a signed-in caller. Default is `false`: every tool refuses anonymous calls.
+`mcp.allowAnonymous`:: Lets anonymous callers use every MCP tool. They read what is public, normally published content on `master`. With `false`, every tool refuses anonymous calls. Default is `true`.
 
 The `maxQueryTokens` limit also applies to documents passed to the MCP `query` tool.
 

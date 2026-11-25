@@ -17,7 +17,7 @@ public class GuillotineConfigServiceTest
 
         assertTrue( service.isMcpEnabled() );
         assertEquals( "", service.getMcpDefaultProject() );
-        assertFalse( service.isMcpAllowAnonymous() );
+        assertTrue( service.isMcpAllowAnonymous() );
         assertEquals( 20000, service.getMcpMaxResultChars() );
     }
 
@@ -31,12 +31,12 @@ public class GuillotineConfigServiceTest
     }
 
     @Test
-    public void testAllowAnonymous()
+    public void testAllowAnonymousCanBeTurnedOff()
     {
         final GuillotineConfig config = defaults();
-        when( config.mcp_allowAnonymous() ).thenReturn( true );
+        when( config.mcp_allowAnonymous() ).thenReturn( false );
 
-        assertTrue( activate( config ).isMcpAllowAnonymous() );
+        assertFalse( activate( config ).isMcpAllowAnonymous() );
     }
 
     @Test

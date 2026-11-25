@@ -32,8 +32,8 @@ public class McpToolsTest
         .build();
 
     private static final String ANONYMOUS_REFUSAL = "This tool needs a signed-in caller, and this call is anonymous. Do not retry; " +
-        "ask the user to sign in to Enonic XP, or ask the administrator to set mcp.allowAnonymous=true in " +
-        "com.enonic.app.guillotine.cfg to let anonymous callers read published content.";
+        "ask the user to sign in to Enonic XP, or ask the administrator to remove mcp.allowAnonymous=false from " +
+        "com.enonic.app.guillotine.cfg.";
 
     private GuillotineConfigService configService;
 
@@ -81,31 +81,23 @@ public class McpToolsTest
     }
 
     @Test
-    public void testAnonymousCallerIsRefusedUnlessTheOperatorOptsIn()
+    public void testAnonymousCallerUsesEveryGroupWhileAnonymousAccessIsOn()
     {
-        assertEquals( ANONYMOUS_REFUSAL, errorText( tools.run( "content", "echo", "{}" ) ) );
-        assertEquals( ANONYMOUS_REFUSAL, errorText( tools.run( "graphql", "echo", "{}" ) ) );
-        assertTrue( calls.isEmpty() );
-
         when( configService.isMcpAllowAnonymous() ).thenReturn( true );
 
         assertEquals( "content", structured( tools.run( "content", "echo", "{}" ) ).get( "group" ) );
         assertEquals( "graphql", structured( tools.run( "graphql", "echo", "{}" ) ).get( "group" ) );
+        assertEquals( "references", structured( tools.run( "references", "scan", "{}" ) ).get( "group" ) );
     }
 
     @Test
-    public void testReferencesAreNeverOpenToAnonymousCallers()
+    public void testAnonymousCallerIsRefusedInEveryGroupWhenTheOperatorTurnsAnonymousAccessOff()
     {
-        assertEquals( "This tool needs a signed-in caller, and this call is anonymous. Do not retry; ask the user to sign in to " +
-                          "Enonic XP. Anonymous callers cannot use the references tools.",
-                      errorText( tools.run( "references", "scan", "{}" ) ) );
+        when( configService.isMcpAllowAnonymous() ).thenReturn( false );
 
-        when( configService.isMcpAllowAnonymous() ).thenReturn( true );
-
-        assertEquals( "This tool needs a signed-in caller, and this call is anonymous. Do not retry this tool; anonymous callers " +
-                          "cannot use the references tools. The query tool reads published content anonymously: items that use X " +
-                          "match a term on the index field _references with X's _id. Or ask the user to sign in to Enonic XP.",
-                      errorText( tools.run( "references", "scan", "{}" ) ) );
+        assertEquals( ANONYMOUS_REFUSAL, errorText( tools.run( "content", "echo", "{}" ) ) );
+        assertEquals( ANONYMOUS_REFUSAL, errorText( tools.run( "graphql", "echo", "{}" ) ) );
+        assertEquals( ANONYMOUS_REFUSAL, errorText( tools.run( "references", "scan", "{}" ) ) );
         assertTrue( calls.isEmpty() );
         assertEquals( "references", structured( asEditor( () -> tools.run( "references", "scan", "{}" ) ) ).get( "group" ) );
     }

@@ -180,18 +180,17 @@ public class McpControllerScriptTest
     }
 
     @Test
-    public void testAnonymousCallerGetsTheRefusalAsAnErrorResultUntilTheOperatorOptsIn()
+    public void testAnonymousCallerGetsTheToolsByDefaultAndTheRefusalAsAnErrorResultWhenTurnedOff()
     {
-        final Map<String, Object> refused = execute( CONTENT_CONTROLLER, "list-projects", Map.of() );
-
-        assertEquals( true, refused.get( "isError" ) );
-        assertTrue( text( refused ).contains( "mcp.allowAnonymous=true" ), () -> text( refused ) );
-
-        doReturn( true ).when( configService ).isMcpAllowAnonymous();
-
         final Map<String, Object> structured = structured( execute( CONTENT_CONTROLLER, "list-projects", Map.of() ) );
         assertEquals( Map.of( "anonymous", true ), structured.get( "caller" ) );
         assertEquals( "master", structured.get( "defaultBranch" ) );
+
+        doReturn( false ).when( configService ).isMcpAllowAnonymous();
+
+        final Map<String, Object> refused = execute( CONTENT_CONTROLLER, "list-projects", Map.of() );
+        assertEquals( true, refused.get( "isError" ) );
+        assertTrue( text( refused ).contains( "mcp.allowAnonymous=false" ), () -> text( refused ) );
     }
 
     @Test
@@ -216,17 +215,17 @@ public class McpControllerScriptTest
     }
 
     @Test
-    public void testQueryRefusesAnonymousCallersUntilTheOperatorOptsIn()
+    public void testQueryServesAnonymousCallersUntilTheOperatorTurnsThemOff()
     {
         final Map<String, Object> args = Map.of( "query", "{ guillotine { getSite { _id } } }" );
 
+        assertEquals( "master", structured( execute( GRAPHQL_CONTROLLER, "query", args ) ).get( "branch" ) );
+
+        doReturn( false ).when( configService ).isMcpAllowAnonymous();
+
         final Map<String, Object> refused = execute( GRAPHQL_CONTROLLER, "query", args );
         assertEquals( true, refused.get( "isError" ) );
-        assertTrue( text( refused ).contains( "mcp.allowAnonymous=true" ), () -> text( refused ) );
-
-        doReturn( true ).when( configService ).isMcpAllowAnonymous();
-
-        assertEquals( "master", structured( execute( GRAPHQL_CONTROLLER, "query", args ) ).get( "branch" ) );
+        assertTrue( text( refused ).contains( "mcp.allowAnonymous=false" ), () -> text( refused ) );
     }
 
     @Test
@@ -252,14 +251,16 @@ public class McpControllerScriptTest
     }
 
     @Test
-    public void testReferenceScansRefuseAnonymousCallersEvenWhenTheOperatorOptsIn()
+    public void testReferenceScansServeAnonymousCallersOnMasterUntilTheOperatorTurnsThemOff()
     {
-        doReturn( true ).when( configService ).isMcpAllowAnonymous();
+        final Map<String, Object> structured = structured( execute( REFERENCES_CONTROLLER, "find-broken-references", Map.of() ) );
+        assertEquals( "master", structured.get( "branch" ) );
+
+        doReturn( false ).when( configService ).isMcpAllowAnonymous();
 
         final Map<String, Object> refused = execute( REFERENCES_CONTROLLER, "find-broken-references", Map.of() );
-
         assertEquals( true, refused.get( "isError" ) );
-        assertTrue( text( refused ).contains( "anonymous callers cannot use the references tools" ), () -> text( refused ) );
+        assertTrue( text( refused ).contains( "mcp.allowAnonymous=false" ), () -> text( refused ) );
     }
 
     @Test

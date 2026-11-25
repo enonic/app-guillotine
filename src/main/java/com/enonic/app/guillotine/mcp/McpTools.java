@@ -84,9 +84,11 @@ public final class McpTools
                                         "." );
         }
 
-        if ( !ProjectBranchResolver.isAuthenticated() && !( group.anonymousOptIn() && configService.isMcpAllowAnonymous() ) )
+        if ( !ProjectBranchResolver.isAuthenticated() && !configService.isMcpAllowAnonymous() )
         {
-            return McpResult.error( anonymousRefusal( group, configService.isMcpAllowAnonymous() ) );
+            return McpResult.error( new ToolError( "This tool needs a signed-in caller, and this call is anonymous.",
+                                                   "Do not retry; ask the user to sign in to Enonic XP, or ask the administrator to " +
+                                                       "remove mcp.allowAnonymous=false from com.enonic.app.guillotine.cfg." ) );
         }
 
         final Map<String, Object> args;
@@ -115,23 +117,5 @@ public final class McpTools
             return McpResult.error( "Internal error in " + name + " (error id " + errorId + "). Retry with narrower arguments, or " +
                                         "ask the administrator to look up the error id in the server log." );
         }
-    }
-
-    private static ToolError anonymousRefusal( final McpGroup group, final boolean allowAnonymous )
-    {
-        final String message = "This tool needs a signed-in caller, and this call is anonymous.";
-        if ( group.anonymousOptIn() )
-        {
-            return new ToolError( message, "Do not retry; ask the user to sign in to Enonic XP, or ask the administrator to set " +
-                "mcp.allowAnonymous=true in com.enonic.app.guillotine.cfg to let anonymous callers read published content." );
-        }
-        if ( allowAnonymous )
-        {
-            return new ToolError( message, "Do not retry this tool; anonymous callers cannot use the " + group.groupName() +
-                " tools. The query tool reads published content anonymously: items that use X match a term on the index field " +
-                "_references with X's _id. Or ask the user to sign in to Enonic XP." );
-        }
-        return new ToolError( message, "Do not retry; ask the user to sign in to Enonic XP. Anonymous callers cannot use the " +
-            group.groupName() + " tools." );
     }
 }

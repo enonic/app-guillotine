@@ -32,8 +32,8 @@ export IDPROVIDER_JAR
 export MCP_E2E_USER="${MCP_E2E_USER:-mcp-alice}"
 export MCP_E2E_PASSWORD="${MCP_E2E_PASSWORD:-alice-local-only!}"
 export GUILLOTINE_CFG="$XP_HOME/config/com.enonic.app.guillotine.cfg"
-# The Guillotine config the suites expect: the dataset project as default, anonymous callers allowed on content and graphql.
-BASE_CFG=$'mcp.defaultProject=mcp-test\nmcp.allowAnonymous=true'
+# The Guillotine config the suites expect: the dataset project as default; anonymous callers are allowed by default.
+BASE_CFG='mcp.defaultProject=mcp-test'
 GUILLOTINE_PREFIX="com.enonic.app.guillotine__"
 
 process_start() {

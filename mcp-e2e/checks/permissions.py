@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Permission matrix: every tool, called by real XP identities, sees exactly what XP's ACLs let that caller read.
 
-Callers: anonymous (needs mcp.allowAnonymous=true), mcp-dave (no project role), mcp-erin (viewer), mcp-alice (editor), mcp-frank
+Callers: anonymous (needs mcp.allowAnonymous, on by default), mcp-dave (no project role), mcp-erin (viewer), mcp-alice (editor), mcp-frank
 (editor who can read /team but not /restricted), mcp-carol (editor who can read both) and su (administrator). /team and /restricted
 come from the "restricted" section of dataset.json; everything else is the regular dataset that expected.json describes.
 
@@ -117,10 +117,9 @@ def run(caller, branch):
             words = ("master",) + (("role in project",) if caller != "anonymous" else ())
             check("%s on draft -> isError naming %s" % (name, " and ".join(words)),
                   r.get("isError") is True and all(w in error_text(r) for w in words), show(r))
-        if caller != "anonymous":
-            for name, arguments in [("find-unreferenced", {}), ("find-broken-references", {})]:
-                r = tool("references", name, arguments)
-                check("%s on draft -> isError naming master" % name, r.get("isError") is True and "master" in error_text(r), show(r))
+        for name, arguments in [("find-unreferenced", {}), ("find-broken-references", {})]:
+            r = tool("references", name, arguments)
+            check("%s on draft -> isError naming master" % name, r.get("isError") is True and "master" in error_text(r), show(r))
         return
 
     # describe-type: counts are the readable items only
@@ -253,12 +252,6 @@ def run(caller, branch):
                                           variables={"k": TEAM_ARTICLE}), cookie=cookie)
         info("XP url generation (processedHtml, Link.pageUrl) shows unreadable %s" % (leaks(caller, r, allowed) or "nothing"))
 
-    # references group: signed-in only
-    if caller == "anonymous":
-        for name in ("find-unreferenced", "find-broken-references"):
-            r = tool("references", name, {})
-            check("%s is refused" % name, r.get("isError") is True, show(r))
-        return
     r = tool("references", "find-unreferenced", {"count": 50})
     unused = sorted(i["_path"] for i in sc(r).get("items", []))
     want = sorted(expected["unusedImages"][branch] + (["/team/team-image.png"] if team and not restricted else []))
