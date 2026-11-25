@@ -20,6 +20,12 @@ import com.enonic.app.guillotine.mcp.tools.FindBrokenReferencesTool;
 import com.enonic.app.guillotine.mcp.tools.FindUnreferencedTool;
 import com.enonic.app.guillotine.mcp.tools.ListProjectsTool;
 import com.enonic.app.guillotine.mcp.tools.QueryTool;
+import com.enonic.xp.context.ContextAccessor;
+import com.enonic.xp.context.ContextBuilder;
+import com.enonic.xp.security.PrincipalKey;
+import com.enonic.xp.security.RoleKeys;
+import com.enonic.xp.security.User;
+import com.enonic.xp.security.auth.AuthenticationInfo;
 
 /**
  * Runs one tool call: checks {@code mcp.enabled} and the caller, reads the arguments and turns every failure into an {@code isError}
@@ -28,6 +34,13 @@ import com.enonic.app.guillotine.mcp.tools.QueryTool;
 public final class McpTools
 {
     private static final Logger LOG = LoggerFactory.getLogger( McpTools.class );
+
+    // Demo only: every call runs as su with admin roles, whoever the caller is. Never merge this into epic-mcp.
+    private static final AuthenticationInfo SU = AuthenticationInfo.create()
+        .user( User.create().key( PrincipalKey.ofSuperUser() ).login( PrincipalKey.ofSuperUser().getId() ).displayName( "Super User" )
+                   .build() )
+        .principals( RoleKeys.ADMIN, RoleKeys.CONTENT_MANAGER_ADMIN, RoleKeys.AUTHENTICATED, RoleKeys.EVERYONE )
+        .build();
 
     private final GuillotineConfigService configService;
 
@@ -103,7 +116,7 @@ public final class McpTools
 
         try
         {
-            return tool.execute( args );
+            return ContextBuilder.copyOf( ContextAccessor.current() ).authInfo( SU ).build().callWith( () -> tool.execute( args ) );
         }
         catch ( ToolError e )
         {

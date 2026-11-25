@@ -149,7 +149,7 @@ public class McpControllerScriptTest
         final Map<String, Object> structured = structured( result );
         final Map<String, Object> withoutNote = new HashMap<>( structured );
         assertTrue( ( (String) withoutNote.remove( "note" ) ).startsWith( "Only projects the caller has a role in" ), structured.toString() );
-        assertEquals( Map.of( "caller", Map.of( "anonymous", false, "key", "user:system:alice", "displayName", "Alice" ),
+        assertEquals( Map.of( "caller", Map.of( "anonymous", false, "key", "user:system:su", "displayName", "Super User" ),
                               "defaultProject", "blog", "defaultBranch", "draft", "projects",
                               List.of( Map.of( "name", "blog", "displayName", "Blog", "parent", "base", "itemCount", 12 ) ) ),
                       withoutNote );
@@ -180,11 +180,11 @@ public class McpControllerScriptTest
     }
 
     @Test
-    public void testAnonymousCallerGetsTheToolsByDefaultAndTheRefusalAsAnErrorResultWhenTurnedOff()
+    public void testAnonymousCallerRunsAsSuAndTheRefusalAsAnErrorResultWhenTurnedOff()
     {
         final Map<String, Object> structured = structured( execute( CONTENT_CONTROLLER, "list-projects", Map.of() ) );
-        assertEquals( Map.of( "anonymous", true ), structured.get( "caller" ) );
-        assertEquals( "master", structured.get( "defaultBranch" ) );
+        assertEquals( Map.of( "anonymous", false, "key", "user:system:su", "displayName", "Super User" ), structured.get( "caller" ) );
+        assertEquals( "draft", structured.get( "defaultBranch" ) );
 
         doReturn( false ).when( configService ).isMcpAllowAnonymous();
 
@@ -215,11 +215,11 @@ public class McpControllerScriptTest
     }
 
     @Test
-    public void testQueryServesAnonymousCallersUntilTheOperatorTurnsThemOff()
+    public void testQueryRunsAnonymousCallersAsSuUntilTheOperatorTurnsThemOff()
     {
         final Map<String, Object> args = Map.of( "query", "{ guillotine { getSite { _id } } }" );
 
-        assertEquals( "master", structured( execute( GRAPHQL_CONTROLLER, "query", args ) ).get( "branch" ) );
+        assertEquals( "draft", structured( execute( GRAPHQL_CONTROLLER, "query", args ) ).get( "branch" ) );
 
         doReturn( false ).when( configService ).isMcpAllowAnonymous();
 
@@ -251,10 +251,10 @@ public class McpControllerScriptTest
     }
 
     @Test
-    public void testReferenceScansServeAnonymousCallersOnMasterUntilTheOperatorTurnsThemOff()
+    public void testReferenceScansRunAnonymousCallersAsSuOnDraftUntilTheOperatorTurnsThemOff()
     {
         final Map<String, Object> structured = structured( execute( REFERENCES_CONTROLLER, "find-broken-references", Map.of() ) );
-        assertEquals( "master", structured.get( "branch" ) );
+        assertEquals( "draft", structured.get( "branch" ) );
 
         doReturn( false ).when( configService ).isMcpAllowAnonymous();
 
