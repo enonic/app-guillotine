@@ -36,7 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
-public class ListTypesToolTest
+public class TypesInUseTest
     extends ArticleSchemaTestSupport
 {
     private static final String BLOG_POST = DATASET_APP + ":BlogPost";
@@ -81,7 +81,7 @@ public class ListTypesToolTest
     private Map<String, Object> run()
     {
         return createAdminContext().callWith(
-            () -> new ListTypesTool( schemaProvider, serviceFacade.getContentTypeService(), guillotineConfigService, resolver ).execute(
+            () -> new DescribeTypeTool( schemaProvider, serviceFacade.getContentTypeService(), guillotineConfigService, resolver ).execute(
                 Map.of() ) );
     }
 
@@ -102,10 +102,10 @@ public class ListTypesToolTest
                                        Map.of( "name", "base:folder", "title", "Folder", "graphqlType", "base_Folder", "count", 4 ),
                                        Map.of( "name", "other.app:thing", "graphqlType", "UntypedContent", "count", 4 ),
                                        Map.of( "name", BLOG_POST, "title", "Blog post", "graphqlType",
-                                               "com_example_mcpdataset_BlogPost", "count", 2 ) ) ),
+                                               "com_example_mcpdataset_BlogPost", "count", 2 ) ), "note", DescribeTypeTool.TYPES_NOTE ),
                       structured );
         assertEquals( "com.enonic.cms.myproject@draft", queriedIn.get() );
-        assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.CONTENT, "list-types", structured ) );
+        assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.CONTENT, "describe-type", structured ) );
     }
 
     @Test
@@ -123,18 +123,18 @@ public class ListTypesToolTest
     public void testManyTypesAreCutWithinTheBudgetAndCappedWithANote()
     {
         final Map<String, Long> counts = new LinkedHashMap<>();
-        IntStream.range( 0, ListTypesTool.MAX_TYPES ).forEach( i -> counts.put( "com.example.app:type-" + i, (long) ListTypesTool.MAX_TYPES - i ) );
+        IntStream.range( 0, TypesInUse.MAX_TYPES ).forEach( i -> counts.put( "com.example.app:type-" + i, (long) TypesInUse.MAX_TYPES - i ) );
         typesInUse( 100_000, counts );
         doReturn( 3000 ).when( guillotineConfigService ).getMcpMaxResultChars();
 
         final Map<String, Object> structured = structured( run() );
 
         final int listed = ( (List<?>) structured.get( "types" ) ).size();
-        assertTrue( listed > 0 && listed < ListTypesTool.MAX_TYPES, () -> McpJson.write( structured ) );
+        assertTrue( listed > 0 && listed < TypesInUse.MAX_TYPES, () -> McpJson.write( structured ) );
         assertTrue( McpJson.length( structured ) <= 3000 );
         assertEquals( true, structured.get( "truncated" ) );
-        assertEquals( "Only the 1000 most used content types are listed.", structured.get( "note" ) );
+        assertEquals( "Only the 1000 most used content types are listed. " + DescribeTypeTool.TYPES_NOTE, structured.get( "note" ) );
         assertEquals( "com.example.app:type-0", ( (Map<?, ?>) ( (List<?>) structured.get( "types" ) ).get( 0 ) ).get( "name" ) );
-        assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.CONTENT, "list-types", structured ) );
+        assertEquals( List.of(), ToolDescriptor.outputSchemaErrors( McpGroup.CONTENT, "describe-type", structured ) );
     }
 }

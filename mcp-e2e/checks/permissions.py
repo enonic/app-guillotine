@@ -90,17 +90,8 @@ def leaks(caller, result, allowed_ids=()):
     return found
 
 
-def same_as_missing(hidden_result, missing_result, hidden_key, missing_key):
-    """A hidden item answers exactly like an item that does not exist, apart from the key the caller passed."""
-    a, b = error_text(hidden_result), error_text(missing_result)
-    return bool(a) and a.replace(hidden_key, "<key>") == b.replace(missing_key, "<key>")
-
-
-def buckets(result, by):
-    for aggregation in sc(result).get("aggregations", []):
-        if aggregation.get("by") == by:
-            return {b["key"]: b for b in aggregation["buckets"]}
-    return {}
+def query_data(result):
+    return (sc(result).get("data") or {}).get("guillotine") or {}
 
 
 def run(caller, branch):
@@ -120,7 +111,7 @@ def run(caller, branch):
         return r
 
     if branch == "draft" and caller not in DRAFT_READERS:
-        for group, name, arguments in [("content", "list-types", {}), ("content", "search", {}), ("content", "get", {"key": "/articles"}),
+        for group, name, arguments in [("content", "describe-type", {}),
                                        ("graphql", "query", {"query": "{ guillotine { queryDsl(first: 1) { _path } } }"})]:
             r = tool(group, name, arguments)
             words = ("master",) + (("role in project",) if caller != "anonymous" else ())
@@ -132,95 +123,59 @@ def run(caller, branch):
                 check("%s on draft -> isError naming master" % name, r.get("isError") is True and "master" in error_text(r), show(r))
         return
 
-    # list-types, describe-type: counts are the readable items only
-    r = tool("content", "list-types", {})
+    # describe-type: counts are the readable items only
+    r = tool("content", "describe-type", {})
     got = {t["name"]: t["count"] for t in sc(r).get("types", [])}
-    check("list-types total %d and counts per type %s" % (total, by_type), sc(r).get("total") == total and got == by_type,
+    check("describe-type total %d and counts per type %s" % (total, by_type), sc(r).get("total") == total and got == by_type,
           show(r))
     r = tool("content", "describe-type", {"type": ARTICLE})
     check("describe-type article count %d" % by_type[ARTICLE], sc(r).get("count") == by_type[ARTICLE], show(r))
 
-    # search: totals, paths, text, buckets, inbound references
-    r = tool("content", "search", {"count": 0})
-    check("search total %d" % total, sc(r).get("total") == total, show(r))
+    # query on the index: paths, full text, buckets and inbound references count readable items only
     for folder, can in (("team", team), ("restricted", restricted)):
-        r = tool("content", "search", {"path": "/" + folder}, scan=False)
-        none = tool("content", "search", {"path": "/nothing-here"})
-        if can:
-            check("search path /%s: its 3 items" % folder,
-                  sorted(h["_path"] for h in sc(r).get("hits", [])) == sorted(p for p in HIDDEN if p.startswith("/" + folder)), show(r))
-        else:
-            check("search path /%s answers like a path that does not exist" % folder,
-                  sc(r).get("total") == 0 and sc(r).get("note", "").replace("/" + folder, "<p>") ==
-                  sc(none).get("note", "").replace("/nothing-here", "<p>"), show(r))
-    r = tool("content", "search", {"text": "secret"})
+        r = tool("graphql", "query", {"query": 'query($p: String) { guillotine { queryDsl(query: {term: {field: "_parentPath", '
+                                               'value: {string: $p}}}, first: 10) { _path } } }', "variables": {"p": "/content/" + folder}})
+        got = sorted(c["_path"] for c in query_data(r).get("queryDsl") or [])
+        check("query _parentPath /content/%s: %s" % (folder, "its items" if can else "nothing"),
+              ok(r) and got == sorted(p for p in HIDDEN if p.startswith("/%s/" % folder) and can), show(r))
+    r = tool("graphql", "query", {"query": '{ guillotine { queryDsl(query: {fulltext: {fields: ["displayName", "_allText"], '
+                                           'query: "secret"}}, first: 10) { _path } } }'})
     want = sorted(p for p in ("/restricted/secret-note", "/restricted/secret-image.png") if restricted)
-    check("search text secret: %s" % (want or "no hits"), sorted(h["_path"] for h in sc(r).get("hits", [])) == want, show(r))
+    check("query fulltext secret: %s" % (want or "nothing"), sorted(c["_path"] for c in query_data(r).get("queryDsl") or []) == want,
+          show(r))
 
-    r = tool("content", "search", {"types": [ARTICLE], "count": 0, "aggregate": [{"by": "data.tags", "size": 20},
-                                                                                  {"by": "data.author", "size": 20}]})
-    tags = buckets(r, "data.tags")
-    check("tag buckets: secret %s, team %s" % (restricted, team), ("secret" in tags) == restricted and ("team" in tags) == team,
-          sorted(tags))
-    authors = {b.get("_path"): b["count"] for b in buckets(r, "data.author").values()}
-    base_authors = {"/persons/" + a["author"]: a["count"] for a in expected["articlesPerAuthor"][branch]}
-    want = dict(base_authors)
+    r = tool("graphql", "query", {"query": '{ guillotine { persons: queryDsl(query: {term: {field: "type", value: {string: '
+                                           '"com.example.mcpdataset:person"}}}, first: 50) { _id _path } '
+                                           'queryDslConnection(query: {term: {field: "type", value: {string: "%s"}}}, first: 0, '
+                                           'aggregations: [{name: "authors", terms: {field: "data.author", size: 20}}, '
+                                           '{name: "refs", terms: {field: "_references", size: 100}}]) { aggregationsAsJson } } }' % ARTICLE})
+    g = query_data(r)
+    person = {p["_id"]: p["_path"] for p in g.get("persons") or []}
+    aggs = (g.get("queryDslConnection") or {}).get("aggregationsAsJson") or {}
+    authors = {person.get(b["key"], b["key"]): b["docCount"] for b in (aggs.get("authors") or {}).get("buckets", [])}
+    want = {"/persons/" + a["author"]: a["count"] for a in expected["articlesPerAuthor"][branch]}
     for article in dataset["restricted"]["articles"]:
         if reads(caller, article["parent"]):
             key = "/persons/" + article["author"]
             want[key] = want.get(key, 0) + 1
-    check("author buckets count readable articles only %s" % want, authors == want, authors)
+    check("query author buckets count readable articles only %s" % want, authors == want, authors)
+    refs = {b["key"] for b in (aggs.get("refs") or {}).get("buckets", [])}
+    check("query _references bucket for secret-image iff an article that references it is readable (team-article)",
+          (SECRET_IMAGE in refs) == team, sorted(refs))
+    check("query _references bucket for team-image (referenced only by secret-note) iff /restricted is readable",
+          (TEAM_IMAGE in refs) == restricted, sorted(refs))
 
-    r = tool("content", "search", {"count": 0, "aggregate": [{"by": "_references", "size": 100}]})
-    refs = buckets(r, "_references")
-    image = refs.get(SECRET_IMAGE)
-    if restricted:
-        check("_references bucket for secret-image is labelled", image is not None and image.get("displayName") == "secret-image",
-              image)
-    elif team:
-        check("_references bucket for secret-image (referenced by team-article) is {key, count, missing} only",
-              image is not None and set(image) == {"key", "count", "missing"} and image["count"] == 1, image)
-    else:
-        check("no _references bucket for secret-image", image is None, image)
-    check("_references bucket for team-image (referenced only by secret-note) iff /restricted is readable",
-          (TEAM_IMAGE in refs) == restricted, refs.get(TEAM_IMAGE))
-
-    r = tool("content", "search", {"filters": [{"references": SECRET_IMAGE}]})
+    r = tool("graphql", "query", {"query": 'query($id: String) { guillotine { queryDsl(query: {term: {field: "_references", '
+                                           'value: {string: $id}}}, first: 10) { _path } } }', "variables": {"id": SECRET_IMAGE}})
     want = sorted(p for p, can in (("/team/team-article", team), ("/restricted/secret-note", restricted)) if can)
-    check("search references secret-image by id: %s" % (want or "no hits"), sorted(h["_path"] for h in sc(r).get("hits", [])) == want,
-          show(r))
-    r = tool("content", "search", {"filters": [{"references": "/restricted/secret-image.png"}]}, scan=False)
-    none = tool("content", "search", {"filters": [{"references": "/nothing-here"}]})
-    if restricted:
-        check("search references secret-image by path works", ok(r) and len(sc(r).get("hits", [])) == len(want), show(r))
-    else:
-        check("search references by hidden path answers like a path that does not exist",
-              same_as_missing(r, none, "/restricted/secret-image.png", "/nothing-here"), show(r))
-
-    # get: hidden items look missing; labels of referenced items only when readable
-    for path in ("/restricted/secret-note", "/team/team-article"):
-        can = path in visible_hidden(caller)
-        for key, missing in ((ID[path], MISSING_ID), (path, "/articles/nothing-here")):
-            r = tool("content", "get", {"key": key}, scan=False)
-            if can:
-                check("get %s by %s works" % (path, "id" if key == ID[path] else "path"), sc(r).get("_path") == path, show(r))
-            else:
-                check("get %s by %s answers like a missing item" % (path, "id" if key == ID[path] else "path"),
-                      same_as_missing(r, tool("content", "get", {"key": missing}), key, missing), show(r))
+    check("query items that reference secret-image: %s" % (want or "nothing"),
+          sorted(c["_path"] for c in query_data(r).get("queryDsl") or []) == want, show(r))
     if team:
-        r = tool("content", "get", {"key": TEAM_ARTICLE})
-        data = sc(r).get("data", {})
-        links = {link.get("id"): link for link in (data.get("body") or {}).get("links", [])}
-        if restricted:
-            check("get team-article: cover and rich-text targets labelled",
-                  (data.get("cover") or {}).get("_path") == "/restricted/secret-image.png" and
-                  links.get(SECRET_NOTE, {}).get("_path") == "/restricted/secret-note", data)
-        else:
-            check("get team-article: cover is {_id, missing}",
-                  data.get("cover") == {"_id": SECRET_IMAGE, "missing": True}, data.get("cover"))
-            check("get team-article: rich-text link and image to /restricted are missing, without labels",
-                  all(links.get(i, {}).get("missing") is True and "_path" not in links.get(i, {}) for i in (SECRET_NOTE, SECRET_IMAGE)),
-                  links)
+        r = tool("graphql", "query", {"query": 'query($k: ID) { guillotine { get(key: $k) { ... on com_example_mcpdataset_Article '
+                                               '{ data { cover { _path } } } } } }', "variables": {"k": TEAM_ARTICLE}})
+        cover = ((query_data(r).get("get") or {}).get("data") or {}).get("cover")
+        check("query team-article cover %s" % ("is secret-image" if restricted else "is null"),
+              (cover or {}).get("_path") == ("/restricted/secret-image.png" if restricted else None), show(r))
 
     # query: the caller's own GraphQL document
     document = ('query($k: ID) { guillotine { get(key: $k) { _path } getChildren(key: "/restricted") { _path } '
@@ -256,7 +211,7 @@ def run(caller, branch):
         check("query creator/modifier/owner each denied with the Content Studio message",
               all(hit.get(field) is None for field in ("creator", "modifier", "owner")) and
               errors == {field: PRINCIPAL_ERROR for field in ("creator", "modifier", "owner")}, show(r))
-    # principal index fields: signed-in callers filter and aggregate on them; anonymous callers are refused in search and query
+    # principal index fields: signed-in callers filter, sort and aggregate on them; anonymous callers are refused
     by_modifier_query = ('{ guillotine { queryDslConnection(query: {matchAll: {}}, first: 0, aggregations: [{name: "modifier", '
                          'terms: {field: "modifier", size: 20}}]) { aggregationsAsJson } } }')
     su_query = ('query($f: String!) { guillotine { queryDslConnection(query: {term: {field: $f, value: {string: "user:system:su"}}}, '
@@ -266,17 +221,17 @@ def run(caller, branch):
         ("query filter on modifier through a variable", "graphql", "query", {"query": su_query, "variables": {"f": "modifier"}}),
         ("query sort on owner", "graphql", "query", {"query": '{ guillotine { getChildren(key: "/articles", sort: "owner DESC") '
                                                               '{ _path } } }'}),
-        ("search aggregate by modifier", "content", "search", {"count": 0, "aggregate": [{"by": "modifier", "size": 20}]}),
-        ("search filter on creator", "content", "search", {"count": 0, "filters": [{"field": "creator", "exists": True}]}),
-        ("search sort on owner", "content", "search", {"count": 1, "sort": "owner DESC"}),
+        ("query filter on creator", "graphql", "query", {"query": '{ guillotine { queryDslConnection(query: {exists: '
+                                                                    '{field: "creator"}}, first: 0) { totalCount } } }'}),
     ]
     if caller == "anonymous":
         for label, group, name, arguments in principal_calls:
             r = tool(group, name, arguments)
             check("%s is refused for anonymous callers" % label,
                   readable_error(r, PRINCIPAL_REFUSAL, "need a signed-in caller"), show(r))
-        r = tool("content", "search", {"count": 0, "aggregate": [{"by": "data.author", "size": 20}]})
-        check("search aggregate by a data field still works for anonymous callers", ok(r) and not r.get("isError"), show(r))
+        r = tool("graphql", "query", {"query": '{ guillotine { queryDslConnection(query: {matchAll: {}}, first: 0, aggregations: '
+                                               '[{name: "a", terms: {field: "data.author", size: 20}}]) { totalCount } } }'})
+        check("query aggregation on a data field still works for anonymous callers", ok(r) and not sc(r).get("errors"), show(r))
     else:
         r = tool("graphql", "query", {"query": by_modifier_query})
         modifiers = (((sc(r).get("data", {}).get("guillotine", {}).get("queryDslConnection") or {}).get("aggregationsAsJson") or {})
@@ -291,9 +246,6 @@ def run(caller, branch):
         for label, group, name, arguments in principal_calls[2:]:
             r = tool(group, name, arguments)
             check("%s works for a signed-in caller" % label, ok(r) and not r.get("isError") and not sc(r).get("errors"), show(r))
-        r = tool("content", "search", {"count": 0, "aggregate": [{"by": "modifier", "size": 20}]})
-        search_modifiers = {b["key"]: b["count"] for b in buckets(r, "modifier").values()}
-        check("search aggregate by modifier matches the query buckets", search_modifiers == by_modifier, search_modifiers)
     if team and not restricted:
         # Known XP behaviour, not a Guillotine check: XP builds page and media URLs as administrator.
         r = call("graphql", "query", dict(base, query='query($k: ID) { guillotine { get(key: $k) { ... on com_example_mcpdataset_Article '

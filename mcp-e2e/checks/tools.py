@@ -8,7 +8,7 @@ import sys
 
 sys.dont_write_bytecode = True  # keep __pycache__ out of the source tree
 from xpmcp import (CALLER, E2E_DIR, MAX_RESULT_CHARS, SIGNED_IN, call, check, check_sizes, error_text, finish, info,  # noqa: E402
-                   load_expected, ok, readable_error, sc, show, walk)
+                   load_expected, ok, readable_error, sc, show)
 
 expected = load_expected()
 BRANCH = "draft" if SIGNED_IN else "master"
@@ -44,26 +44,16 @@ SUCCESS = [
     ("content", "list-projects", {}, lambda s: s.get("defaultProject") == "mcp-test" and s.get("defaultBranch") == BRANCH and
      s.get("caller", {}).get("anonymous") is (not SIGNED_IN) and
      [p.get("itemCount") for p in s.get("projects", []) if p["name"] == "mcp-test"] == [TOTAL]),
-    ("content", "list-types", {}, lambda s: s.get("branch") == BRANCH and s.get("total") == TOTAL and
-     any(t["name"] == "com.example.mcpdataset:article" and t.get("title") == "Article" and
-         t.get("graphqlType") == "com_example_mcpdataset_Article" for t in s.get("types", []))),
     ("content", "describe-type", {}, lambda s: s.get("branch") == BRANCH and s.get("total") == TOTAL and
-     any(t["name"] == "com.example.mcpdataset:article" for t in s.get("types", [])) and "describe-type again" in s.get("note", "")),
+     any(t["name"] == "com.example.mcpdataset:article" and t.get("title") == "Article" and
+         t.get("graphqlType") == "com_example_mcpdataset_Article" for t in s.get("types", [])) and
+     "describe-type again" in s.get("note", "")),
     ("content", "describe-type", {"type": "article"}, lambda s: s.get("contentType") == "com.example.mcpdataset:article" and
      any(f["name"] == "author" and f["path"] == "data.author" and f.get("targets") for f in s.get("fields", [])) and
      len(s.get("examples", [])) == 3 and "sdl" in s),
-    ("content", "search", {"types": ["article"], "fields": ["title", "author"], "count": 3},
-     lambda s: len(s.get("hits", [])) == 3 and all("title" in h.get("data", {}) and "_path" in h["data"].get("author", {})
-                                                    for h in s["hits"])),
-    ("content", "search", {"types": ["article"], "fields": ["displayName", "_path", "publish", "title", "creator"], "count": 3},
-     lambda s: len(s.get("hits", [])) == 3 and all("title" in h.get("data", {}) for h in s["hits"]) and
-     any(h.get("publish", {}).get("from") for h in s["hits"]) and "creator" in s.get("note", "")),
     ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 2) { _path creator { value } } } }"},
      lambda s: len(s.get("errors", [])) == 2 and all("Content Studio" in e["message"] for e in s["errors"]) and
      PRINCIPAL_ADVICE in s.get("note", "")),
-    ("content", "get", {"key": "/articles/article-01"}, lambda s: s.get("_path") == "/articles/article-01" and
-     s.get("type") == "com.example.mcpdataset:article" and isinstance(s.get("data", {}).get("body"), dict) and
-     "<" not in s["data"]["body"].get("text", "<")),
     ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 3) { _path displayName } } }"},
      lambda s: s.get("branch") == BRANCH and len(s.get("data", {}).get("guillotine", {}).get("queryDsl", [])) == 3),
 ]
@@ -83,26 +73,22 @@ for group, tool, arguments, verify in SUCCESS:
 FAILURES = [
     ("content", "list-projects", {"project": "mcp-test"}, ["project"]),
     ("content", "list-projects", {"count": 5}, ["count"]),
-    ("content", "list-types", {"project": "no-such-project"}, ["no-such-project", "list-projects"]),
-    ("content", "list-types", {"branch": "live"}, ["branch"]),
     ("content", "describe-type", {"type": "nope"}, ["nope", "describe-type without type"]),
     ("content", "describe-type", {"type": 3}, ["type"]),
-    ("content", "describe-type", {"type": "article", "project": "no-such-project"}, ["no-such-project"]),
-    ("content", "search", {"count": 500}, ["count"]),
-    ("content", "search", {"cursor": "%%%not-a-cursor"}, ["cursor", "without cursor"]),
-    ("content", "search", {"sort": "rating DESC"}, ["rating", "ASC|DESC"]),
-    ("content", "search", {"filters": [{"field": "modifiedTime", "from": "2026-13-45"}]}, ["filters[0].from", "ISO 8601"]),
-    ("content", "search", {"filters": [{"field": "data.title", "equals": "x", "exists": True}]}, ["exactly one of"]),
-    ("content", "search", {"filters": [{"references": "/articles/no-such"}]}, ["references", "search"]),
-    ("content", "get", {}, ["key"]),
-    ("content", "get", {"key": "/articles/no-such-article"}, ["/articles/no-such-article", "search"]),
-    ("content", "get", {"key": "articles/article-01"}, ["relative path", "starts with /"]),
+    ("content", "describe-type", {"type": "article", "project": "no-such-project"}, ["no-such-project", "list-projects"]),
+    ("content", "describe-type", {"branch": "live"}, ["branch"]),
     ("graphql", "query", {"query": "{ bogus }"}, ["bogus"]),
     ("graphql", "query", {"query": "mutation { x }"}, ["mutation", "read-only"]),
     ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 1) { modifier } } }"},
      ["PrincipalKey has value, type, idProvider, principalId", PRINCIPAL_ADVICE]),
     ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 1) { data } } }"},
      ["Content has", "... on <graphqlType from describe-type>"]),
+    ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {in: {field: \"type\", values: [{string: \"x\"}]}}) { _id } } }"},
+     ["stringValues: [\"a\", \"b\"]"]),
+    ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 1) { totalCount } } }"},
+     ["fields of queryDslConnection, not queryDsl"]),
+    ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 1) { _references } } }"},
+     ["_references is content", "_references { _id _path displayName }"]),
     ("graphql", "query", {"query": "{ guillotine(project: \"other\") { get(key: \"/\") { _id } } }"},
      ["Pass project and branch as tool arguments"]),
     ("graphql", "query", {"query": "query($n: Int) { guillotine { queryDsl(query: {matchAll: {}}, first: $n) { _id } } }",
@@ -134,26 +120,13 @@ for group, tool, arguments, words in FAILURES:
 for tool, count in errors.items():
     check("failure: %s has at least two readable isError cases" % tool, count >= 2, count)
 
-# valid is a filter field: valid and invalid content add up to every item
-counts = [sc(call("content", "search", {"count": 0, "filters": [{"field": "valid", "equals": v}]})).get("total") for v in (True, False)]
-check("search filter valid true + valid false == total %d" % TOTAL, None not in counts and sum(counts) == TOTAL, counts)
+# valid is an index field, as find-broken-references tells the model: valid and invalid content add up to every item
+VALID = "{ guillotine { queryDslConnection(query: {term: {field: \"valid\", value: {boolean: %s}}}, first: 0) { totalCount } } }"
+counts = [(sc(call("graphql", "query", {"query": VALID % v})).get("data") or {}).get("guillotine", {}).get("queryDslConnection", {})
+          .get("totalCount") for v in ("true", "false")]
+check("query term valid true + valid false == total %d" % TOTAL, None not in counts and sum(counts) == TOTAL, counts)
 
 # Paging and cursors
-hits, pages, results, error = walk("content", "search", {"count": 7}, "hits")
-ids = [h["_id"] for h in hits]
-check("search paging count 7: %d pages, %d ids, all distinct, sum == total %d" % (pages, len(ids), TOTAL),
-      not error and len(ids) == len(set(ids)) == TOTAL and pages == -(-TOTAL // 7), error or (pages, len(ids)))
-check("search paging: no nextCursor on the last page", not error and "nextCursor" not in results[-1])
-first = sc(call("content", "search", {"types": ["article"], "count": 5}))
-second = call("content", "search", {"types": ["article"], "count": 5, "cursor": first.get("nextCursor", "")})
-check("search cursor continues with the next 5 items",
-      ok(second) and not {h["_id"] for h in sc(second)["hits"]} & {h["_id"] for h in first.get("hits", [])} and
-      len(sc(second)["hits"]) == 5, show(second))
-r = call("content", "search", {"count": 5, "cursor": cursor_at(TOTAL + 5)})
-check("search cursor past the end -> isError", readable_error(r, "past the end"), show(r))
-r = call("content", "search", {"types": ["article"], "count": 0, "aggregate": [{"by": "data.author"}]})
-check("search count 0 -> buckets only, no hits and no nextCursor",
-      ok(r) and sc(r).get("hits") == [] and "nextCursor" not in sc(r) and sc(r).get("aggregations"), show(r))
 if SIGNED_IN:
     r = call("references", "find-broken-references", {"cursor": cursor_at(40)})
     s = sc(r)

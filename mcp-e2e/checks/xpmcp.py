@@ -15,7 +15,7 @@ SIGNED_IN = bool(COOKIE)
 CALLER = os.environ.get("MCP_CALLER") or ("signed-in" if SIGNED_IN else "anonymous")
 PREFIX = "com.enonic.app.guillotine__"
 GROUPS = {
-    "content": ["list-projects", "list-types", "describe-type", "search", "get"],
+    "content": ["list-projects", "describe-type"],
     "graphql": ["query"],
     "references": ["find-unreferenced", "find-broken-references"],
 }

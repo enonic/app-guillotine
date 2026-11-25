@@ -17,7 +17,7 @@ tools:
           maxItems: 20
           items:
             type: string
-          description: Content type names from list-types, such as media:image; default all media types.
+          description: Content type names from describe-type without type, such as media:image; default all media types.
         path:
           type: string
           description: This item and everything below it, such as /images.
@@ -87,8 +87,8 @@ tools:
     description: >-
       Broken links and references: content under a path or of given types that references content which is missing or which the
       caller cannot read, in data, page and component configs, mixins or rich text. Lists each such item with the missing ids.
-      External URLs and URL strings in component configs are not checked, nor is validation: for invalid content, search with the
-      filter {field: valid, equals: false}. Each call reads up to 100 items within 20 seconds and runs many backend queries, so it
+      External URLs and URL strings in component configs are not checked, nor is validation: for invalid content, run query with
+      {term: {field: "valid", value: {boolean: false}}}. Each call reads up to 100 items within 20 seconds and runs many backend queries, so it
       needs a signed-in caller; continue with nextCursor.
     inputSchema:
       type: object
@@ -101,7 +101,7 @@ tools:
           maxItems: 20
           items:
             type: string
-          description: Content type names from list-types; a local name such as landing matches it in any application.
+          description: Content type names from describe-type without type; a local name such as landing matches it in any application.
         cursor:
           type: string
           description: nextCursor of the previous call; keep the other arguments.

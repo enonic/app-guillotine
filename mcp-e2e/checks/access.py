@@ -19,7 +19,7 @@ if not SIGNED:
 
 CALLS = [
     ("content", "list-projects", {}),
-    ("content", "search", {"count": 1}),
+    ("content", "describe-type", {}),
     ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 1) { _path } } }"}),
     ("references", "find-unreferenced", {"count": 1}),
     ("references", "find-broken-references", {"path": "/landings"}),
@@ -54,7 +54,6 @@ if MODE == "open":
         r = call(group, tool, dict(arguments, branch="draft"), cookie="")
         check("open: anonymous %s on draft -> isError, only published content" % tool, readable_error(r, "draft", "master"), show(r))
     principals = [
-        ("content", "search", {"count": 0, "aggregate": [{"by": "modifier"}]}),
         ("graphql", "query", {"query": '{ guillotine { queryDslConnection(query: {matchAll: {}}, first: 0, aggregations: '
                                        '[{name: "m", terms: {field: "modifier"}}]) { totalCount } } }'}),
     ]

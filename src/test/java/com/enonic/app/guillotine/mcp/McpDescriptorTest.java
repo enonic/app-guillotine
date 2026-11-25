@@ -25,7 +25,7 @@ public class McpDescriptorTest
     private static final Map<String, Object> ANNOTATIONS =
         Map.of( "readOnlyHint", true, "destructiveHint", false, "idempotentHint", true, "openWorldHint", false );
 
-    private static final Set<String> ALWAYS_LOADED = Set.of( "list-projects", "search" );
+    private static final Set<String> ALWAYS_LOADED = Set.of( "list-projects", "query" );
 
     private final Map<McpGroup, List<String>> registered =
         new McpTools( mock( ServiceFacade.class ), mock( SchemaProvider.class ), mock( GuillotineConfigService.class ) ).names();
@@ -46,7 +46,7 @@ public class McpDescriptorTest
             assertNotNull( getClass().getResource( controller ), controller );
             assertEquals( tools, ToolDescriptor.tools( group ).stream().map( tool -> tool.get( "name" ) ).toList(), group.groupName() );
         }
-        assertEquals( List.of( "list-projects", "list-types", "describe-type", "search", "get" ), registered.get( McpGroup.CONTENT ) );
+        assertEquals( List.of( "list-projects", "describe-type" ), registered.get( McpGroup.CONTENT ) );
         assertEquals( List.of( "query" ), registered.get( McpGroup.GRAPHQL ) );
         assertEquals( List.of( "find-unreferenced", "find-broken-references" ), registered.get( McpGroup.REFERENCES ) );
     }
