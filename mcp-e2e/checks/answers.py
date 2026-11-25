@@ -54,12 +54,11 @@ for branch in BRANCHES:
         check("Q2 anonymous term on modifier -> isError asking to sign in", readable_error(r, "signed-in", "sign in"), show(r))
 
     # Q3 unused images
-    if SIGNED_IN:
-        r = call("references", "find-unreferenced", {"types": ["media:image"], "branch": branch})
-        got = [i["_path"] for i in sc(r).get("items", [])]
-        check("Q3 %s unused images == expected.unusedImages.%s" % (branch, branch),
-              ok(r) and got == expected["unusedImages"][branch] and sc(r).get("total") == len(got) and
-              "content the caller can read" in sc(r).get("note", ""), show(r))
+    r = call("references", "find-unreferenced", {"types": ["media:image"], "branch": branch})
+    got = [i["_path"] for i in sc(r).get("items", [])]
+    check("Q3 %s unused images == expected.unusedImages.%s" % (branch, branch),
+          ok(r) and got == expected["unusedImages"][branch] and sc(r).get("total") == len(got) and
+          "content the caller can read" in sc(r).get("note", ""), show(r))
 
     # Q4 content in progress
     r = query("{ guillotine { queryDsl(query: %s, first: 50, sort: {field: \"_path\", direction: ASC}) { _path } } }"
@@ -81,31 +80,27 @@ for branch in BRANCHES:
           show(r))
 
     # Q6 broken links on landing pages
-    if SIGNED_IN:
-        r = call("references", "find-broken-references", {"types": ["landing"], "branch": branch})
-        items = {i["_path"]: i for i in sc(r).get("items", [])}
-        landings = sorted({b["landing"] for b in expected["brokenLinks"]})
-        dead = [b["targetId"] for b in expected["brokenLinks"] if b.get("targetId")]
-        check("Q6 %s broken references on landings == landings in expected.brokenLinks" % branch,
-              ok(r) and sorted(items) == landings, show(r))
-        check("Q6 %s one missing id per landing, the never-existing image id among them" % branch,
-              ok(r) and all(len(i["missing"]) == 1 for i in items.values()) and
-              items.get("/landings/landing-missing-image", {}).get("missing") == dead, show(r))
-        check("Q6 %s result says URL strings and external links are not checked" % branch,
-              "Not checked: external URLs and URL strings" in sc(r).get("note", ""), sc(r).get("note"))
-        deleted = items.get("/landings/landing-deleted-link", {}).get("missing", ["?"])[0]
-        r = query("{ guillotine { get(key: \"/landings/landing-deleted-link\") { ... on com_example_mcpdataset_Landing "
-                  "{ data { body { raw links { content { _path } } } } } } } }", branch)
-        body = (((guillotine(r).get("get") or {}).get("data") or {}).get("body")) or {}
-        contents = [link.get("content") for link in body.get("links") or []]
-        check("Q6 %s query get: the broken id is in the raw body, its link has no content, the other link resolves" % branch,
-              deleted in (body.get("raw") or "") and contents.count(None) == 1 and {"_path": "/articles/article-01"} in contents,
-              show(r))
+    r = call("references", "find-broken-references", {"types": ["landing"], "branch": branch})
+    items = {i["_path"]: i for i in sc(r).get("items", [])}
+    landings = sorted({b["landing"] for b in expected["brokenLinks"]})
+    dead = [b["targetId"] for b in expected["brokenLinks"] if b.get("targetId")]
+    check("Q6 %s broken references on landings == landings in expected.brokenLinks" % branch,
+          ok(r) and sorted(items) == landings, show(r))
+    check("Q6 %s one missing id per landing, the never-existing image id among them" % branch,
+          ok(r) and all(len(i["missing"]) == 1 for i in items.values()) and
+          items.get("/landings/landing-missing-image", {}).get("missing") == dead, show(r))
+    check("Q6 %s result says URL strings and external links are not checked" % branch,
+          "Not checked: external URLs and URL strings" in sc(r).get("note", ""), sc(r).get("note"))
+    deleted = items.get("/landings/landing-deleted-link", {}).get("missing", ["?"])[0]
+    r = query("{ guillotine { get(key: \"/landings/landing-deleted-link\") { ... on com_example_mcpdataset_Landing "
+              "{ data { body { raw links { content { _path } } } } } } } }", branch)
+    body = (((guillotine(r).get("get") or {}).get("data") or {}).get("body")) or {}
+    contents = [link.get("content") for link in body.get("links") or []]
+    check("Q6 %s query get: the broken id is in the raw body, its link has no content, the other link resolves" % branch,
+          deleted in (body.get("raw") or "") and contents.count(None) == 1 and {"_path": "/articles/article-01"} in contents,
+          show(r))
 
 if not SIGNED_IN:
-    for tool in ("find-unreferenced", "find-broken-references"):
-        r = call("references", tool, {})
-        check("Q3/Q6 anonymous %s -> isError asking to sign in" % tool, readable_error(r, "signed-in", "references tools"), show(r))
     r = call("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 1) { _id } } }", "branch": "draft"})
     check("anonymous draft -> isError: only published content", readable_error(r, "draft", "master"), show(r))
 

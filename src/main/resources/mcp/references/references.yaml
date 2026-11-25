@@ -1,14 +1,14 @@
 kind: MCP
 allow:
-  - role:system.authenticated
+  - role:system.everyone
 tools:
   - name: find-unreferenced
     title: Find unreferenced content
     description: >-
       Unused content, such as unused images or media: items of the given types (default: all media) that no content the caller can
       read references, in data, page and component configs, mixins or rich text. Lists the first items by path with the total
-      found. Covers only content the caller can read. Each call runs many backend queries, so it needs a signed-in caller and
-      checks at most 10,000 items within 20 seconds; incomplete is true when it stopped early.
+      found. Covers only content the caller can read. Each call runs many backend queries and checks at most 10,000 items within 20
+      seconds; incomplete is true when it stopped early.
     inputSchema:
       type: object
       properties:
@@ -88,8 +88,8 @@ tools:
       Broken links and references: content under a path or of given types that references content which is missing or which the
       caller cannot read, in data, page and component configs, mixins or rich text. Lists each such item with the missing ids.
       External URLs and URL strings in component configs are not checked, nor is validation: for invalid content, run query with
-      {term: {field: "valid", value: {boolean: false}}}. Each call reads up to 100 items within 20 seconds and runs many backend queries, so it
-      needs a signed-in caller; continue with nextCursor.
+      {term: {field: "valid", value: {boolean: false}}}. Each call reads up to 100 items within 20 seconds and runs many backend queries;
+      continue with nextCursor.
     inputSchema:
       type: object
       properties:

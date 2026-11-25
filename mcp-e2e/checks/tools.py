@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Every tool the caller may use: one successful call, at least two failing calls with a readable hint, the result envelope, paging
-and cursors. The references tools run only for a signed-in caller; access.py covers what anonymous callers get."""
+and cursors."""
 import base64
 import json
 import os
@@ -56,14 +56,11 @@ SUCCESS = [
      PRINCIPAL_ADVICE in s.get("note", "")),
     ("graphql", "query", {"query": "{ guillotine { queryDsl(query: {matchAll: {}}, first: 3) { _path displayName } } }"},
      lambda s: s.get("branch") == BRANCH and len(s.get("data", {}).get("guillotine", {}).get("queryDsl", [])) == 3),
+    ("references", "find-unreferenced", {}, lambda s: sorted(i["_path"] for i in s.get("items", [])) ==
+     expected["unusedImages"][BRANCH] and s.get("checked") == s.get("candidates") and "incomplete" not in s),
+    ("references", "find-broken-references", {"path": "/landings"},
+     lambda s: s.get("total") == 3 and len(s.get("items", [])) == 2 and "URL" in s.get("note", "")),
 ]
-if SIGNED_IN:
-    SUCCESS += [
-        ("references", "find-unreferenced", {}, lambda s: sorted(i["_path"] for i in s.get("items", [])) ==
-         expected["unusedImages"]["draft"] and s.get("checked") == s.get("candidates") and "incomplete" not in s),
-        ("references", "find-broken-references", {"path": "/landings"},
-         lambda s: s.get("total") == 3 and len(s.get("items", [])) == 2 and "URL" in s.get("note", "")),
-    ]
 for group, tool, arguments, verify in SUCCESS:
     r = call(group, tool, arguments)
     check("success: %s %s" % (tool, json.dumps(arguments)), ok(r) and verify(r["structuredContent"]), show(r))
@@ -100,16 +97,13 @@ FAILURES = [
      ["operationName", "A", "B"]),
     ("graphql", "query", {"query": open(os.path.join(E2E_DIR, "checks/introspection.graphql")).read()},
      ["depth", "limit of 10 nested levels"]),
+    ("references", "find-unreferenced", {"path": "images"}, ["path", "starts with /"]),
+    ("references", "find-unreferenced", {"count": 99}, ["count"]),
+    ("references", "find-unreferenced", {"project": "no-such-project"}, ["no-such-project"]),
+    ("references", "find-broken-references", {"cursor": "bad"}, ["cursor"]),
+    ("references", "find-broken-references", {"path": "/landings", "cursor": cursor_at(100)}, ["past the end"]),
+    ("references", "find-broken-references", {"branch": "live"}, ["branch"]),
 ]
-if SIGNED_IN:
-    FAILURES += [
-        ("references", "find-unreferenced", {"path": "images"}, ["path", "starts with /"]),
-        ("references", "find-unreferenced", {"count": 99}, ["count"]),
-        ("references", "find-unreferenced", {"project": "no-such-project"}, ["no-such-project"]),
-        ("references", "find-broken-references", {"cursor": "bad"}, ["cursor"]),
-        ("references", "find-broken-references", {"path": "/landings", "cursor": cursor_at(100)}, ["past the end"]),
-        ("references", "find-broken-references", {"branch": "live"}, ["branch"]),
-    ]
 errors = {}
 for group, tool, arguments, words in FAILURES:
     r = call(group, tool, arguments)
@@ -127,17 +121,17 @@ counts = [(sc(call("graphql", "query", {"query": VALID % v})).get("data") or {})
 check("query term valid true + valid false == total %d" % TOTAL, None not in counts and sum(counts) == TOTAL, counts)
 
 # Paging and cursors
-if SIGNED_IN:
-    r = call("references", "find-broken-references", {"cursor": cursor_at(40)})
-    s = sc(r)
-    check("find-broken-references cursor at offset 40 checks items 41-%d" % TOTAL,
-          ok(r) and s.get("checked") == TOTAL - 40 and "Checked items 41-%d of %d" % (TOTAL, TOTAL) in s.get("note", "") and
-          "nextCursor" not in s, show(r))
-    r = call("references", "find-unreferenced", {"count": 1})
-    s = sc(r)
-    check("find-unreferenced count 1 lists the first by path and says how many there are",
-          ok(r) and [i["_path"] for i in s.get("items", [])] == expected["unusedImages"]["draft"][:1] and
-          s.get("total") == len(expected["unusedImages"]["draft"]) and "Listed the first 1 of" in s.get("note", ""), show(r))
+OFFSET = TOTAL - 12
+r = call("references", "find-broken-references", {"cursor": cursor_at(OFFSET)})
+s = sc(r)
+check("find-broken-references cursor at offset %d checks items %d-%d" % (OFFSET, OFFSET + 1, TOTAL),
+      ok(r) and s.get("checked") == TOTAL - OFFSET and "Checked items %d-%d of %d" % (OFFSET + 1, TOTAL, TOTAL) in s.get("note", "") and
+      "nextCursor" not in s, show(r))
+r = call("references", "find-unreferenced", {"count": 1})
+s = sc(r)
+check("find-unreferenced count 1 lists the first by path and says how many there are",
+      ok(r) and [i["_path"] for i in s.get("items", [])] == expected["unusedImages"][BRANCH][:1] and
+      s.get("total") == len(expected["unusedImages"][BRANCH]) and "Listed the first 1 of" in s.get("note", ""), show(r))
 
 # describe-type on every dataset type and branch the caller reads; each example query runs as given through the query tool
 BRANCHES = ["draft", "master"] if SIGNED_IN else ["master"]

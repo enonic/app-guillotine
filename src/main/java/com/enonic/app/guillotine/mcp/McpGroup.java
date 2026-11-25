@@ -2,33 +2,24 @@ package com.enonic.app.guillotine.mcp;
 
 /**
  * Guillotine's MCP tool groups, one descriptor and controller each under {@code mcp/<name>/}. Every group declares
- * {@code allow: role:system.authenticated}. Until XP enforces {@code allow}, {@link McpTools} refuses anonymous callers itself, except
- * in groups an operator may open to them with {@code mcp.allowAnonymous}.
+ * {@code allow: role:system.everyone}; {@link McpTools} refuses anonymous callers in every group when {@code mcp.allowAnonymous} is false.
  */
 public enum McpGroup
 {
-    CONTENT( "content", true ),
-    GRAPHQL( "graphql", true ),
-    REFERENCES( "references", false );
+    CONTENT( "content" ),
+    GRAPHQL( "graphql" ),
+    REFERENCES( "references" );
 
     private final String groupName;
 
-    private final boolean anonymousOptIn;
-
-    McpGroup( final String groupName, final boolean anonymousOptIn )
+    McpGroup( final String groupName )
     {
         this.groupName = groupName;
-        this.anonymousOptIn = anonymousOptIn;
     }
 
     public String groupName()
     {
         return groupName;
-    }
-
-    public boolean anonymousOptIn()
-    {
-        return anonymousOptIn;
     }
 
     public static McpGroup from( final String name )

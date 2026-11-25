@@ -45,7 +45,7 @@ print(sum(1 for t in json.load(sys.stdin)["result"]["tools"] if t["name"].starts
 anonymous_open() { MCP_COOKIE= projects_ok; }
 anonymous_refused() {
     MCP_COOKIE= mcp_call tools/call "{\"name\":\"${GUILLOTINE_PREFIX}content__list-projects\",\"arguments\":{}}" |
-        grep -q 'mcp.allowAnonymous=true'
+        grep -q 'mcp.allowAnonymous=false'
 }
 query_truncated() {
     MCP_COOKIE= mcp_call tools/call "{\"name\":\"${GUILLOTINE_PREFIX}graphql__query\",\"arguments\":{\"query\":\"{ guillotine { queryDsl(query: {matchAll: {}}, first: 100) { _path displayName } } }\"}}" |
@@ -93,11 +93,11 @@ suite "access open" env MCP_CALLER=both ACCESS_COOKIE="$SIGNED" LOGOUT_COOKIE="$
 suite "permissions" python3 "$CHECKS/permissions.py"
 suite "elevation" python3 "$CHECKS/elevation.py"
 
-write_cfg "mcp.defaultProject=mcp-test"
+write_cfg "$BASE_CFG"$'\nmcp.allowAnonymous=false'
 if wait_for 30 anonymous_refused; then
     suite "access closed" env MCP_CALLER=both ACCESS_COOKIE="$SIGNED" python3 "$CHECKS/access.py" closed
 else
-    SUMMARY+=("FAIL  access closed (config without mcp.allowAnonymous not applied within 30s)"); fail=1
+    SUMMARY+=("FAIL  access closed (mcp.allowAnonymous=false not applied within 30s)"); fail=1
 fi
 
 write_cfg "$BASE_CFG"$'\nmcp.maxResultChars=2000'

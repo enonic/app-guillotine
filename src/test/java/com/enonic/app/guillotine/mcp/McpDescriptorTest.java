@@ -52,13 +52,13 @@ public class McpDescriptorTest
     }
 
     @Test
-    public void testEveryDescriptorAllowsSignedInUsersExplicitly()
+    public void testEveryDescriptorAllowsEveryone()
     {
         for ( final McpGroup group : describedGroups() )
         {
             final Map<String, Object> descriptor = ToolDescriptor.descriptor( group );
             assertEquals( "MCP", descriptor.get( "kind" ) );
-            assertEquals( List.of( "role:system.authenticated" ), descriptor.get( "allow" ), group.groupName() );
+            assertEquals( List.of( "role:system.everyone" ), descriptor.get( "allow" ), group.groupName() );
             assertEquals( Set.of( "kind", "allow", "tools" ), descriptor.keySet() );
         }
     }

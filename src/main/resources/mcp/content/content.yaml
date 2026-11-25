@@ -1,6 +1,6 @@
 kind: MCP
 allow:
-  - role:system.authenticated
+  - role:system.everyone
 tools:
   - name: list-projects
     title: List content projects

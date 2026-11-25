@@ -23,7 +23,7 @@ WARNING: XP's MCP server is in development and is not part of a released XP vers
 * An XP build with the MCP endpoint `/api/system:mcp`.
 * Guillotine installed on that XP. The tools are on by default; see <<configuration#mcp, MCP configuration>>.
 * An MCP client that supports protocol revision `2026-07-28` over HTTP.
-* For signed-in use, which most questions need: the standard ID provider app, which every XP distribution installs, to get a session; see <<#sign-in, Signing in>>.
+* For signed-in use, which reading `draft` needs: the standard ID provider app, which every XP distribution installs, to get a session; see <<#sign-in, Signing in>>.
 
 [#tools-overview]
 == Tools and groups
@@ -45,27 +45,27 @@ All tools are annotated as read-only, non-destructive, idempotent and closed-wor
 [#access]
 == Access
 
-Who may call:: Each group's descriptor declares `allow: role:system.authenticated`: the tools are meant for signed-in users. XP does not enforce `allow` yet, so Guillotine checks it itself and refuses anonymous callers with an error that says so. An operator can open the `content` and `graphql` groups to anonymous callers with <<configuration#mcp, `mcp.allowAnonymous=true`>>. The `references` group stays signed-in only, because each of its calls is costly.
+Who may call:: Anyone, signed in or anonymous: each group's descriptor declares `allow: role:system.everyone`. An operator can close every tool to anonymous callers with <<configuration#mcp, `mcp.allowAnonymous=false`>>; Guillotine then refuses their calls with an error that says so. The `references` tools run many backend queries per call; on an XP that anyone can reach, consider closing the tools to anonymous callers.
 
 What a caller can read:: Every call runs with the caller's own XP permissions; the tools never elevate them. Reading the `draft` branch needs a role in the project. An anonymous caller reads what is public, normally published content on `master`, and a request for `draft` fails. Filters, sorts and aggregations on `creator`, `modifier` and `owner` need a signed-in caller: they would tell an anonymous caller who changed which content, so `query` refuses them for anonymous calls (see <<permissions>>).
 
 [#permissions]
 === Permissions
 
-XP's content permissions, the ACL of each item, decide what every tool returns on both branches. Guillotine adds two rules of its own for anonymous callers: it refuses them where `mcp.allowAnonymous` is not set, and it refuses their filters, sorts and aggregations on `creator`, `modifier` and `owner`.
+XP's content permissions, the ACL of each item, decide what every tool returns on both branches. Guillotine adds two rules of its own for anonymous callers: it refuses them where `mcp.allowAnonymous=false` is set, and it refuses their filters, sorts and aggregations on `creator`, `modifier` and `owner`.
 
 [cols="2,3,3,2",options="header"]
 |===
 |Caller |`draft` |`master` |`references` group
 
-|Anonymous, `mcp.allowAnonymous` not set
-|Refused
-|Refused
-|Refused
-
-|Anonymous, `mcp.allowAnonymous=true`
+|Anonymous
 |Refused, with a hint to pass `branch: master`
 |Published items that everyone may read
+|`master` only
+
+|Anonymous, `mcp.allowAnonymous=false`
+|Refused
+|Refused
 |Refused
 
 |Signed in, no role in the project
@@ -143,9 +143,9 @@ claude mcp add --transport http xp http://localhost:8080/api/system:mcp \
   --header "Cookie: JSESSIONID=1gsqizxckew1211yv4aaxdkxti9"
 ----
 
-`xp` is the name the client gives the server; any name works. Add `--scope user` to make the server available in all your projects. When the session ends, the calls are anonymous again: the tools refuse them, or, with `mcp.allowAnonymous=true`, read published content only and `list-projects` reports `anonymous: true`. Sign in again, then remove the server with `claude mcp remove xp` and add it with the new cookie.
+`xp` is the name the client gives the server; any name works. Add `--scope user` to make the server available in all your projects. When the session ends, the calls are anonymous again: the tools read published content only and `list-projects` reports `anonymous: true`, or, with `mcp.allowAnonymous=false`, refuse them. Sign in again, then remove the server with `claude mcp remove xp` and add it with the new cookie.
 
-Without `--header`, Claude Code calls as an anonymous user, which works only where `mcp.allowAnonymous=true` is set.
+Without `--header`, Claude Code calls as an anonymous user and reads published content, unless `mcp.allowAnonymous=false` is set.
 
 To check the endpoint without a client, list its tools with cURL (add `-H 'Cookie: ...'` to call as a signed-in user):
 
@@ -325,7 +325,7 @@ A client chooses tools by itself, but these are the paths the tools are designed
 |Which content did I work on last?
 |`query` with a term filter on `modifier` with `caller.key` from `list-projects`, sorted by `modifiedTime DESC`; on `draft` it includes unpublished changes. This matches the last modifier. Needs a signed-in caller.
 |Which images are not used?
-|`find-unreferenced` with `types: ["media:image"]`. Needs a signed-in caller.
+|`find-unreferenced` with `types: ["media:image"]`.
 |Which content is in progress?
 |`query` with a term filter on `workflow.state` with `IN_PROGRESS` on `draft`. Needs a signed-in caller with a role in the project.
 |How many items of each content type are there?
@@ -335,7 +335,7 @@ A client chooses tools by itself, but these are the paths the tools are designed
 |Which posts go offline in the next 30 days?
 |`query` with a range filter on `publish.to`, `gte` today and `lte` in 30 days as `instant` values, selecting `publish { to }`.
 |Are there broken links on the landing pages?
-|`find-broken-references` with `path` or `types`, repeated with `nextCursor` until it is gone, then `query` with `get` on an item to see which link is broken. Links stored as URL strings are not checked. Needs a signed-in caller.
+|`find-broken-references` with `path` or `types`, repeated with `nextCursor` until it is gone, then `query` with `get` on an item to see which link is broken. Links stored as URL strings are not checked.
 |===
 
 For anything else, `describe-type` gives the fields of a type and example queries, and `query` runs a variant of one.
@@ -390,7 +390,7 @@ A failed call returns `isError: true` and one text: what was wrong, then what to
 [%header,cols="2,3"]
 |===
 |Message starts with |Meaning
-|`This tool needs a signed-in caller` |The call is anonymous. For `content` and `graphql`, sign in or ask the administrator to set `mcp.allowAnonymous=true`; `references` needs a signed-in caller in any case; with `mcp.allowAnonymous=true` the hint points anonymous callers to `query` and the `_references` index field instead.
+|`This tool needs a signed-in caller` |The call is anonymous and the administrator has set `mcp.allowAnonymous=false`. Sign in, or ask the administrator to remove that setting.
 |`Access denied: the caller cannot read branch draft` |Anonymous callers and users without a role in the project read `master` only.
 |`Project is required` |There is no `mcp.defaultProject` and not exactly one listed project. Pass `project`; when the user named none, the model should ask which one.
 |`Project '…' not found or not readable` |The project does not exist, or the caller cannot read it on that branch.
@@ -422,7 +422,7 @@ The tools are configured in `com.enonic.app.guillotine.cfg` with the `mcp.*` opt
 
 XP's MCP server is a development preview:
 
-* XP has no MCP sign-in yet (OAuth is planned); a session cookie is the way to call as a user. XP does not enforce a group's `allow` yet, so anonymous clients see all five tools in `tools/list`, and Guillotine refuses their calls itself.
+* XP has no MCP sign-in yet (OAuth is planned); a session cookie is the way to call as a user. XP does not enforce a group's `allow` yet, so anonymous clients see all five tools in `tools/list` even where `mcp.allowAnonymous=false` makes Guillotine refuse their calls.
 * XP drops `null` items from arrays in tool results, so a list in `query` data can be shorter than GraphQL returned, and positions can shift.
 
 In Guillotine:
