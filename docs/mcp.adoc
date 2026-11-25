@@ -92,7 +92,7 @@ For every caller and every tool:
 * `find-unreferenced` sees only references held by readable items, so an item that only unreadable content uses is listed; its `note` says so.
 * `creator`, `modifier` and `owner` as `query` fields resolve only for Content Studio users and administrators (see <<query>>). Filters, sorts and aggregations on those index fields, on their subfields such as `modifier._orderby`, and through wildcards that match them, work for every signed-in caller and count readable items only. An anonymous caller gets an error instead: in `query` for any `field`, `fields` or `propertyName` input and any `sort` string that names one of them, also through variables. Data fields with the same name, such as `data.owner`, are not affected. The GraphQL API over HTTP does not have this rule.
 
-One exception comes from XP: it builds page and media URLs with an administrator role. In a `query` document, `processedHtml` of a rich text field and `pageUrl` of its `links` therefore show the path of an unreadable link target and the file name of an unreadable image that a readable item embeds. Guillotine's GraphQL API over HTTP does the same. The `get` tool does not use these fields.
+One exception comes from XP: it builds page and media URLs with an administrator role. In a `query` document, `processedHtml` of a rich text field and `pageUrl` of its `links` therefore show the path of an unreadable link target and the file name of an unreadable image that a readable item embeds. Guillotine's GraphQL API over HTTP does the same.
 
 Guillotine's own code never reads with more rights than the caller in MCP calls. The GraphQL API over HTTP keeps two places where it does, and `query` reads both with the caller's permissions only:
 
@@ -306,7 +306,7 @@ Returns:: `total` (items in scope the caller can read), `checked` (items checked
     { "_id": "89b4…", "_path": "/landings/landing-deleted-link", "displayName": "Landing with deleted link", "type": "com.example.mcpdataset:landing", "missing": ["b5a1…"] },
     { "_id": "ca6f…", "_path": "/landings/landing-missing-image", "displayName": "Landing with missing image", "type": "com.example.mcpdataset:landing", "missing": ["00000000-0000-4000-8000-00000000dead"] }
   ],
-  "note": "Checked items 1-3 of 3 by path. missing lists referenced ids that are missing or that the caller cannot read. Checked: references to content in data, page and component configs, mixins and rich text. Not checked: external URLs and URL strings in component configs. To see where a reference sits, call get on the item (data and rich text) or query (page components)."
+  "note": "Checked items 1-3 of 3 by path. missing lists referenced ids that are missing or that the caller cannot read. Checked: references to content in data, page and component configs, mixins and rich text. Not checked: external URLs and URL strings in component configs. To see where a reference sits, run query with get(key: <_id>) on the item and select dataAsJson, pageAsJson or components."
 }
 ----
 
